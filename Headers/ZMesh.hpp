@@ -12,6 +12,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <string>
+#include <vector>
 
 // Class Definitions
 struct ZVertex {
@@ -28,5 +29,13 @@ struct ZTexture {
 class ZMesh {
   friend class ZModel;
 private:
-    virtual void Render();
+  unsigned int arrayObj_, bufferObj_, elementBufferObj_;
+  void Setup();
+public:
+  vector<ZVertex> vertices_;
+  vector<unsigned int> indices_;
+  vector<ZTexture> textures_;
+
+  ZMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<ZTexture> textures);
+  virtual void Render();
 };
