@@ -13,6 +13,10 @@ ifeq ($(shell uname -s),Darwin)
 	LDLIBS += -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo -framework CoreFoundation
 endif
 
+ifeq ($(OS),Windows_NT)
+	LDLIBS += -lGL -lgdi32
+endif
+
 
 $(shell mkdir $(OBJ_DIR))
 
