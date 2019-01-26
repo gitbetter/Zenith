@@ -7,8 +7,10 @@
 //
 
 #include "ZMesh.hpp"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-ZMesh::ZMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<ZTexture> textures) {
+ZMesh::ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, std::vector<ZTexture> textures) {
   vertices_ = vertices;
   indices_ = indices;
   textures_ = textures;

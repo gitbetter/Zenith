@@ -25,7 +25,6 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -44,7 +43,7 @@ int main(int argc, const char * argv[]) {
 
     glEnable(GL_DEPTH_TEST);
 
-    ZLogger::Log("hello world!", ZLoggerSeverity::Info);
+    ZLogger::Log("Zenith is about to loop", ZLoggerSeverity::Info);
 
     while(!glfwWindowShouldClose(window)) {
         glClearColor(0.3f, 0.1f, 0.0f, 1.0f);
@@ -59,5 +58,5 @@ int main(int argc, const char * argv[]) {
 }
 
 void glfwError(int id, const char* description) {
-    cout << description << endl;
+    ZLogger::Log(description, ZLoggerSeverity::Error);
 }

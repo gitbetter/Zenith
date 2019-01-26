@@ -32,10 +32,10 @@ private:
   unsigned int arrayObj_, bufferObj_, elementBufferObj_;
   void Setup();
 public:
-  vector<ZVertex> vertices_;
-  vector<unsigned int> indices_;
-  vector<ZTexture> textures_;
+  std::vector<ZVertex> vertices_;
+  std::vector<unsigned int> indices_;
+  std::vector<ZTexture> textures_;
 
-  ZMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<ZTexture> textures);
+  ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, std::vector<ZTexture> textures);
   virtual void Render();
 };
