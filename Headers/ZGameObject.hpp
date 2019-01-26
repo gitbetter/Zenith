@@ -12,17 +12,16 @@
 #include <glm/vec4.hpp>
 
 // Forward Declarations
-class ZGraphicsComponent;
 
 // Class Definitions
 class ZGameObject {
-public:
-    ZGameObject(ZGraphicsComponent* graphicsComponent);
-    ~ZGameObject();
-    virtual void Update();
-    virtual void Render(float frameMix);
-
 private:
-    glm::vec4 _worldPosition_;
-    ZGraphicsComponent* graphicsComponent_ = nullptr;
+  glm::vec4 worldPosition_;
+
+public:
+    virtual void Update() { };
+    virtual void Render(float frameMix) { };
+
+    void setWorldPosition(glm::vec4 position);
+    const glm::vec4& getWorldPosition();
 };

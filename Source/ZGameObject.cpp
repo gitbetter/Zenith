@@ -7,16 +7,11 @@
 //
 
 #include "ZGameObject.hpp"
-#include "ZGraphicsComponent.hpp"
 
-ZGameObject::ZGameObject(ZGraphicsComponent* graphicsComponent) {
-  graphicsComponent_ = graphicsComponent;
+void ZGameObject::setWorldPosition(glm::vec4 position){
+    worldPosition_ = position;
 }
 
-ZGameObject::~ZGameObject() { }
-
-void ZGameObject::Update() { }
-
-void ZGameObject::Render(float frameMix) {
-  graphicsComponent_->Update(frameMix);
+const glm::vec4& ZGameObject::getWorldPosition() {
+  return worldPosition_;
 }

@@ -17,9 +17,9 @@ class ZMesh;
 
 // Class Definitions
 class ZModel {
+private:
+  std::vector<ZMesh> meshes_;
+  
 public:
     virtual void Render();
-    
-private:
-    std::vector<ZMesh> meshes_;
 };

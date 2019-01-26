@@ -6,11 +6,9 @@
 //
 
 #include "ZGraphicsComponent.hpp"
-
-ZGraphicsComponent::ZGraphicsComponent()  {}
-ZGraphicsComponent::~ZGraphicsComponent() {}
+#include "ZModel.hpp"
 
 void ZGraphicsComponent::Update(float frameMix) {
   // TODO: Use frameMix to interpolate between frames
-  model->Render();
+  model_->Render();
 }
