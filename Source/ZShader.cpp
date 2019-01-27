@@ -135,3 +135,55 @@ void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shad
         ZLogger::Log("Shader Compilation Error: " + std::string(infoLog), ZLoggerSeverity::Error);
     }
 }
+
+void ZShader::Activate() {
+  glUseProgram(id_);
+}
+
+void ZShader::SetBool(const std::string& name, bool value) const {
+  glUniform1i(glGetUniformLocation(id_, name.c_str()), (int)value);
+}
+
+void ZShader::SetInt(const std::string& name, int value) const {
+  glUniform1i(glGetUniformLocation(id_, name.c_str()), (int)value);
+}
+
+void ZShader::SetFloat(const std::string& name, float value) const {
+  glUniform1f(glGetUniformLocation(id_, name.c_str()), (int)value);
+}
+
+void ZShader::SetVec2(const std::string& name, const glm::vec2& value) const {
+  glUniform2fv(glGetUniformLocation(id_, name.c_str()), 1, &value[0]);
+}
+
+void ZShader::SetVec2(const std::string& name, float x, float y) const {
+  glUniform2f(glGetUniformLocation(id_, name.c_str()), x, y);
+}
+
+void ZShader::SetVec3(const std::string& name, const glm::vec3& value) const {
+  glUniform3fv(glGetUniformLocation(id_, name.c_str()), 1, &value[0]);
+}
+
+void ZShader::SetVec3(const std::string& name, float x, float y, float z) const {
+  glUniform3f(glGetUniformLocation(id_, name.c_str()), x, y, z);
+}
+
+void ZShader::SetVec4(const std::string& name, const glm::vec4& value) const {
+  glUniform4fv(glGetUniformLocation(id_, name.c_str()), 1, &value[0]);
+}
+
+void ZShader::SetVec4(const std::string& name, float x, float y, float z, float w) const {
+  glUniform4f(glGetUniformLocation(id_, name.c_str()), x, y, z, w);
+}
+
+void ZShader::SetMat2(const std::string& name, const glm::mat2& value) const {
+  glUniformMatrix2fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
+}
+
+void ZShader::SetMat3(const std::string& name, const glm::mat3& value) const {
+  glUniformMatrix3fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
+}
+
+void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const {
+  glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
+}
