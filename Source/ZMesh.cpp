@@ -6,9 +6,11 @@
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
-#include "ZMesh.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include "ZMesh.hpp"
+#include "ZShader.hpp"
 
 ZMesh::ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, std::vector<ZTexture> textures) {
   vertices_ = vertices;
@@ -18,7 +20,7 @@ ZMesh::ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, s
   Setup();
 }
 
-void ZMesh::Render() {
+void ZMesh::Render(ZShader* shader) {
 
 }
 

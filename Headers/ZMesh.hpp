@@ -14,6 +14,9 @@
 #include <string>
 #include <vector>
 
+// Forward Declarations
+class ZShader;
+
 // Class Definitions
 struct ZVertex {
   glm::vec3 position;
@@ -37,5 +40,5 @@ public:
   std::vector<ZTexture> textures_;
 
   ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, std::vector<ZTexture> textures);
-  virtual void Render();
+  virtual void Render(ZShader* shader);
 };

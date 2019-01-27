@@ -19,8 +19,8 @@ private:
   glm::vec4 worldPosition_;
 
 public:
-    virtual void Update() { };
-    virtual void Render(float frameMix) { };
+    virtual void Update() { }
+    virtual void Render(float frameMix) { }
 
     void setWorldPosition(glm::vec4 position);
     const glm::vec4& getWorldPosition();

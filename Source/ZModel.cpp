@@ -8,9 +8,10 @@
 
 #include "ZModel.hpp"
 #include "ZMesh.hpp"
+#include "ZShader.hpp"
 
-void ZModel::Render() {
+void ZModel::Render(ZShader* shader) {
     for (unsigned int i = 0; i < meshes_.size(); i++) {
-        meshes_[i].Render();
+        meshes_[i].Render(shader);
     }
 }

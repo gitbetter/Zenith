@@ -10,5 +10,5 @@
 
 void ZGraphicsComponent::Update(float frameMix) {
   // TODO: Use frameMix to interpolate between frames
-  model_->Render();
+  model_->Render(shader_);
 }

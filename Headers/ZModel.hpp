@@ -14,12 +14,13 @@
 
 // Forward Declarations
 class ZMesh;
+class ZShader;
 
 // Class Definitions
 class ZModel {
 private:
   std::vector<ZMesh> meshes_;
-  
+
 public:
-    virtual void Render();
+    virtual void Render(ZShader* shader);
 };

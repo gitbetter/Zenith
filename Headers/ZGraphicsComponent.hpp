@@ -8,21 +8,22 @@
 #pragma once
 
 // Includes
-#include <iostream>
 
 // Forward Declarations
 class ZModel;
+class ZShader;
 
 // Class and Data Structure Definitions
 class ZGraphicsComponent {
 private:
 
 public:
-    ZGraphicsComponent() { };
-    ~ZGraphicsComponent() { };
+    ZGraphicsComponent() { }
+    ~ZGraphicsComponent() { }
 
     virtual void Update(float frameMix);
-    
+
 protected:
     ZModel* model_ = nullptr;
+    ZShader* shader_ = nullptr;
 };
