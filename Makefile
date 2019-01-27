@@ -1,6 +1,6 @@
 CXX=g++
 RM=rm -f
-CPPFLAGS=-Wall -g -IHeaders/Core -IHeaders/GameObjects -IHeaders/Graphics -IHeaders/Utility
+CPPFLAGS=-Wall -g -IHeaders/Core -IHeaders/GameObjects -IHeaders/Graphics -IHeaders/Utility -IHeaders/Windowing
 LDFLAGS=-g
 LDLIBS=-lglew -lglfw3
 SRC_DIR=Source
@@ -17,7 +17,7 @@ ifeq ($(OS),Windows_NT)
 	LDLIBS += -lGL -lgdi32
 endif
 
-$(shell mkdir $(OBJ_DIR))
+$(shell mkdir -p $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing})
 
 all: game
 
@@ -27,5 +27,7 @@ game: $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
+# TODO: Remove subdirectories as well for a clean slate
 clean:
 	$(RM) $(OBJS) game
+	#$(RM) $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing} game

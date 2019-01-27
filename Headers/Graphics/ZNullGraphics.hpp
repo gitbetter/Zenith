@@ -10,25 +10,32 @@
 
 // Includes
 #include "ZGraphics.hpp"
+#include "ZLogger.hpp"
+#include <vector>
 
 // Forward Declarations
-class SomeClass;
+class ZGameObject;
+class ZWindow;
 
 // Class and Data Structure Definitions
 class ZNullGraphics : public ZGraphics {
 private:
 
 public:
-    ZNullGraphics() {
-      ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
-    }
+    ZNullGraphics() { }
     ~ZNullGraphics() { }
 
-    void Draw() override {
+    void Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix) override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
+
     void Delete() override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
+    }
+
+    const ZWindow* GetWindow() {
+      ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
+      return nullptr; // Should we?
     }
 protected:
 

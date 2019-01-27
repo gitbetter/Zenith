@@ -9,16 +9,21 @@
 #pragma once
 
 // Includes
-// #include <iostream>
+#include <vector>
 
 // Forward Declarations
+class ZGameObject;
+class ZWindow;
 
 // Class and Data Structure Definitions
 class ZGraphics {
 private:
 public:
-  virtual void Draw() = 0
-  virtual void Delete() = 0
-protected:
+  virtual ~ZGraphics() { }
 
+  virtual void Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix = 0.0) = 0;
+  virtual void Delete() = 0;
+  virtual const ZWindow* GetWindow() = 0;
+protected:
+  ZWindow* window_ = nullptr;
 };

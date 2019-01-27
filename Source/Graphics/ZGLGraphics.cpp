@@ -7,48 +7,40 @@
 //
 
 #include "ZGLGraphics.hpp"
+#include "ZGLWindow.hpp"
 #include "ZLogger.hpp"
+#include "ZGameObject.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 
-ZGLGraphics::ZGraphics(int windowWidth, int windowHeight) {
-  glfwSetErrorCallback(GLFWErrorCallback);
-
-  glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-  window_ = glfwCreateWindow(windowWidth, windowHeight, "Starter", NULL, NULL);
-  if (window_ == NULL) {
-      ZLogger::Log("Could not create glfw window", ZLoggerSeverity::Error);
-      glfwTerminate();
-  }
-  glfwMakeContextCurrent(window_);
-
-  glewExperimental = GL_TRUE;
-  glewInit();
-
-  glEnable(GL_DEPTH_TEST);
+ZGLGraphics::ZGLGraphics(int windowWidth, int windowHeight) {
+  window_ = new ZGLWindow(windowWidth, windowHeight);
 }
 
-void ZGLGraphics::Draw() override {
-  if (!glfwWindowShouldClose(window)) {
+ZGLGraphics::~ZGLGraphics() {
+  Delete();
+}
+
+void ZGLGraphics::Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix) {
+  if (!window_->WindowShouldClose()) {
     glClearColor(0.3f, 0.1f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glfwSwapBuffers(window_);
-    glfwPollEvents();
+    for (unsigned int i = 0; i < gameObjects.size(); i++) {
+        gameObjects[i]->Render(frameMix);
+    }
+
+    window_->SwapBuffers();
   }
 }
 
-void ZGLGraphics::Delete() override {
+void ZGLGraphics::Delete() {
+  window_->Destroy();
+  delete window_;
   glfwTerminate();
 }
 
-void ZGLGraphics::GLFWErrorCallback(int id, const char* description) {
-  ZLogger::Log(description, ZLoggerSeverity::Error);
-}
+const ZWindow* ZGLGraphics::GetWindow() {
+  return window_;
+};

@@ -8,20 +8,23 @@
 
 #include "ZGame.hpp"
 #include "ZEngine.hpp"
+#include "ZGraphics.hpp"
+#include "ZWindow.hpp"
 #include "ZGameObject.hpp"
+#include "ZLogger.hpp"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #include <chrono>
 using namespace std;
 
-ZGame::ZGame() {
-
-}
+ZGame::ZGame() { }
 
 void ZGame::RunGameLoop() {
-  running_ = true;
+  ZLogger::Log("Zenith is about to loop...", ZLoggerSeverity::Info);
   float previousTime = chrono::high_resolution_clock::now().time_since_epoch().count();
   float lag = 0.0f;
-  while (running_) {
+  while (!ZEngine::GetGraphics()->GetWindow()->WindowShouldClose()) {
       int fixedUpdates = 0;
       float currentTime = chrono::high_resolution_clock::now().time_since_epoch().count();
       float elapsedTime = currentTime - previousTime;
@@ -33,17 +36,16 @@ void ZGame::RunGameLoop() {
       }
 
       Render(lag / ZEngine::MS_PER_UPDATE);
+      glfwPollEvents(); // TODO: Move this into an input subsystem
   }
 }
 
 void ZGame::Update() {
-    for (unsigned int i = 0; i < gameObjects_.size(); i++) {
-        gameObjects_[i]->Update();
-    }
+  for (unsigned int i = 0; i < gameObjects_.size(); i++) {
+      gameObjects_[i]->Update();
+  }
 }
 
 void ZGame::Render(float frameMix) {
-    for (unsigned int i = 0; i < gameObjects_.size(); i++) {
-        gameObjects_[i]->Render(frameMix);
-    }
+  ZEngine::GetGraphics()->Draw(gameObjects_);
 }

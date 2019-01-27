@@ -22,7 +22,7 @@ private:
 
 public:
   ZGOCharacter(ZGraphicsComponent* graphicsComponent);
-  ~ZGOCharacter() { };
+  ~ZGOCharacter() { }
 
   virtual void Update() override { };
   virtual void Render(float frameMix) override;

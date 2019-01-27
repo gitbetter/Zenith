@@ -13,12 +13,13 @@
 
 // Forward Declarations
 class ZGameObject;
+class GLFWwindow;
 
 // Class and Data Structure Definitions
 class ZGame {
 private:
-  bool running_ = false;
   std::vector<ZGameObject*> gameObjects_;
+
 public:
   ZGame();
   ~ZGame() { };
