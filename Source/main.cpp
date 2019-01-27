@@ -6,57 +6,18 @@
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-
-#include "ZLogger.hpp"
-
-using namespace std;
-
-void glfwError(int id, const char* description);
+#include "ZEngine.hpp"
+#include "ZGame.hpp"
+#include "ZGLGraphics.hpp"
 
 int main(int argc, const char * argv[]) {
+  // Create the graphics subsystem and provide it to the engine
+  ZGLGraphics graphics(800, 600);
+  ZEngine::Provide(graphics);
 
-    glfwSetErrorCallback(glfwError);
-
-    glfwInit();
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Starter", NULL, NULL);
-    if (window == NULL) {
-        ZLogger::Log("Could not create glfw window", ZLoggerSeverity::Error);
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    glewExperimental = GL_TRUE;
-    glewInit();
-
-    glEnable(GL_DEPTH_TEST);
-
-    ZLogger::Log("Zenith is about to loop", ZLoggerSeverity::Info);
-
-    while(!glfwWindowShouldClose(window)) {
-        glClearColor(0.3f, 0.1f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    glfwTerminate();
-    return 0;
-}
-
-void glfwError(int id, const char* description) {
-    ZLogger::Log(description, ZLoggerSeverity::Error);
+  // TODO: Create the input subsystem and provide it to the engine
+  // TODO: Create the physics subsystem and provide it to the engine
+  // TODO: Create the audio subsystem and provide it to the engine
+  
+  return 0;
 }

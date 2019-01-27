@@ -1,12 +1,12 @@
 CXX=g++
 RM=rm -f
-CPPFLAGS=-Wall -g -IHeaders
+CPPFLAGS=-Wall -g -IHeaders/Core -IHeaders/GameObjects -IHeaders/Graphics -IHeaders/Utility
 LDFLAGS=-g
-LDLIBS=-lglew -lglfw3 
+LDLIBS=-lglew -lglfw3
 SRC_DIR=Source
 OBJ_DIR=Bin
 
-CPP=$(wildcard $(SRC_DIR)/*.cpp)
+CPP=$(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp)
 OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP))
 
 ifeq ($(shell uname -s),Darwin)
@@ -16,7 +16,6 @@ endif
 ifeq ($(OS),Windows_NT)
 	LDLIBS += -lGL -lgdi32
 endif
-
 
 $(shell mkdir $(OBJ_DIR))
 
