@@ -22,11 +22,14 @@ struct ZVertex {
   glm::vec3 position;
   glm::vec3 normal;
   glm::vec2 uv;
+  glm::vec3 tangent;
+  glm::vec3 bitangent;
 };
 
 struct ZTexture {
   unsigned int id;
   std::string type;
+  std::string path;
 };
 
 class ZMesh {
@@ -40,5 +43,6 @@ public:
   std::vector<ZTexture> textures_;
 
   ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, std::vector<ZTexture> textures);
+  
   virtual void Render(ZShader* shader);
 };
