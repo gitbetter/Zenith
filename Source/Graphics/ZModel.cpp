@@ -9,6 +9,11 @@
 #include "ZModel.hpp"
 #include "ZMesh.hpp"
 #include "ZShader.hpp"
+#include "ZModelImporter.hpp"
+
+ZModel::ZModel(std::string path) {
+  ZModelImporter::LoadModel(path, meshes_);
+}
 
 void ZModel::Render(ZShader* shader) {
     for (unsigned int i = 0; i < meshes_.size(); i++) {

@@ -17,6 +17,8 @@ ifeq ($(OS),Windows_NT)
 	LDLIBS += -lGL -lgdi32
 endif
 
+LDLIBS += -lassimp
+
 $(shell mkdir -p $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing})
 
 all: game

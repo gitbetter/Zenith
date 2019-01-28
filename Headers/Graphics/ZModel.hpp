@@ -9,11 +9,13 @@
 #pragma once
 
 // Includes
+#include "ZMesh.hpp"
 #include <glm/vec4.hpp>
 #include <vector>
+#include <string>
 
 // Forward Declarations
-class ZMesh;
+//class ZMesh;
 class ZShader;
 
 // Class Definitions
@@ -22,5 +24,8 @@ private:
   std::vector<ZMesh> meshes_;
 
 public:
+    ZModel(std::string path);
+    ~ZModel() { }
+
     virtual void Render(ZShader* shader);
 };
