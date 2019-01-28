@@ -1,10 +1,10 @@
 CXX=g++
 RM=rm -rf
-CPPFLAGS=-Wall -g -IHeaders/Core -IHeaders/GameObjects -IHeaders/Graphics -IHeaders/Utility -IHeaders/Windowing
+CPPFLAGS= -std=c++11 -Wall -g -I_Headers/Core -I_Headers/GameObjects -I_Headers/Graphics -I_Headers/Utility -I_Headers/Windowing -I_Headers/Input
 LDFLAGS=-g
 LDLIBS=-lglew -lglfw3
-SRC_DIR=Source
-OBJ_DIR=Bin
+SRC_DIR=_Source
+OBJ_DIR=_Bin
 
 CPP=$(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp)
 OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP))
@@ -19,7 +19,7 @@ endif
 
 LDLIBS += -lassimp
 
-$(shell mkdir -p $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing})
+$(shell mkdir -p $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing,Input})
 
 all: game
 
@@ -30,4 +30,4 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	$(RM) $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing,*.o} game
+	$(RM) $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing,Input,*.o} game
