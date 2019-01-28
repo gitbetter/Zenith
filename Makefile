@@ -1,5 +1,5 @@
 CXX=g++
-RM=rm -f
+RM=rm -rf
 CPPFLAGS=-Wall -g -IHeaders/Core -IHeaders/GameObjects -IHeaders/Graphics -IHeaders/Utility -IHeaders/Windowing
 LDFLAGS=-g
 LDLIBS=-lglew -lglfw3
@@ -29,7 +29,5 @@ game: $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-# TODO: Remove subdirectories as well for a clean slate
 clean:
-	$(RM) $(OBJS) game
-	#$(RM) $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing} game
+	$(RM) $(OBJ_DIR)/{Core,GameObjects,Graphics,Utility,Windowing,*.o} game
