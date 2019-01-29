@@ -21,6 +21,5 @@ enum ZLoggerSeverity {
 
 class ZLogger {
 public:
-    static void Log(std::string message, ZLoggerSeverity severity);
+    static void Log(std::string message, ZLoggerSeverity severity = ZLoggerSeverity::Info);
 };
-

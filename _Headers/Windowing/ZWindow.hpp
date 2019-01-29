@@ -23,6 +23,7 @@ public:
   virtual ~ZWindow() { }
 
   virtual bool WindowShouldClose() const = 0;
+  virtual void PollEvents() const = 0;
   virtual void SwapBuffers() const = 0;
   virtual void Destroy() = 0;
 protected:

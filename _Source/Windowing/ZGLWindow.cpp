@@ -45,6 +45,10 @@ void ZGLWindow::SwapBuffers() const {
   glfwSwapBuffers(window_);
 }
 
+void ZGLWindow::PollEvents() const {
+  glfwPollEvents();
+}
+
 bool ZGLWindow::WindowShouldClose() const {
   return glfwWindowShouldClose(window_);
 }

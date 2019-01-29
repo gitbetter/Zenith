@@ -15,11 +15,12 @@
 #include "ZIEscapeCommand.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cassert>
 
 void ZGLInput::ProcessInput() {
   // Get the window and make sure it is a ZGLWindow (since this is ZGLInput)
   const ZGLWindow* glWindow = dynamic_cast<const ZGLWindow*>(ZEngine::GetGraphics()->GetWindow());
-  if (!glWindow) return;
+  assert(glWindow);
 
   GLFWwindow* windowHandle = glWindow->GetHandle();
   // Todo: Flyweight the commands

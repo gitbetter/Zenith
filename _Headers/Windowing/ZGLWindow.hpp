@@ -28,6 +28,7 @@ public:
   virtual ~ZGLWindow() { }
 
   virtual bool WindowShouldClose() const override;
+  virtual void PollEvents() const override;
   virtual void SwapBuffers() const override;
   virtual void Destroy() override;
 

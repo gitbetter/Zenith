@@ -10,10 +10,9 @@
 #include "ZEngine.hpp"
 #include "ZGraphics.hpp"
 #include "ZWindow.hpp"
+#include "ZInput.hpp"
 #include "ZGameObject.hpp"
 #include "ZLogger.hpp"
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 #include <chrono>
 using namespace std;
@@ -25,18 +24,20 @@ void ZGame::RunGameLoop() {
   float previousTime = chrono::high_resolution_clock::now().time_since_epoch().count();
   float lag = 0.0f;
   while (!ZEngine::GetGraphics()->GetWindow()->WindowShouldClose()) {
-      int fixedUpdates = 0;
-      float currentTime = chrono::high_resolution_clock::now().time_since_epoch().count();
-      float elapsedTime = currentTime - previousTime;
-      lag += elapsedTime;
+    ZEngine::GetInput()->ProcessInput();
 
-      while (lag >= ZEngine::MS_PER_UPDATE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
-          Update();
-          lag -= ZEngine::MS_PER_UPDATE;
-      }
+    int fixedUpdates = 0;
+    float currentTime = chrono::high_resolution_clock::now().time_since_epoch().count();
+    float elapsedTime = currentTime - previousTime;
+    lag += elapsedTime;
 
-      Render(lag / ZEngine::MS_PER_UPDATE);
-      glfwPollEvents(); // TODO: Move this into an input subsystem
+    while (lag >= ZEngine::MS_PER_UPDATE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
+        Update();
+        lag -= ZEngine::MS_PER_UPDATE;
+    }
+
+    Render(lag / ZEngine::MS_PER_UPDATE);
+    ZEngine::GetGraphics()->GetWindow()->PollEvents();
   }
 }
 
@@ -48,4 +49,8 @@ void ZGame::Update() {
 
 void ZGame::Render(float frameMix) {
   ZEngine::GetGraphics()->Draw(gameObjects_, frameMix);
+}
+
+void ZGame::HandleUpDown(float controlThrow) {
+  ZLogger::Log("UpDown key pressed", ZLoggerSeverity::Info);
 }

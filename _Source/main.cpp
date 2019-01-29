@@ -13,6 +13,8 @@
 #include "ZGLInput.hpp"
 
 int main(int argc, const char * argv[]) {
+  // Create a new game instance
+  ZGame game;
   // Create the graphics subsystem and provide it to the engine
   ZGLGraphics graphics(800, 600);
   ZEngine::Provide(graphics);
@@ -22,8 +24,10 @@ int main(int argc, const char * argv[]) {
   // TODO: Create the physics subsystem and provide it to the engine
   // TODO: Create the audio subsystem and provide it to the engine
 
+  // Register the top level game ZGameObject to listen for input events
+  input.Register(game);
+
   // Create the game and start the main game loop
-  ZGame game;
   game.RunGameLoop();
 
   return 0;
