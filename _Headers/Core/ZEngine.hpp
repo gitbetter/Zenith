@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include <glm/vec3.hpp>
 
 // Forward Declarations
 class ZGraphics;
@@ -22,6 +23,7 @@ private:
 public:
   static const float MS_PER_UPDATE;
   static const int MAX_FIXED_UPDATE_ITERATIONS;
+  static const glm::vec3 WORLD_UP;
 
   static ZGraphics* GetGraphics();
   static ZInput* GetInput();

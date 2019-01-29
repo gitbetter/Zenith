@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include <glm/vec4.hpp>
+#include <glm/glm.hpp>
 
 // Forward Declarations
 class ZCommandComponent;
@@ -17,9 +17,11 @@ class ZCommandComponent;
 // Class Definitions
 class ZGameObject {
 private:
-  glm::vec4 worldPosition_; // TODO: Set initially to zero vector
+  void CalculateTangentBasis();
 
 public:
+  ZGameObject(glm::vec3 position = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f))
+  : position_(position), front_(glm::vec3(0.0f, 0.0f, -1.0f)), up_(up) { CalculateTangentBasis(); }
   virtual ~ZGameObject() { }
 
   virtual void Update() { }
@@ -31,8 +33,14 @@ public:
   virtual void HandleFire() { }
   virtual void HandleEscape() { }
 
-  void SetWorldPosition(glm::vec4 position) { worldPosition_ = position; }
-  const glm::vec4& GetWorldPosition() { return worldPosition_; }
+  void SetPosition(glm::vec3 position) { position_ = position; }
+  void SetFrontVector(glm::vec3 front);
+
+  const glm::vec3& GetPosition() { return position_; }
+  const glm::vec3& GetFrontVector() { return front_; }
+  const glm::vec3& GetUpVector() { return up_; }
+  const glm::vec3& GetRightVector() { return right_; }
 
 protected:
+  glm::vec3 position_, front_, up_, right_;
 };

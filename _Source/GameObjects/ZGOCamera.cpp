@@ -7,3 +7,8 @@
 //
 
 #include "ZGOCamera.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+
+glm::mat4 ZGOCamera::GetViewMatrix() {
+  return glm::lookAt(position_, position_ + front_, up_);
+}

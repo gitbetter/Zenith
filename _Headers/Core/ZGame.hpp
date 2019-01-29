@@ -25,8 +25,6 @@ public:
 
   void RunGameLoop();
 
-  virtual void HandleUpDown(float controlThrow) override;
-
 protected:
   void Update() override;
   void Render(float frameMix) override;

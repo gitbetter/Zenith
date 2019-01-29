@@ -50,7 +50,3 @@ void ZGame::Update() {
 void ZGame::Render(float frameMix) {
   ZEngine::GetGraphics()->Draw(gameObjects_, frameMix);
 }
-
-void ZGame::HandleUpDown(float controlThrow) {
-  ZLogger::Log("UpDown key pressed", ZLoggerSeverity::Info);
-}
