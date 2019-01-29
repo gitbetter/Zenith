@@ -1,5 +1,5 @@
 //
-//  ZInputComponent.hpp
+//  ZInputCommand.hpp
 //  Zenith
 //
 //  Created by Adrian Sanchez on 28/01/2019.
@@ -12,16 +12,15 @@
 #include <iostream>
 
 // Forward Declarations
-// class SomeClass;
+class ZGameObject;
 
 // Class and Data Structure Definitions
-class ZInputComponent {
+class ZInputCommand {
 private:
 public:
-    ZInputComponent();
-    ~ZInputComponent();
-
-    // TODO: Create event method that will be called by ZInput (observer pattern)
+  ZInputCommand(float controlThrow = 0.0) : controlThrow_(controlThrow) { }
+  virtual ~ZInputCommand() { }
+  virtual void Execute(ZGameObject* gameObject) const = 0;
 protected:
-
+  float controlThrow_ = 0.0;
 };

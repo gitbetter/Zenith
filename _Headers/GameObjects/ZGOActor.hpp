@@ -1,5 +1,5 @@
 //
-//  ZGOCharacter.hpp
+//  ZGOActor.hpp
 //  Zenith
 //
 //  Created by Adrian Sanchez on 26/01/2019.
@@ -16,13 +16,13 @@
 class ZGraphicsComponent;
 
 // Class and Data Structure Definitions
-class ZGOCharacter : public ZGameObject {
+class ZGOActor : public ZGameObject {
 private:
   ZGraphicsComponent* graphicsComponent_ = nullptr;
 
 public:
-  ZGOCharacter(ZGraphicsComponent* graphicsComponent) : graphicsComponent_(graphicsComponent) { }
-  ~ZGOCharacter() { }
+  ZGOActor(ZGraphicsComponent* graphicsComponent) : graphicsComponent_(graphicsComponent) { }
+  ~ZGOActor() { }
 
   virtual void Update() override { };
   virtual void Render(float frameMix) override;

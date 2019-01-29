@@ -8,6 +8,7 @@
 #pragma once
 
 // Includes
+#include "ZComponent.hpp"
 #include <vector>
 
 // Forward Declarations
@@ -15,7 +16,7 @@ class ZModel;
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZGraphicsComponent {
+class ZGraphicsComponent : ZComponent {
 private:
   unsigned int currentShaderIndex_ = 0;
 

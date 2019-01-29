@@ -7,6 +7,15 @@
 //
 
 #include "ZInput.hpp"
+#include "ZGameObject.hpp"
+#include "ZInputCommand.hpp"
 
-ZInput::ZInput()  {}
-ZInput::~ZInput() {}
+void ZInput::Register(ZGameObject& gameObject) {
+  registeredObjects_.push_back(&gameObject);
+}
+
+void ZInput::Broadcast(const ZInputCommand& command) {
+  for (ZGameObject* object : registeredObjects_) {
+    command.Execute(object);
+  }
+}

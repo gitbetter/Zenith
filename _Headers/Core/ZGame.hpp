@@ -9,14 +9,13 @@
 #pragma once
 
 // Includes
+#include "ZGameObject.hpp"
 #include <vector>
 
 // Forward Declarations
-class ZGameObject;
-struct GLFWwindow;
 
 // Class and Data Structure Definitions
-class ZGame {
+class ZGame : public ZGameObject {
 private:
   std::vector<ZGameObject*> gameObjects_;
 

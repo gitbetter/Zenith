@@ -9,19 +9,21 @@
 #pragma once
 
 // Includes
-#include <iostream>
+#include <vector>
 
 // Forward Declarations
-// class SomeClass;
+class ZGameObject;
+class ZInputCommand;
 
 // Class and Data Structure Definitions
 class ZInput {
 private:
 public:
-    ZInput();
-    ~ZInput();
+  virtual ~ZInput() { }
 
-    // TODO: Create a register method to register input components to notify (observer pattern)
+  virtual void Register(ZGameObject& gameObject);
+  virtual void Broadcast(const ZInputCommand& command);
+  virtual void ProcessInput() = 0;
 protected:
-
+  std::vector<ZGameObject*> registeredObjects_;
 };

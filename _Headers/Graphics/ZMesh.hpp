@@ -35,7 +35,7 @@ struct ZTexture {
 class ZMesh {
   friend class ZModel;
 private:
-  unsigned int arrayObj_, bufferObj_, elementBufferObj_;
+  unsigned int vao_, vbo_, ebo_;
   void Setup();
 public:
   std::vector<ZVertex> vertices_;

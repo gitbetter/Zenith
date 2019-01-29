@@ -1,5 +1,5 @@
 //
-//  ZGLInput.hpp
+//  ZIEscapeCommand.hpp
 //  Zenith
 //
 //  Created by Adrian Sanchez on 28/01/2019.
@@ -9,16 +9,17 @@
 #pragma once
 
 // Includes
-#include "ZInput.hpp"
+#include "ZInputCommand.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZGameObject;
 
 // Class and Data Structure Definitions
-class ZGLInput : public ZInput {
+class ZIEscapeCommand : public ZInputCommand {
 private:
 public:
-    void ProcessInput() override;
+  ZIEscapeCommand() { }
+  virtual void Execute(ZGameObject* gameObject) const override;
 protected:
 
 };

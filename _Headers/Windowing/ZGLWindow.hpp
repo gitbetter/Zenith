@@ -30,6 +30,8 @@ public:
   virtual bool WindowShouldClose() const override;
   virtual void SwapBuffers() const override;
   virtual void Destroy() override;
+
+  GLFWwindow* GetHandle() const { return window_; }
 protected:
 
 };

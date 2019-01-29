@@ -10,19 +10,15 @@
 
 // Includes
 #include "ZGameObject.hpp"
-#include <iostream>
 
 // Forward Declarations
 class ZInputComponent;
 
 // Class and Data Structure Definitions
-class ZGOCamera : ZGameObject {
+class ZGOCamera : public ZGameObject {
 private:
 public:
-    ZGOCamera(ZInputComponent* inputComponent);
-    ~ZGOCamera() { }
-
-    virtual void Update() override;
+    virtual void Update() override { }
     virtual void Render(float frameMix) override { };
 protected:
 

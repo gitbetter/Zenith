@@ -1,5 +1,5 @@
 //
-//  ZGLInput.hpp
+//  ZComponent.hpp
 //  Zenith
 //
 //  Created by Adrian Sanchez on 28/01/2019.
@@ -9,16 +9,16 @@
 #pragma once
 
 // Includes
-#include "ZInput.hpp"
+#include <vector>
 
 // Forward Declarations
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZGLInput : public ZInput {
+class ZComponent {
 private:
 public:
-    void ProcessInput() override;
-protected:
+  virtual ~ZComponent() { }
 
+protected:
 };

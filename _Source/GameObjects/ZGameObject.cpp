@@ -7,11 +7,3 @@
 //
 
 #include "ZGameObject.hpp"
-
-void ZGameObject::setWorldPosition(glm::vec4 position){
-    worldPosition_ = position;
-}
-
-const glm::vec4& ZGameObject::getWorldPosition() {
-  return worldPosition_;
-}

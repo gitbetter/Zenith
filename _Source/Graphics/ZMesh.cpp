@@ -12,6 +12,8 @@
 #include "ZMesh.hpp"
 #include "ZShader.hpp"
 
+// TODO: Create enums for OGL layout attributes and magic numbers
+
 ZMesh::ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, std::vector<ZTexture> textures)
 : vertices_(vertices), indices_(indices), textures_(textures) {
   Setup();
@@ -40,7 +42,7 @@ void ZMesh::Render(ZShader* shader) {
   }
 
   // Draw the mesh
-  glBindVertexArray(arrayObj_);
+  glBindVertexArray(vao_);
   glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, 0);
 
   // Clean things up
@@ -49,39 +51,39 @@ void ZMesh::Render(ZShader* shader) {
 }
 
 void ZMesh::Setup() {
-  glGenVertexArrays(1, &arrayObj_);
-  glGenBuffers(1, &bufferObj_);
-  glGenBuffers(1, &elementBufferObj_);
+  glGenVertexArrays(1, &vao_);
+  glGenBuffers(1, &vbo_);
+  glGenBuffers(1, &ebo_);
 
-  glBindVertexArray(arrayObj_);
+  glBindVertexArray(vao_);
 
   // Bind the buffer object and set the vertex data
-  glBindBuffer(GL_ARRAY_BUFFER, bufferObj_);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo_);
   glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(ZVertex), &vertices_[0], GL_STATIC_DRAW);
 
   //  Bind the element buffer object (for indexed drawing) and set the index data
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObj_);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * sizeof(unsigned int), &indices_[0], GL_STATIC_DRAW);
 
   // Vertex position vector
-  glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)0);
+  glEnableVertexAttribArray(0);
 
   // Vertex normal vector
-  glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)offsetof(ZVertex, normal));
+  glEnableVertexAttribArray(1);
 
   // Vertex textures coordinates
-  glEnableVertexAttribArray(2);
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)offsetof(ZVertex, uv));
+  glEnableVertexAttribArray(2);
 
   // Vertex tangent vector
-  glEnableVertexAttribArray(3);
   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)offsetof(ZVertex, tangent));
+  glEnableVertexAttribArray(3);
 
   // Vertex bitangent vector (the tangent to the tangent, but not the normal)
-  glEnableVertexAttribArray(4);
   glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)offsetof(ZVertex, bitangent));
+  glEnableVertexAttribArray(4);
 
   glBindVertexArray(0);
 }
