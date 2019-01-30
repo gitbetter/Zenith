@@ -30,6 +30,8 @@ public:
   virtual void HandleStrafe(float controlThrow) { }
   virtual void HandleUpDown(float controlThrow) { }
   virtual void HandleForwardBack(float controlThrow) { }
+  virtual void HandlePitch(float controlThrow) { }
+  virtual void HandleYaw(float controlThrow) { }
   virtual void HandleFire() { }
   virtual void HandleEscape() { }
 

@@ -26,6 +26,9 @@ public:
   virtual void PollEvents() const = 0;
   virtual void SwapBuffers() const = 0;
   virtual void Destroy() = 0;
+
+  int GetWidth() const { return width_; }
+  int GetHeight() const { return height_; }
 protected:
   int width_, height_;
 };

@@ -1,5 +1,5 @@
 //
-//  ZGLInput.hpp
+//  ZIUpDownCommand.hpp
 //  Zenith
 //
 //  Created by Adrian Sanchez on 28/01/2019.
@@ -9,17 +9,17 @@
 #pragma once
 
 // Includes
-#include "ZInput.hpp"
+#include "ZInputCommand.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZGameObject;
 
 // Class and Data Structure Definitions
-class ZGLInput : public ZInput {
+class ZIYawCommand : public ZInputCommand {
 private:
-  double lastPitch_, lastYaw_;
 public:
-  void ProcessInput() override;
+  ZIYawCommand(float controlThrow) : ZInputCommand(controlThrow) { }
+  virtual void Execute(ZGameObject* gameObject) const override;
 protected:
 
 };

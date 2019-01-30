@@ -13,6 +13,8 @@
 #include "ZIStrafeCommand.hpp"
 #include "ZIUpDownCommand.hpp"
 #include "ZIEscapeCommand.hpp"
+#include "ZIPitchCommand.hpp"
+#include "ZIYawCommand.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -33,4 +35,11 @@ void ZGLInput::ProcessInput() {
   if (glfwGetKey(windowHandle, GLFW_KEY_TAB) == GLFW_PRESS)
   ;
   if (glfwGetKey(windowHandle, GLFW_KEY_ESCAPE) == GLFW_PRESS) Broadcast(ZIEscapeCommand());
+
+  double yaw, pitch;
+  glfwGetCursorPos(windowHandle, &yaw, &pitch);
+  if (yaw != lastYaw_) Broadcast(ZIYawCommand(yaw));
+  if (pitch != lastPitch_) Broadcast(ZIPitchCommand(pitch));
+  lastYaw_ = yaw;
+  lastPitch_ = pitch;
 }

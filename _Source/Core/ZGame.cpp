@@ -50,3 +50,7 @@ void ZGame::Update() {
 void ZGame::Render(float frameMix) {
   ZEngine::GetGraphics()->Draw(gameObjects_, frameMix);
 }
+
+void ZGame::HandleYaw(float controlThrow) {
+  ZLogger::Log("Yawing by " + std::to_string(controlThrow));
+}

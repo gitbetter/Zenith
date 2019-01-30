@@ -25,6 +25,8 @@ public:
 
   void RunGameLoop();
 
+  void HandleYaw(float controlThrow) override;
+
 protected:
   void Update() override;
   void Render(float frameMix) override;
