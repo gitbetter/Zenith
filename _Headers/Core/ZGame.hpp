@@ -24,7 +24,6 @@ public:
   ~ZGame() { };
 
   void RunGameLoop();
-
   void HandleYaw(float controlThrow) override;
 
 protected:

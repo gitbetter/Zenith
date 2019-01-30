@@ -24,12 +24,13 @@ void ZGame::RunGameLoop() {
   float previousTime = chrono::high_resolution_clock::now().time_since_epoch().count();
   float lag = 0.0f;
   while (!ZEngine::GetGraphics()->GetWindow()->WindowShouldClose()) {
-    ZEngine::GetInput()->ProcessInput();
-
     int fixedUpdates = 0;
     float currentTime = chrono::high_resolution_clock::now().time_since_epoch().count();
     float elapsedTime = currentTime - previousTime;
+    previousTime = currentTime;
     lag += elapsedTime;
+
+    ZEngine::GetInput()->ProcessInput();
 
     while (lag >= ZEngine::MS_PER_UPDATE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
         Update();
