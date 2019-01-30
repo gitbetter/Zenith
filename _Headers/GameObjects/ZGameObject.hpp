@@ -11,6 +11,7 @@
 // Includes
 #include "ZEngine.hpp"
 #include <glm/glm.hpp>
+#include <glm/ext/quaternion_float.hpp>
 
 // Forward Declarations
 class ZGame;
@@ -39,14 +40,17 @@ public:
   virtual void HandleEscape() { }
 
   void SetPosition(glm::vec3 position) { position_ = position; }
+  void SetRotation(glm::quat rotation) { rotation_ = rotation; }
   void SetFrontVector(glm::vec3 front);
 
   const glm::vec3& GetPosition() { return position_; }
+  const glm::quat& GetRotation() { return rotation_; }
   const glm::vec3& GetFrontVector() { return front_; }
   const glm::vec3& GetUpVector() { return up_; }
   const glm::vec3& GetRightVector() { return right_; }
 
 protected:
   glm::vec3 position_, front_, up_, right_;
+  glm::quat rotation_;
   ZGame* game_;
 };

@@ -32,8 +32,8 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   glm::mat4 view = camera->GetViewMatrix();
   glm::mat4 model(1.0f);
 
-  // TODO: Set ZGraphicsComponent transform property
-  model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+  // TODO: Set to ZGraphicsComponent transform property
+  // model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
   model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 
   shader->SetMat4("P", projection);

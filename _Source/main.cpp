@@ -30,17 +30,17 @@ int main(int argc, const char * argv[]) {
   // TODO: Create the physics subsystem and provide it to the engine
   // TODO: Create the audio subsystem and provide it to the engine
 
-  // Register the top level game ZGameObject to listen for input events
-  input.Register(game);
-
   // Let's add a camera to the game
-  ZCamera camera;
+  ZCamera camera(glm::vec3(0.0f, 0.0f, 1.0f));
   game.AddGameObject(&camera);
+
+  // Register the camera so it receives input events
+  input.Register(camera);
 
   // Now let's add a renderable game object to test
   ZModel susanne("Resources/Models/Susanne.dae");
   ZShader shader("Resources/Shaders/Vertex/basic.vertex", "Resources/Shaders/Pixel/basic.pixel");
-  ZActor actor(glm::vec3(0.3f, 0.3f, -2.0f));
+  ZActor actor;
 
   ZGraphicsComponent graphicsComp(&susanne, &shader);
   actor.SetGraphicsComponent(&graphicsComp);

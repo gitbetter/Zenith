@@ -29,6 +29,7 @@ public:
   static ZGraphics* GetGraphics();
   static ZInput* GetInput();
   static float DeltaTime();
+  static float MilliSecondTime();
 
   static void Provide(ZGraphics& graphics);
   static void Provide(ZInput& input);

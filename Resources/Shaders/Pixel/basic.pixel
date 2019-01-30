@@ -4,8 +4,11 @@ in vec3 FragPos;
 in vec3 FragNormal;
 in vec3 FragUV;
 
-out vec3 FragColor;
+out vec4 FragColor;
+
+uniform vec3 lightColor;
+uniform vec3 baseColor;
 
 void main() {
-  FragColor = vec3(1.0);
+  FragColor = vec4(lightColor * baseColor, 1.0);
 }

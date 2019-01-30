@@ -9,6 +9,7 @@
 #include "ZEngine.hpp"
 #include "ZNullGraphics.hpp"
 #include "ZNullInput.hpp"
+#include <chrono>
 
 const float ZEngine::MS_PER_UPDATE = 17.0f;
 const int ZEngine::MAX_FIXED_UPDATE_ITERATIONS = 50;
@@ -28,6 +29,11 @@ ZInput* ZEngine::GetInput() {
 
 float ZEngine::DeltaTime() {
   return deltaTime_;
+}
+
+float ZEngine::MilliSecondTime() {
+  using namespace std::chrono;
+  return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0f;
 }
 
 void ZEngine::Provide(ZGraphics& graphics) {

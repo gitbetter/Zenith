@@ -24,6 +24,8 @@ void ZMesh::Render(ZShader* shader) {
   shader->Activate();
 
   // Set some material properties here
+  shader->SetVec3("lightColor", glm::vec3(1.0f));
+  shader->SetVec3("baseColor", glm::vec3(63.0/255.0, 22.0/255.0, 22.0/255.0));
 
   // Loop through as many textures as we have and bind
   // the corresponding textures (preloaded) and texture samplers (shader side uniforms)

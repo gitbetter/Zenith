@@ -23,11 +23,11 @@ ZGame::ZGame() { }
 void ZGame::RunGameLoop() {
   ZLogger::Log("Zenith is about to loop...", ZLoggerSeverity::Info);
 
-  float previousTime = chrono::high_resolution_clock::now().time_since_epoch().count();
-  float lag = 0.0f;
+  float previousTime = ZEngine::MilliSecondTime();
+  float lag = 0.0;
   while (!ZEngine::GetGraphics()->GetWindow()->WindowShouldClose()) {
     int fixedUpdates = 0;
-    float currentTime = chrono::high_resolution_clock::now().time_since_epoch().count();
+    float currentTime = ZEngine::MilliSecondTime();
     float elapsedTime = currentTime - previousTime;
     previousTime = currentTime;
     lag += elapsedTime;

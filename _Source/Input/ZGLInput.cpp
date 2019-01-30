@@ -11,7 +11,7 @@
 #include "ZGLInput.hpp"
 #include "ZGLWindow.hpp"
 #include "ZIStrafeCommand.hpp"
-#include "ZIUpDownCommand.hpp"
+#include "ZIForwardBackCommand.hpp"
 #include "ZIEscapeCommand.hpp"
 #include "ZIPitchCommand.hpp"
 #include "ZIYawCommand.hpp"
@@ -26,9 +26,9 @@ void ZGLInput::ProcessInput() {
 
   GLFWwindow* windowHandle = glWindow->GetHandle();
   // Todo: Flyweight the commands
-  if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) Broadcast(ZIUpDownCommand(1.0));
+  if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) Broadcast(ZIForwardBackCommand(1.0));
   if (glfwGetKey(windowHandle, GLFW_KEY_A) == GLFW_PRESS) Broadcast(ZIStrafeCommand(-1.0));
-  if (glfwGetKey(windowHandle, GLFW_KEY_S) == GLFW_PRESS) Broadcast(ZIUpDownCommand(-1.0));
+  if (glfwGetKey(windowHandle, GLFW_KEY_S) == GLFW_PRESS) Broadcast(ZIForwardBackCommand(-1.0));
   if (glfwGetKey(windowHandle, GLFW_KEY_D) == GLFW_PRESS) Broadcast(ZIStrafeCommand(1.0));
   if (glfwGetKey(windowHandle, GLFW_KEY_SPACE) == GLFW_PRESS)
   ;
@@ -38,8 +38,8 @@ void ZGLInput::ProcessInput() {
 
   double yaw, pitch;
   glfwGetCursorPos(windowHandle, &yaw, &pitch);
-  if (yaw != lastYaw_) Broadcast(ZIYawCommand(yaw));
-  if (pitch != lastPitch_) Broadcast(ZIPitchCommand(pitch));
+  if (yaw != lastYaw_) Broadcast(ZIYawCommand(lastYaw_ - yaw));
+  if (pitch != lastPitch_) Broadcast(ZIPitchCommand(lastPitch_ - pitch));
   lastYaw_ = yaw;
   lastPitch_ = pitch;
 }
