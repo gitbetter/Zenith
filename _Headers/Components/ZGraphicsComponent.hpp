@@ -14,17 +14,19 @@
 // Forward Declarations
 class ZModel;
 class ZShader;
+class ZCamera;
 
 // Class and Data Structure Definitions
 class ZGraphicsComponent : ZComponent {
 private:
-  unsigned int currentShaderIndex_ = 0;
+  unsigned int activeShaderIndex_ = -1;
 
 public:
   ZGraphicsComponent(ZModel* model, ZShader* shader);
   ~ZGraphicsComponent() { }
 
-  virtual void Update(float frameMix);
+  virtual void Update(ZCamera* camera, float frameMix);
+  ZShader* GetActiveShader() const { return shaders_[activeShaderIndex_]; }
 
 protected:
   ZModel* model_ = nullptr;

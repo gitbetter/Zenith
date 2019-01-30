@@ -19,9 +19,8 @@ class ZGLWindow : public ZWindow {
 private:
   GLFWwindow* window_ = nullptr;
 
-  static void GLFWErrorCallback(int id, const char* description);
   static void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
-  void InitializeGLContext();
+  void Initialize();
 
 public:
   ZGLWindow(int width, int height);
@@ -29,7 +28,6 @@ public:
 
   virtual bool WindowShouldClose() const override;
   virtual void PollEvents() const override;
-  virtual void SwapBuffers() const override;
   virtual void Destroy() override;
 
   GLFWwindow* GetHandle() const { return window_; }

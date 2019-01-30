@@ -7,7 +7,6 @@
 //
 
 #include "ZModel.hpp"
-#include "ZMesh.hpp"
 #include "ZShader.hpp"
 #include "ZModelImporter.hpp"
 

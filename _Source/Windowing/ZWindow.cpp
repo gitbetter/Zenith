@@ -7,3 +7,8 @@
 //
 
 #include "ZWindow.hpp"
+
+void ZWindow::SetSize(int width, int height) {
+  width_ = width;
+  height_ = height;
+}

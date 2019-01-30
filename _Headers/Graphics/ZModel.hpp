@@ -15,8 +15,8 @@
 #include <string>
 
 // Forward Declarations
-//class ZMesh;
 class ZShader;
+class ZCamera;
 
 // Class Definitions
 class ZModel {

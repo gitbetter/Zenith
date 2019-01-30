@@ -6,11 +6,11 @@
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
+#include "ZCamera.hpp"
 #include "ZMesh.hpp"
 #include "ZShader.hpp"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 // TODO: Create enums for OGL layout attributes and magic numbers
 
@@ -22,8 +22,8 @@ ZMesh::ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, s
 void ZMesh::Render(ZShader* shader) {
   // Activate the texture for use
   shader->Activate();
-  shader->SetInt("material.diffuse", 0);
-  shader->SetInt("material.specular", 1);
+
+  // Set some material properties here
 
   // Loop through as many textures as we have and bind
   // the corresponding textures (preloaded) and texture samplers (shader side uniforms)

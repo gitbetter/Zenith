@@ -11,6 +11,7 @@
 #include "ZGraphics.hpp"
 #include "ZWindow.hpp"
 #include "ZInput.hpp"
+#include "ZCamera.hpp"
 #include "ZGameObject.hpp"
 #include "ZLogger.hpp"
 
@@ -21,6 +22,7 @@ ZGame::ZGame() { }
 
 void ZGame::RunGameLoop() {
   ZLogger::Log("Zenith is about to loop...", ZLoggerSeverity::Info);
+
   float previousTime = chrono::high_resolution_clock::now().time_since_epoch().count();
   float lag = 0.0f;
   while (!ZEngine::GetGraphics()->GetWindow()->WindowShouldClose()) {
@@ -30,6 +32,7 @@ void ZGame::RunGameLoop() {
     previousTime = currentTime;
     lag += elapsedTime;
 
+    ZEngine::SetDeltaTime(elapsedTime);
     ZEngine::GetInput()->ProcessInput();
 
     while (lag >= ZEngine::MS_PER_UPDATE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
@@ -52,6 +55,19 @@ void ZGame::Render(float frameMix) {
   ZEngine::GetGraphics()->Draw(gameObjects_, frameMix);
 }
 
-void ZGame::HandleYaw(float controlThrow) {
-  ZLogger::Log("Yawing by " + std::to_string(controlThrow));
+void ZGame::AddGameObject(ZGameObject* gameObject) {
+  if (gameObject != nullptr) {
+    gameObject->game_ = this;
+    if (dynamic_cast<ZCamera*>(gameObject)) {
+      gameCameras_.push_back(dynamic_cast<ZCamera*>(gameObject));
+      ++activeCameraIndex_;
+    } else {
+      gameObjects_.push_back(gameObject);
+    }
+  }
+}
+
+ZCamera* ZGame::GetActiveCamera() const {
+  if (activeCameraIndex_ < 0) return nullptr;
+  return gameCameras_[activeCameraIndex_];
 }

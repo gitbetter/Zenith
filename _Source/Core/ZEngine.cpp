@@ -16,6 +16,7 @@ const glm::vec3 ZEngine::WORLD_UP(0.0f, 1.0f, 0.0f);
 
 ZGraphics* ZEngine::graphics_ = new ZNullGraphics;
 ZInput* ZEngine::input_ = new ZNullInput;
+float ZEngine::deltaTime_ = 0.0f;
 
 ZGraphics* ZEngine::GetGraphics() {
   return graphics_;
@@ -23,6 +24,10 @@ ZGraphics* ZEngine::GetGraphics() {
 
 ZInput* ZEngine::GetInput() {
   return input_;
+}
+
+float ZEngine::DeltaTime() {
+  return deltaTime_;
 }
 
 void ZEngine::Provide(ZGraphics& graphics) {
@@ -41,4 +46,8 @@ void ZEngine::Provide(ZInput& input) {
     delete input_;
   }
   input_ = &input;
+}
+
+void ZEngine::SetDeltaTime(float deltaTime) {
+  deltaTime_ = deltaTime;
 }

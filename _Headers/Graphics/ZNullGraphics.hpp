@@ -33,6 +33,10 @@ public:
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 
+    void SwapBuffers() const override {
+      ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
+    }
+
     const ZWindow* GetWindow() override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
       return nullptr; // Should we?

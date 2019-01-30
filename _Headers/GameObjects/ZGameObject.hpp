@@ -9,18 +9,21 @@
 #pragma once
 
 // Includes
+#include "ZEngine.hpp"
 #include <glm/glm.hpp>
 
 // Forward Declarations
-class ZCommandComponent;
+class ZGame;
 
 // Class Definitions
 class ZGameObject {
+  friend class ZGame;
+
 private:
   void CalculateTangentBasis();
 
 public:
-  ZGameObject(glm::vec3 position = glm::vec3(0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f))
+  ZGameObject(glm::vec3 position = glm::vec3(0.0f), glm::vec3 up = ZEngine::WORLD_UP)
   : position_(position), front_(glm::vec3(0.0f, 0.0f, -1.0f)), up_(up) { CalculateTangentBasis(); }
   virtual ~ZGameObject() { }
 
@@ -45,4 +48,5 @@ public:
 
 protected:
   glm::vec3 position_, front_, up_, right_;
+  ZGame* game_;
 };

@@ -15,6 +15,6 @@ void ZGameObject::SetFrontVector(glm::vec3 front) {
 }
 
 void ZGameObject::CalculateTangentBasis() {
-  up_ = glm::normalize(glm::cross(ZEngine::WORLD_UP, front_));
-  right_ = glm::normalize(glm::cross(up_, front_));
+  right_ = glm::normalize(glm::cross(front_, ZEngine::WORLD_UP));
+  up_ = glm::normalize(glm::cross(right_, front_));
 }

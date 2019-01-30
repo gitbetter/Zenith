@@ -13,18 +13,23 @@
 #include <vector>
 
 // Forward Declarations
+class ZCamera;
 
 // Class and Data Structure Definitions
 class ZGame : public ZGameObject {
 private:
   std::vector<ZGameObject*> gameObjects_;
+  std::vector<ZCamera*> gameCameras_;
+  int activeCameraIndex_ = -1;
 
 public:
   ZGame();
   ~ZGame() { };
 
   void RunGameLoop();
-  void HandleYaw(float controlThrow) override;
+
+  void AddGameObject(ZGameObject* gameObject);
+  ZCamera* GetActiveCamera() const;
 
 protected:
   void Update() override;

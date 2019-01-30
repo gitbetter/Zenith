@@ -16,6 +16,7 @@
 
 // Forward Declarations
 class ZShader;
+class ZCamera;
 
 // Class Definitions
 struct ZVertex {

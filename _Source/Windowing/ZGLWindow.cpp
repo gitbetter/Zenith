@@ -6,26 +6,18 @@
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
+#include "ZEngine.hpp"
+#include "ZGraphics.hpp"
 #include "ZGLWindow.hpp"
 #include "ZLogger.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 ZGLWindow::ZGLWindow(int width, int height) : ZWindow(width, height) {
-  InitializeGLContext();
+  Initialize();
 }
 
-void ZGLWindow::InitializeGLContext() {
-  glfwSetErrorCallback(GLFWErrorCallback);
-
-  glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
+void ZGLWindow::Initialize() {
   window_ = glfwCreateWindow(width_, height_, "Starter", NULL, NULL);
   if (window_ == NULL) {
       ZLogger::Log("Could not create glfw window", ZLoggerSeverity::Error);
@@ -33,16 +25,6 @@ void ZGLWindow::InitializeGLContext() {
   }
   glfwMakeContextCurrent(window_);
   glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
-  //glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-  glewExperimental = GL_TRUE;
-  glewInit();
-
-  glEnable(GL_DEPTH_TEST);
-}
-
-void ZGLWindow::SwapBuffers() const {
-  glfwSwapBuffers(window_);
 }
 
 void ZGLWindow::PollEvents() const {
@@ -54,13 +36,9 @@ bool ZGLWindow::WindowShouldClose() const {
 }
 
 void ZGLWindow::Destroy() {
-  if (window_ != nullptr) glfwDestroyWindow(window_);
+  glfwDestroyWindow(window_);
 }
 
 void ZGLWindow::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {
   glViewport(0, 0, width, height);
-}
-
-void ZGLWindow::GLFWErrorCallback(int id, const char* description) {
-  ZLogger::Log(description, ZLoggerSeverity::Error);
 }

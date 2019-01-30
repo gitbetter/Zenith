@@ -22,6 +22,8 @@ public:
   virtual ~ZGraphics() { }
 
   virtual void Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix = 0.0) = 0;
+  virtual void SwapBuffers() const = 0;
+  virtual void UpdateWindowSize() { }
   virtual void Delete() = 0;
   virtual const ZWindow* GetWindow() = 0;
 protected:

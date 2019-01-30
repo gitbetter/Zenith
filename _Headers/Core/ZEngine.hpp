@@ -20,6 +20,7 @@ class ZEngine {
 private:
   static ZGraphics* graphics_;
   static ZInput* input_;
+  static float deltaTime_;
 public:
   static const float MS_PER_UPDATE;
   static const int MAX_FIXED_UPDATE_ITERATIONS;
@@ -27,9 +28,11 @@ public:
 
   static ZGraphics* GetGraphics();
   static ZInput* GetInput();
+  static float DeltaTime();
 
   static void Provide(ZGraphics& graphics);
   static void Provide(ZInput& input);
   // More provide overloads for different engine subsystems (i.e. physics, audio, input, etc.)
+  static void SetDeltaTime(float deltaTime);
 protected:
 };
