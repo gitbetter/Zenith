@@ -40,12 +40,16 @@ void ZGLGraphics::Initialize(int windowWidth, int windowHeight) {
   glewInit();
 
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+  glEnable(GL_STENCIL_TEST);
+  glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
 void ZGLGraphics::Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix) {
   if (!window_->WindowShouldClose()) {
     glClearColor(0.3f, 0.1f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     UpdateWindowSize();
 

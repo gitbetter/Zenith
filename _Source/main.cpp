@@ -50,6 +50,8 @@ int main(int argc, const char * argv[]) {
 
   game.AddGameObject(&actor);
 
+  graphicsComp.SetOutline();
+
   // Create the game and start the main game loop
   game.RunGameLoop();
 

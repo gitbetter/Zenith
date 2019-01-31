@@ -10,6 +10,7 @@
 // Includes
 #include "ZComponent.hpp"
 #include <vector>
+#include <glm/glm.hpp>
 
 // Forward Declarations
 class ZModel;
@@ -21,6 +22,8 @@ class ZGraphicsComponent : ZComponent {
 private:
   unsigned int activeShaderIndex_ = -1;
 
+  void DrawOutlineIfEnabled();
+
 public:
   ZGraphicsComponent(ZModel* model, ZShader* shader);
   ~ZGraphicsComponent() { }
@@ -28,7 +31,13 @@ public:
   virtual void Update(ZCamera* camera, float frameMix);
   ZShader* GetActiveShader() const { return shaders_[activeShaderIndex_]; }
 
+  void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
+  void ClearOutline();
+
 protected:
   ZModel* model_ = nullptr;
+  glm::mat4 projectionMatrix_, viewMatrix_, modelMatrix_;
   std::vector<ZShader*> shaders_;
+  ZShader* highlightShader_ = nullptr;
+  glm::vec4 highlightColor_;
 };
