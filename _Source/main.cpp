@@ -34,14 +34,14 @@ int main(int argc, const char * argv[]) {
   input.Register(game);
 
   // Let's add a camera to the game
-  ZCamera camera(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+  ZCamera camera(glm::vec4(0.0f, 0.0f, 4.0f, 1.0f));
   game.AddGameObject(&camera);
 
   // Register the camera so it receives input events
   input.Register(camera);
 
   // Now let's add a renderable game object to test
-  ZModel susanne("Resources/Models/Susanne.dae");
+  ZModel susanne("Resources/Models/shanty_room.dae");
   ZShader shader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
   ZActor actor;
 
@@ -50,9 +50,7 @@ int main(int argc, const char * argv[]) {
 
   game.AddGameObject(&actor);
 
-  graphicsComp.SetOutline();
-
-  // Create the game and start the main game loop
+  // Create the game and start the main game loop. Nothing beyond this point will execute.
   game.RunGameLoop();
 
   return 0;

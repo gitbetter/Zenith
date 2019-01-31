@@ -44,6 +44,7 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   shader->SetMat4("P", projectionMatrix_);
   shader->SetMat4("V", viewMatrix_);
   shader->SetMat4("M", modelMatrix_);
+  shader->SetVec3("viewDirection", glm::vec3(camera->GetFrontVector()));
 
   model_->Render(shader);
 
