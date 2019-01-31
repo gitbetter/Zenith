@@ -25,10 +25,15 @@ void ZGLWindow::Initialize() {
   }
   glfwMakeContextCurrent(window_);
   glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
+  glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void ZGLWindow::PollEvents() const {
   glfwPollEvents();
+}
+
+void ZGLWindow::CloseWindow() const {
+  glfwSetWindowShouldClose(window_, GL_TRUE);
 }
 
 bool ZGLWindow::WindowShouldClose() const {

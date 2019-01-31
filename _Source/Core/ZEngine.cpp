@@ -13,7 +13,7 @@
 
 const float ZEngine::MS_PER_UPDATE = 17.0f;
 const int ZEngine::MAX_FIXED_UPDATE_ITERATIONS = 50;
-const glm::vec3 ZEngine::WORLD_UP(0.0f, 1.0f, 0.0f);
+const glm::vec4 ZEngine::WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);
 
 ZGraphics* ZEngine::graphics_ = new ZNullGraphics;
 ZInput* ZEngine::input_ = new ZNullInput;

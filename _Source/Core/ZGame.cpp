@@ -71,3 +71,7 @@ ZCamera* ZGame::GetActiveCamera() const {
   if (activeCameraIndex_ < 0) return nullptr;
   return gameCameras_[activeCameraIndex_];
 }
+
+void ZGame::HandleEscape() {
+  ZEngine::GetGraphics()->GetWindow()->CloseWindow();
+}

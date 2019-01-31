@@ -21,7 +21,7 @@ private:
   ZGraphicsComponent* graphicsComponent_ = nullptr;
 
 public:
-  ZActor(glm::vec3 position = glm::vec3(0.0f)) : ZGameObject(position) { }
+  ZActor(glm::vec4 position = glm::vec4(glm::vec3(0.0f), 1.0f)) : ZGameObject(position) { }
   ~ZActor() { }
 
   virtual void Update() override { };

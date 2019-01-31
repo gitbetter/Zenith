@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "ZEngine.hpp"
 #include "ZGameObject.hpp"
 #include <glm/glm.hpp>
 
@@ -25,7 +26,8 @@ private:
   float farClippingPlane_ = 100.0f;
 
 public:
-  ZCamera(glm::vec3 position = glm::vec3(0.0f)) : ZGameObject(position) { }
+  ZCamera(glm::vec4 position = glm::vec4(glm::vec3(0.0f), 1.0f), glm::vec4 rotation = glm::vec4(0.f, -90.f, 0.f, 0.f))
+  : ZGameObject(position, ZEngine::WORLD_UP, rotation) { }
 
   virtual void Update() override { }
   virtual void Render(float frameMix) override { };

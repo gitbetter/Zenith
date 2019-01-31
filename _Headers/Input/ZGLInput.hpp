@@ -18,6 +18,8 @@
 class ZGLInput : public ZInput {
 private:
   double lastPitch_, lastYaw_;
+  bool firstLook_ = true;
+
 public:
   void ProcessInput() override;
 protected:

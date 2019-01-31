@@ -11,7 +11,6 @@
 // Includes
 #include "ZEngine.hpp"
 #include <glm/glm.hpp>
-#include <glm/ext/quaternion_float.hpp>
 
 // Forward Declarations
 class ZGame;
@@ -24,8 +23,8 @@ private:
   void CalculateTangentBasis();
 
 public:
-  ZGameObject(glm::vec3 position = glm::vec3(0.0f), glm::vec3 up = ZEngine::WORLD_UP)
-  : position_(position), front_(glm::vec3(0.0f, 0.0f, -1.0f)), up_(up) { CalculateTangentBasis(); }
+  ZGameObject(glm::vec4 position = glm::vec4(glm::vec3(0.0f), 1.0f), glm::vec4 up = ZEngine::WORLD_UP, glm::vec4 rotation = glm::vec4(0.f, -90.f, 0.f, 0.f))
+  : position_(position), eulerRotation_(rotation), front_(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), up_(up) { CalculateTangentBasis(); }
   virtual ~ZGameObject() { }
 
   virtual void Update() { }
@@ -39,18 +38,19 @@ public:
   virtual void HandleFire() { }
   virtual void HandleEscape() { }
 
-  void SetPosition(glm::vec3 position) { position_ = position; }
-  void SetRotation(glm::quat rotation) { rotation_ = rotation; }
-  void SetFrontVector(glm::vec3 front);
+  void SetPosition(glm::vec4 position) { position_ = position; }
+  void SetRotation(glm::vec4 rotation) { eulerRotation_ = rotation; }
+  void SetFrontVector(glm::vec4 front);
 
-  const glm::vec3& GetPosition() { return position_; }
-  const glm::quat& GetRotation() { return rotation_; }
-  const glm::vec3& GetFrontVector() { return front_; }
-  const glm::vec3& GetUpVector() { return up_; }
-  const glm::vec3& GetRightVector() { return right_; }
+  const glm::vec4& GetPosition() { return position_; }
+  const glm::vec4& GetRotation() { return eulerRotation_; }
+  const glm::vec4& GetFrontVector() { return front_; }
+  const glm::vec4& GetUpVector() { return up_; }
+  const glm::vec4& GetRightVector() { return right_; }
 
 protected:
-  glm::vec3 position_, front_, up_, right_;
-  glm::quat rotation_;
+  glm::vec4 position_, eulerRotation_, front_, up_, right_;
   ZGame* game_;
+
+  void UpdateFrontVectorRotation();
 };

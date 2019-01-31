@@ -31,6 +31,8 @@ public:
   void AddGameObject(ZGameObject* gameObject);
   ZCamera* GetActiveCamera() const;
 
+  void HandleEscape() override;
+
 protected:
   void Update() override;
   void Render(float frameMix) override;

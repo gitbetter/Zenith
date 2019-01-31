@@ -38,8 +38,12 @@ void ZGLInput::ProcessInput() {
 
   double yaw, pitch;
   glfwGetCursorPos(windowHandle, &yaw, &pitch);
-  if (yaw != lastYaw_) Broadcast(ZIYawCommand(lastYaw_ - yaw));
+
+  if (firstLook_) {
+    lastYaw_ = yaw; lastPitch_ = pitch;
+    firstLook_ = false;
+  }
+  if (yaw != lastYaw_) Broadcast(ZIYawCommand(yaw - lastYaw_));
   if (pitch != lastPitch_) Broadcast(ZIPitchCommand(lastPitch_ - pitch));
-  lastYaw_ = yaw;
-  lastPitch_ = pitch;
+  lastYaw_ = yaw; lastPitch_ = pitch;
 }

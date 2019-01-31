@@ -33,7 +33,6 @@ void ZGLGraphics::Initialize(int windowWidth, int windowHeight) {
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-  //glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   window_ = new ZGLWindow(windowWidth, windowHeight);
 

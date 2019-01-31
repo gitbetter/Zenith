@@ -22,6 +22,7 @@ public:
   ZWindow(int windowWidth, int windowHeight) : width_(windowWidth), height_(windowHeight) { }
   virtual ~ZWindow() { }
 
+  virtual void CloseWindow() const = 0;
   virtual bool WindowShouldClose() const = 0;
   virtual void PollEvents() const = 0;
   virtual void Destroy() = 0;
