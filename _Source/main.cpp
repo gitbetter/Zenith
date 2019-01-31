@@ -42,7 +42,7 @@ int main(int argc, const char * argv[]) {
 
   // Now let's add a renderable game object to test
   ZModel susanne("Resources/Models/Susanne.dae");
-  ZShader shader("Resources/Shaders/Vertex/basic.vertex", "Resources/Shaders/Pixel/basic.pixel");
+  ZShader shader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
   ZActor actor;
 
   ZGraphicsComponent graphicsComp(&susanne, &shader);

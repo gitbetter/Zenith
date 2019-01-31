@@ -19,7 +19,7 @@ class ZInputComponent;
 // Class and Data Structure Definitions
 class ZCamera : public ZGameObject {
 private:
-  float movementSpeed_ = 3.0f;
+  float movementSpeed_ = 2.2f;
   float lookSensitivity_ = 0.1f;
   float zoom_ = 45.0f;
   float nearClippingPlane_ = 0.01f;
