@@ -18,7 +18,7 @@ void ZGameObject::SetFrontVector(glm::vec4 front) {
 }
 
 void ZGameObject::UpdateFrontVectorRotation() {
-  glm::vec4 front;
+  glm::vec4 front(0.f);
   front.x = glm::cos(glm::radians(eulerRotation_.y)) * glm::cos(glm::radians(eulerRotation_.x));
   front.y = glm::sin(glm::radians(eulerRotation_.x));
   front.z = glm::sin(glm::radians(eulerRotation_.y)) * glm::cos(glm::radians(eulerRotation_.x));

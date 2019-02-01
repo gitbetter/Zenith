@@ -28,11 +28,11 @@ void ZGame::RunGameLoop() {
   while (!ZEngine::GetGraphics()->GetWindow()->WindowShouldClose()) {
     int fixedUpdates = 0;
     float currentTime = ZEngine::MilliSecondTime();
-    float elapsedTime = currentTime - previousTime;
+    ZEngine::SetDeltaTime(currentTime - previousTime);
     previousTime = currentTime;
-    lag += elapsedTime;
+    lag += ZEngine::DeltaTime();
 
-    ZEngine::SetDeltaTime(elapsedTime);
+
     ZEngine::GetInput()->ProcessInput();
 
     while (lag >= ZEngine::MS_PER_UPDATE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
