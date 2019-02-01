@@ -46,6 +46,21 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   shader->SetMat4("M", modelMatrix_);
   shader->SetVec3("viewDirection", glm::vec3(camera->GetFrontVector()));
 
+  // TODO: Extract
+  int materialIndex = 0;
+  shader->SetVec4("materials[" + std::to_string(materialIndex) + "].albedo", glm::vec4(0.64f, 0.63f, 0.51f, 1.f));
+  shader->SetVec3("materials[" + std::to_string(materialIndex) + "].diffuse", glm::vec3(1.0f));
+  shader->SetVec3("materials[" + std::to_string(materialIndex) + "].ambient", glm::vec3(0.5f));
+  shader->SetVec3("materials[" + std::to_string(materialIndex) + "].specular", glm::vec3(0.3f));
+  shader->SetFloat("materials[" + std::to_string(materialIndex) + "].shininess", 20.0f);
+
+  // TODO: Extract
+  shader->SetBool("lights[0].isDirectional", true);
+  shader->SetBool("lights[0].isEnabled", true);
+  shader->SetVec3("lights[0].ambient", glm::vec3(0.3f));
+  shader->SetVec3("lights[0].color", glm::vec3(0.8f));
+  shader->SetVec3("lights[0].direction", glm::vec3(0.3f, 0.9f, 0.3f));
+
   model_->Render(shader);
 
   DrawOutlineIfEnabled();

@@ -6,26 +6,80 @@ in vec3 FragUV;
 
 out vec4 FragColor;
 
-uniform vec4 baseColor;
-uniform vec3 ambientLight;
-uniform vec3 lightColor;
-uniform vec3 lightDirection;
+struct Light {
+  bool isEnabled;
+  bool isSpot;
+  bool isDirectional;
+  vec3 ambient;
+  vec3 color;
+  vec3 position;
+  vec3 direction;
+  vec3 coneDirection;
+  float constantAttenuation;
+  float linearAttenuation;
+  float quadraticAttenuation;
+  float spotCutoff;
+  float spotExponent;
+};
+
+struct Material {
+  vec4 albedo;
+  vec3 emission;
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+  float shininess;
+};
+
 uniform vec3 viewDirection;
-uniform float shininess;
-uniform float strength;
+uniform int materialIndex;
+
+const int MAX_LOCAL_LIGHTS = 15;
+const int MAX_MATERIALS = 15;
+uniform Light lights[MAX_LOCAL_LIGHTS];
+uniform Material materials[MAX_MATERIALS];
+// TODO? Consider SSBOs for a varying number of lights
 
 void main() {
-  vec3 halfVector = normalize(lightDirection + viewDirection);
+  vec3 scatteredLight = vec3(0.0);
+  vec3 reflectedLight = vec3(0.0);
 
-  float diffuse = max(0.0, dot(FragNormal, lightDirection));
-  float specular = max(0.0, dot(FragNormal, halfVector));
+  for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
+    if (!lights[i].isEnabled) continue;
 
-  if (diffuse == 0.0) specular = 0.0;
-  else specular = pow(specular, shininess);
+    vec3 lightDirection = lights[i].direction;
+    vec3 halfVector = normalize(lightDirection + viewDirection);
+    float attenunation = 1.0;
 
-  vec3 scatteredLight = ambientLight + lightColor * diffuse;
-  vec3 reflectedLight = lightColor * specular * strength;
+    if (!lights[i].isDirectional) {
+      vec3 lightDirection = lightDirection - FragPos;
+      float lightDistance = length(lightDirection);
+      lightDirection = lightDirection / lightDistance;
 
-  vec3 color = min(baseColor.rgb * scatteredLight + reflectedLight, vec3(1.0));
-  FragColor = vec4(color, baseColor.a);
+      attenunation = 1.0 / (lights[i].constantAttenuation
+                            + lights[i].linearAttenuation * lightDistance
+                            + lights[i].quadraticAttenuation * lightDistance * lightDistance);
+
+      if (lights[i].isSpot) {
+        float spotCos = dot(lightDirection, -lights[i].coneDirection);
+        if (spotCos < lights[i].spotCutoff) attenunation = 0.0;
+        else attenunation *= pow(spotCos, lights[i].spotExponent);
+      }
+    } else {
+      halfVector = lights[i].direction;
+    }
+
+    float diffuse = max(0.0, dot(FragNormal, lightDirection));
+    float specular = max(0.0, dot(FragNormal, halfVector));
+
+    if (diffuse == 0.0) specular = 0.0;
+    else specular = pow(specular, materials[materialIndex].shininess);
+
+    scatteredLight += lights[i].ambient * materials[materialIndex].ambient * attenunation +
+                      lights[i].color * materials[materialIndex].diffuse * diffuse * attenunation;
+    reflectedLight += lights[i].color * materials[materialIndex].specular * specular * attenunation;
+  }
+
+  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb * scatteredLight + reflectedLight, vec3(1.0));
+  FragColor = vec4(color, materials[materialIndex].albedo.a);
 }

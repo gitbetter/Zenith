@@ -15,9 +15,10 @@ uniform mat4 P;
 
 void main()
 {
-    FragPos = vec3(M * vec4(position, 1.0));
+    vec4 viewPos = V * M * vec4(position, 1.0);
+    FragPos = vec3(viewPos);
     FragNormal = normalize(mat3(transpose(inverse(M))) * normal);
     FragUV = texCoords;
 
-    gl_Position = P * V * vec4(FragPos, 1.0);
+    gl_Position = P * viewPos;
 }
