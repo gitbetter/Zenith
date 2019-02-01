@@ -13,7 +13,7 @@
 #include <glm/glm.hpp>
 
 // Forward Declarations
-// class SomeClass;
+class ZMaterial;
 
 // Class and Data Structure Definitions
 enum ZShaderTypes {
@@ -48,6 +48,7 @@ public:
   void SetMat2(const std::string& name, const glm::mat2& value) const;
   void SetMat3(const std::string& name, const glm::mat3& value) const;
   void SetMat4(const std::string& name, const glm::mat4& value) const;
+  void SetMaterial(const ZMaterial& material) const;
 protected:
 
 };

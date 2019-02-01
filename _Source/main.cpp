@@ -41,11 +41,12 @@ int main(int argc, const char * argv[]) {
   input.Register(camera);
 
   // Now let's add a renderable game object to test
-  ZModel susanne("Resources/Models/shanty_room.dae");
-  ZShader shader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
+  ZModel shanty_room("Resources/Models/shanty_room.dae");
+  ZShader blinnPhongShader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
+
   ZActor actor;
 
-  ZGraphicsComponent graphicsComp(&susanne, &shader);
+  ZGraphicsComponent graphicsComp(&shanty_room, &blinnPhongShader);
   actor.SetGraphicsComponent(&graphicsComp);
 
   game.AddGameObject(&actor);

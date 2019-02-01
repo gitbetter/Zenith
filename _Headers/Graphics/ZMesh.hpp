@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "ZMaterial.hpp"
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <string>
@@ -16,7 +17,7 @@
 
 // Forward Declarations
 class ZShader;
-class ZCamera;
+class ZCamera;\
 
 // Class Definitions
 struct ZVertex {
@@ -27,12 +28,6 @@ struct ZVertex {
   glm::vec3 bitangent;
 };
 
-struct ZTexture {
-  unsigned int id;
-  std::string type;
-  std::string path;
-};
-
 class ZMesh {
   friend class ZModel;
 private:
@@ -41,9 +36,9 @@ private:
 public:
   std::vector<ZVertex> vertices_;
   std::vector<unsigned int> indices_;
-  std::vector<ZTexture> textures_;
+  ZMaterial material_;
 
-  ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, std::vector<ZTexture> textures);
+  ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material);
   virtual ~ZMesh() { }
 
   virtual void Render(ZShader* shader);

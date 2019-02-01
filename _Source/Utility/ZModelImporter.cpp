@@ -9,6 +9,7 @@
 #include "ZModelImporter.hpp"
 #include "ZLogger.hpp"
 #include "ZMesh.hpp"
+#include "ZMaterial.hpp"
 #include <assimp/Importer.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -112,14 +113,14 @@ ZMesh ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::strin
   }
 
   if (mesh->mMaterialIndex >= 0) {
-    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-    std::vector<ZTexture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse", directory);
-    std::vector<ZTexture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "specular", directory);
+    aiMaterial* meshMaterial = scene->mMaterials[mesh->mMaterialIndex];
+    std::vector<ZTexture> diffuseMaps = LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE, "diffuse", directory);
+    std::vector<ZTexture> specularMaps = LoadMaterialTextures(meshMaterial, aiTextureType_SPECULAR, "specular", directory);
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
   }
 
-  return ZMesh(vertices, indices, textures);
+  return ZMesh(vertices, indices, ZMaterial(textures));
 }
 
 /**

@@ -9,13 +9,14 @@
 #include "ZCamera.hpp"
 #include "ZMesh.hpp"
 #include "ZShader.hpp"
+#include "ZMaterial.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 // TODO: Create enums for OGL layout attributes and magic numbers
 
-ZMesh::ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, std::vector<ZTexture> textures)
-: vertices_(vertices), indices_(indices), textures_(textures) {
+ZMesh::ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material)
+: vertices_(vertices), indices_(indices), material_(material) {
   Setup();
 }
 
@@ -26,9 +27,9 @@ void ZMesh::Render(ZShader* shader) {
   // Loop through as many textures as we have and bind
   // the corresponding textures (preloaded) and texture samplers (shader side uniforms)
   unsigned int diffuseMaps = 1, specularMaps = 1, normalMaps = 1, heightMaps = 1;
-  for (unsigned int i = 0; i < textures_.size(); i++) {
+  for (unsigned int i = 0; i < material_.Textures().size(); i++) {
     glActiveTexture(GL_TEXTURE0 + i);
-    std::string textureNumber, textureName = textures_[i].type;
+    std::string textureNumber, textureName = material_.Textures()[i].type;
     if (textureName == "diffuse") textureNumber = std::to_string(diffuseMaps++);
     else if (textureName == "specular") textureNumber = std::to_string(specularMaps++);
     else if (textureName == "normal") textureNumber = std::to_string(normalMaps++);
@@ -36,7 +37,7 @@ void ZMesh::Render(ZShader* shader) {
 
     // Set the texture sampler to the correct unit and bind the texture
     glUniform1i(glGetUniformLocation(shader->GetID(), (textureName + textureNumber).c_str()), i);
-    glBindTexture(GL_TEXTURE_2D, textures_[i].id);
+    glBindTexture(GL_TEXTURE_2D, material_.Textures()[i].id);
   }
 
   // Draw the mesh

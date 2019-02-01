@@ -11,6 +11,7 @@
 
 #include "ZShader.hpp"
 #include "ZLogger.hpp"
+#include "ZMaterial.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -186,4 +187,12 @@ void ZShader::SetMat3(const std::string& name, const glm::mat3& value) const {
 
 void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const {
   glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
+}
+
+void ZShader::SetMaterial(const ZMaterial& material) const {
+  SetVec4("materials[" + std::to_string(material.Index()) + "].albedo", material.Properties().albedo);
+  SetVec3("materials[" + std::to_string(material.Index()) + "].diffuse", material.Properties().diffuse);
+  SetVec3("materials[" + std::to_string(material.Index()) + "].ambient", material.Properties().ambient);
+  SetVec3("materials[" + std::to_string(material.Index()) + "].specular", material.Properties().specular);
+  SetFloat("materials[" + std::to_string(material.Index()) + "].shininess", material.Properties().shininess);
 }
