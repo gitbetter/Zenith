@@ -43,7 +43,7 @@ int main(int argc, const char * argv[]) {
 
   // Now let's add a renderable game object to test
   // TODO: How can identify model meshes to add materials independently?
-  ZModel model("Resources/Models/susanne.dae");
+  ZModel model("Resources/Models/test_up.dae");
   ZShader shader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
 
   ZActor actor;
