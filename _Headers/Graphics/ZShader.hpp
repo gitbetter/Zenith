@@ -9,7 +9,9 @@
 #pragma once
 
 // Includes
+#include "ZLight.hpp"
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
 
 // Forward Declarations
@@ -34,7 +36,7 @@ public:
   ~ZShader() { }
 
   void Activate();
-  unsigned int GetID() { return id_; }
+  unsigned int GetID() const { return id_; }
   // Helpers for setting uniforms
   void SetBool(const std::string& name, bool value) const;
   void SetInt(const std::string& name, int value) const;
@@ -48,7 +50,9 @@ public:
   void SetMat2(const std::string& name, const glm::mat2& value) const;
   void SetMat3(const std::string& name, const glm::mat3& value) const;
   void SetMat4(const std::string& name, const glm::mat4& value) const;
-  void SetMaterial(const ZMaterial& material) const;
+
+  void Use(const ZMaterial& material);
+  void Use(const std::vector<ZLight>& lights);
 protected:
 
 };

@@ -6,10 +6,16 @@ in vec3 FragUV;
 
 out vec4 FragColor;
 
+struct HemisphereLight {
+  vec3 position;
+  vec3 skyColor;
+  vec3 groundColor;
+};
+
 struct Light {
   bool isEnabled;
   bool isSpot;
-  bool isDirectional;
+  bool isDirectional;  
   vec3 ambient;
   vec3 color;
   vec3 position;
@@ -32,18 +38,21 @@ struct Material {
 };
 
 uniform vec3 viewDirection;
-uniform int materialIndex;
+uniform int materialIndex;  // Single index across the fragments of a single mesh
 
 const int MAX_LOCAL_LIGHTS = 15;
 const int MAX_MATERIALS = 15;
 uniform Light lights[MAX_LOCAL_LIGHTS];
 uniform Material materials[MAX_MATERIALS];
+
+uniform HemisphereLight hemisphereLight;
 // TODO? Consider SSBOs for a varying number of lights
 
 void main() {
   vec3 scatteredLight = vec3(0.0);
   vec3 reflectedLight = vec3(0.0);
 
+  // Regular Blinn-Phong over multiple lights, if present and enabled
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
     if (!lights[i].isEnabled) continue;
 
@@ -52,7 +61,7 @@ void main() {
     float attenunation = 1.0;
 
     if (!lights[i].isDirectional) {
-      vec3 lightDirection = lightDirection - FragPos;
+      lightDirection = lightDirection - FragPos;
       float lightDistance = length(lightDirection);
       lightDirection = lightDirection / lightDistance;
 
@@ -81,5 +90,11 @@ void main() {
   }
 
   vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb * scatteredLight + reflectedLight, vec3(1.0));
+
+  // Hemisphere lighting
+  vec3 hemisphereLightDirection = normalize(hemisphereLight.position - FragPos);
+  float a = dot(FragNormal, hemisphereLightDirection) * 0.5 + 0.5;
+  color += mix(hemisphereLight.groundColor, hemisphereLight.skyColor, a);
+
   FragColor = vec4(color, materials[materialIndex].albedo.a);
 }

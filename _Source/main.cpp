@@ -16,13 +16,14 @@
 #include "ZGraphicsComponent.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
+#include "ZLight.hpp"
 #include <glm/glm.hpp>
 
 int main(int argc, const char * argv[]) {
   // Create a new game instance
   ZGame game;
   // Create the graphics subsystem and provide it to the engine
-  ZGLGraphics graphics(800, 600);
+  ZGLGraphics graphics(1280, 800);
   ZEngine::Provide(graphics);
   // Create the input subsystem and provide it to the engine
   ZGLInput input;
@@ -41,15 +42,20 @@ int main(int argc, const char * argv[]) {
   input.Register(camera);
 
   // Now let's add a renderable game object to test
-  ZModel shanty_room("Resources/Models/shanty_room.dae");
-  ZShader blinnPhongShader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
+  // TODO: How can identify model meshes to add materials independently?
+  ZModel model("Resources/Models/susanne.dae");
+  ZShader shader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
 
   ZActor actor;
 
-  ZGraphicsComponent graphicsComp(&shanty_room, &blinnPhongShader);
+  ZGraphicsComponent graphicsComp(&model, &shader);
   actor.SetGraphicsComponent(&graphicsComp);
 
   game.AddGameObject(&actor);
+
+  // Now add some lights, because it's dark in here.
+  std::vector<ZLight> lights{ ZLight(ZLightType::Directional), ZLight(ZLightType::Hemisphere) };
+  shader.Use(lights);
 
   // Create the game and start the main game loop. Nothing beyond this point will execute.
   game.RunGameLoop();

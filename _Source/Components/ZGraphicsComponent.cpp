@@ -50,17 +50,10 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   ZMaterialProperties materialProperties;
   materialProperties.albedo = glm::vec4(0.64f, 0.63f, 0.51f, 1.f);
   materialProperties.diffuse = glm::vec3(1.0f);
-  materialProperties.ambient = glm::vec3(0.5f);
-  materialProperties.specular = glm::vec3(0.3f);
-  materialProperties.shininess = 20.0f;
-  shader->SetMaterial(ZMaterial(materialProperties));
-
-  // TODO: Extract
-  shader->SetBool("lights[0].isDirectional", true);
-  shader->SetBool("lights[0].isEnabled", true);
-  shader->SetVec3("lights[0].ambient", glm::vec3(0.3f));
-  shader->SetVec3("lights[0].color", glm::vec3(0.8f));
-  shader->SetVec3("lights[0].direction", glm::vec3(0.3f, 0.9f, 0.3f));
+  materialProperties.ambient = glm::vec3(0.2f);
+  materialProperties.specular = glm::vec3(0.4f);
+  materialProperties.shininess = 10.0f;
+  shader->Use(ZMaterial(materialProperties));
 
   model_->Render(shader);
 
