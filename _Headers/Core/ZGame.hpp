@@ -11,6 +11,7 @@
 // Includes
 #include "ZGameObject.hpp"
 #include <vector>
+#include <initializer_list>
 
 // Forward Declarations
 class ZCamera;
@@ -29,6 +30,7 @@ public:
   void RunGameLoop();
 
   void AddGameObject(ZGameObject* gameObject);
+  void AddGameObjects(std::initializer_list<ZGameObject*> gameObjects);
   ZCamera* GetActiveCamera() const;
 
   void HandleEscape() override;

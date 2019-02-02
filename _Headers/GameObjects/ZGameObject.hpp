@@ -23,8 +23,12 @@ private:
   void CalculateTangentBasis();
 
 public:
-  ZGameObject(glm::vec4 position = glm::vec4(glm::vec3(0.0f), 1.0f), glm::vec4 up = ZEngine::WORLD_UP, glm::vec4 rotation = glm::vec4(0.f, -90.f, 0.f, 0.f))
-  : position_(position), eulerRotation_(rotation), front_(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)), up_(up) { CalculateTangentBasis(); }
+  ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::vec3 rotation = glm::vec3(0.f, -90.f, 0.f))
+  : position_(glm::vec4(position, 1.f)),
+    eulerRotation_(glm::vec4(rotation, 1.f)),
+    front_(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)),
+    up_(ZEngine::WORLD_UP)
+  { CalculateTangentBasis(); }
   virtual ~ZGameObject() { }
 
   virtual void Update() { }
@@ -38,15 +42,15 @@ public:
   virtual void HandleFire() { }
   virtual void HandleEscape() { }
 
-  void SetPosition(glm::vec4 position) { position_ = position; }
-  void SetRotation(glm::vec4 rotation) { eulerRotation_ = rotation; }
-  void SetFrontVector(glm::vec4 front);
+  void SetPosition(glm::vec3 position) { position_ = glm::vec4(position, 1.f); }
+  void SetRotation(glm::vec3 rotation) { eulerRotation_ = glm::vec4(rotation, 0.f); }
+  void SetFrontVector(glm::vec3 front);
 
-  const glm::vec4& GetPosition() { return position_; }
-  const glm::vec4& GetRotation() { return eulerRotation_; }
-  const glm::vec4& GetFrontVector() { return front_; }
-  const glm::vec4& GetUpVector() { return up_; }
-  const glm::vec4& GetRightVector() { return right_; }
+  const glm::vec3 GetPosition() { return glm::vec3(position_); }
+  const glm::vec3 GetRotation() { return glm::vec3(eulerRotation_); }
+  const glm::vec3 GetFrontVector() { return glm::vec3(front_); }
+  const glm::vec3 GetUpVector() { return glm::vec3(up_); }
+  const glm::vec3 GetRightVector() { return glm::vec3(right_); }
 
 protected:
   glm::vec4 position_, eulerRotation_, front_, up_, right_;

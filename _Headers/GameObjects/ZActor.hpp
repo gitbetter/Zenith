@@ -21,20 +21,17 @@ private:
   ZGraphicsComponent* graphicsComponent_ = nullptr;
 
 public:
-  ZActor(glm::vec4 position = glm::vec4(glm::vec3(0.0f), 1.0f)) : ZGameObject(position) { }
+  ZActor(glm::vec3 position = glm::vec3(0.f)) : ZGameObject(position) { }
   ~ZActor() { }
 
   virtual void Update() override { };
   virtual void Render(float frameMix) override;
 
-  // TODO: Move this to ZGameObject and make it a templated method to store any type if component
+  // TODO: Move setter to ZGameObject and make it a templated method to store any type if component
   // Use a std::map to store typeid(T).name as the key and ZComponent* as the value, where T is the
   // templated parameter.
-  void SetGraphicsComponent(ZGraphicsComponent* graphicsComponent) {
-    graphicsComponent_ = graphicsComponent;
-  }
-
   ZGraphicsComponent* GetGraphicsComponent() const { return graphicsComponent_; }
+  void SetGraphicsComponent(ZGraphicsComponent* graphicsComponent);
 protected:
 
 };

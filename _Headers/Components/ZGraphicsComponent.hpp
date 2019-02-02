@@ -34,6 +34,10 @@ public:
   void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
   void ClearOutline();
 
+  void Scale(glm::vec3 scale);
+  void Translate(glm::vec3 translate);
+  void Rotate(float angle, glm::vec3 rotationAxis);
+
 protected:
   ZModel* model_ = nullptr;
   glm::mat4 projectionMatrix_, viewMatrix_, modelMatrix_;

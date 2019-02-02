@@ -16,3 +16,8 @@ void ZActor::Render(float frameMix) {
   ZCamera* camera = game_->GetActiveCamera();
   graphicsComponent_->Update(camera, frameMix);
 }
+
+void ZActor::SetGraphicsComponent(ZGraphicsComponent* graphicsComponent) {
+  graphicsComponent_ = graphicsComponent;
+  graphicsComponent_->Translate(position_);
+}

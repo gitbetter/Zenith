@@ -23,6 +23,10 @@ void ZCamera::HandleStrafe(float controlThrow) {
 void ZCamera::HandleForwardBack(float controlThrow) {
   float velocity = movementSpeed_ * ZEngine::DeltaTime();
   position_ += front_ * controlThrow * velocity;
+
+  if (cameraType_ == ZCameraType::Orthographic) {
+    zoom_ += zoomSpeed_ * controlThrow * velocity;
+  }
 }
 
 void ZCamera::HandlePitch(float controlThrow) {

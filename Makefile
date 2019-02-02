@@ -1,13 +1,19 @@
-CXX=g++
-RM=rm -rf
-CPPFLAGS= -std=c++11 -Wall -g -I_Headers/Components -I_Headers/Core -I_Headers/GameObjects -I_Headers/Graphics -I_Headers/Utility -I_Headers/Windowing -I_Headers/Input -I_Headers/InputCommands
-LDFLAGS=-g
-LDLIBS=-lglew -lglfw3
 SRC_DIR=_Source
+H_DIR=_Headers
 OBJ_DIR=_Bin
 
-CPP=$(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp)
+CXX=g++
+RM=rm -rf
+CPPFLAGS= -std=c++11 -Wall -g $(shell find $(H_DIR) -type d | sed s/^/-I/)
+LDFLAGS=-g
+LDLIBS=-lglew -lglfw3
+
+rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
+
+CPP=$(call rwildcard,$(SRC_DIR),*.cpp)
 OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP))
+
+_dummy := $(shell mkdir -p $(OBJ_DIR)/{Components,Core,GameObjects,Graphics,Utility,Input,InputCommands,Windowing})
 
 ifeq ($(shell uname -s),Darwin)
 	LDLIBS += -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo -framework CoreFoundation
@@ -18,8 +24,6 @@ ifeq ($(OS),Windows_NT)
 endif
 
 LDLIBS += -lassimp
-
-$(shell mkdir -p $(OBJ_DIR)/{Components,Core,GameObjects,Graphics,Utility,Windowing,Input,InputCommands})
 
 all: game
 

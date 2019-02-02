@@ -29,9 +29,17 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   ZShader* shader = GetActiveShader();
   const ZWindow* window = ZEngine::GetGraphics()->GetWindow();
 
-  projectionMatrix_ = glm::perspective(glm::radians(camera->GetZoom()), (
-                                                float)window->GetWidth() / (float)window->GetHeight(),
-                                                camera->GetNearField(), camera->GetFarField());
+  if (camera->Type() == ZCameraType::Orthographic) {
+    float left = -(float)window->GetWidth() / (camera->GetZoom() * 2);
+    float right = -left;
+    float bottom = -(float)window->GetHeight() / (camera->GetZoom() * 2);
+    float top = -bottom;
+    projectionMatrix_ = glm::ortho(left, right, bottom, top, -camera->GetFarField() / 2.f, camera->GetFarField());
+  } else {
+    projectionMatrix_ = glm::perspective(glm::radians(camera->GetZoom()),
+                                         (float)window->GetWidth() / (float)window->GetHeight(),
+                                         camera->GetNearField(), camera->GetFarField());
+  }
   viewMatrix_ = camera->GetViewMatrix();
 
   // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
@@ -44,7 +52,7 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   shader->SetMat4("P", projectionMatrix_);
   shader->SetMat4("V", viewMatrix_);
   shader->SetMat4("M", modelMatrix_);
-  shader->SetVec3("viewDirection", glm::vec3(camera->GetFrontVector()));
+  shader->SetVec3("viewDirection", camera->GetFrontVector());
 
   // TODO: Extract this into the mesh or model, where the material lives
   ZMaterialProperties materialProperties;
@@ -90,4 +98,16 @@ void ZGraphicsComponent::DrawOutlineIfEnabled() {
 
 void ZGraphicsComponent::ClearOutline() {
   if (highlightShader_ != nullptr) delete highlightShader_;
+}
+
+void ZGraphicsComponent::Scale(glm::vec3 scale) {
+  modelMatrix_ = glm::scale(modelMatrix_, scale);
+}
+
+void ZGraphicsComponent::Translate(glm::vec3 translate) {
+  modelMatrix_ = glm::translate(modelMatrix_, translate);
+}
+
+void ZGraphicsComponent::Rotate(float angle, glm::vec3 rotationAxis) {
+  modelMatrix_ = glm::rotate(modelMatrix_, angle, rotationAxis);
 }

@@ -67,6 +67,12 @@ void ZGame::AddGameObject(ZGameObject* gameObject) {
   }
 }
 
+void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
+  for (ZGameObject* object : gameObjects) {
+    AddGameObject(object);
+  }
+}
+
 ZCamera* ZGame::GetActiveCamera() const {
   if (activeCameraIndex_ < 0) return nullptr;
   return gameCameras_[activeCameraIndex_];

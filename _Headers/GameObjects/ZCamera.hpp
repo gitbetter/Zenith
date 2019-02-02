@@ -17,17 +17,26 @@
 class ZInputComponent;
 
 // Class and Data Structure Definitions
+enum ZCameraType {
+  Orthographic, Perspective
+};
+
 class ZCamera : public ZGameObject {
 private:
   float movementSpeed_ = 2.2f;
   float lookSensitivity_ = 0.1f;
   float zoom_ = 45.0f;
+  float zoomSpeed_ = 5.0f;
   float nearClippingPlane_ = 0.01f;
-  float farClippingPlane_ = 100.0f;
+  float farClippingPlane_ = 1000.0f;
+  ZCameraType cameraType_;
 
 public:
-  ZCamera(glm::vec4 position = glm::vec4(glm::vec3(0.0f), 1.0f), glm::vec4 rotation = glm::vec4(0.f, -90.f, 0.f, 0.f))
-  : ZGameObject(position, ZEngine::WORLD_UP, rotation) { }
+  ZCamera(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f), glm::vec3 rotation = glm::vec3(0.f, -90.f, 0.f))
+  : ZGameObject(position, rotation) {
+    cameraType_ = type;
+    zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
+  }
 
   virtual void Update() override { }
   virtual void Render(float frameMix) override { };
@@ -36,6 +45,9 @@ public:
   virtual void HandleForwardBack(float controlThrow) override;
   virtual void HandlePitch(float controlThrow) override;
   virtual void HandleYaw(float controlThrow) override;
+
+  ZCameraType Type() { return cameraType_; }
+  void SetType(ZCameraType type) { cameraType_ = type; }
 
   virtual glm::mat4 GetViewMatrix();
   float GetZoom() const { return zoom_; }
