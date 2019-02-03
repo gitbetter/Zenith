@@ -44,20 +44,6 @@ int main(int argc, const char * argv[]) {
   // Create our primary shader
   ZShader shader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
 
-  // Now it's time to add a skybox. Easy, but note, this should be the first visible game object we add.
-  // Create the skybox object...
-  ZModel skybox = ZModel::NewSkybox();
-  // ... and a special set of skybox shaders.
-  // TODO: This should be implicitly part of a skybox creation routine
-  ZShader skyboxShader("Resources/Shaders/Vertex/skybox.vert", "Resources/Shaders/Pixel/skybox.frag");
-  ZGraphicsComponent skyboxGraphicsComponent(&skybox, &skyboxShader);
-
-  ZActor skyboxActor;
-  skyboxActor.SetGraphicsComponent(&skyboxGraphicsComponent);
-  skyboxActor.ShouldTranslateWithView(false);
-
-  game.AddGameObject(&skyboxActor);
-
   // Now let's add some renderable game objects to test
   // TODO: How can identify model meshes to add materials independently?
   ZModel ground = ZModel::NewPlanePrimitive(glm::vec3(300.f, 0.f, 300.f));
@@ -74,6 +60,23 @@ int main(int argc, const char * argv[]) {
   mainActor.SetGraphicsComponent(&graphicsComp);
 
   game.AddGameObjects({&mainActor, &groundActor});
+
+  // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
+  // The depth value of the skybox will always be 1.0, so we must check it last to make sure it is
+  // culled properly.
+  
+  // Create the skybox object...
+  ZModel skybox = ZModel::NewSkybox();
+  // ... and a special set of skybox shaders.
+  // TODO: This should be implicitly part of a skybox creation routine
+  ZShader skyboxShader("Resources/Shaders/Vertex/skybox.vert", "Resources/Shaders/Pixel/skybox.frag");
+  ZGraphicsComponent skyboxGraphicsComponent(&skybox, &skyboxShader);
+
+  ZActor skyboxActor;
+  skyboxActor.SetGraphicsComponent(&skyboxGraphicsComponent);
+  skyboxActor.ShouldTranslateWithView(false);
+
+  game.AddGameObject(&skyboxActor);
 
   // Now add some lights, because it's dark in here.
   std::vector<ZLight> lights{ ZLight(ZLightType::Directional) };

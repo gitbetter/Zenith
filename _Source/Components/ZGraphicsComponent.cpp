@@ -46,7 +46,7 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
   glStencilMask(0xFF);
-  if (!translatesWithView_) glDepthMask(GL_FALSE);
+  //if (!translatesWithView_) glDepthMask(GL_FALSE);
 
   // TODO: Set to ZGraphicsComponent transform property
   // model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
@@ -60,7 +60,7 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
 
   DrawOutlineIfEnabled();
 
-  if (!translatesWithView_) glDepthMask(GL_TRUE);
+  //if (!translatesWithView_) glDepthMask(GL_TRUE);
 }
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {

@@ -40,7 +40,7 @@ void ZGLGraphics::Initialize(int windowWidth, int windowHeight) {
   glewInit();
 
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
+  glDepthFunc(GL_LEQUAL);
   glEnable(GL_STENCIL_TEST);
   glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
