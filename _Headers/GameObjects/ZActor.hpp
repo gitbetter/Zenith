@@ -32,6 +32,8 @@ public:
   // templated parameter.
   ZGraphicsComponent* GetGraphicsComponent() const { return graphicsComponent_; }
   void SetGraphicsComponent(ZGraphicsComponent* graphicsComponent);
+
+  virtual void ShouldTranslateWithView(bool translates) override;
 protected:
 
 };

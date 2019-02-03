@@ -21,6 +21,7 @@ class ZCamera;
 class ZGraphicsComponent : ZComponent {
 private:
   unsigned int activeShaderIndex_ = -1;
+  bool translatesWithView_ = true;
 
   void DrawOutlineIfEnabled();
 
@@ -33,6 +34,8 @@ public:
 
   void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
   void ClearOutline();
+
+  void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 
   void Scale(glm::vec3 scale);
   void Translate(glm::vec3 translate);

@@ -16,9 +16,10 @@
 #include "ZLogger.hpp"
 
 #include <chrono>
+#include <cassert>
 using namespace std;
 
-ZGame::ZGame() { }
+ZGame::ZGame() : activeCameraIndex_(-1) { }
 
 void ZGame::RunGameLoop() {
   ZLogger::Log("Zenith is about to loop...", ZLoggerSeverity::Info);
@@ -60,7 +61,7 @@ void ZGame::AddGameObject(ZGameObject* gameObject) {
     gameObject->game_ = this;
     if (dynamic_cast<ZCamera*>(gameObject)) {
       gameCameras_.push_back(dynamic_cast<ZCamera*>(gameObject));
-      ++activeCameraIndex_;
+      activeCameraIndex_ += 1;
     } else {
       gameObjects_.push_back(gameObject);
     }
@@ -74,7 +75,7 @@ void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
 }
 
 ZCamera* ZGame::GetActiveCamera() const {
-  if (activeCameraIndex_ < 0) return nullptr;
+  assert(activeCameraIndex_ >= 0 && activeCameraIndex_ < gameCameras_.size());
   return gameCameras_[activeCameraIndex_];
 }
 

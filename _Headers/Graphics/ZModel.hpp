@@ -9,8 +9,9 @@
 #pragma once
 
 // Includes
-#include "ZMesh.hpp"
-#include <glm/vec4.hpp>
+#include "ZEngine.hpp"
+#include "ZGLMesh.hpp"
+#include <glm/glm.hpp>
 #include <vector>
 #include <string>
 
@@ -25,24 +26,28 @@ enum ZPrimitiveType {
 
 class ZModel {
 private:
-  std::vector<ZMesh> meshes_;
+  std::vector<ZGLMesh> meshes_;
 
-  void CreatePlane(glm::vec3 scale);
-  void CreateCube(glm::vec3 scale);
-  void CreateSphere(glm::vec3 scale);
-  void CreateCylinder(glm::vec3 scale);
-  void CreateCone(glm::vec3 scale);
+  void CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures);
+  void CreateCube(glm::vec3 scale, std::vector<ZTexture> textures);
+  void CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures);
+  void CreateCylinder(glm::vec3 scale, std::vector<ZTexture> textures);
+  void CreateCone(glm::vec3 scale, std::vector<ZTexture> textures);
 
 public:
-  ZModel(ZPrimitiveType primitiveType, glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f));
+  ZModel(ZPrimitiveType primitiveType, glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f), std::vector<ZTexture> textures = {});
   ZModel(std::string path);
+  ZModel() { }
   ~ZModel() { }
+
+  void SetMaterial(ZMaterial material);
 
   virtual void Render(ZShader* shader);
 
-  static ZModel NewPlanePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f));
-  static ZModel NewCubePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f));
-  static ZModel NewSpherePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f));
-  static ZModel NewCylinderPrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f));
-  static ZModel NewConePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f));
+  static ZModel NewPlanePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f), std::vector<ZTexture> textures = {});
+  static ZModel NewCubePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f), std::vector<ZTexture> textures = {});
+  static ZModel NewSpherePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f), std::vector<ZTexture> textures = {});
+  static ZModel NewCylinderPrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f), std::vector<ZTexture> textures = {});
+  static ZModel NewConePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f), std::vector<ZTexture> textures = {});
+  static ZModel NewSkybox(std::vector<std::string> faces = ZEngine::DEFAULT_SKYBOX_CUBEMAP);
 };

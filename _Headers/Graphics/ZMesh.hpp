@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "ZLogger.hpp"
 #include "ZMaterial.hpp"
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -33,16 +34,16 @@ struct ZVertex {
 
 class ZMesh {
   friend class ZModel;
-private:
-  unsigned int vao_, vbo_, ebo_;
-  void Setup();
 public:
   std::vector<ZVertex> vertices_;
   std::vector<unsigned int> indices_;
   ZMaterial material_;
 
-  ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material);
+  ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material)
+  : vertices_(vertices), indices_(indices), material_(material) { }
   virtual ~ZMesh() { }
 
-  virtual void Render(ZShader* shader);
+  virtual void SetMaterial(ZMaterial material) { material_ = material; }
+
+  virtual void Render(ZShader* shader) = 0;
 };

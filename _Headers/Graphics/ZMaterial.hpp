@@ -42,6 +42,8 @@ public:
   ZMaterial(ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
   ZMaterial(std::vector<ZTexture> textures) : ZMaterial(0) { textures_ = textures; }
 
+  static ZMaterial DefaultMaterial();
+
   void SetProperties(ZMaterialProperties properties) { properties_ = properties; }
   const ZMaterialProperties& Properties() const { return properties_; }
 

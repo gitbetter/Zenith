@@ -35,7 +35,7 @@ int main(int argc, const char * argv[]) {
   input.Register(game);
 
   // Let's add a camera to the game
-  ZCamera camera(ZCameraType::Orthographic, glm::vec3(0.0f, 2.0f, 4.0f));
+  ZCamera camera(ZCameraType::Perspective, glm::vec3(0.0f, 2.0f, 4.0f));
   game.AddGameObject(&camera);
 
   // Register the camera so it receives input events
@@ -44,18 +44,34 @@ int main(int argc, const char * argv[]) {
   // Create our primary shader
   ZShader shader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
 
+  // Now it's time to add a skybox. Easy, but note, this should be the first visible game object we add.
+  // Create the skybox object...
+  ZModel skybox = ZModel::NewSkybox();
+  // ... and a special set of skybox shaders.
+  // TODO: This should be implicitly part of a skybox creation routine
+  ZShader skyboxShader("Resources/Shaders/Vertex/skybox.vert", "Resources/Shaders/Pixel/skybox.frag");
+  ZGraphicsComponent skyboxGraphicsComponent(&skybox, &skyboxShader);
+
+  ZActor skyboxActor;
+  skyboxActor.SetGraphicsComponent(&skyboxGraphicsComponent);
+  skyboxActor.ShouldTranslateWithView(false);
+
+  game.AddGameObject(&skyboxActor);
+
   // Now let's add some renderable game objects to test
   // TODO: How can identify model meshes to add materials independently?
-  ZModel ground = ZModel::NewPlanePrimitive(glm::vec3(500.f, 0.f, 500.f));
+  ZModel ground = ZModel::NewPlanePrimitive(glm::vec3(300.f, 0.f, 300.f));
   ZModel model("Resources/Models/test_up.dae");
-  ZActor mainActor(glm::vec3(0.f, 4.f, 0.f));
+  model.SetMaterial(ZMaterial::DefaultMaterial());
+
   ZActor groundActor;
+  ZActor mainActor(glm::vec3(0.f, 4.f, 0.f));
 
   // ... and add graphics components to them, with the newly created models and shaders
-  ZGraphicsComponent graphicsComp(&model, &shader);
   ZGraphicsComponent groundGraphicsComp(&ground, &shader);
-  mainActor.SetGraphicsComponent(&graphicsComp);
+  ZGraphicsComponent graphicsComp(&model, &shader);
   groundActor.SetGraphicsComponent(&groundGraphicsComp);
+  mainActor.SetGraphicsComponent(&graphicsComp);
 
   game.AddGameObjects({&mainActor, &groundActor});
 

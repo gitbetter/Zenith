@@ -1,5 +1,5 @@
 //
-//  ZModelImporter.hpp
+//  ZGLModelImporter.hpp
 //  Zenith
 //
 //  Created by Adrian Sanchez on 27/01/2019.
@@ -9,6 +9,8 @@
 #pragma once
 
 // Includes
+#include "ZGLMesh.hpp"
+
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -17,21 +19,20 @@
 #include <assimp/material.h>
 
 // Forward Declarations
-class ZMesh;
 struct ZTexture;
 
 // Class and Data Structure Definitions
-class ZModelImporter {
+class ZGLModelImporter {
 private:
   static std::unordered_map<std::string, ZTexture> loadedTextures;
 
-  void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZMesh>& outMeshes);
-  ZMesh ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory);
+  void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZGLMesh>& outMeshes);
+  ZGLMesh ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory);
   std::vector<ZTexture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory);
   unsigned int TextureFromFile(std::string path, const std::string& directory);
 
 public:
-  void LoadModel(std::string modelPath, std::vector<ZMesh>& outMeshes);
+  void LoadModel(std::string modelPath, std::vector<ZGLMesh>& outMeshes);
 
 protected:
 

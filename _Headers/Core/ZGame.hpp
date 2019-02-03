@@ -15,13 +15,14 @@
 
 // Forward Declarations
 class ZCamera;
+class ZActor;
 
 // Class and Data Structure Definitions
 class ZGame : public ZGameObject {
 private:
   std::vector<ZGameObject*> gameObjects_;
   std::vector<ZCamera*> gameCameras_;
-  int activeCameraIndex_ = -1;
+  int activeCameraIndex_;
 
 public:
   ZGame();
@@ -29,9 +30,10 @@ public:
 
   void RunGameLoop();
 
+  ZCamera* GetActiveCamera() const;
+
   void AddGameObject(ZGameObject* gameObject);
   void AddGameObjects(std::initializer_list<ZGameObject*> gameObjects);
-  ZCamera* GetActiveCamera() const;
 
   void HandleEscape() override;
 

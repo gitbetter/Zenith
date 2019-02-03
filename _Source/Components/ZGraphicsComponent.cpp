@@ -40,11 +40,13 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
                                          (float)window->GetWidth() / (float)window->GetHeight(),
                                          camera->GetNearField(), camera->GetFarField());
   }
-  viewMatrix_ = camera->GetViewMatrix();
+
+  viewMatrix_ = translatesWithView_ ? camera->GetViewMatrix() : glm::mat4(glm::mat3(camera->GetViewMatrix()));
 
   // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
   glStencilMask(0xFF);
+  if (!translatesWithView_) glDepthMask(GL_FALSE);
 
   // TODO: Set to ZGraphicsComponent transform property
   // model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
@@ -54,18 +56,11 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   shader->SetMat4("M", modelMatrix_);
   shader->SetVec3("viewDirection", camera->GetFrontVector());
 
-  // TODO: Extract this into the mesh or model, where the material lives
-  ZMaterialProperties materialProperties;
-  materialProperties.albedo = glm::vec4(0.64f, 0.63f, 0.51f, 1.f);
-  materialProperties.diffuse = glm::vec3(1.0f);
-  materialProperties.ambient = glm::vec3(0.2f);
-  materialProperties.specular = glm::vec3(0.4f);
-  materialProperties.shininess = 10.0f;
-  shader->Use(ZMaterial(materialProperties));
-
   model_->Render(shader);
 
   DrawOutlineIfEnabled();
+
+  if (!translatesWithView_) glDepthMask(GL_TRUE);
 }
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {

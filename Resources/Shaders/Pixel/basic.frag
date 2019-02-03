@@ -15,7 +15,7 @@ struct HemisphereLight {
 struct Light {
   bool isEnabled;
   bool isSpot;
-  bool isDirectional;  
+  bool isDirectional;
   vec3 ambient;
   vec3 color;
   vec3 position;
@@ -46,7 +46,7 @@ uniform Light lights[MAX_LOCAL_LIGHTS];
 uniform Material materials[MAX_MATERIALS];
 
 uniform HemisphereLight hemisphereLight;
-// TODO? Consider SSBOs for a varying number of lights
+// TODO: Consider SSBOs for a varying number of lights
 
 void main() {
   vec3 scatteredLight = vec3(0.0);

@@ -21,3 +21,9 @@ void ZActor::SetGraphicsComponent(ZGraphicsComponent* graphicsComponent) {
   graphicsComponent_ = graphicsComponent;
   graphicsComponent_->Translate(position_);
 }
+
+void ZActor::ShouldTranslateWithView(bool translates) {
+  ZGameObject::ShouldTranslateWithView(translates);
+  if (graphicsComponent_ != nullptr)
+    graphicsComponent_->ShouldTranslateWithView(translates);
+}

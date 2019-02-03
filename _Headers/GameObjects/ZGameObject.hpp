@@ -27,7 +27,8 @@ public:
   : position_(glm::vec4(position, 1.f)),
     eulerRotation_(glm::vec4(rotation, 1.f)),
     front_(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)),
-    up_(ZEngine::WORLD_UP)
+    up_(ZEngine::WORLD_UP),
+    translatesWithView_(false)
   { CalculateTangentBasis(); }
   virtual ~ZGameObject() { }
 
@@ -45,6 +46,7 @@ public:
   void SetPosition(glm::vec3 position) { position_ = glm::vec4(position, 1.f); }
   void SetRotation(glm::vec3 rotation) { eulerRotation_ = glm::vec4(rotation, 0.f); }
   void SetFrontVector(glm::vec3 front);
+  virtual void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 
   const glm::vec3 GetPosition() { return glm::vec3(position_); }
   const glm::vec3 GetRotation() { return glm::vec3(eulerRotation_); }
@@ -54,7 +56,8 @@ public:
 
 protected:
   glm::vec4 position_, eulerRotation_, front_, up_, right_;
-  ZGame* game_;
+  bool translatesWithView_;
+  ZGame* game_; // TODO: Set this to a parent ZGameObject pointer instead
 
   void UpdateFrontVectorRotation();
 };

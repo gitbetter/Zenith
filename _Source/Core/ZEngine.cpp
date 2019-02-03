@@ -14,6 +14,14 @@
 const float ZEngine::MS_PER_UPDATE = 17.0f;
 const int ZEngine::MAX_FIXED_UPDATE_ITERATIONS = 50;
 const glm::vec4 ZEngine::WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);
+const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
+  "Resources/Skyboxes/Default/right.tga",
+  "Resources/Skyboxes/Default/left.tga",
+  "Resources/Skyboxes/Default/up.tga",
+  "Resources/Skyboxes/Default/down.tga",
+  "Resources/Skyboxes/Default/front.tga",
+  "Resources/Skyboxes/Default/back.tga",
+};
 
 ZGraphics* ZEngine::graphics_ = new ZNullGraphics;
 ZInput* ZEngine::input_ = new ZNullInput;

@@ -10,8 +10,14 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
+// We'll use more of these in the future to define our graphics implementation.
+// For now, we're only assuming OpenGL
+#define OGL_IMP
+
 // Includes
 #include <glm/vec4.hpp>
+#include <string>
+#include <vector>
 
 // Forward Declarations
 class ZGraphics;
@@ -27,6 +33,7 @@ public:
   static const float MS_PER_UPDATE;
   static const int MAX_FIXED_UPDATE_ITERATIONS;
   static const glm::vec4 WORLD_UP;
+  static const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP;
 
   static ZGraphics* GetGraphics();
   static ZInput* GetInput();

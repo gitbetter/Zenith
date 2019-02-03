@@ -1,14 +1,13 @@
 //
-//  ZModelImporter.cpp
+//  ZGLModelImporter.cpp
 //  Zenith
 //
 //  Created by Adrian Sanchez on 27/01/2019.
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
-#include "ZModelImporter.hpp"
+#include "ZGLModelImporter.hpp"
 #include "ZLogger.hpp"
-#include "ZMesh.hpp"
 #include "ZMaterial.hpp"
 #include <assimp/Importer.hpp>
 #include <GL/glew.h>
@@ -17,7 +16,7 @@
 #include "stb_image.hpp"
 
 // Store already loaded textures in a map, since lookups are faster, and we may have many
-std::unordered_map<std::string, ZTexture> ZModelImporter::loadedTextures;
+std::unordered_map<std::string, ZTexture> ZGLModelImporter::loadedTextures;
 
 /**
     Loads the model at the given path and outputs a set of meshes into the last parameter.
@@ -25,7 +24,7 @@ std::unordered_map<std::string, ZTexture> ZModelImporter::loadedTextures;
     @param shaderPath the path to the model file.
     @param outMeshes the mesh vector to populate.
 */
-void ZModelImporter::LoadModel(std::string modelPath, std::vector<ZMesh>& outMeshes) {
+void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZGLMesh>& outMeshes) {
   // Attempt to read the file
   // TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
   Assimp::Importer import;
@@ -33,7 +32,7 @@ void ZModelImporter::LoadModel(std::string modelPath, std::vector<ZMesh>& outMes
 
   // The file might have incomplete data or no nodes to traverse. Handle that.
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-    ZLogger::Log(std::string("ZModelImporter Error: ") + import.GetErrorString(), ZLoggerSeverity::Error);
+    ZLogger::Log(std::string("ZGLModelImporter Error: ") + import.GetErrorString(), ZLoggerSeverity::Error);
     return;
   }
 
@@ -49,7 +48,7 @@ void ZModelImporter::LoadModel(std::string modelPath, std::vector<ZMesh>& outMes
     @param shaderPath the path to the model file.
     @param outMeshes the mesh vector to populate.
 */
-void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZMesh>& outMeshes) {
+void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZGLMesh>& outMeshes) {
   // Process the node's meshes and add them to the out parameter
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -66,17 +65,17 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string
     A helper function that processes a single node mesh. The idea is to fetch
     the position, normal, and texture coordinates for each vertex, as well
     as the vertex indices and the materials for the mesh and populate all corresponding
-    Zenith data structures to finally return a ZMesh.
+    Zenith data structures to finally return a ZGLMesh.
 
     @param mesh the mesh to process.
     @param scene the aiScene that the mesh is a part of.
     @param directory the model directory, used for loading the textures for the materials.
-    @return a ZMesh instance with all the relevant data
+    @return a ZGLMesh instance with all the relevant data
 */
-ZMesh ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
+ZGLMesh ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
   std::vector<ZVertex> vertices;
   std::vector<unsigned int> indices;
-  std::vector<ZTexture> textures;
+  ZMaterial material;
 
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     ZVertex vertex;
@@ -113,14 +112,18 @@ ZMesh ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::strin
   }
 
   if (mesh->mMaterialIndex >= 0) {
+    std::vector<ZTexture> textures;
     aiMaterial* meshMaterial = scene->mMaterials[mesh->mMaterialIndex];
     std::vector<ZTexture> diffuseMaps = LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE, "diffuse", directory);
     std::vector<ZTexture> specularMaps = LoadMaterialTextures(meshMaterial, aiTextureType_SPECULAR, "specular", directory);
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+    material = ZMaterial(textures);
+  } else {
+    material = ZMaterial::DefaultMaterial();
   }
 
-  return ZMesh(vertices, indices, ZMaterial(textures));
+  return ZGLMesh(vertices, indices, material);
 }
 
 /**
@@ -132,7 +135,7 @@ ZMesh ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::strin
     @param directory the directory that supposedly contains the textures. We'll see.
     @return a vector of ZTextures with all the relevant data
 */
-std::vector<ZTexture> ZModelImporter::LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory) {
+std::vector<ZTexture> ZGLModelImporter::LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory) {
   std::vector<ZTexture> textures;
   for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
     aiString str;
@@ -151,7 +154,7 @@ std::vector<ZTexture> ZModelImporter::LoadMaterialTextures(aiMaterial *mat, aiTe
   return textures;
 }
 
-unsigned int ZModelImporter::TextureFromFile(std::string path, const std::string &directory) {
+unsigned int ZGLModelImporter::TextureFromFile(std::string path, const std::string &directory) {
   std::string filename = directory + '/' + path;
 
   unsigned int textureID;
@@ -174,7 +177,7 @@ unsigned int ZModelImporter::TextureFromFile(std::string path, const std::string
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   } else {
-    ZLogger::Log("ZModelImporter Error: Failed to load texture at " + path, ZLoggerSeverity::Error);
+    ZLogger::Log("ZGLModelImporter Error: Failed to load texture at " + path, ZLoggerSeverity::Error);
   }
 
   stbi_image_free(data);
