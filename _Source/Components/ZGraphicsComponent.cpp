@@ -12,6 +12,7 @@
 #include "ZCamera.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
+#include "ZLogger.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -44,8 +45,10 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   viewMatrix_ = translatesWithView_ ? camera->GetViewMatrix() : glm::mat4(glm::mat3(camera->GetViewMatrix()));
 
   // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
-  glStencilFunc(GL_ALWAYS, 1, 0xFF);
-  glStencilMask(0xFF);
+  //if (highlightShader_ != nullptr) {
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+  //}
 
   // TODO: Set to ZGraphicsComponent transform property
   // model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
@@ -71,11 +74,10 @@ void ZGraphicsComponent::DrawOutlineIfEnabled() {
 
   glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
   glStencilMask(0x00);
-  glDisable(GL_DEPTH_TEST);
 
   highlightShader_->Activate();
 
-  glm::mat4 highlightModelMatrix_ = glm::scale(modelMatrix_, glm::vec3(1.07f));
+  glm::mat4 highlightModelMatrix_ = glm::scale(modelMatrix_, glm::vec3(1.1f, 1.1f, 1.1f));
 
   highlightShader_->SetMat4("P", projectionMatrix_);
   highlightShader_->SetMat4("V", viewMatrix_);
@@ -85,7 +87,6 @@ void ZGraphicsComponent::DrawOutlineIfEnabled() {
   model_->Render(highlightShader_);
 
   glStencilMask(0xFF);
-  glEnable(GL_DEPTH_TEST);
 }
 
 void ZGraphicsComponent::ClearOutline() {

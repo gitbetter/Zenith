@@ -13,7 +13,6 @@
 #include "ZGameObject.hpp"
 
 // Forward Declarations
-class ZGraphicsComponent;
 
 // Class and Data Structure Definitions
 class ZActor : public ZGameObject {

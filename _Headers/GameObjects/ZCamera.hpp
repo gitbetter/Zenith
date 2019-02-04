@@ -14,7 +14,6 @@
 #include <glm/glm.hpp>
 
 // Forward Declarations
-class ZInputComponent;
 
 // Class and Data Structure Definitions
 enum ZCameraType {
