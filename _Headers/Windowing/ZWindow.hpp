@@ -26,10 +26,10 @@ public:
   virtual bool WindowShouldClose() const = 0;
   virtual void PollEvents() const = 0;
   virtual void Destroy() = 0;
+  virtual void SetSize(int width, int height);
 
   int GetWidth() const { return width_; }
   int GetHeight() const { return height_; }
-  void SetSize(int width, int height);
 
 protected:
   int width_, height_;

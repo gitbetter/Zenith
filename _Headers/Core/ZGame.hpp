@@ -37,6 +37,8 @@ public:
 
   void HandleEscape() override;
 
+  void MacDisplayHack(); // TODO: Remove later
+
   // TODO: Use a std::map to store typeid(T).name as the key and T* as the value for faster lookups
   template<class T> std::vector<T*> FindGameObjects() {
     std::vector<T*> objects;

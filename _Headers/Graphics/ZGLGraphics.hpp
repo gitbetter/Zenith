@@ -31,7 +31,7 @@ public:
   virtual void SwapBuffers() const override;
   virtual void UpdateWindowSize() override;
   virtual void Delete() override;
-  virtual const ZWindow* GetWindow() override { return window_; }
+  virtual ZWindow* GetWindow() override { return window_; }
 
 protected:
 

@@ -40,6 +40,11 @@ bool ZGLWindow::WindowShouldClose() const {
   return glfwWindowShouldClose(window_);
 }
 
+void ZGLWindow::SetSize(int width, int height) {
+  ZWindow::SetSize(width, height);
+  glfwSetWindowSize(window_, width, height);
+}
+
 void ZGLWindow::Destroy() {
   glfwDestroyWindow(window_);
 }

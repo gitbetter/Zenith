@@ -26,6 +26,7 @@ void ZGame::RunGameLoop() {
 
   float previousTime = ZEngine::MilliSecondTime();
   float lag = 0.0;
+
   while (!ZEngine::GetGraphics()->GetWindow()->WindowShouldClose()) {
     int fixedUpdates = 0;
     float currentTime = ZEngine::MilliSecondTime();
@@ -43,6 +44,7 @@ void ZGame::RunGameLoop() {
 
     Render(lag / ZEngine::MS_PER_UPDATE);
     ZEngine::GetGraphics()->GetWindow()->PollEvents();
+    MacDisplayHack();
   }
 }
 
@@ -81,4 +83,18 @@ ZCamera* ZGame::GetActiveCamera() const {
 
 void ZGame::HandleEscape() {
   ZEngine::GetGraphics()->GetWindow()->CloseWindow();
+}
+
+// -.-
+void ZGame::MacDisplayHack() {
+  #ifdef __APPLE__
+  static bool moved = false;
+  if (!moved) {
+    ZEngine::GetGraphics()->GetWindow()->SetSize(
+      ZEngine::GetGraphics()->GetWindow()->GetWidth() + 1,
+      ZEngine::GetGraphics()->GetWindow()->GetHeight() + 1
+    );
+    moved = true;
+  }
+  #endif
 }

@@ -28,6 +28,7 @@ public:
 
   virtual void CloseWindow() const override;
   virtual bool WindowShouldClose() const override;
+  void SetSize(int width, int height) override;
   virtual void PollEvents() const override;
   virtual void Destroy() override;
 

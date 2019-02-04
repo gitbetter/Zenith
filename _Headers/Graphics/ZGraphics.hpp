@@ -25,7 +25,7 @@ public:
   virtual void SwapBuffers() const = 0;
   virtual void UpdateWindowSize() { }
   virtual void Delete() = 0;
-  virtual const ZWindow* GetWindow() = 0;
+  virtual ZWindow* GetWindow() = 0;
 protected:
   ZWindow* window_ = nullptr;
 };
