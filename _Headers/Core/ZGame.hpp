@@ -37,6 +37,16 @@ public:
 
   void HandleEscape() override;
 
+  // TODO: Use a std::map to store typeid(T).name as the key and T* as the value for faster lookups
+  template<class T> std::vector<T*> FindGameObjects() {
+    std::vector<T*> objects;
+    for (ZGameObject* object : gameObjects_) {
+      if (dynamic_cast<T*>(object))
+        objects.push_back(dynamic_cast<T*>(object));
+    }
+    return objects;
+  }
+
 protected:
   void Update() override;
   void Render(float frameMix) override;

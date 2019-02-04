@@ -17,6 +17,7 @@
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZLight.hpp"
+#include "ZLogger.hpp"
 #include <glm/glm.hpp>
 
 int main(int argc, const char * argv[]) {
@@ -46,25 +47,25 @@ int main(int argc, const char * argv[]) {
 
   // Now let's add some renderable game objects to test
   // TODO: How can identify model meshes to add materials independently?
-  ZModel ground = ZModel::NewPlanePrimitive(glm::vec3(300.f, 0.f, 300.f));
+  ZModel ground = ZModel::NewPlanePrimitive(glm::vec3(100.f, 0.f, 100.f));
   ZModel model("Resources/Models/test_up.dae");
   model.SetMaterial(ZMaterial::DefaultMaterial());
 
   ZActor groundActor;
-  ZActor mainActor(glm::vec3(0.f, 4.f, 0.f));
+  ZActor mainActor(glm::vec3(0.f, 2.f, 0.f));
 
   // ... and add graphics components to them, with the newly created models and shaders
   ZGraphicsComponent groundGraphicsComp(&ground, &shader);
   ZGraphicsComponent graphicsComp(&model, &shader);
-  groundActor.SetGraphicsComponent(&groundGraphicsComp);
-  mainActor.SetGraphicsComponent(&graphicsComp);
+  groundActor.AddComponent(&groundGraphicsComp);
+  mainActor.AddComponent(&graphicsComp);
 
   game.AddGameObjects({&mainActor, &groundActor});
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
-  // The depth value of the skybox will always be 1.0, so we must check it last to make sure it is
+  // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
   // culled properly.
-  
+
   // Create the skybox object...
   ZModel skybox = ZModel::NewSkybox();
   // ... and a special set of skybox shaders.
@@ -73,13 +74,13 @@ int main(int argc, const char * argv[]) {
   ZGraphicsComponent skyboxGraphicsComponent(&skybox, &skyboxShader);
 
   ZActor skyboxActor;
-  skyboxActor.SetGraphicsComponent(&skyboxGraphicsComponent);
+  skyboxActor.AddComponent(&skyboxGraphicsComponent);
   skyboxActor.ShouldTranslateWithView(false);
 
   game.AddGameObject(&skyboxActor);
 
   // Now add some lights, because it's dark in here.
-  std::vector<ZLight> lights{ ZLight(ZLightType::Directional) };
+  std::vector<ZLight> lights{ ZLight(ZLightType::Directional), ZLight(ZLightType::Hemisphere) };
   shader.Use(lights);
 
   // Create the game and start the main game loop. Nothing beyond this point will execute.

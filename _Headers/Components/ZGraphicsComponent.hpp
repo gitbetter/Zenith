@@ -18,7 +18,7 @@ class ZShader;
 class ZCamera;
 
 // Class and Data Structure Definitions
-class ZGraphicsComponent : ZComponent {
+class ZGraphicsComponent : public ZComponent {
 private:
   unsigned int activeShaderIndex_ = -1;
   bool translatesWithView_ = true;

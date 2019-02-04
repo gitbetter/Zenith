@@ -13,17 +13,17 @@
 
 void ZActor::Render(float frameMix) {
   ZGameObject::Render(frameMix);
-  ZCamera* camera = game_->GetActiveCamera();
-  graphicsComponent_->Update(camera, frameMix);
-}
-
-void ZActor::SetGraphicsComponent(ZGraphicsComponent* graphicsComponent) {
-  graphicsComponent_ = graphicsComponent;
-  graphicsComponent_->Translate(position_);
+  ZGraphicsComponent* graphicsComp = FindComponent<ZGraphicsComponent>();
+  if (graphicsComp != nullptr) {
+    ZCamera* camera = game_->GetActiveCamera();
+    graphicsComp->Update(camera, frameMix);
+  }
 }
 
 void ZActor::ShouldTranslateWithView(bool translates) {
   ZGameObject::ShouldTranslateWithView(translates);
-  if (graphicsComponent_ != nullptr)
-    graphicsComponent_->ShouldTranslateWithView(translates);
+  ZGraphicsComponent* graphicsComp = FindComponent<ZGraphicsComponent>();
+  if (graphicsComp != nullptr) {
+    graphicsComp->ShouldTranslateWithView(translates);
+  }
 }

@@ -10,7 +10,10 @@
 
 // Includes
 #include "ZEngine.hpp"
+#include "ZGraphicsComponent.hpp"
+#include "ZLogger.hpp"
 #include <glm/glm.hpp>
+#include <type_traits>
 
 // Forward Declarations
 class ZGame;
@@ -54,10 +57,45 @@ public:
   const glm::vec3 GetUpVector() { return glm::vec3(up_); }
   const glm::vec3 GetRightVector() { return glm::vec3(right_); }
 
+  template<class T>
+  typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
+  AddComponent(T* component) {
+    T* foundComponent = FindComponent<T>();
+    if (foundComponent != nullptr) {
+
+    } else {
+      if (std::is_same<T, ZGraphicsComponent>::value) component->Translate(position_);
+      components_.push_back(component);
+    }
+  }
+
+  template<class T> T* FindComponent() {
+    for (ZComponent* comp : components_) {
+      if (dynamic_cast<T*>(comp)) return dynamic_cast<T*>(comp);
+    }
+    return nullptr;
+  }
+
+  template<class T> T* RemoveComponent() {
+    std::vector<ZComponent*>::iterator found;
+    for (std::vector<ZComponent*>::iterator it = components_.begin(); it != components_.end(); ++it) {
+      if (dynamic_cast<T*>(*it)) {
+        found = it; break;
+      }
+    }
+
+    if (found == components_.end()) return nullptr;
+
+    T* removed = *found;
+    components_.erase(found);
+    return removed;
+  }
+
 protected:
   glm::vec4 position_, eulerRotation_, front_, up_, right_;
   bool translatesWithView_;
-  ZGame* game_; // TODO: Set this to a parent ZGameObject pointer instead
+  ZGame* game_;
+  std::vector<ZComponent*> components_;
 
   void UpdateFrontVectorRotation();
 };

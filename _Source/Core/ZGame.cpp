@@ -75,7 +75,7 @@ void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
 }
 
 ZCamera* ZGame::GetActiveCamera() const {
-  assert(activeCameraIndex_ >= 0 && activeCameraIndex_ < gameCameras_.size());
+  assert(activeCameraIndex_ >= 0 && activeCameraIndex_ < gameCameras_.size()); // TODO: remove
   return gameCameras_[activeCameraIndex_];
 }
 
