@@ -19,6 +19,9 @@
 #include <string>
 #include <glm/gtx/string_cast.hpp>
 
+// TODO: Make ZShader and interface, and rework this specific implementation as ZGLShader
+// which derives from the ZShader interface
+
 ZShader::ZShader(const std::string& vShaderPath, const std::string& pShaderPath, const std::string& gShaderPath) {
   // Get the shader sources
   std::string vShaderCode = GetShaderCode(vShaderPath);

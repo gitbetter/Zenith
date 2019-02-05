@@ -35,6 +35,8 @@ public:
   void AddGameObject(ZGameObject* gameObject);
   void AddGameObjects(std::initializer_list<ZGameObject*> gameObjects);
 
+  void SetDefaultSkybox();
+
   void HandleEscape() override;
 
   void MacDisplayHack(); // TODO: Remove later

@@ -10,6 +10,12 @@
 #include "ZGameObject.hpp"
 #include "ZLogger.hpp"
 
+ZGameObject::~ZGameObject() {
+  for (ZComponent* component : components_) {
+    delete component;
+  }
+}
+
 void ZGameObject::SetFrontVector(glm::vec3 front) {
   front_ = glm::normalize(glm::vec4(front, 1.f));
   CalculateTangentBasis();

@@ -29,6 +29,8 @@ public:
 
   virtual void Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix) override;
   virtual void SwapBuffers() const override;
+  virtual void EnableStencilBuffer() const override;
+  virtual void DisableStencilBuffer() const override;
   virtual void UpdateWindowSize() override;
   virtual void Delete() override;
   virtual ZWindow* GetWindow() override { return window_; }

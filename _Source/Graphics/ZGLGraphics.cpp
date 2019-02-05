@@ -68,6 +68,16 @@ void ZGLGraphics::SwapBuffers() const {
   glfwSwapBuffers(glWindow->GetHandle());
 }
 
+void ZGLGraphics::EnableStencilBuffer() const {
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  glStencilMask(0xFF);
+}
+
+void ZGLGraphics::DisableStencilBuffer() const {
+  glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+  glStencilMask(0x00);
+}
+
 void ZGLGraphics::UpdateWindowSize() {
   ZGLWindow* glWindow = dynamic_cast<ZGLWindow*>(window_);
   assert(glWindow);

@@ -23,6 +23,8 @@ public:
 
   virtual void Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix = 0.0) = 0;
   virtual void SwapBuffers() const = 0;
+  virtual void EnableStencilBuffer() const = 0;
+  virtual void DisableStencilBuffer() const = 0;
   virtual void UpdateWindowSize() { }
   virtual void Delete() = 0;
   virtual ZWindow* GetWindow() = 0;

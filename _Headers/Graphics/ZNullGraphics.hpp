@@ -37,7 +37,15 @@ public:
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 
-    const ZWindow* GetWindow() override {
+    void EnableStencilBuffer() const override {
+      ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
+    }
+
+    void DisableStencilBuffer() const override {
+      ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
+    }
+
+    ZWindow* GetWindow() override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
       return nullptr; // Should we?
     }

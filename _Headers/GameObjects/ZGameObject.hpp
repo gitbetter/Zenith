@@ -33,7 +33,7 @@ public:
     up_(ZEngine::WORLD_UP),
     translatesWithView_(false)
   { CalculateTangentBasis(); }
-  virtual ~ZGameObject() { }
+  virtual ~ZGameObject();
 
   virtual void Update() { }
   virtual void Render(float frameMix) { }

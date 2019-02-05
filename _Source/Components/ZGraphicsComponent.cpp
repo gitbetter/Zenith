@@ -14,8 +14,6 @@
 #include "ZShader.hpp"
 #include "ZLogger.hpp"
 #include <glm/gtc/matrix_transform.hpp>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : model_(model), modelMatrix_(1.f), highlightColor_(0) {
   if (shader != nullptr) {
@@ -45,10 +43,7 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
   viewMatrix_ = translatesWithView_ ? camera->GetViewMatrix() : glm::mat4(glm::mat3(camera->GetViewMatrix()));
 
   // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
-  //if (highlightShader_ != nullptr) {
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
-  //}
+  ZEngine::GetGraphics()->EnableStencilBuffer();
 
   // TODO: Set to ZGraphicsComponent transform property
   // model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
@@ -72,8 +67,7 @@ void ZGraphicsComponent::SetOutline(glm::vec4 color) {
 void ZGraphicsComponent::DrawOutlineIfEnabled() {
   if (highlightShader_ == nullptr) return;
 
-  glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-  glStencilMask(0x00);
+  ZEngine::GetGraphics()->DisableStencilBuffer();
 
   highlightShader_->Activate();
 
@@ -86,7 +80,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled() {
 
   model_->Render(highlightShader_);
 
-  glStencilMask(0xFF);
+  ZEngine::GetGraphics()->EnableStencilBuffer();
 }
 
 void ZGraphicsComponent::ClearOutline() {

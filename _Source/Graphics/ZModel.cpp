@@ -51,8 +51,8 @@ void ZModel::SetMaterial(ZMaterial material) {
 /**
  *  Plane Creation
  */
-ZModel ZModel::NewPlanePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return ZModel(ZPrimitiveType::Plane, scale, textures);
+ZModel* ZModel::NewPlanePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return new ZModel(ZPrimitiveType::Plane, scale, textures);
 }
 
 void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -78,8 +78,8 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Cube Creation
  */
-ZModel ZModel::NewCubePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return ZModel(ZPrimitiveType::Cube, scale, textures);
+ZModel* ZModel::NewCubePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return new ZModel(ZPrimitiveType::Cube, scale, textures);
 }
 
 void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -140,8 +140,8 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Sphere Creation
  */
-ZModel ZModel::NewSpherePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return ZModel(ZPrimitiveType::Sphere, scale, textures);
+ZModel* ZModel::NewSpherePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return new ZModel(ZPrimitiveType::Sphere, scale, textures);
 }
 
 void ZModel::CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -151,8 +151,8 @@ void ZModel::CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Cylinder Creation
  */
-ZModel ZModel::NewCylinderPrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return ZModel(ZPrimitiveType::Cylinder, scale, textures);
+ZModel* ZModel::NewCylinderPrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return new ZModel(ZPrimitiveType::Cylinder, scale, textures);
 }
 
 void ZModel::CreateCylinder(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -162,8 +162,8 @@ void ZModel::CreateCylinder(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Cone Creation
  */
-ZModel ZModel::NewConePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return ZModel(ZPrimitiveType::Cone, scale, textures);
+ZModel* ZModel::NewConePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return new ZModel(ZPrimitiveType::Cone, scale, textures);
 }
 
 void ZModel::CreateCone(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -173,9 +173,11 @@ void ZModel::CreateCone(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Skybox Creation
  */
-ZModel ZModel::NewSkybox(std::vector<std::string> faces) {
-  ZModel skybox;
+ZModel* ZModel::NewSkybox(std::vector<std::string> faces) {
+  ZModel* skybox;
 
+  // TODO: Extract this and place it in the ZGLGraphics implementation since it is OGL specific
+  /////////////////////////////////////////////////////////////////////////////////////////////
   unsigned int cubemapId;
   glGenTextures(1, &cubemapId);
   glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapId);
@@ -196,6 +198,7 @@ ZModel ZModel::NewSkybox(std::vector<std::string> faces) {
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  /////////////////////////////////////////////////////////////////////////////////////////////
 
   std::vector<ZTexture> textures;
   for (std::string facePath : faces) {

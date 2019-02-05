@@ -12,8 +12,10 @@
 #include "ZWindow.hpp"
 #include "ZInput.hpp"
 #include "ZCamera.hpp"
-#include "ZGameObject.hpp"
 #include "ZLogger.hpp"
+#include "ZModel.hpp"
+#include "ZShader.hpp"
+#include "ZActor.hpp"
 
 #include <chrono>
 #include <cassert>
@@ -74,6 +76,19 @@ void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
   for (ZGameObject* object : gameObjects) {
     AddGameObject(object);
   }
+}
+
+void ZGame::SetDefaultSkybox() {
+  ZModel* skybox = ZModel::NewSkybox();
+  // ... and a special set of skybox shaders.
+  ZShader* skyboxShader = new ZShader("Resources/Shaders/Vertex/skybox.vert", "Resources/Shaders/Pixel/skybox.frag");
+  ZGraphicsComponent* skyboxGraphicsComponent = new ZGraphicsComponent(skybox, skyboxShader);
+
+  ZActor* skyboxActor = new ZActor();
+  skyboxActor->AddComponent(skyboxGraphicsComponent);
+  skyboxActor->ShouldTranslateWithView(false);
+
+  AddGameObject(skyboxActor);
 }
 
 ZCamera* ZGame::GetActiveCamera() const {

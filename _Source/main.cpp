@@ -47,42 +47,33 @@ int main(int argc, const char * argv[]) {
 
   // Now let's add some renderable game objects to test
   // TODO: How can identify model meshes to add materials independently?
-  ZModel ground = ZModel::NewPlanePrimitive(glm::vec3(100.f, 0.f, 100.f));
-  ZModel cube = ZModel::NewCubePrimitive(glm::vec3(3.f));
+  ZModel* ground = ZModel::NewPlanePrimitive(glm::vec3(100.f, 0.f, 100.f));
+  ZModel* cube = ZModel::NewCubePrimitive(glm::vec3(3.f));
 
   ZActor groundActor;
   ZActor cubeActor(glm::vec3(0.f, 4.f, 0.f));
 
   // ... and add graphics components to them, with the newly created models and shaders
-  ZGraphicsComponent groundGraphicsComp(&ground, &shader);
-  ZGraphicsComponent cubeGraphicsComp(&cube, &shader);
+  ZGraphicsComponent groundGraphicsComp(ground, &shader);
+  ZGraphicsComponent cubeGraphicsComp(cube, &shader);
   groundActor.AddComponent(&groundGraphicsComp);
   cubeActor.AddComponent(&cubeGraphicsComp);
+
+  cubeGraphicsComp.SetOutline();
 
   game.AddGameObjects({&cubeActor, &groundActor});
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
   // culled properly.
-
-  // TODO: This should be implicitly part of a skybox creation routine
-  // Create the skybox object...
-  ZModel skybox = ZModel::NewSkybox();
-  // ... and a special set of skybox shaders.
-  ZShader skyboxShader("Resources/Shaders/Vertex/skybox.vert", "Resources/Shaders/Pixel/skybox.frag");
-  ZGraphicsComponent skyboxGraphicsComponent(&skybox, &skyboxShader);
-
-  ZActor skyboxActor;
-  skyboxActor.AddComponent(&skyboxGraphicsComponent);
-  skyboxActor.ShouldTranslateWithView(false);
-
-  game.AddGameObject(&skyboxActor);
+  game.SetDefaultSkybox();
 
   // Now add some lights, because it's dark in here.
   std::vector<ZLight> lights{ ZLight(ZLightType::Directional), ZLight(ZLightType::Hemisphere) };
   shader.Use(lights);
 
-  // Create the game and start the main game loop. Nothing beyond this point will execute.
+  // Create the game and start the main game loop. Nothing beyond this point will execute
+  // for the duration of the game.
   game.RunGameLoop();
 
   return 0;
