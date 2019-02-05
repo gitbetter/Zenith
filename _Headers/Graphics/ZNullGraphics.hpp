@@ -16,6 +16,7 @@
 // Forward Declarations
 class ZGameObject;
 class ZWindow;
+struct ZLight;
 
 // Class and Data Structure Definitions
 class ZNullGraphics : public ZGraphics {
@@ -25,7 +26,7 @@ public:
     ZNullGraphics() { }
     ~ZNullGraphics() { }
 
-    void Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix) override {
+    void Draw(const std::vector<ZGameObject*>& gameObjects, const std::vector<ZLight*>& gameLights, float frameMix) override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 
@@ -33,15 +34,23 @@ public:
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 
-    void SwapBuffers() const override {
+    void SwapBuffers() override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 
-    void EnableStencilBuffer() const override {
+    void EnableStencilBuffer() override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 
-    void DisableStencilBuffer() const override {
+    void DisableStencilBuffer() override {
+      ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
+    }
+
+    void GenerateDepthMap() override {
+      ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
+    }
+
+    void DrawDepthMap(ZLight* light) override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 

@@ -57,7 +57,7 @@ void ZGame::Update() {
 }
 
 void ZGame::Render(float frameMix) {
-  ZEngine::GetGraphics()->Draw(gameObjects_, frameMix);
+  ZEngine::GetGraphics()->Draw(gameObjects_, gameLights_, frameMix);
 }
 
 void ZGame::AddGameObject(ZGameObject* gameObject) {
@@ -66,6 +66,8 @@ void ZGame::AddGameObject(ZGameObject* gameObject) {
     if (dynamic_cast<ZCamera*>(gameObject)) {
       gameCameras_.push_back(dynamic_cast<ZCamera*>(gameObject));
       activeCameraIndex_ += 1;
+    } else if (dynamic_cast<ZLight*>(gameObject)) {
+      gameLights_.push_back(dynamic_cast<ZLight*>(gameObject));
     } else {
       gameObjects_.push_back(gameObject);
     }

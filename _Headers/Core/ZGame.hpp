@@ -16,12 +16,14 @@
 // Forward Declarations
 class ZCamera;
 class ZActor;
+struct ZLight;
 
 // Class and Data Structure Definitions
 class ZGame : public ZGameObject {
 private:
   std::vector<ZGameObject*> gameObjects_;
   std::vector<ZCamera*> gameCameras_;
+  std::vector<ZLight*> gameLights_;
   int activeCameraIndex_;
 
 public:

@@ -32,6 +32,7 @@ private:
 public:
   static const float MS_PER_UPDATE;
   static const int MAX_FIXED_UPDATE_ITERATIONS;
+  static const unsigned int SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT;
   static const glm::vec4 WORLD_UP;
   static const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP;
 

@@ -14,26 +14,29 @@
 
 // Forward Declarations
 class ZGLWindow;
-class ZGameObject;
 
 // Class and Data Structure Definitions
 class ZGLGraphics : public ZGraphics {
 private:
   static void GLFWErrorCallback(int id, const char* description);
 
+  void Render(const std::vector<ZGameObject*>& gameObjects, float frameMix);
+
 public:
   ZGLGraphics(int windowWidth, int windowHeight);
-  virtual ~ZGLGraphics();
+  ~ZGLGraphics();
 
   void Initialize(int windowWidth, int windowHeight);
 
-  virtual void Draw(const std::vector<ZGameObject*>& gameObjects, float frameMix) override;
-  virtual void SwapBuffers() const override;
-  virtual void EnableStencilBuffer() const override;
-  virtual void DisableStencilBuffer() const override;
-  virtual void UpdateWindowSize() override;
-  virtual void Delete() override;
-  virtual ZWindow* GetWindow() override { return window_; }
+  void Draw(const std::vector<ZGameObject*>& gameObjects, const std::vector<ZLight*>& gameLights, float frameMix) override;
+  void SwapBuffers() override;
+  void EnableStencilBuffer() override;
+  void DisableStencilBuffer() override;
+  void GenerateDepthMap() override;
+  void DrawDepthMap(ZLight* light) override;
+  void UpdateWindowSize() override;
+  void Delete() override;
+  ZWindow* GetWindow() override { return window_; }
 
 protected:
 
