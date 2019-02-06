@@ -56,13 +56,13 @@ void ZGLGraphics::Draw(const std::vector<ZGameObject*>& gameObjects, const std::
   if (!window_->WindowShouldClose()) {
     glClearColor(0.3f, 0.1f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glStencilMask(0x00);
 
     UpdateWindowSize();
 
-    glStencilMask(0x00);
-
-    for (ZLight* light : gameLights) {
-      DrawDepthMap(gameObjects, light, frameMix);
+    // TODO: Support more shadow casting lights!
+    if (gameLights.size() > 0) {
+      DrawDepthMap(gameObjects, gameLights[0], frameMix);
     }
 
     Render(gameObjects, frameMix);
@@ -94,29 +94,45 @@ void ZGLGraphics::DisableStencilBuffer() {
 }
 
 void ZGLGraphics::GenerateDepthMap() {
-  glGenFramebuffers(1, &depthFramebuffer_);
   glGenTextures(1, &depthMap_);
   glBindTexture(GL_TEXTURE_2D, depthMap_);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_WIDTH, ZEngine::SHADOW_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
+  glGenFramebuffers(1, &depthFramebuffer_);
   glBindFramebuffer(GL_FRAMEBUFFER, depthFramebuffer_);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap_, 0);
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap_, 0);
   glDrawBuffer(GL_NONE);
-  glReadBuffer(GL_NONE);
+
+  if(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
+    ZLogger::Log("Framebuffer operation incomplete dimensions", ZLoggerSeverity::Error);
+  }
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ZGLGraphics::DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix) {
+  glBindFramebuffer(GL_FRAMEBUFFER, depthFramebuffer_);
+  glViewport(0, 0, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE);
+  glClearDepth(1.0f);
+  glClear(GL_DEPTH_BUFFER_BIT);
+
+  glEnable(GL_POLYGON_OFFSET_FILL);  // Used to resolve z-fighting issues
+  glPolygonOffset(2.f, 4.f);
+
   if (shadowShader_ == nullptr) {
     shadowShader_ = new ZShader("Resources/Shaders/Vertex/shadow.vert", "Resources/Shaders/Pixel/shadow.frag");
+    shadowShader_->SetInt("shadowMap", 0);
   }
   shadowShader_->Activate();
-  float near = 1.f, far = 7.5f;
-  glm::mat4 lightP = glm::ortho(-10.f, 10.f, -10.f, 10.f, near, far);
+
+  glm::mat4 lightP = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.f, 7.5f);
   glm::mat4 lightV = glm::lookAt(light->GetPosition(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
   glm::mat4 lightSpaceMatrix = lightP * lightV;
   // TODO: For now we support one light source for shadows, but this should change
@@ -124,14 +140,12 @@ void ZGLGraphics::DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLi
   // that can cast shadows, possibly using deferred rendering
   currentLightSpaceMatrix_ = lightSpaceMatrix;
 
-  glBindFramebuffer(GL_FRAMEBUFFER, depthFramebuffer_);
-  glViewport(0, 0, ZEngine::SHADOW_MAP_WIDTH, ZEngine::SHADOW_MAP_HEIGHT);
-  glClear(GL_DEPTH_BUFFER_BIT);
-
   Render(gameObjects, frameMix, ZGraphics::RENDER_OP_DEPTH);
 
+  glDisable(GL_POLYGON_OFFSET_FILL);
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glViewport(0, 0, window_->GetWidth(), window_->GetHeight());
+  glViewport(0, 0, window_->GetWidth() * 2, window_->GetHeight() * 2);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

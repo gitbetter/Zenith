@@ -57,7 +57,7 @@ struct ZLHemisphere {
 
 struct ZLight : public ZGameObject {
   ZLight() { }
-  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(7.f)) { type = lightType; }
+  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(3.f)) { type = lightType; }
   ~ZLight() { }
 
   ZLightType type{ZLightType::Point};

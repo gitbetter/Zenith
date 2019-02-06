@@ -64,7 +64,7 @@ void main() {
     if (!lights[i].isEnabled) continue;
 
     vec3 lightDirection = lights[i].direction;
-    vec3 halfVector = normalize(lightDirection + viewDirection);
+    vec3 halfVector = normalize(lights[i].direction + viewDirection);
     float attenunation = 1.0;
 
     if (!lights[i].isDirectional) {
@@ -91,13 +91,13 @@ void main() {
     if (diffuse == 0.0) specular = 0.0;
     else specular = pow(specular, materials[materialIndex].shininess);
 
-    scatteredLight += lights[i].ambient * materials[materialIndex].ambient * attenunation +
+    scatteredLight += lights[i].ambient * materials[materialIndex].ambient +
                       lights[i].color * materials[materialIndex].diffuse * diffuse * attenunation;
     reflectedLight += lights[i].color * materials[materialIndex].specular * specular * attenunation;
   }
 
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
-  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * scatteredLight + reflectedLight, vec3(1.0));
+  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * (scatteredLight + reflectedLight), vec3(1.0));
 
   // Hemisphere lighting
   vec3 hemisphereLightDirection = normalize(hemisphereLight.position - fs_in.FragPos);
@@ -108,10 +108,9 @@ void main() {
 }
 
 float CalculateShadow(vec4 lightSpacePosition) {
-  vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.z;
+  vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
   projCoords = projCoords * 0.5 + 0.5;
-  float closestDepth = texture(shadowMap, projCoords.xy).z;
+  float closestDepth = texture(shadowMap, projCoords.xy).r;
   float currentDepth = projCoords.z;
-  float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
-  return shadow;
+  return (currentDepth > closestDepth) ? 1.0 : 0.0;
 }

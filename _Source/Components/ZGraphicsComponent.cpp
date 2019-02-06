@@ -43,18 +43,19 @@ void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera*
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::GetGraphics()->EnableStencilBuffer();
 
-  ZShader* shader = renderOp & ZGraphics::RENDER_OP_DEPTH ? ZEngine::GetGraphics()->ShadowShader() : GetActiveShader();
+  ZShader* shader = (renderOp & ZGraphics::RENDER_OP_DEPTH) == ZGraphics::RENDER_OP_DEPTH ? ZEngine::GetGraphics()->ShadowShader() : GetActiveShader();
+
   shader->Activate();
-  shader->SetMat4("P_lightSpace", ZEngine::GetGraphics()->LightSpaceMatrix());
+
   shader->Use(gameLights);
-  if (renderOp & ZGraphics::RENDER_OP_COLOR) {
-    shader->SetInt("shadowMap", 0);
-    shader->SetMat4("P", projectionMatrix_);
-    shader->SetMat4("V", viewMatrix_);
-    shader->SetMat4("M", modelMatrix_);
-    shader->SetVec3("viewDirection", camera->GetFrontVector());
-    ZEngine::GetGraphics()->BindDepthMap();
-  }
+  ZEngine::GetGraphics()->BindDepthMap();
+  
+  shader->SetMat4("M", modelMatrix_);
+  shader->SetMat4("V", viewMatrix_);
+  shader->SetMat4("P", projectionMatrix_);
+  shader->SetMat4("P_lightSpace", ZEngine::GetGraphics()->LightSpaceMatrix());
+  shader->SetVec3("viewDirection", camera->GetFrontVector());
+
   model_->Render(shader);
 
   DrawOutlineIfEnabled();
