@@ -26,11 +26,13 @@ public:
   ZGLWindow(int width, int height);
   virtual ~ZGLWindow() { }
 
-  virtual void CloseWindow() const override;
-  virtual bool WindowShouldClose() const override;
+  void CloseWindow() const override;
+  bool WindowShouldClose() const override;
   void SetSize(int width, int height) override;
-  virtual void PollEvents() const override;
-  virtual void Destroy() override;
+  void PollEvents() const override;
+  void CaptureCursor() const override;
+  void ReleaseCursor() const override;
+  void Destroy() override;
 
   GLFWwindow* GetHandle() const { return window_; }
 protected:

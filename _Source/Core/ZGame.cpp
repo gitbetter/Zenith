@@ -99,7 +99,7 @@ ZCamera* ZGame::GetActiveCamera() const {
 }
 
 void ZGame::HandleEscape() {
-  ZEngine::GetGraphics()->GetWindow()->CloseWindow();
+  ZEngine::GetGraphics()->GetWindow()->ReleaseCursor();
 }
 
 // -.-

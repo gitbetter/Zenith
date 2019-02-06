@@ -25,7 +25,7 @@ void ZGLWindow::Initialize() {
   }
   glfwMakeContextCurrent(window_);
   glfwSetFramebufferSizeCallback(window_, FrameBufferSizeCallback);
-  glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  CaptureCursor();
 }
 
 void ZGLWindow::PollEvents() const {
@@ -38,6 +38,14 @@ void ZGLWindow::CloseWindow() const {
 
 bool ZGLWindow::WindowShouldClose() const {
   return glfwWindowShouldClose(window_);
+}
+
+void ZGLWindow::CaptureCursor() const {
+  glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void ZGLWindow::ReleaseCursor() const {
+  glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 void ZGLWindow::SetSize(int width, int height) {

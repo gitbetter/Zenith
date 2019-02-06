@@ -25,6 +25,8 @@ public:
   virtual void CloseWindow() const = 0;
   virtual bool WindowShouldClose() const = 0;
   virtual void PollEvents() const = 0;
+  virtual void CaptureCursor() const = 0;
+  virtual void ReleaseCursor() const = 0;
   virtual void Destroy() = 0;
   virtual void SetSize(int width, int height);
 
