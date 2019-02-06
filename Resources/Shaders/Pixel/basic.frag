@@ -1,10 +1,13 @@
 #version 330 core
 
-in vec3 FragPos;
-in vec3 FragNormal;
-in vec3 FragUV;
-
 out vec4 FragColor;
+
+in VS_OUT {
+  vec3 FragPos;
+  vec3 FragNormal;
+  vec2 FragUV;
+  vec4 FragPosLightSpace;
+} fs_in;
 
 struct HemisphereLight {
   vec3 position;
@@ -37,6 +40,8 @@ struct Material {
   float shininess;
 };
 
+uniform sampler2D shadowMap;
+
 uniform vec3 viewDirection;
 uniform int materialIndex;  // Single index across the fragments of a single mesh
 
@@ -47,6 +52,8 @@ uniform Material materials[MAX_MATERIALS];
 
 uniform HemisphereLight hemisphereLight;
 // TODO: Consider SSBOs for a varying number of lights
+
+float CalculateShadow(vec4 lightSpacePosition);
 
 void main() {
   vec3 scatteredLight = vec3(0.0);
@@ -61,7 +68,7 @@ void main() {
     float attenunation = 1.0;
 
     if (!lights[i].isDirectional) {
-      lightDirection = lightDirection - FragPos;
+      lightDirection = lightDirection - fs_in.FragPos;
       float lightDistance = length(lightDirection);
       lightDirection = lightDirection / lightDistance;
 
@@ -78,8 +85,8 @@ void main() {
       halfVector = lights[i].direction;
     }
 
-    float diffuse = max(0.0, dot(FragNormal, lightDirection));
-    float specular = max(0.0, dot(FragNormal, halfVector));
+    float diffuse = max(0.0, dot(fs_in.FragNormal, lightDirection));
+    float specular = max(0.0, dot(fs_in.FragNormal, halfVector));
 
     if (diffuse == 0.0) specular = 0.0;
     else specular = pow(specular, materials[materialIndex].shininess);
@@ -89,12 +96,22 @@ void main() {
     reflectedLight += lights[i].color * materials[materialIndex].specular * specular * attenunation;
   }
 
-  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb * scatteredLight + reflectedLight, vec3(1.0));
+  float shadow = CalculateShadow(fs_in.FragPosLightSpace);
+  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * scatteredLight + reflectedLight, vec3(1.0));
 
   // Hemisphere lighting
-  vec3 hemisphereLightDirection = normalize(hemisphereLight.position - FragPos);
-  float a = dot(FragNormal, hemisphereLightDirection) * 0.5 + 0.5;
+  vec3 hemisphereLightDirection = normalize(hemisphereLight.position - fs_in.FragPos);
+  float a = dot(fs_in.FragNormal, hemisphereLightDirection) * 0.5 + 0.5;
   color += mix(hemisphereLight.groundColor, hemisphereLight.skyColor, a);
 
   FragColor = vec4(color, materials[materialIndex].albedo.a);
+}
+
+float CalculateShadow(vec4 lightSpacePosition) {
+  vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.z;
+  projCoords = projCoords * 0.5 + 0.5;
+  float closestDepth = texture(shadowMap, projCoords.xy).z;
+  float currentDepth = projCoords.z;
+  float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+  return shadow;
 }

@@ -56,7 +56,7 @@ void ZGame::Update() {
   }
 }
 
-void ZGame::Render(float frameMix) {
+void ZGame::Render(float frameMix, unsigned char renderOp) {
   ZEngine::GetGraphics()->Draw(gameObjects_, gameLights_, frameMix);
 }
 

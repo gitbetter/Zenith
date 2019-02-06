@@ -38,7 +38,7 @@ public:
   }
 
   virtual void Update() override { }
-  virtual void Render(float frameMix) override { };
+  virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) override { };
 
   virtual void HandleStrafe(float controlThrow) override;
   virtual void HandleForwardBack(float controlThrow) override;

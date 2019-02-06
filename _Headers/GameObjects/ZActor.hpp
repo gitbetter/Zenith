@@ -11,6 +11,7 @@
 // Includes
 #include <glm/glm.hpp>
 #include "ZGameObject.hpp"
+#include "ZGraphics.hpp"
 
 // Forward Declarations
 
@@ -22,7 +23,7 @@ public:
   ~ZActor() { }
 
   virtual void Update() override { };
-  virtual void Render(float frameMix) override;
+  virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) override;
 
   virtual void ShouldTranslateWithView(bool translates) override;
 protected:

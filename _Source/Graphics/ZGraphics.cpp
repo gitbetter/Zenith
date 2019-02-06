@@ -7,3 +7,6 @@
 //
 
 #include "ZGraphics.hpp"
+
+unsigned char ZGraphics::RENDER_OP_COLOR = 0x01;
+unsigned char ZGraphics::RENDER_OP_DEPTH = 0x02;

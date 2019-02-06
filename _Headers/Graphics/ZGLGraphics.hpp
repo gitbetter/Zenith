@@ -20,7 +20,7 @@ class ZGLGraphics : public ZGraphics {
 private:
   static void GLFWErrorCallback(int id, const char* description);
 
-  void Render(const std::vector<ZGameObject*>& gameObjects, float frameMix);
+  void Render(const std::vector<ZGameObject*>& gameObjects, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
 
 public:
   ZGLGraphics(int windowWidth, int windowHeight);
@@ -33,7 +33,8 @@ public:
   void EnableStencilBuffer() override;
   void DisableStencilBuffer() override;
   void GenerateDepthMap() override;
-  void DrawDepthMap(ZLight* light) override;
+  void DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix) override;
+  void BindDepthMap() override;
   void UpdateWindowSize() override;
   void Delete() override;
   ZWindow* GetWindow() override { return window_; }

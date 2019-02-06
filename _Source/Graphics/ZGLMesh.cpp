@@ -23,7 +23,7 @@ void ZGLMesh::Render(ZShader* shader) {
   // the corresponding textures (preloaded) and texture samplers (shader side uniforms)
   unsigned int diffuseMaps = 1, specularMaps = 1, normalMaps = 1, heightMaps = 1, cubeMaps = 1;
   for (unsigned int i = 0; i < material_.Textures().size(); i++) {
-    glActiveTexture(GL_TEXTURE0 + i);
+    glActiveTexture(GL_TEXTURE1 + i);
     std::string textureNumber, textureName = material_.Textures()[i].type;
     if (textureName == "diffuse") textureNumber = std::to_string(diffuseMaps++);
     else if (textureName == "specular") textureNumber = std::to_string(specularMaps++);

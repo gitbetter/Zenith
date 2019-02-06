@@ -7,7 +7,6 @@
 
 #include "ZEngine.hpp"
 #include "ZWindow.hpp"
-#include "ZGraphics.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZCamera.hpp"
 #include "ZModel.hpp"
@@ -23,9 +22,8 @@ ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : model_(
   modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(0.2f, 0.2f, 0.2f));
 }
 
-void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
+void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera* camera, float frameMix, unsigned char renderOp) {
   // TODO: Use frameMix to interpolate between frames
-  ZShader* shader = GetActiveShader();
   const ZWindow* window = ZEngine::GetGraphics()->GetWindow();
 
   if (camera->Type() == ZCameraType::Orthographic) {
@@ -42,17 +40,21 @@ void ZGraphicsComponent::Update(ZCamera* camera, float frameMix) {
 
   viewMatrix_ = translatesWithView_ ? camera->GetViewMatrix() : glm::mat4(glm::mat3(camera->GetViewMatrix()));
 
-  // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
+  // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::GetGraphics()->EnableStencilBuffer();
 
-  // TODO: Set to ZGraphicsComponent transform property
-  // model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+  ZShader* shader = renderOp & ZGraphics::RENDER_OP_DEPTH ? ZEngine::GetGraphics()->ShadowShader() : GetActiveShader();
   shader->Activate();
-  shader->SetMat4("P", projectionMatrix_);
-  shader->SetMat4("V", viewMatrix_);
-  shader->SetMat4("M", modelMatrix_);
-  shader->SetVec3("viewDirection", camera->GetFrontVector());
-
+  shader->SetMat4("P_lightSpace", ZEngine::GetGraphics()->LightSpaceMatrix());
+  shader->Use(gameLights);
+  if (renderOp & ZGraphics::RENDER_OP_COLOR) {
+    shader->SetInt("shadowMap", 0);
+    shader->SetMat4("P", projectionMatrix_);
+    shader->SetMat4("V", viewMatrix_);
+    shader->SetMat4("M", modelMatrix_);
+    shader->SetVec3("viewDirection", camera->GetFrontVector());
+    ZEngine::GetGraphics()->BindDepthMap();
+  }
   model_->Render(shader);
 
   DrawOutlineIfEnabled();

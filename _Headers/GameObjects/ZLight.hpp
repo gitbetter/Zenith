@@ -33,33 +33,31 @@ struct ZLAttenuationProperties {
 
 struct ZLDirectional {
   ZLBaseProperties components;
-  glm::vec3 direction{0.3f, 1.f, 0.3f};
+  glm::vec3 direction{3.f, 5.f, -15.f};
 };
 
 struct ZLPoint {
   ZLBaseProperties components;
   ZLAttenuationProperties attenunation;
-  glm::vec3 position{0.4f, 1.f, 1.f};
 };
 
 struct ZLSpot {
   ZLBaseProperties components;
   ZLAttenuationProperties attenunation;
-  glm::vec3 position{0.4f, 1.f, 1.f};
   glm::vec3 coneDirection{0.f, 1.f, 1.f};
   float spotCutoff;
   float spotExponent;
 };
 
 struct ZLHemisphere {
-  glm::vec3 position{0.8f, 3.f, 1.f};
+  ZLBaseProperties components;
   glm::vec3 skyColor{0.8f};
   glm::vec3 groundColor{0.1f};
 };
 
 struct ZLight : public ZGameObject {
   ZLight() { }
-  ZLight(ZLightType lightType) : type(lightType) { }
+  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(7.f)) { type = lightType; }
   ~ZLight() { }
 
   ZLightType type{ZLightType::Point};

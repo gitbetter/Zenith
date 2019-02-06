@@ -33,6 +33,7 @@ public:
   void RunGameLoop();
 
   ZCamera* GetActiveCamera() const;
+  const std::vector<ZLight*>& GetGameLights() const { return gameLights_; }
 
   void AddGameObject(ZGameObject* gameObject);
   void AddGameObjects(std::initializer_list<ZGameObject*> gameObjects);
@@ -55,5 +56,5 @@ public:
 
 protected:
   void Update() override;
-  void Render(float frameMix) override;
+  void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) override;
 };

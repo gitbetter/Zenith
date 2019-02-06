@@ -51,7 +51,7 @@ int main(int argc, const char * argv[]) {
   ZModel* cube = ZModel::NewCubePrimitive(glm::vec3(3.f));
 
   ZActor groundActor;
-  ZActor cubeActor(glm::vec3(0.f, 4.f, 0.f));
+  ZActor cubeActor(glm::vec3(0.f, 3.5f, 0.f));
 
   // ... and add graphics components to them, with the newly created models and shaders
   ZGraphicsComponent groundGraphicsComp(ground, &shader);
@@ -69,8 +69,7 @@ int main(int argc, const char * argv[]) {
   game.SetDefaultSkybox();
 
   // Now add some lights, because it's dark in here.
-  std::vector<ZLight> lights{ ZLight(ZLightType::Directional), ZLight(ZLightType::Hemisphere) };
-  shader.Use(lights);
+  game.AddGameObjects({ new ZLight(ZLightType::Directional) });
 
   // Create the game and start the main game loop. Nothing beyond this point will execute
   // for the duration of the game.

@@ -36,7 +36,7 @@ public:
   virtual ~ZGameObject() { }
 
   virtual void Update() { }
-  virtual void Render(float frameMix) { }
+  virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) { }
 
   virtual void HandleStrafe(float controlThrow) { }
   virtual void HandleUpDown(float controlThrow) { }
@@ -51,11 +51,11 @@ public:
   void SetFrontVector(glm::vec3 front);
   virtual void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 
-  const glm::vec3 GetPosition() { return glm::vec3(position_); }
-  const glm::vec3 GetRotation() { return glm::vec3(eulerRotation_); }
-  const glm::vec3 GetFrontVector() { return glm::vec3(front_); }
-  const glm::vec3 GetUpVector() { return glm::vec3(up_); }
-  const glm::vec3 GetRightVector() { return glm::vec3(right_); }
+  glm::vec3 GetPosition() const { return glm::vec3(position_); }
+  glm::vec3 GetRotation() const { return glm::vec3(eulerRotation_); }
+  glm::vec3 GetFrontVector() const { return glm::vec3(front_); }
+  glm::vec3 GetUpVector() const { return glm::vec3(up_); }
+  glm::vec3 GetRightVector() const { return glm::vec3(right_); }
 
   template<class T>
   typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type

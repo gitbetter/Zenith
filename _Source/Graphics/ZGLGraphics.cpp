@@ -11,10 +11,13 @@
 #include "ZGLWindow.hpp"
 #include "ZLogger.hpp"
 #include "ZGameObject.hpp"
+#include "ZShader.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <cassert>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 ZGLGraphics::ZGLGraphics(int windowWidth, int windowHeight) : ZGraphics() {
   Initialize(windowWidth, windowHeight);
@@ -46,24 +49,31 @@ void ZGLGraphics::Initialize(int windowWidth, int windowHeight) {
   glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-  glGenFramebuffers(1, &depthFramebuffer_);
+  GenerateDepthMap();
 }
 
 void ZGLGraphics::Draw(const std::vector<ZGameObject*>& gameObjects, const std::vector<ZLight*>& gameLights, float frameMix) {
   if (!window_->WindowShouldClose()) {
     glClearColor(0.3f, 0.1f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glStencilMask(0x00);
 
     UpdateWindowSize();
 
+    glStencilMask(0x00);
+
     for (ZLight* light : gameLights) {
-      DrawDepthMap(light);
+      DrawDepthMap(gameObjects, light, frameMix);
     }
 
     Render(gameObjects, frameMix);
 
     SwapBuffers();
+  }
+}
+
+void ZGLGraphics::Render(const std::vector<ZGameObject*>& gameObjects, float frameMix, unsigned char renderOp) {
+  for (unsigned int i = 0; i < gameObjects.size(); i++) {
+      gameObjects[i]->Render(frameMix, renderOp);
   }
 }
 
@@ -84,11 +94,12 @@ void ZGLGraphics::DisableStencilBuffer() {
 }
 
 void ZGLGraphics::GenerateDepthMap() {
+  glGenFramebuffers(1, &depthFramebuffer_);
   glGenTextures(1, &depthMap_);
   glBindTexture(GL_TEXTURE_2D, depthMap_);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_WIDTH, ZEngine::SHADOW_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -99,19 +110,34 @@ void ZGLGraphics::GenerateDepthMap() {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ZGLGraphics::DrawDepthMap(ZLight* light) {
-  glViewport(0, 0, ZEngine::SHADOW_MAP_WIDTH, ZEngine::SHADOW_MAP_HEIGHT);
-  glBindFramebuffer(GL_FRAMEBUFFER, depthFramebuffer_);
-  glClear(GL_DEPTH_BUFFER_BIT);
-
+void ZGLGraphics::DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix) {
   if (shadowShader_ == nullptr) {
     shadowShader_ = new ZShader("Resources/Shaders/Vertex/shadow.vert", "Resources/Shaders/Pixel/shadow.frag");
   }
   shadowShader_->Activate();
-  //
+  float near = 1.f, far = 7.5f;
+  glm::mat4 lightP = glm::ortho(-10.f, 10.f, -10.f, 10.f, near, far);
+  glm::mat4 lightV = glm::lookAt(light->GetPosition(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+  glm::mat4 lightSpaceMatrix = lightP * lightV;
+  // TODO: For now we support one light source for shadows, but this should change
+  // so that multiple light space matrices are supported for multiple light sources
+  // that can cast shadows, possibly using deferred rendering
+  currentLightSpaceMatrix_ = lightSpaceMatrix;
+
+  glBindFramebuffer(GL_FRAMEBUFFER, depthFramebuffer_);
+  glViewport(0, 0, ZEngine::SHADOW_MAP_WIDTH, ZEngine::SHADOW_MAP_HEIGHT);
+  glClear(GL_DEPTH_BUFFER_BIT);
+
+  Render(gameObjects, frameMix, ZGraphics::RENDER_OP_DEPTH);
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glViewport(0, 0, window_->GetWidth(), window_->GetHeight());
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void ZGLGraphics::BindDepthMap() {
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, depthMap_);
 }
 
 void ZGLGraphics::UpdateWindowSize() {
@@ -138,11 +164,4 @@ void ZGLGraphics::Delete() {
 
 void ZGLGraphics::GLFWErrorCallback(int id, const char* description) {
   ZLogger::Log(description, ZLoggerSeverity::Error);
-}
-
-void ZGLGraphics::Render(const std::vector<ZGameObject*>& gameObjects, float frameMix) {
-  glBindTexture(GL_TEXTURE_2D, depthMap_);
-  for (unsigned int i = 0; i < gameObjects.size(); i++) {
-      gameObjects[i]->Render(frameMix);
-  }
 }

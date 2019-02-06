@@ -14,8 +14,8 @@
 #include <vector>
 
 // Forward Declarations
-class ZGameObject;
 class ZWindow;
+class ZGameObject;
 struct ZLight;
 
 // Class and Data Structure Definitions
@@ -50,7 +50,11 @@ public:
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 
-    void DrawDepthMap(ZLight* light) override {
+    void DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix) override {
+      ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
+    }
+
+    void BindDepthMap() override {
       ZLogger::Log("No ZGraphics implementation has been provided.", ZLoggerSeverity::Error);
     }
 
