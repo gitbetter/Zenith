@@ -99,8 +99,12 @@ void ZGLGraphics::GenerateDepthMap() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  float borderColor[] = { 1.f, 1.f, 1.f, 1.f };
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -125,6 +129,7 @@ void ZGLGraphics::DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLi
 
   glEnable(GL_POLYGON_OFFSET_FILL);  // Used to resolve z-fighting issues
   glPolygonOffset(2.f, 4.f);
+  glCullFace(GL_FRONT);
 
   if (shadowShader_ == nullptr) {
     shadowShader_ = new ZShader("Resources/Shaders/Vertex/shadow.vert", "Resources/Shaders/Pixel/shadow.frag");
@@ -132,7 +137,7 @@ void ZGLGraphics::DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLi
   }
   shadowShader_->Activate();
 
-  glm::mat4 lightP = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.f, 7.5f);
+  glm::mat4 lightP = glm::ortho(-5.f, 5.f, -5.f, 5.f, 1.f, 100.f);
   glm::mat4 lightV = glm::lookAt(light->GetPosition(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
   glm::mat4 lightSpaceMatrix = lightP * lightV;
   // TODO: For now we support one light source for shadows, but this should change
@@ -142,6 +147,7 @@ void ZGLGraphics::DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLi
 
   Render(gameObjects, frameMix, ZGraphics::RENDER_OP_DEPTH);
 
+  glCullFace(GL_BACK);
   glDisable(GL_POLYGON_OFFSET_FILL);
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

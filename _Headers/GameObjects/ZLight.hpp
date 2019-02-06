@@ -26,14 +26,14 @@ struct ZLBaseProperties {
 };
 
 struct ZLAttenuationProperties {
-  float constant;
-  float linear;
-  float quadratic;
+  float constant{0.1};
+  float linear{0.5};
+  float quadratic{0.6};
 };
 
 struct ZLDirectional {
   ZLBaseProperties components;
-  glm::vec3 direction{3.f, 5.f, -15.f};
+  glm::vec3 direction{3.f, 5.f, 5.f};
 };
 
 struct ZLPoint {

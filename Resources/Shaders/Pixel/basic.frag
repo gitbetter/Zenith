@@ -63,8 +63,8 @@ void main() {
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
     if (!lights[i].isEnabled) continue;
 
-    vec3 lightDirection = lights[i].direction;
-    vec3 halfVector = normalize(lights[i].direction + viewDirection);
+    vec3 lightDirection = normalize(lights[i].direction);
+    vec3 halfVector = normalize(lightDirection + viewDirection);
     float attenunation = 1.0;
 
     if (!lights[i].isDirectional) {
@@ -97,7 +97,7 @@ void main() {
   }
 
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
-  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * (scatteredLight + reflectedLight), vec3(1.0));
+  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * scatteredLight + reflectedLight, vec3(1.0));
 
   // Hemisphere lighting
   vec3 hemisphereLightDirection = normalize(hemisphereLight.position - fs_in.FragPos);
@@ -109,8 +109,19 @@ void main() {
 
 float CalculateShadow(vec4 lightSpacePosition) {
   vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
+  if (projCoords.z > 1.0)
+    return 0.0;
   projCoords = projCoords * 0.5 + 0.5;
-  float closestDepth = texture(shadowMap, projCoords.xy).r;
   float currentDepth = projCoords.z;
-  return (currentDepth > closestDepth) ? 1.0 : 0.0;
+
+  // Some PCF to soften out the shadows
+  float shadow = 0.0;
+  vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+  for (int x = -1; x <= 1; ++x) {
+    for (int y = -1; y <= 1; ++y) {
+      float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+      shadow += currentDepth > pcfDepth ? 1.0 : 0.0;
+    }
+  }
+  return shadow / 9.0;
 }

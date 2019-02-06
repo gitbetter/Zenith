@@ -25,6 +25,7 @@ struct ZTexture {
 
 struct ZMaterialProperties {
   glm::vec4 albedo;
+  glm::vec3 emission;
   glm::vec3 diffuse;
   glm::vec3 ambient;
   glm::vec3 specular;
