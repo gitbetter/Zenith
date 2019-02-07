@@ -24,7 +24,7 @@ std::unordered_map<std::string, ZTexture> ZGLModelImporter::loadedTextures;
     @param shaderPath the path to the model file.
     @param outMeshes the mesh vector to populate.
 */
-void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZGLMesh>& outMeshes) {
+void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZGLMesh3D>& outMeshes) {
   // Attempt to read the file
   // TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
   Assimp::Importer import;
@@ -48,7 +48,7 @@ void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZGLMesh>& ou
     @param shaderPath the path to the model file.
     @param outMeshes the mesh vector to populate.
 */
-void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZGLMesh>& outMeshes) {
+void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZGLMesh3D>& outMeshes) {
   // Process the node's meshes and add them to the out parameter
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -65,14 +65,14 @@ void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::stri
     A helper function that processes a single node mesh. The idea is to fetch
     the position, normal, and texture coordinates for each vertex, as well
     as the vertex indices and the materials for the mesh and populate all corresponding
-    Zenith data structures to finally return a ZGLMesh.
+    Zenith data structures to finally return a ZGLMesh3D.
 
     @param mesh the mesh to process.
     @param scene the aiScene that the mesh is a part of.
     @param directory the model directory, used for loading the textures for the materials.
-    @return a ZGLMesh instance with all the relevant data
+    @return a ZGLMesh3D instance with all the relevant data
 */
-ZGLMesh ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
+ZGLMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
   std::vector<ZVertex> vertices;
   std::vector<unsigned int> indices;
   ZMaterial material;
@@ -123,7 +123,7 @@ ZGLMesh ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::s
     material = ZMaterial::DefaultMaterial();
   }
 
-  return ZGLMesh(vertices, indices, material);
+  return ZGLMesh3D(vertices, indices, material);
 }
 
 /**
@@ -165,8 +165,8 @@ unsigned int ZGLModelImporter::TextureFromFile(std::string path, const std::stri
   if (data) {
       GLenum format = 0;
       if (nrComponents == 1) format = GL_RED;
-      else if (nrComponents == 3) format = GL_RGB;
-      else if (nrComponents == 4) format = GL_RGBA;
+      else if (nrComponents == 3) format = GL_SRGB;
+      else if (nrComponents == 4) format = GL_SRGB_ALPHA;
 
       glBindTexture(GL_TEXTURE_2D, textureID);
       glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);

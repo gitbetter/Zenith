@@ -8,7 +8,7 @@
 
 #include "ZModel.hpp"
 #include "ZShader.hpp"
-#include "ZGLMesh.hpp"
+#include "ZGLMesh3D.hpp"
 #include "ZGLModelImporter.hpp"
 #include "ZLogger.hpp"
 
@@ -72,7 +72,7 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
 
   ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterial();
 
-  meshes_.push_back(ZGLMesh(vertices, indices, material));
+  meshes_.push_back(ZGLMesh3D(vertices, indices, material));
 }
 
 /**
@@ -134,7 +134,7 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
 
   ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterial();
 
-  meshes_.push_back(ZGLMesh(vertices, indices, material));
+  meshes_.push_back(ZGLMesh3D(vertices, indices, material));
 }
 
 /**

@@ -1,12 +1,12 @@
 //
-//  ZGLMesh.cpp
+//  ZGLMesh3D.cpp
 //  geek-text
 //
 //  Created by Adrian Sanchez on 03/02/2019.
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
-#include "ZGLMesh.hpp"
+#include "ZGLMesh3D.hpp"
 #include "ZCamera.hpp"
 #include "ZShader.hpp"
 #include "ZMaterial.hpp"
@@ -14,7 +14,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void ZGLMesh::Render(ZShader* shader) {
+void ZGLMesh3D::Render(ZShader* shader) {
   // Activate the texture for use
   shader->Activate();
   shader->Use(material_);
@@ -49,7 +49,7 @@ void ZGLMesh::Render(ZShader* shader) {
   glActiveTexture(GL_TEXTURE0);
 }
 
-void ZGLMesh::Setup() {
+void ZGLMesh3D::Setup() {
   glGenVertexArrays(1, &vao_);
   glGenBuffers(1, &vbo_);
   glGenBuffers(1, &ebo_);

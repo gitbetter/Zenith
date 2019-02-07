@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include "ZGLMesh.hpp"
+#include "ZGLMesh3D.hpp"
 
 #include <vector>
 #include <string>
@@ -26,13 +26,13 @@ class ZGLModelImporter {
 private:
   static std::unordered_map<std::string, ZTexture> loadedTextures;
 
-  void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZGLMesh>& outMeshes);
-  ZGLMesh ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory);
+  void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZGLMesh3D>& outMeshes);
+  ZGLMesh3D ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory);
   std::vector<ZTexture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory);
   unsigned int TextureFromFile(std::string path, const std::string& directory);
 
 public:
-  void LoadModel(std::string modelPath, std::vector<ZGLMesh>& outMeshes);
+  void LoadModel(std::string modelPath, std::vector<ZGLMesh3D>& outMeshes);
 
 protected:
 

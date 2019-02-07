@@ -1,8 +1,8 @@
 //
-//  TMesh.hpp
-//  Starter
+//  ZMesh.hpp
+//  Zenith
 //
-//  Created by Adrian Sanchez on 1/25/19.
+//  Created by Adrian Sanchez on 06/02/2019.
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
@@ -11,16 +11,13 @@
 // Includes
 #include "ZLogger.hpp"
 #include "ZMaterial.hpp"
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <string>
+#include <glm/glm.hpp>
 #include <vector>
 
 // Forward Declarations
 class ZShader;
-class ZCamera;
 
-// Class Definitions
+// Class and Data Structure Definitions
 struct ZVertex {
   glm::vec3 position;
   glm::vec3 normal;
@@ -33,17 +30,14 @@ struct ZVertex {
 };
 
 class ZMesh {
-  friend class ZModel;
+private:
 public:
-  std::vector<ZVertex> vertices_;
-  std::vector<unsigned int> indices_;
-  ZMaterial material_;
-
-  ZMesh(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material)
-  : vertices_(vertices), indices_(indices), material_(material) { }
+  ZMesh(std::vector<ZVertex> vertices) : vertices_(vertices) { }
   virtual ~ZMesh() { }
 
-  virtual void SetMaterial(ZMaterial material) { material_ = material; }
-
   virtual void Render(ZShader* shader) = 0;
+
+  std::vector<ZVertex> vertices_;
+protected:
+
 };

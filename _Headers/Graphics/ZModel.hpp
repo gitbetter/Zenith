@@ -10,7 +10,7 @@
 
 // Includes
 #include "ZEngine.hpp"
-#include "ZGLMesh.hpp"
+#include "ZGLMesh3D.hpp"
 #include <glm/glm.hpp>
 #include <vector>
 #include <string>
@@ -26,7 +26,7 @@ enum ZPrimitiveType {
 
 class ZModel {
 private:
-  std::vector<ZGLMesh> meshes_;
+  std::vector<ZGLMesh3D> meshes_;
 
   void CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures);
   void CreateCube(glm::vec3 scale, std::vector<ZTexture> textures);
