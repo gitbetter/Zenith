@@ -7,3 +7,14 @@
 //
 
 #include "ZUI.hpp"
+
+void ZUI::Initialize() {
+  if (graphicsStrategy_ == nullptr) {
+    graphicsStrategy_ = new ZGraphicsStrategy();
+    graphicsStrategy_->Initialize();
+  }
+}
+
+void ZUI::Draw() {
+  
+}

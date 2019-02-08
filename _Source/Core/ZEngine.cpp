@@ -10,6 +10,7 @@
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
 #include "ZNullInput.hpp"
+#include "ZUI.hpp"
 #include <chrono>
 
 const float ZEngine::MS_PER_UPDATE = 17.0f;
@@ -28,6 +29,7 @@ const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
 ZDomain* ZEngine::domain_ = nullptr;
 ZGraphics* ZEngine::graphics_ = nullptr;
 ZInput* ZEngine::input_ = new ZNullInput;
+ZUI* ZUI::ui_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 
 ZDomain* ZEngine::Domain() {
@@ -40,6 +42,10 @@ ZGraphics* ZEngine::Graphics() {
 
 ZInput* ZEngine::Input() {
   return input_;
+}
+
+ZUI* ZEngine::UI() {
+  return ui_;
 }
 
 float ZEngine::DeltaTime() {
@@ -74,6 +80,14 @@ void ZEngine::Provide(ZInput& input) {
     delete input_;
   }
   input_ = &input;
+}
+
+void ZEngine::Provide(ZUI& ui) {
+  if (ui_ != nullptr) {
+    delete ui_;
+  }
+  ui_ = &ui;
+  ui_->Initialize();
 }
 
 void ZEngine::SetDeltaTime(float deltaTime) {

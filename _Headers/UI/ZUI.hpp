@@ -21,8 +21,11 @@ private:
 public:
   virtual ~ZUI() { }
 
-  virtual void Draw() = 0;
+  void Initialize();
+
+  void Draw();
 
 protected:
   std::vector<ZUIElement*> elements_;
+  ZGraphicsStrategy* graphicsStrategy_;
 };

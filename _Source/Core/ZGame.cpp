@@ -59,6 +59,8 @@ void ZGame::Update() {
 
 void ZGame::Render(float frameMix, unsigned char renderOp) {
   ZEngine::Graphics()->Draw(gameObjects_, gameLights_, frameMix);
+  // TODO: If the UI has changed, draw it. Otherwise, leave it.
+  // The dirty flag trick might come in handy here
 }
 
 void ZGame::AddGameObject(ZGameObject* gameObject) {
