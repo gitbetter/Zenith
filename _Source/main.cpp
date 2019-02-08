@@ -8,8 +8,8 @@
 
 #include "ZEngine.hpp"
 #include "ZGame.hpp"
-#include "ZGLWindow.hpp"
-#include "ZGLGraphics.hpp"
+#include "ZDomain.hpp"
+#include "ZGraphics.hpp"
 #include "ZGLInput.hpp"
 #include "ZCamera.hpp"
 #include "ZActor.hpp"
@@ -23,9 +23,15 @@
 int main(int argc, const char * argv[]) {
   // Create a new game instance
   ZGame game;
+
+  // Create a new domain and provide it to the engine
+  ZDomain domain(1280, 800);
+  ZEngine::Provide(domain);
+
   // Create the graphics subsystem and provide it to the engine
-  ZGLGraphics graphics(1280, 800);
+  ZGraphics graphics;
   ZEngine::Provide(graphics);
+
   // Create the input subsystem and provide it to the engine
   ZGLInput input;
   ZEngine::Provide(input);

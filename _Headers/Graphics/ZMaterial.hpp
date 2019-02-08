@@ -9,29 +9,12 @@
 #pragma once
 
 // Includes
-#include <string>
-#include <vector>
-#include <glm/glm.hpp>
+#include "ZGraphicsCommon.hpp"
 
 // Forward Declarations
 // class SomeClass;
 
 // Class and Data Structure Definitions
-struct ZTexture {
-  unsigned int id;
-  std::string type;
-  std::string path;
-};
-
-struct ZMaterialProperties {
-  glm::vec4 albedo;
-  glm::vec3 emission;
-  glm::vec3 diffuse;
-  glm::vec3 ambient;
-  glm::vec3 specular;
-  float shininess;
-};
-
 class ZMaterial {
 private:
   ZMaterialProperties properties_;

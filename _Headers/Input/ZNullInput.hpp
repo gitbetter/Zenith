@@ -25,7 +25,7 @@ public:
     virtual void Broadcast(const ZInputCommand& command) {
       ZLogger::Log("No ZInput implementation has been provided", ZLoggerSeverity::Error);
     }
-    virtual void ProcessInput() {
+    virtual void Process() {
       ZLogger::Log("No ZInput implementation has been provided", ZLoggerSeverity::Error);
     }
 protected:

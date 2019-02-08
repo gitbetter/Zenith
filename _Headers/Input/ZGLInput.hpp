@@ -21,7 +21,7 @@ private:
   bool firstLook_ = true;
 
 public:
-  void ProcessInput() override;
+  void Process() override;
 protected:
 
 };

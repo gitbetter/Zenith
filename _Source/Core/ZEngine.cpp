@@ -7,7 +7,8 @@
 //
 
 #include "ZEngine.hpp"
-#include "ZNullGraphics.hpp"
+#include "ZGraphics.hpp"
+#include "ZDomain.hpp"
 #include "ZNullInput.hpp"
 #include <chrono>
 
@@ -24,15 +25,20 @@ const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
   "Resources/Skyboxes/Default/back.tga",
 };
 
-ZGraphics* ZEngine::graphics_ = new ZNullGraphics;
+ZDomain* ZEngine::domain_ = nullptr;
+ZGraphics* ZEngine::graphics_ = nullptr;
 ZInput* ZEngine::input_ = new ZNullInput;
 float ZEngine::deltaTime_ = 0.0f;
 
-ZGraphics* ZEngine::GetGraphics() {
+ZDomain* ZEngine::Domain() {
+  return domain_;
+}
+
+ZGraphics* ZEngine::Graphics() {
   return graphics_;
 }
 
-ZInput* ZEngine::GetInput() {
+ZInput* ZEngine::Input() {
   return input_;
 }
 
@@ -46,12 +52,19 @@ float ZEngine::MilliSecondTime() {
 }
 
 void ZEngine::Provide(ZGraphics& graphics) {
-  // If the provided graphics object is not null and the existing engine graphics object
-  // is null, delete the existing one
-  if (!dynamic_cast<ZNullGraphics*>(&graphics) && dynamic_cast<ZNullGraphics*>(graphics_)) {
+  if (graphics_ != nullptr) {
     delete graphics_;
   }
   graphics_ = &graphics;
+  graphics_->Initialize();
+}
+
+void ZEngine::Provide(ZDomain& domain) {
+  if (domain_ != nullptr) {
+    delete domain_;
+  }
+  domain_ = &domain;
+  domain_->Initialize();
 }
 
 void ZEngine::Provide(ZInput& input) {

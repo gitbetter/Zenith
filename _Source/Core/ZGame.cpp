@@ -9,13 +9,15 @@
 #include "ZGame.hpp"
 #include "ZEngine.hpp"
 #include "ZGraphics.hpp"
-#include "ZWindow.hpp"
+#include "ZDomain.hpp"
+#include "ZDomainStrategy.hpp"
 #include "ZInput.hpp"
 #include "ZCamera.hpp"
 #include "ZLogger.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZActor.hpp"
+#include "ZLogger.hpp"
 
 #include <chrono>
 #include <cassert>
@@ -29,15 +31,14 @@ void ZGame::RunGameLoop() {
   float previousTime = ZEngine::MilliSecondTime();
   float lag = 0.0;
 
-  while (!ZEngine::GetGraphics()->GetWindow()->WindowShouldClose()) {
+  while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
     int fixedUpdates = 0;
     float currentTime = ZEngine::MilliSecondTime();
     ZEngine::SetDeltaTime(currentTime - previousTime);
     previousTime = currentTime;
     lag += ZEngine::DeltaTime();
 
-
-    ZEngine::GetInput()->ProcessInput();
+    ZEngine::Input()->Process();
 
     while (lag >= ZEngine::MS_PER_UPDATE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
         Update();
@@ -45,7 +46,7 @@ void ZGame::RunGameLoop() {
     }
 
     Render(lag / ZEngine::MS_PER_UPDATE);
-    ZEngine::GetGraphics()->GetWindow()->PollEvents();
+    ZEngine::Domain()->Strategy()->PollEvents();
     MacDisplayHack();
   }
 }
@@ -57,7 +58,7 @@ void ZGame::Update() {
 }
 
 void ZGame::Render(float frameMix, unsigned char renderOp) {
-  ZEngine::GetGraphics()->Draw(gameObjects_, gameLights_, frameMix);
+  ZEngine::Graphics()->Draw(gameObjects_, gameLights_, frameMix);
 }
 
 void ZGame::AddGameObject(ZGameObject* gameObject) {
@@ -99,7 +100,7 @@ ZCamera* ZGame::GetActiveCamera() const {
 }
 
 void ZGame::HandleEscape() {
-  ZEngine::GetGraphics()->GetWindow()->ReleaseCursor();
+  ZEngine::Domain()->Strategy()->ReleaseCursor();
 }
 
 // -.-
@@ -107,9 +108,9 @@ void ZGame::MacDisplayHack() {
   #ifdef __APPLE__
   static bool moved = false;
   if (!moved) {
-    ZEngine::GetGraphics()->GetWindow()->SetSize(
-      ZEngine::GetGraphics()->GetWindow()->GetWidth() + 1,
-      ZEngine::GetGraphics()->GetWindow()->GetHeight() + 1
+    ZEngine::Domain()->Strategy()->Resize(
+      ZEngine::Domain()->WindowWidth() + 1,
+      ZEngine::Domain()->WindowHeight() + 1
     );
     moved = true;
   }

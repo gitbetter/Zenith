@@ -5,14 +5,13 @@
 //  Created by Adrian Sanchez on 26/01/2019.
 //
 
-#include "ZEngine.hpp"
-#include "ZWindow.hpp"
 #include "ZGraphicsComponent.hpp"
+#include "ZEngine.hpp"
+#include "ZDomain.hpp"
 #include "ZCamera.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZLogger.hpp"
-#include <glm/gtc/matrix_transform.hpp>
 
 ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : model_(model), modelMatrix_(1.f), highlightColor_(0) {
   if (shader != nullptr) {
@@ -24,41 +23,43 @@ ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : model_(
 
 void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera* camera, float frameMix, unsigned char renderOp) {
   // TODO: Use frameMix to interpolate between frames
-  const ZWindow* window = ZEngine::GetGraphics()->GetWindow();
+  const ZDomain* domain = ZEngine::Domain();
 
   if (camera->Type() == ZCameraType::Orthographic) {
-    float left = -(float)window->GetWidth() / (camera->GetZoom() * 2);
+    float left = -(float)domain->WindowWidth() / (camera->GetZoom() * 2);
     float right = -left;
-    float bottom = -(float)window->GetHeight() / (camera->GetZoom() * 2);
+    float bottom = -(float)domain->WindowHeight() / (camera->GetZoom() * 2);
     float top = -bottom;
     projectionMatrix_ = glm::ortho(left, right, bottom, top, -camera->GetFarField() / 2.f, camera->GetFarField());
   } else {
     projectionMatrix_ = glm::perspective(glm::radians(camera->GetZoom()),
-                                         (float)window->GetWidth() / (float)window->GetHeight(),
+                                         (float)domain->WindowWidth() / (float)domain->WindowHeight(),
                                          camera->GetNearField(), camera->GetFarField());
   }
 
   viewMatrix_ = translatesWithView_ ? camera->GetViewMatrix() : glm::mat4(glm::mat3(camera->GetViewMatrix()));
 
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
-  ZEngine::GetGraphics()->EnableStencilBuffer();
+  ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
-  ZShader* shader = (renderOp & ZGraphics::RENDER_OP_DEPTH) == ZGraphics::RENDER_OP_DEPTH ? ZEngine::GetGraphics()->ShadowShader() : GetActiveShader();
+  ZShader* shader = (renderOp & ZGraphics::RENDER_OP_DEPTH) == ZGraphics::RENDER_OP_DEPTH ? ZEngine::Graphics()->ShadowShader() : GetActiveShader();
 
   shader->Activate();
 
   shader->Use(gameLights);
-  ZEngine::GetGraphics()->BindDepthMap();
-  
+  ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
+
   shader->SetMat4("M", modelMatrix_);
   shader->SetMat4("V", viewMatrix_);
   shader->SetMat4("P", projectionMatrix_);
-  shader->SetMat4("P_lightSpace", ZEngine::GetGraphics()->LightSpaceMatrix());
+  shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
   shader->SetVec3("viewDirection", camera->GetFrontVector());
 
   model_->Render(shader);
 
   DrawOutlineIfEnabled();
+
+  ZEngine::Graphics()->Strategy()->UnbindFramebuffer();
 }
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
@@ -70,7 +71,7 @@ void ZGraphicsComponent::SetOutline(glm::vec4 color) {
 void ZGraphicsComponent::DrawOutlineIfEnabled() {
   if (highlightShader_ == nullptr) return;
 
-  ZEngine::GetGraphics()->DisableStencilBuffer();
+  ZEngine::Graphics()->Strategy()->DisableStencilBuffer();
 
   highlightShader_->Activate();
 
@@ -83,7 +84,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled() {
 
   model_->Render(highlightShader_);
 
-  ZEngine::GetGraphics()->EnableStencilBuffer();
+  ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 }
 
 void ZGraphicsComponent::ClearOutline() {

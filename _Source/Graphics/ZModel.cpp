@@ -6,15 +6,12 @@
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
+#include "ZEngine.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
-#include "ZGLMesh3D.hpp"
+#include "ZMesh3D.hpp"
 #include "ZGLModelImporter.hpp"
 #include "ZLogger.hpp"
-
-#include "stb_image.hpp"
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale, std::vector<ZTexture> textures) {
   switch (primitiveType) {
@@ -72,7 +69,7 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
 
   ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterial();
 
-  meshes_.push_back(ZGLMesh3D(vertices, indices, material));
+  meshes_.push_back(ZMesh3D(vertices, indices, material));
 }
 
 /**
@@ -134,7 +131,7 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
 
   ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterial();
 
-  meshes_.push_back(ZGLMesh3D(vertices, indices, material));
+  meshes_.push_back(ZMesh3D(vertices, indices, material));
 }
 
 /**
@@ -174,32 +171,7 @@ void ZModel::CreateCone(glm::vec3 scale, std::vector<ZTexture> textures) {
  *  Skybox Creation
  */
 ZModel* ZModel::NewSkybox(std::vector<std::string> faces) {
-  ZModel* skybox;
-
-  // TODO: Extract this and place it in the ZGLGraphics implementation since it is OGL specific
-  /////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned int cubemapId;
-  glGenTextures(1, &cubemapId);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapId);
-
-  int width, height, nrChannels;
-  for (unsigned int i = 0; i < faces.size(); i++) {
-    unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-    if (data) {
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    } else {
-      ZLogger::Log("Could not load texture at path " + faces[i], ZLoggerSeverity::Error);
-    }
-    stbi_image_free(data);
-  }
-
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  /////////////////////////////////////////////////////////////////////////////////////////////
-
+  unsigned int cubemapId = ZEngine::Graphics()->Strategy()->LoadCubeMap(faces);
   std::vector<ZTexture> textures;
   for (std::string facePath : faces) {
     ZTexture texture;
@@ -209,7 +181,5 @@ ZModel* ZModel::NewSkybox(std::vector<std::string> faces) {
     textures.push_back(texture);
   }
 
-  skybox = NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
-
-  return skybox;
+  return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
 }

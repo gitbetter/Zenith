@@ -8,6 +8,7 @@
 #pragma once
 
 // Includes
+#include "ZGraphicsStrategy.hpp"
 #include "ZComponent.hpp"
 #include "ZGraphics.hpp"
 #include <vector>

@@ -22,10 +22,12 @@
 // Forward Declarations
 class ZGraphics;
 class ZInput;
+class ZDomain;
 
 // Class Definitions
 class ZEngine {
 private:
+  static ZDomain* domain_;
   static ZGraphics* graphics_;
   static ZInput* input_;
   static float deltaTime_;
@@ -36,11 +38,13 @@ public:
   static const glm::vec4 WORLD_UP;
   static const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP;
 
-  static ZGraphics* GetGraphics();
-  static ZInput* GetInput();
+  static ZDomain* Domain();
+  static ZGraphics* Graphics();
+  static ZInput* Input();
   static float DeltaTime();
   static float MilliSecondTime();
 
+  static void Provide(ZDomain& domain);
   static void Provide(ZGraphics& graphics);
   static void Provide(ZInput& input);
   // More provide overloads for different engine subsystems (i.e. physics, audio, input, etc.)

@@ -9,24 +9,18 @@
 #pragma once
 
 // Includes
+#include "ZGraphicsCommon.hpp"
 #include "ZEngine.hpp"
-#include "ZGLMesh3D.hpp"
-#include <glm/glm.hpp>
-#include <vector>
-#include <string>
+#include "ZMesh3D.hpp"
 
 // Forward Declarations
 class ZShader;
 class ZCamera;
 
 // Class Definitions
-enum ZPrimitiveType {
-  Plane, Cube, Sphere, Cylinder, Cone
-};
-
 class ZModel {
 private:
-  std::vector<ZGLMesh3D> meshes_;
+  std::vector<ZMesh3D> meshes_;
 
   void CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures);
   void CreateCube(glm::vec3 scale, std::vector<ZTexture> textures);

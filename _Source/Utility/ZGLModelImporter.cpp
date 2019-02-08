@@ -6,14 +6,16 @@
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
+#include "ZEngine.hpp"
+#include "ZGraphics.hpp"
+#include "ZGraphicsStrategy.hpp"
 #include "ZGLModelImporter.hpp"
 #include "ZLogger.hpp"
 #include "ZMaterial.hpp"
+#include <glm/vec3.hpp>
 #include <assimp/Importer.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <glm/vec3.hpp>
-#include "stb_image.hpp"
 
 // Store already loaded textures in a map, since lookups are faster, and we may have many
 std::unordered_map<std::string, ZTexture> ZGLModelImporter::loadedTextures;
@@ -24,7 +26,7 @@ std::unordered_map<std::string, ZTexture> ZGLModelImporter::loadedTextures;
     @param shaderPath the path to the model file.
     @param outMeshes the mesh vector to populate.
 */
-void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZGLMesh3D>& outMeshes) {
+void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZMesh3D>& outMeshes) {
   // Attempt to read the file
   // TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
   Assimp::Importer import;
@@ -48,7 +50,7 @@ void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZGLMesh3D>& 
     @param shaderPath the path to the model file.
     @param outMeshes the mesh vector to populate.
 */
-void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZGLMesh3D>& outMeshes) {
+void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZMesh3D>& outMeshes) {
   // Process the node's meshes and add them to the out parameter
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -65,14 +67,14 @@ void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::stri
     A helper function that processes a single node mesh. The idea is to fetch
     the position, normal, and texture coordinates for each vertex, as well
     as the vertex indices and the materials for the mesh and populate all corresponding
-    Zenith data structures to finally return a ZGLMesh3D.
+    Zenith data structures to finally return a ZMesh3D.
 
     @param mesh the mesh to process.
     @param scene the aiScene that the mesh is a part of.
     @param directory the model directory, used for loading the textures for the materials.
-    @return a ZGLMesh3D instance with all the relevant data
+    @return a ZMesh3D instance with all the relevant data
 */
-ZGLMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
+ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
   std::vector<ZVertex> vertices;
   std::vector<unsigned int> indices;
   ZMaterial material;
@@ -123,7 +125,7 @@ ZGLMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std:
     material = ZMaterial::DefaultMaterial();
   }
 
-  return ZGLMesh3D(vertices, indices, material);
+  return ZMesh3D(vertices, indices, material);
 }
 
 /**
@@ -144,43 +146,11 @@ std::vector<ZTexture> ZGLModelImporter::LoadMaterialTextures(aiMaterial *mat, ai
     if (loadedTextures.find(textureName) != loadedTextures.end()) {
       textures.push_back(loadedTextures[textureName]);
     } else {
-      ZTexture texture;
-      texture.id = TextureFromFile(textureName, directory);
+      ZTexture texture = ZEngine::Graphics()->Strategy()->LoadTexture(textureName, directory);
       texture.type = typeName;
       texture.path = textureName;
       textures.push_back(texture);
     }
   }
   return textures;
-}
-
-unsigned int ZGLModelImporter::TextureFromFile(std::string path, const std::string &directory) {
-  std::string filename = directory + '/' + path;
-
-  unsigned int textureID;
-  glGenTextures(1, &textureID);
-
-  int width, height, nrComponents;
-  unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-  if (data) {
-      GLenum format = 0;
-      if (nrComponents == 1) format = GL_RED;
-      else if (nrComponents == 3) format = GL_SRGB;
-      else if (nrComponents == 4) format = GL_SRGB_ALPHA;
-
-      glBindTexture(GL_TEXTURE_2D, textureID);
-      glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-      glGenerateMipmap(GL_TEXTURE_2D);
-
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  } else {
-    ZLogger::Log("ZGLModelImporter Error: Failed to load texture at " + path, ZLoggerSeverity::Error);
-  }
-
-  stbi_image_free(data);
-
-  return textureID;
 }

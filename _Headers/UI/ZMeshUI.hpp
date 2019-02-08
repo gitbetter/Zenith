@@ -10,23 +10,20 @@
 
 // Includes
 #include "ZMesh.hpp"
+#include <glm/glm.hpp>
 
 // Forward Declarations
-// class SomeClass;
-
-struct ZUIVertex {
-  glm::vec3 position;
-  glm::vec2 uv;
-};
+class ZShader;
 
 // Class and Data Structure Definitions
 class ZMeshUI : ZMesh {
 private:
 public:
-    ZMeshUI(std::vector<ZVertex> vertices) : ZMesh(vertices) { }
-    virtual ~ZMeshUI() { }
+  ZMeshUI(std::vector<glm::vec4> vertices) : vertices_(vertices) { }
+  ~ZMeshUI() { }
 
-    void Setup() { }
+  void Render(ZShader* shader) override;
+
 protected:
-
+  std::vector<glm::vec4> vertices_;
 };

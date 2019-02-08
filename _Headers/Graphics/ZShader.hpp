@@ -9,19 +9,13 @@
 #pragma once
 
 // Includes
+#include "ZGraphicsCommon.hpp"
 #include "ZLight.hpp"
-#include <string>
-#include <vector>
-#include <glm/glm.hpp>
 
 // Forward Declarations
 class ZMaterial;
 
 // Class and Data Structure Definitions
-enum ZShaderTypes {
-  Vertex, Pixel, Tesselation, Geometry, Other
-};
-
 class ZShader {
 private:
   unsigned int id_;

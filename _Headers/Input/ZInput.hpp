@@ -23,7 +23,7 @@ public:
 
   virtual void Register(ZGameObject& gameObject);
   virtual void Broadcast(const ZInputCommand& command);
-  virtual void ProcessInput() = 0;
+  virtual void Process() = 0;
 protected:
   std::vector<ZGameObject*> registeredObjects_;
 };

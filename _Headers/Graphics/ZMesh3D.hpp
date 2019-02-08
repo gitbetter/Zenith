@@ -1,6 +1,6 @@
 //
-//  TMesh.hpp
-//  Starter
+//  ZMesh3D.hpp
+//  Zenith
 //
 //  Created by Adrian Sanchez on 1/25/19.
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
@@ -9,8 +9,8 @@
 #pragma once
 
 // Includes
-#include "ZMaterial.hpp"
 #include "ZMesh.hpp"
+#include "ZMaterial.hpp"
 #include <string>
 
 // Forward Declarations
@@ -20,18 +20,18 @@ class ZCamera;
 // Class Definitions
 class ZMesh3D : public ZMesh {
   friend class ZModel;
-public:
+private:
+  std::vector<ZVertex> vertices_;
   std::vector<unsigned int> indices_;
   ZMaterial material_;
 
-  ZMesh3D(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material)
-  : ZMesh(vertices) {
-    indices_ = indices;
-    material_ = material;
-  }
+  void AttachMaterialTextures(ZShader* shader);
+
+public:
+  ZMesh3D(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material);
   ~ZMesh3D() { }
 
-  virtual void SetMaterial(ZMaterial material) { material_ = material; }
+  void SetMaterial(ZMaterial material) { material_ = material; }
 
-  virtual void Render(ZShader* shader) = 0;
+  void Render(ZShader* shader);
 };
