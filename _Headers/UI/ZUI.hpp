@@ -28,4 +28,5 @@ public:
 protected:
   std::vector<ZUIElement*> elements_;
   ZGraphicsStrategy* graphicsStrategy_;
+  ZShader* uiShader_;
 };

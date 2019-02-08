@@ -9,11 +9,11 @@
 #pragma once
 
 // Includes
-#include <vector>
-#include <glm/glm.hpp>
+#include "ZMeshUI.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZMeshUI;
+class ZShader;
 
 // Class and Data Structure Definitions
 class ZUIElement {
@@ -37,10 +37,11 @@ public:
   void Rotate(float angle);
   void Scale(glm::vec2 factor);
 
-  virtual void Render() = 0;
+  virtual void Render(ZShader* shader) = 0;
+  virtual ZMeshUI ElementShape() = 0;
 
 protected:
-  bool hidden_, enabled_, selected_, selectable_;
+  bool hidden_, enabled_, selected_, selectable_, dirty_;
   glm::vec2 position_, scale_;
   float rotationAngle_;
   std::vector<ZUIElement*> children_;

@@ -143,7 +143,7 @@ void ZGLGraphicsStrategy::UnbindDepthMapBuffer() {
   glDisable(GL_POLYGON_OFFSET_FILL);
 
   UnbindFramebuffer();
-  glViewport(0, 0, ZEngine::Domain()->WindowWidth() * 2, ZEngine::Domain()->WindowHeight() * 2);
+  glViewport(0, 0, ZEngine::Domain()->WindowWidth(), ZEngine::Domain()->WindowHeight());
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -241,15 +241,16 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<glm::vec4> vertices)
 }
 
 void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) {
-  if (indices.empty()) {
-    glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size());
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-  } else {
-    glBindVertexArray(bufferData.vao);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-  }
+  glBindVertexArray(bufferData.vao);
+  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+  glBindVertexArray(0);
+  glActiveTexture(GL_TEXTURE0);
+}
+
+void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<glm::vec4> vertices) {
+  glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size());
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
   glActiveTexture(GL_TEXTURE0);
 }
 

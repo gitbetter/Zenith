@@ -44,6 +44,7 @@ public:
   ZBufferData LoadVertexData(std::vector<ZVertex> vertices, std::vector<unsigned int> indices) override;
   ZBufferData LoadVertexData(std::vector<glm::vec4> vertices) override;
   void Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) override;
+  void Draw(ZBufferData bufferData, std::vector<glm::vec4> vertices) override;
   void CleanUp() override;
 
 protected:

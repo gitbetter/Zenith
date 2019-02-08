@@ -10,7 +10,6 @@
 
 // Includes
 #include "ZMesh.hpp"
-#include <glm/glm.hpp>
 
 // Forward Declarations
 class ZShader;
@@ -19,10 +18,13 @@ class ZShader;
 class ZMeshUI : ZMesh {
 private:
 public:
-  ZMeshUI(std::vector<glm::vec4> vertices) : vertices_(vertices) { }
+  ZMeshUI() { }
+  ZMeshUI(std::vector<glm::vec4> vertices);
   ~ZMeshUI() { }
 
   void Render(ZShader* shader) override;
+
+  std::vector<glm::vec4> Vertices() const { return vertices_; }
 
 protected:
   std::vector<glm::vec4> vertices_;

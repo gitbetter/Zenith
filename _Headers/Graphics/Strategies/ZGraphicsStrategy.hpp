@@ -43,6 +43,7 @@ public:
   virtual ZBufferData LoadVertexData(std::vector<ZVertex> vertices, std::vector<unsigned int> indices) = 0;
   virtual ZBufferData LoadVertexData(std::vector<glm::vec4> vertices) = 0;
   virtual void Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) = 0;
+  virtual void Draw(ZBufferData bufferData, std::vector<glm::vec4> vertices) = 0;
   virtual void CleanUp() = 0;
 
 protected:

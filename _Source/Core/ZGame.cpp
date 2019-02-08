@@ -12,6 +12,7 @@
 #include "ZDomain.hpp"
 #include "ZDomainStrategy.hpp"
 #include "ZInput.hpp"
+#include "ZUI.hpp"
 #include "ZCamera.hpp"
 #include "ZLogger.hpp"
 #include "ZModel.hpp"
@@ -61,6 +62,7 @@ void ZGame::Render(float frameMix, unsigned char renderOp) {
   ZEngine::Graphics()->Draw(gameObjects_, gameLights_, frameMix);
   // TODO: If the UI has changed, draw it. Otherwise, leave it.
   // The dirty flag trick might come in handy here
+  ZEngine::UI()->Draw();
 }
 
 void ZGame::AddGameObject(ZGameObject* gameObject) {

@@ -10,10 +10,9 @@
 
 // Includes
 #include "ZUIElement.hpp"
-#include <glm/glm.hpp>
 
 // Forward Declarations
-// class SomeClass;
+class ZShader;
 
 // Class and Data Structure Definitions
 class ZUIImage : public ZUIElement {
@@ -22,7 +21,8 @@ public:
   ZUIImage(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) { }
   virtual ~ZUIImage();
 
-  virtual void Render() override { }
+  void Render(ZShader* shader) override { }
+  ZMeshUI ElementShape() override { }
 protected:
 
 };

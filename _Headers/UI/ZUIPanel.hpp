@@ -12,7 +12,7 @@
 #include "ZUIElement.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZShader;
 
 // Class and Data Structure Definitions
 class ZUIPanel : public ZUIElement {
@@ -21,7 +21,8 @@ public:
   ZUIPanel(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) { }
   virtual ~ZUIPanel();
 
-  virtual void Render() override { }
+  void Render(ZShader* shader) override { }
+  ZMeshUI ElementShape() override { }
 protected:
 
 };

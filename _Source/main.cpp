@@ -26,7 +26,7 @@ int main(int argc, const char * argv[]) {
   ZGame game;
 
   // Create a new domain and provide it to the engine
-  ZDomain domain(1280, 800);
+  ZDomain domain(1920, 1080);
   ZEngine::Provide(domain);
 
   // Create the graphics subsystem and provide it to the engine
@@ -87,7 +87,7 @@ int main(int argc, const char * argv[]) {
   game.SetDefaultSkybox();
 
   // Now add some lights, because it's dark in here.
-  game.AddGameObjects({ new ZLight(ZLightType::Directional) });
+  game.AddGameObject(new ZLight(ZLightType::Directional));
 
   // Create the game and start the main game loop. Nothing beyond this point will execute
   // for the duration of the game.
