@@ -29,7 +29,7 @@ const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
 ZDomain* ZEngine::domain_ = nullptr;
 ZGraphics* ZEngine::graphics_ = nullptr;
 ZInput* ZEngine::input_ = new ZNullInput;
-ZUI* ZUI::ui_ = nullptr;
+ZUI* ZEngine::ui_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 
 ZDomain* ZEngine::Domain() {

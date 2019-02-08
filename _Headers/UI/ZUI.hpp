@@ -13,7 +13,7 @@
 #include <vector>
 
 // Forward Declarations
-// class SomeClass;
+class ZGraphicsStrategy;
 
 // Class and Data Structure Definitions
 class ZUI {

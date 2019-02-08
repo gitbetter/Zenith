@@ -11,6 +11,7 @@
 #include "ZDomain.hpp"
 #include "ZGraphics.hpp"
 #include "ZGLInput.hpp"
+#include "ZUI.hpp"
 #include "ZCamera.hpp"
 #include "ZActor.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -39,7 +40,7 @@ int main(int argc, const char * argv[]) {
   // Create the UI subsystem and provide it to the engine
   ZUI ui;
   ZEngine::Provide(ui);
-  
+
   // TODO: Create the physics subsystem and provide it to the engine
   // TODO: Create the audio subsystem and provide it to the engine
 
