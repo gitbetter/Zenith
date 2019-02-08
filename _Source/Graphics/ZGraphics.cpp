@@ -16,7 +16,7 @@
 #include "ZLight.hpp"
 
 unsigned char ZGraphics::RENDER_OP_COLOR = 0x01;
-unsigned char ZGraphics::RENDER_OP_DEPTH = 0x02;
+unsigned char ZGraphics::RENDER_OP_SHADOW = 0x02;
 
 void ZGraphics::Initialize() {
   // TODO: Switch the strategy here based on graphics implementation
@@ -34,7 +34,7 @@ void ZGraphics::Draw(const std::vector<ZGameObject*>& gameObjects, const std::ve
 
     // TODO: Support more shadow casting lights!
     if (gameLights.size() > 0) {
-      DrawDepthMap(gameObjects, gameLights[0], frameMix);
+      DrawShadowMap(gameObjects, gameLights[0], frameMix);
     }
 
     Render(gameObjects, frameMix);
@@ -50,7 +50,7 @@ void ZGraphics::Render(const std::vector<ZGameObject*>& gameObjects, float frame
   }
 }
 
-void ZGraphics::DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix) {
+void ZGraphics::DrawShadowMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix) {
   graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
 
   if (shadowShader_ == nullptr) {
@@ -67,7 +67,7 @@ void ZGraphics::DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLigh
   glm::mat4 lightSpaceMatrix = lightP * lightV;
   currentLightSpaceMatrix_ = lightSpaceMatrix;
 
-  Render(gameObjects, frameMix, ZGraphics::RENDER_OP_DEPTH);
+  Render(gameObjects, frameMix, ZGraphics::RENDER_OP_SHADOW);
 
   graphicsStrategy_->UnbindDepthMapBuffer();
 }

@@ -133,9 +133,9 @@ void ZGLGraphicsStrategy::BindDepthMapBuffer(unsigned int frameBuffer) {
   glClearDepth(1.0f);
   glClear(GL_DEPTH_BUFFER_BIT);
 
-  glEnable(GL_POLYGON_OFFSET_FILL);  // Used to resolve z-fighting issues
+  glEnable(GL_POLYGON_OFFSET_FILL); // Prevents Z-Fighting
   glPolygonOffset(2.f, 4.f);
-  glCullFace(GL_FRONT);
+  glCullFace(GL_FRONT); // Prevents peter-panning
 }
 
 void ZGLGraphicsStrategy::UnbindDepthMapBuffer() {

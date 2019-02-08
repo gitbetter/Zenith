@@ -24,11 +24,11 @@ struct ZLight;
 class ZGraphics {
 private:
   void Render(const std::vector<ZGameObject*>& gameObjects, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
-  void DrawDepthMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix = 0.0);
+  void DrawShadowMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix = 0.0);
 
 public:
   static unsigned char RENDER_OP_COLOR;
-  static unsigned char RENDER_OP_DEPTH;
+  static unsigned char RENDER_OP_SHADOW;
 
   ZGraphics() : depthFramebuffer_(0) { }
   ~ZGraphics() { }

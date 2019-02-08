@@ -42,7 +42,7 @@ void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera*
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
-  ZShader* shader = (renderOp & ZGraphics::RENDER_OP_DEPTH) == ZGraphics::RENDER_OP_DEPTH ? ZEngine::Graphics()->ShadowShader() : GetActiveShader();
+  ZShader* shader = (renderOp & ZGraphics::RENDER_OP_SHADOW) == ZGraphics::RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : GetActiveShader();
 
   shader->Activate();
 
@@ -58,8 +58,6 @@ void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera*
   model_->Render(shader);
 
   DrawOutlineIfEnabled();
-
-  ZEngine::Graphics()->Strategy()->UnbindFramebuffer();
 }
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {

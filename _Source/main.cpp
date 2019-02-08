@@ -56,20 +56,24 @@ int main(int argc, const char * argv[]) {
   ZModel* ground = ZModel::NewPlanePrimitive(glm::vec3(100.f, 0.f, 100.f));
   ZModel* cube1 = ZModel::NewCubePrimitive(glm::vec3(3.f));
   ZModel* cube2 = ZModel::NewCubePrimitive(glm::vec3(2.f));
+  ZModel* cube3 = ZModel::NewCubePrimitive(glm::vec3(4.f));
 
   ZActor groundActor;
   ZActor cubeActor1(glm::vec3(0.f, 3.f, 0.f));
   ZActor cubeActor2(glm::vec3(-10.f, 2.f, 5.f));
+  ZActor cubeActor3(glm::vec3(-8.f, 4.f, -10.f));
 
   // ... and add graphics components to them, with the newly created models and shaders
   ZGraphicsComponent groundGraphicsComp(ground, &shader);
   ZGraphicsComponent cubeGraphicsComp1(cube1, &shader);
   ZGraphicsComponent cubeGraphicsComp2(cube2, &shader);
+  ZGraphicsComponent cubeGraphicsComp3(cube3, &shader);
   groundActor.AddComponent(&groundGraphicsComp);
   cubeActor1.AddComponent(&cubeGraphicsComp1);
   cubeActor2.AddComponent(&cubeGraphicsComp2);
+  cubeActor3.AddComponent(&cubeGraphicsComp3);
 
-  game.AddGameObjects({&cubeActor1, &cubeActor2, &groundActor});
+  game.AddGameObjects({&cubeActor1, &cubeActor2, &cubeActor3, &groundActor});
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
