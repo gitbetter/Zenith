@@ -31,6 +31,8 @@ public:
   virtual void EnableDepthTesting() = 0;
   virtual void EnableStencilBuffer() = 0;
   virtual void DisableStencilBuffer() = 0;
+  virtual void EnableAlphaBlending() = 0;
+  virtual void DisableAlphaBlending() = 0;
   virtual void BindFramebuffer(unsigned int frameBuffer) = 0;
   virtual void UnbindFramebuffer() = 0;
   virtual ZTexture LoadDefaultTexture() = 0;

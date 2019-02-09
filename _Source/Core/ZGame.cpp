@@ -90,7 +90,7 @@ void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
 void ZGame::SetDefaultSkybox() {
   ZModel* skybox = ZModel::NewSkybox();
   // ... and a special set of skybox shaders.
-  ZShader* skyboxShader = new ZShader("Resources/Shaders/Vertex/skybox.vert", "Resources/Shaders/Pixel/skybox.frag");
+  ZShader* skyboxShader = new ZShader("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag");
   ZGraphicsComponent* skyboxGraphicsComponent = new ZGraphicsComponent(skybox, skyboxShader);
 
   ZActor* skyboxActor = new ZActor();

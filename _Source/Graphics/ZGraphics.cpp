@@ -51,7 +51,7 @@ void ZGraphics::DrawShadowMap(const std::vector<ZGameObject*>& gameObjects, ZLig
   graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
 
   if (shadowShader_ == nullptr) {
-    shadowShader_ = new ZShader("Resources/Shaders/Vertex/shadow.vert", "Resources/Shaders/Pixel/shadow.frag");
+    shadowShader_ = new ZShader("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
     shadowShader_->SetInt("shadowMap", 0);
   }
   shadowShader_->Activate();

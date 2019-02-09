@@ -19,17 +19,19 @@ ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIE
 
 void ZUIImage::Render(ZShader* shader) {
   ZUIElement::Render(shader);
+  ZEngine::UI()->Strategy()->EnableAlphaBlending();
   ElementShape().Render(shader);
+  ZEngine::UI()->Strategy()->DisableAlphaBlending();
 }
 
 ZMeshUI ZUIImage::ElementShape() {
   static ZMeshUI mesh;
   if (mesh.Vertices().size() == 0) {
     std::vector<float> vertices = {
-      -1.f, 1.f, 0.f, 1.f,
-      -1.f, -1.f, 0.f, 0.f,
-      1.f, 1.f, 1.f, 1.f,
-      1.f, -1.f, 1.f, 0.f
+      -1.f, 1.f,
+      -1.f, -1.f,
+      1.f, 1.f,
+      1.f, -1.f
     };
     mesh = ZMeshUI(vertices);
   }

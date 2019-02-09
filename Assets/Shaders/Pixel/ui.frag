@@ -12,5 +12,5 @@ uniform vec4 backgroundColor;
 uniform sampler2D image0;
 
 void main() {
-  FragColor = backgroundColor;
+  FragColor = backgroundColor * texture(image0, fs_in.FragUV);
 }

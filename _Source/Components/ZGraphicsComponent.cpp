@@ -62,7 +62,7 @@ void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera*
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
   if (highlightShader_ == nullptr)
-    highlightShader_ = new ZShader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/outline.frag");
+    highlightShader_ = new ZShader("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/outline.frag");
   highlightColor_ = color;
 }
 

@@ -28,7 +28,6 @@ void ZUIElement::Render(ZShader* shader) {
 
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
    Scale(scale); Translate(position);
-   texture_ = ZEngine::UI()->Strategy()->LoadDefaultTexture();
 }
 
 void ZUIElement::Translate(glm::vec2 translation) {

@@ -18,7 +18,7 @@ class ZShader;
 class ZUIButton : public ZUIElement {
 private:
 public:
-  ZUIButton(glm::vec2 position = glm::vec2(0.1f), glm::vec2 scale = glm::vec2(0.07f, 0.03f)) : ZUIElement(position, scale) { }
+  ZUIButton(glm::vec2 position = glm::vec2(0.1f), glm::vec2 scale = glm::vec2(0.07f, 0.03f));
   virtual ~ZUIButton() { }
 
   void Render(ZShader* shader) override;

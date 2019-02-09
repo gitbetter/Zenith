@@ -13,6 +13,7 @@
 #include "ZGLInput.hpp"
 #include "ZUI.hpp"
 #include "ZUIButton.hpp"
+#include "ZUIImage.hpp"
 #include "ZCamera.hpp"
 #include "ZActor.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -59,7 +60,7 @@ int main(int argc, const char * argv[]) {
   input.Register(camera);
 
   // Create our primary shader
-  ZShader shader("Resources/Shaders/Vertex/basic.vert", "Resources/Shaders/Pixel/basic.frag");
+  ZShader shader("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/basic.frag");
 
   // Now let's add some renderable game objects to test
   // TODO: How can identify model meshes to add materials independently?
@@ -95,8 +96,9 @@ int main(int argc, const char * argv[]) {
   game.AddGameObject(new ZLight(ZLightType::Directional));
 
   // Let's add some UI components to the UI system to test
-  ZUIButton uiButton;
-  ui.AddElement(&uiButton);
+  ZUIImage uiCursor("Assets/Textures/z_cursor.png", glm::vec2(0.5f), glm::vec2(0.015f, 0.025f));
+  uiCursor.SetColor(glm::vec4(1.f));
+  ui.AddElements({&uiCursor});
 
   // Create the game and start the main game loop. Nothing beyond this point will execute
   // for the duration of the game.

@@ -26,6 +26,7 @@ public:
   void Draw();
 
   void AddElement(ZUIElement* element);
+  void AddElements(std::initializer_list<ZUIElement*> elements);
 
   ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
 

@@ -54,6 +54,15 @@ void ZGLGraphicsStrategy::DisableStencilBuffer() {
   glStencilMask(0x00);
 }
 
+void ZGLGraphicsStrategy::EnableAlphaBlending() {
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void ZGLGraphicsStrategy::DisableAlphaBlending() {
+  glDisable(GL_BLEND);
+}
+
 void ZGLGraphicsStrategy::BindFramebuffer(unsigned int frameBuffer) {
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 }
@@ -125,7 +134,7 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<float> vertices) {
   glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
   // Vertex vector attribute
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -148,7 +157,7 @@ ZTexture ZGLGraphicsStrategy::LoadDefaultTexture() {
 }
 
 ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &directory) {
-  std::string filename = directory + '/' + path;
+  std::string filename = (!directory.empty() ? directory + '/' : "") + path;
 
   ZTexture texture;
   glGenTextures(1, &texture.id);
@@ -156,13 +165,8 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
   int width, height, nrComponents;
   unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
   if (data) {
-      GLenum format = 0;
-      if (nrComponents == 1) format = GL_RED;
-      else if (nrComponents == 3) format = GL_SRGB;
-      else if (nrComponents == 4) format = GL_SRGB_ALPHA;
-
       glBindTexture(GL_TEXTURE_2D, texture.id);
-      glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
       glGenerateMipmap(GL_TEXTURE_2D);
 
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -170,7 +174,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   } else {
-    ZLogger::Log("ZGLModelImporter Error: Failed to load texture at " + path, ZLoggerSeverity::Error);
+    ZLogger::Log("ZGLGraphicsStrategy Error: Failed to load texture at " + path, ZLoggerSeverity::Error);
   }
 
   stbi_image_free(data);

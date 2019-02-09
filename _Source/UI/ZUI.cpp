@@ -19,7 +19,7 @@ void ZUI::Initialize() {
   }
 
   if (uiShader_ == nullptr) {
-    uiShader_ = new ZShader("Resources/Shaders/Vertex/ui.vert", "Resources/Shaders/Pixel/ui.frag");
+    uiShader_ = new ZShader("Assets/Shaders/Vertex/ui.vert", "Assets/Shaders/Pixel/ui.frag");
   }
 }
 
@@ -32,4 +32,10 @@ void ZUI::Draw() {
 void ZUI::AddElement(ZUIElement* element) {
   // TODO: Check if UI element exists before adding
   elements_.push_back(element);
+}
+
+void ZUI::AddElements(std::initializer_list<ZUIElement*> elements) {
+  for (ZUIElement* element : elements) {
+    AddElement(element);
+  }
 }
