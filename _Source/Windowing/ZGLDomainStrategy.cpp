@@ -78,6 +78,5 @@ void ZGLDomainStrategy::GLFWErrorCallback(int id, const char* description) {
 }
 
 void ZGLDomainStrategy::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {
-  // TODO: This simple line might not work if there are multiple viewports in the window
   glViewport(0, 0, width, height);
 }

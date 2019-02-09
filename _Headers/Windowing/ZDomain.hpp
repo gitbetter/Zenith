@@ -29,6 +29,8 @@ public:
 
   ZDomainStrategy* Strategy() { return domainStrategy_; }
 
+  void ResizeWindow(int width, int height);
+
 protected:
   ZDomainStrategy* domainStrategy_;
   unsigned int width_, height_;

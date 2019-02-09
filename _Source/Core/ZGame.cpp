@@ -40,6 +40,7 @@ void ZGame::RunGameLoop() {
     lag += ZEngine::DeltaTime();
 
     ZEngine::Input()->Process();
+    MacDisplayHack();
 
     while (lag >= ZEngine::MS_PER_UPDATE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
         Update();
@@ -48,7 +49,6 @@ void ZGame::RunGameLoop() {
 
     Render(lag / ZEngine::MS_PER_UPDATE);
     ZEngine::Domain()->Strategy()->PollEvents();
-    MacDisplayHack();
   }
 }
 
@@ -63,6 +63,8 @@ void ZGame::Render(float frameMix, unsigned char renderOp) {
   // TODO: If the UI has changed, draw it. Otherwise, leave it.
   // The dirty flag trick might come in handy here
   ZEngine::UI()->Draw();
+  
+  ZEngine::Graphics()->Strategy()->SwapBuffers();
 }
 
 void ZGame::AddGameObject(ZGameObject* gameObject) {
@@ -99,7 +101,7 @@ void ZGame::SetDefaultSkybox() {
 }
 
 ZCamera* ZGame::GetActiveCamera() const {
-  assert(activeCameraIndex_ >= 0 && activeCameraIndex_ < gameCameras_.size()); // TODO: remove
+  assert(activeCameraIndex_ >= 0 && activeCameraIndex_ < gameCameras_.size()); // TODO: remove or enable only for debug builds
   return gameCameras_[activeCameraIndex_];
 }
 
@@ -112,7 +114,7 @@ void ZGame::MacDisplayHack() {
   #ifdef __APPLE__
   static bool moved = false;
   if (!moved) {
-    ZEngine::Domain()->Strategy()->Resize(
+    ZEngine::Domain()->ResizeWindow(
       ZEngine::Domain()->WindowWidth() + 1,
       ZEngine::Domain()->WindowHeight() + 1
     );

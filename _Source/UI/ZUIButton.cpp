@@ -7,15 +7,23 @@
 //
 
 #include "ZUIButton.hpp"
+#include "ZShader.hpp"
+#include "ZEngine.hpp"
+#include "ZLogger.hpp"
+
+void ZUIButton::Render(ZShader* shader) {
+  ZUIElement::Render(shader);
+  ElementShape().Render(shader);
+}
 
 ZMeshUI ZUIButton::ElementShape() {
   static ZMeshUI mesh;
   if (mesh.Vertices().size() == 0) {
-    std::vector<glm::vec4> vertices = {
-      glm::vec4(glm::vec2(-1.f), glm::vec2(0.f)),
-      glm::vec4(glm::vec2(-1.f, 1.f), glm::vec2(0.f)),
-      glm::vec4(glm::vec2(1.f), glm::vec2(0.f)),
-      glm::vec4(glm::vec2(1.f, -1.f), glm::vec2(0.f))
+    std::vector<float> vertices = {
+      -1.f, 1.f, 0.f, 0.f,
+      -1.f, -1.f, 0.f, 0.f,
+      1.f, 1.f, 0.f, 0.f,
+      1.f, -1.f, 0.f, 0.f
     };
     mesh = ZMeshUI(vertices);
   }

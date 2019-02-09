@@ -38,9 +38,6 @@ void ZGraphics::Draw(const std::vector<ZGameObject*>& gameObjects, const std::ve
     }
 
     Render(gameObjects, frameMix);
-
-
-    graphicsStrategy_->SwapBuffers();
   }
 }
 

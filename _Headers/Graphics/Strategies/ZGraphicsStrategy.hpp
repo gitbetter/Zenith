@@ -33,6 +33,7 @@ public:
   virtual void DisableStencilBuffer() = 0;
   virtual void BindFramebuffer(unsigned int frameBuffer) = 0;
   virtual void UnbindFramebuffer() = 0;
+  virtual ZTexture LoadDefaultTexture() = 0;
   virtual ZTexture LoadTexture(std::string path, const std::string &directory) = 0;
   virtual void BindTexture(ZTexture texture, unsigned int index) = 0;
   virtual ZTexture LoadDepthTexture() = 0;
@@ -41,9 +42,9 @@ public:
   virtual void UnbindDepthMapBuffer() = 0;
   virtual unsigned int LoadCubeMap(std::vector<std::string> faces) = 0;
   virtual ZBufferData LoadVertexData(std::vector<ZVertex> vertices, std::vector<unsigned int> indices) = 0;
-  virtual ZBufferData LoadVertexData(std::vector<glm::vec4> vertices) = 0;
+  virtual ZBufferData LoadVertexData(std::vector<float> vertices) = 0;
   virtual void Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) = 0;
-  virtual void Draw(ZBufferData bufferData, std::vector<glm::vec4> vertices) = 0;
+  virtual void Draw(ZBufferData bufferData, std::vector<float> vertices) = 0;
   virtual void CleanUp() = 0;
 
 protected:

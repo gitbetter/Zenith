@@ -3,12 +3,14 @@
 out vec4 FragColor;
 
 in VS_OUT {
-  vec3 FragPos;
-  vec3 FragNormal;
+  vec4 FragPos;
   vec2 FragUV;
-  vec4 FragPosLightSpace;
 } fs_in;
 
+uniform vec4 backgroundColor;
+
+uniform sampler2D image0;
+
 void main() {
-  FragColor = vec4(1.0);
+  FragColor = backgroundColor;
 }

@@ -18,10 +18,10 @@ class ZShader;
 class ZUIButton : public ZUIElement {
 private:
 public:
-  ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) { }
-  virtual ~ZUIButton();
+  ZUIButton(glm::vec2 position = glm::vec2(0.1f), glm::vec2 scale = glm::vec2(0.07f, 0.03f)) : ZUIElement(position, scale) { }
+  virtual ~ZUIButton() { }
 
-  void Render(ZShader* shader) override { }
+  void Render(ZShader* shader) override;
   ZMeshUI ElementShape() override;
 protected:
 

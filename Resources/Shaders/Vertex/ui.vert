@@ -1,18 +1,18 @@
 #version 330 core
 
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 texCoords;
+layout (location = 0) in vec4 vertex;
 
 out VS_OUT {
-  vec3 FragPos;
+  vec4 FragPos;
   vec2 FragUV;
 } vs_out;
 
 uniform mat4 M;
+uniform mat4 P;
 
 void main()
 {
-    vs_out.FragPos = vec3(M * vec4(position, 1.0));
-    vs_out.FragUV = texCoords;
-    gl_Position = vec4(vs_out.FragPos, 1.0);
+    vs_out.FragPos = M * vec4(vertex.xy, 0.0, 1.0);
+    vs_out.FragUV = vertex.zw;
+    gl_Position = normalize(P * vs_out.FragPos);
 }

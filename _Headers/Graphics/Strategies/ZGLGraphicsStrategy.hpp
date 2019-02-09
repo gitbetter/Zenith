@@ -34,6 +34,7 @@ public:
   void DisableStencilBuffer() override;
   void BindFramebuffer(unsigned int frameBuffer) override;
   void UnbindFramebuffer() override;
+  ZTexture LoadDefaultTexture() override;
   ZTexture LoadTexture(std::string path, const std::string &directory) override;
   void BindTexture(ZTexture texture, unsigned int index) override;
   ZTexture LoadDepthTexture() override;
@@ -42,9 +43,9 @@ public:
   void UnbindDepthMapBuffer() override;
   unsigned int LoadCubeMap(std::vector<std::string> faces) override;
   ZBufferData LoadVertexData(std::vector<ZVertex> vertices, std::vector<unsigned int> indices) override;
-  ZBufferData LoadVertexData(std::vector<glm::vec4> vertices) override;
+  ZBufferData LoadVertexData(std::vector<float> vertices) override;
   void Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) override;
-  void Draw(ZBufferData bufferData, std::vector<glm::vec4> vertices) override;
+  void Draw(ZBufferData bufferData, std::vector<float> vertices) override;
   void CleanUp() override;
 
 protected:

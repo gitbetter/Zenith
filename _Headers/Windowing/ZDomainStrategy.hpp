@@ -18,18 +18,18 @@
 class ZDomainStrategy {
 private:
 public:
-    ZDomainStrategy() { }
-    virtual ~ZDomainStrategy() { }
+  ZDomainStrategy() { }
+  virtual ~ZDomainStrategy() { }
 
-    virtual void Initialize() = 0;
-    virtual void CreateWindow(int width, int heights) = 0;
-    virtual void PollEvents() = 0;
-    virtual void CaptureCursor() = 0;
-    virtual void ReleaseCursor() = 0;
-    virtual void Resize(int width, int height) = 0;
-    virtual bool IsWindowClosing() = 0;
-    virtual void CloseWindow() = 0;
-    virtual void CleanUp() = 0;
+  virtual void Initialize() = 0;
+  virtual void CreateWindow(int width, int heights) = 0;
+  virtual void PollEvents() = 0;
+  virtual void CaptureCursor() = 0;
+  virtual void ReleaseCursor() = 0;
+  virtual void Resize(int width, int height) = 0;
+  virtual bool IsWindowClosing() = 0;
+  virtual void CloseWindow() = 0;
+  virtual void CleanUp() = 0;
+
 protected:
-
 };

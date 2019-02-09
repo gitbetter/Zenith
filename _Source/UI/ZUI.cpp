@@ -28,3 +28,8 @@ void ZUI::Draw() {
     element->Render(uiShader_);
   }
 }
+
+void ZUI::AddElement(ZUIElement* element) {
+  // TODO: Check if UI element exists before adding
+  elements_.push_back(element);
+}

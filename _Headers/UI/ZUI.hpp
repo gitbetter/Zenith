@@ -19,14 +19,18 @@ class ZGraphicsStrategy;
 class ZUI {
 private:
 public:
-  virtual ~ZUI() { }
+  ~ZUI() { }
 
   void Initialize();
 
   void Draw();
 
+  void AddElement(ZUIElement* element);
+
+  ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
+
 protected:
   std::vector<ZUIElement*> elements_;
-  ZGraphicsStrategy* graphicsStrategy_;
-  ZShader* uiShader_;
+  ZGraphicsStrategy* graphicsStrategy_ = nullptr;
+  ZShader* uiShader_ = nullptr;
 };

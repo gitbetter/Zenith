@@ -12,6 +12,7 @@
 #include "ZGraphics.hpp"
 #include "ZGLInput.hpp"
 #include "ZUI.hpp"
+#include "ZUIButton.hpp"
 #include "ZCamera.hpp"
 #include "ZActor.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -25,8 +26,11 @@ int main(int argc, const char * argv[]) {
   // Create a new game instance
   ZGame game;
 
+  // TODO: Make window size a cross platform abstraction
+  // and require only an aspect ratio as the domain constructor param
+
   // Create a new domain and provide it to the engine
-  ZDomain domain(1920, 1080);
+  ZDomain domain(1280, 800);
   ZEngine::Provide(domain);
 
   // Create the graphics subsystem and provide it to the engine
@@ -84,10 +88,15 @@ int main(int argc, const char * argv[]) {
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
   // culled properly.
+  // TODO: Maintain the skybox at the end of the game objects list internally
   game.SetDefaultSkybox();
 
   // Now add some lights, because it's dark in here.
   game.AddGameObject(new ZLight(ZLightType::Directional));
+
+  // Let's add some UI components to the UI system to test
+  ZUIButton uiButton;
+  ui.AddElement(&uiButton);
 
   // Create the game and start the main game loop. Nothing beyond this point will execute
   // for the duration of the game.

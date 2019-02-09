@@ -19,7 +19,7 @@ class ZShader;
 class ZUIElement {
 private:
 public:
-  ZUIElement(glm::vec2 position, glm::vec2 scale) : position_(position), scale_(scale) { }
+  ZUIElement(glm::vec2 position, glm::vec2 scale);
   virtual ~ZUIElement() { }
 
   void Hide() { hidden_ = true; }
@@ -32,17 +32,25 @@ public:
 
   void AddChild(ZUIElement* element) { children_.push_back(element); }
 
-  // TODO: Translate, Rotate and Scale methods
   void Translate(glm::vec2 translation);
   void Rotate(float angle);
   void Scale(glm::vec2 factor);
+  void SetColor(glm::vec4 newColor) { color_ = newColor; }
 
-  virtual void Render(ZShader* shader) = 0;
+  glm::vec3 Position();
+  glm::vec3 Size();
+  float Angle();
+
+  const ZTexture& Texture() { return texture_; }
+  void SetTexture(ZTexture texture) { texture_ = texture; }
+
+  virtual void Render(ZShader* shader);
   virtual ZMeshUI ElementShape() = 0;
 
 protected:
   bool hidden_, enabled_, selected_, selectable_, dirty_;
-  glm::vec2 position_, scale_;
-  float rotationAngle_;
+  glm::mat4 modelMatrix_;
+  glm::vec4 color_;
   std::vector<ZUIElement*> children_;
+  ZTexture texture_;
 };

@@ -10,6 +10,7 @@
 
 // Includes
 #include "ZUIElement.hpp"
+#include "ZGraphicsCommon.hpp"
 
 // Forward Declarations
 class ZShader;
@@ -18,11 +19,11 @@ class ZShader;
 class ZUIImage : public ZUIElement {
 private:
 public:
-  ZUIImage(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) { }
-  virtual ~ZUIImage();
+  ZUIImage(std::string path = "", glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.25f));
+  virtual ~ZUIImage() { }
 
-  void Render(ZShader* shader) override { }
-  ZMeshUI ElementShape() override { }
+  void Render(ZShader* shader) override;
+  ZMeshUI ElementShape() override;
+
 protected:
-
 };

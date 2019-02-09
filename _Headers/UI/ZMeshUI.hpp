@@ -19,13 +19,13 @@ class ZMeshUI : ZMesh {
 private:
 public:
   ZMeshUI() { }
-  ZMeshUI(std::vector<glm::vec4> vertices);
+  ZMeshUI(std::vector<float> vertices);
   ~ZMeshUI() { }
 
   void Render(ZShader* shader) override;
 
-  std::vector<glm::vec4> Vertices() const { return vertices_; }
+  std::vector<float> Vertices() const { return vertices_; }
 
 protected:
-  std::vector<glm::vec4> vertices_;
+  std::vector<float> vertices_;
 };

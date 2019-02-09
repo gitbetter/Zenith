@@ -17,3 +17,10 @@ void ZDomain::Initialize() {
     domainStrategy_->CreateWindow(width_, height_);
   }
 }
+
+void ZDomain::ResizeWindow(int width, int height) {
+  if (domainStrategy_ != nullptr) {
+    domainStrategy_->Resize(width, height);
+  }
+  width_ = width; height_ = height;
+}
