@@ -48,7 +48,6 @@ public:
   ZBufferData LoadVertexData(std::vector<float> vertices) override;
   void Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) override;
   void Draw(ZBufferData bufferData, std::vector<float> vertices) override;
-  void CleanUp() override;
 
 protected:
 

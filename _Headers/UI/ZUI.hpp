@@ -14,6 +14,7 @@
 
 // Forward Declarations
 class ZGraphicsStrategy;
+class ZUICursor;
 
 // Class and Data Structure Definitions
 class ZUI {
@@ -30,8 +31,16 @@ public:
 
   ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
 
+  void EnableCursor();
+  void DisableCursor();
+
+  ZUICursor* Cursor() { return cursor_; }
+
+  void CleanUp();
+
 protected:
   std::vector<ZUIElement*> elements_;
+  ZUICursor* cursor_ = nullptr;
   ZGraphicsStrategy* graphicsStrategy_ = nullptr;
   ZShader* uiShader_ = nullptr;
 };

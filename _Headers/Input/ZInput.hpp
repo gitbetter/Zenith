@@ -12,7 +12,7 @@
 #include <vector>
 
 // Forward Declarations
-class ZGameObject;
+class ZObject;
 class ZInputCommand;
 
 // Class and Data Structure Definitions
@@ -21,9 +21,9 @@ private:
 public:
   virtual ~ZInput() { }
 
-  virtual void Register(ZGameObject& gameObject);
+  virtual void Register(ZObject* gameObject);
   virtual void Broadcast(const ZInputCommand& command);
   virtual void Process() = 0;
 protected:
-  std::vector<ZGameObject*> registeredObjects_;
+  std::vector<ZObject*> registeredObjects_;
 };

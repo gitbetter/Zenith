@@ -53,5 +53,7 @@ public:
   static void Provide(ZUI& ui);
   // More provide overloads for different engine subsystems (i.e. physics, audio, input, etc.)
   static void SetDeltaTime(float deltaTime);
+
+  static void CleanUp();
 protected:
 };

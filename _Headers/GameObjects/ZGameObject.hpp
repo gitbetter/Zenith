@@ -10,6 +10,7 @@
 
 // Includes
 #include "ZEngine.hpp"
+#include "ZObject.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZLogger.hpp"
 #include <glm/glm.hpp>
@@ -19,7 +20,7 @@
 class ZGame;
 
 // Class Definitions
-class ZGameObject {
+class ZGameObject : public ZObject {
   friend class ZGame;
 
 private:
@@ -37,14 +38,6 @@ public:
 
   virtual void Update() { }
   virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) { }
-
-  virtual void HandleStrafe(float controlThrow) { }
-  virtual void HandleUpDown(float controlThrow) { }
-  virtual void HandleForwardBack(float controlThrow) { }
-  virtual void HandlePitch(float controlThrow) { }
-  virtual void HandleYaw(float controlThrow) { }
-  virtual void HandleFire() { }
-  virtual void HandleEscape() { }
 
   void SetPosition(glm::vec3 position) { position_ = glm::vec4(position, 1.f); }
   void SetRotation(glm::vec3 rotation) { eulerRotation_ = glm::vec4(rotation, 0.f); }

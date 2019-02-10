@@ -71,6 +71,10 @@ void ZGraphics::DrawShadowMap(const std::vector<ZGameObject*>& gameObjects, ZLig
 
 void ZGraphics::CleanUp() {
   if (graphicsStrategy_ != nullptr) {
-    graphicsStrategy_->CleanUp();
+    delete graphicsStrategy_;
+  }
+
+  if (shadowShader_ != nullptr) {
+    delete shadowShader_;
   }
 }

@@ -19,7 +19,7 @@ class ZUIPanel : public ZUIElement {
 private:
 public:
   ZUIPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f)) : ZUIElement(position, scale) { }
-  virtual ~ZUIPanel();
+  ~ZUIPanel() { }
 
   void Render(ZShader* shader) override { }
   ZMeshUI ElementShape() override { }

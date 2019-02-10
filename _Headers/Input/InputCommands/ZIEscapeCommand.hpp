@@ -1,5 +1,5 @@
 //
-//  ZIUpDownCommand.hpp
+//  ZIEscapeCommand.hpp
 //  Zenith
 //
 //  Created by Adrian Sanchez on 28/01/2019.
@@ -12,14 +12,14 @@
 #include "ZInputCommand.hpp"
 
 // Forward Declarations
-class ZGameObject;
+class ZObject;
 
 // Class and Data Structure Definitions
-class ZIPitchCommand : public ZInputCommand {
+class ZIEscapeCommand : public ZInputCommand {
 private:
 public:
-  ZIPitchCommand(float controlThrow) : ZInputCommand(controlThrow) { }
-  virtual void Execute(ZGameObject* gameObject) const override;
+  ZIEscapeCommand() { }
+  virtual void Execute(ZObject* gameObject) const override;
 protected:
 
 };

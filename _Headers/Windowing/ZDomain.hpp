@@ -31,6 +31,8 @@ public:
 
   void ResizeWindow(int width, int height);
 
+  void CleanUp();
+
 protected:
   ZDomainStrategy* domainStrategy_;
   unsigned int width_, height_;

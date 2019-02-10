@@ -7,8 +7,8 @@
 //
 
 #include "ZIForwardBackCommand.hpp"
-#include "ZGameObject.hpp"
+#include "ZObject.hpp"
 
-void ZIForwardBackCommand::Execute(ZGameObject* gameObject) const {
-  gameObject->HandleForwardBack(controlThrow_);
+void ZIForwardBackCommand::Execute(ZObject* object) const {
+  object->HandleForwardBack(controlThrow_);
 }

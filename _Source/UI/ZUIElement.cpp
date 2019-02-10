@@ -11,10 +11,16 @@
 #include "ZShader.hpp"
 #include "ZDomain.hpp"
 #include "ZUI.hpp"
+#include "ZLogger.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
 void ZUIElement::Render(ZShader* shader) {
+  for (ZUIElement* child : children_) {
+    // TODO: Only render if the child has the dirty flag set
+    child->Render(shader);
+  }
+
   shader->Activate();
 
   ZEngine::UI()->Strategy()->BindTexture(texture_, 0);
@@ -35,13 +41,28 @@ void ZUIElement::Translate(glm::vec2 translation) {
   float scaleXFactor = (float)ZEngine::Domain()->WindowWidth() / size.x;
   float scaleYFactor = (float)ZEngine::Domain()->WindowHeight() / size.y;
   modelMatrix_ = glm::translate(modelMatrix_,
-                                glm::vec3(scaleXFactor * translation.x + (1.f / scaleXFactor) / 0.5f,
-                                          scaleYFactor * translation.y + (1.f / scaleYFactor) / 0.5f,
-                                           0.f));
+                                glm::vec3(scaleXFactor * translation.x + glm::sign(translation.x) * (1.f / scaleXFactor) / 0.5f,
+                                          scaleYFactor * translation.y + glm::sign(translation.y) * (1.f / scaleYFactor) / 0.5f,
+                                          0.f));
+
+  // Clamp the matrix translation so it doesn't fall outside the viewport
+  modelMatrix_[3] = glm::vec4(glm::clamp(modelMatrix_[3][0], 0.f, (float)ZEngine::Domain()->WindowWidth()),
+                              glm::clamp(modelMatrix_[3][1], 0.f, (float)ZEngine::Domain()->WindowHeight()),
+                              modelMatrix_[3][2],
+                              modelMatrix_[3][3]);
+
+  // Recursively update child positions
+  for (ZUIElement* child : children_) {
+    child->Translate(translation);
+  }
 }
 
 void ZUIElement::Rotate(float angle) {
   modelMatrix_ = glm::rotate(modelMatrix_, angle, glm::vec3(0.f, 0.f, 1.f));
+
+  for (ZUIElement* child : children_) {
+    child->Rotate(angle);
+  }
 }
 
 void ZUIElement::Scale(glm::vec2 factor) {
@@ -63,4 +84,11 @@ float ZUIElement::Angle() {
   glm::vec3 rotationAxis; float angle;
   glm::axisAngle(modelMatrix_, rotationAxis, angle);
   return angle;
+}
+
+void ZUIElement::CleanUp() {
+  for (ZUIElement* child : children_) {
+    child->CleanUp();
+    delete child;
+  }
 }

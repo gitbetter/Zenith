@@ -63,7 +63,7 @@ void ZGame::Render(float frameMix, unsigned char renderOp) {
   // TODO: If the UI has changed, draw it. Otherwise, leave it.
   // The dirty flag trick might come in handy here
   ZEngine::UI()->Draw();
-  
+
   ZEngine::Graphics()->Strategy()->SwapBuffers();
 }
 

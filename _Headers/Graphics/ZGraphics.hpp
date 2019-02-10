@@ -36,7 +36,6 @@ public:
   void Initialize();
 
   void Draw(const std::vector<ZGameObject*>& gameObjects, const std::vector<ZLight*>& gameLights, float frameMix = 0.0);
-  void CleanUp();
 
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
   unsigned int DepthFrameBuffer() { return depthFramebuffer_; }
@@ -45,6 +44,8 @@ public:
 
   void SetStrategy(ZGraphicsStrategy* strategy) { graphicsStrategy_ = strategy; }
   ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
+
+  void CleanUp();
 
 protected:
   ZShader* shadowShader_ = nullptr;

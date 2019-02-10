@@ -31,7 +31,7 @@ int main(int argc, const char * argv[]) {
   // and require only an aspect ratio as the domain constructor param
 
   // Create a new domain and provide it to the engine
-  ZDomain domain(1280, 800);
+  ZDomain domain(1260, 800);
   ZEngine::Provide(domain);
 
   // Create the graphics subsystem and provide it to the engine
@@ -50,14 +50,14 @@ int main(int argc, const char * argv[]) {
   // TODO: Create the audio subsystem and provide it to the engine
 
   // Register the main game object so it receives input events
-  input.Register(game);
+  input.Register(&game);
 
   // Let's add a camera to the game
   ZCamera camera(ZCameraType::Perspective, glm::vec3(0.0f, 2.0f, 4.0f));
   game.AddGameObject(&camera);
 
   // Register the camera so it receives input events
-  input.Register(camera);
+  input.Register(&camera);
 
   // Create our primary shader
   ZShader shader("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/basic.frag");
@@ -96,9 +96,7 @@ int main(int argc, const char * argv[]) {
   game.AddGameObject(new ZLight(ZLightType::Directional));
 
   // Let's add some UI components to the UI system to test
-  ZUIImage uiCursor("Assets/Textures/z_cursor.png", glm::vec2(0.5f), glm::vec2(0.015f, 0.025f));
-  uiCursor.SetColor(glm::vec4(1.f));
-  ui.AddElements({&uiCursor});
+  ui.EnableCursor();
 
   // Create the game and start the main game loop. Nothing beyond this point will execute
   // for the duration of the game.

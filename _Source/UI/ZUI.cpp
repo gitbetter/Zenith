@@ -10,6 +10,9 @@
 #include "ZGLGraphicsStrategy.hpp"
 #include "ZUI.hpp"
 #include "ZShader.hpp"
+#include "ZUICursor.hpp"
+#include "ZEngine.hpp"
+#include "ZInput.hpp"
 
 void ZUI::Initialize() {
   // TODO: Switch the strategy here based on graphics implementation
@@ -24,6 +27,7 @@ void ZUI::Initialize() {
 }
 
 void ZUI::Draw() {
+  if (cursor_ != nullptr) cursor_->Render(uiShader_);
   for (ZUIElement* element : elements_) {
     element->Render(uiShader_);
   }
@@ -37,5 +41,40 @@ void ZUI::AddElement(ZUIElement* element) {
 void ZUI::AddElements(std::initializer_list<ZUIElement*> elements) {
   for (ZUIElement* element : elements) {
     AddElement(element);
+  }
+}
+
+void ZUI::EnableCursor() {
+  if (cursor_ == nullptr) {
+    cursor_ = new ZUICursor();
+    cursor_->SetColor(glm::vec4(1.f));
+    ZEngine::Input()->Register(cursor_);
+  }
+}
+
+void ZUI::DisableCursor() {
+  if (cursor_ != nullptr) {
+    delete cursor_;
+    cursor_ = nullptr;
+  }
+}
+
+void ZUI::CleanUp() {
+  for (ZUIElement* element : elements_) {
+    element->CleanUp();
+    delete element;
+  }
+
+  if (cursor_ != nullptr) {
+    cursor_->CleanUp();
+    delete cursor_;
+  }
+
+  if (graphicsStrategy_ != nullptr) {
+    delete graphicsStrategy_;
+  }
+
+  if (uiShader_ != nullptr) {
+    delete uiShader_;
   }
 }

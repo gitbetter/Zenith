@@ -12,14 +12,14 @@
 #include "ZInputCommand.hpp"
 
 // Forward Declarations
-class ZGameObject;
+class ZObject;
 
 // Class and Data Structure Definitions
-class ZIUpDownCommand : public ZInputCommand {
+class ZIPitchCommand : public ZInputCommand {
 private:
 public:
-  ZIUpDownCommand(float controlThrow) : ZInputCommand(controlThrow) { }
-  virtual void Execute(ZGameObject* gameObject) const override;
+  ZIPitchCommand(float controlThrow) : ZInputCommand(controlThrow) { }
+  virtual void Execute(ZObject* gameObject) const override;
 protected:
 
 };

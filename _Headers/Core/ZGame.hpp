@@ -26,6 +26,8 @@ private:
   std::vector<ZLight*> gameLights_;
   int activeCameraIndex_;
 
+  void CleanUp();
+
 public:
   ZGame();
   ~ZGame() { };

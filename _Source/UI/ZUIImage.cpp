@@ -13,8 +13,7 @@
 #include "ZLogger.hpp"
 
 ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
-  texture_ = ZEngine::UI()->Strategy()->LoadTexture(path, "");
-  texture_.type = "image";
+  SetImage(path);
 }
 
 void ZUIImage::Render(ZShader* shader) {
@@ -36,4 +35,11 @@ ZMeshUI ZUIImage::ElementShape() {
     mesh = ZMeshUI(vertices);
   }
   return mesh;
+}
+
+void ZUIImage::SetImage(std::string path) {
+  if (!path.empty()) {
+    texture_ = ZEngine::UI()->Strategy()->LoadTexture(path, "");
+    texture_.type = "image";
+  }
 }

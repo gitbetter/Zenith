@@ -7,8 +7,8 @@
 //
 
 #include "ZIUpDownCommand.hpp"
-#include "ZGameObject.hpp"
+#include "ZObject.hpp"
 
-void ZIUpDownCommand::Execute(ZGameObject* gameObject) const {
-  gameObject->HandleUpDown(controlThrow_);
+void ZIUpDownCommand::Execute(ZObject* object) const {
+  object->HandleUpDown(controlThrow_);
 }

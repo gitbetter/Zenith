@@ -7,8 +7,8 @@
 //
 
 #include "ZIPitchCommand.hpp"
-#include "ZGameObject.hpp"
+#include "ZObject.hpp"
 
-void ZIPitchCommand::Execute(ZGameObject* gameObject) const {
-  gameObject->HandlePitch(controlThrow_);
+void ZIPitchCommand::Execute(ZObject* object) const {
+  object->HandlePitch(controlThrow_);
 }

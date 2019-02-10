@@ -24,3 +24,10 @@ void ZDomain::ResizeWindow(int width, int height) {
   }
   width_ = width; height_ = height;
 }
+
+void ZDomain::CleanUp() {
+  if (domainStrategy_ != nullptr) {
+    domainStrategy_->CleanUp();
+    delete domainStrategy_;
+  }
+}

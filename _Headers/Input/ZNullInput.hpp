@@ -19,10 +19,10 @@ class ZInputComponent;
 class ZNullInput : public ZInput {
 private:
 public:
-    virtual void Register(ZGameObject& gameObject) {
+    virtual void Register(ZObject& gameObject) {
       ZLogger::Log("No ZInput implementation has been provided", ZLoggerSeverity::Error);
     }
-    virtual void Broadcast(const ZInputCommand& command) {
+    virtual void Broadcast(const ZObject& command) {
       ZLogger::Log("No ZInput implementation has been provided", ZLoggerSeverity::Error);
     }
     virtual void Process() {

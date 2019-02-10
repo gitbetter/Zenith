@@ -277,10 +277,6 @@ void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<float> vertic
   glActiveTexture(GL_TEXTURE0);
 }
 
-void ZGLGraphicsStrategy::CleanUp() {
-
-}
-
 void ZGLGraphicsStrategy::GLFWErrorCallback(int id, const char* description) {
   ZLogger::Log(description, ZLoggerSeverity::Error);
 }

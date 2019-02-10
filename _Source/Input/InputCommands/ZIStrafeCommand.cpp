@@ -7,8 +7,8 @@
 //
 
 #include "ZIStrafeCommand.hpp"
-#include "ZGameObject.hpp"
+#include "ZObject.hpp"
 
-void ZIStrafeCommand::Execute(ZGameObject* gameObject) const {
-  gameObject->HandleStrafe(controlThrow_);
+void ZIStrafeCommand::Execute(ZObject* object) const {
+  object->HandleStrafe(controlThrow_);
 }

@@ -10,13 +10,14 @@
 
 // Includes
 #include "ZMeshUI.hpp"
+#include "ZObject.hpp"
 
 // Forward Declarations
 class ZMeshUI;
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZUIElement {
+class ZUIElement : public ZObject {
 private:
 public:
   ZUIElement(glm::vec2 position, glm::vec2 scale);
@@ -35,7 +36,7 @@ public:
   void Translate(glm::vec2 translation);
   void Rotate(float angle);
   void Scale(glm::vec2 factor);
-  void SetColor(glm::vec4 newColor) { color_ = newColor; }
+  virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
 
   glm::vec3 Position();
   glm::vec3 Size();
@@ -45,7 +46,9 @@ public:
   void SetTexture(ZTexture texture) { texture_ = texture; }
 
   virtual void Render(ZShader* shader);
-  virtual ZMeshUI ElementShape() = 0;
+  virtual ZMeshUI ElementShape() { };
+
+  void CleanUp();
 
 protected:
   bool hidden_, enabled_, selected_, selectable_, dirty_;

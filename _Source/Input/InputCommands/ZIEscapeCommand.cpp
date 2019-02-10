@@ -7,8 +7,8 @@
 //
 
 #include "ZIEscapeCommand.hpp"
-#include "ZGameObject.hpp"
+#include "ZObject.hpp"
 
-void ZIEscapeCommand::Execute(ZGameObject* gameObject) const {
-  gameObject->HandleEscape();
+void ZIEscapeCommand::Execute(ZObject* object) const {
+  object->HandleEscape();
 }

@@ -20,10 +20,12 @@ class ZUIImage : public ZUIElement {
 private:
 public:
   ZUIImage(std::string path = "", glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.25f));
-  virtual ~ZUIImage() { }
+  ~ZUIImage() { }
 
   void Render(ZShader* shader) override;
   ZMeshUI ElementShape() override;
+
+  void SetImage(std::string path);
 
 protected:
 };

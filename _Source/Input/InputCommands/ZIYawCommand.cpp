@@ -7,8 +7,8 @@
 //
 
 #include "ZIYawCommand.hpp"
-#include "ZGameObject.hpp"
+#include "ZObject.hpp"
 
-void ZIYawCommand::Execute(ZGameObject* gameObject) const {
-  gameObject->HandleYaw(controlThrow_);
+void ZIYawCommand::Execute(ZObject* object) const {
+  object->HandleYaw(controlThrow_);
 }
