@@ -21,7 +21,7 @@ enum ZCameraType {
 };
 
 enum ZCameraMovementStyle {
-  Normal, Follow, SnappedFollow
+  Normal, Follow
 };
 
 class ZCamera : public ZGameObject {

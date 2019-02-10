@@ -9,10 +9,13 @@
 #include "ZEngine.hpp"
 #include "ZUICursor.hpp"
 #include "ZUIImage.hpp"
+#include "ZDomain.hpp"
 #include "ZLogger.hpp"
 
 ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
   ZUIImage* cursorImage = new ZUIImage("Assets/Textures/z_cursor.png", position, scale);
+  SetTranslationBounds(ZEngine::Domain()->WindowWidth() / 2.f - 150.f, ZEngine::Domain()->WindowWidth() / 2.f + 150.f,
+                       ZEngine::Domain()->WindowHeight() / 2.f - 150.f, ZEngine::Domain()->WindowHeight() / 2.f + 150.f);
   AddChild(cursorImage);
 }
 
@@ -40,15 +43,11 @@ void ZUICursor::SetColor(glm::vec4 color) {
 }
 
 void ZUICursor::HandlePitch(float controlThrow) {
-  // TODO: Mouse movement is choppy and imprecise. Might have to do with the
-  // almost concurrent behavior of the HandlePitch and HandleYaw observer methods
-  Translate(glm::vec2(0.f, -controlThrow * 0.1f * ZEngine::DeltaTime()));
+  Translate(glm::vec2(0.f, -controlThrow * 0.05f * ZEngine::DeltaTime()));
 }
 
 void ZUICursor::HandleYaw(float controlThrow) {
-  // TODO: Mouse movement is choppy and imprecise. Might have to do with the
-  // almost concurrent behavior of the HandlePitch and HandleYaw observer methods
-  Translate(glm::vec2(controlThrow * 0.1f * ZEngine::DeltaTime(), 0.f));
+  Translate(glm::vec2(controlThrow * 0.05f * ZEngine::DeltaTime(), 0.f));
 }
 
 void ZUICursor::HandleFire() {

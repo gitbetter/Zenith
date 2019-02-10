@@ -33,7 +33,13 @@ void ZUIElement::Render(ZShader* shader) {
 }
 
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
-   Scale(scale); Translate(position);
+  translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->WindowWidth(), 0.f, (float)ZEngine::Domain()->WindowHeight());
+  Scale(scale); Translate(position);
+}
+
+void ZUIElement::AddChild(ZUIElement* element) {
+  element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
+  children_.push_back(element);
 }
 
 void ZUIElement::Translate(glm::vec2 translation) {
@@ -45,9 +51,8 @@ void ZUIElement::Translate(glm::vec2 translation) {
                                           scaleYFactor * translation.y + glm::sign(translation.y) * (1.f / scaleYFactor) / 0.5f,
                                           0.f));
 
-  // Clamp the matrix translation so it doesn't fall outside the viewport
-  modelMatrix_[3] = glm::vec4(glm::clamp(modelMatrix_[3][0], 0.f, (float)ZEngine::Domain()->WindowWidth()),
-                              glm::clamp(modelMatrix_[3][1], 0.f, (float)ZEngine::Domain()->WindowHeight()),
+  modelMatrix_[3] = glm::vec4(glm::clamp(modelMatrix_[3][0], translationBounds_.x, translationBounds_.y),
+                              glm::clamp(modelMatrix_[3][1], translationBounds_.z, translationBounds_.w),
                               modelMatrix_[3][2],
                               modelMatrix_[3][3]);
 
@@ -84,6 +89,13 @@ float ZUIElement::Angle() {
   glm::vec3 rotationAxis; float angle;
   glm::axisAngle(modelMatrix_, rotationAxis, angle);
   return angle;
+}
+
+void ZUIElement::SetTranslationBounds(float left, float right, float bottom, float top) {
+  translationBounds_ = glm::vec4(left, right, bottom, top);
+  for (ZUIElement* child : children_) {
+    child->SetTranslationBounds(left, right, bottom, top);
+  }
 }
 
 void ZUIElement::CleanUp() {

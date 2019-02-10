@@ -31,12 +31,11 @@ public:
   void Deselect() { selected_ = false; }
   void SetSelectable(bool selectable) { selectable_ = selectable; }
 
-  void AddChild(ZUIElement* element) { children_.push_back(element); }
+  void AddChild(ZUIElement* element);
 
   void Translate(glm::vec2 translation);
   void Rotate(float angle);
   void Scale(glm::vec2 factor);
-  virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
 
   glm::vec3 Position();
   glm::vec3 Size();
@@ -44,6 +43,8 @@ public:
 
   const ZTexture& Texture() { return texture_; }
   void SetTexture(ZTexture texture) { texture_ = texture; }
+  virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
+  void SetTranslationBounds(float left, float right, float bottom, float top);
 
   virtual void Render(ZShader* shader);
   virtual ZMeshUI ElementShape() { };
@@ -53,6 +54,7 @@ public:
 protected:
   bool hidden_, enabled_, selected_, selectable_, dirty_;
   glm::mat4 modelMatrix_;
+  glm::vec4 translationBounds_;
   glm::vec4 color_;
   std::vector<ZUIElement*> children_;
   ZTexture texture_;

@@ -89,11 +89,14 @@ public:
 
 protected:
   glm::vec4 position_, eulerRotation_, front_, up_, right_;
-  glm::vec4 eulerVelocity_;
-  float eulerDamping_;
   bool translatesWithView_;
   ZGame* game_;
   std::vector<ZComponent*> components_;
+  /////////////////////////
+  // TODO: This might more appropriately belong in a physics or separate movement component
+  glm::vec4 eulerVelocity_;
+  float eulerDamping_;
+  /////////////////////////
 
   void UpdateFrontVectorRotation();
 };
