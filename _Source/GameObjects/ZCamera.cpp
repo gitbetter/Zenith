@@ -42,7 +42,7 @@ void ZCamera::HandleForwardBack(float controlThrow) {
 void ZCamera::HandlePitch(float controlThrow) {
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
     eulerVelocity_.x += controlThrow * lookSensitivity_;
-  } else {
+  } else if (movementStyle_ == ZCameraMovementStyle::Normal) {
     eulerRotation_.x = glm::clamp(eulerRotation_.x + controlThrow * lookSensitivity_, -89.0f, 89.0f);
   }
 }
@@ -50,7 +50,7 @@ void ZCamera::HandlePitch(float controlThrow) {
 void ZCamera::HandleYaw(float controlThrow) {
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
     eulerVelocity_.y += controlThrow * lookSensitivity_;
-  } else {
+  } else if (movementStyle_ == ZCameraMovementStyle::Normal) {
     eulerRotation_.y += controlThrow * lookSensitivity_;
   }
 }

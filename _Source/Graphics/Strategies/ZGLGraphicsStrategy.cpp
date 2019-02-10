@@ -38,6 +38,11 @@ void ZGLGraphicsStrategy::EnableDepthTesting() {
   glDepthFunc(GL_LEQUAL);
 }
 
+void ZGLGraphicsStrategy::DisableDepthTesting() {
+  glDisable(GL_DEPTH_TEST);
+  //glDepthFunc(GL_NEVER);
+}
+
 void ZGLGraphicsStrategy::EnableStencilTesting() {
   glEnable(GL_STENCIL_TEST);
   glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -191,7 +196,7 @@ unsigned int ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
   for (unsigned int i = 0; i < faces.size(); i++) {
     unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
     if (data) {
-      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+      glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     } else {
       ZLogger::Log("Could not load texture at path " + faces[i], ZLoggerSeverity::Error);
     }

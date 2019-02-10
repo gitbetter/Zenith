@@ -14,8 +14,6 @@
 
 ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
   ZUIImage* cursorImage = new ZUIImage("Assets/Textures/z_cursor.png", position, scale);
-  SetTranslationBounds(ZEngine::Domain()->WindowWidth() / 2.f - 150.f, ZEngine::Domain()->WindowWidth() / 2.f + 150.f,
-                       ZEngine::Domain()->WindowHeight() / 2.f - 150.f, ZEngine::Domain()->WindowHeight() / 2.f + 150.f);
   AddChild(cursorImage);
 }
 

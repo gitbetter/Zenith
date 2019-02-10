@@ -97,6 +97,11 @@ int main(int argc, const char * argv[]) {
   game.AddGameObject(new ZLight(ZLightType::Directional));
 
   // Let's add some UI components to the UI system to test
+  ZUIButton uiButton(glm::vec2(0.1f), glm::vec2(0.06f, 0.03f));
+  uiButton.SetColor(glm::vec4(36.f/255.f, 37.f/255.f, 42.f/255.f, 1.f));
+  ui.AddElement(&uiButton);
+
+  // Enable our UI cursor
   ui.EnableCursor();
 
   // Create the game and start the main game loop. Nothing beyond this point will execute

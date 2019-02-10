@@ -30,6 +30,7 @@ public:
   void SwapBuffers() override;
   void EnableStencilTesting() override;
   void EnableDepthTesting() override;
+  void DisableDepthTesting() override;
   void EnableStencilBuffer() override;
   void DisableStencilBuffer() override;
   void EnableAlphaBlending() override;

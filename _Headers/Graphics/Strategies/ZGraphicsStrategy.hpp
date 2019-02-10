@@ -29,6 +29,7 @@ public:
   virtual void SwapBuffers() = 0;
   virtual void EnableStencilTesting() = 0;
   virtual void EnableDepthTesting() = 0;
+  virtual void DisableDepthTesting() = 0;
   virtual void EnableStencilBuffer() = 0;
   virtual void DisableStencilBuffer() = 0;
   virtual void EnableAlphaBlending() = 0;

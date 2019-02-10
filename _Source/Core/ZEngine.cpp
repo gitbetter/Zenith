@@ -18,12 +18,12 @@ const int ZEngine::MAX_FIXED_UPDATE_ITERATIONS = 50;
 const unsigned int ZEngine::SHADOW_MAP_SIZE = 1024;
 const glm::vec4 ZEngine::WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);
 const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
-  "Assets/Skyboxes/Default/right.tga",
-  "Assets/Skyboxes/Default/left.tga",
-  "Assets/Skyboxes/Default/up.tga",
-  "Assets/Skyboxes/Default/down.tga",
-  "Assets/Skyboxes/Default/front.tga",
-  "Assets/Skyboxes/Default/back.tga",
+  "Assets/Skyboxes/Default/right.png",
+  "Assets/Skyboxes/Default/left.png",
+  "Assets/Skyboxes/Default/up.png",
+  "Assets/Skyboxes/Default/down.png",
+  "Assets/Skyboxes/Default/front.png",
+  "Assets/Skyboxes/Default/back.png",
 };
 
 ZDomain* ZEngine::domain_ = nullptr;
