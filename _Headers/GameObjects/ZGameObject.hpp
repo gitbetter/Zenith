@@ -32,7 +32,9 @@ public:
     eulerRotation_(glm::vec4(rotation, 1.f)),
     front_(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)),
     up_(ZEngine::WORLD_UP),
-    translatesWithView_(false)
+    translatesWithView_(false),
+    eulerVelocity_(glm::vec4(0.f)),
+    eulerDamping_(0.05f)
   { CalculateTangentBasis(); }
   virtual ~ZGameObject() { }
 
@@ -55,9 +57,10 @@ public:
   AddComponent(T* component) {
     T* foundComponent = FindComponent<T>();
     if (foundComponent != nullptr) {
-
+      // TODO: Replace or ignore
     } else {
-      if (std::is_same<T, ZGraphicsComponent>::value) component->Translate(position_);
+      if (std::is_same<T, ZGraphicsComponent>::value)
+        dynamic_cast<ZGraphicsComponent*>(component)->Translate(position_);
       components_.push_back(component);
     }
   }
@@ -86,6 +89,8 @@ public:
 
 protected:
   glm::vec4 position_, eulerRotation_, front_, up_, right_;
+  glm::vec4 eulerVelocity_;
+  float eulerDamping_;
   bool translatesWithView_;
   ZGame* game_;
   std::vector<ZComponent*> components_;

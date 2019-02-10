@@ -42,19 +42,27 @@ void ZGame::RunGameLoop() {
     ZEngine::Input()->Process();
     MacDisplayHack();
 
-    while (lag >= ZEngine::MS_PER_UPDATE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
-        Update();
-        lag -= ZEngine::MS_PER_UPDATE;
+    while (lag >= ZEngine::UPDATE_STEP_SIZE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
+      Update();
+      lag -= ZEngine::UPDATE_STEP_SIZE;
     }
 
-    Render(lag / ZEngine::MS_PER_UPDATE);
+    Render(lag / ZEngine::UPDATE_STEP_SIZE);
     ZEngine::Domain()->Strategy()->PollEvents();
   }
 }
 
 void ZGame::Update() {
   for (unsigned int i = 0; i < gameObjects_.size(); i++) {
-      gameObjects_[i]->Update();
+    gameObjects_[i]->Update();
+  }
+
+  for (unsigned int i = 0; i < gameCameras_.size(); i++) {
+    gameCameras_[i]->Update();
+  }
+
+  for (unsigned int i = 0; i < gameLights_.size(); i++) {
+    gameLights_[i]->Update();
   }
 }
 

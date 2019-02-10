@@ -20,6 +20,10 @@ enum ZCameraType {
   Orthographic, Perspective
 };
 
+enum ZCameraMovementStyle {
+  Normal, Follow, SnappedFollow
+};
+
 class ZCamera : public ZGameObject {
 private:
   float movementSpeed_ = 2.2f;
@@ -29,26 +33,29 @@ private:
   float nearClippingPlane_ = 0.01f;
   float farClippingPlane_ = 1000.0f;
   ZCameraType cameraType_;
+  ZCameraMovementStyle movementStyle_;
 
 public:
   ZCamera(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f), glm::vec3 rotation = glm::vec3(0.f, -90.f, 0.f))
   : ZGameObject(position, rotation) {
     cameraType_ = type;
     zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
+    movementStyle_ = ZCameraMovementStyle::Normal;
   }
 
-  virtual void Update() override { }
-  virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) override { };
+  void Update() override;
+  void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) override { };
 
-  virtual void HandleStrafe(float controlThrow) override;
-  virtual void HandleForwardBack(float controlThrow) override;
-  virtual void HandlePitch(float controlThrow) override;
-  virtual void HandleYaw(float controlThrow) override;
+  void HandleStrafe(float controlThrow) override;
+  void HandleForwardBack(float controlThrow) override;
+  void HandlePitch(float controlThrow) override;
+  void HandleYaw(float controlThrow) override;
 
   ZCameraType Type() { return cameraType_; }
   void SetType(ZCameraType type) { cameraType_ = type; }
+  void SetMovementStyle(ZCameraMovementStyle style) { movementStyle_ = style; }
 
-  virtual glm::mat4 GetViewMatrix();
+  glm::mat4 GetViewMatrix();
   float GetZoom() const { return zoom_; }
   float GetNearField() const { return nearClippingPlane_; }
   float GetFarField() const { return farClippingPlane_; }

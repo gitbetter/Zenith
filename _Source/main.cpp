@@ -54,6 +54,7 @@ int main(int argc, const char * argv[]) {
 
   // Let's add a camera to the game
   ZCamera camera(ZCameraType::Perspective, glm::vec3(0.0f, 2.0f, 4.0f));
+  camera.SetMovementStyle(ZCameraMovementStyle::Follow);
   game.AddGameObject(&camera);
 
   // Register the camera so it receives input events

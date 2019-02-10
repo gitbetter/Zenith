@@ -13,7 +13,7 @@
 #include "ZUI.hpp"
 #include <chrono>
 
-const float ZEngine::MS_PER_UPDATE = 17.0f;
+const float ZEngine::UPDATE_STEP_SIZE = 0.017f;
 const int ZEngine::MAX_FIXED_UPDATE_ITERATIONS = 50;
 const unsigned int ZEngine::SHADOW_MAP_SIZE = 1024;
 const glm::vec4 ZEngine::WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);

@@ -11,6 +11,16 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+void ZCamera::Update() {
+  if (movementStyle_ == ZCameraMovementStyle::Follow) {
+    eulerRotation_.x = glm::clamp(eulerRotation_.x + eulerVelocity_.x * ZEngine::UPDATE_STEP_SIZE, -89.0f, 89.0f);
+    eulerRotation_.y += eulerVelocity_.y * ZEngine::UPDATE_STEP_SIZE;
+
+    eulerVelocity_ *= glm::pow(eulerDamping_, ZEngine::UPDATE_STEP_SIZE);
+  }
+  UpdateFrontVectorRotation();
+}
+
 glm::mat4 ZCamera::GetViewMatrix() {
   return glm::lookAt(glm::vec3(position_), glm::vec3(position_ + front_), glm::vec3(up_));
 }
@@ -30,13 +40,17 @@ void ZCamera::HandleForwardBack(float controlThrow) {
 }
 
 void ZCamera::HandlePitch(float controlThrow) {
-  float pitch = controlThrow * lookSensitivity_;
-  eulerRotation_.x = glm::clamp(eulerRotation_.x + pitch, -89.0f, 89.0f);
-  UpdateFrontVectorRotation();
+  if (movementStyle_ == ZCameraMovementStyle::Follow) {
+    eulerVelocity_.x += controlThrow * lookSensitivity_;
+  } else {
+    eulerRotation_.x = glm::clamp(eulerRotation_.x + controlThrow * lookSensitivity_, -89.0f, 89.0f);
+  }
 }
 
 void ZCamera::HandleYaw(float controlThrow) {
-  float yaw = controlThrow * lookSensitivity_;
-  eulerRotation_.y += yaw;
-  UpdateFrontVectorRotation();
+  if (movementStyle_ == ZCameraMovementStyle::Follow) {
+    eulerVelocity_.y += controlThrow * lookSensitivity_;
+  } else {
+    eulerRotation_.y += controlThrow * lookSensitivity_;
+  }
 }

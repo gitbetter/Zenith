@@ -34,7 +34,7 @@ private:
   static ZUI* ui_;
   static float deltaTime_;
 public:
-  static const float MS_PER_UPDATE;
+  static const float UPDATE_STEP_SIZE;
   static const int MAX_FIXED_UPDATE_ITERATIONS;
   static const unsigned int SHADOW_MAP_SIZE;
   static const glm::vec4 WORLD_UP;
