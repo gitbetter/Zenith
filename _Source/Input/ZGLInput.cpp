@@ -14,6 +14,7 @@
 #include "ZIEscapeCommand.hpp"
 #include "ZIPitchCommand.hpp"
 #include "ZIYawCommand.hpp"
+#include "ZIFireCommand.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -41,4 +42,6 @@ void ZGLInput::Process() {
   if (yaw != lastYaw_) Broadcast(ZIYawCommand(yaw - lastYaw_));
   if (pitch != lastPitch_) Broadcast(ZIPitchCommand(lastPitch_ - pitch));
   lastYaw_ = yaw; lastPitch_ = pitch;
+
+  if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) Broadcast(ZIFireCommand());
 }

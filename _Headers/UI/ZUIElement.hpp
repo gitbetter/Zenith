@@ -17,11 +17,14 @@ class ZMeshUI;
 class ZShader;
 
 // Class and Data Structure Definitions
+
 class ZUIElement : public ZObject {
 private:
 public:
   ZUIElement(glm::vec2 position, glm::vec2 scale);
   virtual ~ZUIElement() { }
+
+  void AddChild(ZUIElement* element);
 
   void Hide() { hidden_ = true; }
   void Show() { hidden_ = false; }
@@ -31,11 +34,14 @@ public:
   void Deselect() { selected_ = false; }
   void SetSelectable(bool selectable) { selectable_ = selectable; }
 
-  void AddChild(ZUIElement* element);
-
   void Translate(glm::vec2 translation);
   void Rotate(float angle);
   void Scale(glm::vec2 factor);
+
+  bool Selectable() { return selectable_; }
+  bool Enabled() { return enabled_; }
+  bool Hidden() { return hidden_; }
+  bool Selected() { return selected_; }
 
   glm::vec3 Position();
   glm::vec3 Size();

@@ -20,8 +20,10 @@
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZLight.hpp"
-#include "ZLogger.hpp"
 #include <glm/glm.hpp>
+
+#include "ZLogger.hpp"
+#include "ZUICursor.hpp"
 
 int main(int argc, const char * argv[]) {
   // Create a new game instance
@@ -31,7 +33,7 @@ int main(int argc, const char * argv[]) {
   // and require only an aspect ratio as the domain constructor param
 
   // Create a new domain and provide it to the engine
-  ZDomain domain(1260, 800);
+  ZDomain domain(800, 600);
   ZEngine::Provide(domain);
 
   // Create the graphics subsystem and provide it to the engine
@@ -99,6 +101,9 @@ int main(int argc, const char * argv[]) {
   // Let's add some UI components to the UI system to test
   ZUIButton uiButton(glm::vec2(0.1f), glm::vec2(0.06f, 0.03f));
   uiButton.SetColor(glm::vec4(36.f/255.f, 37.f/255.f, 42.f/255.f, 1.f));
+  uiButton.On(ZEventType::FirePress, [&]{
+    uiButton.SetColor(glm::vec4(1.f));
+  });
   ui.AddElement(&uiButton);
 
   // Enable our UI cursor

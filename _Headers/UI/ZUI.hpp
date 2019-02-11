@@ -35,6 +35,7 @@ public:
   void DisableCursor();
 
   ZUICursor* Cursor() { return cursor_; }
+  std::vector<ZUIElement*>& Elements() { return elements_; }
 
   void CleanUp();
 

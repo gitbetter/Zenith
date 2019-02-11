@@ -28,7 +28,7 @@ public:
     void HandleFire() override;
 
     void SetCursorImage(std::string path);
-    void SetColor(glm::vec4 color);
+    void SetColor(glm::vec4 color) override;
 
 protected:
 

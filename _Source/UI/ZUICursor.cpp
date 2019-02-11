@@ -10,6 +10,7 @@
 #include "ZUICursor.hpp"
 #include "ZUIImage.hpp"
 #include "ZDomain.hpp"
+#include "ZUI.hpp"
 #include "ZLogger.hpp"
 
 ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
@@ -49,5 +50,12 @@ void ZUICursor::HandleYaw(float controlThrow) {
 }
 
 void ZUICursor::HandleFire() {
-
+  std::vector<ZUIElement*> elements = ZEngine::UI()->Elements();
+  for (ZUIElement* element : elements) {
+    if (!element->Selectable()) continue;
+    if (Position().x >= element->Position().x - element->Size().x && Position().x <= element->Position().x + element->Size().x &&
+        Position().y >= element->Position().y - element->Size().y && Position().y <= element->Position().y + element->Size().y) {
+          element->Fire(ZEventType::FirePress);
+    }
+  }
 }

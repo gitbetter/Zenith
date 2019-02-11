@@ -14,6 +14,7 @@
 
 ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
    texture_ = ZEngine::UI()->Strategy()->LoadDefaultTexture();
+   selectable_ = true;
 }
 
 void ZUIButton::Render(ZShader* shader) {
