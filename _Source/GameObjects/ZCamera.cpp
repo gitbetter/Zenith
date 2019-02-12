@@ -7,7 +7,7 @@
 //
 
 #include "ZCamera.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -21,7 +21,7 @@ void ZCamera::Update() {
   UpdateFrontVectorRotation();
 }
 
-glm::mat4 ZCamera::GetViewMatrix() {
+glm::mat4 ZCamera::ViewMatrix() {
   return glm::lookAt(glm::vec3(position_), glm::vec3(position_ + front_), glm::vec3(up_));
 }
 

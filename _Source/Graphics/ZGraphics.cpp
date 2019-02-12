@@ -19,7 +19,7 @@ unsigned char ZGraphics::RENDER_OP_COLOR = 0x01;
 unsigned char ZGraphics::RENDER_OP_SHADOW = 0x02;
 
 void ZGraphics::Initialize() {
-  // TODO: Switch the strategy here based on graphics implementation
+  // TODO: Switch the strategies here based on implementation details
   if (graphicsStrategy_ == nullptr) {
     graphicsStrategy_ = new ZGLGraphicsStrategy();
     graphicsStrategy_->Initialize();

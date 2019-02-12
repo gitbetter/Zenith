@@ -47,6 +47,8 @@ public:
   glm::vec3 Size();
   float Angle();
 
+  glm::vec4 Color() { return color_; }
+
   const ZTexture& Texture() { return texture_; }
   void SetTexture(ZTexture texture) { texture_ = texture; }
   virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }

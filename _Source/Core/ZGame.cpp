@@ -14,11 +14,11 @@
 #include "ZInput.hpp"
 #include "ZUI.hpp"
 #include "ZCamera.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZActor.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 
 #include <chrono>
 #include <cassert>
@@ -27,7 +27,7 @@ using namespace std;
 ZGame::ZGame() : activeCameraIndex_(-1) { }
 
 void ZGame::RunGameLoop() {
-  ZLogger::Log("Zenith is about to loop...", ZLoggerSeverity::Info);
+  _Z("Zenith is about to loop...", ZINFO);
 
   float previousTime = ZEngine::MilliSecondTime();
   float lag = 0.0;

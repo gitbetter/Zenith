@@ -10,7 +10,7 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZGLModelImporter.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 #include "ZMaterial.hpp"
 #include <glm/vec3.hpp>
 #include <assimp/Importer.hpp>
@@ -34,7 +34,7 @@ void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZMesh3D>& ou
 
   // The file might have incomplete data or no nodes to traverse. Handle that.
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-    ZLogger::Log(std::string("ZGLModelImporter Error: ") + import.GetErrorString(), ZLoggerSeverity::Error);
+    _Z(std::string("ZGLModelImporter Error: ") + import.GetErrorString(), ZERROR);
     return;
   }
 
@@ -75,12 +75,12 @@ void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::stri
     @return a ZMesh3D instance with all the relevant data
 */
 ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
-  std::vector<ZVertex> vertices;
+  std::vector<ZVertex3D> vertices;
   std::vector<unsigned int> indices;
   ZMaterial material;
 
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-    ZVertex vertex;
+    ZVertex3D vertex;
 
     glm::vec3 position;
     position.x = mesh->mVertices[i].x;

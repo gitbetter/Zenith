@@ -9,9 +9,9 @@
 #include "ZMesh3D.hpp"
 #include "ZEngine.hpp"
 #include "ZShader.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 
-ZMesh3D::ZMesh3D(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material)
+ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material)
 : vertices_(vertices), indices_(indices), material_(material) {
   bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices, indices);
 }

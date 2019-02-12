@@ -10,7 +10,7 @@
 
 // Includes
 #include "ZInput.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZInputComponent;
@@ -20,13 +20,13 @@ class ZNullInput : public ZInput {
 private:
 public:
     virtual void Register(ZObject& gameObject) {
-      ZLogger::Log("No ZInput implementation has been provided", ZLoggerSeverity::Error);
+      _Z("No ZInput implementation has been provided", ZERROR);
     }
     virtual void Broadcast(const ZObject& command) {
-      ZLogger::Log("No ZInput implementation has been provided", ZLoggerSeverity::Error);
+      _Z("No ZInput implementation has been provided", ZERROR);
     }
     virtual void Process() {
-      ZLogger::Log("No ZInput implementation has been provided", ZLoggerSeverity::Error);
+      _Z("No ZInput implementation has been provided", ZERROR);
     }
 protected:
 

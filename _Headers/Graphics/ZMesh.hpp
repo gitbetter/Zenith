@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include "ZGraphicsCommon.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZShader;

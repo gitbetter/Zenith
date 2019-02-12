@@ -14,6 +14,7 @@
 #include "ZUI.hpp"
 #include "ZUIButton.hpp"
 #include "ZUIImage.hpp"
+#include "ZUIText.hpp"
 #include "ZCamera.hpp"
 #include "ZActor.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -22,7 +23,7 @@
 #include "ZLight.hpp"
 #include <glm/glm.hpp>
 
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 #include "ZUICursor.hpp"
 
 int main(int argc, const char * argv[]) {
@@ -33,7 +34,7 @@ int main(int argc, const char * argv[]) {
   // and require only an aspect ratio as the domain constructor param
 
   // Create a new domain and provide it to the engine
-  ZDomain domain(800, 600);
+  ZDomain domain(1260, 800);
   ZEngine::Provide(domain);
 
   // Create the graphics subsystem and provide it to the engine
@@ -50,6 +51,10 @@ int main(int argc, const char * argv[]) {
 
   // TODO: Create the physics subsystem and provide it to the engine
   // TODO: Create the audio subsystem and provide it to the engine
+
+  // Ater providing a UI subsystem, we can now register fonts
+  // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
+  ui.RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
 
   // Register the main game object so it receives input events
   input.Register(&game);
@@ -82,6 +87,9 @@ int main(int argc, const char * argv[]) {
   ZGraphicsComponent cubeGraphicsComp1(cube1, &shader);
   ZGraphicsComponent cubeGraphicsComp2(cube2, &shader);
   ZGraphicsComponent cubeGraphicsComp3(cube3, &shader);
+
+  cubeGraphicsComp1.SetOutline();
+
   groundActor.AddComponent(&groundGraphicsComp);
   cubeActor1.AddComponent(&cubeGraphicsComp1);
   cubeActor2.AddComponent(&cubeGraphicsComp2);
@@ -96,7 +104,7 @@ int main(int argc, const char * argv[]) {
   game.SetDefaultSkybox();
 
   // Now add some lights, because it's dark in here.
-  game.AddGameObject(new ZLight(ZLightType::Directional));
+  game.AddGameObjects({new ZLight(ZLightType::Directional)});
 
   // Let's add some UI components to the UI system to test
   ZUIButton uiButton(glm::vec2(0.1f), glm::vec2(0.06f, 0.03f));
@@ -104,7 +112,10 @@ int main(int argc, const char * argv[]) {
   uiButton.On(ZEventType::FirePress, [&]{
     uiButton.SetColor(glm::vec4(1.f));
   });
-  ui.AddElement(&uiButton);
+
+  ZUIText uiText("Hello World!", "earthorbiter", 1.f, glm::vec2(0.3, 0.1f), glm::vec2(0.06f, 0.03f));
+  uiText.SetColor(glm::vec4(0.8f, 0.8f, 0.8f, 1.f));
+  ui.AddElements({&uiButton, &uiText});
 
   // Enable our UI cursor
   ui.EnableCursor();

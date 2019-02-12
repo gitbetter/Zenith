@@ -12,7 +12,6 @@
 #include "ZEngine.hpp"
 #include "ZObject.hpp"
 #include "ZGraphicsComponent.hpp"
-#include "ZLogger.hpp"
 #include <glm/glm.hpp>
 #include <type_traits>
 

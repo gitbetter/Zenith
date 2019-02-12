@@ -6,16 +6,16 @@
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
-// TODO: Conditional include based on graphics implementation
-#include "ZGLGraphicsStrategy.hpp"
 #include "ZUI.hpp"
 #include "ZShader.hpp"
 #include "ZUICursor.hpp"
 #include "ZEngine.hpp"
 #include "ZInput.hpp"
+#include "ZUIText.hpp"
+#include "ZGLTextStrategy.hpp"
 
 void ZUI::Initialize() {
-  // TODO: Switch the strategy here based on graphics implementation
+  // TODO: Switch the strategies here based on implementation details
   if (graphicsStrategy_ == nullptr) {
     graphicsStrategy_ = new ZGLGraphicsStrategy();
     graphicsStrategy_->Initialize();
@@ -24,12 +24,21 @@ void ZUI::Initialize() {
   if (uiShader_ == nullptr) {
     uiShader_ = new ZShader("Assets/Shaders/Vertex/ui.vert", "Assets/Shaders/Pixel/ui.frag");
   }
+
+  if(textStrategy_ == nullptr) {
+    textStrategy_ = new ZGLTextStrategy();
+    textStrategy_->Initialize();
+  }
+
+  if (textShader_ == nullptr) {
+    textShader_ = new ZShader("Assets/Shaders/Vertex/text.vert", "Assets/Shaders/Pixel/text.frag");
+  }
 }
 
 void ZUI::Draw() {
   if (cursor_ != nullptr) cursor_->Render(uiShader_);
   for (ZUIElement* element : elements_) {
-    element->Render(uiShader_);
+      element->Render((dynamic_cast<ZUIText*>(element)) ? textShader_ : uiShader_);
   }
 }
 
@@ -57,6 +66,10 @@ void ZUI::DisableCursor() {
     delete cursor_;
     cursor_ = nullptr;
   }
+}
+
+void ZUI::RegisterFont(std::string fontPath) {
+  if (textStrategy_ != nullptr) textStrategy_->LoadFont(fontPath, 64);
 }
 
 void ZUI::CleanUp() {

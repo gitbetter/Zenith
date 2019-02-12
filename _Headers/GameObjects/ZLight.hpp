@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "ZCommon.hpp"
 #include "ZGameObject.hpp"
 #include <glm/glm.hpp>
 
@@ -16,13 +17,9 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-enum ZLightType {
-  Directional, Point, Spot, Area, Hemisphere
-};
-
 struct ZLBaseProperties {
-  glm::vec3 ambient{0.3f};
-  glm::vec3 color{0.8f};
+  glm::vec3 ambient{0.2f};
+  glm::vec3 color{0.7f};
 };
 
 struct ZLAttenuationProperties {

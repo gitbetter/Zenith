@@ -23,7 +23,7 @@ ifeq ($(OS),Windows_NT)
 	LDLIBS += -lGL -lgdi32
 endif
 
-LDLIBS += -lassimp
+LDLIBS += -lassimp -lfreetyped
 
 all: game
 

@@ -13,7 +13,7 @@
 #include "ZGLGraphicsStrategy.hpp"
 #include "ZDomain.hpp"
 #include "ZDomainStrategy.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 
 void ZGLGraphicsStrategy::Initialize() {
   glfwSetErrorCallback(GLFWErrorCallback);
@@ -85,7 +85,7 @@ void ZGLGraphicsStrategy::BindTexture(ZTexture texture, unsigned int index) {
   }
 }
 
-ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<ZVertex> vertices, std::vector<unsigned int> indices) {
+ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) {
   ZBufferData bufferData;
   glGenVertexArrays(1, &bufferData.vao);
   glGenBuffers(1, &bufferData.vbo);
@@ -95,30 +95,30 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<ZVertex> vertices, s
 
   // Bind the buffer object and set the vertex data
   glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ZVertex), &vertices[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ZVertex3D), &vertices[0], GL_STATIC_DRAW);
 
   //  Bind the element buffer object (for indexed drawing) and set the index data
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
   // Vertex position vector
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)0);
   glEnableVertexAttribArray(0);
 
   // Vertex normal vector
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)offsetof(ZVertex, normal));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, normal));
   glEnableVertexAttribArray(1);
 
   // Vertex textures coordinates
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)offsetof(ZVertex, uv));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, uv));
   glEnableVertexAttribArray(2);
 
   // Vertex tangent vector
-  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)offsetof(ZVertex, tangent));
+  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, tangent));
   glEnableVertexAttribArray(3);
 
   // Vertex bitangent vector (the tangent to the tangent, but not the normal)
-  glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex), (void*)offsetof(ZVertex, bitangent));
+  glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, bitangent));
   glEnableVertexAttribArray(4);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -127,7 +127,7 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<ZVertex> vertices, s
   return bufferData;
 }
 
-ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<float> vertices) {
+ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<ZVertex2D> vertices) {
   ZBufferData bufferData;
   glGenVertexArrays(1, &bufferData.vao);
   glGenBuffers(1, &bufferData.vbo);
@@ -136,11 +136,39 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<float> vertices) {
 
   // Bind the buffer object and set the vertex data
   glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ZVertex2D), &vertices[0], GL_STATIC_DRAW);
 
-  // Vertex vector attribute
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+  // Vertex position attribute
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*)0);
   glEnableVertexAttribArray(0);
+
+  // Vertex texture coordinates attribute
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*)offsetof(ZVertex2D, uv));
+  glEnableVertexAttribArray(1);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+  return bufferData;
+}
+
+ZBufferData ZGLGraphicsStrategy::LoadEmptyVertexData2D(unsigned int size) {
+  ZBufferData bufferData;
+  glGenVertexArrays(1, &bufferData.vao);
+  glGenBuffers(1, &bufferData.vbo);
+
+  glBindVertexArray(bufferData.vao);
+
+  // Bind the buffer object and set the vertex data
+  glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(ZVertex2D) * size, NULL, GL_STATIC_DRAW);
+
+  // Vertex position attribute
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*)0);
+  glEnableVertexAttribArray(0);
+
+  // Vertex texture coordinates attribute
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*)offsetof(ZVertex2D, uv));
+  glEnableVertexAttribArray(1);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
@@ -179,7 +207,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   } else {
-    ZLogger::Log("ZGLGraphicsStrategy Error: Failed to load texture at " + path, ZLoggerSeverity::Error);
+    _Z("ZGLGraphicsStrategy Error: Failed to load texture at " + path, ZERROR);
   }
 
   stbi_image_free(data);
@@ -198,7 +226,7 @@ unsigned int ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
     if (data) {
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     } else {
-      ZLogger::Log("Could not load texture at path " + faces[i], ZLoggerSeverity::Error);
+      _Z("Could not load texture at path " + faces[i], ZERROR);
     }
     stbi_image_free(data);
   }
@@ -219,7 +247,7 @@ unsigned int ZGLGraphicsStrategy::LoadDepthMapBuffer(ZTexture depthTexture) {
   glDrawBuffer(GL_NONE);
 
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
-    ZLogger::Log("Framebuffer operation incomplete dimensions", ZLoggerSeverity::Error);
+    _Z("Framebuffer operation incomplete dimensions", ZERROR);
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -266,7 +294,15 @@ void ZGLGraphicsStrategy::UnbindDepthMapBuffer() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) {
+void ZGLGraphicsStrategy::UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) {
+  glBindVertexArray(buffer.vao);
+  glBindBuffer(GL_ARRAY_BUFFER, buffer.vbo);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, data.size() * sizeof(ZVertex2D), &data[0]);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+}
+
+void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) {
   glBindVertexArray(bufferData.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -275,7 +311,7 @@ void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex> vert
   glActiveTexture(GL_TEXTURE0);
 }
 
-void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<float> vertices) {
+void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) {
   glBindVertexArray(bufferData.vao);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size());
   glBindVertexArray(0);
@@ -283,5 +319,5 @@ void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<float> vertic
 }
 
 void ZGLGraphicsStrategy::GLFWErrorCallback(int id, const char* description) {
-  ZLogger::Log(description, ZLoggerSeverity::Error);
+  _Z(description, ZERROR);
 }

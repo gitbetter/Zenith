@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include "ZGraphicsCommon.hpp"
+#include "ZCommon.hpp"
 #include "ZGraphicsStrategy.hpp"
 
 // Forward Declarations
@@ -45,10 +45,12 @@ public:
   void BindDepthMapBuffer(unsigned int frameBuffer) override;
   void UnbindDepthMapBuffer() override;
   unsigned int LoadCubeMap(std::vector<std::string> faces) override;
-  ZBufferData LoadVertexData(std::vector<ZVertex> vertices, std::vector<unsigned int> indices) override;
-  ZBufferData LoadVertexData(std::vector<float> vertices) override;
-  void Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) override;
-  void Draw(ZBufferData bufferData, std::vector<float> vertices) override;
+  ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
+  ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) override;
+  ZBufferData LoadEmptyVertexData2D(unsigned int size) override;
+  void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) override;
+  void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
+  void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) override;
 
 protected:
 

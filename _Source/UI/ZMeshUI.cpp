@@ -12,11 +12,11 @@
 #include "ZGraphicsStrategy.hpp"
 #include "ZShader.hpp"
 
-ZMeshUI::ZMeshUI(std::vector<float> vertices) : vertices_(vertices) {
-  bufferData_ = ZEngine::UI()->Strategy()->LoadVertexData(vertices);
+ZMeshUI::ZMeshUI(std::vector<ZVertex2D> vertices) : vertices_(vertices) {
+  bufferData_ = ZEngine::UI()->GraphicsStrategy()->LoadVertexData(vertices);
 }
 
 void ZMeshUI::Render(ZShader* shader) {
   shader->Activate();
-  ZEngine::UI()->Strategy()->Draw(bufferData_, vertices_);
+  ZEngine::UI()->GraphicsStrategy()->Draw(bufferData_, vertices_);
 }

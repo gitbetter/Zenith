@@ -11,7 +11,7 @@
 #include "ZUIImage.hpp"
 #include "ZDomain.hpp"
 #include "ZUI.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 
 ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
   ZUIImage* cursorImage = new ZUIImage("Assets/Textures/z_cursor.png", position, scale);

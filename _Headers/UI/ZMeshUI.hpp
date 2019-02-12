@@ -10,6 +10,7 @@
 
 // Includes
 #include "ZMesh.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZShader;
@@ -19,13 +20,13 @@ class ZMeshUI : ZMesh {
 private:
 public:
   ZMeshUI() { }
-  ZMeshUI(std::vector<float> vertices);
+  ZMeshUI(std::vector<ZVertex2D> vertices);
   ~ZMeshUI() { }
 
   void Render(ZShader* shader) override;
 
-  std::vector<float> Vertices() const { return vertices_; }
+  std::vector<ZVertex2D> Vertices() const { return vertices_; }
 
 protected:
-  std::vector<float> vertices_;
+  std::vector<ZVertex2D> vertices_;
 };

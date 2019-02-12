@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "ZCommon.hpp"
 #include "ZEngine.hpp"
 #include "ZGameObject.hpp"
 #include <glm/glm.hpp>
@@ -16,14 +17,6 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-enum ZCameraType {
-  Orthographic, Perspective
-};
-
-enum ZCameraMovementStyle {
-  None, Normal, Follow
-};
-
 class ZCamera : public ZGameObject {
 private:
   float movementSpeed_ = 2.2f;
@@ -55,7 +48,7 @@ public:
   void SetType(ZCameraType type) { cameraType_ = type; }
   void SetMovementStyle(ZCameraMovementStyle style) { movementStyle_ = style; }
 
-  glm::mat4 GetViewMatrix();
+  glm::mat4 ViewMatrix();
   float GetZoom() const { return zoom_; }
   float GetNearField() const { return nearClippingPlane_; }
   float GetFarField() const { return farClippingPlane_; }

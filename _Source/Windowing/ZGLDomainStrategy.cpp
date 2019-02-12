@@ -7,7 +7,7 @@
 //
 
 #include "ZGLDomainStrategy.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -27,7 +27,7 @@ void ZGLDomainStrategy::Initialize() {
 void ZGLDomainStrategy::CreateWindow(int width, int height) {
   GLFWwindow* window = glfwCreateWindow(width, height, "Starter", NULL, NULL);
   if (window == NULL) {
-      ZLogger::Log("Could not create glfw window", ZLoggerSeverity::Error);
+      _Z("Could not create glfw window", ZERROR);
       glfwTerminate();
   }
   glfwMakeContextCurrent(window);
@@ -74,7 +74,7 @@ void ZGLDomainStrategy::CleanUp() {
 }
 
 void ZGLDomainStrategy::GLFWErrorCallback(int id, const char* description) {
-  ZLogger::Log(description, ZLoggerSeverity::Error);
+  _Z(description, ZERROR);
 }
 
 void ZGLDomainStrategy::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {

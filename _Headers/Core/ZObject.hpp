@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "ZCommon.hpp"
 #include <vector>
 #include <functional>
 #include <map>
@@ -17,12 +18,6 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-enum ZEventType {
-  FirePress
-};
-
-typedef std::function<void()> ZEventCallback;
-
 class ZObject {
 private:
 public:
@@ -38,7 +33,7 @@ public:
 
   virtual void On(ZEventType event, ZEventCallback&& callback);
   virtual void Fire(ZEventType event);
-  
+
 protected:
   std::map<ZEventType, std::vector<ZEventCallback>> eventCallbacks_;
 };

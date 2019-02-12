@@ -63,12 +63,12 @@ void main() {
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
     if (!lights[i].isEnabled) continue;
 
-    vec3 lightDirection = normalize(lights[i].direction);
+    vec3 lightDirection = (lights[i].isDirectional) ? normalize(lights[i].direction) : normalize(lights[i].position);
     vec3 halfVector = normalize(lightDirection + viewDirection);
     float attenunation = 1.0;
 
     if (!lights[i].isDirectional) {
-      lightDirection = lightDirection - fs_in.FragPos;
+      lightDirection = fs_in.FragPos - lightDirection;
       float lightDistance = length(lightDirection);
       lightDirection = lightDirection / lightDistance;
 
@@ -87,11 +87,9 @@ void main() {
 
     float diffuse = max(0.0, dot(fs_in.FragNormal, lightDirection));
     float specular = max(0.0, dot(fs_in.FragNormal, halfVector));
+    specular = (diffuse == 0.0) ? 0.0 : pow(specular, materials[materialIndex].shininess);
 
-    if (diffuse == 0.0) specular = 0.0;
-    else specular = pow(specular, materials[materialIndex].shininess);
-
-    scatteredLight += lights[i].ambient * materials[materialIndex].ambient +
+    scatteredLight += lights[i].ambient * materials[materialIndex].ambient * attenunation +
                       lights[i].color * materials[materialIndex].diffuse * diffuse * attenunation;
     reflectedLight += lights[i].color * materials[materialIndex].specular * specular * attenunation;
   }

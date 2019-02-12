@@ -21,14 +21,14 @@ class ZCamera;
 class ZMesh3D : public ZMesh {
   friend class ZModel;
 private:
-  std::vector<ZVertex> vertices_;
+  std::vector<ZVertex3D> vertices_;
   std::vector<unsigned int> indices_;
   ZMaterial material_;
 
   void AttachMaterialTextures(ZShader* shader);
 
 public:
-  ZMesh3D(std::vector<ZVertex> vertices, std::vector<unsigned int> indices, ZMaterial material);
+  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material);
   ~ZMesh3D() { }
 
   void SetMaterial(ZMaterial material) { material_ = material; }

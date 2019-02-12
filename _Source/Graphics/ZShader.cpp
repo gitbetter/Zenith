@@ -10,7 +10,7 @@
 #include <GLFW/glfw3.h>
 
 #include "ZShader.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 #include "ZMaterial.hpp"
 
 #include <iostream>
@@ -64,7 +64,7 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath) {
       // Convert the stream object to a string
       shaderCode = shaderStream.str();
     } catch (std::ifstream::failure e) {
-      ZLogger::Log("There was an error reading a shader file. Consult the code.", ZLoggerSeverity::Error);
+      _Z("There was an error reading a shader file. Consult the code.", ZERROR);
     }
   }
   return shaderCode;
@@ -137,7 +137,7 @@ void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shad
     if(!success) {
         if (isShader) { glGetShaderInfoLog(compilationUnit, 1024, NULL, infoLog); }
         else { glGetProgramInfoLog(compilationUnit, 1024, NULL, infoLog); }
-        ZLogger::Log("Shader Compilation Error: " + std::string(infoLog), ZLoggerSeverity::Error);
+        _Z("Shader Compilation Error: " + std::string(infoLog), ZERROR);
     }
 }
 

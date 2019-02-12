@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include "ZGraphicsCommon.hpp"
+#include "ZCommon.hpp"
 #include <vector>
 #include <glm/glm.hpp>
 

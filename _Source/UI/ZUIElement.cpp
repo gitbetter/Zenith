@@ -11,7 +11,7 @@
 #include "ZShader.hpp"
 #include "ZDomain.hpp"
 #include "ZUI.hpp"
-#include "ZLogger.hpp"
+#include "ZCommon.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
@@ -23,13 +23,13 @@ void ZUIElement::Render(ZShader* shader) {
 
   shader->Activate();
 
-  ZEngine::UI()->Strategy()->BindTexture(texture_, 0);
+  ZEngine::UI()->GraphicsStrategy()->BindTexture(texture_, 0);
   shader->SetInt(texture_.type + "0", 0);
 
   glm::mat4 ortho = glm::ortho(0.f, (float)ZEngine::Domain()->WindowWidth(), (float)ZEngine::Domain()->WindowHeight(), 0.f);
   shader->SetMat4("M", modelMatrix_);
   shader->SetMat4("P", ortho);
-  shader->SetVec4("backgroundColor", color_);
+  shader->SetVec4("color", color_);
 }
 
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {

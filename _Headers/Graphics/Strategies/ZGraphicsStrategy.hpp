@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include "ZGraphicsCommon.hpp"
+#include "ZCommon.hpp"
 #include "ZMaterial.hpp"
 #include "stb_image.hpp"
 
@@ -44,10 +44,12 @@ public:
   virtual void BindDepthMapBuffer(unsigned int frameBuffer) = 0;
   virtual void UnbindDepthMapBuffer() = 0;
   virtual unsigned int LoadCubeMap(std::vector<std::string> faces) = 0;
-  virtual ZBufferData LoadVertexData(std::vector<ZVertex> vertices, std::vector<unsigned int> indices) = 0;
-  virtual ZBufferData LoadVertexData(std::vector<float> vertices) = 0;
-  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex> vertices, std::vector<unsigned int> indices) = 0;
-  virtual void Draw(ZBufferData bufferData, std::vector<float> vertices) = 0;
+  virtual ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
+  virtual ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) = 0;
+  virtual ZBufferData LoadEmptyVertexData2D(unsigned int size) = 0;
+  virtual void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) = 0;
+  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
+  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) = 0;
 
 protected:
 
