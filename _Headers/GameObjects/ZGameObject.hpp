@@ -45,6 +45,7 @@ public:
   void SetFrontVector(glm::vec3 front);
   virtual void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 
+  glm::mat4 ViewMatrix(float frameMix);
   glm::vec3 GetPosition() const { return glm::vec3(position_); }
   glm::vec3 GetRotation() const { return glm::vec3(eulerRotation_); }
   glm::vec3 GetFrontVector() const { return glm::vec3(front_); }
@@ -88,6 +89,7 @@ public:
 
 protected:
   glm::vec4 position_, eulerRotation_, front_, up_, right_;
+  glm::vec4 previousPosition_, previousEuler_, previousFront_, previousUp_, previousRight_;
   bool translatesWithView_;
   ZGame* game_;
   std::vector<ZComponent*> components_;

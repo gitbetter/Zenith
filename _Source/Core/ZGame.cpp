@@ -40,7 +40,7 @@ void ZGame::RunGameLoop() {
     lag += ZEngine::DeltaTime();
 
     ZEngine::Input()->Process();
-    MacDisplayHack();
+    //MacDisplayHack();
 
     while (lag >= ZEngine::UPDATE_STEP_SIZE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
       Update();

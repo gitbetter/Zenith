@@ -11,6 +11,7 @@
 #include "ZGraphicsStrategy.hpp"
 #include "ZTextStrategy.hpp"
 #include "ZEngine.hpp"
+#include "ZDomain.hpp"
 
 ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 position, glm::vec2 scale)
 : ZUIElement(position, scale) {
@@ -23,7 +24,8 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
 void ZUIText::Render(ZShader* shader) {
   ZEngine::UI()->GraphicsStrategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
-  float x = Position().x, y = Position().y - Size().y / 2.f;
+  float x = Position().x * (float)ZEngine::Domain()->WindowWidth() / 2.f,
+        y = (Position().y * (float)ZEngine::Domain()->WindowHeight()) - (Size().y * (float)ZEngine::Domain()->WindowHeight()) / 2.f;
   for (auto c = text_.begin(); c != text_.end(); c++) {
     ZCharacter character = ZEngine::UI()->TextStrategy()->Character(font_, *c);
     texture_ = character.texture;
@@ -47,4 +49,5 @@ void ZUIText::Render(ZShader* shader) {
     x += (character.advance >> 6) * fontScale_;
   }
   ZEngine::UI()->GraphicsStrategy()->DisableAlphaBlending();
+  RenderChildren(shader);
 }

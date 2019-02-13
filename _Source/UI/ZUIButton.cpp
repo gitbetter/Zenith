@@ -20,6 +20,7 @@ ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position,
 void ZUIButton::Render(ZShader* shader) {
   ZUIElement::Render(shader);
   ElementShape().Render(shader);
+  RenderChildren(shader);
 }
 
 ZMeshUI ZUIButton::ElementShape() {

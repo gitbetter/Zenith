@@ -37,7 +37,7 @@ void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera*
                                          camera->GetNearField(), camera->GetFarField());
   }
 
-  viewMatrix_ = translatesWithView_ ? camera->ViewMatrix() : glm::mat4(glm::mat3(camera->ViewMatrix()));
+  viewMatrix_ = translatesWithView_ ? camera->ViewMatrix(frameMix) : glm::mat4(glm::mat3(camera->ViewMatrix(frameMix)));
 
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();

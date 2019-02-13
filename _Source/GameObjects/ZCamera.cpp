@@ -13,16 +13,11 @@
 
 void ZCamera::Update() {
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
+    eulerVelocity_ *= glm::pow(eulerDamping_, ZEngine::UPDATE_STEP_SIZE);
     eulerRotation_.x = glm::clamp(eulerRotation_.x + eulerVelocity_.x * ZEngine::UPDATE_STEP_SIZE, -89.0f, 89.0f);
     eulerRotation_.y += eulerVelocity_.y * ZEngine::UPDATE_STEP_SIZE;
-
-    eulerVelocity_ *= glm::pow(eulerDamping_, ZEngine::UPDATE_STEP_SIZE);
   }
   UpdateFrontVectorRotation();
-}
-
-glm::mat4 ZCamera::ViewMatrix() {
-  return glm::lookAt(glm::vec3(position_), glm::vec3(position_ + front_), glm::vec3(up_));
 }
 
 void ZCamera::HandleStrafe(float controlThrow) {

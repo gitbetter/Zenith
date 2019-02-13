@@ -113,9 +113,11 @@ int main(int argc, const char * argv[]) {
     uiButton.SetColor(glm::vec4(1.f));
   });
 
-  ZUIText uiText("Hello World!", "earthorbiter", 1.f, glm::vec2(0.3, 0.1f), glm::vec2(0.06f, 0.03f));
+  ZUIText uiText("Zenith", "earthorbiter", 0.45f, glm::vec2(0.f), glm::vec2(0.06f, 0.03f));
   uiText.SetColor(glm::vec4(0.8f, 0.8f, 0.8f, 1.f));
-  ui.AddElements({&uiButton, &uiText});
+  uiButton.AddChild(&uiText);
+
+  ui.AddElements({&uiButton});
 
   // Enable our UI cursor
   ui.EnableCursor();

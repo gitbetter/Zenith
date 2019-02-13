@@ -42,6 +42,9 @@ public:
   ZGraphicsStrategy* GraphicsStrategy() { return graphicsStrategy_; }
   ZTextStrategy* TextStrategy() { return textStrategy_; }
 
+  ZShader* TextShader() { return textShader_; }
+  ZShader* UIShader() { return uiShader_; }
+
   void CleanUp();
 
 protected:

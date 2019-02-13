@@ -9,6 +9,7 @@
 #include "ZEngine.hpp"
 #include "ZUIElement.hpp"
 #include "ZShader.hpp"
+#include "ZUIText.hpp"
 #include "ZDomain.hpp"
 #include "ZUI.hpp"
 #include "ZCommon.hpp"
@@ -16,11 +17,6 @@
 #include <glm/gtx/matrix_interpolation.hpp>
 
 void ZUIElement::Render(ZShader* shader) {
-  for (ZUIElement* child : children_) {
-    // TODO: Only render if the child has the dirty flag set
-    child->Render(shader);
-  }
-
   shader->Activate();
 
   ZEngine::UI()->GraphicsStrategy()->BindTexture(texture_, 0);
@@ -32,18 +28,30 @@ void ZUIElement::Render(ZShader* shader) {
   shader->SetVec4("color", color_);
 }
 
+void ZUIElement::RenderChildren(ZShader* shader) {
+  for (ZUIElement* child : children_) {
+    // TODO: Only render if the child has the dirty flag set
+    child->Render((dynamic_cast<ZUIText*>(child)) ? ZEngine::UI()->TextShader() : shader);
+  }
+}
+
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
   translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->WindowWidth(), 0.f, (float)ZEngine::Domain()->WindowHeight());
   Scale(scale); Translate(position);
 }
 
 void ZUIElement::AddChild(ZUIElement* element) {
+  // Reset the child translation and move it to the parent's location
+  element->ResetTranslation();
+  element->Translate(Position() * 1.03f);
   element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
   children_.push_back(element);
 }
 
 void ZUIElement::Translate(glm::vec2 translation) {
-  glm::vec3 size = Size();
+  glm::vec3 size = glm::vec3(Size().x * (float)ZEngine::Domain()->WindowWidth(),
+                             Size().y * (float)ZEngine::Domain()->WindowHeight(),
+                             1.f);
   float scaleXFactor = (float)ZEngine::Domain()->WindowWidth() / size.x;
   float scaleYFactor = (float)ZEngine::Domain()->WindowHeight() / size.y;
   modelMatrix_ = glm::translate(modelMatrix_,
@@ -73,16 +81,20 @@ void ZUIElement::Rotate(float angle) {
 void ZUIElement::Scale(glm::vec2 factor) {
   modelMatrix_ = glm::scale(modelMatrix_, glm::vec3((float)ZEngine::Domain()->WindowWidth() * 0.75f * factor.x,
                                                     (float)ZEngine::Domain()->WindowHeight() * 0.75f * factor.y,
-                                                    1.f));
+                                                    0.f));
 }
 
 glm::vec3 ZUIElement::Position() {
-  return glm::vec3(modelMatrix_[3]);
+  return glm::vec3(modelMatrix_[3].x / (float)ZEngine::Domain()->WindowWidth(),
+                   modelMatrix_[3].y / (float)ZEngine::Domain()->WindowHeight(),
+                   0.f);
 }
 
 glm::vec3 ZUIElement::Size() {
   glm::mat3 scaleMatrix(modelMatrix_);
-  return glm::vec3(glm::length(scaleMatrix[0]), glm::length(scaleMatrix[1]), glm::length(scaleMatrix[2]));
+  return glm::vec3(glm::length(scaleMatrix[0] / (float)ZEngine::Domain()->WindowWidth()),
+                   glm::length(scaleMatrix[1] / (float)ZEngine::Domain()->WindowHeight()),
+                   glm::length(scaleMatrix[2]));
 }
 
 float ZUIElement::Angle() {

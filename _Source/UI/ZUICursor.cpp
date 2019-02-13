@@ -20,6 +20,7 @@ ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position,
 
 void ZUICursor::Render(ZShader* shader) {
   ZUIElement::Render(shader);
+  RenderChildren(shader);
 }
 
 void ZUICursor::SetCursorImage(std::string path) {

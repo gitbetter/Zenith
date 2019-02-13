@@ -54,8 +54,12 @@ public:
   virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
   void SetTranslationBounds(float left, float right, float bottom, float top);
 
+  void ResetTranslation() { modelMatrix_ = glm::mat4(glm::mat3(modelMatrix_)); }
+
   virtual void Render(ZShader* shader);
   virtual ZMeshUI ElementShape() { };
+
+  void RenderChildren(ZShader* shader);
 
   void CleanUp();
 
