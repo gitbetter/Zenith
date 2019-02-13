@@ -30,7 +30,7 @@ int main(int argc, const char * argv[]) {
   // Create a new game instance
   ZGame game;
 
-  // TODO: Make window size a cross platform abstraction
+  // TODO: OPTIONAL: Make window size a cross platform abstraction
   // and require only an aspect ratio as the domain constructor param
 
   // Create a new domain and provide it to the engine
@@ -71,7 +71,7 @@ int main(int argc, const char * argv[]) {
   ZShader shader("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/basic.frag");
 
   // Now let's add some renderable game objects to test
-  // TODO: How can identify model meshes to add materials independently?
+  // TODO: How can we identify model meshes and add materials to them independently?
   ZModel* ground = ZModel::NewPlanePrimitive(glm::vec3(100.f, 0.f, 100.f));
   ZModel* cube1 = ZModel::NewCubePrimitive(glm::vec3(3.f));
   ZModel* cube2 = ZModel::NewCubePrimitive(glm::vec3(2.f));
@@ -113,6 +113,8 @@ int main(int argc, const char * argv[]) {
     uiButton.SetColor(glm::vec4(1.f));
   });
 
+  // We can nest UI components by adding children to them, such as is done here
+  // where some text is embedded in a button
   ZUIText uiText("Zenith", "earthorbiter", 0.45f, glm::vec2(0.f), glm::vec2(0.06f, 0.03f));
   uiText.SetColor(glm::vec4(0.8f, 0.8f, 0.8f, 1.f));
   uiButton.AddChild(&uiText);

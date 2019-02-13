@@ -19,7 +19,7 @@
 #include <string>
 #include <glm/gtx/string_cast.hpp>
 
-// TODO: Make ZShader and interface, and rework this specific implementation as ZGLShader
+// TODO: Make ZShader an interface, and rework this specific implementation as ZGLShader
 // which derives from the ZShader interface
 
 ZShader::ZShader(const std::string& vShaderPath, const std::string& pShaderPath, const std::string& gShaderPath) {

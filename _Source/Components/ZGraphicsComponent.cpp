@@ -22,7 +22,6 @@ ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : model_(
 }
 
 void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera* camera, float frameMix, unsigned char renderOp) {
-  // TODO: Use frameMix to interpolate between frames
   const ZDomain* domain = ZEngine::Domain();
 
   if (camera->Type() == ZCameraType::Orthographic) {

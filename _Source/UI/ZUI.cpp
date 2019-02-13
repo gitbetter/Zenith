@@ -43,8 +43,10 @@ void ZUI::Draw() {
 }
 
 void ZUI::AddElement(ZUIElement* element) {
-  // TODO: Check if UI element exists before adding
-  elements_.push_back(element);
+  if (element != nullptr) {
+    // TODO: Check if this ui element is already in the array before the push_back
+    elements_.push_back(element);
+  }
 }
 
 void ZUI::AddElements(std::initializer_list<ZUIElement*> elements) {
