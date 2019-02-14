@@ -23,9 +23,9 @@ struct ZLBaseProperties {
 };
 
 struct ZLAttenuationProperties {
-  float constant{0.1};
-  float linear{0.5};
-  float quadratic{0.6};
+  float constant{1.0f};
+  float linear{0.09f};
+  float quadratic{0.032f};
 };
 
 struct ZLDirectional {
@@ -54,7 +54,7 @@ struct ZLHemisphere {
 
 struct ZLight : public ZGameObject {
   ZLight() { }
-  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(3.f)) { type = lightType; }
+  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(7.f)) { type = lightType; }
   ~ZLight() { }
 
   ZLightType type{ZLightType::Point};

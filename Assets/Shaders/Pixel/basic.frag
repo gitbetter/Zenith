@@ -63,12 +63,12 @@ void main() {
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
     if (!lights[i].isEnabled) continue;
 
-    vec3 lightDirection = (lights[i].isDirectional) ? normalize(lights[i].direction) : normalize(lights[i].position);
+    vec3 lightDirection = lights[i].position;
     vec3 halfVector = normalize(lightDirection + viewDirection);
     float attenunation = 1.0;
 
     if (!lights[i].isDirectional) {
-      lightDirection = fs_in.FragPos - lightDirection;
+      lightDirection = lightDirection - fs_in.FragPos;
       float lightDistance = length(lightDirection);
       lightDirection = lightDirection / lightDistance;
 
