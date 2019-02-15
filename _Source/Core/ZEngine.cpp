@@ -11,6 +11,7 @@
 #include "ZDomain.hpp"
 #include "ZNullInput.hpp"
 #include "ZUI.hpp"
+#include "ZPhysics.hpp"
 #include <chrono>
 
 const float ZEngine::UPDATE_STEP_SIZE = 0.017f;
@@ -30,6 +31,7 @@ ZDomain* ZEngine::domain_ = nullptr;
 ZGraphics* ZEngine::graphics_ = nullptr;
 ZInput* ZEngine::input_ = new ZNullInput;
 ZUI* ZEngine::ui_ = nullptr;
+ZPhysics* ZEngine::physics_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 
 ZDomain* ZEngine::Domain() {
@@ -46,6 +48,10 @@ ZInput* ZEngine::Input() {
 
 ZUI* ZEngine::UI() {
   return ui_;
+}
+
+ZPhysics* ZEngine::Physics() {
+  return physics_;
 }
 
 float ZEngine::DeltaTime() {
@@ -88,6 +94,14 @@ void ZEngine::Provide(ZUI& ui) {
   }
   ui_ = &ui;
   ui_->Initialize();
+}
+
+void ZEngine::Provide(ZPhysics& ui) {
+  if (physics_ != nullptr) {
+    delete physics_;
+  }
+  physics_ = &ui;
+  physics_->Initialize();
 }
 
 void ZEngine::SetDeltaTime(float deltaTime) {

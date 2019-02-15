@@ -8,16 +8,19 @@
 
 #pragma once
 
-#include <iostream>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <vector>
-#include <string>
-#include <map>
-
+#define GLM_ENABLE_EXPERIMENTAL
 #define ZINFO 0
 #define ZWARNING 1
 #define ZERROR 2
+
+#include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <vector>
+#include <string>
+#include <map>
+#include <cassert>
 
 #define _Z(message, severity) { \
   switch(severity) {\

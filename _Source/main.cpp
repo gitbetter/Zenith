@@ -9,22 +9,29 @@
 #include "ZEngine.hpp"
 #include "ZGame.hpp"
 #include "ZDomain.hpp"
-#include "ZGraphics.hpp"
 #include "ZGLInput.hpp"
-#include "ZUI.hpp"
-#include "ZUIButton.hpp"
-#include "ZUIImage.hpp"
-#include "ZUIText.hpp"
+
 #include "ZCamera.hpp"
 #include "ZActor.hpp"
+
+#include "ZGraphics.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZLight.hpp"
-#include <glm/glm.hpp>
+
+#include "ZUI.hpp"
+#include "ZUIButton.hpp"
+#include "ZUIImage.hpp"
+#include "ZUIText.hpp"
+#include "ZUICursor.hpp"
+
+#include "ZPhysics.hpp"
+#include "ZPhysicsComponent.hpp"
+#include "ZGravityForce.hpp"
+#include "ZObjectForceRegistry.hpp"
 
 #include "ZCommon.hpp"
-#include "ZUICursor.hpp"
 
 int main(int argc, const char * argv[]) {
   // Create a new game instance
@@ -49,7 +56,10 @@ int main(int argc, const char * argv[]) {
   ZUI ui;
   ZEngine::Provide(ui);
 
-  // TODO: Create the physics subsystem and provide it to the engine
+  // Create the physics subsystem and provide it to the engine
+  ZPhysics physics;
+  ZEngine::Provide(physics);
+
   // TODO: Create the audio subsystem and provide it to the engine
 
   // Ater providing a UI subsystem, we can now register fonts
@@ -60,7 +70,7 @@ int main(int argc, const char * argv[]) {
   input.Register(&game);
 
   // Let's add a camera to the game
-  ZCamera camera(ZCameraType::Perspective, glm::vec3(0.0f, 2.0f, 4.0f));
+  ZCamera camera(ZCameraType::Perspective, glm::vec3(-5.f, 10.f, 25.f));
   camera.SetMovementStyle(ZCameraMovementStyle::Follow);
   game.AddGameObject(&camera);
 
@@ -79,7 +89,7 @@ int main(int argc, const char * argv[]) {
 
   ZActor groundActor;
   ZActor cubeActor1(glm::vec3(0.f, 3.f, 0.f));
-  ZActor cubeActor2(glm::vec3(-10.f, 2.f, 5.f));
+  ZActor cubeActor2(glm::vec3(-10.f, 15.f, 5.f));
   ZActor cubeActor3(glm::vec3(-8.f, 4.f, -10.f));
 
   // ... and add graphics components to them, with the newly created models and shaders
@@ -96,6 +106,16 @@ int main(int argc, const char * argv[]) {
   cubeActor3.AddComponent(&cubeGraphicsComp3);
 
   game.AddGameObjects({&cubeActor1, &cubeActor2, &cubeActor3, &groundActor});
+
+  // Let's add some physics to one of the cubes
+  ZPhysicsComponent physicsComp;
+  physicsComp.SetMass(2.0);
+
+  cubeActor2.AddComponent(&physicsComp);
+
+  ZGravityForce gravity(glm::vec3(0.f, -25.f, 0.f));
+  physics.Registry()->Add(&cubeActor2, &gravity);
+
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is

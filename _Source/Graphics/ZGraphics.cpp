@@ -59,8 +59,9 @@ void ZGraphics::DrawShadowMap(const std::vector<ZGameObject*>& gameObjects, ZLig
   // TODO: For now we support one light source for shadows, but this should change
   // so that multiple light space matrices are supported for multiple light sources
   // that can cast shadows, possibly using deferred rendering
-  glm::mat4 lightP = glm::ortho(-5.f, 5.f, -5.f, 5.f, 1.f, 100.f);
-  glm::mat4 lightV = glm::lookAt(light->GetPosition(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+  // TODO: Do something about these magic numbers!
+  glm::mat4 lightP = glm::ortho(-20.f, 20.f, -20.f, 20.f, 1.f, 200.f);
+  glm::mat4 lightV = glm::lookAt(light->Position(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
   glm::mat4 lightSpaceMatrix = lightP * lightV;
   currentLightSpaceMatrix_ = lightSpaceMatrix;
 

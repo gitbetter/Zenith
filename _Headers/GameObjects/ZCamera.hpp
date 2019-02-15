@@ -19,7 +19,7 @@
 // Class and Data Structure Definitions
 class ZCamera : public ZGameObject {
 private:
-  float movementSpeed_ = 2.2f;
+  float movementSpeed_ = 10.f;
   float lookSensitivity_ = 0.1f;
   float zoom_ = 45.0f;
   float zoomSpeed_ = 5.0f;

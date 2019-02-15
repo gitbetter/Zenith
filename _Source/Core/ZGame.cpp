@@ -13,6 +13,7 @@
 #include "ZDomainStrategy.hpp"
 #include "ZInput.hpp"
 #include "ZUI.hpp"
+#include "ZPhysics.hpp"
 #include "ZCamera.hpp"
 #include "ZCommon.hpp"
 #include "ZModel.hpp"
@@ -21,7 +22,6 @@
 #include "ZCommon.hpp"
 
 #include <chrono>
-#include <cassert>
 using namespace std;
 
 ZGame::ZGame() : activeCameraIndex_(-1) { }
@@ -53,16 +53,13 @@ void ZGame::RunGameLoop() {
 }
 
 void ZGame::Update() {
+  ZEngine::Physics()->Update(gameObjects_, gameCameras_);
   for (unsigned int i = 0; i < gameObjects_.size(); i++) {
     gameObjects_[i]->Update();
   }
 
   for (unsigned int i = 0; i < gameCameras_.size(); i++) {
     gameCameras_[i]->Update();
-  }
-
-  for (unsigned int i = 0; i < gameLights_.size(); i++) {
-    gameLights_[i]->Update();
   }
 }
 

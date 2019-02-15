@@ -11,7 +11,6 @@
 #include "ZCamera.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
-#include "ZCommon.hpp"
 
 ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : model_(model), modelMatrix_(1.f), highlightColor_(0) {
   if (shader != nullptr) {
@@ -37,6 +36,7 @@ void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera*
   }
 
   viewMatrix_ = translatesWithView_ ? camera->ViewMatrix(frameMix) : glm::mat4(glm::mat3(camera->ViewMatrix(frameMix)));
+  modelMatrix_ = glm::translate(glm::mat4(1.f), object_->Position());
 
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
@@ -53,7 +53,7 @@ void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera*
   shader->SetMat4("V", viewMatrix_);
   shader->SetMat4("P", projectionMatrix_);
   shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
-  shader->SetVec3("viewDirection", camera->GetFrontVector());
+  shader->SetVec3("viewDirection", camera->FrontVector());
 
   model_->Render(shader);
 

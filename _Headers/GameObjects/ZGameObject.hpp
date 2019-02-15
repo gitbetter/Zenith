@@ -46,11 +46,11 @@ public:
   virtual void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 
   glm::mat4 ViewMatrix(float frameMix);
-  glm::vec3 GetPosition() const { return glm::vec3(position_); }
-  glm::vec3 GetRotation() const { return glm::vec3(eulerRotation_); }
-  glm::vec3 GetFrontVector() const { return glm::vec3(front_); }
-  glm::vec3 GetUpVector() const { return glm::vec3(up_); }
-  glm::vec3 GetRightVector() const { return glm::vec3(right_); }
+  glm::vec3 Position() const { return glm::vec3(position_); }
+  glm::vec3 Rotation() const { return glm::vec3(eulerRotation_); }
+  glm::vec3 FrontVector() const { return glm::vec3(front_); }
+  glm::vec3 UpVector() const { return glm::vec3(up_); }
+  glm::vec3 RightVector() const { return glm::vec3(right_); }
 
   template<class T>
   typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
@@ -61,6 +61,7 @@ public:
     } else {
       if (std::is_same<T, ZGraphicsComponent>::value)
         dynamic_cast<ZGraphicsComponent*>(component)->Translate(position_);
+      component->object_ = this;
       components_.push_back(component);
     }
   }

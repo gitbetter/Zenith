@@ -8,11 +8,10 @@
 #pragma once
 
 // Includes
+#include "ZCommon.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZComponent.hpp"
 #include "ZGraphics.hpp"
-#include <vector>
-#include <glm/glm.hpp>
 
 // Forward Declarations
 class ZModel;

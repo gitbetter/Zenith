@@ -9,16 +9,19 @@
 #pragma once
 
 // Includes
-#include <vector>
 
 // Forward Declarations
-// class SomeClass;
+class ZGameObject;
 
 // Class and Data Structure Definitions
 class ZComponent {
+friend class ZGameObject;
 private:
 public:
   virtual ~ZComponent() { }
 
+  ZGameObject* Object() { return object_; }
+
 protected:
+  ZGameObject* object_;
 };

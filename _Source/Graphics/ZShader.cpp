@@ -213,7 +213,7 @@ void ZShader::Use(const std::vector<ZLight*>& lights) {
         SetVec3("lights[" + std::to_string(i) + "].ambient", lights[i]->directional.components.ambient);
         SetVec3("lights[" + std::to_string(i) + "].color", lights[i]->directional.components.color);
         SetVec3("lights[" + std::to_string(i) + "].direction", lights[i]->directional.direction);
-        SetVec3("lights[" + std::to_string(i) + "].position", lights[i]->GetPosition());
+        SetVec3("lights[" + std::to_string(i) + "].position", lights[i]->Position());
         break;
       case ZLightType::Point:
         SetBool("lights[" + std::to_string(i) + "].isEnabled", lights[i]->enabled);
@@ -222,7 +222,7 @@ void ZShader::Use(const std::vector<ZLight*>& lights) {
         SetFloat("lights[" + std::to_string(i) + "].constantAttenuation", lights[i]->point.attenunation.constant);
         SetFloat("lights[" + std::to_string(i) + "].linearAttenuation", lights[i]->point.attenunation.linear);
         SetFloat("lights[" + std::to_string(i) + "].quadraticAttenuation", lights[i]->point.attenunation.quadratic);
-        SetVec3("lights[" + std::to_string(i) + "].position", lights[i]->GetPosition());
+        SetVec3("lights[" + std::to_string(i) + "].position", lights[i]->Position());
         break;
       case ZLightType::Spot:
         SetBool("lights[" + std::to_string(i) + "].isEnabled", lights[i]->enabled);
@@ -235,10 +235,10 @@ void ZShader::Use(const std::vector<ZLight*>& lights) {
         SetVec3("lights[" + std::to_string(i) + "].coneDirection", lights[i]->spot.coneDirection);
         SetFloat("lights[" + std::to_string(i) + "].spotCutoff", lights[i]->spot.spotCutoff);
         SetFloat("lights[" + std::to_string(i) + "].spotExponent", lights[i]->spot.spotExponent);
-        SetVec3("lights[" + std::to_string(i) + "].position", lights[i]->GetPosition());
+        SetVec3("lights[" + std::to_string(i) + "].position", lights[i]->Position());
         break;
       case ZLightType::Hemisphere:
-        SetVec3("hemisphereLight.position", lights[i]->GetPosition());
+        SetVec3("hemisphereLight.position", lights[i]->Position());
         SetVec3("hemisphereLight.skyColor", lights[i]->hemisphere.skyColor);
         SetVec3("hemisphereLight.groundColor", lights[i]->hemisphere.groundColor);
         break;
