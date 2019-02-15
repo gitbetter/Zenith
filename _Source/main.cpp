@@ -29,6 +29,8 @@
 #include "ZPhysics.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZGravityForce.hpp"
+#include "ZSpringForce.hpp"
+#include "ZAnchoredSpringForce.hpp"
 #include "ZObjectForceRegistry.hpp"
 
 #include "ZCommon.hpp"
@@ -89,7 +91,7 @@ int main(int argc, const char * argv[]) {
 
   ZActor groundActor;
   ZActor cubeActor1(glm::vec3(0.f, 3.f, 0.f));
-  ZActor cubeActor2(glm::vec3(-10.f, 15.f, 5.f));
+  ZActor cubeActor2(glm::vec3(-10.f, 20.f, 5.f));
   ZActor cubeActor3(glm::vec3(-8.f, 4.f, -10.f));
 
   // ... and add graphics components to them, with the newly created models and shaders
@@ -108,13 +110,18 @@ int main(int argc, const char * argv[]) {
   game.AddGameObjects({&cubeActor1, &cubeActor2, &cubeActor3, &groundActor});
 
   // Let's add some physics to one of the cubes
-  ZPhysicsComponent physicsComp;
-  physicsComp.SetMass(2.0);
+  ZPhysicsComponent physicsComp1;
+  ZPhysicsComponent physicsComp2;
+  physicsComp1.SetMass(2.f);
+  physicsComp2.SetMass(2.f);
 
-  cubeActor2.AddComponent(&physicsComp);
+  cubeActor2.AddComponent(&physicsComp1);
+  cubeActor3.AddComponent(&physicsComp2);
 
   ZGravityForce gravity(glm::vec3(0.f, -25.f, 0.f));
+  ZAnchoredSpringForce spring(glm::vec3(3.f, 4.f, -10.f), 100.f, 1.f);
   physics.Registry()->Add(&cubeActor2, &gravity);
+  physics.Registry()->Add(&cubeActor3, &spring);
 
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
