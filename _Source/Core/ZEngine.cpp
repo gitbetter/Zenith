@@ -33,6 +33,7 @@ ZInput* ZEngine::input_ = new ZNullInput;
 ZUI* ZEngine::ui_ = nullptr;
 ZPhysics* ZEngine::physics_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
+ZIDSequence* ZEngine::idGenerator_ = new ZIDSequence;
 
 ZDomain* ZEngine::Domain() {
   return domain_;
@@ -106,4 +107,8 @@ void ZEngine::Provide(ZPhysics& ui) {
 
 void ZEngine::SetDeltaTime(float deltaTime) {
   deltaTime_ = deltaTime;
+}
+
+unsigned int ZEngine::NewId() {
+  return idGenerator_->Next();
 }

@@ -14,17 +14,15 @@
 #include <initializer_list>
 
 // Forward Declarations
-class ZCamera;
 class ZActor;
 struct ZLight;
 
 // Class and Data Structure Definitions
-class ZGame : public ZGameObject {
+class ZGame : public ZObject {
 private:
-  std::vector<ZGameObject*> gameObjects_;
-  std::vector<ZCamera*> gameCameras_;
-  std::vector<ZLight*> gameLights_;
-  int activeCameraIndex_;
+  std::map<std::string, ZGameObject*> gameObjects_;
+  std::map<std::string, ZLight*> gameLights_;
+  std::string activeCameraObject_;
 
   void CleanUp();
 
@@ -34,8 +32,8 @@ public:
 
   void RunGameLoop();
 
-  ZCamera* GetActiveCamera() const;
-  const std::vector<ZLight*>& GetGameLights() const { return gameLights_; }
+  ZGameObject* GetActiveCamera() const;
+  const std::map<std::string, ZLight*>& GetGameLights() const { return gameLights_; }
 
   void AddGameObject(ZGameObject* gameObject);
   void AddGameObjects(std::initializer_list<ZGameObject*> gameObjects);
@@ -46,17 +44,7 @@ public:
 
   void MacDisplayHack(); // TODO: Remove later
 
-  // TODO: Use a std::map to store typeid(T).name as the key and T* as the value for faster lookups
-  template<class T> std::vector<T*> FindGameObjects() {
-    std::vector<T*> objects;
-    for (ZGameObject* object : gameObjects_) {
-      if (dynamic_cast<T*>(object))
-        objects.push_back(dynamic_cast<T*>(object));
-    }
-    return objects;
-  }
-
 protected:
-  void Update() override;
-  void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) override;
+  void Update();
+  void Render(float frameMix);
 };

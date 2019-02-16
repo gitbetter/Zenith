@@ -16,10 +16,12 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <vector>
 #include <string>
 #include <map>
+#include <functional>
 #include <cassert>
 
 #define _Z(message, severity) { \

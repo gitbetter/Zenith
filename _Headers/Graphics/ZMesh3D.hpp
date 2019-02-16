@@ -15,7 +15,6 @@
 
 // Forward Declarations
 class ZShader;
-class ZCamera;
 
 // Class Definitions
 class ZMesh3D : public ZMesh {

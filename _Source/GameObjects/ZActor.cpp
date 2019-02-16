@@ -8,15 +8,14 @@
 
 #include "ZGame.hpp"
 #include "ZActor.hpp"
-#include "ZCamera.hpp"
 #include "ZGraphicsComponent.hpp"
 
 void ZActor::Render(float frameMix, unsigned char renderOp) {
   ZGameObject::Render(frameMix);
   ZGraphicsComponent* graphicsComp = FindComponent<ZGraphicsComponent>();
   if (graphicsComp != nullptr) {
-    ZCamera* camera = game_->GetActiveCamera();
-    const std::vector<ZLight*>& gameLights = game_->GetGameLights();
+    ZGameObject* camera = game_->GetActiveCamera();
+    const std::map<std::string, ZLight*>& gameLights = game_->GetGameLights();
     graphicsComp->Update(gameLights, camera, frameMix, renderOp);
   }
 }

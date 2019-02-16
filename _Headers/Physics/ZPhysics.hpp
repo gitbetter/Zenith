@@ -14,7 +14,6 @@
 // Forward Declarations
 class ZObjectForceRegistry;
 class ZGameObject;
-class ZCamera;
 
 // Class and Data Structure Definitions
 class ZPhysics {
@@ -25,7 +24,7 @@ public:
 
   void Initialize();
 
-  void Update(std::vector<ZGameObject*> gameObjects, std::vector<ZCamera*> gameCameras);
+  void Update(std::map<std::string, ZGameObject*> gameObjects);
 
   void CleanUp() { }
 

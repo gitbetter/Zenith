@@ -10,9 +10,6 @@
 
 // Includes
 #include "ZCommon.hpp"
-#include <vector>
-#include <functional>
-#include <map>
 
 // Forward Declarations
 // class SomeClass;
@@ -34,6 +31,9 @@ public:
   virtual void On(ZEventType event, ZEventCallback&& callback);
   virtual void Fire(ZEventType event);
 
+  std::sting ID() { return id_; }
+
 protected:
+  std::string id_;
   std::map<ZEventType, std::vector<ZEventCallback>> eventCallbacks_;
 };

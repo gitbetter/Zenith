@@ -12,7 +12,6 @@
 #include "ZEngine.hpp"
 #include "ZObject.hpp"
 #include "ZGraphicsComponent.hpp"
-#include <glm/glm.hpp>
 #include <type_traits>
 
 // Forward Declarations
@@ -21,36 +20,31 @@ class ZGame;
 // Class Definitions
 class ZGameObject : public ZObject {
   friend class ZGame;
+  friend class ZComponent;
 
 private:
   void CalculateTangentBasis();
 
 public:
-  ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::vec3 rotation = glm::vec3(0.f, -90.f, 0.f))
-  : position_(glm::vec4(position, 1.f)),
-    eulerRotation_(glm::vec4(rotation, 1.f)),
-    front_(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)),
-    up_(ZEngine::WORLD_UP),
-    translatesWithView_(false),
-    eulerVelocity_(glm::vec4(0.f)),
-    eulerDamping_(0.05f)
-  { CalculateTangentBasis(); }
+  ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::vec3 orientation = glm::quat(glm::vec3(0.f)));
   virtual ~ZGameObject() { }
 
   virtual void Update() { }
   virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) { }
 
-  void SetPosition(glm::vec3 position) { position_ = glm::vec4(position, 1.f); }
-  void SetRotation(glm::vec3 rotation) { eulerRotation_ = glm::vec4(rotation, 0.f); }
-  void SetFrontVector(glm::vec3 front);
-  virtual void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
+  void ShouldTranslateWithView(bool translates);
+  void CalculateModelMatrix();
 
-  glm::mat4 ViewMatrix(float frameMix);
+  void SetPosition(glm::vec3 position);
+  void SetOrientation(glm::quat quaternion);
+  void SetOrientation(glm::vec3 euler);
+
   glm::vec3 Position() const { return glm::vec3(position_); }
-  glm::vec3 Rotation() const { return glm::vec3(eulerRotation_); }
-  glm::vec3 FrontVector() const { return glm::vec3(front_); }
-  glm::vec3 UpVector() const { return glm::vec3(up_); }
-  glm::vec3 RightVector() const { return glm::vec3(right_); }
+  glm::quat Orientation() const { return orientation_; }
+  glm::vec3 Front() const { return glm::normalize(modelMatrix_[2]); }
+  glm::vec3 Up() const { return glm::normalize(modelMatrix_[1]); }
+  glm::vec3 Right() const { return glm::normalize(modelMatrix_[0]); }
+  glm::mat4 ModelMatrix() const { return modelMatrix_; }
 
   template<class T>
   typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
@@ -64,13 +58,6 @@ public:
       component->object_ = this;
       components_.push_back(component);
     }
-  }
-
-  template<class T> T* FindComponent() {
-    for (ZComponent* comp : components_) {
-      if (dynamic_cast<T*>(comp)) return dynamic_cast<T*>(comp);
-    }
-    return nullptr;
   }
 
   template<class T> T* RemoveComponent() {
@@ -88,12 +75,21 @@ public:
     return removed;
   }
 
+  template<class T> T* FindComponent() {
+    for (ZComponent* comp : components_) {
+      if (dynamic_cast<T*>(comp)) return dynamic_cast<T*>(comp);
+    }
+    return nullptr;
+  }
+
 protected:
-  glm::vec4 position_, eulerRotation_, front_, up_, right_;
-  glm::vec4 previousPosition_, previousEuler_, previousFront_, previousUp_, previousRight_;
-  bool translatesWithView_;
-  ZGame* game_;
+  std::string id_;
+  ZGame* game_ = nullptr;
   std::vector<ZComponent*> components_;
+  glm::vec4 position_, previousPosition_;
+  glm::quat orientation_, previousOrientation_;
+  glm::mat4 modelMatrix_;
+  bool translatesWithView_;
   /////////////////////////
   // TODO: This might more appropriately belong in a physics or separate movement component
   glm::vec4 eulerVelocity_;

@@ -63,7 +63,7 @@ void ZGame::Update() {
   }
 }
 
-void ZGame::Render(float frameMix, unsigned char renderOp) {
+void ZGame::Render(float frameMix) {
   ZEngine::Graphics()->Draw(gameObjects_, gameLights_, frameMix);
   // TODO: If the UI has changed, draw it. Otherwise, leave it.
   // The dirty flag trick might come in handy here
@@ -75,13 +75,14 @@ void ZGame::Render(float frameMix, unsigned char renderOp) {
 void ZGame::AddGameObject(ZGameObject* gameObject) {
   if (gameObject != nullptr) {
     gameObject->game_ = this;
-    if (dynamic_cast<ZCamera*>(gameObject)) {
-      gameCameras_.push_back(dynamic_cast<ZCamera*>(gameObject));
-      activeCameraIndex_ += 1;
-    } else if (dynamic_cast<ZLight*>(gameObject)) {
-      gameLights_.push_back(dynamic_cast<ZLight*>(gameObject));
+    if (gameObject->FindComponent<ZCameraComponent>() != nullptr) {
+      activeCameraObject_ = gameObject->ID();
+    }
+
+    if (dynamic_cast<ZLight*>(gameObject)) {
+      gameLights_.insert({gameObject->ID(), dynamic_cast<ZLight*>(gameObject)});
     } else {
-      gameObjects_.push_back(gameObject);
+      gameObjects_.insert({gameObject->ID(), gameObject});
     }
   }
 }
@@ -105,9 +106,9 @@ void ZGame::SetDefaultSkybox() {
   AddGameObject(skyboxActor);
 }
 
-ZCamera* ZGame::GetActiveCamera() const {
-  assert(activeCameraIndex_ >= 0 && activeCameraIndex_ < gameCameras_.size()); // TODO: remove or enable only for debug builds
-  return gameCameras_[activeCameraIndex_];
+ZGameObject* ZGame::GetActiveCamera() const {
+  if (gameObjects_->find(activeCameraObject_) == gameObjects_->end()) return nullptr;
+  return gameObjects_[activeCameraObject_];
 }
 
 void ZGame::HandleEscape() {

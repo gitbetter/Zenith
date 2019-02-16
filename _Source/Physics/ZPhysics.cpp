@@ -10,7 +10,6 @@
 #include "ZPhysicsComponent.hpp"
 #include "ZObjectForceRegistry.hpp"
 #include "ZGameObject.hpp"
-#include "ZCamera.hpp"
 
 void ZPhysics::Initialize() {
   if (registry_ == nullptr) {
@@ -18,15 +17,10 @@ void ZPhysics::Initialize() {
   }
 }
 
-void ZPhysics::Update(std::vector<ZGameObject*> gameObjects, std::vector<ZCamera*> gameCameras) {
+void ZPhysics::Update(std::map<std::string, ZGameObject*>& gameObjects) {
   registry_->UpdateForces();
   for (ZGameObject* object : gameObjects) {
     ZPhysicsComponent* physicsComp = object->FindComponent<ZPhysicsComponent>();
-    if (physicsComp != nullptr) physicsComp->Integrate();
-  }
-
-  for (ZCamera* camera : gameCameras) {
-    ZPhysicsComponent* physicsComp = camera->FindComponent<ZPhysicsComponent>();
     if (physicsComp != nullptr) physicsComp->Integrate();
   }
 }

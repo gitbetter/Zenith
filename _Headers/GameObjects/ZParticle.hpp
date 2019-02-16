@@ -23,7 +23,7 @@ private:
   float age_;
   bool active_;
 public:
-  ZParticle() { }
+  ZParticle() : ZGameObject() { }
   ~ZParticle() { }
 
   void Initialize();

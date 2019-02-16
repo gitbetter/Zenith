@@ -9,7 +9,6 @@
 #pragma once
 
 // Includes
-#include <glm/glm.hpp>
 #include "ZGameObject.hpp"
 #include "ZGraphics.hpp"
 
@@ -27,5 +26,4 @@ public:
 
   virtual void ShouldTranslateWithView(bool translates) override;
 protected:
-
 };

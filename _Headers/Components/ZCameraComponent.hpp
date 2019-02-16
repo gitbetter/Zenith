@@ -1,8 +1,8 @@
 //
-//  ZCamera.hpp
+//  ZCameraComponent.hpp
 //  Zenith
 //
-//  Created by Adrian Sanchez on 28/01/2019.
+//  Created by Adrian Sanchez on 16/02/2019.
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
@@ -10,14 +10,13 @@
 
 // Includes
 #include "ZCommon.hpp"
-#include "ZEngine.hpp"
-#include "ZGameObject.hpp"
-#include <glm/glm.hpp>
+#include "ZComponent.hpp"
 
 // Forward Declarations
+// class SomeClass;
 
 // Class and Data Structure Definitions
-class ZCamera : public ZGameObject {
+class ZCameraComponent : public ZComponent {
 private:
   float movementSpeed_ = 10.f;
   float lookSensitivity_ = 0.1f;
@@ -29,15 +28,12 @@ private:
   ZCameraMovementStyle movementStyle_;
 
 public:
-  ZCamera(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f), glm::vec3 rotation = glm::vec3(0.f, -90.f, 0.f))
-  : ZGameObject(position, rotation) {
+  ZCameraComponent(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f)) : ZComponent() {
     cameraType_ = type;
     zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
     movementStyle_ = ZCameraMovementStyle::Normal;
   }
-
-  void Update() override;
-  void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) override { };
+  ~ZCameraComponent() { }
 
   void HandleStrafe(float controlThrow) override;
   void HandleForwardBack(float controlThrow) override;
@@ -48,10 +44,10 @@ public:
   void SetType(ZCameraType type) { cameraType_ = type; }
   void SetMovementStyle(ZCameraMovementStyle style) { movementStyle_ = style; }
 
+  glm::mat4 ViewMatrix(float frameMix);
   float GetZoom() const { return zoom_; }
   float GetNearField() const { return nearClippingPlane_; }
   float GetFarField() const { return farClippingPlane_; }
 
 protected:
-
 };

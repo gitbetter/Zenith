@@ -15,7 +15,7 @@
 
 // Forward Declarations
 class ZModel;
-class ZCamera;
+class ZGameObject;
 
 // Class and Data Structure Definitions
 class ZGraphicsComponent : public ZComponent {
@@ -29,7 +29,7 @@ public:
   ZGraphicsComponent(ZModel* model, ZShader* shader);
   ~ZGraphicsComponent() { }
 
-  void Update(const std::vector<ZLight*>& gameLights, ZCamera* camera, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
+  void Update(const std::map<std::string, ZLight*>&& gameLights, ZGameObject* camera, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
   ZShader* GetActiveShader() const { return shaders_[activeShaderIndex_]; }
 
   void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));

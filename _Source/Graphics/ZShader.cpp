@@ -203,7 +203,7 @@ void ZShader::Use(const ZMaterial& material) {
   SetFloat("materials[" + std::to_string(material.Index()) + "].shininess", material.Properties().shininess);
 }
 
-void ZShader::Use(const std::vector<ZLight*>& lights) {
+void ZShader::Use(const std::map<std::string, ZLight*>&& lights) {
   Activate();
   for (unsigned int i = 0; i < lights.size(); i++) {
     switch(lights[i]->type) {

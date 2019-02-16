@@ -10,30 +10,38 @@
 #include "ZGameObject.hpp"
 #include "ZCommon.hpp"
 
-void ZGameObject::SetFrontVector(glm::vec3 front) {
-  front_ = glm::normalize(glm::vec4(front, 1.f));
-  previousFront_ = front_;
-  CalculateTangentBasis();
+ZGameObject::ZGameObject(glm::vec3 position, glm::vec3 orientation)
+: position_(glm::vec4(position, 1.f)),
+  orientation_(orientation),
+  modelMatrix_(glm::mat4(1.f)),
+  translatesWithView_(false),
+  eulerVelocity_(glm::vec4(0.f)),
+  eulerDamping_(0.05f)
+{
+  id_ = "ZGO_" + std::to_string(ZEngine::NewId());
+  CalculateModelMatrix();
 }
 
-void ZGameObject::UpdateFrontVectorRotation() {
-  previousFront_ = front_;
-  glm::vec4 front(0.f);
-  front.x = glm::cos(glm::radians(eulerRotation_.y)) * glm::cos(glm::radians(eulerRotation_.x));
-  front.y = glm::sin(glm::radians(eulerRotation_.x));
-  front.z = glm::sin(glm::radians(eulerRotation_.y)) * glm::cos(glm::radians(eulerRotation_.x));
-  front_ = glm::normalize(front);
-  CalculateTangentBasis();
+void ZGameObject::ShouldTranslateWithView(bool translates) {
+  translatesWithView_ = translates;
 }
 
-void ZGameObject::CalculateTangentBasis() {
-  previousRight_ = right_; previousUp_ = up_;
-  right_ = glm::vec4(glm::normalize(glm::cross(glm::vec3(front_), glm::vec3(ZEngine::WORLD_UP))), 0.0f);
-  up_ = glm::vec4(glm::normalize(glm::cross(glm::vec3(right_), glm::vec3(front_))), 0.0f);
+void ZGameObject::SetPosition(glm::vec3 position) {
+  position_ = glm::vec4(position, 1.f);
+  CalculateModelMatrix();
 }
 
-glm::mat4 ZGameObject::ViewMatrix(float frameMix) {
-  glm::vec4 interpolatedFront = previousFront_ * (1.f - frameMix) + front_ * frameMix;
-  glm::vec4 interpolatedUp = previousUp_ * (1.f - frameMix) + up_ * frameMix;
-  return glm::lookAt(glm::vec3(position_), glm::vec3(position_ + interpolatedFront), glm::vec3(interpolatedUp));
+void ZGameObject::SetOrientation(glm::quat quaternion) {
+  orientation_ = quaternion;
+  CalculateModelMatrix();
+}
+
+void ZGameObject::SetOrientation(glm::vec3 euler) {
+  orientation_ = glm::quat(euler);
+  CalculateModelMatrix();
+}
+
+void ZGameObject::CalculateModelMatrix() {
+  modelMatrix_ = glm::rotate(modelMatrix_, glm::angle(orientation_), glm::axis(orientation_));
+  modelMatrix_ = glm::translate(modelMatrix_, position_);
 }

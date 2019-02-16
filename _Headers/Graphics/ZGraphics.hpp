@@ -23,8 +23,8 @@ struct ZLight;
 // Class and Data Structure Definitions
 class ZGraphics {
 private:
-  void Render(const std::vector<ZGameObject*>& gameObjects, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
-  void DrawShadowMap(const std::vector<ZGameObject*>& gameObjects, ZLight* light, float frameMix = 0.0);
+  void Render(const std::map<std::string, ZGameObject*>& gameObjects, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
+  void DrawShadowMap(const std::map<std::string, ZGameObject*>& gameObjects, ZLight* light, float frameMix = 0.0);
 
 public:
   static unsigned char RENDER_OP_COLOR;
@@ -35,7 +35,7 @@ public:
 
   void Initialize();
 
-  void Draw(const std::vector<ZGameObject*>& gameObjects, const std::vector<ZLight*>& gameLights, float frameMix = 0.0);
+  void Draw(const std::map<std::string, ZGameObject*>& gameObjects, const std::map<std::string, ZLight*>&& gameLights, float frameMix = 0.0);
 
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
   unsigned int DepthFrameBuffer() { return depthFramebuffer_; }

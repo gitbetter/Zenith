@@ -11,7 +11,6 @@
 #include "ZDomain.hpp"
 #include "ZGLInput.hpp"
 
-#include "ZCamera.hpp"
 #include "ZActor.hpp"
 
 #include "ZGraphics.hpp"
@@ -72,12 +71,13 @@ int main(int argc, const char * argv[]) {
   input.Register(&game);
 
   // Let's add a camera to the game
-  ZCamera camera(ZCameraType::Perspective, glm::vec3(-5.f, 10.f, 25.f));
-  camera.SetMovementStyle(ZCameraMovementStyle::Follow);
-  game.AddGameObject(&camera);
+  ZGameObject camera(glm::vec3(-5.f, 10.f, 25.f));
+  ZCameraComponent cameraComponent(ZCameraType::Perspective);
+  cameraComponent.SetMovementStyle(ZCameraMovementStyle::Normal);
+  camera.AddComponent(&cameraComponent);
 
-  // Register the camera so it receives input events
-  input.Register(&camera);
+  // Register the camera component so it receives input events
+  input.Register(&cameraComponent);
 
   // Create our primary shader
   ZShader shader("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/basic.frag");
@@ -119,10 +119,7 @@ int main(int argc, const char * argv[]) {
   cubeActor3.AddComponent(&physicsComp2);
 
   ZGravityForce gravity(glm::vec3(0.f, -25.f, 0.f));
-  ZAnchoredSpringForce spring(glm::vec3(3.f, 4.f, -10.f), 100.f, 1.f);
   physics.Registry()->Add(&cubeActor2, &gravity);
-  physics.Registry()->Add(&cubeActor3, &spring);
-
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is

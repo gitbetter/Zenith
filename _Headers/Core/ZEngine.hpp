@@ -35,6 +35,7 @@ private:
   static ZUI* ui_;
   static ZPhysics* physics_;
   static float deltaTime_;
+  static ZIDSequence* idGenerator_;
 
 public:
   static const float UPDATE_STEP_SIZE;
@@ -56,8 +57,9 @@ public:
   static void Provide(ZInput& input);
   static void Provide(ZUI& ui);
   static void Provide(ZPhysics& physics);
-  // More provide overloads for different engine subsystems (i.e. physics, audio, input, etc.)
+  // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
   static void SetDeltaTime(float deltaTime);
+  static unsigned int NewId();
 
   static void CleanUp();
 protected:

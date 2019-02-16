@@ -8,35 +8,42 @@
 #include "ZGraphicsComponent.hpp"
 #include "ZEngine.hpp"
 #include "ZDomain.hpp"
-#include "ZCamera.hpp"
+#include "ZGameObject.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 
-ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : model_(model), modelMatrix_(1.f), highlightColor_(0) {
+ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : ZComponent() {
+  model_ = model;
+  modelMatrix_ = glm::mat4(1.f);
+  highlightColor_ = glm::vec4(0.f);
+
   if (shader != nullptr) {
     shaders_.push_back(shader);
     ++activeShaderIndex_;
   }
+
   modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(0.2f, 0.2f, 0.2f));
 }
 
-void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera* camera, float frameMix, unsigned char renderOp) {
+void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>&& gameLights, ZGameObject* camera, float frameMix, unsigned char renderOp) {
   const ZDomain* domain = ZEngine::Domain();
 
-  if (camera->Type() == ZCameraType::Orthographic) {
-    float left = -(float)domain->WindowWidth() / (camera->GetZoom() * 2);
+  ZCameraComponent* cameraComp = camera->FindComponent<ZCameraComponent>();
+  assert(cameraComp != nullptr);
+
+  if (cameraComp->Type() == ZCameraType::Orthographic) {
+    float left = -(float)domain->WindowWidth() / (cameraComp->GetZoom() * 2);
     float right = -left;
-    float bottom = -(float)domain->WindowHeight() / (camera->GetZoom() * 2);
+    float bottom = -(float)domain->WindowHeight() / (cameraComp->GetZoom() * 2);
     float top = -bottom;
-    projectionMatrix_ = glm::ortho(left, right, bottom, top, -camera->GetFarField() / 2.f, camera->GetFarField());
+    projectionMatrix_ = glm::ortho(left, right, bottom, top, -cameraComp->GetFarField() / 2.f, cameraComp->GetFarField());
   } else {
-    projectionMatrix_ = glm::perspective(glm::radians(camera->GetZoom()),
+    projectionMatrix_ = glm::perspective(glm::radians(cameraComp->GetZoom()),
                                          (float)domain->WindowWidth() / (float)domain->WindowHeight(),
-                                         camera->GetNearField(), camera->GetFarField());
+                                         cameraComp->GetNearField(), cameraComp->GetFarField());
   }
 
-  viewMatrix_ = translatesWithView_ ? camera->ViewMatrix(frameMix) : glm::mat4(glm::mat3(camera->ViewMatrix(frameMix)));
-  modelMatrix_ = glm::translate(glm::mat4(1.f), object_->Position());
+  viewMatrix_ = translatesWithView_ ? cameraComp->ViewMatrix(frameMix) : glm::mat4(glm::mat3(cameraComp->ViewMatrix(frameMix)));
 
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
@@ -49,11 +56,11 @@ void ZGraphicsComponent::Update(const std::vector<ZLight*>& gameLights, ZCamera*
 
   ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
 
-  shader->SetMat4("M", modelMatrix_);
-  shader->SetMat4("V", viewMatrix_);
   shader->SetMat4("P", projectionMatrix_);
+  shader->SetMat4("V", viewMatrix_);
+  shader->SetMat4("M", object_->ModelMatrix());
   shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
-  shader->SetVec3("viewDirection", camera->FrontVector());
+  shader->SetVec3("viewDirection", camera->Front());
 
   model_->Render(shader);
 
