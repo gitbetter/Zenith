@@ -15,6 +15,7 @@
 ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
 : position_(glm::vec4(position, 1.f)),
   orientation_(orientation),
+  scale_(glm::vec3(1.f, 1.f, 1.f)),
   modelMatrix_(glm::mat4(1.f)),
   translatesWithView_(false) {
   id_ = "ZGO_" + ZEngine::IDSequence()->Next();
@@ -42,6 +43,12 @@ void ZGameObject::SetPosition(glm::vec3 position) {
   CalculateModelMatrix();
 }
 
+void ZGameObject::SetScale(glm::vec3 scale) {
+  previousScale_ = scale_;
+  scale_ = scale;
+  CalculateModelMatrix();
+}
+
 void ZGameObject::SetOrientation(glm::quat quaternion) {
   previousOrientation_ = orientation_;
   orientation_ = quaternion;
@@ -56,5 +63,6 @@ void ZGameObject::SetOrientation(glm::vec3 euler) {
 
 void ZGameObject::CalculateModelMatrix() {
   modelMatrix_ = glm::mat4_cast(orientation_);
+  modelMatrix_ = glm::scale(modelMatrix_, scale_);
   modelMatrix_ = glm::translate(modelMatrix_, glm::vec3(position_));
 }

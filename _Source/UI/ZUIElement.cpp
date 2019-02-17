@@ -16,6 +16,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
+ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
+  translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->WindowWidth(), 0.f, (float)ZEngine::Domain()->WindowHeight());
+  Scale(scale); Translate(position);
+}
+
 void ZUIElement::Render(ZShader* shader) {
   shader->Activate();
 
@@ -35,15 +40,10 @@ void ZUIElement::RenderChildren(ZShader* shader) {
   }
 }
 
-ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
-  translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->WindowWidth(), 0.f, (float)ZEngine::Domain()->WindowHeight());
-  Scale(scale); Translate(position);
-}
-
 void ZUIElement::AddChild(ZUIElement* element) {
   // Reset the child translation and move it to the parent's location
   element->ResetTranslation();
-  element->Translate(Position() * 1.03f);
+  element->Translate(Position());
   element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
   children_.push_back(element);
 }

@@ -20,7 +20,6 @@ class ZGame;
 // Class Definitions
 class ZGameObject : public ZObject {
   friend class ZGame;
-  friend class ZComponent;
 
 private:
   void CalculateTangentBasis();
@@ -36,10 +35,12 @@ public:
   void CalculateModelMatrix();
 
   void SetPosition(glm::vec3 position);
+  void SetScale(glm::vec3 scale);
   void SetOrientation(glm::quat quaternion);
   void SetOrientation(glm::vec3 euler);
 
   glm::vec3 Position() const { return glm::vec3(position_); }
+  glm::vec3 Scale() const { return scale_; }
   glm::quat Orientation() const { return orientation_; }
   glm::vec3 Front() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 0.f, -1.f); }
   glm::vec3 Up() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 1.f, 0.f); }
@@ -57,8 +58,6 @@ public:
     if (foundComponent != nullptr) {
       // TODO: Replace or ignore
     } else {
-      if (std::is_same<T, ZGraphicsComponent>::value)
-        dynamic_cast<ZGraphicsComponent*>(component)->Translate(position_);
       component->object_ = this;
       components_.push_back(component);
     }
@@ -90,14 +89,8 @@ protected:
   ZGame* game_ = nullptr;
   std::vector<ZComponent*> components_;
   glm::vec4 position_, previousPosition_;
+  glm::vec3 scale_, previousScale_;
   glm::quat orientation_, previousOrientation_;
   glm::mat4 modelMatrix_;
   bool translatesWithView_;
-  /////////////////////////
-  // TODO: This might more appropriately belong in a physics or separate movement component
-  glm::vec4 eulerVelocity_;
-  float eulerDamping_;
-  /////////////////////////
-
-  void UpdateFrontVectorRotation();
 };

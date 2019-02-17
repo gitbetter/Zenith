@@ -15,15 +15,12 @@
 
 ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : ZComponent() {
   model_ = model;
-  modelMatrix_ = glm::mat4(1.f);
   highlightColor_ = glm::vec4(0.f);
 
   if (shader != nullptr) {
     shaders_.push_back(shader);
     ++activeShaderIndex_;
   }
-
-  modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(0.2f, 0.2f, 0.2f));
 }
 
 void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>& gameLights, ZGameObject* camera, float frameMix, unsigned char renderOp) {
@@ -45,7 +42,7 @@ void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>& gameLights
   }
 
   viewMatrix_ = translatesWithView_ ? cameraComp->ViewMatrix(frameMix) : glm::mat4(glm::mat3(cameraComp->ViewMatrix(frameMix)));
-  
+
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
@@ -81,7 +78,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled() {
 
   highlightShader_->Activate();
 
-  glm::mat4 highlightModelMatrix_ = glm::scale(modelMatrix_, glm::vec3(1.07f, 1.07f, 1.07f));
+  glm::mat4 highlightModelMatrix_ = glm::scale(object_->ModelMatrix(), glm::vec3(1.07f, 1.07f, 1.07f));
 
   highlightShader_->SetMat4("P", projectionMatrix_);
   highlightShader_->SetMat4("V", viewMatrix_);
@@ -95,16 +92,4 @@ void ZGraphicsComponent::DrawOutlineIfEnabled() {
 
 void ZGraphicsComponent::ClearOutline() {
   if (highlightShader_ != nullptr) delete highlightShader_;
-}
-
-void ZGraphicsComponent::Scale(glm::vec3 scale) {
-  modelMatrix_ = glm::scale(modelMatrix_, scale);
-}
-
-void ZGraphicsComponent::Translate(glm::vec3 translate) {
-  modelMatrix_ = glm::translate(modelMatrix_, translate);
-}
-
-void ZGraphicsComponent::Rotate(float angle, glm::vec3 rotationAxis) {
-  modelMatrix_ = glm::rotate(modelMatrix_, angle, rotationAxis);
 }

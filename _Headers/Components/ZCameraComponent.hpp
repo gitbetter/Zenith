@@ -29,7 +29,7 @@ private:
 
   glm::vec3 pitchVelocity_, yawVelocity_;
   glm::quat pitch_, yaw_;
-  float cameraDamping_ = 0.05f;
+  float cameraDamping_ = 0.02f;
 
   ZPhysicsComponent* AddPhysicsComponentIfNeeded();
 

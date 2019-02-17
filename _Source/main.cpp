@@ -112,7 +112,7 @@ int main(int argc, const char * argv[]) {
 
   game.AddGameObjects({&cubeActor1, &cubeActor2, &cubeActor3, &groundActor});
 
-  // Let's add some physics to one of the cubes
+  // Let's add some physics to some of the cubes
   ZPhysicsComponent physicsComp1;
   ZPhysicsComponent physicsComp2;
   physicsComp1.SetMass(2.f);
@@ -142,9 +142,11 @@ int main(int argc, const char * argv[]) {
 
   // We can nest UI components by adding children to them, such as is done here
   // where some text is embedded in a button
+  // TODO: Make sure the child always translates relative to the parent
   ZUIText uiText("Zenith", "earthorbiter", 0.45f, glm::vec2(0.f), glm::vec2(0.06f, 0.03f));
   uiText.SetColor(glm::vec4(0.8f, 0.8f, 0.8f, 1.f));
   uiButton.AddChild(&uiText);
+  uiText.Translate(glm::vec2(0.012f, 0.f));
 
   ui.AddElements({&uiButton});
 

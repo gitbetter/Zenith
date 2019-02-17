@@ -37,10 +37,6 @@ public:
 
   void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 
-  void Scale(glm::vec3 scale);
-  void Translate(glm::vec3 translate);
-  void Rotate(float angle, glm::vec3 rotationAxis);
-
 protected:
   ZModel* model_ = nullptr;
   glm::mat4 projectionMatrix_, viewMatrix_, modelMatrix_;
