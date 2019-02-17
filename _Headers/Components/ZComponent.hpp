@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "ZIDSequence.hpp"
 #include "ZEngine.hpp"
 #include "ZObject.hpp"
 
@@ -21,7 +22,7 @@ friend class ZGameObject;
 private:
 public:
   ZComponent() {
-    id_ = "ZC_" + ZEngine::NewId();
+    id_ = "ZC_" + ZEngine::IDSequence()->Next();
   }
   virtual ~ZComponent() { }
 

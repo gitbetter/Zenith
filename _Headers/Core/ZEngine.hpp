@@ -15,9 +15,7 @@
 #define OGL_IMP
 
 // Includes
-#include <glm/vec4.hpp>
-#include <string>
-#include <vector>
+#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZGraphics;
@@ -25,6 +23,7 @@ class ZInput;
 class ZDomain;
 class ZUI;
 class ZPhysics;
+class ZIDSequence;
 
 // Class Definitions
 class ZEngine {
@@ -49,6 +48,7 @@ public:
   static ZInput* Input();
   static ZUI* UI();
   static ZPhysics* Physics();
+  static ZIDSequence* IDSequence();
   static float DeltaTime();
   static float MilliSecondTime();
 
@@ -59,7 +59,6 @@ public:
   static void Provide(ZPhysics& physics);
   // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
   static void SetDeltaTime(float deltaTime);
-  static unsigned int NewId();
 
   static void CleanUp();
 protected:

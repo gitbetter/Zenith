@@ -28,26 +28,26 @@ void ZGraphics::Initialize() {
   }
 }
 
-void ZGraphics::Draw(const std::map<std::string, ZGameObject*>& gameObjects, const std::map<std::string, ZLight*>&& gameLights, float frameMix) {
+void ZGraphics::Draw(const std::map<std::string, ZGameObject*>& gameObjects, const std::map<std::string, ZLight*>& gameLights, float frameMix) {
   if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
     graphicsStrategy_->ClearViewport();
 
     // TODO: Support more shadow casting lights!
     if (gameLights.size() > 0) {
-      DrawShadowMap(gameObjects, gameLights[0], frameMix);
+      DrawShadowMap(gameObjects, gameLights.begin()->second, frameMix);
     }
 
     Render(gameObjects, frameMix);
   }
 }
 
-void ZGraphics::Render(const std::map<std::string, ZGameObject*>&& gameObjects, float frameMix, unsigned char renderOp) {
-  for (unsigned int i = 0; i < gameObjects.size(); i++) {
-      gameObjects[i]->Render(frameMix, renderOp);
+void ZGraphics::Render(const std::map<std::string, ZGameObject*>& gameObjects, float frameMix, unsigned char renderOp) {
+  for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
+    it->second->Render(frameMix, renderOp);
   }
 }
 
-void ZGraphics::DrawShadowMap(const std::map<std::string, ZGameObject*>&& gameObjects, ZLight* light, float frameMix) {
+void ZGraphics::DrawShadowMap(const std::map<std::string, ZGameObject*>& gameObjects, ZLight* light, float frameMix) {
   graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
 
   if (shadowShader_ == nullptr) {

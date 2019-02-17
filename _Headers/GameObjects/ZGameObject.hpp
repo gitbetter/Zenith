@@ -26,10 +26,10 @@ private:
   void CalculateTangentBasis();
 
 public:
-  ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::vec3 orientation = glm::quat(glm::vec3(0.f)));
+  ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
   virtual ~ZGameObject() { }
 
-  virtual void Update() { }
+  virtual void Update();
   virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) { }
 
   void ShouldTranslateWithView(bool translates);
@@ -41,10 +41,14 @@ public:
 
   glm::vec3 Position() const { return glm::vec3(position_); }
   glm::quat Orientation() const { return orientation_; }
-  glm::vec3 Front() const { return glm::normalize(modelMatrix_[2]); }
-  glm::vec3 Up() const { return glm::normalize(modelMatrix_[1]); }
-  glm::vec3 Right() const { return glm::normalize(modelMatrix_[0]); }
+  glm::vec3 Front() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 0.f, -1.f); }
+  glm::vec3 Up() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 1.f, 0.f); }
+  glm::vec3 Right() const { return glm::conjugate(orientation_) * glm::vec3(-1.f, 0.f, 0.f); }
   glm::mat4 ModelMatrix() const { return modelMatrix_; }
+
+  glm::vec3 PreviousFront() const { return glm::conjugate(previousOrientation_) * glm::vec3(0.f, 0.f, -1.f); }
+  glm::vec3 PreviousUp() const { return glm::conjugate(previousOrientation_) * glm::vec3(0.f, 1.f, 0.f); }
+  glm::vec3 PreviousRight() const { return glm::conjugate(previousOrientation_) * glm::vec3(-1.f, 0.f, 0.f); }
 
   template<class T>
   typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
@@ -83,7 +87,6 @@ public:
   }
 
 protected:
-  std::string id_;
   ZGame* game_ = nullptr;
   std::vector<ZComponent*> components_;
   glm::vec4 position_, previousPosition_;

@@ -14,17 +14,15 @@
 #include "ZInput.hpp"
 #include "ZUI.hpp"
 #include "ZPhysics.hpp"
-#include "ZCamera.hpp"
-#include "ZCommon.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZActor.hpp"
-#include "ZCommon.hpp"
+#include "ZCameraComponent.hpp"
 
 #include <chrono>
 using namespace std;
 
-ZGame::ZGame() : activeCameraIndex_(-1) { }
+ZGame::ZGame() : activeCameraObject_("") { }
 
 void ZGame::RunGameLoop() {
   _Z("Zenith is about to loop...", ZINFO);
@@ -53,13 +51,9 @@ void ZGame::RunGameLoop() {
 }
 
 void ZGame::Update() {
-  ZEngine::Physics()->Update(gameObjects_, gameCameras_);
-  for (unsigned int i = 0; i < gameObjects_.size(); i++) {
-    gameObjects_[i]->Update();
-  }
-
-  for (unsigned int i = 0; i < gameCameras_.size(); i++) {
-    gameCameras_[i]->Update();
+  ZEngine::Physics()->Update(gameObjects_);
+  for (auto it = gameObjects_.begin(); it != gameObjects_.end(); it++) {
+    it->second->Update();
   }
 }
 
@@ -79,7 +73,7 @@ void ZGame::AddGameObject(ZGameObject* gameObject) {
       activeCameraObject_ = gameObject->ID();
     }
 
-    if (dynamic_cast<ZLight*>(gameObject)) {
+    if (dynamic_cast<ZLight*>(gameObject) != nullptr) {
       gameLights_.insert({gameObject->ID(), dynamic_cast<ZLight*>(gameObject)});
     } else {
       gameObjects_.insert({gameObject->ID(), gameObject});
@@ -106,8 +100,8 @@ void ZGame::SetDefaultSkybox() {
   AddGameObject(skyboxActor);
 }
 
-ZGameObject* ZGame::GetActiveCamera() const {
-  if (gameObjects_->find(activeCameraObject_) == gameObjects_->end()) return nullptr;
+ZGameObject* ZGame::GetActiveCamera() {
+  if (gameObjects_.find(activeCameraObject_) == gameObjects_.end()) return nullptr;
   return gameObjects_[activeCameraObject_];
 }
 

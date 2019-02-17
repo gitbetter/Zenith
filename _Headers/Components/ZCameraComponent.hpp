@@ -13,7 +13,7 @@
 #include "ZComponent.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZPhysicsComponent;
 
 // Class and Data Structure Definitions
 class ZCameraComponent : public ZComponent {
@@ -27,13 +27,25 @@ private:
   ZCameraType cameraType_;
   ZCameraMovementStyle movementStyle_;
 
+  glm::vec3 pitchVelocity_, yawVelocity_;
+  glm::quat pitch_, yaw_;
+  float cameraDamping_ = 0.05f;
+
+  ZPhysicsComponent* AddPhysicsComponentIfNeeded();
+
 public:
   ZCameraComponent(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f)) : ZComponent() {
     cameraType_ = type;
     zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
     movementStyle_ = ZCameraMovementStyle::Normal;
+    pitch_ = glm::quat(0.f, glm::vec3(1.f, 0.f, 0.f));
+    yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
+    glm::vec3 pitchVelocity_ = glm::vec3(0.f);
+    glm::vec3 yawVelocity_ = glm::vec3(0.f);
   }
   ~ZCameraComponent() { }
+
+  void UpdateCameraOrientation();
 
   void HandleStrafe(float controlThrow) override;
   void HandleForwardBack(float controlThrow) override;

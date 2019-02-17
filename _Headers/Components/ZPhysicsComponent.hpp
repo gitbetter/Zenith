@@ -22,6 +22,7 @@ private:
   float damping_ = 1.0;
   float angularDamping_ = 1.0;
   float inverseMass_ = 1.0;
+  glm::mat3 inverseInertiaTensor_;
 
 public:
   ZPhysicsComponent();
@@ -34,11 +35,17 @@ public:
 
   void SetVelocity(glm::vec3 velocity) { velocity_ = velocity; }
   void SetDamping(float damping) { damping_ = damping; }
+  void SetAngularVelocity(glm::vec3 angularVelocity) { angularVelocity_ = angularVelocity; }
+  void SetAngularDamping(float damping) { angularDamping_ = damping; }
   void SetMass(float mass) { assert(mass > 0.f); inverseMass_ = 1.f / mass; }
+  void SetInertiaTensor(glm::mat3 inertiaTensor) { inverseInertiaTensor_ = glm::inverse(inertiaTensor); }
 
-  glm::vec3 Velocity() { return velocity_; }
-  float Damping() { return damping_; }
-  float Mass() { return 1.f / inverseMass_; }
+  glm::vec3 Velocity() const { return velocity_; }
+  float Damping() const { return damping_; }
+  glm::vec3 AngularVelocity() const { return angularVelocity_; }
+  float AngularDamping() const { return angularDamping_; }
+  float Mass() const { return 1.f / inverseMass_; }
+  glm::mat3 InertiaTensor() const { return glm::inverse(inverseInertiaTensor_); }
 
 protected:
 

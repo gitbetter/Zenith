@@ -7,30 +7,28 @@
 //
 
 #include "ZCameraComponent.hpp"
-
-//
-//  ZCamera.cpp
-//  Zenith
-//
-//  Created by Adrian Sanchez on 28/01/2019.
-//  Copyright © 2019 Adrian Sanchez. All rights reserved.
-//
-
-#include "ZCameraComponent.hpp"
 #include "ZCommon.hpp"
+#include "ZGameObject.hpp"
+#include "ZPhysicsComponent.hpp"
 
-glm::mat4 ZCameraComponent::ViewMatrix(float frameMix) {
-  return glm::lookAt(glm::vec3(object_->Position()), glm::vec3(object_->Position() + object_->Front()), glm::vec3(object_->Up());
+void ZCameraComponent::UpdateCameraOrientation() {
+  if (movementStyle_ == ZCameraMovementStyle::Follow) {
+    pitchVelocity_ *= glm::pow(cameraDamping_, ZEngine::UPDATE_STEP_SIZE);
+    yawVelocity_ *= glm::pow(cameraDamping_, ZEngine::UPDATE_STEP_SIZE);
+    pitch_ = glm::quat(pitchVelocity_ * ZEngine::UPDATE_STEP_SIZE);
+    yaw_ = glm::quat(yawVelocity_ * ZEngine::UPDATE_STEP_SIZE);
+    object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
+  }
 }
 
 void ZCameraComponent::HandleStrafe(float controlThrow) {
   float velocity = movementSpeed_ * ZEngine::DeltaTime();
-  object_->SetPosition(object_->Position() + object_->Right() * controlThrow * velocity)
+  object_->SetPosition(object_->Position() + object_->Right() * controlThrow * -velocity);
 }
 
 void ZCameraComponent::HandleForwardBack(float controlThrow) {
   float velocity = movementSpeed_ * ZEngine::DeltaTime();
-  object_->SetPosition(object_->Position() + object_->Front() * controlThrow * velocity)
+  object_->SetPosition(object_->Position() + object_->Front() * controlThrow * velocity);
 
   if (cameraType_ == ZCameraType::Orthographic) {
     zoom_ += zoomSpeed_ * controlThrow * velocity;
@@ -39,20 +37,26 @@ void ZCameraComponent::HandleForwardBack(float controlThrow) {
 
 void ZCameraComponent::HandlePitch(float controlThrow) {
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
-    eulerVelocity_.x += controlThrow * lookSensitivity_;
+    pitchVelocity_ += glm::vec3(glm::radians(-controlThrow * lookSensitivity_), 0.f, 0.f);
   } else if (movementStyle_ == ZCameraMovementStyle::Normal) {
-    glm::vec3 euler = glm::eulerAngles(object_->Orientation());
-    euler.x = glm::clamp(euler.x + controlThrow * lookSensitivity_, -89.0f, 89.0f);
-    object_->SetOrientation(glm::quat(euler));
+    pitch_ = glm::angleAxis(glm::radians(-controlThrow * lookSensitivity_), glm::vec3(1.f, 0.f, 0.f));
+    object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation()));
   }
 }
 
 void ZCameraComponent::HandleYaw(float controlThrow) {
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
-    eulerVelocity_.y += controlThrow * lookSensitivity_;
+    yawVelocity_ += glm::vec3(0.f, glm::radians(controlThrow * lookSensitivity_), 0.f);
   } else if (movementStyle_ == ZCameraMovementStyle::Normal) {
-    glm::vec3 euler = glm::eulerAngles(object_->Orientation());
-    euler.y = euler.y + controlThrow * lookSensitivity_;
-    object_->SetOrientation(glm::quat(euler))
+    yaw_ = glm::angleAxis(glm::radians(controlThrow * lookSensitivity_), glm::vec3(0.f, 1.f, 0.f));
+    object_->SetOrientation(glm::normalize(object_->Orientation() * yaw_));
   }
+}
+
+glm::mat4 ZCameraComponent::ViewMatrix(float frameMix) {
+  glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
+  glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
+  return glm::lookAt(glm::vec3(object_->Position()),
+                     glm::vec3(object_->Position()) + interpolatedFront,
+                     interpolatedUp);
 }

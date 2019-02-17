@@ -7,6 +7,3 @@
 //
 
 #include "ZIDSequence.hpp"
-
-ZIDSequence::ZIDSequence()  {}
-ZIDSequence::~ZIDSequence() {}

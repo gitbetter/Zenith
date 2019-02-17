@@ -9,39 +9,52 @@
 #include "ZEngine.hpp"
 #include "ZGameObject.hpp"
 #include "ZCommon.hpp"
+#include "ZIDSequence.hpp"
+#include "ZCameraComponent.hpp"
 
-ZGameObject::ZGameObject(glm::vec3 position, glm::vec3 orientation)
+ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
 : position_(glm::vec4(position, 1.f)),
   orientation_(orientation),
   modelMatrix_(glm::mat4(1.f)),
-  translatesWithView_(false),
-  eulerVelocity_(glm::vec4(0.f)),
-  eulerDamping_(0.05f)
-{
-  id_ = "ZGO_" + std::to_string(ZEngine::NewId());
+  translatesWithView_(false) {
+  id_ = "ZGO_" + ZEngine::IDSequence()->Next();
   CalculateModelMatrix();
+}
+
+void ZGameObject::Update() {
+  ZCameraComponent* cameraComp = FindComponent<ZCameraComponent>();
+  if (cameraComp != nullptr) {
+    cameraComp->UpdateCameraOrientation();
+  }
 }
 
 void ZGameObject::ShouldTranslateWithView(bool translates) {
   translatesWithView_ = translates;
+  ZGraphicsComponent* graphicsComp = FindComponent<ZGraphicsComponent>();
+  if (graphicsComp != nullptr) {
+    graphicsComp->ShouldTranslateWithView(translatesWithView_);
+  }
 }
 
 void ZGameObject::SetPosition(glm::vec3 position) {
+  previousPosition_ = position_;
   position_ = glm::vec4(position, 1.f);
   CalculateModelMatrix();
 }
 
 void ZGameObject::SetOrientation(glm::quat quaternion) {
+  previousOrientation_ = orientation_;
   orientation_ = quaternion;
   CalculateModelMatrix();
 }
 
 void ZGameObject::SetOrientation(glm::vec3 euler) {
+  previousOrientation_ = orientation_;
   orientation_ = glm::quat(euler);
   CalculateModelMatrix();
 }
 
 void ZGameObject::CalculateModelMatrix() {
-  modelMatrix_ = glm::rotate(modelMatrix_, glm::angle(orientation_), glm::axis(orientation_));
-  modelMatrix_ = glm::translate(modelMatrix_, position_);
+  modelMatrix_ = glm::mat4_cast(orientation_);
+  modelMatrix_ = glm::translate(modelMatrix_, glm::vec3(position_));
 }

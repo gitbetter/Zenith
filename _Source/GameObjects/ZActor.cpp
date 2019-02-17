@@ -19,11 +19,3 @@ void ZActor::Render(float frameMix, unsigned char renderOp) {
     graphicsComp->Update(gameLights, camera, frameMix, renderOp);
   }
 }
-
-void ZActor::ShouldTranslateWithView(bool translates) {
-  ZGameObject::ShouldTranslateWithView(translates);
-  ZGraphicsComponent* graphicsComp = FindComponent<ZGraphicsComponent>();
-  if (graphicsComp != nullptr) {
-    graphicsComp->ShouldTranslateWithView(translates);
-  }
-}

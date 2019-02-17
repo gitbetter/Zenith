@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include <vector>
+#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZObjectForceRegistry;

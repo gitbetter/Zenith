@@ -12,6 +12,7 @@
 #include "ZNullInput.hpp"
 #include "ZUI.hpp"
 #include "ZPhysics.hpp"
+#include "ZIDSequence.hpp"
 #include <chrono>
 
 const float ZEngine::UPDATE_STEP_SIZE = 0.017f;
@@ -53,6 +54,10 @@ ZUI* ZEngine::UI() {
 
 ZPhysics* ZEngine::Physics() {
   return physics_;
+}
+
+ZIDSequence* ZEngine::IDSequence() {
+  return idGenerator_;
 }
 
 float ZEngine::DeltaTime() {
@@ -107,8 +112,4 @@ void ZEngine::Provide(ZPhysics& ui) {
 
 void ZEngine::SetDeltaTime(float deltaTime) {
   deltaTime_ = deltaTime;
-}
-
-unsigned int ZEngine::NewId() {
-  return idGenerator_->Next();
 }

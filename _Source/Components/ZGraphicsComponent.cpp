@@ -9,6 +9,7 @@
 #include "ZEngine.hpp"
 #include "ZDomain.hpp"
 #include "ZGameObject.hpp"
+#include "ZCameraComponent.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 
@@ -25,7 +26,7 @@ ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : ZCompon
   modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(0.2f, 0.2f, 0.2f));
 }
 
-void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>&& gameLights, ZGameObject* camera, float frameMix, unsigned char renderOp) {
+void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>& gameLights, ZGameObject* camera, float frameMix, unsigned char renderOp) {
   const ZDomain* domain = ZEngine::Domain();
 
   ZCameraComponent* cameraComp = camera->FindComponent<ZCameraComponent>();
@@ -44,7 +45,7 @@ void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>&& gameLight
   }
 
   viewMatrix_ = translatesWithView_ ? cameraComp->ViewMatrix(frameMix) : glm::mat4(glm::mat3(cameraComp->ViewMatrix(frameMix)));
-
+  
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 

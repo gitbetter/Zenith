@@ -35,7 +35,7 @@ public:
 
   void Initialize();
 
-  void Draw(const std::map<std::string, ZGameObject*>& gameObjects, const std::map<std::string, ZLight*>&& gameLights, float frameMix = 0.0);
+  void Draw(const std::map<std::string, ZGameObject*>& gameObjects, const std::map<std::string, ZLight*>& gameLights, float frameMix = 0.0);
 
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
   unsigned int DepthFrameBuffer() { return depthFramebuffer_; }

@@ -17,10 +17,10 @@ void ZPhysics::Initialize() {
   }
 }
 
-void ZPhysics::Update(std::map<std::string, ZGameObject*>& gameObjects) {
+void ZPhysics::Update(std::map<std::string, ZGameObject*> gameObjects) {
   registry_->UpdateForces();
-  for (ZGameObject* object : gameObjects) {
-    ZPhysicsComponent* physicsComp = object->FindComponent<ZPhysicsComponent>();
+  for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
+    ZPhysicsComponent* physicsComp = it->second->FindComponent<ZPhysicsComponent>();
     if (physicsComp != nullptr) physicsComp->Integrate();
   }
 }

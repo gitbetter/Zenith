@@ -20,12 +20,20 @@ ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
 void ZPhysicsComponent::Integrate() {
   assert(object_ != nullptr);
 
+  glm::mat3 inverseInertiaWorld_ = glm::mat3_cast(object_->Orientation()) * inverseInertiaTensor_;
+
   glm::vec3 acceleration(0.f);
   acceleration += forceAccumulator_ * inverseMass_;
+  glm::vec3 angularAcceleration = inverseInertiaTensor_ * torqueAccumulator_;
+
   velocity_ += acceleration * ZEngine::UPDATE_STEP_SIZE;
+  angularVelocity_ += angularAcceleration * ZEngine::UPDATE_STEP_SIZE;
+
   velocity_ *= glm::pow(damping_, ZEngine::UPDATE_STEP_SIZE);
+  angularVelocity_ *= glm::pow(angularDamping_, ZEngine::UPDATE_STEP_SIZE);
 
   object_->SetPosition(object_->Position() + velocity_ * ZEngine::UPDATE_STEP_SIZE);
+  object_->SetOrientation(glm::mix(object_->Orientation(), glm::quat(angularVelocity_) * object_->Orientation(), ZEngine::UPDATE_STEP_SIZE));
 
   ClearForceAccumulator();
 }

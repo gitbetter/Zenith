@@ -12,6 +12,7 @@
 #include "ZGLInput.hpp"
 
 #include "ZActor.hpp"
+#include "ZCameraComponent.hpp"
 
 #include "ZGraphics.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -73,8 +74,10 @@ int main(int argc, const char * argv[]) {
   // Let's add a camera to the game
   ZGameObject camera(glm::vec3(-5.f, 10.f, 25.f));
   ZCameraComponent cameraComponent(ZCameraType::Perspective);
-  cameraComponent.SetMovementStyle(ZCameraMovementStyle::Normal);
+  cameraComponent.SetMovementStyle(ZCameraMovementStyle::Follow);
   camera.AddComponent(&cameraComponent);
+
+  game.AddGameObject(&camera);
 
   // Register the camera component so it receives input events
   input.Register(&cameraComponent);

@@ -34,6 +34,6 @@ public:
   void CleanUp();
 
 protected:
-  ZDomainStrategy* domainStrategy_;
+  ZDomainStrategy* domainStrategy_ = nullptr;
   unsigned int width_, height_;
 };

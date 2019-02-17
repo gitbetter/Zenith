@@ -10,7 +10,6 @@
 
 // Includes
 #include "ZGameObject.hpp"
-#include <vector>
 #include <initializer_list>
 
 // Forward Declarations
@@ -32,7 +31,7 @@ public:
 
   void RunGameLoop();
 
-  ZGameObject* GetActiveCamera() const;
+  ZGameObject* GetActiveCamera();
   const std::map<std::string, ZLight*>& GetGameLights() const { return gameLights_; }
 
   void AddGameObject(ZGameObject* gameObject);

@@ -31,7 +31,7 @@ public:
   virtual void On(ZEventType event, ZEventCallback&& callback);
   virtual void Fire(ZEventType event);
 
-  std::sting ID() { return id_; }
+  std::string ID() { return id_; }
 
 protected:
   std::string id_;
