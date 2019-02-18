@@ -15,11 +15,21 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZOFTree {
-private:
-public:
-    ZOFTree() { }
-    ~ZOFTree() { }
-protected:
+struct ZOFTree {
+  std::vector<ZOFObjectNode*> children;
+};
 
+struct ZOFObjectNode {
+  std::vector<ZOFObjectNode*> children;
+  std::vector<ZOFPropertyNode*> properties;
+};
+
+struct ZOFPropertyNode {
+  std::string key;
+  std::vector<ZOFValueTerminal*> values;
+};
+
+template<typename T>
+struct ZOFValueTerminal {
+  T value;
 };
