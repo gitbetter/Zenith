@@ -1,104 +1,60 @@
-# character_example.zof
+# scene_example.zof
 
-ZACT_01:
-	position (1.0, 2.0, 5.0)
-	orientation (0.0, 0.0, 0.0)
-	scale (0.2, 0.2, 0.2)
-	PhysicsComponent:
-		velocity 0.0
-		angularVelocity 0.0
-		damping 1.0
-		angularDamping 1.0
-		mass 5.0
-	:
-	GraphicsComponent:
-		activeShader 0
-		highlightColor (0.4, 0.5, 0.2)
-		highlightShader ZSHP_03
-		shaders [ZSH_01]
-		model Cube (0.2, 0.2, 0.2)	# could be a string to a model path or predefined primitive like this cube
-		textures [ZTEX_01, ZTEX_02]
-	:
-:
-
-ZACT_02:
-	position (2.0, 4.0, 2.0)
-	orientation (0.0, 0.0, 0.0)
-	scale (0.2, 0.2, 0.2)
-	PhysicsComponent:
-		velocity 0.0
-		angularVelocity 0.0
-		damping 1.0
-		angularDamping 1.0
-		mass 5.0
-	:
-	GraphicsComponent:
-		activeShader 0
-		highlightColor (0.4, 0.5, 0.2)
-		highlightShader ZSHP_03
-		shaders [ZSH_0]
-		model Cube (0.2, 0.2, 0.2)	# could be a string to a model path or predefined primitive like this cube
-		textures [ZTEX_01, ZTEX_02]
-	:
-:
-
-ZACT_03:
-	position (-5.0, 2.0, 5.0)
-	orientation (0.0, 0.0, 0.0)
-	scale (0.2, 0.2, 0.2)
-	PhysicsComponent:
-		velocity 0.0
-		angularVelocity 0.0
-		damping 1.0
-		angularDamping 1.0
-		mass 5.0
-	:
-	GraphicsComponent:
-		activeShader 0
-		highlightColor (0.4, 0.5, 0.2)
-		highlightShader ZSHP_03
-		shaders [ZSH_01]
-		model Cube (0.2, 0.2, 0.2) # could be a string to a model path or predefined primitive like this cube
-		textures [ZTEX_01, ZTEX_02]
-	:
-:
-
-ZACT_04:
-	position (0.0, 7.0, 20.0)
-	orientation (0.0, 0.0, 0.0)
-	scale (0.2, 0.2, 0.2)
-	CameraComponent:
-		speed 10.0
-		sensitiviy 0.1
-		zoom 45.0
-		zoomSpeed 5.0
-		nearPlane 0.01
-		farPlane 1000.0
-		type Perspective
-		movementStyle Follow
-		damping 0.02
-	:
-:
-
-ZSH_01:
-	vertex "some/path.vert"
-	pixel "some/path.frag"
-:
-
-ZSH_02:
-	vertex "some/path.vert"
-	pixel "some/path.frag"
-:
-
-ZSH_03:
-	path "some/path.vert"
-	path "some/highlight.frag"
-:
-
-ZTEX_01:
-	path "some/texture1.png"
-:
-
-ZTEX_02:
-	path "some/texture2.png"
-:
+ZACT_01
+	:position [1.0, 2.0, 5.0]:
+	:orientation [0.0, 0.0, 0.0]:
+	:scale [0.2, 0.2, 0.2]:
+	PhysicsComponent
+		:velocity 0.0:
+		:angularVelocity 0.0:
+		:damping 1.0:
+		:angularDamping 1.0:
+		:mass 5.0:
+	-
+	GraphicsComponent
+		:activeShader 0:
+		:highlightColor [0.4, 0.5, 0.2]:
+		:highlightShader ZSHP_03:
+		:shaders [ZSH_01]:
+		:model Cube [0.2, 0.2, 0.2]:	# could be a string to a model path or predefined primitive like this cube
+		:textures [ZTEX_01, ZTEX_02]:
+	-
+-
+ZACT_02
+	:position [2.0, 4.0, 2.0]:
+	:orientation [0.0, 0.0, 0.0]:
+	:scale [0.2, 0.2, 0.2]:
+	PhysicsComponent
+		:velocity 0.0:
+		:angularVelocity 0.0:
+		:damping 1.0:
+		:angularDamping 1.0:
+		:mass 5.0:
+	-
+	GraphicsComponent
+		:activeShader 0:
+		:highlightColor [0.4, 0.5, 0.2]:
+		:highlightShader ZSHP_03:
+		:shaders [ZSH_0]:
+		:model Cube [0.2, 0.2, 0.2]:	# could be a string to a model path or predefined primitive like this cube
+		:textures [ZTEX_01, ZTEX_02]:
+	-
+-
+ZSH_01
+	:vertex "some/path.vert":
+	:pixel "some/path.frag":
+-
+ZSH_02
+	:vertex "some/path.vert":
+	:pixel "some/path.frag":
+-
+ZSH_03
+	:path "some/path.vert":
+	:path "some/highlight.frag":
+-
+ZTEX_01
+	:path "some/texture1.png":
+-
+ZTEX_02
+	:path "some/texture2.png":
+-

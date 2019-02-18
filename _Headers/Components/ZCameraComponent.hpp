@@ -40,8 +40,8 @@ public:
     movementStyle_ = ZCameraMovementStyle::Normal;
     pitch_ = glm::quat(0.f, glm::vec3(1.f, 0.f, 0.f));
     yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
-    glm::vec3 pitchVelocity_ = glm::vec3(0.f);
-    glm::vec3 yawVelocity_ = glm::vec3(0.f);
+    pitchVelocity_ = glm::vec3(0.f);
+    yawVelocity_ = glm::vec3(0.f);
   }
   ~ZCameraComponent() { }
 

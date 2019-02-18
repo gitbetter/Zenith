@@ -7,137 +7,185 @@
 //
 
 #include "ZOFParser.hpp"
-#include "ZOFTree.hpp"
-#include <regex>
 
 ZOFTree* ZOFParser::Parse(std::string zofFile) {
-  ZOFTree* tree = new ZOFTree;
+  ZOFTree* parseTree = new ZOFTree;
   if (!zofFile.empty()) {
     zof_.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try {
       zof_.open(zofFile);
 
-      currentToken_ = Scan();
-      Start()
+      Start(parseTree);
 
-      zof.close();
+      zof_.close();
     } catch (std::ifstream::failure e) {
       _Z("There was an error reading the .zof object file. Please consult the code.", ZERROR);
     }
   }
-  return tree;
+  return parseTree;
 }
 
 std::string ZOFParser::Scan() {
+  std::string whitepace("\n\t ");
+  std::string specialCharacters("-,:[]");
   std::string token;
   char c;
-  while(zof.get(c)) {
+  while(!zof_.eof() && zof_.get(c)) {
     // Strip initial whitespace
-    if (std::string("\n\t ").find(c) != std::string::npos) continue;
+    if (whitepace.find(c) != std::string::npos) continue;
     // Ignore comments
-    if (c == "#") {
-      zof.ignore(numeric_limits<streamsize>::max(), '\n'); continue;
+    if (c == '#') {
+      zof_.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); continue;
     }
     // Handle .zof single character tokens
-    if (std::string(",:[]").find(c) != std::string::npos) {
+    if (specialCharacters.find(c) != std::string::npos) {
       token += c; break;
     }
     token += c;
     // Break out of the loop once we have our token
     // (the following character is either whitepace or one of our single character tokens)
-    if (std::string("\n\t :,[]").find(zof.peek()) != std::string::npos) break;
+    if ((whitepace + specialCharacters).find(zof_.peek()) != std::string::npos) break;
   }
   return token;
 }
 
 void ZOFParser::Match(std::string token) {
-  if (token == currentToken_) currentToken_ = Scan(zof);
+  if (token == currentToken_) currentToken_ = Scan();
   else _Z("[ZOFParse Error]: Expected " + token + ", but instead got " + currentToken_, ZERROR);
 }
 
-void ZOFParser::Match(regex pattern) {
-  if (regex_match(currentToken_, pattern)) currentToken_ = Scan(zof);
-  else _Z("[ZOFParse Error]: Expected " + token + ", but instead got " + currentToken_, ZERROR);
+void ZOFParser::Match(std::regex pattern) {
+  if (std::regex_match(currentToken_, pattern)) currentToken_ = Scan();
+  else _Z("[ZOFParse Error]: Token " + currentToken_ + " is malformed", ZERROR);
 }
 
-// Recursive descent parser to recognize and parse .zof files
+void ZOFParser::HandleParseError(ZOFNode* node) {
+  _Z("[ZOFParse Error]: Unexpected token " + currentToken_, ZERROR);
+  node->Clear();
+}
+
 void ZOFParser::Start(ZOFTree* tree) {
+  currentToken_ = Scan();
   ObjectList(tree);
   Match("");
 }
 
-void ZOFParser::ObjectList(ZOFTree* tree) {
+void ZOFParser::ObjectList(ZOFNode* node) {
   if (currentToken_ != "") {
-    Object(); ObjectList();
+    Object(node); ObjectList(node);
   }
 }
 
-void ZOFParser::Object(ZOFTree* tree) {
-  if (regex_match(currentToken_, id_)) {
-    Match(id_); PropsList();
+void ZOFParser::Object(ZOFNode* node) {
+  if (std::regex_match(currentToken_, id_)) {
+    // Push a new object node onto the tree
+    ZOFObjectNode* objectNode = new ZOFObjectNode;
+    objectNode->id = currentToken_;
+    objectNode->root = node;
+    node->children.push_back(objectNode);
+
+    Match(id_); PropsList(objectNode); Match("-");
   } else {
-    _Z("[ZOFParse Error]: Unexpected token " + currentToken_, ZERROR);
+    HandleParseError(node->root);
   }
 }
 
-void ZOFParser::PropsList(ZOFTree* tree) {
-  if (currentToken_ != "" && currentToken_ != "]") {
+void ZOFParser::PropsList(ZOFObjectNode* node) {
+  if (currentToken_ != "" && currentToken_ != "-") {
     if (currentToken_ == ":") {
-      Match(":"); Prop(); PropsList();
+      Match(":"); Prop(node); PropsList(node);
     } else {
-      ObjectList(); PropsList();
+      Object(node); PropsList(node);
     }
   }
 }
 
-void ZOFParser::Prop(ZOFTree* tree) {
-  if (regex_match(currentToken_, id_)) {
-    Match(id_); ValuesList();
+void ZOFParser::Prop(ZOFObjectNode* objectNode) {
+  if (std::regex_match(currentToken_, id_)) {
+    // Push a new prop onto the object node
+    ZOFPropertyNode* propNode = new ZOFPropertyNode;
+    propNode->id = currentToken_;
+    propNode->root = objectNode->root;
+    objectNode->properties.push_back(propNode);
+
+    Match(id_); ValuesList(propNode); Match(":");
   } else {
-    _Z("[ZOFParse Error]: Unexpected token " + currentToken_, ZERROR);
+    HandleParseError(objectNode->root);
   }
 }
 
-void ZOFParser::ValuesList(ZOFTree* tree) {
-  if (currentToken_ != "" && currentToken_ != "]") {
-    Value(); ValuesList();
+void ZOFParser::ValuesList(ZOFPropertyNode* prop) {
+  if (currentToken_ != "" && currentToken_ != ":") {
+    Value(prop); ValuesList(prop);
   }
 }
 
-void ZOFParser::Value(ZOFTree* tree) {
+void ZOFParser::Value(ZOFPropertyNode* prop) {
   if (currentToken_ == "[") {
-    Match("["); List(); Match("]");
-  } else if (regex_match(currentToken_, id_)) {
+    Match("["); List(prop); Match("]");
+  } else if (std::regex_match(currentToken_, id_)) {
+    // Push a new string onto the prop
+    ZOFValueTerminal<std::string>* terminal = new ZOFValueTerminal<std::string>();
+    terminal->value = currentToken_;
+    terminal->root = prop->root;
+    prop->values.push_back(terminal);
+
     Match(id_);
-  } else if (regex_match(currentToken_, number_)) {
+  } else if (std::regex_match(currentToken_, number_)) {
+    // Push a new float onto the prop
+    ZOFValueTerminal<float>* terminal = new ZOFValueTerminal<float>();
+    terminal->value = std::stof(currentToken_);
+    terminal->root = prop->root;
+    prop->values.push_back(terminal);
+
     Match(number_);
   } else {
-    _Z("[ZOFParse Error]: Unexpected token " + currentToken_, ZERROR);
+    HandleParseError(prop->root);
   }
 }
 
-void ZOFParser::List(ZOFTree* tree) {
-  if (currentToken_ != "]") {
-    if (regex_match(currentToken_, id_)) {
-      Match(id_); ListTail();
-    } else if (regex_match(currentToken_, number_)) {
-      Match(number_); ListTail();
-    } else {
-      _Z("[ZOFParse Error]: Unexpected token " + currentToken_, ZERROR);
-    }
+void ZOFParser::List(ZOFPropertyNode* prop) {
+  if (std::regex_match(currentToken_, id_)) {
+    // Push a new list of strings onto the list
+    ZOFValueTerminal<std::vector<std::string>>* terminal = new ZOFValueTerminal<std::vector<std::string>>();
+    terminal->value.push_back(currentToken_);
+    terminal->root = prop->root;
+    prop->values.push_back(terminal);
+
+    Match(id_); ListTail(terminal);
+  } else if (std::regex_match(currentToken_, number_)) {
+    // Push a new list of floats onto the list
+    ZOFValueTerminal<std::vector<float>>* terminal = new ZOFValueTerminal<std::vector<float>>();
+    terminal->value.push_back(std::stof(currentToken_));
+    terminal->root = prop->root;
+    prop->values.push_back(terminal);
+
+    Match(number_); ListTail(terminal);
+  } else {
+    HandleParseError(prop->root);
   }
 }
 
-void ZOFParser::ListTail(ZOFTree* tree) {
-  if (currentToken_ != "]") {
+void ZOFParser::ListTail(ZOFAbstractTerminal* terminal) {
+  if (currentToken_ != "" && currentToken_ != ":" && currentToken_ != "]") {
     if (currentToken_ == ",") {
-      Match(","); ListTail();
-    } else if (regex_match(currentToken_, id_)) {
-      Match(id_), ListTail();
-    } else if (regex_match(currentToken_, number_)) {
-      Match(number_), ListTail();
+      Match(","); ListTail(terminal);
+    } else if (std::regex_match(currentToken_, id_)) {
+      // Push a new string onto the list of strings
+      ZOFValueTerminal<std::vector<std::string>>* term = dynamic_cast<ZOFValueTerminal<std::vector<std::string>>*>(terminal);
+      if (term != nullptr)
+        term->value.push_back(currentToken_);
+
+      Match(id_), ListTail(term);
+    } else if (std::regex_match(currentToken_, number_)) {
+      // Push a new float onto the list of floats
+      ZOFValueTerminal<std::vector<float>>* term = dynamic_cast<ZOFValueTerminal<std::vector<float>>*>(terminal);
+      if (term != nullptr)
+        term->value.push_back(std::stof(currentToken_));
+
+      Match(number_), ListTail(term);
     } else {
-      _Z("[ZOFParse Error]: Unexpected token " + currentToken_, ZERROR);
+      HandleParseError(terminal->root);
     }
   }
 }

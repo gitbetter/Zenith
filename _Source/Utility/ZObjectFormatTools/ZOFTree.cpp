@@ -7,6 +7,3 @@
 //
 
 #include "ZOFTree.hpp"
-
-ZOFTree::ZOFTree()  {}
-ZOFTree::~ZOFTree() {}

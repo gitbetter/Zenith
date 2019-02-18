@@ -33,9 +33,16 @@
 #include "ZAnchoredSpringForce.hpp"
 #include "ZObjectForceRegistry.hpp"
 
-#include "ZCommon.hpp"
+#include "ZOFParser.hpp"
 
 int main(int argc, const char * argv[]) {
+
+
+  ZOFParser parser;
+  ZOFTree* objectTree = parser.Parse("scene_example.zof");
+  _Z(objectTree->ToString(), ZINFO);
+
+
   // Create a new game instance
   ZGame game;
 
