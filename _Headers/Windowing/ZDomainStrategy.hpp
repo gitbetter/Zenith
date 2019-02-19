@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include <iostream>
+#include <glm/glm.hpp>
 
 // Forward Declarations
 // class SomeClass;
@@ -27,6 +27,7 @@ public:
   virtual void CaptureCursor() = 0;
   virtual void ReleaseCursor() = 0;
   virtual void Resize(int width, int height) = 0;
+  virtual glm::vec2 FramebufferSize() = 0;
   virtual bool IsWindowClosing() = 0;
   virtual void CloseWindow() = 0;
   virtual void CleanUp() = 0;

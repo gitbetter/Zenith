@@ -58,6 +58,13 @@ void ZGLDomainStrategy::Resize(int width, int height) {
   glfwSetWindowSize(glWindow, width, height);
 }
 
+glm::vec2 ZGLDomainStrategy::FramebufferSize() {
+  GLFWwindow* glWindow = glfwGetCurrentContext();
+  int width, height;
+  glfwGetFramebufferSize(glWindow, &width, &height);
+  return glm::vec2(width, height);
+}
+
 void ZGLDomainStrategy::CloseWindow() {
   GLFWwindow* glWindow = glfwGetCurrentContext();
   glfwSetWindowShouldClose(glWindow, GL_TRUE);

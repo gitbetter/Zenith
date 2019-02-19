@@ -30,6 +30,7 @@ public:
   void CaptureCursor() override;
   void ReleaseCursor() override;
   void Resize(int width, int height) override;
+  glm::vec2 FramebufferSize() override;
   void CloseWindow() override;
   bool IsWindowClosing() override;
   void CleanUp() override;

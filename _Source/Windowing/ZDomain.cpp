@@ -15,6 +15,10 @@ void ZDomain::Initialize() {
     domainStrategy_ = new ZGLDomainStrategy();
     domainStrategy_->Initialize();
     domainStrategy_->CreateWindow(width_, height_);
+    // Make sure the window size is in pixels and not screen coordinates,
+    // which is done by querying the current framebuffer size
+    glm::vec2 fbSize = domainStrategy_->FramebufferSize();
+    width_ = fbSize.x; height_ = fbSize.y;
   }
 }
 
