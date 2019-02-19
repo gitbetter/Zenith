@@ -40,7 +40,6 @@ void ZGLGraphicsStrategy::EnableDepthTesting() {
 
 void ZGLGraphicsStrategy::DisableDepthTesting() {
   glDisable(GL_DEPTH_TEST);
-  //glDepthFunc(GL_NEVER);
 }
 
 void ZGLGraphicsStrategy::EnableStencilTesting() {
@@ -290,7 +289,7 @@ void ZGLGraphicsStrategy::UnbindDepthMapBuffer() {
   glDisable(GL_POLYGON_OFFSET_FILL);
 
   UnbindFramebuffer();
-  glViewport(0, 0, ZEngine::Domain()->WindowWidth() * 2, ZEngine::Domain()->WindowHeight() * 2);
+  glViewport(0, 0, ZEngine::Domain()->WindowWidth(), ZEngine::Domain()->WindowHeight());
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

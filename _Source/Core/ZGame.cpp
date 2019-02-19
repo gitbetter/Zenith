@@ -38,7 +38,6 @@ void ZGame::RunGameLoop() {
     lag += ZEngine::DeltaTime();
 
     ZEngine::Input()->Process();
-    //MacDisplayHack();
 
     while (lag >= ZEngine::UPDATE_STEP_SIZE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
       Update();
@@ -47,6 +46,8 @@ void ZGame::RunGameLoop() {
 
     Render(lag / ZEngine::UPDATE_STEP_SIZE);
     ZEngine::Domain()->Strategy()->PollEvents();
+
+    MacDisplayHack();
   }
 }
 
@@ -116,8 +117,8 @@ void ZGame::MacDisplayHack() {
   static bool moved = false;
   if (!moved) {
     ZEngine::Domain()->ResizeWindow(
-      ZEngine::Domain()->WindowWidth() + 1,
-      ZEngine::Domain()->WindowHeight() + 1
+      ZEngine::Domain()->WindowWidth() - 1,
+      ZEngine::Domain()->WindowHeight() - 1
     );
     moved = true;
   }
