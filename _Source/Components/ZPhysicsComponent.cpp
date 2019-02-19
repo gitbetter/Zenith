@@ -9,12 +9,46 @@
 #include "ZEngine.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsComponent.hpp"
+#include "ZOFTree.hpp"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
   velocity_ = glm::vec3(0.f);
   angularVelocity_ = glm::vec3(0.f);
   forceAccumulator_ = glm::vec3(0.f);
   torqueAccumulator_ = glm::vec3(0.f);
+}
+
+void ZPhysicsComponent::Initialize(ZOFNode* root) {
+  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  if(node == nullptr) {
+    _Z("Could not initalize ZPhysicsComponent", ZERROR);
+    return;
+  }
+
+  for (ZOFPropertyNode* prop : node->properties) {
+    if (prop->values.size() > 0) {
+      if (prop->id == "velocity") {
+        ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
+        velocity_ = glm::vec3(terminal->value[0], terminal->value[1], terminal->value[2]);
+      } else if (prop->id == "angularVelocity") {
+        ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
+        angularVelocity_ = glm::vec3(terminal->value[0], terminal->value[1], terminal->value[2]);
+      } else if (prop->id == "damping") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        damping_ = terminal->value;
+      } else if (prop->id == "angularDamping") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        angularDamping_ = terminal->value;
+      } else if (prop->id == "mass") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        SetMass(terminal->value);
+      } else if (prop->id == "inertiaTensor") {
+        ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
+        glm::mat3 inertiaTensor = glm::make_mat3(&terminal->value[0]);
+        SetInertiaTensor(inertiaTensor);
+      }
+    }
+  }
 }
 
 void ZPhysicsComponent::Integrate() {

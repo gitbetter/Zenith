@@ -5,19 +5,22 @@ ZACT_01
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [0.2, 0.2, 0.2]:
 	PhysicsComponent
-		:velocity 0.0:
-		:angularVelocity 0.0:
+		:velocity [0.0, 0.0, 0.0]:
+		:angularVelocity [0.0, 0.0, 0.0]:
 		:damping 1.0:
 		:angularDamping 1.0:
 		:mass 5.0:
+		:inertiaTensor [1.5, 0.0, 0.0, 
+						0.0, 1.5, 0.0, 
+						0.0, 0.0, 1.5]:
 	-
 	GraphicsComponent
 		:activeShader 0:
 		:highlightColor [0.4, 0.5, 0.2]:
-		:highlightShader ZSHP_03:
+		:highlightShader ZSH_02:
 		:shaders [ZSH_01]:
 		:model Cube [0.2, 0.2, 0.2]:	# could be a string to a model path or predefined primitive like this cube
-		:textures [ZTEX_01, ZTEX_02]:
+		:textures []:
 	-
 -
 ZACT_02
@@ -25,36 +28,29 @@ ZACT_02
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [0.2, 0.2, 0.2]:
 	PhysicsComponent
-		:velocity 0.0:
-		:angularVelocity 0.0:
+		:velocity [0.0, 0.0, 0.0]:
+		:angularVelocity [0.0, 0.0, 0.0]:
 		:damping 1.0:
 		:angularDamping 1.0:
 		:mass 5.0:
+		:inertiaTensor [1.5, 0.0, 0.0, 
+						0.0, 1.5, 0.0, 
+						0.0, 0.0, 1.5]:
 	-
 	GraphicsComponent
 		:activeShader 0:
 		:highlightColor [0.4, 0.5, 0.2]:
-		:highlightShader ZSHP_03:
-		:shaders [ZSH_0]:
+		:highlightShader ZSH_02:
+		:shaders [ZSH_01]:
 		:model Cube [0.2, 0.2, 0.2]:	# could be a string to a model path or predefined primitive like this cube
-		:textures [ZTEX_01, ZTEX_02]:
+		:textures []:
 	-
 -
 ZSH_01
-	:vertex "some/path.vert":
-	:pixel "some/path.frag":
+	:vertex "Assets/Shaders/Vertex/basic.vert":
+	:pixel "Assets/Shaders/Pixel/basic.frag":
 -
 ZSH_02
-	:vertex "some/path.vert":
-	:pixel "some/path.frag":
--
-ZSH_03
-	:path "some/path.vert":
-	:path "some/highlight.frag":
--
-ZTEX_01
-	:path "some/texture1.png":
--
-ZTEX_02
-	:path "some/texture2.png":
+	:vertex "Assets/Shaders/Vertex/basic.vert":
+	:pixel "Assets/Shaders/Pixel/outline.frag":
 -

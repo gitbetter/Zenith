@@ -12,14 +12,51 @@
 #include "ZCameraComponent.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
+#include "ZOFTree.hpp"
 
-ZGraphicsComponent::ZGraphicsComponent(ZModel* model, ZShader* shader) : ZComponent() {
-  model_ = model;
+ZGraphicsComponent::ZGraphicsComponent() : ZComponent() {
   highlightColor_ = glm::vec4(0.f);
+}
+
+void ZGraphicsComponent::Initialize(ZModel* model, ZShader* shader) {
+  model_ = model;
 
   if (shader != nullptr) {
     shaders_.push_back(shader);
     ++activeShaderIndex_;
+  }
+}
+
+void ZGraphicsComponent::Initialize(ZOFNode* root) {
+  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  if(node == nullptr) {
+    _Z("Could not initalize ZGraphicsComponent", ZERROR);
+    return;
+  }
+
+  for (ZOFPropertyNode* prop : node->properties) {
+    if (prop->values.size() > 0) {
+      if (prop->id == "activeShader") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        activeShaderIndex_ = terminal->value;
+      } else if (prop->id == "highlightColor") {
+        ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
+        highlightColor_ = glm::vec4(terminal->value[0], terminal->value[1], terminal->value[2], 1.f);
+      } else if (prop->id == "highlightShader") {
+        ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+        // TODO: look through node->root->children for the given shader id and create it
+      } else if (prop->id == "shaders") {
+        ZOFStringList* terminal = dynamic_cast<ZOFStringList*>(prop->values[0]);
+        // TODO: look through node->root->children for the given shader ids and create them
+      } else if (prop->id == "model") {
+        ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+        // TODO: If the first value is a string literal (i.e. surrounded by "") then load the model at that path
+        // Otherwise create the given primitive. Set the scale to the second value.
+      } else if (prop->id == "textures") {
+        ZOFStringList* terminal = dynamic_cast<ZOFStringList*>(prop->values[0]);
+        // TODO: look through node->root->children for the given texture id and create it
+      }
+    }
   }
 }
 

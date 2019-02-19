@@ -42,7 +42,6 @@ int main(int argc, const char * argv[]) {
   ZOFTree* objectTree = parser.Parse("scene_example.zof");
   _Z(objectTree->ToString(), ZINFO);
 
-
   // Create a new game instance
   ZGame game;
 
@@ -105,10 +104,10 @@ int main(int argc, const char * argv[]) {
   ZActor cubeActor3(glm::vec3(-8.f, 4.f, -10.f));
 
   // ... and add graphics components to them, with the newly created models and shaders
-  ZGraphicsComponent groundGraphicsComp(ground, &shader);
-  ZGraphicsComponent cubeGraphicsComp1(cube1, &shader);
-  ZGraphicsComponent cubeGraphicsComp2(cube2, &shader);
-  ZGraphicsComponent cubeGraphicsComp3(cube3, &shader);
+  ZGraphicsComponent groundGraphicsComp; groundGraphicsComp.Initialize(ground, &shader);
+  ZGraphicsComponent cubeGraphicsComp1; cubeGraphicsComp1.Initialize(cube1, &shader);
+  ZGraphicsComponent cubeGraphicsComp2; cubeGraphicsComp2.Initialize(cube2, &shader);
+  ZGraphicsComponent cubeGraphicsComp3; cubeGraphicsComp3.Initialize(cube3, &shader);
 
   cubeGraphicsComp1.SetOutline();
 
@@ -131,12 +130,6 @@ int main(int argc, const char * argv[]) {
   ZGravityForce gravity(glm::vec3(0.f, -25.f, 0.f));
   physics.Registry()->Add(&cubeActor2, &gravity);
 
-  // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
-  // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
-  // culled properly.
-  // TODO: Maintain the skybox at the end of the game objects list internally
-  game.SetDefaultSkybox();
-
   // Now add some lights, because it's dark in here.
   game.AddGameObjects({new ZLight(ZLightType::Directional)});
 
@@ -156,6 +149,12 @@ int main(int argc, const char * argv[]) {
   uiText.Translate(glm::vec2(0.012f, 0.f));
 
   ui.AddElements({&uiButton});
+
+  // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
+  // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
+  // culled properly.
+  // TODO: Maintain the skybox at the end of the game objects list internally
+  game.SetDefaultSkybox();
 
   // Enable our UI cursor
   ui.EnableCursor();

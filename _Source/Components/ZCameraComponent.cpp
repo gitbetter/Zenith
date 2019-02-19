@@ -10,6 +10,7 @@
 #include "ZCommon.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsComponent.hpp"
+#include "ZOFTree.hpp"
 
 void ZCameraComponent::UpdateCameraOrientation() {
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
@@ -18,6 +19,47 @@ void ZCameraComponent::UpdateCameraOrientation() {
     pitch_ = glm::quat(pitchVelocity_ * ZEngine::UPDATE_STEP_SIZE);
     yaw_ = glm::quat(yawVelocity_ * ZEngine::UPDATE_STEP_SIZE);
     object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
+  }
+}
+
+void ZCameraComponent::Initialize(ZOFNode* root) {
+  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  if(node == nullptr) {
+    _Z("Could not initalize ZCameraComponent", ZERROR);
+    return;
+  }
+
+  for (ZOFPropertyNode* prop : node->properties) {
+    if (prop->values.size() > 0) {
+      if (prop->id == "speed") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        movementSpeed_ = terminal->value;
+      } else if (prop->id == "sensitivity") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        lookSensitivity_ = terminal->value;
+      } else if (prop->id == "zoom") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        zoom_ = terminal->value;
+      } else if (prop->id == "zoomSpeed") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        zoomSpeed_ = terminal->value;
+      } else if (prop->id == "nearPlane") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        nearClippingPlane_ = terminal->value;
+      } else if (prop->id == "farPlane") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        farClippingPlane_ = terminal->value;
+      } else if (prop->id == "type") {
+        ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+        cameraType_ = terminal->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
+      } else if (prop->id == "movementStyle") {
+        ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+        movementStyle_ = terminal->value == "Follow" ? ZCameraMovementStyle::Follow : ZCameraMovementStyle::Normal;
+      } else if (prop->id == "damping") {
+        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+        cameraDamping_ = terminal->value;
+      }
+    }
   }
 }
 

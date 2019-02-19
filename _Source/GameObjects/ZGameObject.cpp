@@ -11,6 +11,7 @@
 #include "ZCommon.hpp"
 #include "ZIDSequence.hpp"
 #include "ZCameraComponent.hpp"
+#include "ZOFTree.hpp"
 
 ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
 : position_(glm::vec4(position, 1.f)),
@@ -19,6 +20,29 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
   modelMatrix_(glm::mat4(1.f)),
   translatesWithView_(false) {
   id_ = "ZGO_" + ZEngine::IDSequence()->Next();
+  CalculateModelMatrix();
+}
+
+void ZGameObject::Initialize(ZOFNode* root) {
+  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  if(node == nullptr) {
+    _Z("Could not initalize ZGameObject", ZERROR);
+    return;
+  }
+
+  for (ZOFPropertyNode* prop : node->properties) {
+    if (prop->values.size() > 0) {
+      ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
+      if (prop->id == "position") {
+        position_ = glm::vec4(terminal->value[0], terminal->value[1], terminal->value[2], 1.f);
+      } else if (prop->id == "orientation") {
+        orientation_ = glm::quat(glm::vec3(terminal->value[0], terminal->value[1], terminal->value[2]));
+      } else if (prop->id == "scale") {
+        scale_ = glm::vec3(terminal->value[0], terminal->value[1], terminal->value[2]);
+      }
+    }
+  }
+
   CalculateModelMatrix();
 }
 

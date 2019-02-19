@@ -14,6 +14,7 @@
 
 // Forward Declarations
 class ZPhysicsComponent;
+struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZCameraComponent : public ZComponent {
@@ -26,10 +27,10 @@ private:
   float farClippingPlane_ = 1000.0f;
   ZCameraType cameraType_;
   ZCameraMovementStyle movementStyle_;
+  float cameraDamping_ = 0.02f;
 
   glm::vec3 pitchVelocity_, yawVelocity_;
   glm::quat pitch_, yaw_;
-  float cameraDamping_ = 0.02f;
 
   ZPhysicsComponent* AddPhysicsComponentIfNeeded();
 
@@ -44,6 +45,8 @@ public:
     yawVelocity_ = glm::vec3(0.f);
   }
   ~ZCameraComponent() { }
+
+  void Initialize(ZOFNode* root) override;
 
   void UpdateCameraOrientation();
 

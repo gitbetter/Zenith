@@ -15,6 +15,7 @@
 
 // Forward Declarations
 class ZGameObject;
+struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZComponent : public ZObject {
@@ -25,6 +26,8 @@ public:
     id_ = "ZC_" + ZEngine::IDSequence()->Next();
   }
   virtual ~ZComponent() { }
+
+  virtual void Initialize(ZOFNode* root) = 0;
 
   ZGameObject* Object() { return object_; }
 

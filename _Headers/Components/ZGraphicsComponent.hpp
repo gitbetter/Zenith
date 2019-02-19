@@ -16,6 +16,7 @@
 // Forward Declarations
 class ZModel;
 class ZGameObject;
+struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZGraphicsComponent : public ZComponent {
@@ -26,8 +27,11 @@ private:
   void DrawOutlineIfEnabled();
 
 public:
-  ZGraphicsComponent(ZModel* model, ZShader* shader);
+  ZGraphicsComponent();
   ~ZGraphicsComponent() { }
+
+  void Initialize(ZOFNode* root) override;
+  void Initialize(ZModel* model, ZShader* shader);
 
   void Update(const std::map<std::string, ZLight*>& gameLights, ZGameObject* camera, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
   ZShader* GetActiveShader() const { return shaders_[activeShaderIndex_]; }

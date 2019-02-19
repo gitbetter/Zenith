@@ -11,7 +11,7 @@
 ZOFTree* ZOFParser::Parse(std::string zofFile) {
   ZOFTree* parseTree = new ZOFTree;
   if (!zofFile.empty()) {
-    zof_.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    zof_.exceptions(std::ifstream::failbit);
     try {
       zof_.open(zofFile);
 
@@ -30,7 +30,7 @@ std::string ZOFParser::Scan() {
   std::string specialCharacters("-,:[]");
   std::string token;
   char c;
-  while(!zof_.eof() && zof_.get(c)) {
+  while(zof_ >> c) {
     // Strip initial whitespace
     if (whitepace.find(c) != std::string::npos) continue;
     // Ignore comments
@@ -82,11 +82,11 @@ void ZOFParser::Object(ZOFNode* node) {
     ZOFObjectNode* objectNode = new ZOFObjectNode;
     objectNode->id = currentToken_;
     objectNode->root = node;
-    node->children.push_back(objectNode);
+    node->children[objectNode->id] = objectNode;
 
     Match(id_); PropsList(objectNode); Match("-");
   } else {
-    HandleParseError(node->root);
+    HandleParseError(node);
   }
 }
 
@@ -125,7 +125,7 @@ void ZOFParser::Value(ZOFPropertyNode* prop) {
     Match("["); List(prop); Match("]");
   } else if (std::regex_match(currentToken_, id_)) {
     // Push a new string onto the prop
-    ZOFValueTerminal<std::string>* terminal = new ZOFValueTerminal<std::string>();
+    ZOFString* terminal = new ZOFString;
     terminal->value = currentToken_;
     terminal->root = prop->root;
     prop->values.push_back(terminal);
@@ -133,7 +133,7 @@ void ZOFParser::Value(ZOFPropertyNode* prop) {
     Match(id_);
   } else if (std::regex_match(currentToken_, number_)) {
     // Push a new float onto the prop
-    ZOFValueTerminal<float>* terminal = new ZOFValueTerminal<float>();
+    ZOFNumber* terminal = new ZOFNumber;
     terminal->value = std::stof(currentToken_);
     terminal->root = prop->root;
     prop->values.push_back(terminal);
@@ -145,24 +145,26 @@ void ZOFParser::Value(ZOFPropertyNode* prop) {
 }
 
 void ZOFParser::List(ZOFPropertyNode* prop) {
-  if (std::regex_match(currentToken_, id_)) {
-    // Push a new list of strings onto the list
-    ZOFValueTerminal<std::vector<std::string>>* terminal = new ZOFValueTerminal<std::vector<std::string>>();
-    terminal->value.push_back(currentToken_);
-    terminal->root = prop->root;
-    prop->values.push_back(terminal);
+  if (currentToken_ != "" && currentToken_ != "]") {
+    if (std::regex_match(currentToken_, id_)) {
+      // Push a new list of strings onto the list
+      ZOFStringList* terminal = new ZOFStringList;
+      terminal->value.push_back(currentToken_);
+      terminal->root = prop->root;
+      prop->values.push_back(terminal);
 
-    Match(id_); ListTail(terminal);
-  } else if (std::regex_match(currentToken_, number_)) {
-    // Push a new list of floats onto the list
-    ZOFValueTerminal<std::vector<float>>* terminal = new ZOFValueTerminal<std::vector<float>>();
-    terminal->value.push_back(std::stof(currentToken_));
-    terminal->root = prop->root;
-    prop->values.push_back(terminal);
+      Match(id_); ListTail(terminal);
+    } else if (std::regex_match(currentToken_, number_)) {
+      // Push a new list of floats onto the list
+      ZOFNumberList* terminal = new ZOFNumberList;
+      terminal->value.push_back(std::stof(currentToken_));
+      terminal->root = prop->root;
+      prop->values.push_back(terminal);
 
-    Match(number_); ListTail(terminal);
-  } else {
-    HandleParseError(prop->root);
+      Match(number_); ListTail(terminal);
+    } else {
+      HandleParseError(prop->root);
+    }
   }
 }
 
@@ -172,14 +174,14 @@ void ZOFParser::ListTail(ZOFAbstractTerminal* terminal) {
       Match(","); ListTail(terminal);
     } else if (std::regex_match(currentToken_, id_)) {
       // Push a new string onto the list of strings
-      ZOFValueTerminal<std::vector<std::string>>* term = dynamic_cast<ZOFValueTerminal<std::vector<std::string>>*>(terminal);
+      ZOFStringList* term = dynamic_cast<ZOFStringList*>(terminal);
       if (term != nullptr)
         term->value.push_back(currentToken_);
 
       Match(id_), ListTail(term);
     } else if (std::regex_match(currentToken_, number_)) {
       // Push a new float onto the list of floats
-      ZOFValueTerminal<std::vector<float>>* term = dynamic_cast<ZOFValueTerminal<std::vector<float>>*>(terminal);
+      ZOFNumberList* term = dynamic_cast<ZOFNumberList*>(terminal);
       if (term != nullptr)
         term->value.push_back(std::stof(currentToken_));
 

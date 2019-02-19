@@ -13,7 +13,7 @@
 #include "ZComponent.hpp"
 
 // Forward Declarations
-// class SomeClass;
+struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZPhysicsComponent : public ZComponent {
@@ -27,6 +27,8 @@ private:
 public:
   ZPhysicsComponent();
   ~ZPhysicsComponent() { }
+
+  void Initialize(ZOFNode* root) override;
 
   void Integrate();
   void ClearForceAccumulator();

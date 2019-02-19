@@ -12,14 +12,16 @@
 #include "ZEngine.hpp"
 #include "ZObject.hpp"
 #include "ZGraphicsComponent.hpp"
-#include <type_traits>
 
 // Forward Declarations
 class ZGame;
+class ZGOFactory;
+struct ZOFNode;
 
 // Class Definitions
 class ZGameObject : public ZObject {
   friend class ZGame;
+  friend class ZGOFactory;
 
 private:
   void CalculateTangentBasis();
@@ -27,6 +29,8 @@ private:
 public:
   ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
   virtual ~ZGameObject() { }
+
+  void Initialize(ZOFNode* root);
 
   virtual void Update();
   virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) { }
