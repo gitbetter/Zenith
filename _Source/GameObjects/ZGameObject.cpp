@@ -6,8 +6,9 @@
 //  Copyright © 2019 Adrian Sanchez. All rights reserved.
 //
 
-#include "ZEngine.hpp"
 #include "ZGameObject.hpp"
+#include "ZEngine.hpp"
+#include "ZGame.hpp"
 #include "ZCommon.hpp"
 #include "ZIDSequence.hpp"
 #include "ZCameraComponent.hpp"
@@ -50,6 +51,15 @@ void ZGameObject::Update() {
   ZCameraComponent* cameraComp = FindComponent<ZCameraComponent>();
   if (cameraComp != nullptr) {
     cameraComp->UpdateCameraOrientation();
+  }
+}
+
+void ZGameObject::Render(float frameMix, unsigned char renderOp) {
+  ZGraphicsComponent* graphicsComp = FindComponent<ZGraphicsComponent>();
+  if (graphicsComp != nullptr) {
+    ZGameObject* camera = game_->GetActiveCamera();
+    const std::map<std::string, ZLight*>& gameLights = game_->GetGameLights();
+    graphicsComp->Update(gameLights, camera, frameMix, renderOp);
   }
 }
 

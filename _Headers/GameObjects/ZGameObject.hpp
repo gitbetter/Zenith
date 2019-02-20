@@ -33,7 +33,7 @@ public:
   void Initialize(ZOFNode* root);
 
   virtual void Update();
-  virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) { }
+  virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
 
   void ShouldTranslateWithView(bool translates);
   void CalculateModelMatrix();

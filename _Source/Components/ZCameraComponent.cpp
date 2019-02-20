@@ -54,6 +54,7 @@ void ZCameraComponent::Initialize(ZOFNode* root) {
     } else if (prop->id == "type") {
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
       cameraType_ = terminal->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
+      zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
     } else if (prop->id == "movementStyle") {
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
       movementStyle_ = terminal->value == "Follow" ? ZCameraMovementStyle::Follow : ZCameraMovementStyle::Normal;

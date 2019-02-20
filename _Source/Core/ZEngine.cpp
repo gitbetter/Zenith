@@ -137,6 +137,8 @@ ZGameObjectMap ZEngine::LoadZOF(std::string zofPath) {
     graphicsFactory_ = new ZGraphicsFactory;
   }
 
+  // TODO: ZOFTree should have append functionality so that different
+  // ZOFTrees can be combined (by combining children into a single tree)
   ZOFParser parser;
   ZOFTree* objectTree = parser.Parse(zofPath);
 

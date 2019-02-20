@@ -79,7 +79,6 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
         }
       }
     }
-
   }
 }
 

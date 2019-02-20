@@ -11,7 +11,6 @@
 #include "ZDomain.hpp"
 #include "ZGLInput.hpp"
 
-#include "ZActor.hpp"
 #include "ZCameraComponent.hpp"
 
 #include "ZGraphics.hpp"
@@ -35,6 +34,7 @@
 
 #include "ZOFParser.hpp"
 
+// TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
   // Create a new game instance
   ZGame game;
@@ -57,15 +57,6 @@ int main(int argc, const char * argv[]) {
   ZEngine::Provide(physics);
   // TODO: Create the audio subsystem and provide it to the engine
 
-  // Parse the ZOF file and create the resources
-  ZGameObjectMap gameObjects = ZEngine::LoadZOF("scene_example.zof");
-  for (ZGameObjectMap::iterator it = gameObjects.begin(); it != gameObjects.end(); it++) {
-    game.AddGameObject(it->second);
-  }
-
-  // TODO: ZOFTree should have append functionality so that different
-  // ZOFTrees can be combined (by combining children into a single tree)
-
   // Ater providing a UI subsystem, we can now register fonts
   // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
   ui.RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
@@ -73,47 +64,33 @@ int main(int argc, const char * argv[]) {
   // Register the main game object so it receives input events
   input.Register(&game);
 
-  // Let's add a camera to the game
-  ZGameObject camera(glm::vec3(-5.f, 10.f, 25.f));
-  ZCameraComponent cameraComponent(ZCameraType::Perspective);
-  cameraComponent.SetMovementStyle(ZCameraMovementStyle::Follow);
-  camera.AddComponent(&cameraComponent);
+  // Parse the ZOF file and create the resources
+  ZGameObjectMap gameObjects = ZEngine::LoadZOF("scene_example.zof");
+  for (ZGameObjectMap::iterator it = gameObjects.begin(); it != gameObjects.end(); it++) {
+    game.AddGameObject(it->second);
+  }
 
-  game.AddGameObject(&camera);
+  // Let's add a camera to the game
+  // ZGameObject camera(glm::vec3(-5.f, 10.f, 25.f));
+  // ZCameraComponent cameraComponent(ZCameraType::Perspective);
+  // cameraComponent.SetMovementStyle(ZCameraMovementStyle::Follow);
+  // camera.AddComponent(&cameraComponent);
+  //
+  // game.AddGameObject(&camera);
 
   // Register the camera component so it receives input events
-  input.Register(&cameraComponent);
+  ZGameObject* activeCamera = game.GetActiveCamera();
+  if (activeCamera != nullptr) input.Register(activeCamera->FindComponent<ZCameraComponent>());
 
   // Create our primary shader
   ZShader shader;
   shader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/basic.frag");
 
-  // // Now let's add some renderable game objects to test
-  // // TODO: How can we identify model meshes and add materials to them independently?
   ZModel* ground = ZModel::NewPlanePrimitive(glm::vec3(100.f, 0.f, 100.f));
-  // ZModel* cube1 = ZModel::NewCubePrimitive(glm::vec3(3.f));
-  // ZModel* cube2 = ZModel::NewCubePrimitive(glm::vec3(2.f));
-  // ZModel* cube3 = ZModel::NewCubePrimitive(glm::vec3(4.f));
-  //
-  ZActor groundActor;
-  // ZActor cubeActor1(glm::vec3(0.f, 3.f, 0.f));
-  // ZActor cubeActor2(glm::vec3(-10.f, 20.f, 5.f));
-  // ZActor cubeActor3(glm::vec3(-8.f, 4.f, -10.f));
-  //
-  // // ... and add graphics components to them, with the newly created models and shaders
+  ZGameObject groundActor;
   ZGraphicsComponent groundGraphicsComp; groundGraphicsComp.Initialize(ground, &shader);
-  // ZGraphicsComponent cubeGraphicsComp1; cubeGraphicsComp1.Initialize(cube1, &shader);
-  // ZGraphicsComponent cubeGraphicsComp2; cubeGraphicsComp2.Initialize(cube2, &shader);
-  // ZGraphicsComponent cubeGraphicsComp3; cubeGraphicsComp3.Initialize(cube3, &shader);
-  //
-  // cubeGraphicsComp1.SetOutline();
-  //
   groundActor.AddComponent(&groundGraphicsComp);
-  // cubeActor1.AddComponent(&cubeGraphicsComp1);
-  // cubeActor2.AddComponent(&cubeGraphicsComp2);
-  // cubeActor3.AddComponent(&cubeGraphicsComp3);
-  //
-  game.AddGameObjects({/*&cubeActor1, &cubeActor2, &cubeActor3, */&groundActor});
+  game.AddGameObjects({&groundActor});
   //
   // // Let's add some physics to some of the cubes
   // ZPhysicsComponent physicsComp1;

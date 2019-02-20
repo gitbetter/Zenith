@@ -11,11 +11,11 @@
 #include "ZShader.hpp"
 
 ZGraphicsFactory::ZGraphicsFactory() {
-  modelCreators_["Cube"] = ZModel::NewCubePrimitive;
-  modelCreators_["Plane"] = ZModel::NewPlanePrimitive;
-  modelCreators_["Sphere"] = ZModel::NewSpherePrimitive;
-  modelCreators_["Cylinder"] = ZModel::NewCylinderPrimitive;
-  modelCreators_["Cone"] = ZModel::NewConePrimitive;
+  modelCreators_["Cube"] = &ZModel::NewCubePrimitive;
+  modelCreators_["Plane"] = &ZModel::NewPlanePrimitive;
+  modelCreators_["Sphere"] = &ZModel::NewSpherePrimitive;
+  modelCreators_["Cylinder"] = &ZModel::NewCylinderPrimitive;
+  modelCreators_["Cone"] = &ZModel::NewConePrimitive;
 }
 
 ZShaderMap ZGraphicsFactory::CreateShaders(ZOFTree* data) {
@@ -55,5 +55,5 @@ ZTextureMap ZGraphicsFactory::CreateTextures(ZOFTree* data) {
 }
 
 ZModel* ZGraphicsFactory::CreateModel(std::string type, glm::vec3 scale, std::vector<ZTexture> textures) {
-  modelCreators_[type](scale, textures);
+  return modelCreators_[type](scale, textures);
 }

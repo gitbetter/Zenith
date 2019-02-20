@@ -19,7 +19,7 @@ struct ZOFNode;
 // Class and Data Structure Definitions
 class ZCameraComponent : public ZComponent {
 private:
-  float movementSpeed_ = 10.f;
+  float movementSpeed_ = 25.f;
   float lookSensitivity_ = 0.1f;
   float zoom_ = 45.0f;
   float zoomSpeed_ = 5.0f;

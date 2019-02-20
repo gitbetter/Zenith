@@ -16,7 +16,6 @@
 #include "ZPhysics.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
-#include "ZActor.hpp"
 #include "ZCameraComponent.hpp"
 
 #include <chrono>
@@ -96,7 +95,7 @@ void ZGame::SetDefaultSkybox() {
   ZGraphicsComponent* skyboxGraphicsComponent = new ZGraphicsComponent;
   skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
-  ZActor* skyboxActor = new ZActor();
+  ZGameObject* skyboxActor = new ZGameObject();
   skyboxActor->AddComponent(skyboxGraphicsComponent);
   skyboxActor->ShouldTranslateWithView(false);
 

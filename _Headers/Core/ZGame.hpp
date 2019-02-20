@@ -13,7 +13,6 @@
 #include <initializer_list>
 
 // Forward Declarations
-class ZActor;
 struct ZLight;
 
 // Class and Data Structure Definitions
