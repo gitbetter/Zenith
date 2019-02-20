@@ -59,48 +59,22 @@ int main(int argc, const char * argv[]) {
 
   // Ater providing a UI subsystem, we can now register fonts
   // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
-  ui.RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
+  ZEngine::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
 
   // Register the main game object so it receives input events
   input.Register(&game);
 
   // Parse the ZOF file and create the resources
-  ZGameObjectMap gameObjects = ZEngine::LoadZOF("scene_example.zof");
+  ZGameObjectMap gameObjects = ZEngine::LoadZOF("basic_scene.zof");
   for (ZGameObjectMap::iterator it = gameObjects.begin(); it != gameObjects.end(); it++) {
     game.AddGameObject(it->second);
   }
-
-  // Let's add a camera to the game
-  // ZGameObject camera(glm::vec3(-5.f, 10.f, 25.f));
-  // ZCameraComponent cameraComponent(ZCameraType::Perspective);
-  // cameraComponent.SetMovementStyle(ZCameraMovementStyle::Follow);
-  // camera.AddComponent(&cameraComponent);
-  //
-  // game.AddGameObject(&camera);
 
   // Register the camera component so it receives input events
   ZGameObject* activeCamera = game.GetActiveCamera();
   if (activeCamera != nullptr) input.Register(activeCamera->FindComponent<ZCameraComponent>());
 
-  // Create our primary shader
-  ZShader shader;
-  shader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/basic.frag");
-
-  ZModel* ground = ZModel::NewPlanePrimitive(glm::vec3(100.f, 0.f, 100.f));
-  ZGameObject groundActor;
-  ZGraphicsComponent groundGraphicsComp; groundGraphicsComp.Initialize(ground, &shader);
-  groundActor.AddComponent(&groundGraphicsComp);
-  game.AddGameObjects({&groundActor});
-  //
-  // // Let's add some physics to some of the cubes
-  // ZPhysicsComponent physicsComp1;
-  // ZPhysicsComponent physicsComp2;
-  // physicsComp1.SetMass(2.f);
-  // physicsComp2.SetMass(2.f);
-  //
-  // cubeActor2.AddComponent(&physicsComp1);
-  // cubeActor3.AddComponent(&physicsComp2);
-  //
+  // // Let's add some physics to a cube
   // ZGravityForce gravity(glm::vec3(0.f, -25.f, 0.f));
   // physics.Registry()->Add(&cubeActor2, &gravity);
 
