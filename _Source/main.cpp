@@ -36,33 +36,21 @@
 
 // TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
+  // Initialize the engine before anything else
+  ZEngine::Initialize(1260, 800);
+
   // Create a new game instance
   ZGame game;
 
-  // TODO: Create the subsystems in a ZEngine::Initialize method
-  // Create a new domain and provide it to the engine
-  ZDomain domain(1260, 800);
-  ZEngine::Provide(domain);
-  // Create the graphics subsystem and provide it to the engine
-  ZGraphics graphics;
-  ZEngine::Provide(graphics);
-  // Create the input subsystem and provide it to the engine
-  ZGLInput input;
-  ZEngine::Provide(input);
-  // Create the UI subsystem and provide it to the engine
-  ZUI ui;
-  ZEngine::Provide(ui);
-  // Create the physics subsystem and provide it to the engine
-  ZPhysics physics;
-  ZEngine::Provide(physics);
-  // TODO: Create the audio subsystem and provide it to the engine
-
-  // Ater providing a UI subsystem, we can now register fonts
+  // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
   // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
   ZEngine::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
 
+  // Enable our UI cursor
+  ZEngine::UI()->EnableCursor();
+
   // Register the main game object so it receives input events
-  input.Register(&game);
+  ZEngine::Input()->Register(&game);
 
   // Parse the ZOF file and create the resources
   ZGameObjectMap gameObjects = ZEngine::LoadZOF("basic_scene.zof");
@@ -72,7 +60,8 @@ int main(int argc, const char * argv[]) {
 
   // Register the camera component so it receives input events
   ZGameObject* activeCamera = game.GetActiveCamera();
-  if (activeCamera != nullptr) input.Register(activeCamera->FindComponent<ZCameraComponent>());
+  if (activeCamera != nullptr)
+    ZEngine::Input()->Register(activeCamera->FindComponent<ZCameraComponent>());
 
   // // Let's add some physics to a cube
   // ZGravityForce gravity(glm::vec3(0.f, -25.f, 0.f));
@@ -96,16 +85,13 @@ int main(int argc, const char * argv[]) {
   uiButton.AddChild(&uiText);
   uiText.Translate(glm::vec2(0.012f, 0.f));
 
-  ui.AddElements({&uiButton});
+  ZEngine::UI()->AddElements({&uiButton});
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
   // culled properly.
   // TODO: Maintain the skybox at the end of the game objects list internally
   game.SetDefaultSkybox();
-
-  // Enable our UI cursor
-  ui.EnableCursor();
 
   // Create the game and start the main game loop. Nothing beyond this point will execute
   // for the duration of the game.

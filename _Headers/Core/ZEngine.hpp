@@ -49,6 +49,8 @@ public:
   static const glm::vec4 WORLD_UP;
   static const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP;
 
+  static void Initialize(int windowWidth, int windowHeight);
+
   static ZDomain* Domain();
   static ZGraphics* Graphics();
   static ZInput* Input();
@@ -62,11 +64,11 @@ public:
   static float DeltaTime();
   static float MilliSecondTime();
 
-  static void Provide(ZDomain& domain);
-  static void Provide(ZGraphics& graphics);
-  static void Provide(ZInput& input);
-  static void Provide(ZUI& ui);
-  static void Provide(ZPhysics& physics);
+  static void Provide(ZDomain* domain);
+  static void Provide(ZGraphics* graphics);
+  static void Provide(ZInput* input);
+  static void Provide(ZUI* ui);
+  static void Provide(ZPhysics* physics);
   // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
   static void SetDeltaTime(float deltaTime);
 

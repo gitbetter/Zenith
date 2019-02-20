@@ -46,7 +46,7 @@ void ZGame::RunGameLoop() {
     Render(lag / ZEngine::UPDATE_STEP_SIZE);
     ZEngine::Domain()->Strategy()->PollEvents();
 
-    //MacDisplayHack();
+    MacDisplayHack();
   }
 }
 

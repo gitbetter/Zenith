@@ -10,6 +10,7 @@
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
 #include "ZNullInput.hpp"
+#include "ZGLInput.hpp"
 #include "ZUI.hpp"
 #include "ZPhysics.hpp"
 #include "ZIDSequence.hpp"
@@ -41,6 +42,22 @@ ZGOFactory* ZEngine::gameObjectFactory_ = nullptr;
 ZGraphicsFactory* ZEngine::graphicsFactory_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 ZIDSequence* ZEngine::idGenerator_ = new ZIDSequence;
+
+void ZEngine::Initialize(int windowWidth, int windowHeight) {
+  domain_ = new ZDomain(windowWidth, windowHeight);
+  domain_->Initialize();
+
+  graphics_ = new ZGraphics;
+  graphics_->Initialize();
+
+  input_ = new ZGLInput;
+
+  ui_ = new ZUI;
+  ui_->Initialize();
+
+  physics_ = new ZPhysics;
+  physics_->Initialize();
+}
 
 ZDomain* ZEngine::Domain() {
   return domain_;
@@ -83,44 +100,44 @@ float ZEngine::MilliSecondTime() {
   return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0f;
 }
 
-void ZEngine::Provide(ZGraphics& graphics) {
+void ZEngine::Provide(ZGraphics* graphics) {
   if (graphics_ != nullptr) {
     delete graphics_;
   }
-  graphics_ = &graphics;
+  graphics_ = graphics;
   graphics_->Initialize();
 }
 
-void ZEngine::Provide(ZDomain& domain) {
+void ZEngine::Provide(ZDomain* domain) {
   if (domain_ != nullptr) {
     delete domain_;
   }
-  domain_ = &domain;
+  domain_ = domain;
   domain_->Initialize();
 }
 
-void ZEngine::Provide(ZInput& input) {
+void ZEngine::Provide(ZInput* input) {
   // If the provided input object is not null and the existing engine input object
   // is null, delete the existing one
-  if (!dynamic_cast<ZNullInput*>(&input) && dynamic_cast<ZNullInput*>(input_)) {
+  if (!dynamic_cast<ZNullInput*>(input) && dynamic_cast<ZNullInput*>(input_)) {
     delete input_;
   }
-  input_ = &input;
+  input_ = input;
 }
 
-void ZEngine::Provide(ZUI& ui) {
+void ZEngine::Provide(ZUI* ui) {
   if (ui_ != nullptr) {
     delete ui_;
   }
-  ui_ = &ui;
+  ui_ = ui;
   ui_->Initialize();
 }
 
-void ZEngine::Provide(ZPhysics& ui) {
+void ZEngine::Provide(ZPhysics* physics) {
   if (physics_ != nullptr) {
     delete physics_;
   }
-  physics_ = &ui;
+  physics_ = physics;
   physics_->Initialize();
 }
 
