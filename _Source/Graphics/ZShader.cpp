@@ -22,7 +22,7 @@
 // TODO: Make ZShader an interface, and rework this specific implementation as ZGLShader
 // which derives from the ZShader interface
 
-ZShader::ZShader(const std::string& vShaderPath, const std::string& pShaderPath, const std::string& gShaderPath) {
+void ZShader::Initialize(const std::string& vShaderPath, const std::string& pShaderPath, const std::string& gShaderPath) {
   // Get the shader sources
   std::string vShaderCode = GetShaderCode(vShaderPath);
   std::string pShaderCode = GetShaderCode(pShaderPath);

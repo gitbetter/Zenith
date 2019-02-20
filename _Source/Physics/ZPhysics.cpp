@@ -17,7 +17,7 @@ void ZPhysics::Initialize() {
   }
 }
 
-void ZPhysics::Update(std::map<std::string, ZGameObject*> gameObjects) {
+void ZPhysics::Update(ZGameObjectMap gameObjects) {
   registry_->UpdateForces();
   for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
     ZPhysicsComponent* physicsComp = it->second->FindComponent<ZPhysicsComponent>();

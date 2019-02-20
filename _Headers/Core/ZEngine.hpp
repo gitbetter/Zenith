@@ -24,6 +24,8 @@ class ZDomain;
 class ZUI;
 class ZPhysics;
 class ZIDSequence;
+class ZGOFactory;
+class ZGraphicsFactory;
 
 // Class Definitions
 class ZEngine {
@@ -33,6 +35,10 @@ private:
   static ZInput* input_;
   static ZUI* ui_;
   static ZPhysics* physics_;
+
+  static ZGOFactory* gameObjectFactory_;
+  static ZGraphicsFactory* graphicsFactory_;
+
   static float deltaTime_;
   static ZIDSequence* idGenerator_;
 
@@ -49,6 +55,10 @@ public:
   static ZUI* UI();
   static ZPhysics* Physics();
   static ZIDSequence* IDSequence();
+
+  static ZGOFactory* GameObjectFactory();
+  static ZGraphicsFactory* GraphicsFactory();
+
   static float DeltaTime();
   static float MilliSecondTime();
 
@@ -59,6 +69,8 @@ public:
   static void Provide(ZPhysics& physics);
   // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
   static void SetDeltaTime(float deltaTime);
+
+  static ZGameObjectMap LoadZOF(std::string zofPath);
 
   static void CleanUp();
 protected:

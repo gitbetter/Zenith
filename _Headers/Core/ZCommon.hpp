@@ -13,6 +13,7 @@
 #define ZWARNING 1
 #define ZERROR 2
 
+#include "ZOFTree.hpp"
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -42,11 +43,16 @@
   }\
 }
 
+class ZGameObject;
+class ZShader;
+
+typedef std::function<void()> ZEventCallback;
+typedef std::map<std::string, ZGameObject*> ZGameObjectMap;
+typedef std::map<std::string, ZShader*> ZShaderMap;
+
 enum ZEventType {
   FirePress
 };
-
-typedef std::function<void()> ZEventCallback;
 
 enum ZCameraType {
   Orthographic, Perspective

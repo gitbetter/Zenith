@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include "ZOFTree.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZGameObject;
@@ -23,7 +23,7 @@ public:
   ZGOFactory();
   ~ZGOFactory() { }
 
-  std::map<std::string, ZGameObject*> Create(ZOFTree* data);
+  ZGameObjectMap Create(ZOFTree* data);
 
   ZComponent* CreateGraphicsComponent();
   ZComponent* CreateCameraComponent();

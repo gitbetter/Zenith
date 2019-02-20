@@ -10,8 +10,6 @@
 
 // Includes
 #include "ZCommon.hpp"
-#include <vector>
-#include <glm/glm.hpp>
 
 // Forward Declarations
 class ZGameObject;
@@ -21,10 +19,12 @@ class ZGraphicsStrategy;
 struct ZLight;
 
 // Class and Data Structure Definitions
+typedef std::map<std::string, ZTexture> ZTextureMap;
+
 class ZGraphics {
 private:
-  void Render(const std::map<std::string, ZGameObject*>& gameObjects, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
-  void DrawShadowMap(const std::map<std::string, ZGameObject*>& gameObjects, ZLight* light, float frameMix = 0.0);
+  void Render(const ZGameObjectMap& gameObjects, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
+  void DrawShadowMap(const ZGameObjectMap& gameObjects, ZLight* light, float frameMix = 0.0);
 
 public:
   static unsigned char RENDER_OP_COLOR;
@@ -35,15 +35,20 @@ public:
 
   void Initialize();
 
-  void Draw(const std::map<std::string, ZGameObject*>& gameObjects, const std::map<std::string, ZLight*>& gameLights, float frameMix = 0.0);
+  void Draw(const ZGameObjectMap& gameObjects, const std::map<std::string, ZLight*>& gameLights, float frameMix = 0.0);
 
+  ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
   unsigned int DepthFrameBuffer() { return depthFramebuffer_; }
   ZTexture DepthMap() { return depthMap_; };
   ZShader* ShadowShader() { return shadowShader_; }
+  ZTextureMap& Textures() { return loadedTextures_; }
+  ZShaderMap& Shaders() { return loadedShaders_; }
 
   void SetStrategy(ZGraphicsStrategy* strategy) { graphicsStrategy_ = strategy; }
-  ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
+
+  void AddShader(std::string id, ZShader* shader);
+  void AddTexture(std::string id, ZTexture texture);
 
   void CleanUp();
 
@@ -53,4 +58,6 @@ protected:
   unsigned int depthFramebuffer_;
   ZTexture depthMap_;
   glm::mat4 currentLightSpaceMatrix_;
+  ZShaderMap loadedShaders_;
+  ZTextureMap loadedTextures_;
 };

@@ -1,9 +1,9 @@
 # scene_example.zof
 
-ZACT_01
-	:position [1.0, 2.0, 5.0]:
+ZGO_01
+	:position [0.0, 4.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [0.2, 0.2, 0.2]:
+	:scale [4.0, 4.0, 4.0]:
 	PhysicsComponent
 		:velocity [0.0, 0.0, 0.0]:
 		:angularVelocity [0.0, 0.0, 0.0]:
@@ -13,20 +13,20 @@ ZACT_01
 		:inertiaTensor [1.5, 0.0, 0.0, 
 						0.0, 1.5, 0.0, 
 						0.0, 0.0, 1.5]:
-	-
+	^
 	GraphicsComponent
 		:activeShader 0:
 		:highlightColor [0.4, 0.5, 0.2]:
 		:highlightShader ZSH_02:
 		:shaders [ZSH_01]:
-		:model Cube [0.2, 0.2, 0.2]:	# could be a string to a model path or predefined primitive like this cube
+		:model Cube:	# could include a string to a model path or predefined primitive like this cube
 		:textures []:
-	-
--
-ZACT_02
-	:position [2.0, 4.0, 2.0]:
+	^
+^
+ZGO_02
+	:position [-10.0, 5.0, 5.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [0.2, 0.2, 0.2]:
+	:scale [3.0, 3.0, 3.0]:
 	PhysicsComponent
 		:velocity [0.0, 0.0, 0.0]:
 		:angularVelocity [0.0, 0.0, 0.0]:
@@ -36,21 +36,21 @@ ZACT_02
 		:inertiaTensor [1.5, 0.0, 0.0, 
 						0.0, 1.5, 0.0, 
 						0.0, 0.0, 1.5]:
-	-
+	^
 	GraphicsComponent
 		:activeShader 0:
 		:highlightColor [0.4, 0.5, 0.2]:
 		:highlightShader ZSH_02:
 		:shaders [ZSH_01]:
-		:model Cube [0.2, 0.2, 0.2]:	# could be a string to a model path or predefined primitive like this cube
+		:model Cube [0.5, 0.5, 0.5]:	# could be a string to a model path or predefined primitive like this cube
 		:textures []:
-	-
--
+	^
+^
 ZSH_01
 	:vertex "Assets/Shaders/Vertex/basic.vert":
 	:pixel "Assets/Shaders/Pixel/basic.frag":
--
+^
 ZSH_02
 	:vertex "Assets/Shaders/Vertex/basic.vert":
 	:pixel "Assets/Shaders/Pixel/outline.frag":
--
+^

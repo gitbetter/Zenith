@@ -18,8 +18,8 @@ ZGOFactory::ZGOFactory() {
   componentCreators_["PhysicsComponent"] = &ZGOFactory::CreatePhysicsComponent;
 }
 
-std::map<std::string, ZGameObject*> ZGOFactory::Create(ZOFTree* data) {
-  std::map<std::string, ZGameObject*> gameObjects;
+ZGameObjectMap ZGOFactory::Create(ZOFTree* data) {
+  ZGameObjectMap gameObjects;
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     ZOFNode* node = it->second;
     if (node->id.find("ZGO") == 0) {

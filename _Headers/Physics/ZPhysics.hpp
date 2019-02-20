@@ -24,7 +24,7 @@ public:
 
   void Initialize();
 
-  void Update(std::map<std::string, ZGameObject*> gameObjects);
+  void Update(ZGameObjectMap gameObjects);
 
   void CleanUp() { }
 

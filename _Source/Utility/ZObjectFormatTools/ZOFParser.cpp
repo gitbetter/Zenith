@@ -27,7 +27,7 @@ ZOFTree* ZOFParser::Parse(std::string zofFile) {
 
 std::string ZOFParser::Scan() {
   std::string whitepace("\n\t ");
-  std::string specialCharacters("-,:[]");
+  std::string specialCharacters("^,:[]");
   std::string token;
   char c;
   while(zof_ >> c) {
@@ -84,14 +84,14 @@ void ZOFParser::Object(ZOFNode* node) {
     objectNode->root = node;
     node->children[objectNode->id] = objectNode;
 
-    Match(id_); PropsList(objectNode); Match("-");
+    Match(id_); PropsList(objectNode); Match("^");
   } else {
     HandleParseError(node);
   }
 }
 
 void ZOFParser::PropsList(ZOFObjectNode* node) {
-  if (currentToken_ != "" && currentToken_ != "-") {
+  if (currentToken_ != "" && currentToken_ != "^") {
     if (currentToken_ == ":") {
       Match(":"); Prop(node); PropsList(node);
     } else {

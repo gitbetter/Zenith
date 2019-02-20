@@ -28,7 +28,7 @@ void ZGraphics::Initialize() {
   }
 }
 
-void ZGraphics::Draw(const std::map<std::string, ZGameObject*>& gameObjects, const std::map<std::string, ZLight*>& gameLights, float frameMix) {
+void ZGraphics::Draw(const ZGameObjectMap& gameObjects, const std::map<std::string, ZLight*>& gameLights, float frameMix) {
   if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
     graphicsStrategy_->ClearViewport();
 
@@ -41,17 +41,18 @@ void ZGraphics::Draw(const std::map<std::string, ZGameObject*>& gameObjects, con
   }
 }
 
-void ZGraphics::Render(const std::map<std::string, ZGameObject*>& gameObjects, float frameMix, unsigned char renderOp) {
+void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, unsigned char renderOp) {
   for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
     it->second->Render(frameMix, renderOp);
   }
 }
 
-void ZGraphics::DrawShadowMap(const std::map<std::string, ZGameObject*>& gameObjects, ZLight* light, float frameMix) {
+void ZGraphics::DrawShadowMap(const ZGameObjectMap& gameObjects, ZLight* light, float frameMix) {
   graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
 
   if (shadowShader_ == nullptr) {
-    shadowShader_ = new ZShader("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
+    shadowShader_ = new ZShader;
+    shadowShader_->Initialize("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
     shadowShader_->SetInt("shadowMap", 0);
   }
   shadowShader_->Activate();
@@ -68,6 +69,14 @@ void ZGraphics::DrawShadowMap(const std::map<std::string, ZGameObject*>& gameObj
   Render(gameObjects, frameMix, ZGraphics::RENDER_OP_SHADOW);
 
   graphicsStrategy_->UnbindDepthMapBuffer();
+}
+
+void ZGraphics::AddShader(std::string id, ZShader* shader) {
+  if (shader != nullptr) loadedShaders_[id] = shader;
+}
+
+void ZGraphics::AddTexture(std::string id, ZTexture texture) {
+  loadedTextures_[id] = texture;
 }
 
 void ZGraphics::CleanUp() {

@@ -22,7 +22,8 @@ void ZUI::Initialize() {
   }
 
   if (uiShader_ == nullptr) {
-    uiShader_ = new ZShader("Assets/Shaders/Vertex/ui.vert", "Assets/Shaders/Pixel/ui.frag");
+    uiShader_ = new ZShader;
+    uiShader_->Initialize("Assets/Shaders/Vertex/ui.vert", "Assets/Shaders/Pixel/ui.frag");
   }
 
   if(textStrategy_ == nullptr) {
@@ -31,7 +32,8 @@ void ZUI::Initialize() {
   }
 
   if (textShader_ == nullptr) {
-    textShader_ = new ZShader("Assets/Shaders/Vertex/text.vert", "Assets/Shaders/Pixel/text.frag");
+    textShader_ = new ZShader;
+    textShader_->Initialize("Assets/Shaders/Vertex/text.vert", "Assets/Shaders/Pixel/text.frag");
   }
 }
 

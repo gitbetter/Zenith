@@ -19,7 +19,7 @@ struct ZLight;
 // Class and Data Structure Definitions
 class ZGame : public ZObject {
 private:
-  std::map<std::string, ZGameObject*> gameObjects_;
+  ZGameObjectMap gameObjects_;
   std::map<std::string, ZLight*> gameLights_;
   std::string activeCameraObject_;
 

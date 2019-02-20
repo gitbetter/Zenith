@@ -26,8 +26,10 @@ private:
   void CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shaderType);
 
 public:
-  ZShader(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "");
+  ZShader() { }
   ~ZShader() { }
+
+  void Initialize(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "");
 
   void Activate();
   unsigned int GetID() const { return id_; }

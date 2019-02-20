@@ -21,8 +21,8 @@ class ZOFParser {
 private:
   std::string currentToken_;
   std::ifstream zof_;
-  std::regex id_ = std::regex("[^\\d]\\S*");
-  std::regex number_ = std::regex("\\d+\\.?\\d*");
+  std::regex id_ = std::regex("[^\\-\\d]\\S*");
+  std::regex number_ = std::regex("-?\\d+\\.?\\d*");
 
   std::string Scan();
   void Match(std::string);

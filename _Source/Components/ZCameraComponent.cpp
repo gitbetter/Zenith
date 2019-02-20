@@ -22,6 +22,7 @@ void ZCameraComponent::UpdateCameraOrientation() {
   }
 }
 
+// TODO: These initalize functions can get pretty hectic. Maybe there's a better way...
 void ZCameraComponent::Initialize(ZOFNode* root) {
   ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
   if(node == nullptr) {
@@ -30,35 +31,35 @@ void ZCameraComponent::Initialize(ZOFNode* root) {
   }
 
   for (ZOFPropertyNode* prop : node->properties) {
-    if (prop->values.size() > 0) {
-      if (prop->id == "speed") {
-        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-        movementSpeed_ = terminal->value;
-      } else if (prop->id == "sensitivity") {
-        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-        lookSensitivity_ = terminal->value;
-      } else if (prop->id == "zoom") {
-        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-        zoom_ = terminal->value;
-      } else if (prop->id == "zoomSpeed") {
-        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-        zoomSpeed_ = terminal->value;
-      } else if (prop->id == "nearPlane") {
-        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-        nearClippingPlane_ = terminal->value;
-      } else if (prop->id == "farPlane") {
-        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-        farClippingPlane_ = terminal->value;
-      } else if (prop->id == "type") {
-        ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-        cameraType_ = terminal->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
-      } else if (prop->id == "movementStyle") {
-        ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-        movementStyle_ = terminal->value == "Follow" ? ZCameraMovementStyle::Follow : ZCameraMovementStyle::Normal;
-      } else if (prop->id == "damping") {
-        ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-        cameraDamping_ = terminal->value;
-      }
+    if (prop->values.size() == 0) continue;
+
+    if (prop->id == "speed") {
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      movementSpeed_ = terminal->value;
+    } else if (prop->id == "sensitivity") {
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      lookSensitivity_ = terminal->value;
+    } else if (prop->id == "zoom") {
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      zoom_ = terminal->value;
+    } else if (prop->id == "zoomSpeed") {
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      zoomSpeed_ = terminal->value;
+    } else if (prop->id == "nearPlane") {
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      nearClippingPlane_ = terminal->value;
+    } else if (prop->id == "farPlane") {
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      farClippingPlane_ = terminal->value;
+    } else if (prop->id == "type") {
+      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+      cameraType_ = terminal->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
+    } else if (prop->id == "movementStyle") {
+      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+      movementStyle_ = terminal->value == "Follow" ? ZCameraMovementStyle::Follow : ZCameraMovementStyle::Normal;
+    } else if (prop->id == "damping") {
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      cameraDamping_ = terminal->value;
     }
   }
 }

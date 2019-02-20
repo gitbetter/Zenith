@@ -143,8 +143,8 @@ std::vector<ZTexture> ZGLModelImporter::LoadMaterialTextures(aiMaterial *mat, ai
     aiString str;
     mat->GetTexture(type, i, &str);
     std::string textureName = std::string(str.C_Str());
-    if (loadedTextures.find(textureName) != loadedTextures.end()) {
-      textures.push_back(loadedTextures[textureName]);
+    if (ZEngine::Graphics()->Textures().find(textureName) != ZEngine::Graphics()->Textures().end()) {
+      textures.push_back(ZEngine::Graphics()->Textures()[textureName]);
     } else {
       ZTexture texture = ZEngine::Graphics()->Strategy()->LoadTexture(textureName, directory);
       texture.type = typeName;

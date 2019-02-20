@@ -47,7 +47,7 @@ void ZGame::RunGameLoop() {
     Render(lag / ZEngine::UPDATE_STEP_SIZE);
     ZEngine::Domain()->Strategy()->PollEvents();
 
-    MacDisplayHack();
+    //MacDisplayHack();
   }
 }
 
@@ -91,7 +91,8 @@ void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
 void ZGame::SetDefaultSkybox() {
   ZModel* skybox = ZModel::NewSkybox();
   // ... and a special set of skybox shaders.
-  ZShader* skyboxShader = new ZShader("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag");
+  ZShader* skyboxShader = new ZShader;
+  skyboxShader->Initialize("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag");
   ZGraphicsComponent* skyboxGraphicsComponent = new ZGraphicsComponent;
   skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
