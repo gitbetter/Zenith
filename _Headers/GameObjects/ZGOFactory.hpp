@@ -17,7 +17,7 @@ class ZComponent;
 
 // Class and Data Structure Definitions
 class ZGOFactory {
-  typedef ZComponent* (ZGOFactory::*ZComponentCreator)();
+  using ZComponentCreator = ZComponent* (ZGOFactory::*)(ZGameObject*);
 private:
 public:
   ZGOFactory();
@@ -25,9 +25,9 @@ public:
 
   ZGameObjectMap Create(ZOFTree* data);
 
-  ZComponent* CreateGraphicsComponent();
-  ZComponent* CreateCameraComponent();
-  ZComponent* CreatePhysicsComponent();
+  ZComponent* CreateGraphicsComponent(ZGameObject* gameObject);
+  ZComponent* CreateCameraComponent(ZGameObject* gameObject);
+  ZComponent* CreatePhysicsComponent(ZGameObject* gameObject);
 
 protected:
   std::map<std::string, ZComponentCreator> componentCreators_;

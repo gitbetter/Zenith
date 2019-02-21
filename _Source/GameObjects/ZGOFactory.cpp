@@ -29,9 +29,8 @@ ZGameObjectMap ZGOFactory::Create(ZOFTree* data) {
       for (ZOFChildMap::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++) {
         ZOFNode* componentNode = compIt->second;
         if (componentCreators_.find(compIt->first) != componentCreators_.end()) {
-          ZComponent* comp = (this->*componentCreators_[compIt->first])();
+          ZComponent* comp = (this->*componentCreators_[compIt->first])(gameObject);
           comp->Initialize(componentNode);
-          gameObject->AddComponent(comp);
         } else {
           _Z("Component " + compIt->first + " is not available for creation", ZWARNING);
         }
@@ -43,14 +42,20 @@ ZGameObjectMap ZGOFactory::Create(ZOFTree* data) {
   return gameObjects;
 }
 
-ZComponent* ZGOFactory::CreateGraphicsComponent() {
-  return new ZGraphicsComponent;
+ZComponent* ZGOFactory::CreateGraphicsComponent(ZGameObject* gameObject) {
+  ZGraphicsComponent* comp = new ZGraphicsComponent;
+  gameObject->AddComponent(comp);
+  return comp;
 }
 
-ZComponent* ZGOFactory::CreateCameraComponent() {
-  return new ZCameraComponent;
+ZComponent* ZGOFactory::CreateCameraComponent(ZGameObject* gameObject) {
+  ZCameraComponent* comp = new ZCameraComponent;
+  gameObject->AddComponent(comp);
+  return comp;
 }
 
-ZComponent* ZGOFactory::CreatePhysicsComponent() {
-  return new ZPhysicsComponent;
+ZComponent* ZGOFactory::CreatePhysicsComponent(ZGameObject* gameObject) {
+  ZPhysicsComponent* comp = new ZPhysicsComponent;
+  gameObject->AddComponent(comp);
+  return comp;
 }

@@ -59,9 +59,7 @@ public:
   typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
   AddComponent(T* component) {
     T* foundComponent = FindComponent<T>();
-    if (foundComponent != nullptr) {
-      // TODO: Replace or ignore
-    } else {
+    if (foundComponent == nullptr) {
       component->object_ = this;
       components_.push_back(component);
     }

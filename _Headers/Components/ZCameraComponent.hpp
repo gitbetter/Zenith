@@ -43,6 +43,7 @@ public:
     yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
     pitchVelocity_ = glm::vec3(0.f);
     yawVelocity_ = glm::vec3(0.f);
+    id_ = "ZCCamera_" + ZEngine::IDSequence()->Next();
   }
   ~ZCameraComponent() { }
 

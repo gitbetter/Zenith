@@ -9,6 +9,9 @@
 #include "ZEngine.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsComponent.hpp"
+#include "ZGravityForce.hpp"
+#include "ZObjectForceRegistry.hpp"
+#include "ZPhysics.hpp"
 #include "ZOFTree.hpp"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
@@ -16,6 +19,7 @@ ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
   angularVelocity_ = glm::vec3(0.f);
   forceAccumulator_ = glm::vec3(0.f);
   torqueAccumulator_ = glm::vec3(0.f);
+  id_ = "ZCPhysics_" + ZEngine::IDSequence()->Next();
 }
 
 // TODO: These initalize functions can get pretty hectic. Maybe there's a better way...
@@ -48,6 +52,12 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
       ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
       glm::mat3 inertiaTensor = glm::make_mat3(&terminal->value[0]);
       SetInertiaTensor(inertiaTensor);
+    } else if (prop->id == "simulateGravity") {
+      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+      if (terminal->value == "Yes") {
+        ZGravityForce* gravity = new ZGravityForce(glm::vec3(0.f, -25.f, 0.f));
+        ZEngine::Physics()->Registry()->Add(object_, gravity);
+      }
     }
   }
 }

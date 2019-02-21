@@ -24,7 +24,7 @@ ZGO_01
 	^
 ^
 ZGO_02
-	:position [-5.0, 1.25, 1.0]:
+	:position [-5.0, 20.0, 1.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [4.0, 4.0, 4.0]:
 	PhysicsComponent
@@ -32,6 +32,7 @@ ZGO_02
 		:angularVelocity [0.0, 0.0, 0.0]:
 		:damping 1.0:
 		:angularDamping 1.0:
+		:simulateGravity Yes:
 		:mass 5.0:
 		:inertiaTensor [1.5, 0.0, 0.0,
 						0.0, 1.5, 0.0,

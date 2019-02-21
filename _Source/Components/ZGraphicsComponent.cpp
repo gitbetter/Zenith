@@ -17,6 +17,7 @@
 
 ZGraphicsComponent::ZGraphicsComponent() : ZComponent() {
   highlightColor_ = glm::vec4(0.f);
+  id_ = "ZCGraphics_" + ZEngine::IDSequence()->Next();
 }
 
 void ZGraphicsComponent::Initialize(ZModel* model, ZShader* shader) {

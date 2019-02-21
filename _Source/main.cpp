@@ -36,11 +36,11 @@
 
 // TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
-  // Initialize the engine before anything else
-  ZEngine::Initialize(1260, 800);
-
   // Create a new game instance
   ZGame game;
+  
+  // Initialize the engine before anything else
+  ZEngine::Initialize(1260, 800);
 
   // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
   // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
@@ -62,10 +62,6 @@ int main(int argc, const char * argv[]) {
   ZGameObject* activeCamera = game.GetActiveCamera();
   if (activeCamera != nullptr)
     ZEngine::Input()->Register(activeCamera->FindComponent<ZCameraComponent>());
-
-  // // Let's add some physics to a cube
-  // ZGravityForce gravity(glm::vec3(0.f, -25.f, 0.f));
-  // physics.Registry()->Add(&cubeActor2, &gravity);
 
   // Now add some lights, because it's dark in here.
   game.AddGameObjects({new ZLight(ZLightType::Directional)});

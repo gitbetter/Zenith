@@ -22,9 +22,6 @@ class ZComponent : public ZObject {
 friend class ZGameObject;
 private:
 public:
-  ZComponent() {
-    id_ = "ZC_" + ZEngine::IDSequence()->Next();
-  }
   virtual ~ZComponent() { }
 
   virtual void Initialize(ZOFNode* root) = 0;
