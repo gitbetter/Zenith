@@ -48,9 +48,8 @@ void ZGameObject::Initialize(ZOFNode* root) {
 }
 
 void ZGameObject::Update() {
-  ZCameraComponent* cameraComp = FindComponent<ZCameraComponent>();
-  if (cameraComp != nullptr) {
-    cameraComp->UpdateCameraOrientation();
+  for (ZComponent* comp : components_) {
+    comp->Update();
   }
 }
 
@@ -59,7 +58,9 @@ void ZGameObject::Render(float frameMix, unsigned char renderOp) {
   if (graphicsComp != nullptr) {
     ZGameObject* camera = game_->GetActiveCamera();
     const std::map<std::string, ZLight*>& gameLights = game_->GetGameLights();
-    graphicsComp->Update(gameLights, camera, frameMix, renderOp);
+    graphicsComp->SetGameLights(gameLights);
+    graphicsComp->SetGameCamera(camera);
+    graphicsComp->Render(frameMix, renderOp);
   }
 }
 

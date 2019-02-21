@@ -20,9 +20,12 @@ struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZGraphicsComponent : public ZComponent {
+  typedef std::map<std::string, ZLight*> ZLightMap;
 private:
   unsigned int activeShaderIndex_ = -1;
   bool translatesWithView_ = true;
+  ZLightMap gameLights_;
+  ZGameObject* gameCamera_ = nullptr ;
 
   void DrawOutlineIfEnabled();
 
@@ -33,11 +36,15 @@ public:
   void Initialize(ZOFNode* root) override;
   void Initialize(ZModel* model, ZShader* shader);
 
-  void Update(const std::map<std::string, ZLight*>& gameLights, ZGameObject* camera, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
+  virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+
   ZShader* GetActiveShader() const { return shaders_[activeShaderIndex_]; }
 
   void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
   void ClearOutline();
+
+  void SetGameLights(ZLightMap lights) { gameLights_ = lights; }
+  void SetGameCamera(ZGameObject* camera) { gameCamera_ = camera; }
 
   void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 

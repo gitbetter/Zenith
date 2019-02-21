@@ -48,6 +48,8 @@ public:
 
   void Initialize(ZOFNode* root) override;
 
+  virtual void Update() override;
+
   void UpdateCameraOrientation();
 
   void HandleStrafe(float controlThrow) override;

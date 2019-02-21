@@ -17,7 +17,7 @@
 #include <glm/gtx/matrix_interpolation.hpp>
 
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
-  translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->WindowWidth(), 0.f, (float)ZEngine::Domain()->WindowHeight());
+  translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->ResolutionX(), 0.f, (float)ZEngine::Domain()->ResolutionY());
   Scale(scale); Translate(position);
 }
 
@@ -27,7 +27,7 @@ void ZUIElement::Render(ZShader* shader) {
   ZEngine::UI()->GraphicsStrategy()->BindTexture(texture_, 0);
   shader->SetInt(texture_.type + "0", 0);
 
-  glm::mat4 ortho = glm::ortho(0.f, (float)ZEngine::Domain()->WindowWidth(), (float)ZEngine::Domain()->WindowHeight(), 0.f);
+  glm::mat4 ortho = glm::ortho(0.f, (float)ZEngine::Domain()->ResolutionX(), (float)ZEngine::Domain()->ResolutionY(), 0.f);
   shader->SetMat4("M", modelMatrix_);
   shader->SetMat4("P", ortho);
   shader->SetVec4("color", color_);
@@ -49,11 +49,11 @@ void ZUIElement::AddChild(ZUIElement* element) {
 }
 
 void ZUIElement::Translate(glm::vec2 translation) {
-  glm::vec3 size = glm::vec3(Size().x * (float)ZEngine::Domain()->WindowWidth(),
-                             Size().y * (float)ZEngine::Domain()->WindowHeight(),
+  glm::vec3 size = glm::vec3(Size().x * (float)ZEngine::Domain()->ResolutionX(),
+                             Size().y * (float)ZEngine::Domain()->ResolutionY(),
                              1.f);
-  float scaleXFactor = (float)ZEngine::Domain()->WindowWidth() / size.x;
-  float scaleYFactor = (float)ZEngine::Domain()->WindowHeight() / size.y;
+  float scaleXFactor = (float)ZEngine::Domain()->ResolutionX() / size.x;
+  float scaleYFactor = (float)ZEngine::Domain()->ResolutionY() / size.y;
   modelMatrix_ = glm::translate(modelMatrix_,
                                 glm::vec3(scaleXFactor * translation.x + glm::sign(translation.x) * (1.f / scaleXFactor) / 0.5f,
                                           scaleYFactor * translation.y + glm::sign(translation.y) * (1.f / scaleYFactor) / 0.5f,
@@ -79,21 +79,21 @@ void ZUIElement::Rotate(float angle) {
 }
 
 void ZUIElement::Scale(glm::vec2 factor) {
-  modelMatrix_ = glm::scale(modelMatrix_, glm::vec3((float)ZEngine::Domain()->WindowWidth() * 0.75f * factor.x,
-                                                    (float)ZEngine::Domain()->WindowHeight() * 0.75f * factor.y,
+  modelMatrix_ = glm::scale(modelMatrix_, glm::vec3((float)ZEngine::Domain()->ResolutionX() * 0.75f * factor.x,
+                                                    (float)ZEngine::Domain()->ResolutionY() * 0.75f * factor.y,
                                                     0.f));
 }
 
 glm::vec3 ZUIElement::Position() {
-  return glm::vec3(modelMatrix_[3].x / (float)ZEngine::Domain()->WindowWidth(),
-                   modelMatrix_[3].y / (float)ZEngine::Domain()->WindowHeight(),
+  return glm::vec3(modelMatrix_[3].x / (float)ZEngine::Domain()->ResolutionX(),
+                   modelMatrix_[3].y / (float)ZEngine::Domain()->ResolutionY(),
                    0.f);
 }
 
 glm::vec3 ZUIElement::Size() {
   glm::mat3 scaleMatrix(modelMatrix_);
-  return glm::vec3(glm::length(scaleMatrix[0] / (float)ZEngine::Domain()->WindowWidth()),
-                   glm::length(scaleMatrix[1] / (float)ZEngine::Domain()->WindowHeight()),
+  return glm::vec3(glm::length(scaleMatrix[0] / (float)ZEngine::Domain()->ResolutionX()),
+                   glm::length(scaleMatrix[1] / (float)ZEngine::Domain()->ResolutionY()),
                    glm::length(scaleMatrix[2]));
 }
 

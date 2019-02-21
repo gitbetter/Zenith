@@ -24,7 +24,7 @@ public:
 
   void Initialize();
 
-  void Update(ZGameObjectMap gameObjects);
+  void Update();
 
   void CleanUp() { }
 

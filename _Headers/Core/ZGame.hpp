@@ -43,6 +43,6 @@ public:
   void MacDisplayHack(); // TODO: Remove later
 
 protected:
-  void Update();
-  void Render(float frameMix);
+  void Update() override;
+  void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 };

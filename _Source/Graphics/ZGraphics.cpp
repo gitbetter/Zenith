@@ -15,9 +15,6 @@
 #include "ZShader.hpp"
 #include "ZLight.hpp"
 
-unsigned char ZGraphics::RENDER_OP_COLOR = 0x01;
-unsigned char ZGraphics::RENDER_OP_SHADOW = 0x02;
-
 void ZGraphics::Initialize() {
   // TODO: Switch the strategies here based on implementation details
   if (graphicsStrategy_ == nullptr) {
@@ -66,7 +63,7 @@ void ZGraphics::DrawShadowMap(const ZGameObjectMap& gameObjects, ZLight* light, 
   glm::mat4 lightSpaceMatrix = lightP * lightV;
   currentLightSpaceMatrix_ = lightSpaceMatrix;
 
-  Render(gameObjects, frameMix, ZGraphics::RENDER_OP_SHADOW);
+  Render(gameObjects, frameMix, RENDER_OP_SHADOW);
 
   graphicsStrategy_->UnbindDepthMapBuffer();
 }

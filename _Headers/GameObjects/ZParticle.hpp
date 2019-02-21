@@ -29,7 +29,7 @@ public:
   void Initialize();
 
   void Update() override;
-  void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR) override;
+  void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
   float Age() { return age_; }
   bool Active() { return active_; }

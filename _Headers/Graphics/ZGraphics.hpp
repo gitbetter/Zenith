@@ -23,13 +23,10 @@ typedef std::map<std::string, ZTexture> ZTextureMap;
 
 class ZGraphics {
 private:
-  void Render(const ZGameObjectMap& gameObjects, float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
+  void Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
   void DrawShadowMap(const ZGameObjectMap& gameObjects, ZLight* light, float frameMix = 0.0);
 
 public:
-  static unsigned char RENDER_OP_COLOR;
-  static unsigned char RENDER_OP_SHADOW;
-
   ZGraphics() : depthFramebuffer_(0) { }
   ~ZGraphics() { }
 

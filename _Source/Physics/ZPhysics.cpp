@@ -17,10 +17,6 @@ void ZPhysics::Initialize() {
   }
 }
 
-void ZPhysics::Update(ZGameObjectMap gameObjects) {
+void ZPhysics::Update() {
   registry_->UpdateForces();
-  for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
-    ZPhysicsComponent* physicsComp = it->second->FindComponent<ZPhysicsComponent>();
-    if (physicsComp != nullptr) physicsComp->Integrate();
-  }
 }

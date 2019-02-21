@@ -289,7 +289,7 @@ void ZGLGraphicsStrategy::UnbindDepthMapBuffer() {
   glDisable(GL_POLYGON_OFFSET_FILL);
 
   UnbindFramebuffer();
-  glViewport(0, 0, ZEngine::Domain()->WindowWidth(), ZEngine::Domain()->WindowHeight());
+  glViewport(0, 0, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

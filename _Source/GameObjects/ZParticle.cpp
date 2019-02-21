@@ -23,7 +23,7 @@ void ZParticle::Initialize() {
 }
 
 void ZParticle::Update() {
-  physicsComponent_->Integrate();
+  physicsComponent_->Update();
   age_ -= ZEngine::UPDATE_STEP_SIZE;
 }
 

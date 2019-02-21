@@ -14,11 +14,10 @@ void ZDomain::Initialize() {
   if (domainStrategy_ == nullptr) {
     domainStrategy_ = new ZGLDomainStrategy();
     domainStrategy_->Initialize();
-    domainStrategy_->CreateWindow(width_, height_);
-    // Make sure the window size is in pixels and not screen coordinates,
-    // which is done by querying the current framebuffer size
+    domainStrategy_->CreateWindow(windowWidth_, windowHeight_);
+
     glm::vec2 fbSize = domainStrategy_->FramebufferSize();
-    width_ = fbSize.x; height_ = fbSize.y;
+    resolutionX_ = fbSize.x; resolutionY_ = fbSize.y;
   }
 }
 
@@ -26,7 +25,7 @@ void ZDomain::ResizeWindow(int width, int height) {
   if (domainStrategy_ != nullptr) {
     domainStrategy_->Resize(width, height);
   }
-  width_ = width; height_ = height;
+  windowWidth_ = width; windowHeight_ = height;
 }
 
 void ZDomain::CleanUp() {

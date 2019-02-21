@@ -32,8 +32,8 @@ public:
 
   void Initialize(ZOFNode* root);
 
-  virtual void Update();
-  virtual void Render(float frameMix, unsigned char renderOp = ZGraphics::RENDER_OP_COLOR);
+  virtual void Update() override;
+  virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
   void ShouldTranslateWithView(bool translates);
   void CalculateModelMatrix();

@@ -43,12 +43,16 @@
   }\
 }
 
+#define RENDER_OP_COLOR 0x01
+#define RENDER_OP_SHADOW 0x02
+
 class ZGameObject;
 class ZShader;
 
 typedef std::function<void()> ZEventCallback;
 typedef std::map<std::string, ZGameObject*> ZGameObjectMap;
 typedef std::map<std::string, ZShader*> ZShaderMap;
+typedef unsigned char RENDER_OP;
 
 enum ZEventType {
   FirePress

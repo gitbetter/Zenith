@@ -30,7 +30,8 @@ public:
 
   void Initialize(ZOFNode* root) override;
 
-  void Integrate();
+  void Update() override;
+
   void ClearForceAccumulator();
   void AddForce(glm::vec3 force);
   bool HasFiniteMass() { return inverseMass_ != 0.f; }

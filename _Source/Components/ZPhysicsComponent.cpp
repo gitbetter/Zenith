@@ -52,7 +52,7 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
   }
 }
 
-void ZPhysicsComponent::Integrate() {
+void ZPhysicsComponent::Update() {
   assert(object_ != nullptr);
 
   glm::mat3 inverseInertiaWorld_ = glm::mat3_cast(object_->Orientation()) * inverseInertiaTensor_;

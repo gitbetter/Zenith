@@ -82,21 +82,22 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
   }
 }
 
-void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>& gameLights, ZGameObject* camera, float frameMix, unsigned char renderOp) {
+void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
+  if (gameCamera_ == nullptr) return;
+
   const ZDomain* domain = ZEngine::Domain();
 
-  ZCameraComponent* cameraComp = camera->FindComponent<ZCameraComponent>();
-  assert(cameraComp != nullptr);
+  ZCameraComponent* cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
 
   if (cameraComp->Type() == ZCameraType::Orthographic) {
-    float left = -(float)domain->WindowWidth() / (cameraComp->GetZoom() * 2);
+    float left = -(float)domain->ResolutionX() / (cameraComp->GetZoom() * 2);
     float right = -left;
-    float bottom = -(float)domain->WindowHeight() / (cameraComp->GetZoom() * 2);
+    float bottom = -(float)domain->ResolutionY() / (cameraComp->GetZoom() * 2);
     float top = -bottom;
     projectionMatrix_ = glm::ortho(left, right, bottom, top, -cameraComp->GetFarField() / 2.f, cameraComp->GetFarField());
   } else {
     projectionMatrix_ = glm::perspective(glm::radians(cameraComp->GetZoom()),
-                                         (float)domain->WindowWidth() / (float)domain->WindowHeight(),
+                                         (float)domain->ResolutionX() / (float)domain->ResolutionY(),
                                          cameraComp->GetNearField(), cameraComp->GetFarField());
   }
 
@@ -105,11 +106,11 @@ void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>& gameLights
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
-  ZShader* shader = (renderOp & ZGraphics::RENDER_OP_SHADOW) == ZGraphics::RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : GetActiveShader();
+  ZShader* shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : GetActiveShader();
 
   shader->Activate();
 
-  shader->Use(gameLights);
+  shader->Use(gameLights_);
 
   ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
 
@@ -117,7 +118,7 @@ void ZGraphicsComponent::Update(const std::map<std::string, ZLight*>& gameLights
   shader->SetMat4("V", viewMatrix_);
   shader->SetMat4("M", object_->ModelMatrix());
   shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
-  shader->SetVec3("viewDirection", camera->Front());
+  shader->SetVec3("viewDirection", gameCamera_->Front());
 
   model_->Render(shader);
 

@@ -31,6 +31,9 @@ public:
   virtual void On(ZEventType event, ZEventCallback&& callback);
   virtual void Fire(ZEventType event);
 
+  virtual void Update() { };
+  virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) { };
+
   std::string ID() { return id_; }
 
 protected:

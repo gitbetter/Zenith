@@ -24,8 +24,8 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
 void ZUIText::Render(ZShader* shader) {
   ZEngine::UI()->GraphicsStrategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
-  float x = Position().x * (float)ZEngine::Domain()->WindowWidth() / 2.f,
-        y = (Position().y * (float)ZEngine::Domain()->WindowHeight()) - (Size().y * (float)ZEngine::Domain()->WindowHeight()) / 2.f;
+  float x = Position().x * (float)ZEngine::Domain()->ResolutionX() / 2.f,
+        y = (Position().y * (float)ZEngine::Domain()->ResolutionY()) - (Size().y * (float)ZEngine::Domain()->ResolutionY()) / 2.f;
   for (auto c = text_.begin(); c != text_.end(); c++) {
     ZCharacter character = ZEngine::UI()->TextStrategy()->Character(font_, *c);
     texture_ = character.texture;

@@ -12,6 +12,10 @@
 #include "ZPhysicsComponent.hpp"
 #include "ZOFTree.hpp"
 
+void ZCameraComponent::Update() {
+  UpdateCameraOrientation();
+}
+
 void ZCameraComponent::UpdateCameraOrientation() {
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
     pitchVelocity_ *= glm::pow(cameraDamping_, ZEngine::UPDATE_STEP_SIZE);

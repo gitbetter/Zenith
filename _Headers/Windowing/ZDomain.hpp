@@ -19,13 +19,15 @@ class ZDomain {
 private:
 
 public:
-  ZDomain(unsigned int windowWidth, unsigned int windowHeight) : width_(windowWidth), height_(windowHeight) { }
+  ZDomain(unsigned int windowWidth, unsigned int windowHeight) : windowWidth_(windowWidth), windowHeight_(windowHeight) { }
   virtual ~ZDomain() { }
 
   void Initialize();
 
-  unsigned int WindowWidth() const { return width_; }
-  unsigned int WindowHeight() const { return height_; }
+  unsigned int WindowWidth() const { return windowWidth_; }
+  unsigned int WindowHeight() const { return windowHeight_; }
+  unsigned int ResolutionX() const { return resolutionX_; }
+  unsigned int ResolutionY() const { return resolutionY_; }
 
   ZDomainStrategy* Strategy() { return domainStrategy_; }
 
@@ -35,5 +37,6 @@ public:
 
 protected:
   ZDomainStrategy* domainStrategy_ = nullptr;
-  unsigned int width_, height_;
+  unsigned int windowWidth_, windowHeight_;
+  unsigned int resolutionX_, resolutionY_;
 };

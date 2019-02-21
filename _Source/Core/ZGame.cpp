@@ -51,13 +51,13 @@ void ZGame::RunGameLoop() {
 }
 
 void ZGame::Update() {
-  ZEngine::Physics()->Update(gameObjects_);
+  ZEngine::Physics()->Update();
   for (auto it = gameObjects_.begin(); it != gameObjects_.end(); it++) {
     it->second->Update();
   }
 }
 
-void ZGame::Render(float frameMix) {
+void ZGame::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Draw(gameObjects_, gameLights_, frameMix);
   // TODO: If the UI has changed, draw it. Otherwise, leave it.
   // The dirty flag trick might come in handy here
