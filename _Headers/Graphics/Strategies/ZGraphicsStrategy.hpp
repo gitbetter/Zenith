@@ -20,7 +20,9 @@ struct ZLight;
 // Class and Data Structure Definitions
 class ZGraphicsStrategy {
 private:
+
 public:
+
   ZGraphicsStrategy() { }
   virtual ~ZGraphicsStrategy() { }
 
@@ -52,5 +54,6 @@ public:
   virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) = 0;
 
 protected:
+
 
 };

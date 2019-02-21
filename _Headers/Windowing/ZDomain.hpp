@@ -18,7 +18,9 @@ class ZDomainStrategy;
 class ZDomain {
 private:
 
+
 public:
+
   ZDomain(unsigned int windowWidth, unsigned int windowHeight) : windowWidth_(windowWidth), windowHeight_(windowHeight) { }
   virtual ~ZDomain() { }
 
@@ -36,6 +38,7 @@ public:
   void CleanUp();
 
 protected:
+
   ZDomainStrategy* domainStrategy_ = nullptr;
   unsigned int windowWidth_, windowHeight_;
   unsigned int resolutionX_, resolutionY_;

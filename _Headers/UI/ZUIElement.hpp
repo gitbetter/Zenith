@@ -20,7 +20,9 @@ class ZShader;
 
 class ZUIElement : public ZObject {
 private:
+
 public:
+
   ZUIElement(glm::vec2 position, glm::vec2 scale);
   virtual ~ZUIElement() { }
 
@@ -64,6 +66,7 @@ public:
   void CleanUp();
 
 protected:
+
   bool hidden_, enabled_, selected_, selectable_, dirty_;
   glm::mat4 modelMatrix_;
   glm::vec4 translationBounds_;

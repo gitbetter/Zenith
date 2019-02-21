@@ -19,6 +19,7 @@
 // Class and Data Structure Definitions
 class ZOFParser {
 private:
+
   std::string currentToken_;
   std::ifstream zof_;
   std::regex id_ = std::regex("[^\\-\\d]\\S*");
@@ -40,11 +41,13 @@ private:
   void ListTail(ZOFAbstractTerminal* terminal);
 
 public:
+
     ZOFParser() { }
     ~ZOFParser() { }
 
     ZOFTree* Parse(std::string zofFile);
 
 protected:
+
 
 };

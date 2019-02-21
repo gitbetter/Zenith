@@ -17,11 +17,14 @@ class ZShader;
 // Class and Data Structure Definitions
 class ZMesh {
 private:
+
 public:
+
   virtual ~ZMesh() { }
 
   virtual void Render(ZShader* shader) = 0;
 
 protected:
+
   ZBufferData bufferData_;
 };

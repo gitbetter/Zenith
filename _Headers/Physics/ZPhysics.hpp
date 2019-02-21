@@ -18,7 +18,9 @@ class ZGameObject;
 // Class and Data Structure Definitions
 class ZPhysics {
 private:
+
 public:
+
   ZPhysics() { }
   ~ZPhysics() { }
 
@@ -31,5 +33,6 @@ public:
   ZObjectForceRegistry* Registry() { return registry_; }
 
 protected:
+
   ZObjectForceRegistry* registry_ = nullptr;
 };

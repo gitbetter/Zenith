@@ -21,7 +21,9 @@ class ZTextStrategy;
 // Class and Data Structure Definitions
 class ZUI {
 private:
+
 public:
+
   ~ZUI() { }
 
   void Initialize();
@@ -48,6 +50,7 @@ public:
   void CleanUp();
 
 protected:
+
   std::vector<ZUIElement*> elements_;
   ZUICursor* cursor_ = nullptr;
   ZGraphicsStrategy* graphicsStrategy_ = nullptr;

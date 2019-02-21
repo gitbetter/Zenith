@@ -18,7 +18,9 @@ class ZShader;
 // Class and Data Structure Definitions
 class ZMeshUI : ZMesh {
 private:
+
 public:
+
   ZMeshUI() { }
   ZMeshUI(std::vector<ZVertex2D> vertices);
   ~ZMeshUI() { }
@@ -28,5 +30,6 @@ public:
   std::vector<ZVertex2D> Vertices() const { return vertices_; }
 
 protected:
+
   std::vector<ZVertex2D> vertices_;
 };

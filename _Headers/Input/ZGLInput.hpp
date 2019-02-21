@@ -17,11 +17,14 @@
 // Class and Data Structure Definitions
 class ZGLInput : public ZInput {
 private:
+
   double lastPitch_, lastYaw_;
   bool firstLook_ = true;
 
 public:
+
   void Process() override;
 protected:
+
 
 };

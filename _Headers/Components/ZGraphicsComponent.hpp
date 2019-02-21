@@ -22,6 +22,7 @@ struct ZOFNode;
 class ZGraphicsComponent : public ZComponent {
   typedef std::map<std::string, ZLight*> ZLightMap;
 private:
+
   unsigned int activeShaderIndex_ = -1;
   bool translatesWithView_ = true;
   ZLightMap gameLights_;
@@ -30,6 +31,7 @@ private:
   void DrawOutlineIfEnabled();
 
 public:
+
   ZGraphicsComponent();
   ~ZGraphicsComponent() { }
 
@@ -49,6 +51,7 @@ public:
   void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 
 protected:
+
   ZModel* model_ = nullptr;
   glm::mat4 projectionMatrix_, viewMatrix_, modelMatrix_;
   std::vector<ZShader*> shaders_;

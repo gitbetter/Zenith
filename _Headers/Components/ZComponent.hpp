@@ -21,7 +21,9 @@ struct ZOFNode;
 class ZComponent : public ZObject {
 friend class ZGameObject;
 private:
+
 public:
+
   virtual ~ZComponent() { }
 
   virtual void Initialize(ZOFNode* root) = 0;
@@ -29,5 +31,6 @@ public:
   ZGameObject* Object() { return object_; }
 
 protected:
+
   ZGameObject* object_;
 };

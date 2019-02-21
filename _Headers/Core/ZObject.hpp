@@ -17,7 +17,9 @@
 // Class and Data Structure Definitions
 class ZObject {
 private:
+
 public:
+
   virtual ~ZObject() { }
 
   virtual void HandleStrafe(float controlThrow) { }
@@ -37,6 +39,7 @@ public:
   std::string ID() { return id_; }
 
 protected:
+
   std::string id_;
   std::map<ZEventType, std::vector<ZEventCallback>> eventCallbacks_;
 };

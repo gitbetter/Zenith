@@ -17,9 +17,12 @@ class ZObject;
 // Class and Data Structure Definitions
 class ZIForwardBackCommand : public ZInputCommand {
 private:
+
 public:
+
   ZIForwardBackCommand(float controlThrow) : ZInputCommand(controlThrow) { }
   virtual void Execute(ZObject* gameObject) const override;
 protected:
+
 
 };

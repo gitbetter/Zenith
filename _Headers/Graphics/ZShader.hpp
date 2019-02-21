@@ -18,6 +18,7 @@ class ZMaterial;
 // Class and Data Structure Definitions
 class ZShader {
 private:
+
   unsigned int id_;
 
   std::string GetShaderCode(const std::string& shaderPath);
@@ -26,6 +27,7 @@ private:
   void CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shaderType);
 
 public:
+
   ZShader() { }
   ~ZShader() { }
 
@@ -50,5 +52,6 @@ public:
   void Use(const ZMaterial& material);
   void Use(const std::map<std::string, ZLight*>& lights);
 protected:
+
 
 };

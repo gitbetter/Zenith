@@ -18,7 +18,9 @@ class ZForceGenerator;
 // Class and Data Structure Definitions
 class ZObjectForceRegistry {
 private:
+
 public:
+
     ~ZObjectForceRegistry() { }
 
     void Add(ZGameObject* object, ZForceGenerator* generator);
@@ -27,6 +29,7 @@ public:
     void UpdateForces();
 
 protected:
+
   struct ZObjectForceRegistration {
     ZGameObject* object;
     ZForceGenerator* forceGenerator;

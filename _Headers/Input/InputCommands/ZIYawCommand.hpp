@@ -17,9 +17,12 @@ class ZObject;
 // Class and Data Structure Definitions
 class ZIYawCommand : public ZInputCommand {
 private:
+
 public:
+
   ZIYawCommand(float controlThrow) : ZInputCommand(controlThrow) { }
   virtual void Execute(ZObject* gameObject) const override;
 protected:
+
 
 };

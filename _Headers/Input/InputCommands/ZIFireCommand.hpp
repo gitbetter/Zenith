@@ -17,9 +17,12 @@ class ZObject;
 // Class and Data Structure Definitions
 class ZIFireCommand : public ZInputCommand {
 private:
+
 public:
+
   ZIFireCommand() { }
   virtual void Execute(ZObject* gameObject) const override;
 protected:
+
 
 };

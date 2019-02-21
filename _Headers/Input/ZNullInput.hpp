@@ -18,7 +18,9 @@ class ZInputComponent;
 // Class and Data Structure Definitions
 class ZNullInput : public ZInput {
 private:
+
 public:
+
     virtual void Register(ZObject* gameObject) {
       _Z("No ZInput implementation has been provided", ZERROR);
     }
@@ -29,5 +31,6 @@ public:
       _Z("No ZInput implementation has been provided", ZERROR);
     }
 protected:
+
 
 };

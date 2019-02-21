@@ -19,7 +19,9 @@ class ZComponent;
 class ZGOFactory {
   using ZComponentCreator = ZComponent* (ZGOFactory::*)(ZGameObject*);
 private:
+
 public:
+
   ZGOFactory();
   ~ZGOFactory() { }
 
@@ -30,5 +32,6 @@ public:
   ZComponent* CreatePhysicsComponent(ZGameObject* gameObject);
 
 protected:
+
   std::map<std::string, ZComponentCreator> componentCreators_;
 };

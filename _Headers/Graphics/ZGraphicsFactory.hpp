@@ -19,7 +19,9 @@ class ZModel;
 class ZGraphicsFactory {
   typedef ZModel* (*ZModelCreator)(glm::vec3, std::vector<ZTexture>);
 private:
+
 public:
+
   ZGraphicsFactory();
   ~ZGraphicsFactory() { }
 
@@ -29,5 +31,6 @@ public:
   ZModel* CreateModel(std::string type, glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f), std::vector<ZTexture> textures = {});
 
 protected:
+
   std::map<std::string, ZModelCreator> modelCreators_;
 };

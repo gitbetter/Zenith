@@ -18,12 +18,15 @@ class ZInputCommand;
 // Class and Data Structure Definitions
 class ZInput {
 private:
+
 public:
+
   virtual ~ZInput() { }
 
   virtual void Register(ZObject* gameObject);
   virtual void Broadcast(const ZInputCommand& command);
   virtual void Process() = 0;
 protected:
+
   std::vector<ZObject*> registeredObjects_;
 };

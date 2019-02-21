@@ -18,11 +18,14 @@
 // Class and Data Structure Definitions
 class ZGLTextStrategy : public ZTextStrategy {
 private:
+
 public:
+
   ZGLTextStrategy() { }
   ~ZGLTextStrategy() { }
 
   void LoadFont(std::string fontPath, unsigned int fontSize) override;
 protected:
+
 
 };

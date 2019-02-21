@@ -17,11 +17,13 @@
 // Class and Data Structure Definitions
 class ZMaterial {
 private:
+
   ZMaterialProperties properties_;
   std::vector<ZTexture> textures_;
   int index_;
 
 public:
+
   ZMaterial(int index = 0) { index_ = index; }
   ZMaterial(ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
   ZMaterial(std::vector<ZTexture> textures) : ZMaterial(0) { textures_ = textures; }
@@ -36,5 +38,6 @@ public:
 
   int Index() const { return index_; }
 protected:
+
 
 };

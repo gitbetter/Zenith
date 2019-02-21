@@ -19,9 +19,11 @@
 
 class ZGLGraphicsStrategy : public ZGraphicsStrategy {
 private:
+
   static void GLFWErrorCallback(int id, const char* description);
 
 public:
+
   ZGLGraphicsStrategy() { }
   ~ZGLGraphicsStrategy() { }
 
@@ -53,5 +55,6 @@ public:
   void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) override;
 
 protected:
+
 
 };

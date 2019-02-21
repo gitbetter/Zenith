@@ -19,6 +19,7 @@ class ZShader;
 // Class Definitions
 class ZModel {
 private:
+
   std::vector<ZMesh3D> meshes_;
 
   void CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures);
@@ -28,6 +29,7 @@ private:
   void CreateCone(glm::vec3 scale, std::vector<ZTexture> textures);
 
 public:
+
   ZModel(ZPrimitiveType primitiveType, glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f), std::vector<ZTexture> textures = {});
   ZModel(std::string path);
   ZModel() { }

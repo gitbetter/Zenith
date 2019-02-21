@@ -17,7 +17,9 @@ class ZShader;
 // Class and Data Structure Definitions
 class ZUICursor : public ZUIElement {
 private:
+
 public:
+
     ZUICursor(glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.02f, 0.03f));
     ~ZUICursor() { }
 
@@ -31,5 +33,6 @@ public:
     void SetColor(glm::vec4 color) override ;
 
 protected:
+
 
 };

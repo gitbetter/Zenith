@@ -23,10 +23,12 @@ typedef std::map<std::string, ZTexture> ZTextureMap;
 
 class ZGraphics {
 private:
+
   void Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
   void DrawShadowMap(const ZGameObjectMap& gameObjects, ZLight* light, float frameMix = 0.0);
 
 public:
+
   ZGraphics() : depthFramebuffer_(0) { }
   ~ZGraphics() { }
 
@@ -50,6 +52,7 @@ public:
   void CleanUp();
 
 protected:
+
   ZShader* shadowShader_ = nullptr;
   ZGraphicsStrategy* graphicsStrategy_ = nullptr;
   unsigned int depthFramebuffer_;

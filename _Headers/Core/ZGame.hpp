@@ -18,6 +18,7 @@ struct ZLight;
 // Class and Data Structure Definitions
 class ZGame : public ZObject {
 private:
+
   ZGameObjectMap gameObjects_;
   std::map<std::string, ZLight*> gameLights_;
   std::string activeCameraObject_;
@@ -25,6 +26,7 @@ private:
   void CleanUp();
 
 public:
+
   ZGame();
   ~ZGame() { };
 
@@ -43,6 +45,7 @@ public:
   void MacDisplayHack(); // TODO: Remove later
 
 protected:
+
   void Update() override;
   void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 };

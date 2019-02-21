@@ -30,6 +30,7 @@ class ZGraphicsFactory;
 // Class Definitions
 class ZEngine {
 private:
+
   static ZDomain* domain_;
   static ZGraphics* graphics_;
   static ZInput* input_;
@@ -43,6 +44,7 @@ private:
   static ZIDSequence* idGenerator_;
 
 public:
+
   static const float UPDATE_STEP_SIZE;
   static const int MAX_FIXED_UPDATE_ITERATIONS;
   static const unsigned int SHADOW_MAP_SIZE;
@@ -76,4 +78,5 @@ public:
 
   static void CleanUp();
 protected:
+
 };

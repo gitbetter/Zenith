@@ -17,7 +17,9 @@
 
 class ZTextStrategy {
 private:
+
 public:
+
   ZTextStrategy() { }
   virtual ~ZTextStrategy() { }
 
@@ -28,6 +30,7 @@ public:
   ZCharacter Character(std::string font, unsigned char c);
 
 protected:
+
   FT_Library ft_;
   std::map<std::string, ZFont> loadedFonts_;
 };

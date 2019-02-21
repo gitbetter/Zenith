@@ -17,8 +17,10 @@
 // Class and Data Structure Definitions
 class ZIDSequence {
 private:
+
   unsigned int current_ = 0;
 public:
+
   ZIDSequence() { }
   ~ZIDSequence() { }
 
@@ -27,4 +29,5 @@ public:
   std::string Next() { return std::to_string(current_++); }
 
 protected:
+
 };

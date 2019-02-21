@@ -24,6 +24,7 @@ struct ZTexture;
 // Class and Data Structure Definitions
 class ZGLModelImporter {
 private:
+
   static std::unordered_map<std::string, ZTexture> loadedTextures;
 
   void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZMesh3D>& outMeshes);
@@ -32,8 +33,10 @@ private:
   unsigned int TextureFromFile(std::string path, const std::string& directory);
 
 public:
+
   void LoadModel(std::string modelPath, std::vector<ZMesh3D>& outMeshes);
 
 protected:
+
 
 };

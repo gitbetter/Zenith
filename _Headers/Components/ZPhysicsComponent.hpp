@@ -18,6 +18,7 @@ struct ZOFNode;
 // Class and Data Structure Definitions
 class ZPhysicsComponent : public ZComponent {
 private:
+
   glm::vec3 velocity_, angularVelocity_, forceAccumulator_, torqueAccumulator_;
   float damping_ = 1.0;
   float angularDamping_ = 1.0;
@@ -25,6 +26,7 @@ private:
   glm::mat3 inverseInertiaTensor_;
 
 public:
+
   ZPhysicsComponent();
   ~ZPhysicsComponent() { }
 
@@ -51,5 +53,6 @@ public:
   glm::mat3 InertiaTensor() const { return glm::inverse(inverseInertiaTensor_); }
 
 protected:
+
 
 };

@@ -17,9 +17,12 @@ class ZObject;
 // Class and Data Structure Definitions
 class ZIEscapeCommand : public ZInputCommand {
 private:
+
 public:
+
   ZIEscapeCommand() { }
   virtual void Execute(ZObject* gameObject) const override;
 protected:
+
 
 };

@@ -20,9 +20,11 @@ class ZPhysicsComponent;
 // Class and Data Structure Definitions
 class ZParticle : public ZGameObject {
 private:
+
   float age_;
   bool active_;
 public:
+
   ZParticle() : ZGameObject() { }
   ~ZParticle() { }
 
@@ -35,6 +37,7 @@ public:
   bool Active() { return active_; }
 
 protected:
+
   ZGraphicsComponent* graphicsComponent_ = nullptr;
   ZPhysicsComponent* physicsComponent_ = nullptr;
 

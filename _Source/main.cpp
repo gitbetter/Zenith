@@ -38,7 +38,7 @@
 int main(int argc, const char * argv[]) {
   // Create a new game instance
   ZGame game;
-  
+
   // Initialize the engine before anything else
   ZEngine::Initialize(1260, 800);
 

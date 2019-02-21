@@ -27,10 +27,12 @@ struct ZParticleRule {
 
 class ZParticleSystem : public ZGameObject {
 private:
+
   std::vector<ZParticle*> particles_;
   bool isAlive_ = false;
 
 public:
+
   ZParticleSystem() { }
   ZParticleSystem(std::initializer_list<ZParticleRule> rules);
   ~ZParticleSystem() { }
@@ -43,5 +45,6 @@ public:
   void Update() override;
 
 protected:
+
 
 };

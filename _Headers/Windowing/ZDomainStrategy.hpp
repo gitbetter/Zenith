@@ -17,7 +17,9 @@
 // Class and Data Structure Definitions
 class ZDomainStrategy {
 private:
+
 public:
+
   ZDomainStrategy() { }
   virtual ~ZDomainStrategy() { }
 
@@ -33,4 +35,5 @@ public:
   virtual void CleanUp() = 0;
 
 protected:
+
 };

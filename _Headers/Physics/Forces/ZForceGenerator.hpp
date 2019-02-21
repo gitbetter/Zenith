@@ -18,11 +18,14 @@ class ZGameObject;
 // Class and Data Structure Definitions
 class ZForceGenerator {
 private:
+
 public:
+
   virtual ~ZForceGenerator() { }
 
   virtual void UpdateForce(ZGameObject* object) = 0;
 
 protected:
+
 
 };

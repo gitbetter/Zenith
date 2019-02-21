@@ -24,9 +24,11 @@ class ZGameObject : public ZObject {
   friend class ZGOFactory;
 
 private:
+
   void CalculateTangentBasis();
 
 public:
+
   ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
   virtual ~ZGameObject() { }
 
@@ -88,6 +90,7 @@ public:
   }
 
 protected:
+
   ZGame* game_ = nullptr;
   std::vector<ZComponent*> components_;
   glm::vec4 position_, previousPosition_;

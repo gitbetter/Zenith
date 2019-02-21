@@ -17,12 +17,15 @@ class ZGameObject;
 // Class and Data Structure Definitions
 class ZDragForce : public ZForceGenerator {
 private:
+
 public:
+
   ZDragForce(float k1, float k2) { k1_ = k1; k2_ = k2; }
   ~ZDragForce() { }
 
   void UpdateForce(ZGameObject* object) override;
 
 protected:
+
   float k1_, k2_;
 };

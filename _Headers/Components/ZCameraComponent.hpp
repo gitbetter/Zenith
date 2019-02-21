@@ -19,6 +19,7 @@ struct ZOFNode;
 // Class and Data Structure Definitions
 class ZCameraComponent : public ZComponent {
 private:
+
   float movementSpeed_ = 25.f;
   float lookSensitivity_ = 0.1f;
   float zoom_ = 45.0f;
@@ -35,6 +36,7 @@ private:
   ZPhysicsComponent* AddPhysicsComponentIfNeeded();
 
 public:
+
   ZCameraComponent(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f)) : ZComponent() {
     cameraType_ = type;
     zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
@@ -68,4 +70,5 @@ public:
   float GetFarField() const { return farClippingPlane_; }
 
 protected:
+
 };

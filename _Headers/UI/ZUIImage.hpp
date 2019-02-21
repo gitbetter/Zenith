@@ -18,7 +18,9 @@ class ZShader;
 // Class and Data Structure Definitions
 class ZUIImage : public ZUIElement {
 private:
+
 public:
+
   ZUIImage(std::string path = "", glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.25f));
   ~ZUIImage() { }
 
@@ -28,4 +30,5 @@ public:
   void SetImage(std::string path);
 
 protected:
+
 };
