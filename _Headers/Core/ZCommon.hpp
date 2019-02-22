@@ -29,6 +29,7 @@
 #include <functional>
 #include <cassert>
 #include <type_traits>
+#include <numberic_limits>
 
 #define _Z(message, severity) { \
   switch(severity) {\
