@@ -45,7 +45,8 @@ static inline bool TryAxis(const ZCollisionBox& one, const ZCollisionBox& two, g
   return true;
 }
 
-static inline glm::vec3 ContactToPoint(const glm::vec3& pOne, const glm::vec3& dOne, float oneSize, const glm::vec3& pTwo, const glm::vec3& dTwo, float twoSize, bool useOne) {
+static inline glm::vec3 ContactPoint(const glm::vec3& pOne, const glm::vec3& dOne, float oneSize,
+                                     const glm::vec3& pTwo, const glm::vec3& dTwo, float twoSize, bool useOne) {
   glm::vec3 toSt, cOne, cTwo;
   float dpStaOne, dpStaTwo, dpOneTwo, smOne, smTwo;
   float denom, mua, mub;
@@ -74,7 +75,8 @@ static inline glm::vec3 ContactToPoint(const glm::vec3& pOne, const glm::vec3& d
   }
 }
 
-void FillPointFaceBoxBox(const ZCollisionBox& one, const ZCollisionBox& two, const glm::vec3& toCenter, ZCollisionData* data, unsigned int best, float pen) {
+void FillPointFaceBoxBox(const ZCollisionBox& one, const ZCollisionBox& two, const glm::vec3& toCenter,
+                         ZCollisionData* data, unsigned int best, float pen) {
   Contact* contact = data->contacts;
 
   glm::Vec3 normal = one.Axis(best);
@@ -196,7 +198,39 @@ unsigned int ZFineCollisionDetector::SphereAndSphere(const ZCollisionSphere& sph
 }
 
 unsigned int ZFineCollisionDetector::BoxAndHalfSpace(const ZCollisionBox& box, const ZCollisionSphere& sphere, ZCollisionData* data) {
+  if (data->contactsLeft <= 0) return 0;
 
+  if (!IntersectionTests::boxAndHalfSpace(box, plane)) return 0;
+
+  static float mults[8][3] = {{1,1,1}, {-1,1,1}, {1,-1,1}, {-1,-1,1},
+                              {1,1,-1}, {-1,1,-1}, {1,-1,-1}, {-1,-1,-1}};
+
+  Contact* contact = data->contacts;
+  unsigned contactsUsed = 0;
+  for (unsigned i = 0; i < 8; i++) {
+      glm::vec3 vertexPos(mults[i][0], mults[i][1], mults[i][2]);
+      vertexPos *= box.halfSize;
+      vertexPos = box.transform * vertexPos;
+
+      float vertexDistance = glm::dot(vertexPos, plane.direction);
+
+      if (vertexDistance <= plane.offset) {
+          contact->contactPoint = plane.direction;
+          contact->contactPoint *= (vertexDistance - plane.offset);
+          contact->contactPoint += vertexPos;
+          contact->contactNormal = plane.direction;
+          contact->penetration = plane.offset - vertexDistance;
+
+          contact->SetBodyData(box.body, nullptr, data->friction, data->restitution);
+
+          contact++;
+          contactsUsed++;
+          if (contactsUsed == (unsigned int)data->contactsLeft) return contactsUsed;
+      }
+  }
+
+  data->addContacts(contactsUsed);
+  return contactsUsed;
 }
 
 #define CHECK_AXIS_OVERLAP(axis, index) \
@@ -206,13 +240,145 @@ unsigned int ZFineCollisionDetector::BoxAndBox(const ZCollisionBox& one, const Z
 
   float pen = std::numeric_limits<float>::max();
   unsigned int best = 0xffffff;
+
+  CHECK_AXIS_OVERLAP(one.Axis(0), 0);
+  CHECK_AXIS_OVERLAP(one.Axis(1), 1);
+  CHECK_AXIS_OVERLAP(one.Axis(2), 2);
+
+  CHECK_AXIS_OVERLAP(one.Axis(0), 3);
+  CHECK_AXIS_OVERLAP(one.Axis(1), 4);
+  CHECK_AXIS_OVERLAP(one.Axis(2), 5);
+
+  unsigned int bestSingleAxis = best;
+
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(0), two.Axis(0), 6);
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(0), two.Axis(1), 7);
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(0), two.Axis(2), 8);
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(1), two.Axis(0), 9);
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(1), two.Axis(1), 10);
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(1), two.Axis(2), 11);
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(2), two.Axis(0), 12);
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(2), two.Axis(1), 13);
+  CHECK_AXIS_OVERLAP(glm::cross(one.Axis(2), two.Axis(2), 14);
+
+  assert(best != 0xffffff);
+
+  if (best < 6) {
+    FillPointFaceBoxBox(one, two, best < 3 ? toCenter : toCenter * -1.f, data, best < 3 ? best : best - 3, pen);
+    data->AddContacts(1);
+    return 1;
+  } else {
+    best -= 6;
+    unsigned int oneAxisIndex = best / 3;
+    unsigned int twoAxisIndex = best % 3;
+    glm::vec3 oneAxis = one.Axis(oneAxisIndex);
+    glm::vec3 twoAxis = two.Axis(twoAxisIndex);
+    glm::vec3 axis = glm::normalize(glm::cross(oneAxis, twoAxis));
+
+    if (glm::dot(axis, toCenter) > 0) axis = axis * -1.f;
+
+    glm::vec3 ptOnOneEdge = one.halfSize;
+    glm::vec3 ptOnTwoEdge = two.halfSize;
+    for (unsigned i = 0; i < 3; i++) {
+      if (i == oneAxisIndex) ptOnOneEdge[i] = 0;
+      else if (glm::dot(one.Axis(i), axis) > 0) ptOnOneEdge[i] = -ptOnOneEdge[i];
+
+      if (i == twoAxisIndex) ptOnTwoEdge[i] = 0;
+      else if (glm::dot(two.Axis(i), axis) > 0) ptOnTwoEdge[i] = -ptOnTwoEdge[i];
+    }
+
+    ptOnOneEdge = one.transform * ptOnOneEdge;
+    ptOnTwoEdge = one.transform * ptOnTwoEdge;
+
+    glm::vec3 vertex = ContactPoint(ptOnOneEdge, oneAxis, one.halfSize[oneAxisIndex],
+                                    ptOnTwoEdge, twoAxis, two.halfSize[twoAxisIndex],
+                                    bestSingleAxis > 2);
+
+    Contact* contact = data->contacts;
+    contact->penetration = pen;
+    contact->contactNormal = axis;
+    contact->contactPoint = vertex;
+    contact->SetBodyData(one.body, two.body, data->friction, data->restitution);
+
+    data->AddContacts(1);
+    return 1;
+  }
+  return 0;
 }
 #undef CHECK_AXIS_OVERLAP
 
 unsigned int ZFineCollisionDetector::BoxAndPoint(const ZCollisionBox& box, const glm::vec3& point, ZCollisionData* data) {
+   glm::vec3 relativePoint = glm::inverse(box.transform) * point;
+   glm::vec3 normal;
 
+   float min_depth = box.halfSize.x - glm::abs(relativePoint.x);
+   if (min_depth < 0) return 0;
+   normal = box.Axis(0) * (relPt.x < 0 ? -1: 1);
+
+   float depth = box.halfSize.y - glm::abs(relativePoint.y);
+   if (depth < 0) return 0;
+   else if (depth < min_depth) {
+       min_depth = depth;
+       normal = box.Axis(1) * (relativePoint.y < 0 ? -1 : 1);
+   }
+
+   depth = box.halfSize.z - glm::abs(relativePoint.z);
+   if (depth < 0) return 0;
+   else if (depth < min_depth) {
+       min_depth = depth;
+       normal = box.Axis(2) * (relativePoint.z < 0 ? -1 : 1);
+   }
+
+   Contact* contact = data->contacts;
+   contact->contactNormal = normal;
+   contact->contactPoint = point;
+   contact->penetration = min_depth;
+
+   contact->setBodyData(box.body, nullptr, data->friction, data->restitution);
+
+   data->addContacts(1);
+   return 1;
 }
 
 unsigned int ZFineCollisionDetector::BoxAndSphere(const ZCollisionBox& box, const ZCollisionSphere& sphere, ZCollisionData* data) {
+  glm::vec3 centre = sphere.Axis(3);
+  glm::vec3 relCentre = glm::inverse(box.transform) * centre;
 
+  if (glm::abs(relCentre.x) - sphere.radius > box.halfSize.x ||
+      glm::abs(relCentre.y) - sphere.radius > box.halfSize.y ||
+      glm::abs(relCentre.z) - sphere.radius > box.halfSize.z) {
+      return 0;
+  }
+
+  float dist;
+  glm::vec3 closestPt(0.f);
+
+  dist = relCentre.x;
+  if (dist > box.halfSize.x) dist = box.halfSize.x;
+  if (dist < -box.halfSize.x) dist = -box.halfSize.x;
+  closestPt.x = dist;
+
+  dist = relCentre.y;
+  if (dist > box.halfSize.y) dist = box.halfSize.y;
+  if (dist < -box.halfSize.y) dist = -box.halfSize.y;
+  closestPt.y = dist;
+
+  dist = relCentre.z;
+  if (dist > box.halfSize.z) dist = box.halfSize.z;
+  if (dist < -box.halfSize.z) dist = -box.halfSize.z;
+  closestPt.z = dist;
+
+  dist = glm::distance2(closestPt, relCentre);
+  if (dist > sphere.radius * sphere.radius) return 0;
+
+  glm::vec3 closestPtWorld = box.transform * closestPt;
+
+  Contact* contact = data->contacts;
+  contact->contactNormal = glm::normalize(closestPtWorld - centre);
+  contact->contactPoint = closestPtWorld;
+  contact->penetration = sphere.radius - glm::sqrt(dist);
+  contact->SetBodyData(box.body, sphere.body, data->friction, data->restitution);
+
+  data->addContacts(1);
+  return 1;
 }
