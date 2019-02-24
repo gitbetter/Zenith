@@ -17,8 +17,8 @@ ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position,
    selectable_ = true;
 }
 
-void ZUIButton::Render(ZShader* shader) {
-  ZUIElement::Render(shader);
+void ZUIButton::Draw(ZShader* shader) {
+  ZUIElement::Draw(shader);
   ElementShape().Render(shader);
   RenderChildren(shader);
 }

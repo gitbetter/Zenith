@@ -24,13 +24,19 @@ private:
   std::vector<ZVertex3D> vertices_;
   std::vector<unsigned int> indices_;
   ZMaterial material_;
+  // Used for calculating bounds of collision primitives and BVH nodes
+  ZVertex3D minVertex_, maxVertex_;
 
   void AttachMaterialTextures(ZShader* shader);
 
 public:
 
   ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material);
+  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material, ZVertex3D min, ZVertex3D max);
   ~ZMesh3D() { }
+
+  ZVertex3D Min() const { return minVertex_; }
+  ZVertex3D Max() const { return maxVertex_; }
 
   void SetMaterial(ZMaterial material) { material_ = material; }
 

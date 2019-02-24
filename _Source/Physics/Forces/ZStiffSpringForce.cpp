@@ -33,5 +33,7 @@ void ZStiffSpringForce::UpdateForce(ZGameObject* object) {
 
   glm::vec3 acceleration = (target - position) * (1.f / ZEngine::UPDATE_STEP_SIZE * ZEngine::UPDATE_STEP_SIZE) -
                            physicsComp->Velocity() * ZEngine::UPDATE_STEP_SIZE;
-  physicsComp->AddForce(acceleration * physicsComp->Mass());
+
+  glm::vec3 force = acceleration * physicsComp->Mass();
+  physicsComp->AddForce(force);
 }

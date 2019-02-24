@@ -23,7 +23,7 @@ public:
   ZUIText(std::string text, std::string font = "", float fontSize = 1.f, glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.1f));
   ~ZUIText() { }
 
-  void Render(ZShader* shader) override;
+  void Draw(ZShader* shader) override;
 
 protected:
 

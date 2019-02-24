@@ -14,7 +14,6 @@
 #define ZERROR 2
 
 #include "ZOFTree.hpp"
-#include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -23,13 +22,14 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/norm.hpp>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
 #include <functional>
 #include <cassert>
 #include <type_traits>
-#include <numberic_limits>
+#include <memory>
 
 #define _Z(message, severity) { \
   switch(severity) {\

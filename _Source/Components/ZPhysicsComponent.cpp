@@ -64,14 +64,16 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
 
 void ZPhysicsComponent::Update() {
   assert(object_ != nullptr);
+  if (!isAwake_) return;
 
   glm::mat3 inverseInertiaWorld_ = glm::mat3_cast(object_->Orientation()) * inverseInertiaTensor_;
 
-  glm::vec3 acceleration(0.f);
-  acceleration += forceAccumulator_ * inverseMass_;
+  previousAcceleration_ = acceleration_;
+  acceleration_ = glm::vec3(0.f);
+  acceleration_ += forceAccumulator_ * inverseMass_;
   glm::vec3 angularAcceleration = inverseInertiaTensor_ * torqueAccumulator_;
 
-  velocity_ += acceleration * ZEngine::UPDATE_STEP_SIZE;
+  velocity_ += acceleration_ * ZEngine::UPDATE_STEP_SIZE;
   angularVelocity_ += angularAcceleration * ZEngine::UPDATE_STEP_SIZE;
 
   velocity_ *= glm::pow(damping_, ZEngine::UPDATE_STEP_SIZE);
@@ -81,12 +83,57 @@ void ZPhysicsComponent::Update() {
   object_->SetOrientation(glm::mix(object_->Orientation(), glm::quat(angularVelocity_) * object_->Orientation(), ZEngine::UPDATE_STEP_SIZE));
 
   ClearForceAccumulator();
+
+  if (canSleep_) {
+      float currentMotion = glm::dot(velocity_, velocity_) + glm::dot(angularVelocity_, angularVelocity_);
+      float bias = glm::pow(0.5f, ZEngine::UPDATE_STEP_SIZE);
+      motion_ = bias * motion_ + (1 - bias) * currentMotion;
+
+      if (motion_ < sleepEpsilon_) SetAwake(false);
+      else if (motion_ > 10.f * sleepEpsilon_) motion_ = 10 * sleepEpsilon_;
+  }
 }
 
-void ZPhysicsComponent::AddForce(glm::vec3 force) {
+void ZPhysicsComponent::AddForce(glm::vec3& force) {
   forceAccumulator_ += force;
+  isAwake_ = true;
+}
+
+void ZPhysicsComponent::AddForceAtPoint(glm::vec3& force, glm::vec3& point) {
+  glm::vec3 pt = point;
+  pt -= object_->Position();
+
+  forceAccumulator_ += force;
+  torqueAccumulator_ += glm::cross(pt, force);
+
+  SetAwake();
+}
+
+void ZPhysicsComponent::AddForceAtBodyPoint(glm::vec3& force, glm::vec3& point) {
+  glm::vec3 worldPoint = glm::vec3(object_->ModelMatrix() * glm::vec4(point.x, point.y, point.z, 1.f));
+  AddForceAtPoint(force, worldPoint);
+}
+
+void ZPhysicsComponent::AddTorque(glm::vec3& torque) {
+  torqueAccumulator_ += torque;
+  SetAwake();
 }
 
 void ZPhysicsComponent::ClearForceAccumulator() {
   forceAccumulator_ = glm::vec3(0.f);
+}
+
+void ZPhysicsComponent::SetAwake(const bool awake) {
+  isAwake_ = awake;
+  if (isAwake_) {
+    motion_ = sleepEpsilon_ * 2.f;
+  } else {
+    velocity_ = glm::vec3(0.f);
+    angularVelocity_ = glm::vec3(0.f);
+  }
+}
+
+void ZPhysicsComponent::SetCanSleep(const bool canSleep) {
+  canSleep_ = canSleep;
+  if (!canSleep_ && !isAwake_) SetAwake();
 }

@@ -79,6 +79,9 @@ ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::s
   std::vector<unsigned int> indices;
   ZMaterial material;
 
+  ZVertex3D minVertex((glm::vec3(std::numeric_limits<float>::max())));
+  ZVertex3D maxVertex((glm::vec3(std::numeric_limits<float>::min())));
+
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     ZVertex3D vertex;
 
@@ -103,6 +106,14 @@ ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::s
       vertex.uv = glm::vec2(0.0f, 0.0f);
     }
 
+    if (vertex.position.x < minVertex.position.x) minVertex.position.x = vertex.position.x;
+    if (vertex.position.y < minVertex.position.y) minVertex.position.y = vertex.position.y;
+    if (vertex.position.z < minVertex.position.z) minVertex.position.z = vertex.position.z;
+
+    if (vertex.position.x > maxVertex.position.x) maxVertex.position.x = vertex.position.x;
+    if (vertex.position.y > maxVertex.position.y) maxVertex.position.y = vertex.position.y;
+    if (vertex.position.z > maxVertex.position.z) maxVertex.position.z = vertex.position.z;
+
     vertices.push_back(vertex);
   }
 
@@ -125,7 +136,7 @@ ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::s
     material = ZMaterial::DefaultMaterial();
   }
 
-  return ZMesh3D(vertices, indices, material);
+  return ZMesh3D(vertices, indices, material, minVertex, maxVertex);
 }
 
 /**

@@ -38,9 +38,9 @@ void ZUI::Initialize() {
 }
 
 void ZUI::Draw() {
-  if (cursor_ != nullptr) cursor_->Render(uiShader_);
+  if (cursor_ != nullptr) cursor_->Draw(uiShader_);
   for (ZUIElement* element : elements_) {
-      element->Render((dynamic_cast<ZUIText*>(element)) ? textShader_ : uiShader_);
+      element->Draw((dynamic_cast<ZUIText*>(element)) ? textShader_ : uiShader_);
   }
 }
 

@@ -27,4 +27,5 @@ public:
 protected:
 
   ZBufferData bufferData_;
+  
 };

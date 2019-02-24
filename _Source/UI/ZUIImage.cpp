@@ -16,8 +16,8 @@ ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIE
   SetImage(path);
 }
 
-void ZUIImage::Render(ZShader* shader) {
-  ZUIElement::Render(shader);
+void ZUIImage::Draw(ZShader* shader) {
+  ZUIElement::Draw(shader);
   ZEngine::UI()->GraphicsStrategy()->EnableAlphaBlending();
   ElementShape().Render(shader);
   ZEngine::UI()->GraphicsStrategy()->DisableAlphaBlending();

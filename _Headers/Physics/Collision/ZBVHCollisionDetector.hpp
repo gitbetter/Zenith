@@ -54,6 +54,7 @@ public:
 
   unsigned int PotentialContacts(ZPotentialContact* contacts, unsigned int max) const;
   void Insert(ZGameObject* body, const BoundingVolumeType& volume);
+  void Remove(ZGameObject* body);
 
 protected:
 
@@ -75,6 +76,17 @@ void ZBVHNode<BoundingVolumeType>::Insert(ZGameObject* newBody, const BoundingVo
     } else {
       children[1]->Insert(newBody, newVolume);
     }
+  }
+}
+
+template<class BoundingVolumeType>
+void ZBVHNode<BoundingVolumeType>::Remove(ZGameObject* toDelete) {
+  if (body == toDelete) {
+    delete this;
+  } else if (children[0]->body == toDelete) {
+    delete children[0];
+  } else if (children[1]->body == toDelete) {
+    delete children[1];
   }
 }
 

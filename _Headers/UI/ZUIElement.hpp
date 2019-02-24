@@ -58,7 +58,7 @@ public:
 
   void ResetTranslation() { modelMatrix_ = glm::mat4(glm::mat3(modelMatrix_)); }
 
-  virtual void Render(ZShader* shader);
+  virtual void Draw(ZShader* shader);
   virtual ZMeshUI ElementShape() { };
 
   void RenderChildren(ZShader* shader);

@@ -16,6 +16,7 @@
 
 // Includes
 #include "ZCommon.hpp"
+#include "ZBVHCollisionDetector.hpp"
 
 // Forward Declarations
 class ZGraphics;
@@ -43,6 +44,8 @@ private:
   static float deltaTime_;
   static ZIDSequence* idGenerator_;
 
+  static ZBVHNode<ZBoundingSphere>* bvhTree_;
+
 public:
 
   static const float UPDATE_STEP_SIZE;
@@ -65,6 +68,8 @@ public:
 
   static float DeltaTime();
   static float MilliSecondTime();
+
+  static ZBVHNode<ZBoundingSphere>* BVHTree();
 
   static void Provide(ZDomain* domain);
   static void Provide(ZGraphics* graphics);

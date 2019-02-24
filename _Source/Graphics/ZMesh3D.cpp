@@ -16,6 +16,10 @@ ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indi
   bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices, indices);
 }
 
+ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material, ZVertex3D min, ZVertex3D max) : ZMesh3D(vertices, indices, material) {
+  minVertex_ = min; maxVertex_ = max;
+}
+
 void ZMesh3D::Render(ZShader* shader) {
   shader->Activate();
   AttachMaterialTextures(shader);

@@ -22,6 +22,9 @@ ZGO_01
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
 		:textures []:
 	^
+	CollisionComponent
+		:primitive Box:
+	^
 ^
 ZGO_02
 	:position [-5.0, 20.0, 1.0]:
@@ -46,6 +49,9 @@ ZGO_02
 		:model Cube [1.0, 1.0, 1.0]:	# could be a string to a model path or predefined primitive like this cube
 		:textures []:
 	^
+	CollisionComponent
+		:primitive Box:
+	^
 ^
 ZGO_03
 	:position [-2.0, 1.2, -3.0]:
@@ -69,6 +75,9 @@ ZGO_03
 		:model Cube [1.0, 1.0, 1.0]:	# could be a string to a model path or predefined primitive like this cube
 		:textures []:
 	^
+	CollisionComponent
+		:primitive Box:
+	^
 ^
 ZGO_04
 	:position [-5.0, 10.0, 25.0]:
@@ -86,6 +95,9 @@ ZGO_05
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Plane:
+	^
+	CollisionComponent
+		:primitive Plane:
 	^
 ^
 ZSH_01

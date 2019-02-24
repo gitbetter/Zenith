@@ -30,7 +30,7 @@ private:
 public:
 
   ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
-  virtual ~ZGameObject() { }
+  virtual ~ZGameObject();
 
   void Initialize(ZOFNode* root);
 
@@ -38,7 +38,7 @@ public:
   virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
   void ShouldTranslateWithView(bool translates);
-  void CalculateModelMatrix();
+  void CalculateDerivedData();
 
   void SetPosition(glm::vec3 position);
   void SetScale(glm::vec3 scale);

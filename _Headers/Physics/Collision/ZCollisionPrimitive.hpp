@@ -13,26 +13,30 @@
 
 // Forward Declarations
 class ZIntersectionTests;
-class ZCollisionDetector;
+class ZFineCollisionDetector;
 
 // Class and Data Structure Definitions
 class ZCollisionPrimitive {
   friend class ZIntersectionTests;
-  friend class ZCollisionDetector;
+  friend class ZFineCollisionDetector;
 
 public:
+  ZGameObject* body = nullptr;
+  glm::mat4 offset = glm::mat4(0.f);
 
-  ZGameObject* body;
-  glm::mat4 offset;
+  virtual ~ZCollisionPrimitive() { }
 
   void CalculateInternals();
   glm::vec3 Axis(unsigned int index) const {
     return transform[index];
   }
 
+  static ZCollisionPrimitive* Create(std::string type, glm::vec3 min, glm::vec3 max);
+
 protected:
 
-  glm::mat4 transform;
+  glm::mat4 transform = glm::mat4(0.f);
+
 };
 
 class ZCollisionSphere : public ZCollisionPrimitive {

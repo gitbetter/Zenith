@@ -10,10 +10,10 @@
 
 // Includes
 #include "ZCommon.hpp"
+#include "ZFineCollisionDetector.hpp"
 
 // Forward Declarations
 class ZObjectForceRegistry;
-class ZGameObject;
 
 // Class and Data Structure Definitions
 class ZPhysics {
@@ -26,13 +26,19 @@ public:
 
   void Initialize();
 
-  void Update();
+  void UpdateForces();
+  void GenerateContacts(ZGameObjectMap gameObjects);
+  void ResolveContacts();
 
   void CleanUp() { }
 
   ZObjectForceRegistry* Registry() { return registry_; }
 
 protected:
+  const static unsigned maxContacts_ = 256;
 
   ZObjectForceRegistry* registry_ = nullptr;
+  ZContactResolver* contactResolver_ = nullptr;
+  ZCollisionData collisionData_;
+
 };

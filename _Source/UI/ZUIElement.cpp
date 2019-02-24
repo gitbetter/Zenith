@@ -21,7 +21,7 @@ ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0),
   Scale(scale); Translate(position);
 }
 
-void ZUIElement::Render(ZShader* shader) {
+void ZUIElement::Draw(ZShader* shader) {
   shader->Activate();
 
   ZEngine::UI()->GraphicsStrategy()->BindTexture(texture_, 0);
@@ -36,7 +36,7 @@ void ZUIElement::Render(ZShader* shader) {
 void ZUIElement::RenderChildren(ZShader* shader) {
   for (ZUIElement* child : children_) {
     // TODO: Only render if the child has the dirty flag set
-    child->Render((dynamic_cast<ZUIText*>(child)) ? ZEngine::UI()->TextShader() : shader);
+    child->Draw((dynamic_cast<ZUIText*>(child)) ? ZEngine::UI()->TextShader() : shader);
   }
 }
 

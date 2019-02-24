@@ -10,9 +10,9 @@
 
 // Includes
 #include "ZCollisionPrimitive.hpp"
+#include "ZContact.hpp"
 
 // Forward Declarations
-class ZContact;
 
 // Class and Data Structure Definitions
 class ZIntersectionTests {
@@ -25,10 +25,8 @@ public:
 };
 
 struct ZCollisionData {
-  ZContact* firstContact;
-  ZContact* contacts;
+  ContactPtrList contacts;
   int contactsLeft;
-  unsigned int contactsCount;
   float friction;
   float restitution;
   float tolerance;
@@ -36,25 +34,29 @@ struct ZCollisionData {
   bool HasMoreContacts() { return contactsLeft > 0; }
 
   void Reset(unsigned int maxContacts) {
+    contacts.clear();
     contactsLeft = maxContacts;
-    contactsCount = 0;
-    contacts = firstContact;
   }
 
-  void AddContacts(unsigned int count) {
-    contactsLeft -= count;
-    contactsCount += count;
-    contacts += count;
+  void AddContact(std::shared_ptr<ZContact> contact) {
+    contacts.push_back(contact);
+    contactsLeft -= 1;
   }
 };
 
 class ZFineCollisionDetector {
+
+private:
+
+  static void FillPointFaceBoxBox(const ZCollisionBox& one, const ZCollisionBox& two,
+                                  const glm::vec3& toCenter, ZCollisionData* data, unsigned int best, float pen);
+
 public:
 
   static unsigned int SphereAndHalfSpace(const ZCollisionSphere& sphere, const ZCollisionPlane& plane, ZCollisionData* data);
   static unsigned int SphereAndTruePlane(const ZCollisionSphere& sphere, const ZCollisionPlane& plane, ZCollisionData* data);
-  static unsigned int SphereAndSphere(const ZCollisionSphere& sphere, const ZCollisionSphere& sphere, ZCollisionData* data);
-  static unsigned int BoxAndHalfSpace(const ZCollisionBox& box, const ZCollisionSphere& sphere, ZCollisionData* data);
+  static unsigned int SphereAndSphere(const ZCollisionSphere& one, const ZCollisionSphere& two, ZCollisionData* data);
+  static unsigned int BoxAndHalfSpace(const ZCollisionBox& box, const ZCollisionPlane& plane, ZCollisionData* data);
   static unsigned int BoxAndBox(const ZCollisionBox& one, const ZCollisionBox& two, ZCollisionData* data);
   static unsigned int BoxAndPoint(const ZCollisionBox& box, const glm::vec3& point, ZCollisionData* data);
   static unsigned int BoxAndSphere(const ZCollisionBox& box, const ZCollisionSphere& sphere, ZCollisionData* data);

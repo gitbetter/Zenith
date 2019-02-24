@@ -21,7 +21,7 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
   bufferData_ = ZEngine::UI()->GraphicsStrategy()->LoadEmptyVertexData2D(4);
 }
 
-void ZUIText::Render(ZShader* shader) {
+void ZUIText::Draw(ZShader* shader) {
   ZEngine::UI()->GraphicsStrategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
   float x = Position().x * (float)ZEngine::Domain()->ResolutionX() / 2.f,
@@ -42,7 +42,7 @@ void ZUIText::Render(ZShader* shader) {
       ZVertex2D(glm::vec2(xpos + w, ypos + h), glm::vec2(1.f, 1.f))
     };
 
-    ZUIElement::Render(shader);
+    ZUIElement::Draw(shader);
     ZEngine::UI()->GraphicsStrategy()->UpdateBuffer(bufferData_, vertices);
     ZEngine::UI()->GraphicsStrategy()->Draw(bufferData_, vertices);
 

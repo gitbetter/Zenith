@@ -18,8 +18,8 @@ ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position,
   AddChild(cursorImage);
 }
 
-void ZUICursor::Render(ZShader* shader) {
-  ZUIElement::Render(shader);
+void ZUICursor::Draw(ZShader* shader) {
+  ZUIElement::Draw(shader);
   RenderChildren(shader);
 }
 

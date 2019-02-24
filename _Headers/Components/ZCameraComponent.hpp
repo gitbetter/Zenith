@@ -51,7 +51,7 @@ public:
 
   void Initialize(ZOFNode* root) override;
 
-  virtual void Update() override;
+  void Update() override;
 
   void UpdateCameraOrientation();
 

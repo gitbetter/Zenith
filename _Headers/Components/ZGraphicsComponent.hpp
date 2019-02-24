@@ -38,9 +38,10 @@ public:
   void Initialize(ZOFNode* root) override;
   void Initialize(ZModel* model, ZShader* shader);
 
-  virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+  void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
-  ZShader* GetActiveShader() const { return shaders_[activeShaderIndex_]; }
+  ZShader* ActiveShader() const { return shaders_[activeShaderIndex_]; }
+  ZModel* Model() const { return model_; }
 
   void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
   void ClearOutline();

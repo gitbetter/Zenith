@@ -9,19 +9,25 @@
 #include "ZGameObject.hpp"
 #include "ZEngine.hpp"
 #include "ZGame.hpp"
-#include "ZCommon.hpp"
-#include "ZIDSequence.hpp"
 #include "ZCameraComponent.hpp"
+#include "ZPhysicsComponent.hpp"
+#include "ZCollisionComponent.hpp"
 #include "ZOFTree.hpp"
+#include "ZIDSequence.hpp"
+#include "ZBVHCollisionDetector.hpp"
 
 ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
 : position_(glm::vec4(position, 1.f)),
-  orientation_(orientation),
   scale_(glm::vec3(1.f, 1.f, 1.f)),
+  orientation_(orientation),
   modelMatrix_(glm::mat4(1.f)),
   translatesWithView_(false) {
   id_ = "ZGO_" + ZEngine::IDSequence()->Next();
-  CalculateModelMatrix();
+  CalculateDerivedData();
+}
+
+ZGameObject::~ZGameObject() {
+  ZEngine::BVHTree()->Remove(this);
 }
 
 void ZGameObject::Initialize(ZOFNode* root) {
@@ -44,13 +50,18 @@ void ZGameObject::Initialize(ZOFNode* root) {
     }
   }
 
-  CalculateModelMatrix();
+  CalculateDerivedData();
 }
 
 void ZGameObject::Update() {
-  for (ZComponent* comp : components_) {
-    comp->Update();
-  }
+  ZPhysicsComponent* physicsComp = FindComponent<ZPhysicsComponent>();
+  if (physicsComp) physicsComp->Update();
+
+  ZCollisionComponent* collisionComp = FindComponent<ZCollisionComponent>();
+  if (collisionComp) collisionComp->Update();
+
+  ZCameraComponent* cameraComp = FindComponent<ZCameraComponent>();
+  if (cameraComp) cameraComp->Update();
 }
 
 void ZGameObject::Render(float frameMix, unsigned char renderOp) {
@@ -75,28 +86,28 @@ void ZGameObject::ShouldTranslateWithView(bool translates) {
 void ZGameObject::SetPosition(glm::vec3 position) {
   previousPosition_ = position_;
   position_ = glm::vec4(position, 1.f);
-  CalculateModelMatrix();
+  CalculateDerivedData();
 }
 
 void ZGameObject::SetScale(glm::vec3 scale) {
   previousScale_ = scale_;
   scale_ = scale;
-  CalculateModelMatrix();
+  CalculateDerivedData();
 }
 
 void ZGameObject::SetOrientation(glm::quat quaternion) {
   previousOrientation_ = orientation_;
   orientation_ = quaternion;
-  CalculateModelMatrix();
+  CalculateDerivedData();
 }
 
 void ZGameObject::SetOrientation(glm::vec3 euler) {
   previousOrientation_ = orientation_;
   orientation_ = glm::quat(euler);
-  CalculateModelMatrix();
+  CalculateDerivedData();
 }
 
-void ZGameObject::CalculateModelMatrix() {
+void ZGameObject::CalculateDerivedData() {
   modelMatrix_ = glm::mat4_cast(orientation_);
   modelMatrix_ = glm::scale(modelMatrix_, scale_);
   modelMatrix_ = glm::translate(modelMatrix_, glm::vec3(position_));

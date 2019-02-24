@@ -21,6 +21,7 @@ class ZModel {
 private:
 
   std::vector<ZMesh3D> meshes_;
+  ZVertex3D minVertex_, maxVertex_;
 
   void CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures);
   void CreateCube(glm::vec3 scale, std::vector<ZTexture> textures);
@@ -38,6 +39,9 @@ public:
   void SetMaterial(ZMaterial material);
 
   virtual void Render(ZShader* shader);
+
+  ZVertex3D MinVertex() const { return minVertex_; }
+  ZVertex3D MaxVertex() const { return maxVertex_; }
 
   static ZModel* NewPlanePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.f, 0.5f), std::vector<ZTexture> textures = {});
   static ZModel* NewCubePrimitive(glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f), std::vector<ZTexture> textures = {});

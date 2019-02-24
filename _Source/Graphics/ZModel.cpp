@@ -31,6 +31,22 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale, std::vector<ZTextu
 ZModel::ZModel(std::string path) {
   ZGLModelImporter importer;
   importer.LoadModel(path, meshes_);
+
+  if (meshes_.size() > 0) {
+    ZVertex3D minVertex((glm::vec3(std::numeric_limits<float>::max())));
+    ZVertex3D maxVertex((glm::vec3(std::numeric_limits<float>::min())));
+    for (ZMesh3D mesh : meshes_) {
+      ZVertex3D meshMin = mesh.Min(), meshMax = mesh.Max();
+      if (meshMin.position.x < minVertex.position.x) minVertex.position.x = meshMin.position.x;
+      if (meshMin.position.y < minVertex.position.y) minVertex.position.y = meshMin.position.x;
+      if (meshMin.position.z < minVertex.position.z) minVertex.position.z = meshMin.position.x;
+
+      if (meshMax.position.x > maxVertex.position.x) maxVertex.position.x = meshMax.position.x;
+      if (meshMax.position.y > maxVertex.position.y) maxVertex.position.y = meshMax.position.x;
+      if (meshMax.position.z > maxVertex.position.z) maxVertex.position.z = meshMax.position.x;
+    }
+    minVertex_ = minVertex; maxVertex_ = maxVertex;
+  }
 }
 
 void ZModel::Render(ZShader* shader) {
@@ -57,6 +73,8 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
   ZVertex3D bottomRight(glm::vec3(scale.x, 0.0f, scale.z));
   ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.0f, scale.z));
   ZVertex3D topLeft(glm::vec3(-scale.x, 0.0f, -scale.z));
+
+  minVertex_ = topLeft; maxVertex_ = bottomRight;
 
   std::vector<ZVertex3D> vertices = {
     topRight, bottomRight, bottomLeft, topLeft
@@ -110,6 +128,8 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
   ZVertex3D bottom_BottomRight(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(0.f, -1.f, 0.f));
   ZVertex3D bottom_TopRight(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f));
   ZVertex3D bottom_TopLeft(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f));
+
+  minVertex_ = back_BottomRight; maxVertex_ = top_BottomRight;
 
   std::vector<ZVertex3D> vertices = {
     front_BottomLeft, front_BottomRight, front_TopRight, front_TopLeft,
