@@ -162,7 +162,7 @@ unsigned int ZFineCollisionDetector::SphereAndTruePlane(const ZCollisionSphere& 
   glm::vec3 normal = plane.direction;
   float penetration = -centerDistance;
   if (centerDistance < 0) {
-    normal *= -1; penetration *= -1.f;
+    normal *= -1; penetration = -penetration;
   }
   penetration += sphere.radius;
 
@@ -183,7 +183,7 @@ unsigned int ZFineCollisionDetector::SphereAndSphere(const ZCollisionSphere& one
   glm::vec3 positionTwo = one.Axis(3);
 
   glm::vec3 midline = positionOne - positionTwo;
-  float size = glm::distance2(positionOne, positionTwo);
+  float size = glm::length(midline);
   if (size <= 0.f || size >= one.radius + two.radius) return 0;
 
   glm::vec3 normal = midline * 1.f/size;
@@ -203,8 +203,10 @@ unsigned int ZFineCollisionDetector::BoxAndHalfSpace(const ZCollisionBox& box, c
 
   if (!ZIntersectionTests::BoxAndHalfSpace(box, plane)) return 0;
 
-  static float mults[8][3] = {{1,1,1}, {-1,1,1}, {1,-1,1}, {-1,-1,1},
-                              {1,1,-1}, {-1,1,-1}, {1,-1,-1}, {-1,-1,-1}};
+  static float mults[8][3] = {{1.f,1.f,1.f}, {-1.f,1.f,1.f},
+                              {1.f,-1.f,1.f}, {-1.f,-1.f,1.f},
+                              {1.f,1.f,-1.f}, {-1.f,1.f,-1.f},
+                              {1.f,-1.f,-1.f}, {-1.f,-1.f,-1.f}};
 
   unsigned contactsUsed = 0;
   for (unsigned int i = 0; i < 8; i++) {
@@ -216,9 +218,7 @@ unsigned int ZFineCollisionDetector::BoxAndHalfSpace(const ZCollisionBox& box, c
 
       if (vertexDistance <= plane.offset) {
           std::shared_ptr<ZContact> contact = std::make_shared<ZContact>();
-          contact->contactPoint = plane.direction;
-          contact->contactPoint *= (vertexDistance - plane.offset);
-          contact->contactPoint += vertexPos;
+          contact->contactPoint = plane.direction * (vertexDistance - plane.offset) + vertexPos;
           contact->contactNormal = plane.direction;
           contact->penetration = plane.offset - vertexDistance;
 

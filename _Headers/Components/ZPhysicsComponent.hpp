@@ -14,6 +14,7 @@
 
 // Forward Declarations
 struct ZOFNode;
+class ZCollisionPrimitive;
 
 // Class and Data Structure Definitions
 class ZPhysicsComponent : public ZComponent {
@@ -53,6 +54,7 @@ public:
   void SetAngularDamping(float damping) { angularDamping_ = damping; }
   void SetMass(float mass) { assert(mass > 0.f); inverseMass_ = 1.f / mass; }
   void SetInertiaTensor(glm::mat3 inertiaTensor) { inverseInertiaTensor_ = glm::inverse(inertiaTensor); }
+  void SetInertiaTensor(ZCollisionPrimitive* primitive);
   void SetAwake(const bool awake = true);
   void SetCanSleep(const bool canSleep = true);
 

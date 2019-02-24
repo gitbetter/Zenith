@@ -30,8 +30,8 @@ void ZPhysics::UpdateForces() {
 
 void ZPhysics::GenerateContacts(ZGameObjectMap gameObjects) {
   collisionData_.Reset(maxContacts_);
-  collisionData_.friction = 0.9f;
-  collisionData_.restitution = 0.5f;
+  collisionData_.friction = 0.8f;
+  collisionData_.restitution = 0.3f;
   collisionData_.tolerance = 0.1f;
 
   // Perform exhaustive collision detection

@@ -22,7 +22,7 @@ class ZCollisionPrimitive {
 
 public:
   ZGameObject* body = nullptr;
-  glm::mat4 offset = glm::mat4(0.f);
+  glm::mat4 offset = glm::mat4(1.f);
 
   virtual ~ZCollisionPrimitive() { }
 
@@ -35,7 +35,7 @@ public:
 
 protected:
 
-  glm::mat4 transform = glm::mat4(0.f);
+  glm::mat4 transform = glm::mat4(1.f);
 
 };
 

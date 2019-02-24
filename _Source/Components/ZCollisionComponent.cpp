@@ -10,6 +10,7 @@
 #include "ZModel.hpp"
 #include "ZCollisionComponent.hpp"
 #include "ZGraphicsComponent.hpp"
+#include "ZPhysicsComponent.hpp"
 
 void ZCollisionComponent::Initialize(ZOFNode* root) {
   ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
@@ -32,6 +33,9 @@ void ZCollisionComponent::Initialize(ZOFNode* root) {
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
       collisionPrimitive_ = ZCollisionPrimitive::Create(terminal->value, min, max);
       collisionPrimitive_->body = object_;
+
+      ZPhysicsComponent* physicsComp = object_->FindComponent<ZPhysicsComponent>();
+      if (physicsComp) physicsComp->SetInertiaTensor(collisionPrimitive_);
     }
   }
 }

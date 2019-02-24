@@ -1,18 +1,16 @@
 # scene_example.zof
 
 ZGO_01
-	:position [0.0, 1.25, 0.0]:
+	:position [0.0, 0.3, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [5.0, 5.0, 5.0]:
+	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
 		:velocity [0.0, 0.0, 0.0]:
 		:angularVelocity [0.0, 0.0, 0.0]:
 		:damping 1.0:
 		:angularDamping 1.0:
-		:mass 5.0:
-		:inertiaTensor [1.5, 0.0, 0.0,
-						0.0, 1.5, 0.0,
-						0.0, 0.0, 1.5]:
+		:simulateGravity Yes:
+		:mass 1.0:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -27,19 +25,16 @@ ZGO_01
 	^
 ^
 ZGO_02
-	:position [-5.0, 20.0, 1.0]:
+	:position [-5.0, 0.3, 1.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [4.0, 4.0, 4.0]:
+	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
 		:velocity [0.0, 0.0, 0.0]:
 		:angularVelocity [0.0, 0.0, 0.0]:
 		:damping 1.0:
 		:angularDamping 1.0:
 		:simulateGravity Yes:
-		:mass 5.0:
-		:inertiaTensor [1.5, 0.0, 0.0,
-						0.0, 1.5, 0.0,
-						0.0, 0.0, 1.5]:
+		:mass 1.0:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -54,18 +49,16 @@ ZGO_02
 	^
 ^
 ZGO_03
-	:position [-2.0, 1.2, -3.0]:
+	:position [-2.0, 0.3, -3.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [6.0, 6.0, 6.0]:
+	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
 		:velocity [0.0, 0.0, 0.0]:
 		:angularVelocity [0.0, 0.0, 0.0]:
 		:damping 1.0:
 		:angularDamping 1.0:
-		:mass 5.0:
-		:inertiaTensor [1.5, 0.0, 0.0,
-						0.0, 1.5, 0.0,
-						0.0, 0.0, 1.5]:
+		:simulateGravity Yes:
+		:mass 1.0:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -80,7 +73,7 @@ ZGO_03
 	^
 ^
 ZGO_04
-	:position [-5.0, 10.0, 25.0]:
+	:position [-5.0, 15.0, 50.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
 	CameraComponent

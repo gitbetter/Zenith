@@ -54,10 +54,7 @@ protected:
 };
 
 class ZContactResolver {
-private:
-
-    bool validSettings;
-
+  
 protected:
 
     unsigned int velocityIterations;

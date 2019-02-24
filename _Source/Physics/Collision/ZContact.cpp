@@ -75,7 +75,7 @@ inline void ZContact::CalculateContactBasis() {
 
 void ZContact::CalculateInternals(float duration) {
     if (!body[0]) SwapBodies();
-    if (!body[0]) return;
+    assert(body[0]);
 
     CalculateContactBasis();
 
@@ -120,10 +120,10 @@ void ZContact::CalculateDesiredDeltaVelocity(float duration) {
     float velocityFromAcc = 0.f;
 
     if (physicsComp0->Awake()) {
-      velocityFromAcc += glm::dot(physicsComp0->PreviousAcceleration(), contactNormal) * duration;
+      velocityFromAcc += glm::dot(physicsComp0->PreviousAcceleration(), contactNormal * duration);
     }
 
-    if (body[1] && body[1]->FindComponent<ZPhysicsComponent>() != nullptr) {
+    if (body[1] && body[1]->FindComponent<ZPhysicsComponent>()) {
         ZPhysicsComponent* physicsComp1 = body[1]->FindComponent<ZPhysicsComponent>();
         if (physicsComp1->Awake()) {
           velocityFromAcc -= glm::dot(physicsComp1->PreviousAcceleration(), contactNormal) * duration;
@@ -218,15 +218,12 @@ inline glm::vec3 ZContact::CalculateFrictionImpulse(glm::mat3* inverseInertiaTen
   glm::vec3 impulseContact;
   float inverseMass = physicsComp0->InverseMass();
 
-  // The equivalent of a cross product in matrices is multiplication
-  // by a skew symmetric matrix - we build the matrix for converting
-  // between linear and angular quantities.
   glm::mat3 impulseToTorque = glm::matrixCross3(relativeContactPosition[0]);
 
   glm::mat3 deltaVelWorld = impulseToTorque;
   deltaVelWorld *= inverseInertiaTensor[0];
   deltaVelWorld *= impulseToTorque;
-  deltaVelWorld *= -1;
+  deltaVelWorld *= -1.f;
 
   if (body[1] && body[1]->FindComponent<ZPhysicsComponent>()) {
     ZPhysicsComponent* physicsComp1 = body[1]->FindComponent<ZPhysicsComponent>();
@@ -236,7 +233,7 @@ inline glm::vec3 ZContact::CalculateFrictionImpulse(glm::mat3* inverseInertiaTen
     glm::mat3 deltaVelWorld2 = impulseToTorque;
     deltaVelWorld2 *= inverseInertiaTensor[1];
     deltaVelWorld2 *= impulseToTorque;
-    deltaVelWorld2 *= -1;
+    deltaVelWorld2 *= -1.f;
 
     deltaVelWorld += deltaVelWorld2;
 
@@ -284,65 +281,60 @@ void ZContact::ApplyPositionChange(glm::vec3 linearChange[2],
     float linearInertia[2];
     float angularInertia[2];
 
-    for (unsigned i = 0; i < 2; i++) {
-      if (body[i]) {
-        ZPhysicsComponent* physicsComp = body[i]->FindComponent<ZPhysicsComponent>();
-        if (physicsComp == nullptr) continue;
+    for (unsigned i = 0; i < 2; i++) if (body[i]) {
+      ZPhysicsComponent* physicsComp = body[i]->FindComponent<ZPhysicsComponent>();
+      if (physicsComp == nullptr) continue;
 
-        glm::mat3 inverseInertiaTensor = glm::mat3(body[i]->ModelMatrix()) * physicsComp->InverseInertiaTensor();
+      glm::mat3 inverseInertiaTensor = glm::mat3(body[i]->ModelMatrix()) * physicsComp->InverseInertiaTensor();
 
-        glm::vec3 angularInertiaWorld = glm::cross(relativeContactPosition[i], contactNormal);
-        angularInertiaWorld = inverseInertiaTensor * angularInertiaWorld;
-        angularInertiaWorld = glm::cross(angularInertiaWorld, relativeContactPosition[i]);
-        angularInertia[i] = glm::dot(angularInertiaWorld, contactNormal);
+      glm::vec3 angularInertiaWorld = glm::cross(relativeContactPosition[i], contactNormal);
+      angularInertiaWorld = inverseInertiaTensor * angularInertiaWorld;
+      angularInertiaWorld = glm::cross(angularInertiaWorld, relativeContactPosition[i]);
+      angularInertia[i] = glm::dot(angularInertiaWorld, contactNormal);
 
-        linearInertia[i] = physicsComp->InverseMass();
+      linearInertia[i] = physicsComp->InverseMass();
 
-        totalInertia += linearInertia[i] + angularInertia[i];
-      }
+      totalInertia += linearInertia[i] + angularInertia[i];
     }
 
-    for (unsigned i = 0; i < 2; i++) {
-      if (body[i]) {
-        ZPhysicsComponent* physicsComp = body[i]->FindComponent<ZPhysicsComponent>();
-        if (physicsComp == nullptr) continue;
+    for (unsigned i = 0; i < 2; i++) if (body[i]) {
+      ZPhysicsComponent* physicsComp = body[i]->FindComponent<ZPhysicsComponent>();
+      if (physicsComp == nullptr) continue;
 
-        float sign = i == 0 ? 1 : -1;
-        angularMove[i] = sign * penetration * (angularInertia[i] / totalInertia);
-        linearMove[i] = sign * penetration * (linearInertia[i] / totalInertia);
+      float sign = i == 0 ? 1.f : -1.f;
+      angularMove[i] = sign * penetration * (angularInertia[i] / totalInertia);
+      linearMove[i] = sign * penetration * (linearInertia[i] / totalInertia);
 
-        glm::vec3 projection = relativeContactPosition[i];
-        projection += contactNormal * glm::dot(-relativeContactPosition[i], contactNormal);
+      glm::vec3 projection = relativeContactPosition[i];
+      projection += contactNormal * glm::dot(-relativeContactPosition[i], contactNormal);
 
-        float maxMagnitude = angularLimit * glm::length(projection);
+      float maxMagnitude = angularLimit * glm::length(projection);
 
-        if (angularMove[i] < -maxMagnitude) {
-            float totalMove = angularMove[i] + linearMove[i];
-            angularMove[i] = -maxMagnitude;
-            linearMove[i] = totalMove - angularMove[i];
-        } else if (angularMove[i] > maxMagnitude) {
-            float totalMove = angularMove[i] + linearMove[i];
-            angularMove[i] = maxMagnitude;
-            linearMove[i] = totalMove - angularMove[i];
-        }
-
-        if (angularMove[i] == 0){
-            angularChange[i] = glm::vec3(0.f);
-        } else {
-            glm::vec3 targetAngularDirection = glm::cross(relativeContactPosition[i], contactNormal);
-
-            glm::mat3 inverseInertiaTensor = glm::mat3(body[i]->ModelMatrix()) * physicsComp->InverseInertiaTensor();
-
-            angularChange[i] = (inverseInertiaTensor * targetAngularDirection) * (angularMove[i] / angularInertia[i]);
-        }
-
-        linearChange[i] = contactNormal * linearMove[i];
-
-        body[i]->SetPosition(body[i]->Position() + contactNormal * linearChange[i]);
-        body[i]->SetOrientation(body[i]->Orientation() * angularChange[i]);
-
-        if (!physicsComp->Awake()) body[i]->CalculateDerivedData();
+      if (angularMove[i] < -maxMagnitude) {
+        float totalMove = angularMove[i] + linearMove[i];
+        angularMove[i] = -maxMagnitude;
+        linearMove[i] = totalMove - angularMove[i];
+      } else if (angularMove[i] > maxMagnitude) {
+        float totalMove = angularMove[i] + linearMove[i];
+        angularMove[i] = maxMagnitude;
+        linearMove[i] = totalMove - angularMove[i];
       }
+
+      if (angularMove[i] == 0) {
+          angularChange[i] = glm::vec3(0.f);
+      } else {
+          glm::vec3 targetAngularDirection = glm::cross(relativeContactPosition[i], contactNormal);
+          glm::mat3 inverseInertiaTensor = glm::mat3(body[i]->ModelMatrix()) * physicsComp->InverseInertiaTensor();
+
+          angularChange[i] = (inverseInertiaTensor * targetAngularDirection) * (angularMove[i] / angularInertia[i]);
+      }
+
+      linearChange[i] = contactNormal * linearMove[i];
+
+      body[i]->SetPosition(body[i]->Position() + contactNormal * linearMove[i]);
+      body[i]->SetOrientation(body[i]->Orientation() * angularChange[i]);
+
+      if (!physicsComp->Awake()) body[i]->CalculateDerivedData();
     }
 }
 
@@ -389,7 +381,7 @@ void ZContactResolver::PrepareContacts(ContactPtrList contacts, float duration) 
 }
 
 void ZContactResolver::AdjustPositions(ContactPtrList contacts, float duration) {
-  ContactPtrList::iterator it;
+  ContactPtrList::iterator it = contacts.end();
   glm::vec3 linearChange[2], angularChange[2];
   glm::vec3 deltaPosition;
   float max;
@@ -397,9 +389,10 @@ void ZContactResolver::AdjustPositions(ContactPtrList contacts, float duration) 
   positionIterationsUsed = 0;
   while (positionIterationsUsed < positionIterations) {
     max = positionEpsilon;
-    for (it = contacts.begin(); it != contacts.end(); it++) {
-      if ((*it)->penetration > max) {
-        max = (*it)->penetration;
+    for (ContactPtrList::iterator i = contacts.begin(); i != contacts.end(); i++) {
+      if ((*i)->penetration > max) {
+        max = (*i)->penetration;
+        it = i;
       }
     }
 
@@ -409,14 +402,12 @@ void ZContactResolver::AdjustPositions(ContactPtrList contacts, float duration) 
 
     (*it)->ApplyPositionChange(linearChange, angularChange, max);
 
-    for (ContactPtrList::iterator it2 = contacts.begin(); it2 != contacts.end(); it2++) {
-      for (unsigned int b = 0; b < 2; b++) {
-        if ((*it2)->body[b]) {
-          for (unsigned int d = 0; d < 2; d++) {
-            if ((*it2)->body[b] == (*it)->body[d]) {
-                deltaPosition = linearChange[d] + glm::cross(angularChange[d], (*it2)->relativeContactPosition[b]);
-                (*it2)->penetration += glm::dot(deltaPosition, (*it2)->contactNormal) * (b ? 1 : -1);
-            }
+    for (ContactPtrList::iterator i = contacts.begin(); i != contacts.end(); i++) {
+      for (unsigned int b = 0; b < 2; b++) if ((*i)->body[b]) {
+        for (unsigned int d = 0; d < 2; d++) {
+          if ((*i)->body[b] == (*it)->body[d]) {
+              deltaPosition = linearChange[d] + glm::cross(angularChange[d], (*i)->relativeContactPosition[b]);
+              (*i)->penetration += glm::dot(deltaPosition, (*i)->contactNormal) * (b ? 1.f : -1.f);
           }
         }
       }
@@ -432,10 +423,11 @@ void ZContactResolver::AdjustVelocities(ContactPtrList contacts, float duration)
   velocityIterationsUsed = 0;
   while (velocityIterationsUsed < velocityIterations) {
     float max = velocityEpsilon;
-    ContactPtrList::iterator it;
-    for (it = contacts.begin(); it != contacts.end(); it++) {
-      if ((*it)->desiredDeltaVelocity > max) {
-        max = (*it)->desiredDeltaVelocity;
+    ContactPtrList::iterator it = contacts.end();
+    for (ContactPtrList::iterator i = contacts.begin(); i != contacts.end(); i++) {
+      if ((*i)->desiredDeltaVelocity > max) {
+        max = (*i)->desiredDeltaVelocity;
+        it = i;
       }
     }
 
@@ -446,15 +438,15 @@ void ZContactResolver::AdjustVelocities(ContactPtrList contacts, float duration)
     (*it)->ApplyVelocityChange(velocityChange, rotationChange);
 
     // Update any incident bodies
-    for (ContactPtrList::iterator it2 = contacts.begin(); it2 != contacts.end(); it2++) {
+    for (ContactPtrList::iterator i = contacts.begin(); i != contacts.end(); i++) {
       for (unsigned int b = 0; b < 2; b++) {
-        if ((*it2)->body[b]) {
+        if ((*i)->body[b]) {
           for (unsigned int d = 0; d < 2; d++) {
-            if ((*it2)->body[b] == (*it)->body[d]) {
-              deltaVel = velocityChange[d] + glm::cross(rotationChange[d], (*it2)->relativeContactPosition[b]);
+            if ((*i)->body[b] == (*it)->body[d]) {
+              deltaVel = velocityChange[d] + glm::cross(rotationChange[d], (*i)->relativeContactPosition[b]);
 
-              (*it2)->contactVelocity += glm::transpose((*it2)->contactToWorld) * deltaVel * (b ? -1.f : 1.f);
-              (*it2)->CalculateDesiredDeltaVelocity(duration);
+              (*i)->contactVelocity += glm::transpose((*i)->contactToWorld) * deltaVel * (b ? -1.f : 1.f);
+              (*i)->CalculateDesiredDeltaVelocity(duration);
             }
           }
         }
