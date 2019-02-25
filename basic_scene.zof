@@ -5,21 +5,19 @@ ZGO_01
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
+		:type Dynamic:
+		:mass 1.0:
 		:velocity [0.0, 0.0, 0.0]:
 		:angularVelocity [0.0, 0.0, 0.0]:
-		:damping 1.0:
-		:angularDamping 1.0:
-		:simulateGravity Yes:
-		:mass 1.0:
+		:damping 1.0 1.0:
+		:hasGravity Yes:
+		:collider Box [100.0, 1.0, 100.0] [0.0, 0.0, 0.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
 		:textures []:
-	^
-	CollisionComponent
-		:primitive Box:
 	^
 ^
 ZGO_02
