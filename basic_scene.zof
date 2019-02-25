@@ -20,16 +20,6 @@ ZGO_01
 		:textures []:
 	^
 ^
-ZGO_02
-	:position [-5.0, 15.0, 50.0]:
-	:orientation [0.0, 0.0, 0.0]:
-	:scale [1.0, 1.0, 1.0]:
-	CameraComponent
-		:speed 20.0:
-		:type Perspective:
-		:movementStyle Follow:
-	^
-^
 ZGO_03
 	:scale [500.0, 0.0, 500.0]:
 	GraphicsComponent
@@ -40,6 +30,16 @@ ZGO_03
 	PhysicsComponent
 		:type Static:
 		:collider Box [100.0, 1.0, 100.0] [0.0, 0.0, 0.0]:
+	^
+^
+ZGO_02
+	:position [-5.0, 15.0, 50.0]:
+	:orientation [0.0, 0.0, 0.0]:
+	:scale [1.0, 1.0, 1.0]:
+	CameraComponent
+		:speed 20.0:
+		:type Perspective:
+		:movementStyle Follow:
 	^
 ^
 ZSH_01
