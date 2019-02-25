@@ -195,6 +195,7 @@ void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const {
 
 void ZShader::Use(const ZMaterial& material) {
   Activate();
+  SetInt("materialIndex", material.Index());
   SetVec4("materials[" + std::to_string(material.Index()) + "].albedo", material.Properties().albedo);
   SetVec3("materials[" + std::to_string(material.Index()) + "].emission", material.Properties().emission);
   SetVec3("materials[" + std::to_string(material.Index()) + "].diffuse", material.Properties().diffuse);

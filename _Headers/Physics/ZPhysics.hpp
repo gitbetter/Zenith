@@ -29,6 +29,7 @@ public:
   void UpdateForces();
   void GenerateContacts(ZGameObjectMap gameObjects);
   void ResolveContacts();
+  void DrawDebug(ZGameObjectMap gameObjects);
 
   void CleanUp() { }
 

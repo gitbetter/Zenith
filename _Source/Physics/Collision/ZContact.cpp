@@ -47,30 +47,28 @@ inline void ZContact::CalculateContactBasis() {
     glm::vec3 contactTangent[2];
 
     if (glm::abs(contactNormal.x) > glm::abs(contactNormal.y)) {
-      const float s = 1.0f/glm::sqrt(contactNormal.z * contactNormal.z + contactNormal.x * contactNormal.x);
+      const float s = 1.0f / glm::sqrt(contactNormal.z * contactNormal.z + contactNormal.x * contactNormal.x);
 
-      // The new X-axis is at right angles to the world Y-axis
       contactTangent[0].x = contactNormal.z * s;
       contactTangent[0].y = 0;
       contactTangent[0].z = -contactNormal.x * s;
 
-      // The new Y-axis is at right angles to the new X- and Z- axes
       contactTangent[1].x = contactNormal.y * contactTangent[0].x;
       contactTangent[1].y = contactNormal.z * contactTangent[0].x - contactNormal.x * contactTangent[0].z;
       contactTangent[1].z = -contactNormal.y * contactTangent[0].x;
     } else {
-      const float s = 1.0f/glm::sqrt(contactNormal.z * contactNormal.z + contactNormal.y * contactNormal.y);
+        const float s = 1.0f / glm::sqrt(contactNormal.z * contactNormal.z + contactNormal.y * contactNormal.y);
 
-      contactTangent[0].x = 0;
-      contactTangent[0].y = -contactNormal.z * s;
-      contactTangent[0].z = contactNormal.y * s;
+        contactTangent[0].x = 0;
+        contactTangent[0].y = -contactNormal.z * s;
+        contactTangent[0].z = contactNormal.y * s;
 
-      contactTangent[1].x = contactNormal.y * contactTangent[0].z - contactNormal.z * contactTangent[0].y;
-      contactTangent[1].y = -contactNormal.x * contactTangent[0].z;
-      contactTangent[1].z = contactNormal.x * contactTangent[0].y;
+        contactTangent[1].x = contactNormal.y * contactTangent[0].z - contactNormal.z * contactTangent[0].y;
+        contactTangent[1].y = -contactNormal.x * contactTangent[0].z;
+        contactTangent[1].z = contactNormal.x * contactTangent[0].y;
     }
 
-    contactToWorld = glm::mat3(contactNormal, contactTangent[0], contactTangent[1]);
+    contactToWorld = glm::mat3(contactNormal, contactTangent[1], contactTangent[0]);
 }
 
 void ZContact::CalculateInternals(float duration) {
@@ -120,7 +118,7 @@ void ZContact::CalculateDesiredDeltaVelocity(float duration) {
     float velocityFromAcc = 0.f;
 
     if (physicsComp0->Awake()) {
-      velocityFromAcc += glm::dot(physicsComp0->PreviousAcceleration(), contactNormal * duration);
+      velocityFromAcc += glm::dot(physicsComp0->PreviousAcceleration(), contactNormal) * duration;
     }
 
     if (body[1] && body[1]->FindComponent<ZPhysicsComponent>()) {
@@ -161,8 +159,7 @@ void ZContact::ApplyVelocityChange(glm::vec3 velocityChange[2], glm::vec3 rotati
 
   glm::vec3 impulsiveTorque = glm::cross(relativeContactPosition[0], impulse);
   rotationChange[0] = inverseInertiaTensor[0] * impulsiveTorque;
-  velocityChange[0] = glm::vec3(0.f);
-  velocityChange[0] += impulse * physicsComp0->InverseMass();
+  velocityChange[0] = glm::vec3(0.f) + impulse * physicsComp0->InverseMass();
 
   physicsComp0->SetVelocity(physicsComp0->Velocity() + velocityChange[0]);
   physicsComp0->SetAngularVelocity(physicsComp0->AngularVelocity() + rotationChange[0]);
@@ -215,10 +212,10 @@ inline glm::vec3 ZContact::CalculateFrictionImpulse(glm::mat3* inverseInertiaTen
   ZPhysicsComponent* physicsComp0 = body[0]->FindComponent<ZPhysicsComponent>();
   if (physicsComp0 == nullptr) return glm::vec3(0.f);
 
-  glm::vec3 impulseContact;
+  glm::vec3 impulseContact(0.f);
   float inverseMass = physicsComp0->InverseMass();
 
-  glm::mat3 impulseToTorque = glm::matrixCross3(relativeContactPosition[0]);
+  glm::mat3 impulseToTorque = glm::matrixCross3(relativeContactPosition[0]) * -1.f;
 
   glm::mat3 deltaVelWorld = impulseToTorque;
   deltaVelWorld *= inverseInertiaTensor[0];
@@ -228,7 +225,7 @@ inline glm::vec3 ZContact::CalculateFrictionImpulse(glm::mat3* inverseInertiaTen
   if (body[1] && body[1]->FindComponent<ZPhysicsComponent>()) {
     ZPhysicsComponent* physicsComp1 = body[1]->FindComponent<ZPhysicsComponent>();
 
-    impulseToTorque = glm::matrixCross3(relativeContactPosition[1]);
+    impulseToTorque = glm::matrixCross3(relativeContactPosition[1]) * -1.f;
 
     glm::mat3 deltaVelWorld2 = impulseToTorque;
     deltaVelWorld2 *= inverseInertiaTensor[1];
@@ -240,9 +237,7 @@ inline glm::vec3 ZContact::CalculateFrictionImpulse(glm::mat3* inverseInertiaTen
     inverseMass += physicsComp1->InverseMass();
   }
 
-  glm::mat3 deltaVelocity = glm::transpose(contactToWorld);
-  deltaVelocity *= deltaVelWorld;
-  deltaVelocity *= contactToWorld;
+  glm::mat3 deltaVelocity = glm::transpose(contactToWorld) * deltaVelWorld * contactToWorld;
 
   deltaVelocity[0][0] += inverseMass;
   deltaVelocity[1][1] += inverseMass;
@@ -256,13 +251,12 @@ inline glm::vec3 ZContact::CalculateFrictionImpulse(glm::mat3* inverseInertiaTen
 
   float planarImpulse = glm::sqrt(impulseContact.y * impulseContact.y + impulseContact.z * impulseContact.z);
   if (planarImpulse > impulseContact.x * friction) {
-      // Static friction exceeded, so we need to use kinetic friction
       impulseContact.y /= planarImpulse;
       impulseContact.z /= planarImpulse;
 
       impulseContact.x = deltaVelocity[0][0] +
-          deltaVelocity[0][1] * friction * impulseContact.y +
-          deltaVelocity[0][2] * friction * impulseContact.z;
+                         deltaVelocity[0][1] * friction * impulseContact.y +
+                         deltaVelocity[0][2] * friction * impulseContact.z;
       impulseContact.x = desiredDeltaVelocity / impulseContact.x;
       impulseContact.y *= friction * impulseContact.x;
       impulseContact.z *= friction * impulseContact.x;
@@ -314,7 +308,7 @@ void ZContact::ApplyPositionChange(glm::vec3 linearChange[2],
         float totalMove = angularMove[i] + linearMove[i];
         angularMove[i] = -maxMagnitude;
         linearMove[i] = totalMove - angularMove[i];
-      } else if (angularMove[i] > maxMagnitude) {
+      } else if (angularMove[i] >= maxMagnitude) {
         float totalMove = angularMove[i] + linearMove[i];
         angularMove[i] = maxMagnitude;
         linearMove[i] = totalMove - angularMove[i];
@@ -407,7 +401,7 @@ void ZContactResolver::AdjustPositions(ContactPtrList contacts, float duration) 
         for (unsigned int d = 0; d < 2; d++) {
           if ((*i)->body[b] == (*it)->body[d]) {
               deltaPosition = linearChange[d] + glm::cross(angularChange[d], (*i)->relativeContactPosition[b]);
-              (*i)->penetration += glm::dot(deltaPosition, (*i)->contactNormal) * (b ? 1.f : -1.f);
+              (*i)->penetration += glm::dot(deltaPosition, (*i)->contactNormal * (b ? 1.f : -1.f));
           }
         }
       }

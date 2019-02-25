@@ -77,11 +77,10 @@ void ZPhysicsComponent::Update() {
   glm::mat3 inverseInertiaWorld_ = glm::mat3(object_->ModelMatrix()) * inverseInertiaTensor_;
 
   previousAcceleration_ = acceleration_;
-  acceleration_ = glm::vec3(0.f);
-  acceleration_ += forceAccumulator_ * inverseMass_;
+  previousAcceleration_ += forceAccumulator_ * inverseMass_;
   glm::vec3 angularAcceleration = inverseInertiaWorld_ * torqueAccumulator_;
 
-  velocity_ += acceleration_ * ZEngine::UPDATE_STEP_SIZE;
+  velocity_ += previousAcceleration_ * ZEngine::UPDATE_STEP_SIZE;
   angularVelocity_ += angularAcceleration * ZEngine::UPDATE_STEP_SIZE;
 
   velocity_ *= glm::pow(damping_, ZEngine::UPDATE_STEP_SIZE);
@@ -95,17 +94,17 @@ void ZPhysicsComponent::Update() {
   if (canSleep_) {
       float currentMotion = glm::dot(velocity_, velocity_) + glm::dot(angularVelocity_, angularVelocity_);
       float bias = glm::pow(0.5f, ZEngine::UPDATE_STEP_SIZE);
-      motion_ = bias * motion_ + (1 - bias) * currentMotion;
+      motion_ = bias * motion_ + (1.f - bias) * currentMotion;
 
       if (motion_ < sleepEpsilon_) SetAwake(false);
-      else if (motion_ > 10.f * sleepEpsilon_) motion_ = 10 * sleepEpsilon_;
+      else if (motion_ > 10.f * sleepEpsilon_) motion_ = 10.f * sleepEpsilon_;
   }
 }
 
 void ZPhysicsComponent::SetInertiaTensor(ZCollisionPrimitive* primitive) {
   if (dynamic_cast<ZCollisionBox*>(primitive)) {
     ZCollisionBox* box = dynamic_cast<ZCollisionBox*>(primitive);
-    glm::mat3 inertiaTensor(0.f);
+    glm::mat3 inertiaTensor(1.f);
     inertiaTensor[0][0] = 0.33f * Mass() * (box->halfSize.y * box->halfSize.y + box->halfSize.z * box->halfSize.z);
     inertiaTensor[1][1] = 0.33f * Mass() * (box->halfSize.x * box->halfSize.x + box->halfSize.z * box->halfSize.z);
     inertiaTensor[2][2] = 0.33f * Mass() * (box->halfSize.x * box->halfSize.x + box->halfSize.y * box->halfSize.y);

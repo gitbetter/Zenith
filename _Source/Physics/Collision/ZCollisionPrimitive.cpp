@@ -26,7 +26,7 @@ ZCollisionPrimitive* ZCollisionPrimitive::Create(std::string type, glm::vec3 min
     primitive = plane;
   } else if (type == "Box") {
     ZCollisionBox* box = new ZCollisionBox;
-    box->halfSize = max;
+    box->halfSize = (max - min) * 0.5f;
     primitive = box;
   }
   return primitive;

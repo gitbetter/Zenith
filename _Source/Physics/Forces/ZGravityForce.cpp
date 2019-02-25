@@ -15,6 +15,8 @@ void ZGravityForce::UpdateForce(ZGameObject* object) {
 
   if (!physicsComp->HasFiniteMass()) return;
 
+  physicsComp->SetAcceleration(gravity_);
+
   glm::vec3 weight = gravity_ * physicsComp->Mass();
   physicsComp->AddForce(weight);
 }

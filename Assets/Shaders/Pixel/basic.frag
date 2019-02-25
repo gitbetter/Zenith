@@ -97,7 +97,6 @@ void main() {
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
   vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * scatteredLight + reflectedLight, vec3(1.0));
 
-  // Hemisphere lighting
   vec3 hemisphereLightDirection = normalize(hemisphereLight.position - fs_in.FragPos);
   float a = dot(fs_in.FragNormal, hemisphereLightDirection) * 0.5 + 0.5;
   color += mix(hemisphereLight.groundColor, hemisphereLight.skyColor, a);

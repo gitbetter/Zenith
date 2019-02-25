@@ -52,6 +52,7 @@ public:
   void SetDamping(float damping) { damping_ = damping; }
   void SetAngularVelocity(glm::vec3 angularVelocity) { angularVelocity_ = angularVelocity; }
   void SetAngularDamping(float damping) { angularDamping_ = damping; }
+  void SetAcceleration(glm::vec3 acceleration) { acceleration_ = acceleration; }
   void SetMass(float mass) { assert(mass > 0.f); inverseMass_ = 1.f / mass; }
   void SetInertiaTensor(glm::mat3 inertiaTensor) { inverseInertiaTensor_ = glm::inverse(inertiaTensor); }
   void SetInertiaTensor(ZCollisionPrimitive* primitive);
@@ -59,10 +60,10 @@ public:
   void SetCanSleep(const bool canSleep = true);
 
   glm::vec3 Velocity() const { return velocity_; }
+  glm::vec3 AngularVelocity() const { return angularVelocity_; }
   glm::vec3 Acceleration() const { return acceleration_; }
   glm::vec3 PreviousAcceleration() const { return previousAcceleration_; }
   float Damping() const { return damping_; }
-  glm::vec3 AngularVelocity() const { return angularVelocity_; }
   float AngularDamping() const { return angularDamping_; }
   float Mass() const { return 1.f / inverseMass_; }
   float InverseMass() const { return inverseMass_; }

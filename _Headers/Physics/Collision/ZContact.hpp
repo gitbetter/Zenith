@@ -45,7 +45,6 @@ protected:
   glm::vec3 CalculateLocalVelocity(unsigned int bodyIndex, float duration);
   void CalculateDesiredDeltaVelocity(float duration);
   void CalculateInternals(float duration);
-  void ApplyImpulse(const glm::vec3& impulse, ZGameObject* body, glm::vec3* velocityChange, glm::vec3* rotationChange);
   void ApplyVelocityChange(glm::vec3 velocityChange[2], glm::vec3 rotationChange[2]);
   void ApplyPositionChange(glm::vec3 linearChange[2], glm::vec3 angularChange[2], float penetration);
   glm::vec3 CalculateFrictionlessImpulse(glm::mat3* inverseInertiaTensor);
@@ -54,7 +53,7 @@ protected:
 };
 
 class ZContactResolver {
-  
+
 protected:
 
     unsigned int velocityIterations;
