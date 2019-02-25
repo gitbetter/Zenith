@@ -11,7 +11,7 @@ ZGO_01
 		:angularVelocity [0.0, 0.0, 0.0]:
 		:damping 1.0 1.0:
 		:hasGravity Yes:
-		:collider Box [100.0, 1.0, 100.0] [0.0, 0.0, 0.0]:
+		:collider Box [1.0, 1.0, 1.0] [0.0, 0.0, 0.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -37,8 +37,9 @@ ZGO_03
 		:shaders [ZSH_01]:
 		:model Plane:
 	^
-	CollisionComponent
-		:primitive Plane:
+	PhysicsComponent
+		:type Static:
+		:collider Box [100.0, 1.0, 100.0] [0.0, 0.0, 0.0]:
 	^
 ^
 ZSH_01
