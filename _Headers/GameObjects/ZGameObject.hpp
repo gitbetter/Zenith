@@ -30,7 +30,7 @@ private:
 public:
 
   ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
-  virtual ~ZGameObject();
+  virtual ~ZGameObject() { }
 
   void Initialize(ZOFNode* root);
 

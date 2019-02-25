@@ -6,7 +6,7 @@ CXX=g++
 RM=rm -rf
 CPPFLAGS= -std=c++11 -Wall -g $(shell find $(H_DIR) -type d | sed s/^/-I/)
 LDFLAGS=-g
-LDLIBS=-lglew -lglfw3
+LDLIBS= -L./_Drivers/lib/ -lglew -lglfw3
 
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
@@ -24,6 +24,7 @@ ifeq ($(OS),Windows_NT)
 endif
 
 LDLIBS += -lassimp -lfreetyped
+LDLIBS += -lLinearMath -lBulletCollision -lBulletDynamics
 
 all: game
 

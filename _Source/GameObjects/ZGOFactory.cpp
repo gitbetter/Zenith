@@ -11,13 +11,11 @@
 #include "ZGraphicsComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZCameraComponent.hpp"
-#include "ZCollisionComponent.hpp"
 
 ZGOFactory::ZGOFactory() {
   componentCreators_["GraphicsComponent"] = &ZGOFactory::CreateGraphicsComponent;
   componentCreators_["CameraComponent"] = &ZGOFactory::CreateCameraComponent;
   componentCreators_["PhysicsComponent"] = &ZGOFactory::CreatePhysicsComponent;
-  componentCreators_["CollisionComponent"] = &ZGOFactory::CreateCollisionComponent;
 }
 
 ZGameObjectMap ZGOFactory::Create(ZOFTree* data) {
@@ -58,12 +56,6 @@ ZComponent* ZGOFactory::CreateCameraComponent(ZGameObject* gameObject) {
 
 ZComponent* ZGOFactory::CreatePhysicsComponent(ZGameObject* gameObject) {
   ZPhysicsComponent* comp = new ZPhysicsComponent;
-  gameObject->AddComponent(comp);
-  return comp;
-}
-
-ZComponent* ZGOFactory::CreateCollisionComponent(ZGameObject* gameObject) {
-  ZCollisionComponent* comp = new ZCollisionComponent;
   gameObject->AddComponent(comp);
   return comp;
 }

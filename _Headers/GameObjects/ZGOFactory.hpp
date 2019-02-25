@@ -30,7 +30,6 @@ public:
   ZComponent* CreateGraphicsComponent(ZGameObject* gameObject);
   ZComponent* CreateCameraComponent(ZGameObject* gameObject);
   ZComponent* CreatePhysicsComponent(ZGameObject* gameObject);
-  ZComponent* CreateCollisionComponent(ZGameObject* gameObject);
 
 protected:
 

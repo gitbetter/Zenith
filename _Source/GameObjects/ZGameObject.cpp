@@ -11,10 +11,8 @@
 #include "ZGame.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZPhysicsComponent.hpp"
-#include "ZCollisionComponent.hpp"
 #include "ZOFTree.hpp"
 #include "ZIDSequence.hpp"
-#include "ZBVHCollisionDetector.hpp"
 
 ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
 : position_(glm::vec4(position, 1.f)),
@@ -24,10 +22,6 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
   translatesWithView_(false) {
   id_ = "ZGO_" + ZEngine::IDSequence()->Next();
   CalculateDerivedData();
-}
-
-ZGameObject::~ZGameObject() {
-  ZEngine::BVHTree()->Remove(this);
 }
 
 void ZGameObject::Initialize(ZOFNode* root) {
@@ -56,9 +50,6 @@ void ZGameObject::Initialize(ZOFNode* root) {
 void ZGameObject::Update() {
   ZPhysicsComponent* physicsComp = FindComponent<ZPhysicsComponent>();
   if (physicsComp) physicsComp->Update();
-
-  ZCollisionComponent* collisionComp = FindComponent<ZCollisionComponent>();
-  if (collisionComp) collisionComp->Update();
 
   ZCameraComponent* cameraComp = FindComponent<ZCameraComponent>();
   if (cameraComp) cameraComp->Update();

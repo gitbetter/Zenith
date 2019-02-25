@@ -55,8 +55,6 @@ void ZGame::Update() {
   for (auto it = gameObjects_.begin(); it != gameObjects_.end(); it++) {
     it->second->Update();
   }
-  ZEngine::Physics()->GenerateContacts(gameObjects_);
-  ZEngine::Physics()->ResolveContacts();
 }
 
 void ZGame::Render(float frameMix, RENDER_OP renderOp) {

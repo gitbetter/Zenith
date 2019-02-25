@@ -40,7 +40,6 @@ ZUI* ZEngine::ui_ = nullptr;
 ZPhysics* ZEngine::physics_ = nullptr;
 ZGOFactory* ZEngine::gameObjectFactory_ = nullptr;
 ZGraphicsFactory* ZEngine::graphicsFactory_ = nullptr;
-ZBVHNode<ZBoundingSphere>* ZEngine::bvhTree_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 ZIDSequence* ZEngine::idGenerator_ = new ZIDSequence;
 
@@ -99,10 +98,6 @@ float ZEngine::DeltaTime() {
 float ZEngine::MilliSecondTime() {
   using namespace std::chrono;
   return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0f;
-}
-
-ZBVHNode<ZBoundingSphere>* ZEngine::BVHTree() {
-  return bvhTree_;
 }
 
 void ZEngine::Provide(ZGraphics* graphics) {

@@ -13,8 +13,6 @@
 #include "ZObjectForceRegistry.hpp"
 #include "ZPhysics.hpp"
 #include "ZOFTree.hpp"
-#include "ZCollisionPrimitive.hpp"
-#include "ZCollisionComponent.hpp"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
   velocity_ = glm::vec3(0.f);
@@ -65,9 +63,6 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
       }
     }
   }
-
-  ZCollisionComponent* collisionComp = object_->FindComponent<ZCollisionComponent>();
-  if (collisionComp) SetInertiaTensor(collisionComp->CollisionPrimitive());
 }
 
 void ZPhysicsComponent::Update() {
@@ -98,17 +93,6 @@ void ZPhysicsComponent::Update() {
 
       if (motion_ < sleepEpsilon_) SetAwake(false);
       else if (motion_ > 10.f * sleepEpsilon_) motion_ = 10.f * sleepEpsilon_;
-  }
-}
-
-void ZPhysicsComponent::SetInertiaTensor(ZCollisionPrimitive* primitive) {
-  if (dynamic_cast<ZCollisionBox*>(primitive)) {
-    ZCollisionBox* box = dynamic_cast<ZCollisionBox*>(primitive);
-    glm::mat3 inertiaTensor(1.f);
-    inertiaTensor[0][0] = 0.33f * Mass() * (box->halfSize.y * box->halfSize.y + box->halfSize.z * box->halfSize.z);
-    inertiaTensor[1][1] = 0.33f * Mass() * (box->halfSize.x * box->halfSize.x + box->halfSize.z * box->halfSize.z);
-    inertiaTensor[2][2] = 0.33f * Mass() * (box->halfSize.x * box->halfSize.x + box->halfSize.y * box->halfSize.y);
-    SetInertiaTensor(inertiaTensor);
   }
 }
 
