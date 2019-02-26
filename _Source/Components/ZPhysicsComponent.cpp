@@ -15,13 +15,9 @@
 #include "ZOFTree.hpp"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
-  velocity_ = glm::vec3(0.f);
-  angularVelocity_ = glm::vec3(0.f);
-  forceAccumulator_ = glm::vec3(0.f);
-  torqueAccumulator_ = glm::vec3(0.f);
-  acceleration_ = glm::vec3(0.f);
-  previousAcceleration_ = glm::vec3(0.f);
-  inverseInertiaTensor_ = glm::mat3(1.f);
+  colliderCreators_[ZColliderType::Box] = &ZPhysicsComponent::CreateBoxCollider;
+  colliderCreators_[ZColliderType::Sphere] = &ZPhysicsComponent::CreateSphereCollider;
+  colliderCreators_[ZColliderType::Capsule] = &ZPhysicsComponent::CreateCapsuleCollider;
   id_ = "ZCPhysics_" + ZEngine::IDSequence()->Next();
 }
 
@@ -33,11 +29,11 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
     return;
   }
 
-  float mass = -1.f, damping = -1.f, angularDamping = -1.f;
-  btCollisionShape* collider;
+  btScalar mass = -1., damping = -1., angularDamping = -1.;
+  ZColliderType type = ZColliderType::None;
   bool gravity = false;
-  btVector3 size, origin;
-  
+  std::vector<btScalar> size, origin;
+
   for (ZOFPropertyNode* prop : node->properties) {
     if (prop->values.size() == 0) continue;
 
@@ -48,45 +44,54 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
       ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
       if (mass == -1.f) mass = terminal->value;
     } else if (prop->id == "damping") {
-      ZOFNumber* terminal0 = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
       damping = terminal->value;
       if (prop->values.size() > 1)
         angularDamping = (dynamic_cast<ZOFNumber*>(prop->values[0]))->value;
     } else if (prop->id == "collider") {
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      if (ZEngine::Physics()->ColliderCreators().find(terminal->value) != ZEngine::Physics()->ColliderCreators().end()) {
-        collider = ZEngine::Physics()->ColliderCreators()[terminal->value];
-      } else {
-        _Z("Collider " + terminal->value + " is not available for creation", ZWARNING);
-      }
+      if (terminal->value == "Box") type = ZColliderType::Box;
+      if (terminal->value == "Sphere") type = ZColliderType::Sphere;
+      if (terminal->value == "Capsule") type = ZColliderType::Capsule;
+
       if (prop->values.size() > 1) {
-        ZOFNumberList* scale = dynamic_cast<ZOFString*>(prop->values[1]);
-        size = btVector3(scale->value[0], scale->value[1], scale->value[2]);
+        ZOFNumberList* scale = dynamic_cast<ZOFNumberList*>(prop->values[1]);
+        std::transform(scale->value.begin(), scale->value.end(), std::back_inserter(size), [](float val) { return btScalar(val); });
       }
+
       if (prop->values.size() > 2) {
-        ZOFNumberList* center = dynamic_cast<ZOFString*>(prop->values[2]);
-        origin = btVector3(center->value[0], center->value[1], center->value[2]);
+        ZOFNumberList* center = dynamic_cast<ZOFNumberList*>(prop->values[2]);
+        std::transform(center->value.begin(), center->value.end(), std::back_inserter(origin), [](float val) { return btScalar(val); });
       }
     } else if (prop->id == "hasGravity") {
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      hasGravity = terminal->value == "Yes";
+      gravity = terminal->value == "Yes";
     }
+  }
+
+  btCollisionShape* collider;
+  if (type != ZColliderType::None) {
+    collider = (this->*colliderCreators_[type])(size);
+  } else {
+    _Z("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZWARNING);
+    collider = (this->*colliderCreators_[ZColliderType::Box])(size);
   }
 
   btTransform transform;
   transform.setIdentity();
-  transform.setOrigin(origin);
+  if (origin.size() >= 3) transform.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+  else transform.setOrigin(btVector3(0.0, 0.0, 0.0));
 
-  btScalar mass(mass);
+  if (mass < 0) mass = 0.0;
 
   btVector3 localInertia(0, 0, 0);
   if (mass > 0.f) collider->calculateLocalInertia(mass, localInertia);
 
-  btDefaultMotionState* motionState = new btDefaultMotionState(groundTransform);
+  btDefaultMotionState* motionState = new btDefaultMotionState(transform);
   btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collider, localInertia);
   body_ = new btRigidBody(rbInfo);
-  body_.setGravity(btVector3(0.0, -15.0, 0.0));
-  body_.setDamping(damping, angularDamping);
+  if (gravity) body_->setGravity(btVector3(0.0, -15.0, 0.0));
+  body_->setDamping(damping, angularDamping);
 
   ZEngine::Physics()->AddRigidBody(body_);
 }
@@ -94,8 +99,8 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
 void ZPhysicsComponent::Update() {
   assert(object_ != nullptr);
 
-  object_->SetPosition(object_->Position() + velocity_ * ZEngine::UPDATE_STEP_SIZE);
-  object_->SetOrientation(glm::mix(object_->Orientation(), glm::quat(angularVelocity_) * object_->Orientation(), ZEngine::UPDATE_STEP_SIZE));
+  //object_->SetPosition(object_->Position() + velocity_ * ZEngine::UPDATE_STEP_SIZE);
+  //object_->SetOrientation(glm::mix(object_->Orientation(), glm::quat(angularVelocity_) * object_->Orientation(), ZEngine::UPDATE_STEP_SIZE));
 }
 
 void ZPhysicsComponent::AddForce(glm::vec3& force) {
@@ -116,4 +121,37 @@ void ZPhysicsComponent::SetAwake(const bool awake) {
 
 void ZPhysicsComponent::SetCanSleep(const bool canSleep) {
 
+}
+
+btCollisionShape* ZPhysicsComponent::CreateBoxCollider(std::vector<btScalar> params) {
+  btVector3 extents(1.0, 1.0, 1.0);
+  switch (params.size()) {
+    case 1: extents = btVector3(params[0], 1.0, 1.0); break;
+    case 2: extents = btVector3(params[0], params[1], 1.0); break;
+    case 3: extents = btVector3(params[0], params[1], params[2]); break;
+    default: break;
+  }
+
+  return new btBoxShape(extents);
+}
+
+btCollisionShape* ZPhysicsComponent::CreateSphereCollider(std::vector<btScalar> params) {
+  btScalar radius = 1.0;
+  switch (params.size()) {
+    case 1: radius = params[0]; break;
+    default: break;
+  }
+
+  return new btSphereShape(radius);
+}
+
+btCollisionShape* ZPhysicsComponent::CreateCapsuleCollider(std::vector<btScalar> params) {
+  btScalar radius = 1.0, height = 1.0;
+  switch (params.size()) {
+    case 1: radius = params[0]; break;
+    case 2: height = params[1]; break;
+    default: break;
+  }
+
+  return new btCapsuleShape(radius, height);
 }

@@ -18,8 +18,7 @@ struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZPhysicsComponent : public ZComponent {
-private:
-
+    using ZColliderCreator = btCollisionShape* (ZPhysicsComponent::*)(std::vector<btScalar> params);
 public:
 
   ZPhysicsComponent();
@@ -32,33 +31,34 @@ public:
   void AddForce(glm::vec3& force);
   void AddForceAtPoint(glm::vec3& force, glm::vec3& point);
   void AddTorque(glm::vec3& torque);
-  bool HasFiniteMass() { return inverseMass_ != 0.f; }
+  bool HasFiniteMass() { }
 
-  void SetVelocity(glm::vec3 velocity) { velocity_ = velocity; }
-  void SetDamping(float damping) { damping_ = damping; }
-  void SetAngularVelocity(glm::vec3 angularVelocity) { angularVelocity_ = angularVelocity; }
-  void SetAngularDamping(float damping) { angularDamping_ = damping; }
-  void SetAcceleration(glm::vec3 acceleration) { acceleration_ = acceleration; }
-  void SetMass(float mass) { assert(mass > 0.f); inverseMass_ = 1.f / mass; }
-  void SetInertiaTensor(glm::mat3 inertiaTensor) { inverseInertiaTensor_ = glm::inverse(inertiaTensor); }
+  void SetVelocity(glm::vec3 velocity) { }
+  void SetDamping(float damping) { }
+  void SetAngularVelocity(glm::vec3 angularVelocity) { }
+  void SetAngularDamping(float damping) { }
+  void SetAcceleration(glm::vec3 acceleration) { }
+  void SetMass(float mass) { }
+  void SetInertiaTensor(glm::mat3 inertiaTensor) { }
   void SetAwake(const bool awake = true);
   void SetCanSleep(const bool canSleep = true);
 
-  glm::vec3 Velocity() const { return velocity_; }
-  glm::vec3 AngularVelocity() const { return angularVelocity_; }
-  glm::vec3 Acceleration() const { return acceleration_; }
-  glm::vec3 PreviousAcceleration() const { return previousAcceleration_; }
-  float Damping() const { return damping_; }
-  float AngularDamping() const { return angularDamping_; }
-  float Mass() const { return 1.f / inverseMass_; s}
-  float InverseMass() const { return inverseMass_; }
-  glm::mat3 InertiaTensor() const { return glm::inverse(inverseInertiaTensor_); }
-  glm::mat3 InverseInertiaTensor() const { return inverseInertiaTensor_; }
-  bool Awake() const { return isAwake_; }
-  bool CanSleep() const { return canSleep_; }
+  glm::vec3 Velocity() { return glm::vec3(0.f); }
+  glm::vec3 AngularVelocity() { return glm::vec3(0.f); }
+  glm::vec3 Acceleration() { return glm::vec3(0.f); }
+  glm::mat3 InertiaTensor() { return glm::mat3(1.f); }
+  float Damping() { return 1.f; }
+  float AngularDamping() { return 1.f; }
+  float Mass() { return 1.f; }
+
+  btCollisionShape* CreateBoxCollider(std::vector<btScalar> params);
+  btCollisionShape* CreateSphereCollider(std::vector<btScalar> params);
+  btCollisionShape* CreateCapsuleCollider(std::vector<btScalar> params);
 
 protected:
-  
+
+  std::map<ZColliderType, ZColliderCreator> colliderCreators_;
+
   btRigidBody* body_;
 
 };

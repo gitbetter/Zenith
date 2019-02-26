@@ -30,7 +30,7 @@ void ZGame::RunGameLoop() {
   float lag = 0.0;
 
   while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
-    //int fixedUpdates = 0;
+    int fixedUpdates = 0;
     float currentTime = ZEngine::MilliSecondTime();
     ZEngine::SetDeltaTime(currentTime - previousTime);
     previousTime = currentTime;
@@ -38,6 +38,8 @@ void ZGame::RunGameLoop() {
 
     ZEngine::Input()->Process();
 
+    // TODO: Remove lag and frameMix from Render call.
+    // Motion can be interpolated by using Bullet's MotionStates
     while (lag >= ZEngine::UPDATE_STEP_SIZE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
       Update();
       lag -= ZEngine::UPDATE_STEP_SIZE;

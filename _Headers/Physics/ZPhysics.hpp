@@ -17,10 +17,10 @@ class ZObjectForceRegistry;
 
 // Class and Data Structure Definitions
 class ZPhysics {
-  using ZColliderCreator = btCollisionShape* (ZGOFactory::*)();
+
 public:
 
-  ZPhysics();
+  ZPhysics() { }
   ~ZPhysics() { }
 
   void Initialize();
@@ -33,15 +33,8 @@ public:
 
   void AddRigidBody(btRigidBody* body);
 
-  std::map<std::string, ZColliderCreator>& ColliderCreators() { return colliderCreators_; }
-
-  btCollisionShape* CreateBoxCollider();
-  btCollisionShape* CreateSphereCollider();
-  btCollisionShape* CreateCapsulerCollider();
 
 protected:
-
-  std::map<std::string, ZColliderCreator> colliderCreators_;
 
   ZObjectForceRegistry* registry_ = nullptr;
   btDefaultCollisionConfiguration* collisionConfig_ = nullptr;

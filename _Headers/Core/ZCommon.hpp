@@ -56,20 +56,24 @@ typedef std::map<std::string, ZGameObject*> ZGameObjectMap;
 typedef std::map<std::string, ZShader*> ZShaderMap;
 typedef unsigned char RENDER_OP;
 
-enum ZEventType {
+enum class ZEventType {
   FirePress
 };
 
-enum ZCameraType {
+enum class ZCameraType {
   Orthographic, Perspective
 };
 
-enum ZCameraMovementStyle {
+enum class ZCameraMovementStyle {
   None, Normal, Follow
 };
 
-enum ZLightType {
+enum class ZLightType {
   Directional, Point, Spot, Area, Hemisphere
+};
+
+enum class ZColliderType {
+  None, Box, Sphere, Capsule
 };
 
 struct ZBufferData {
@@ -122,10 +126,10 @@ struct ZFont {
   std::map<unsigned char, ZCharacter> characters;
 };
 
-enum ZPrimitiveType {
+enum class ZPrimitiveType {
   Plane, Cube, Sphere, Cylinder, Cone
 };
 
-enum ZShaderTypes {
+enum class ZShaderTypes {
   Vertex, Pixel, Tesselation, Geometry, Other
 };
