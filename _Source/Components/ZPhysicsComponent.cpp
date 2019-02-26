@@ -33,109 +33,87 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
     return;
   }
 
+  float mass = -1.f, damping = -1.f, angularDamping = -1.f;
+  btCollisionShape* collider;
+  bool gravity = false;
+  btVector3 size, origin;
+  
   for (ZOFPropertyNode* prop : node->properties) {
     if (prop->values.size() == 0) continue;
 
-    if (prop->id == "velocity") {
-      ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
-      velocity_ = glm::vec3(terminal->value[0], terminal->value[1], terminal->value[2]);
-    } else if (prop->id == "angularVelocity") {
-      ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
-      angularVelocity_ = glm::vec3(terminal->value[0], terminal->value[1], terminal->value[2]);
-    } else if (prop->id == "damping") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      damping_ = terminal->value;
-    } else if (prop->id == "angularDamping") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      angularDamping_ = terminal->value;
+    if (prop->id == "type") {
+      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+      if (terminal->value == "Static") mass = 0.f;
     } else if (prop->id == "mass") {
       ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      SetMass(terminal->value);
-    } else if (prop->id == "inertiaTensor") {
-      ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
-      glm::mat3 inertiaTensor = glm::make_mat3(&terminal->value[0]);
-      SetInertiaTensor(inertiaTensor);
-    } else if (prop->id == "simulateGravity") {
+      if (mass == -1.f) mass = terminal->value;
+    } else if (prop->id == "damping") {
+      ZOFNumber* terminal0 = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      damping = terminal->value;
+      if (prop->values.size() > 1)
+        angularDamping = (dynamic_cast<ZOFNumber*>(prop->values[0]))->value;
+    } else if (prop->id == "collider") {
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      if (terminal->value == "Yes") {
-        ZGravityForce* gravity = new ZGravityForce(glm::vec3(0.f, -25.f, 0.f));
-        ZEngine::Physics()->Registry()->Add(object_, gravity);
+      if (ZEngine::Physics()->ColliderCreators().find(terminal->value) != ZEngine::Physics()->ColliderCreators().end()) {
+        collider = ZEngine::Physics()->ColliderCreators()[terminal->value];
+      } else {
+        _Z("Collider " + terminal->value + " is not available for creation", ZWARNING);
       }
+      if (prop->values.size() > 1) {
+        ZOFNumberList* scale = dynamic_cast<ZOFString*>(prop->values[1]);
+        size = btVector3(scale->value[0], scale->value[1], scale->value[2]);
+      }
+      if (prop->values.size() > 2) {
+        ZOFNumberList* center = dynamic_cast<ZOFString*>(prop->values[2]);
+        origin = btVector3(center->value[0], center->value[1], center->value[2]);
+      }
+    } else if (prop->id == "hasGravity") {
+      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
+      hasGravity = terminal->value == "Yes";
     }
   }
+
+  btTransform transform;
+  transform.setIdentity();
+  transform.setOrigin(origin);
+
+  btScalar mass(mass);
+
+  btVector3 localInertia(0, 0, 0);
+  if (mass > 0.f) collider->calculateLocalInertia(mass, localInertia);
+
+  btDefaultMotionState* motionState = new btDefaultMotionState(groundTransform);
+  btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collider, localInertia);
+  body_ = new btRigidBody(rbInfo);
+  body_.setGravity(btVector3(0.0, -15.0, 0.0));
+  body_.setDamping(damping, angularDamping);
+
+  ZEngine::Physics()->AddRigidBody(body_);
 }
 
 void ZPhysicsComponent::Update() {
   assert(object_ != nullptr);
-  if (!isAwake_) return;
-
-  glm::mat3 inverseInertiaWorld_ = glm::mat3(object_->ModelMatrix()) * inverseInertiaTensor_;
-
-  previousAcceleration_ = acceleration_;
-  previousAcceleration_ += forceAccumulator_ * inverseMass_;
-  glm::vec3 angularAcceleration = inverseInertiaWorld_ * torqueAccumulator_;
-
-  velocity_ += previousAcceleration_ * ZEngine::UPDATE_STEP_SIZE;
-  angularVelocity_ += angularAcceleration * ZEngine::UPDATE_STEP_SIZE;
-
-  velocity_ *= glm::pow(damping_, ZEngine::UPDATE_STEP_SIZE);
-  angularVelocity_ *= glm::pow(angularDamping_, ZEngine::UPDATE_STEP_SIZE);
 
   object_->SetPosition(object_->Position() + velocity_ * ZEngine::UPDATE_STEP_SIZE);
   object_->SetOrientation(glm::mix(object_->Orientation(), glm::quat(angularVelocity_) * object_->Orientation(), ZEngine::UPDATE_STEP_SIZE));
-
-  ClearForceAccumulator();
-
-  if (canSleep_) {
-      float currentMotion = glm::dot(velocity_, velocity_) + glm::dot(angularVelocity_, angularVelocity_);
-      float bias = glm::pow(0.5f, ZEngine::UPDATE_STEP_SIZE);
-      motion_ = bias * motion_ + (1.f - bias) * currentMotion;
-
-      if (motion_ < sleepEpsilon_) SetAwake(false);
-      else if (motion_ > 10.f * sleepEpsilon_) motion_ = 10.f * sleepEpsilon_;
-  }
 }
 
 void ZPhysicsComponent::AddForce(glm::vec3& force) {
-  forceAccumulator_ += force;
-  SetAwake();
+
 }
 
 void ZPhysicsComponent::AddForceAtPoint(glm::vec3& force, glm::vec3& point) {
-  glm::vec3 pt = point;
-  pt -= object_->Position();
 
-  forceAccumulator_ += force;
-  torqueAccumulator_ += glm::cross(pt, force);
-
-  SetAwake();
-}
-
-void ZPhysicsComponent::AddForceAtBodyPoint(glm::vec3& force, glm::vec3& point) {
-  glm::vec3 worldPoint = glm::vec3(object_->ModelMatrix() * glm::vec4(point, 1.f));
-  AddForceAtPoint(force, worldPoint);
 }
 
 void ZPhysicsComponent::AddTorque(glm::vec3& torque) {
-  torqueAccumulator_ += torque;
-  SetAwake();
-}
 
-void ZPhysicsComponent::ClearForceAccumulator() {
-  forceAccumulator_ = glm::vec3(0.f);
 }
 
 void ZPhysicsComponent::SetAwake(const bool awake) {
-  isAwake_ = awake;
-  if (isAwake_) {
-    motion_ = sleepEpsilon_ * 2.f;
-  } else {
-    velocity_ = glm::vec3(0.f);
-    angularVelocity_ = glm::vec3(0.f);
-  }
+
 }
 
 void ZPhysicsComponent::SetCanSleep(const bool canSleep) {
-  canSleep_ = canSleep;
-  if (!canSleep_ && !isAwake_) SetAwake();
+
 }

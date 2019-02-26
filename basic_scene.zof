@@ -7,8 +7,6 @@ ZGO_01
 	PhysicsComponent
 		:type Dynamic:
 		:mass 1.0:
-		:velocity [0.0, 0.0, 0.0]:
-		:angularVelocity [0.0, 0.0, 0.0]:
 		:damping 1.0 1.0:
 		:hasGravity Yes:
 		:collider Box [1.0, 1.0, 1.0] [0.0, 0.0, 0.0]:

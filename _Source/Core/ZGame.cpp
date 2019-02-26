@@ -30,7 +30,7 @@ void ZGame::RunGameLoop() {
   float lag = 0.0;
 
   while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
-    int fixedUpdates = 0;
+    //int fixedUpdates = 0;
     float currentTime = ZEngine::MilliSecondTime();
     ZEngine::SetDeltaTime(currentTime - previousTime);
     previousTime = currentTime;
@@ -51,7 +51,7 @@ void ZGame::RunGameLoop() {
 }
 
 void ZGame::Update() {
-  ZEngine::Physics()->UpdateForces();
+  ZEngine::Physics()->Update();
   for (auto it = gameObjects_.begin(); it != gameObjects_.end(); it++) {
     it->second->Update();
   }

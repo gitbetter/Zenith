@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "btBulletDynamicsCommon.h"
 #include "ZCommon.hpp"
 #include "ZComponent.hpp"
 
@@ -19,18 +20,6 @@ struct ZOFNode;
 class ZPhysicsComponent : public ZComponent {
 private:
 
-  glm::vec3 velocity_, angularVelocity_, forceAccumulator_, torqueAccumulator_;
-  glm::vec3 acceleration_, previousAcceleration_;
-  float damping_ = 1.0;
-  float angularDamping_ = 1.0;
-  float inverseMass_ = 1.0;
-  glm::mat3 inverseInertiaTensor_;
-
-  float motion_;
-  bool isAwake_;
-  bool canSleep_;
-  float sleepEpsilon_ = 0.1f;
-
 public:
 
   ZPhysicsComponent();
@@ -40,10 +29,8 @@ public:
 
   void Update() override;
 
-  void ClearForceAccumulator();
   void AddForce(glm::vec3& force);
   void AddForceAtPoint(glm::vec3& force, glm::vec3& point);
-  void AddForceAtBodyPoint(glm::vec3& force, glm::vec3& point);
   void AddTorque(glm::vec3& torque);
   bool HasFiniteMass() { return inverseMass_ != 0.f; }
 
@@ -63,7 +50,7 @@ public:
   glm::vec3 PreviousAcceleration() const { return previousAcceleration_; }
   float Damping() const { return damping_; }
   float AngularDamping() const { return angularDamping_; }
-  float Mass() const { return 1.f / inverseMass_; }
+  float Mass() const { return 1.f / inverseMass_; s}
   float InverseMass() const { return inverseMass_; }
   glm::mat3 InertiaTensor() const { return glm::inverse(inverseInertiaTensor_); }
   glm::mat3 InverseInertiaTensor() const { return inverseInertiaTensor_; }
@@ -71,5 +58,7 @@ public:
   bool CanSleep() const { return canSleep_; }
 
 protected:
+  
+  btRigidBody* body_;
 
 };
