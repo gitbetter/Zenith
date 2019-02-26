@@ -80,7 +80,7 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
   btTransform transform;
   transform.setIdentity();
   if (origin.size() >= 3) transform.setOrigin(btVector3(origin[0], origin[1], origin[2]));
-  else transform.setOrigin(btVector3(0.0, 0.0, 0.0));
+  else transform.setOrigin(btVector3(0.0, 1.0, 0.0));
 
   if (mass < 0) mass = 0.0;
 
@@ -97,10 +97,14 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
 }
 
 void ZPhysicsComponent::Update() {
-  assert(object_ != nullptr);
+  assert(object_ != nullptr && body_ != nullptr);
 
-  //object_->SetPosition(object_->Position() + velocity_ * ZEngine::UPDATE_STEP_SIZE);
-  //object_->SetOrientation(glm::mix(object_->Orientation(), glm::quat(angularVelocity_) * object_->Orientation(), ZEngine::UPDATE_STEP_SIZE));
+  btTransform transform;
+  if (body_->getMotionState()) {
+    body_->getMotionState()->getWorldTransform(transform);
+  }
+  object_->SetPosition(glm::vec3(transform.getOrigin().getX(), transform.getOrigin().getY(), transform.getOrigin().getZ()));
+  object_->SetOrientation(glm::quat(transform.getRotation().getW(), transform.getRotation().getX(), transform.getRotation().getY(), transform.getRotation().getZ()));
 }
 
 void ZPhysicsComponent::AddForce(glm::vec3& force) {

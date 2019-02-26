@@ -9,7 +9,7 @@ ZGO_01
 		:mass 1.0:
 		:damping 1.0 1.0:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0] [0.0, 0.0, 0.0]:
+		:collider Box [1.0, 1.0, 1.0] [0.0, 3.0, 0.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
