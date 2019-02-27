@@ -154,7 +154,7 @@ void ZShader::SetInt(const std::string& name, int value) const {
 }
 
 void ZShader::SetFloat(const std::string& name, float value) const {
-  glUniform1f(glGetUniformLocation(id_, name.c_str()), (int)value);
+  glUniform1f(glGetUniformLocation(id_, name.c_str()), (float)value);
 }
 
 void ZShader::SetVec2(const std::string& name, const glm::vec2& value) const {
@@ -197,11 +197,17 @@ void ZShader::Use(const ZMaterial& material) {
   Activate();
   SetInt("materialIndex", material.Index());
   SetVec4("materials[" + std::to_string(material.Index()) + "].albedo", material.Properties().albedo);
-  SetVec3("materials[" + std::to_string(material.Index()) + "].emission", material.Properties().emission);
-  SetVec3("materials[" + std::to_string(material.Index()) + "].diffuse", material.Properties().diffuse);
-  SetVec3("materials[" + std::to_string(material.Index()) + "].ambient", material.Properties().ambient);
-  SetVec3("materials[" + std::to_string(material.Index()) + "].specular", material.Properties().specular);
-  SetFloat("materials[" + std::to_string(material.Index()) + "].shininess", material.Properties().shininess);
+  if (material.IsPBR()) {
+    SetFloat("materials[" + std::to_string(material.Index()) + "].metallic", material.Properties().metallic);
+    SetFloat("materials[" + std::to_string(material.Index()) + "].roughness", material.Properties().roughness);
+    SetFloat("materials[" + std::to_string(material.Index()) + "].ao", material.Properties().ao);
+  } else {
+    SetFloat("materials[" + std::to_string(material.Index()) + "].emission", material.Properties().emission);
+    SetFloat("materials[" + std::to_string(material.Index()) + "].diffuse", material.Properties().diffuse);
+    SetFloat("materials[" + std::to_string(material.Index()) + "].ambient", material.Properties().ambient);
+    SetFloat("materials[" + std::to_string(material.Index()) + "].specular", material.Properties().specular);
+    SetFloat("materials[" + std::to_string(material.Index()) + "].shininess", material.Properties().shininess);
+  }
 }
 
 void ZShader::Use(const std::map<std::string, ZLight*>& lights) {

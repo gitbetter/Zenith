@@ -16,10 +16,9 @@ ZGO_01
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
-		:textures []:
 	^
 ^
-ZGO_03
+ZGO_02
 	:scale [500.0, 0.0, 500.0]:
 	GraphicsComponent
 		:activeShader 0:
@@ -32,7 +31,7 @@ ZGO_03
 		:collider Box [100.0, 0.001, 100.0] [0.0, 0.0, 0.0]:
 	^
 ^
-ZGO_02
+ZGO_03
 	:position [-5.0, 15.0, 50.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:

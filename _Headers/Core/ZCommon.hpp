@@ -88,11 +88,20 @@ struct ZTexture {
 
 struct ZMaterialProperties {
   glm::vec4 albedo;
-  glm::vec3 emission;
-  glm::vec3 diffuse;
-  glm::vec3 ambient;
-  glm::vec3 specular;
-  float shininess;
+  union {
+    struct {
+      float emission;
+      float diffuse;
+      float ambient;
+      float specular;
+      float shininess;
+    };
+    struct {
+      float metallic;
+      float roughness;
+      float ao;
+    };
+  };
 };
 
 struct ZVertex3D {

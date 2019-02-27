@@ -85,7 +85,7 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
     1, 2, 3
   };
 
-  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterial();
+  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialSimple();
 
   meshes_.push_back(ZMesh3D(vertices, indices, material));
 }
@@ -149,7 +149,7 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
     20, 21, 22, 20, 22, 23
   };
 
-  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterial();
+  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialSimple();
 
   meshes_.push_back(ZMesh3D(vertices, indices, material));
 }

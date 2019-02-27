@@ -133,7 +133,7 @@ ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::s
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     material = ZMaterial(textures);
   } else {
-    material = ZMaterial::DefaultMaterial();
+    material = ZMaterial::DefaultMaterialSimple();
   }
 
   return ZMesh3D(vertices, indices, material, minVertex, maxVertex);

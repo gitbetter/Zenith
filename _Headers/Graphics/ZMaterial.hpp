@@ -21,6 +21,7 @@ private:
   ZMaterialProperties properties_;
   std::vector<ZTexture> textures_;
   int index_;
+  bool isPBR_ = false;
 
 public:
 
@@ -28,7 +29,8 @@ public:
   ZMaterial(ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
   ZMaterial(std::vector<ZTexture> textures) : ZMaterial(0) { textures_ = textures; }
 
-  static ZMaterial DefaultMaterial();
+  static ZMaterial DefaultMaterialSimple();
+  static ZMaterial DefaultMaterialPBR();
 
   void SetProperties(ZMaterialProperties properties) { properties_ = properties; }
   const ZMaterialProperties& Properties() const { return properties_; }
@@ -37,7 +39,9 @@ public:
   const std::vector<ZTexture>& Textures() const { return textures_; }
 
   int Index() const { return index_; }
-protected:
+  bool IsPBR() const { return isPBR_; }
+  void SetPBR(bool pbr = true) { isPBR_ = pbr; }
 
+protected:
 
 };

@@ -33,10 +33,10 @@ struct Light {
 
 struct Material {
   vec4 albedo;
-  vec3 emission;
-  vec3 ambient;
-  vec3 diffuse;
-  vec3 specular;
+  float emission;
+  float ambient;
+  float diffuse;
+  float specular;
   float shininess;
 };
 
