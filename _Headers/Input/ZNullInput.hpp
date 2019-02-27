@@ -30,6 +30,9 @@ public:
     virtual void Process() {
       _Z("No ZInput implementation has been provided", ZERROR);
     }
+    virtual void GetPointerPosition(float& x, float& y) {
+      _Z("No ZInput implementation has been provided", ZERROR);
+    }
 protected:
 
 
