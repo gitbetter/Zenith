@@ -46,7 +46,7 @@ void ZGLInput::Process() {
   if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) Broadcast(ZIFireCommand());
 }
 
-void ZGLInput::GetPointerPosition(float& x, float& y) {
+void ZGLInput::GetPointerPosition(double& x, double& y) {
   GLFWwindow* windowHandle = glfwGetCurrentContext();
   glfwGetCursorPos(windowHandle, &x, &y);
 }

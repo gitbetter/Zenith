@@ -24,7 +24,7 @@ private:
 public:
 
   void Process() override;
-  void GetPointerPosition(float& x, float& y) override;
+  void GetPointerPosition(double& x, double& y) override;
 
 protected:
 

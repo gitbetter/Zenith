@@ -26,7 +26,7 @@ public:
   virtual void Register(ZObject* gameObject);
   virtual void Broadcast(const ZInputCommand& command);
   virtual void Process() = 0;
-  virtual void GetPointerPosition(float& x, float& y) = 0;
+  virtual void GetPointerPosition(double& x, double& y) = 0;
 protected:
 
   std::vector<ZObject*> registeredObjects_;
