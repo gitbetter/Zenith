@@ -14,9 +14,14 @@
 
 // Forward Declarations
 class ZObjectForceRegistry;
+class ZPhysicsDebug;
 
 // Class and Data Structure Definitions
 class ZPhysics {
+
+private:
+
+  ZPhysicsDebug* debugDrawer_;
 
 public:
 
@@ -27,12 +32,13 @@ public:
 
   void Update();
 
-  void CleanUp() { }
-
   ZObjectForceRegistry* Registry() { return registry_; }
 
   void AddRigidBody(btRigidBody* body);
 
+  void DebugDraw();
+
+  void CleanUp() { }
 
 protected:
 

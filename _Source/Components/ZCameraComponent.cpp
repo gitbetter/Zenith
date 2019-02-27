@@ -8,8 +8,8 @@
 
 #include "ZCameraComponent.hpp"
 #include "ZCommon.hpp"
+#include "ZDomain.hpp"
 #include "ZGameObject.hpp"
-#include "ZPhysicsComponent.hpp"
 #include "ZOFTree.hpp"
 
 void ZCameraComponent::Update() {
@@ -99,6 +99,23 @@ void ZCameraComponent::HandleYaw(float controlThrow) {
     yaw_ = glm::angleAxis(glm::radians(controlThrow * lookSensitivity_), glm::vec3(0.f, 1.f, 0.f));
     object_->SetOrientation(glm::normalize(object_->Orientation() * yaw_));
   }
+}
+
+glm::mat4 ZCameraComponent::ProjectionMatrix() {
+  const ZDomain* domain = ZEngine::Domain();
+  glm::mat4 projectionMatrix;
+  if (cameraType_ == ZCameraType::Orthographic) {
+    float left = -(float)domain->ResolutionX() / (zoom_ * 2);
+    float right = -left;
+    float bottom = -(float)domain->ResolutionY() / (zoom_ * 2);
+    float top = -bottom;
+    projectionMatrix = glm::ortho(left, right, bottom, top, -farClippingPlane_ / 2.f, farClippingPlane_);
+  } else {
+    projectionMatrix = glm::perspective(glm::radians(zoom_),
+                                         (float)domain->ResolutionX() / (float)domain->ResolutionY(),
+                                         nearClippingPlane_, farClippingPlane_);
+  }
+  return projectionMatrix;
 }
 
 glm::mat4 ZCameraComponent::ViewMatrix(float frameMix) {

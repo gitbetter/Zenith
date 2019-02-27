@@ -7,6 +7,7 @@
 //
 
 #include "ZEngine.hpp"
+#include "ZGame.hpp"
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
 #include "ZNullInput.hpp"
@@ -33,6 +34,7 @@ const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
   "Assets/Skyboxes/Default/back.png",
 };
 
+ZGame* ZEngine::currentGame_ = nullptr;
 ZDomain* ZEngine::domain_ = nullptr;
 ZGraphics* ZEngine::graphics_ = nullptr;
 ZInput* ZEngine::input_ = new ZNullInput;
@@ -43,7 +45,9 @@ ZGraphicsFactory* ZEngine::graphicsFactory_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 ZIDSequence* ZEngine::idGenerator_ = new ZIDSequence;
 
-void ZEngine::Initialize(int windowWidth, int windowHeight) {
+void ZEngine::Initialize(ZGame* game, int windowWidth, int windowHeight) {
+  currentGame_ = game;
+
   domain_ = new ZDomain(windowWidth, windowHeight);
   domain_->Initialize();
 
@@ -51,12 +55,17 @@ void ZEngine::Initialize(int windowWidth, int windowHeight) {
   graphics_->Initialize();
 
   input_ = new ZGLInput;
+  input_->Register(currentGame_);
 
   ui_ = new ZUI;
   ui_->Initialize();
 
   physics_ = new ZPhysics;
   physics_->Initialize();
+}
+
+ZGame* ZEngine::Game() {
+  return currentGame_;
 }
 
 ZDomain* ZEngine::Domain() {

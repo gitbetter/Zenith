@@ -63,6 +63,8 @@ void ZGame::Render(float frameMix, RENDER_OP renderOp) {
   // The dirty flag trick might come in handy here
   ZEngine::UI()->Draw();
 
+  ZEngine::Physics()->DebugDraw();
+
   ZEngine::Graphics()->Strategy()->SwapBuffers();
 }
 
@@ -102,7 +104,7 @@ void ZGame::SetDefaultSkybox() {
   AddGameObject(skyboxActor);
 }
 
-ZGameObject* ZGame::GetActiveCamera() {
+ZGameObject* ZGame::ActiveCamera() {
   if (gameObjects_.find(activeCameraObject_) == gameObjects_.end()) return nullptr;
   return gameObjects_[activeCameraObject_];
 }

@@ -28,7 +28,7 @@ private:
   ZLightMap gameLights_;
   ZGameObject* gameCamera_ = nullptr ;
 
-  void DrawOutlineIfEnabled();
+  void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
 
 public:
 
@@ -54,7 +54,6 @@ public:
 protected:
 
   ZModel* model_ = nullptr;
-  glm::mat4 projectionMatrix_, viewMatrix_, modelMatrix_;
   std::vector<ZShader*> shaders_;
   ZShader* highlightShader_ = nullptr;
   glm::vec4 highlightColor_;

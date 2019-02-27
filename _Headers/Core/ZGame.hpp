@@ -32,7 +32,7 @@ public:
 
   void RunGameLoop();
 
-  ZGameObject* GetActiveCamera();
+  ZGameObject* ActiveCamera();
   const std::map<std::string, ZLight*>& GetGameLights() const { return gameLights_; }
 
   void AddGameObject(ZGameObject* gameObject);

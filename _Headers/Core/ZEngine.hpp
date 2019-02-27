@@ -26,11 +26,13 @@ class ZPhysics;
 class ZIDSequence;
 class ZGOFactory;
 class ZGraphicsFactory;
+class ZGame;
 
 // Class Definitions
 class ZEngine {
 private:
 
+  static ZGame* currentGame_;
   static ZDomain* domain_;
   static ZGraphics* graphics_;
   static ZInput* input_;
@@ -51,8 +53,9 @@ public:
   static const glm::vec4 WORLD_UP;
   static const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP;
 
-  static void Initialize(int windowWidth, int windowHeight);
+  static void Initialize(ZGame* game, int windowWidth, int windowHeight);
 
+  static ZGame* Game();
   static ZDomain* Domain();
   static ZGraphics* Graphics();
   static ZInput* Input();

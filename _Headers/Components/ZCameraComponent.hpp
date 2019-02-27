@@ -64,10 +64,11 @@ public:
   void SetType(ZCameraType type) { cameraType_ = type; }
   void SetMovementStyle(ZCameraMovementStyle style) { movementStyle_ = style; }
 
-  glm::mat4 ViewMatrix(float frameMix);
   float GetZoom() const { return zoom_; }
   float GetNearField() const { return nearClippingPlane_; }
   float GetFarField() const { return farClippingPlane_; }
+  glm::mat4 ProjectionMatrix();
+  glm::mat4 ViewMatrix(float frameMix);
 
 protected:
 

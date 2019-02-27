@@ -6,10 +6,11 @@ ZGO_01
 	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
 		:type Dynamic:
-		:mass 1.0:
-		:damping 1.0 1.0:
+		:mass 5.0:
+		:damping 0.0 0.0:
+		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0] [0.0, 3.0, 0.0]:
+		:collider Box [1.0, 1.0, 1.0] [0.0, 20.0, 0.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -27,7 +28,8 @@ ZGO_03
 	^
 	PhysicsComponent
 		:type Static:
-		:collider Box [100.0, 1.0, 100.0] [0.0, 0.0, 0.0]:
+		:restitution 0.4:
+		:collider Box [100.0, 0.001, 100.0] [0.0, 0.0, 0.0]:
 	^
 ^
 ZGO_02

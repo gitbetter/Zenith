@@ -28,7 +28,7 @@ public:
   ZShaderMap CreateShaders(ZOFTree* data);
   ZTextureMap CreateTextures(ZOFTree* data);
 
-  ZModel* CreateModel(std::string type, glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f), std::vector<ZTexture> textures = {});
+  ZModel* CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});
 
 protected:
 

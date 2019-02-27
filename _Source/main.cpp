@@ -40,7 +40,7 @@ int main(int argc, const char * argv[]) {
   ZGame game;
 
   // Initialize the engine before anything else
-  ZEngine::Initialize(1260, 800);
+  ZEngine::Initialize(&game, 1260, 800);
 
   // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
   // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
@@ -49,9 +49,6 @@ int main(int argc, const char * argv[]) {
   // Enable our UI cursor
   ZEngine::UI()->EnableCursor();
 
-  // Register the main game object so it receives input events
-  ZEngine::Input()->Register(&game);
-
   // Parse the ZOF file and create the resources
   ZGameObjectMap gameObjects = ZEngine::LoadZOF("basic_scene.zof");
   for (ZGameObjectMap::iterator it = gameObjects.begin(); it != gameObjects.end(); it++) {
@@ -59,7 +56,7 @@ int main(int argc, const char * argv[]) {
   }
 
   // Register the camera component so it receives input events
-  ZGameObject* activeCamera = game.GetActiveCamera();
+  ZGameObject* activeCamera = game.ActiveCamera();
   if (activeCamera != nullptr)
     ZEngine::Input()->Register(activeCamera->FindComponent<ZCameraComponent>());
 

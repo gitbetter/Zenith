@@ -29,7 +29,7 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
     return;
   }
 
-  btScalar mass = -1., damping = -1., angularDamping = -1.;
+  btScalar mass = -1., damping = 1., angularDamping = 1., restitution = 0.;
   ZColliderType type = ZColliderType::None;
   bool gravity = false;
   std::vector<btScalar> size, origin;
@@ -48,6 +48,9 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
       damping = terminal->value;
       if (prop->values.size() > 1)
         angularDamping = (dynamic_cast<ZOFNumber*>(prop->values[0]))->value;
+    } else if (prop->id == "restitution") {
+      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
+      restitution = terminal->value;
     } else if (prop->id == "collider") {
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
       if (terminal->value == "Box") type = ZColliderType::Box;
@@ -90,8 +93,12 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
   btDefaultMotionState* motionState = new btDefaultMotionState(transform);
   btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collider, localInertia);
   body_ = new btRigidBody(rbInfo);
-  if (gravity) body_->setGravity(btVector3(0.0, -15.0, 0.0));
+
+  _Z("restitution: " + std::to_string(restitution), ZINFO);
+
+  if (gravity) body_->setGravity(btVector3(0.0, -25.0, 0.0));
   body_->setDamping(damping, angularDamping);
+  body_->setRestitution(restitution);
 
   ZEngine::Physics()->AddRigidBody(body_);
 }

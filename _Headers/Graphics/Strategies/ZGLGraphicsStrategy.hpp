@@ -47,12 +47,16 @@ public:
   void BindDepthMapBuffer(unsigned int frameBuffer) override;
   void UnbindDepthMapBuffer() override;
   unsigned int LoadCubeMap(std::vector<std::string> faces) override;
-  ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
+  ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
+  ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) override;
   ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) override;
   ZBufferData LoadEmptyVertexData2D(unsigned int size) override;
+  void DeleteBufferData(ZBufferData bufferData) override;
   void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) override;
+
   void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
   void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) override;
+  void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) override;
 
 protected:
 

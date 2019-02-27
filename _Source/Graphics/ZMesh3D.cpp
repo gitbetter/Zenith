@@ -13,7 +13,7 @@
 
 ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material)
 : vertices_(vertices), indices_(indices), material_(material) {
-  bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices, indices);
+  bufferData_ = ZEngine::Graphics()->Strategy()->LoadIndexedVertexData(vertices, indices);
 }
 
 ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material, ZVertex3D min, ZVertex3D max) : ZMesh3D(vertices, indices, material) {

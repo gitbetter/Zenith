@@ -86,23 +86,12 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
 void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   if (gameCamera_ == nullptr) return;
 
-  const ZDomain* domain = ZEngine::Domain();
-
   ZCameraComponent* cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
 
-  if (cameraComp->Type() == ZCameraType::Orthographic) {
-    float left = -(float)domain->ResolutionX() / (cameraComp->GetZoom() * 2);
-    float right = -left;
-    float bottom = -(float)domain->ResolutionY() / (cameraComp->GetZoom() * 2);
-    float top = -bottom;
-    projectionMatrix_ = glm::ortho(left, right, bottom, top, -cameraComp->GetFarField() / 2.f, cameraComp->GetFarField());
-  } else {
-    projectionMatrix_ = glm::perspective(glm::radians(cameraComp->GetZoom()),
-                                         (float)domain->ResolutionX() / (float)domain->ResolutionY(),
-                                         cameraComp->GetNearField(), cameraComp->GetFarField());
-  }
-
-  viewMatrix_ = translatesWithView_ ? cameraComp->ViewMatrix(frameMix) : glm::mat4(glm::mat3(cameraComp->ViewMatrix(frameMix)));
+  glm::mat4 modelMatrix = object_->ModelMatrix();
+  glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
+  glm::mat4 viewMatrix = translatesWithView_ ? cameraComp->ViewMatrix(frameMix) :
+                                      glm::mat4(glm::mat3(cameraComp->ViewMatrix(frameMix)));
 
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
@@ -110,20 +99,19 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   ZShader* shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
 
   shader->Activate();
-
   shader->Use(gameLights_);
 
   ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
 
-  shader->SetMat4("P", projectionMatrix_);
-  shader->SetMat4("V", viewMatrix_);
-  shader->SetMat4("M", object_->ModelMatrix());
+  shader->SetMat4("P", projectionMatrix);
+  shader->SetMat4("V", viewMatrix);
+  shader->SetMat4("M", modelMatrix);
   shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
   shader->SetVec3("viewDirection", gameCamera_->Front());
 
   model_->Render(shader);
 
-  DrawOutlineIfEnabled();
+  DrawOutlineIfEnabled(modelMatrix, viewMatrix, projectionMatrix);
 }
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
@@ -134,18 +122,18 @@ void ZGraphicsComponent::SetOutline(glm::vec4 color) {
   highlightColor_ = color;
 }
 
-void ZGraphicsComponent::DrawOutlineIfEnabled() {
+void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection) {
   if (highlightShader_ == nullptr) return;
 
   ZEngine::Graphics()->Strategy()->DisableStencilBuffer();
 
   highlightShader_->Activate();
 
-  glm::mat4 highlightModelMatrix_ = glm::scale(object_->ModelMatrix(), glm::vec3(1.07f, 1.07f, 1.07f));
+  glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.07f, 1.07f, 1.07f));
 
-  highlightShader_->SetMat4("P", projectionMatrix_);
-  highlightShader_->SetMat4("V", viewMatrix_);
-  highlightShader_->SetMat4("M", highlightModelMatrix_);
+  highlightShader_->SetMat4("P", projection);
+  highlightShader_->SetMat4("V", view);
+  highlightShader_->SetMat4("M", highlightModelMatrix);
   highlightShader_->SetVec4("highlightColor", highlightColor_);
 
   model_->Render(highlightShader_);

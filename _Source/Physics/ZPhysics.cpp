@@ -8,6 +8,7 @@
 
 #include "ZPhysics.hpp"
 #include "ZPhysicsComponent.hpp"
+#include "ZPhysicsDebug.hpp"
 #include "ZObjectForceRegistry.hpp"
 #include "ZGameObject.hpp"
 
@@ -21,14 +22,23 @@ void ZPhysics::Initialize() {
   overlappingPairCache_ = new btDbvtBroadphase();
   solver_ = new btSequentialImpulseConstraintSolver;
   dynamicsWorld_ = new btDiscreteDynamicsWorld(dispatcher_, overlappingPairCache_, solver_, collisionConfig_);
+
+  debugDrawer_ = new ZPhysicsDebug;
+  debugDrawer_->Initialize();
+  dynamicsWorld_->setDebugDrawer(debugDrawer_);
+  dynamicsWorld_->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 }
 
 void ZPhysics::Update() {
   registry_->UpdateForces();
-  dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, ZEngine::UPDATE_STEP_SIZE);
+  dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, 1, ZEngine::UPDATE_STEP_SIZE);
 }
 
 void ZPhysics::AddRigidBody(btRigidBody* body) {
   dynamicsWorld_->addRigidBody(body);
   collisionShapes_.push_back(body->getCollisionShape());
+}
+
+void ZPhysics::DebugDraw() {
+  dynamicsWorld_->debugDrawWorld();
 }
