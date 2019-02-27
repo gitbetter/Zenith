@@ -1,4 +1,4 @@
-#version 330 core
+#version 400 core
 
 const int MAX_LOCAL_LIGHTS = 15;
 const int MAX_MATERIALS = 15;
