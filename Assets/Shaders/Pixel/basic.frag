@@ -63,12 +63,11 @@ void main() {
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
     if (!lights[i].isEnabled) continue;
 
-    vec3 lightDirection = lights[i].position;
+    vec3 lightDirection = lights[i].isDirectional ? lights[i].direction : lights[i].position - fs_in.FragPos;
     vec3 halfVector = normalize(lightDirection + viewDirection);
     float attenunation = 1.0;
 
     if (!lights[i].isDirectional) {
-      lightDirection = lightDirection - fs_in.FragPos;
       float lightDistance = length(lightDirection);
       lightDirection = lightDirection / lightDistance;
 
@@ -95,7 +94,7 @@ void main() {
   }
 
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
-  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * scatteredLight + reflectedLight, vec3(1.0));
+  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * (scatteredLight + reflectedLight), vec3(1.0));
 
   vec3 hemisphereLightDirection = normalize(hemisphereLight.position - fs_in.FragPos);
   float a = dot(fs_in.FragNormal, hemisphereLightDirection) * 0.5 + 0.5;
@@ -117,7 +116,8 @@ float CalculateShadow(vec4 lightSpacePosition) {
   for (int x = -1; x <= 1; ++x) {
     for (int y = -1; y <= 1; ++y) {
       float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-      shadow += currentDepth > pcfDepth ? 1.0 : 0.0;
+      float bias = 0.005;
+      shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
     }
   }
   return shadow / 9.0;

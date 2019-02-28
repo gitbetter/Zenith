@@ -328,14 +328,9 @@ void ZGLGraphicsStrategy::BindDepthMapBuffer(unsigned int frameBuffer) {
   glViewport(0, 0, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE);
   glClearDepth(1.0f);
   glClear(GL_DEPTH_BUFFER_BIT);
-
-  glEnable(GL_POLYGON_OFFSET_FILL); // Prevents Z-Fighting
-  glPolygonOffset(2.f, 4.f);
 }
 
 void ZGLGraphicsStrategy::UnbindDepthMapBuffer() {
-  glDisable(GL_POLYGON_OFFSET_FILL);
-
   UnbindFramebuffer();
   glViewport(0, 0, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

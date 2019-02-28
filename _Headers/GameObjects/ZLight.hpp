@@ -18,18 +18,18 @@
 // Class and Data Structure Definitions
 struct ZLBaseProperties {
   glm::vec3 ambient{0.2f};
-  glm::vec3 color{0.85f};
+  glm::vec3 color{0.95f};
 };
 
 struct ZLAttenuationProperties {
   float constant{1.0f};
-  float linear{0.014f};
-  float quadratic{0.0007f};
+  float linear{0.7f};
+  float quadratic{1.4f};
 };
 
 struct ZLDirectional {
   ZLBaseProperties components;
-  glm::vec3 direction{10.f, 1.f, 10.f};
+  glm::vec3 direction{25.f, 25.f, 25.f};
 };
 
 struct ZLPoint {

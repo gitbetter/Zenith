@@ -72,11 +72,10 @@ void main() {
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, vec3(mat.albedo), mat.metallic);
 
-  vec3 Lo = vec3(0.0); int contributingLights = 0;
+  vec3 Lo = vec3(0.0);
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
     if (lights[i].isEnabled) {
-      ++contributingLights;
-      vec3 L = !lights[i].isDirectional ? normalize(lights[i].position - fs_in.FragPos) : lights[i].direction;
+      vec3 L = !lights[i].isDirectional ? normalize(lights[i].position - fs_in.FragPos) : normalize(lights[i].direction);
       vec3 H = normalize(V + L);
       vec3 radiance = lights[i].color;
 
@@ -88,24 +87,23 @@ void main() {
 
       float NDF = DistributionGGX(N, H, mat.roughness);
       float G = GeometrySmith(N, V, L, mat.roughness);
-      vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+      vec3 F = FresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
+
+      vec3 numerator = NDF * G * F;
+      float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+      vec3 specular = numerator / max(denominator, 0.0001);
 
       vec3 kS = F;
       vec3 kD = vec3(1.0) - kS;
       kD *= 1.0 - mat.metallic;
 
-      vec3 numerator = NDF * G * F;
-      float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-      vec3 specular = numerator / max(denominator, 0.001);
-
       float NdotL = max(dot(N, L), 0.0);
+
       Lo += (kD * vec3(mat.albedo) / PI + specular) * radiance * NdotL;
     }
   }
 
-  Lo /= contributingLights;
-
-  vec3 ambient = vec3(0.03) * vec3(mat.albedo) * mat.ao;
+  vec3 ambient = vec3(0.1) * vec3(mat.albedo) * mat.ao;
   vec3 color = ambient + (1.0 - shadow) * Lo;
 
   color = color / (color + vec3(1.0));
@@ -154,6 +152,7 @@ float CalculateShadow(vec4 lightSpacePosition) {
   vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
   if (projCoords.z > 1.0)
     return 0.0;
+
   projCoords = projCoords * 0.5 + 0.5;
   float currentDepth = projCoords.z;
 
