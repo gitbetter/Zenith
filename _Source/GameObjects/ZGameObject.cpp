@@ -98,6 +98,10 @@ void ZGameObject::SetOrientation(glm::vec3 euler) {
   CalculateDerivedData();
 }
 
+void ZGameObject::SetModelMatrix(glm::mat4 modelMatrix) {
+  modelMatrix_ = modelMatrix;
+}
+
 void ZGameObject::CalculateDerivedData() {
   orientation_ = glm::normalize(orientation_);
 

@@ -59,11 +59,13 @@ void ZGame::Update() {
 
 void ZGame::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Draw(gameObjects_, gameLights_, frameMix);
+  if (skyBox_ != nullptr) skyBox_->Render(frameMix, renderOp);
+
   // TODO: If the UI has changed, draw it. Otherwise, leave it.
   // The dirty flag trick might come in handy here
   ZEngine::UI()->Draw();
 
-  //ZEngine::Physics()->DebugDraw();
+  ZEngine::Physics()->DebugDraw();
 
   ZEngine::Graphics()->Strategy()->SwapBuffers();
 }
@@ -91,7 +93,7 @@ void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
 
 void ZGame::SetDefaultSkybox() {
   ZModel* skybox = ZModel::NewSkybox();
-  // ... and a special set of skybox shaders.
+
   ZShader* skyboxShader = new ZShader;
   skyboxShader->Initialize("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag");
   ZGraphicsComponent* skyboxGraphicsComponent = new ZGraphicsComponent;
@@ -101,7 +103,8 @@ void ZGame::SetDefaultSkybox() {
   skyboxActor->AddComponent(skyboxGraphicsComponent);
   skyboxActor->ShouldTranslateWithView(false);
 
-  AddGameObject(skyboxActor);
+  skyBox_ = skyboxActor;
+  skyBox_->game_ = this;
 }
 
 ZGameObject* ZGame::ActiveCamera() {

@@ -19,6 +19,7 @@ struct ZLight;
 class ZGame : public ZObject {
 private:
 
+  ZGameObject* skyBox_ = nullptr;
   ZGameObjectMap gameObjects_;
   std::map<std::string, ZLight*> gameLights_;
   std::string activeCameraObject_;

@@ -104,12 +104,19 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
 void ZPhysicsComponent::Update() {
   assert(object_ != nullptr && body_ != nullptr);
 
+  // Don't update static rigid bodies, since the physics
+  // cannot affect them
+  if (body_->getInvMass() == 0.0) return;
+
   btTransform transform;
   if (body_->getMotionState()) {
     body_->getMotionState()->getWorldTransform(transform);
   }
-  object_->SetPosition(glm::vec3(transform.getOrigin().getX(), transform.getOrigin().getY(), transform.getOrigin().getZ()));
-  object_->SetOrientation(glm::quat(transform.getRotation().getW(), transform.getRotation().getX(), transform.getRotation().getY(), transform.getRotation().getZ()));
+
+  glm::mat4 modelMatrix;
+  transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
+
+  object_->SetModelMatrix(modelMatrix);
 }
 
 void ZPhysicsComponent::AddForce(glm::vec3& force) {

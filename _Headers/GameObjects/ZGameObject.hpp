@@ -44,6 +44,7 @@ public:
   void SetScale(glm::vec3 scale);
   void SetOrientation(glm::quat quaternion);
   void SetOrientation(glm::vec3 euler);
+  void SetModelMatrix(glm::mat4 modelMatrix);
 
   glm::vec3 Position() const { return glm::vec3(position_); }
   glm::vec3 Scale() const { return scale_; }
