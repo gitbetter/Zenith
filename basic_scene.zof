@@ -64,7 +64,7 @@ ZGO_04
 	PhysicsComponent
 		:type Static:
 		:restitution 0.4:
-		:collider Box [100.0, 0.001, 100.0] [0.0, 0.0, 0.0]:
+		:collider Box [500.0, 0.001, 500.0] [0.0, 0.0, 0.0]:
 	^
 ^
 ZGO_05

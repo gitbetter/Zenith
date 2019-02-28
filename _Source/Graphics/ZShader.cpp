@@ -195,6 +195,7 @@ void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const {
 
 void ZShader::Use(const ZMaterial& material) {
   Activate();
+  
   SetInt("materialIndex", material.Index());
   SetVec4("materials[" + std::to_string(material.Index()) + "].albedo", material.Properties().albedo);
   if (material.IsPBR()) {
@@ -207,6 +208,11 @@ void ZShader::Use(const ZMaterial& material) {
     SetFloat("materials[" + std::to_string(material.Index()) + "].ambient", material.Properties().ambient);
     SetFloat("materials[" + std::to_string(material.Index()) + "].specular", material.Properties().specular);
     SetFloat("materials[" + std::to_string(material.Index()) + "].shininess", material.Properties().shininess);
+  }
+
+  for (unsigned int i = 0; i < material.Textures().size(); i++) {
+    SetInt(material.Textures()[i].type, i+1);
+    ZEngine::Graphics()->Strategy()->BindTexture(material.Textures()[i], i+1);
   }
 }
 

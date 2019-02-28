@@ -50,7 +50,6 @@ void ZGraphics::DrawShadowMap(const ZGameObjectMap& gameObjects, ZLight* light, 
   if (shadowShader_ == nullptr) {
     shadowShader_ = new ZShader;
     shadowShader_->Initialize("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
-    shadowShader_->SetInt("shadowMap", 0);
   }
   shadowShader_->Activate();
 

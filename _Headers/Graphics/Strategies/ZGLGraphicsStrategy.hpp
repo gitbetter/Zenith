@@ -37,6 +37,8 @@ public:
   void DisableStencilBuffer() override;
   void EnableAlphaBlending() override;
   void DisableAlphaBlending() override;
+  void EnableFaceCulling() override;
+  void DisableFaceCulling() override;
   void BindFramebuffer(unsigned int frameBuffer) override;
   void UnbindFramebuffer() override;
   ZTexture LoadDefaultTexture() override;

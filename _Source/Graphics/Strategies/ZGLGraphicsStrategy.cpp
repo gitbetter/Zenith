@@ -67,6 +67,14 @@ void ZGLGraphicsStrategy::DisableAlphaBlending() {
   glDisable(GL_BLEND);
 }
 
+void ZGLGraphicsStrategy::EnableFaceCulling() {
+  glEnable(GL_CULL_FACE);
+}
+
+void ZGLGraphicsStrategy::DisableFaceCulling() {
+  glDisable(GL_CULL_FACE);
+}
+
 void ZGLGraphicsStrategy::BindFramebuffer(unsigned int frameBuffer) {
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 }
@@ -323,11 +331,9 @@ void ZGLGraphicsStrategy::BindDepthMapBuffer(unsigned int frameBuffer) {
 
   glEnable(GL_POLYGON_OFFSET_FILL); // Prevents Z-Fighting
   glPolygonOffset(2.f, 4.f);
-  glCullFace(GL_FRONT); // Prevents peter-panning
 }
 
 void ZGLGraphicsStrategy::UnbindDepthMapBuffer() {
-  glCullFace(GL_BACK);
   glDisable(GL_POLYGON_OFFSET_FILL);
 
   UnbindFramebuffer();

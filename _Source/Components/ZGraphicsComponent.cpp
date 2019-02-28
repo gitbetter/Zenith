@@ -97,6 +97,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
   ZShader* shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
+  if (renderOp & RENDER_OP_COLOR == RENDER_OP_COLOR) shader->SetInt("shadowMap", 0);
 
   shader->Activate();
   shader->Use(gameLights_);

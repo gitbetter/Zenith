@@ -27,8 +27,6 @@ private:
   // Used for calculating bounds of collision primitives and BVH nodes
   ZVertex3D minVertex_, maxVertex_;
 
-  void AttachMaterialTextures(ZShader* shader);
-
 public:
 
   ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material);

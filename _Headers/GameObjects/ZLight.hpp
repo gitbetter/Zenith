@@ -18,7 +18,7 @@
 // Class and Data Structure Definitions
 struct ZLBaseProperties {
   glm::vec3 ambient{0.2f};
-  glm::vec3 color{0.4f};
+  glm::vec3 color{0.85f};
 };
 
 struct ZLAttenuationProperties {
@@ -29,7 +29,7 @@ struct ZLAttenuationProperties {
 
 struct ZLDirectional {
   ZLBaseProperties components;
-  glm::vec3 direction{3.f, 5.f, 5.f};
+  glm::vec3 direction{10.f, 1.f, 10.f};
 };
 
 struct ZLPoint {
@@ -53,7 +53,7 @@ struct ZLHemisphere {
 
 struct ZLight : public ZGameObject {
   ZLight() { }
-  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(12.f)) { type = lightType; }
+  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(24.f)) { type = lightType; }
   ~ZLight() { }
 
   ZLightType type{ZLightType::Point};

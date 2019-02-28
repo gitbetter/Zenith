@@ -43,6 +43,11 @@ struct Material {
 };
 
 uniform sampler2D shadowMap;
+uniform sampler2D albedo;
+uniform sampler2D normal;
+uniform sampler2D metallic;
+uniform sampler2D roughness;
+uniform sampler2D ao;
 
 uniform vec3 viewDirection;
 uniform int materialIndex;
@@ -62,35 +67,44 @@ void main() {
   Material mat = materials[materialIndex];
   vec3 N = fs_in.FragNormal;
   vec3 V = normalize(viewDirection - fs_in.FragPos);
+  float shadow = CalculateShadow(fs_in.FragPosLightSpace);
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, vec3(mat.albedo), mat.metallic);
 
-  vec3 Lo = vec3(0.0);
+  vec3 Lo = vec3(0.0); int contributingLights = 0;
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
-    vec3 L = normalize(lights[i].position - fs_in.FragPos);
-    vec3 H = normalize(V + L);
-    float distance = length(lights[i].position - fs_in.FragPos);
-    float attenuation = 1.0 / (distance * distance);
-    vec3 radiance = lights[i].color * attenuation;
+    if (lights[i].isEnabled) {
+      ++contributingLights;
+      vec3 L = !lights[i].isDirectional ? normalize(lights[i].position - fs_in.FragPos) : lights[i].direction;
+      vec3 H = normalize(V + L);
+      vec3 radiance = lights[i].color;
 
-    float NDF = DistributionGGX(N, H, mat.roughness);
-    float G = GeometrySmith(N, V, L, mat.roughness);
-    vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+      if (!lights[i].isDirectional) {
+        float dist = length(lights[i].position - fs_in.FragPos);
+        float attenuation = 1.0 / (dist * dist);
+        radiance = lights[i].color * attenuation;
+      }
 
-    vec3 kS = F;
-    vec3 kD = vec3(1.0) - F;
-    kD *= 1.0 - mat.metallic;
+      float NDF = DistributionGGX(N, H, mat.roughness);
+      float G = GeometrySmith(N, V, L, mat.roughness);
+      vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
 
-    vec3 numerator = NDF * G * F;
-    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-    vec3 specular = numerator / max(denominator, 0.001);
+      vec3 kS = F;
+      vec3 kD = vec3(1.0) - kS;
+      kD *= 1.0 - mat.metallic;
 
-    float NdotL = max(dot(N, L), 0.0);
-    Lo += (kD * vec3(mat.albedo) / PI + specular) + radiance * NdotL;
+      vec3 numerator = NDF * G * F;
+      float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+      vec3 specular = numerator / max(denominator, 0.001);
+
+      float NdotL = max(dot(N, L), 0.0);
+      Lo += (kD * vec3(mat.albedo) / PI + specular) * radiance * NdotL;
+    }
   }
 
-  float shadow = CalculateShadow(fs_in.FragPosLightSpace);
+  Lo /= contributingLights;
+
   vec3 ambient = vec3(0.03) * vec3(mat.albedo) * mat.ao;
   vec3 color = ambient + (1.0 - shadow) * Lo;
 
@@ -146,12 +160,12 @@ float CalculateShadow(vec4 lightSpacePosition) {
   // Some PCF to soften out the shadows
   float shadow = 0.0;
   vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-  for (int x = -2; x <= 2; ++x) {
-    for (int y = -2; y <= 2; ++y) {
+  for (int x = -1; x <= 1; ++x) {
+    for (int y = -1; y <= 1; ++y) {
       float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
       float bias = 0.005;
       shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
     }
   }
-  return shadow / 25.0;
+  return shadow / 9.0;
 }

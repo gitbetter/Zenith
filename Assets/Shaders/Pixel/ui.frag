@@ -9,8 +9,8 @@ in VS_OUT {
 
 uniform vec4 color;
 
-uniform sampler2D image0;
+uniform sampler2D image;
 
 void main() {
-  FragColor = color * texture(image0, fs_in.FragUV);
+  FragColor = color * texture(image, fs_in.FragUV);
 }
