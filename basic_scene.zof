@@ -79,7 +79,7 @@ ZGO_05
 ^
 ZSH_01
 	:vertex "Assets/Shaders/Vertex/basic.vert":
-	:pixel "Assets/Shaders/Pixel/basic.frag":
+	:pixel "Assets/Shaders/Pixel/pbr.frag":
 ^
 ZSH_02
 	:vertex "Assets/Shaders/Vertex/basic.vert":
