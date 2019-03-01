@@ -101,7 +101,6 @@ void ZGame::SetDefaultSkybox() {
 
   ZGameObject* skyboxActor = new ZGameObject();
   skyboxActor->AddComponent(skyboxGraphicsComponent);
-  skyboxActor->ShouldTranslateWithView(false);
 
   skyBox_ = skyboxActor;
   skyBox_->game_ = this;

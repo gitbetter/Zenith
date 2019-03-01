@@ -3,7 +3,7 @@
 ZGO_01
 	:position [0.0, 1.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [1.0, 1.0, 1.0]:
+	:scale [5.0, 5.0, 5.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
@@ -21,7 +21,7 @@ ZGO_01
 ZGO_02
 	:position [0.0, 1.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [1.0, 1.0, 1.0]:
+	:scale [5.0, 5.0, 5.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
@@ -39,7 +39,7 @@ ZGO_02
 ZGO_03
 	:position [0.0, 1.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [1.0, 1.0, 1.0]:
+	:scale [5.0, 5.0, 5.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
@@ -55,7 +55,7 @@ ZGO_03
 	^
 ^
 ZGO_04
-	:scale [500.0, 0.001, 500.0]:
+	:scale [100.0, 0.001, 100.0]:
 	GraphicsComponent
 		:activeShader 0:
 		:shaders [ZSH_01]:

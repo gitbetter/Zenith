@@ -18,8 +18,7 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
 : position_(glm::vec4(position, 1.f)),
   scale_(glm::vec3(1.f, 1.f, 1.f)),
   orientation_(orientation),
-  modelMatrix_(glm::mat4(1.f)),
-  translatesWithView_(false) {
+  modelMatrix_(glm::mat4(1.f)) {
   id_ = "ZGO_" + ZEngine::IDSequence()->Next();
   CalculateDerivedData();
 }
@@ -63,14 +62,6 @@ void ZGameObject::Render(float frameMix, unsigned char renderOp) {
     graphicsComp->SetGameLights(gameLights);
     graphicsComp->SetGameCamera(camera);
     graphicsComp->Render(frameMix, renderOp);
-  }
-}
-
-void ZGameObject::ShouldTranslateWithView(bool translates) {
-  translatesWithView_ = translates;
-  ZGraphicsComponent* graphicsComp = FindComponent<ZGraphicsComponent>();
-  if (graphicsComp != nullptr) {
-    graphicsComp->ShouldTranslateWithView(translatesWithView_);
   }
 }
 

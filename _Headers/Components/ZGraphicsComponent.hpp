@@ -24,7 +24,6 @@ class ZGraphicsComponent : public ZComponent {
 private:
 
   unsigned int activeShaderIndex_ = -1;
-  bool translatesWithView_ = true;
   ZLightMap gameLights_;
   ZGameObject* gameCamera_ = nullptr ;
 
@@ -48,8 +47,6 @@ public:
 
   void SetGameLights(ZLightMap lights) { gameLights_ = lights; }
   void SetGameCamera(ZGameObject* camera) { gameCamera_ = camera; }
-
-  void ShouldTranslateWithView(bool translates) { translatesWithView_ = translates; }
 
 protected:
 
