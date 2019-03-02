@@ -92,7 +92,7 @@ void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
 }
 
 void ZGame::SetDefaultSkybox() {
-  ZModel* skybox = ZModel::NewSkybox();
+  ZModel* skybox = ZModel::NewSkybox(ZEngine::DEFAULT_HDR_CUBEMAP);
 
   ZShader* skyboxShader = new ZShader;
   skyboxShader->Initialize("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag");

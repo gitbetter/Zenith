@@ -34,7 +34,7 @@ public:
   ZModel(ZPrimitiveType primitiveType, glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f), std::vector<ZTexture> textures = {});
   ZModel(std::string path);
   ZModel() { }
-  ~ZModel() { }
+  virtual ~ZModel() { }
 
   void SetMaterial(ZMaterial material);
 
@@ -49,4 +49,5 @@ public:
   static ZModel* NewCylinderPrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});
   static ZModel* NewConePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});
   static ZModel* NewSkybox(std::vector<std::string> faces = ZEngine::DEFAULT_SKYBOX_CUBEMAP);
+  static ZModel* NewSkybox(std::string equirectHDR);
 };

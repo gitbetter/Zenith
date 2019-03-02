@@ -29,7 +29,7 @@ private:
 
 public:
 
-  ZGraphics() : depthFramebuffer_(0) { }
+  ZGraphics() { }
   ~ZGraphics() { }
 
   void Initialize();
@@ -38,7 +38,6 @@ public:
 
   ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
-  unsigned int DepthFrameBuffer() { return depthFramebuffer_; }
   ZTexture DepthMap() { return depthMap_; };
   ZShader* ShadowShader() { return shadowShader_; }
   ZTextureMap& Textures() { return loadedTextures_; }
@@ -55,7 +54,7 @@ protected:
 
   ZShader* shadowShader_ = nullptr;
   ZGraphicsStrategy* graphicsStrategy_ = nullptr;
-  unsigned int depthFramebuffer_;
+  ZBufferData depthFramebuffer_;
   ZTexture depthMap_;
   glm::mat4 currentLightSpaceMatrix_;
   ZShaderMap loadedShaders_;

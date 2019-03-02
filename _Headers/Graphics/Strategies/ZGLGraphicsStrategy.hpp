@@ -39,16 +39,19 @@ public:
   void DisableAlphaBlending() override;
   void EnableFaceCulling() override;
   void DisableFaceCulling() override;
-  void BindFramebuffer(unsigned int frameBuffer) override;
+  void BindFramebuffer(ZBufferData frameBuffer) override;
   void UnbindFramebuffer() override;
   ZTexture LoadDefaultTexture() override;
-  ZTexture LoadTexture(std::string path, const std::string &directory) override;
+  ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) override;
   void BindTexture(ZTexture texture, unsigned int index) override;
   ZTexture LoadDepthTexture() override;
-  unsigned int LoadDepthMapBuffer(ZTexture depthTexture) override;
-  void BindDepthMapBuffer(unsigned int frameBuffer) override;
+  ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) override;
+  ZBufferData LoadCubeMapBuffer() override;
+  void BindDepthMapBuffer(ZBufferData frameBuffer) override;
   void UnbindDepthMapBuffer() override;
+  void BindCubeMapBuffer(ZBufferData cubemapBuffer) override;
   unsigned int LoadCubeMap(std::vector<std::string> faces) override;
+  unsigned int LoadEmptyCubeMap() override;
   ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
   ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) override;
   ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) override;
@@ -56,6 +59,7 @@ public:
   void DeleteBufferData(ZBufferData bufferData) override;
   void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) override;
 
+  unsigned int EquirectToCubemap(std::string equirectHDRPath) override;
   void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
   void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) override;
   void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) override;

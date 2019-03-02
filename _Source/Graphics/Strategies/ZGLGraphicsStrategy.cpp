@@ -13,6 +13,8 @@
 #include "ZGLGraphicsStrategy.hpp"
 #include "ZDomain.hpp"
 #include "ZDomainStrategy.hpp"
+#include "ZModel.hpp"
+#include "ZShader.hpp"
 #include "ZCommon.hpp"
 
 void ZGLGraphicsStrategy::Initialize() {
@@ -75,8 +77,8 @@ void ZGLGraphicsStrategy::DisableFaceCulling() {
   glDisable(GL_CULL_FACE);
 }
 
-void ZGLGraphicsStrategy::BindFramebuffer(unsigned int frameBuffer) {
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+void ZGLGraphicsStrategy::BindFramebuffer(ZBufferData frameBuffer) {
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo);
 }
 
 void ZGLGraphicsStrategy::UnbindFramebuffer() {
@@ -238,16 +240,32 @@ ZTexture ZGLGraphicsStrategy::LoadDefaultTexture() {
   return texture;
 }
 
-ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &directory) {
+ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &directory, bool hdr, bool flip) {
   std::string filename = (!directory.empty() ? directory + '/' : "") + path;
 
   ZTexture texture;
   glGenTextures(1, &texture.id);
+  glBindTexture(GL_TEXTURE_2D, texture.id);
+
+  if (flip) { stbi_set_flip_vertically_on_load(true); }
 
   int width, height, nrComponents;
-  unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-  if (data) {
-      glBindTexture(GL_TEXTURE_2D, texture.id);
+  if (hdr) {
+  float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
+    if (data) {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
+
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    } else {
+      _Z("ZGLGraphicsStrategy Error: Failed to load texture at " + path, ZERROR);
+    }
+    stbi_image_free(data);
+  } else {
+    unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+    if (data) {
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
       glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -255,11 +273,11 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  } else {
-    _Z("ZGLGraphicsStrategy Error: Failed to load texture at " + path, ZERROR);
+    } else {
+      _Z("ZGLGraphicsStrategy Error: Failed to load texture at " + path, ZERROR);
+    }
+    stbi_image_free(data);
   }
-
-  stbi_image_free(data);
 
   return texture;
 }
@@ -288,10 +306,28 @@ unsigned int ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
   return cubemapId;
 }
 
-unsigned int ZGLGraphicsStrategy::LoadDepthMapBuffer(ZTexture depthTexture) {
-  unsigned int depthFBO;
-  glGenFramebuffers(1, &depthFBO);
-  glBindFramebuffer(GL_FRAMEBUFFER, depthFBO);
+unsigned int ZGLGraphicsStrategy::LoadEmptyCubeMap() {
+  unsigned int cubemapId;
+  glGenTextures(1, &cubemapId);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapId);
+
+  for (unsigned int i = 0; i < 6; i++) {
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, ZEngine::CUBE_MAP_SIZE, ZEngine::CUBE_MAP_SIZE, 0, GL_RGB, GL_FLOAT, nullptr);
+  }
+
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  return cubemapId;
+}
+
+ZBufferData ZGLGraphicsStrategy::LoadDepthMapBuffer(ZTexture depthTexture) {
+  ZBufferData depth;
+  depth.type = ZBufferDataType::FrameBuffer;
+  glGenFramebuffers(1, &depth.fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, depth.fbo);
   glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.id, 0);
   glDrawBuffer(GL_NONE);
 
@@ -300,7 +336,19 @@ unsigned int ZGLGraphicsStrategy::LoadDepthMapBuffer(ZTexture depthTexture) {
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  return depthFBO;
+  return depth;
+}
+
+ZBufferData ZGLGraphicsStrategy::LoadCubeMapBuffer() {
+  ZBufferData capture;
+  glGenFramebuffers(1, &capture.fbo);
+  glGenRenderbuffers(1, &capture.rbo);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, capture.fbo);
+  glBindRenderbuffer(GL_RENDERBUFFER, capture.rbo);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ZEngine::CUBE_MAP_SIZE, ZEngine::CUBE_MAP_SIZE);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, capture.rbo);
+  return capture;
 }
 
 ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
@@ -323,7 +371,7 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
   return depthMap;
 }
 
-void ZGLGraphicsStrategy::BindDepthMapBuffer(unsigned int frameBuffer) {
+void ZGLGraphicsStrategy::BindDepthMapBuffer(ZBufferData frameBuffer) {
   BindFramebuffer(frameBuffer);
   glViewport(0, 0, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE);
   glClearDepth(1.0f);
@@ -336,12 +384,55 @@ void ZGLGraphicsStrategy::UnbindDepthMapBuffer() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void ZGLGraphicsStrategy::BindCubeMapBuffer(ZBufferData cubemapBuffer) {
+  glViewport(0, 0, ZEngine::CUBE_MAP_SIZE, ZEngine::CUBE_MAP_SIZE);
+  BindFramebuffer(cubemapBuffer);
+}
+
 void ZGLGraphicsStrategy::UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) {
   glBindVertexArray(buffer.vao);
   glBindBuffer(GL_ARRAY_BUFFER, buffer.vbo);
   glBufferSubData(GL_ARRAY_BUFFER, 0, data.size() * sizeof(ZVertex2D), &data[0]);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
+}
+
+unsigned int ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath) {
+  ZBufferData cubeMapBuffer = LoadCubeMapBuffer();
+  unsigned int cubeMap = LoadEmptyCubeMap();
+  ZTexture hdrTexture = LoadTexture(equirectHDRPath, "", true, true);
+
+  glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.f, 0.1f, 100.0f);
+  glm::mat4 captureViews[] = {
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, -1.f, 0.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.f, 0.f, 0.f), glm::vec3(0.f, -1.f, 0.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 0.f, -1.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, -1.f, 0.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
+  };
+
+  ZModel* cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+  ZShader equirectToCubemapShader;
+  equirectToCubemapShader.Initialize("Assets/Shaders/Vertex/equirect_to_cube.vert", "Assets/Shaders/Pixel/equirect_to_cube.frag");
+  equirectToCubemapShader.Activate();
+  equirectToCubemapShader.SetInt("equirectangularMap", 0);
+  equirectToCubemapShader.SetMat4("P", captureProjection);
+
+  glViewport(0, 0, ZEngine::CUBE_MAP_SIZE, ZEngine::CUBE_MAP_SIZE);
+  BindCubeMapBuffer(cubeMapBuffer);
+  for (unsigned int i = 0; i < 6; i++) {
+    equirectToCubemapShader.SetMat4("V", captureViews[i]);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeMap, 0);
+    ClearViewport();
+
+    cube->Render(&equirectToCubemapShader);
+  }
+  UnbindFramebuffer();
+
+  delete cube;
+
+  return cubeMap;
 }
 
 void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) {

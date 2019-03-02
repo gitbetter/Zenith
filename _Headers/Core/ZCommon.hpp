@@ -76,8 +76,20 @@ enum class ZColliderType {
   None, Box, Sphere, Capsule
 };
 
+enum class ZBufferDataType {
+  FrameBuffer, VertexArray
+};
+
 struct ZBufferData {
-  unsigned int vbo, ebo, vao;
+  ZBufferDataType type;
+  union {
+    struct {
+      unsigned int vbo, ebo, vao;
+    };
+    struct {
+      unsigned int fbo, rbo;
+    };
+  };
 };
 
 struct ZTexture {

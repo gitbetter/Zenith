@@ -85,7 +85,7 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
     1, 2, 3
   };
 
-  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialSimple();
+  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialPBR();
 
   meshes_.push_back(ZMesh3D(vertices, indices, material));
 }
@@ -149,7 +149,7 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
     20, 21, 22, 20, 22, 23
   };
 
-  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialSimple();
+  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialPBR();
 
   meshes_.push_back(ZMesh3D(vertices, indices, material));
 }
@@ -200,6 +200,18 @@ ZModel* ZModel::NewSkybox(std::vector<std::string> faces) {
     texture.path = facePath;
     textures.push_back(texture);
   }
+
+  return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
+}
+
+ZModel* ZModel::NewSkybox(std::string equirectHDR) {
+  unsigned int cubemapId = ZEngine::Graphics()->Strategy()->EquirectToCubemap(equirectHDR);
+  std::vector<ZTexture> textures;
+  ZTexture texture;
+  texture.id = cubemapId;
+  texture.type = "cubemap";
+  texture.path = equirectHDR;
+  textures.push_back(texture);
 
   return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
 }
