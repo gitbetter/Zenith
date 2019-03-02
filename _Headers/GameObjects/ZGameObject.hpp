@@ -37,7 +37,6 @@ public:
   virtual void Update() override;
   virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
-  void ShouldTranslateWithView(bool translates);
   void CalculateDerivedData();
 
   void SetPosition(glm::vec3 position);
@@ -98,5 +97,4 @@ protected:
   glm::vec3 scale_, previousScale_;
   glm::quat orientation_, previousOrientation_;
   glm::mat4 modelMatrix_;
-  bool translatesWithView_;
 };

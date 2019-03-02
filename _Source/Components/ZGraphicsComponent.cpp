@@ -90,14 +90,13 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 
   glm::mat4 modelMatrix = object_->ModelMatrix();
   glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
-  glm::mat4 viewMatrix = translatesWithView_ ? cameraComp->ViewMatrix(frameMix) :
-                                      glm::mat4(glm::mat3(cameraComp->ViewMatrix(frameMix)));
+  glm::mat4 viewMatrix = cameraComp->ViewMatrix(frameMix);
 
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
   ZShader* shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
-  if (renderOp & RENDER_OP_COLOR == RENDER_OP_COLOR) shader->SetInt("shadowMap", 0);
+  if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
 
   shader->Activate();
   shader->Use(gameLights_);

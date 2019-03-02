@@ -65,16 +65,17 @@ float CalculateShadow(vec4 lightSpacePosition);
 
 void main() {
   Material mat = materials[materialIndex];
-  vec3 N = fs_in.FragNormal;
+  vec3 N = normalize(fs_in.FragNormal);
   vec3 V = normalize(viewDirection - fs_in.FragPos);
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, vec3(mat.albedo), mat.metallic);
 
-  vec3 Lo = vec3(0.0);
+  vec3 Lo = vec3(0.0); int contributingLights = 0;
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
     if (lights[i].isEnabled) {
+      ++contributingLights;
       vec3 L = !lights[i].isDirectional ? normalize(lights[i].position - fs_in.FragPos) : normalize(lights[i].direction);
       vec3 H = normalize(V + L);
       vec3 radiance = lights[i].color;
@@ -102,6 +103,8 @@ void main() {
       Lo += (kD * vec3(mat.albedo) / PI + specular) * radiance * NdotL;
     }
   }
+
+  Lo /= contributingLights;
 
   vec3 ambient = vec3(0.1) * vec3(mat.albedo) * mat.ao;
   vec3 color = ambient + (1.0 - shadow) * Lo;
