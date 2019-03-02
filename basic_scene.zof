@@ -55,7 +55,7 @@ ZGO_03
 	^
 ^
 ZGO_04
-	:scale [500.0, 0.001, 500.0]:
+	:scale [500.0, 0.0, 500.0]:
 	GraphicsComponent
 		:activeShader 0:
 		:shaders [ZSH_01]:
@@ -79,7 +79,7 @@ ZGO_05
 ^
 ZSH_01
 	:vertex "Assets/Shaders/Vertex/basic.vert":
-	:pixel "Assets/Shaders/Pixel/pbr.frag":
+	:pixel "Assets/Shaders/Pixel/basic.frag":
 ^
 ZSH_02
 	:vertex "Assets/Shaders/Vertex/basic.vert":
