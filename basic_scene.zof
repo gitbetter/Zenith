@@ -1,16 +1,16 @@
 # scene_example.zof
 
 ZGO_01
-	:position [0.0, 1.0, 0.0]:
+	:position [15.0, 15.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [5.0, 5.0, 5.0]:
+	:scale [15.0, 15.0, 15.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
 		:damping 0.0 0.0:
 		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0] [0.0, 20.0, -2.0]:
+		:collider Box [1.0, 1.0, 1.0] [15.0, 15.0, 0.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -19,16 +19,16 @@ ZGO_01
 	^
 ^
 ZGO_02
-	:position [0.0, 1.0, 0.0]:
+	:position [-3.0, 30.0, 2.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [5.0, 5.0, 5.0]:
+	:scale [15.0, 15.0, 15.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
 		:damping 0.0 0.0:
 		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0] [5.0, 10.0, 0.0]:
+		:collider Box [1.0, 1.0, 1.0] [-3.0, 30.0, 2.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -37,16 +37,16 @@ ZGO_02
 	^
 ^
 ZGO_03
-	:position [0.0, 1.0, 0.0]:
+	:position [-3.0, 15.0, 2.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [5.0, 5.0, 5.0]:
+	:scale [15.0, 15.0, 15.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
 		:damping 0.0 0.0:
 		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0] [-3.0, 10.0, 2.0]:
+		:collider Box [1.0, 1.0, 1.0] [-3.0, 15.0, 2.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -55,16 +55,17 @@ ZGO_03
 	^
 ^
 ZGO_04
-	:scale [100.0, 0.001, 100.0]:
+	:position [0.0, 1.0, 0.0]:
+	:scale [100.0, 1.0, 100.0]:
 	GraphicsComponent
 		:activeShader 0:
 		:shaders [ZSH_01]:
-		:model Plane:
+		:model Cube:
 	^
 	PhysicsComponent
 		:type Static:
 		:restitution 0.4:
-		:collider Box [500.0, 0.001, 500.0] [0.0, 0.0, 0.0]:
+		:collider Box [100.0, 1.0, 100.0] [0.0, 1.0, 0.0]:
 	^
 ^
 ZGO_05
@@ -78,10 +79,10 @@ ZGO_05
 	^
 ^
 ZSH_01
-	:vertex "Assets/Shaders/Vertex/basic.vert":
+	:vertex "Assets/Shaders/Vertex/blinnphong.vert":
 	:pixel "Assets/Shaders/Pixel/pbr.frag":
 ^
 ZSH_02
-	:vertex "Assets/Shaders/Vertex/basic.vert":
+	:vertex "Assets/Shaders/Vertex/blinnphong.vert":
 	:pixel "Assets/Shaders/Pixel/outline.frag":
 ^

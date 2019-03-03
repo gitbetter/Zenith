@@ -195,7 +195,7 @@ void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const {
 
 void ZShader::Use(const ZMaterial& material) {
   Activate();
-  
+
   SetInt("materialIndex", material.Index());
   SetVec4("materials[" + std::to_string(material.Index()) + "].albedo", material.Properties().albedo);
   if (material.IsPBR()) {
@@ -210,9 +210,11 @@ void ZShader::Use(const ZMaterial& material) {
     SetFloat("materials[" + std::to_string(material.Index()) + "].shininess", material.Properties().shininess);
   }
 
+  // We start the external texture indices at 2 due to the depth and PBR irradiance maps, which are set internally
+  // and should not be overriden
   for (unsigned int i = 0; i < material.Textures().size(); i++) {
-    SetInt(material.Textures()[i].type, i+1);
-    ZEngine::Graphics()->Strategy()->BindTexture(material.Textures()[i], i+1);
+    SetInt(material.Textures()[i].type, i+2);
+    ZEngine::Graphics()->Strategy()->BindTexture(material.Textures()[i], i+2);
   }
 }
 

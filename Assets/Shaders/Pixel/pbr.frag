@@ -42,6 +42,7 @@ struct Material {
   float ao;
 };
 
+uniform samplerCube irradianceMap;
 uniform sampler2D shadowMap;
 uniform sampler2D albedo;
 uniform sampler2D normal;
@@ -106,7 +107,13 @@ void main() {
 
   Lo /= contributingLights;
 
-  vec3 ambient = vec3(0.1) * vec3(mat.albedo) * mat.ao;
+  vec3 kS = FresnelSchlick(max(dot(N, V), 0.0), F0);
+  vec3 kD = 1.0 - kS;
+  kD *= 1.0 - mat.metallic;
+  vec3 irradiance = texture(irradianceMap, N).rgb;
+  vec3 diffuse = irradiance * vec3(mat.albedo);
+  vec3 ambient = (kD * diffuse) * mat.ao;
+
   vec3 color = ambient + (1.0 - shadow) * Lo;
 
   color = color / (color + vec3(1.0));

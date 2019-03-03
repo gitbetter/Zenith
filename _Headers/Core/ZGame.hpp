@@ -14,12 +14,13 @@
 
 // Forward Declarations
 struct ZLight;
+class ZSkybox;
 
 // Class and Data Structure Definitions
 class ZGame : public ZObject {
 private:
 
-  ZGameObject* skyBox_ = nullptr;
+  ZSkybox* skybox_ = nullptr;
   ZGameObjectMap gameObjects_;
   std::map<std::string, ZLight*> gameLights_;
   std::string activeCameraObject_;
@@ -35,6 +36,7 @@ public:
 
   ZGameObject* ActiveCamera();
   const std::map<std::string, ZLight*>& GetGameLights() const { return gameLights_; }
+  ZSkybox* Skybox() const { return skybox_; }
 
   void AddGameObject(ZGameObject* gameObject);
   void AddGameObjects(std::initializer_list<ZGameObject*> gameObjects);

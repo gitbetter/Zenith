@@ -9,10 +9,11 @@
 #include "ZGraphicsFactory.hpp"
 #include "ZEngine.hpp"
 #include "ZDomain.hpp"
-#include "ZGameObject.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
+#include "ZGame.hpp"
+#include "ZSkybox.hpp"
 #include "ZOFTree.hpp"
 
 ZGraphicsComponent::ZGraphicsComponent() : ZComponent() {
@@ -109,6 +110,11 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
   shader->SetVec3("viewDirection", gameCamera_->Front());
 
+  if (object_->Game()->Skybox() != nullptr) {
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IrradianceMap(), 1);
+    shader->SetInt("irradianceMap", 1);
+  }
+
   model_->Render(shader);
 
   DrawOutlineIfEnabled(modelMatrix, viewMatrix, projectionMatrix);
@@ -117,7 +123,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
   if (highlightShader_ == nullptr) {
     highlightShader_ = new ZShader;
-    highlightShader_->Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/outline.frag");
+    highlightShader_->Initialize("Assets/Shaders/Vertex/blinnphong.vert", "Assets/Shaders/Pixel/outline.frag");
   }
   highlightColor_ = color;
 }

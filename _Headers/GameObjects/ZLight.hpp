@@ -18,18 +18,18 @@
 // Class and Data Structure Definitions
 struct ZLBaseProperties {
   glm::vec3 ambient{0.2f};
-  glm::vec3 color{1.f};
+  glm::vec3 color{5.f};
 };
 
 struct ZLAttenuationProperties {
   float constant{1.0f};
   float linear{0.7f};
-  float quadratic{1.4f};
+  float quadratic{1.8f};
 };
 
 struct ZLDirectional {
   ZLBaseProperties components;
-  glm::vec3 direction{20.f, 30.f, 10.f};
+  glm::vec3 direction{2.f, 3.f, 1.f};
 };
 
 struct ZLPoint {
@@ -53,7 +53,7 @@ struct ZLHemisphere {
 
 struct ZLight : public ZGameObject {
   ZLight() { }
-  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(12.f)) { type = lightType; }
+  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(1.f)) { type = lightType; }
   ~ZLight() { }
 
   ZLightType type{ZLightType::Point};

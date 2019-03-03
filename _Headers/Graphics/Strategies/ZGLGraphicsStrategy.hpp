@@ -50,8 +50,8 @@ public:
   void BindDepthMapBuffer(ZBufferData frameBuffer) override;
   void UnbindDepthMapBuffer() override;
   void BindCubeMapBuffer(ZBufferData cubemapBuffer) override;
-  unsigned int LoadCubeMap(std::vector<std::string> faces) override;
-  unsigned int LoadEmptyCubeMap() override;
+  ZTexture LoadCubeMap(std::vector<std::string> faces) override;
+  ZTexture LoadEmptyCubeMap(bool irradiance = false) override;
   ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
   ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) override;
   ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) override;
@@ -59,7 +59,9 @@ public:
   void DeleteBufferData(ZBufferData bufferData) override;
   void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) override;
 
-  unsigned int EquirectToCubemap(std::string equirectHDRPath) override;
+  ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) override;
+  ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
+
   void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
   void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) override;
   void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) override;

@@ -57,6 +57,8 @@ public:
   glm::vec3 PreviousUp() const { return glm::conjugate(previousOrientation_) * glm::vec3(0.f, 1.f, 0.f); }
   glm::vec3 PreviousRight() const { return glm::conjugate(previousOrientation_) * glm::vec3(-1.f, 0.f, 0.f); }
 
+  ZGame* Game() const { return game_; }
+
   template<class T>
   typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
   AddComponent(T* component) {

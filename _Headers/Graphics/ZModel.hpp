@@ -49,5 +49,5 @@ public:
   static ZModel* NewCylinderPrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});
   static ZModel* NewConePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});
   static ZModel* NewSkybox(std::vector<std::string> faces = ZEngine::DEFAULT_SKYBOX_CUBEMAP);
-  static ZModel* NewSkybox(std::string equirectHDR);
+  static ZModel* NewSkybox(std::string equirectHDR, ZTexture& generatedIrradianceMap);
 };

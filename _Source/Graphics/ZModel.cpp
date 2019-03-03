@@ -191,27 +191,18 @@ void ZModel::CreateCone(glm::vec3 scale, std::vector<ZTexture> textures) {
  *  Skybox Creation
  */
 ZModel* ZModel::NewSkybox(std::vector<std::string> faces) {
-  unsigned int cubemapId = ZEngine::Graphics()->Strategy()->LoadCubeMap(faces);
-  std::vector<ZTexture> textures;
-  for (std::string facePath : faces) {
-    ZTexture texture;
-    texture.id = cubemapId;
-    texture.type = "cubemap";
-    texture.path = facePath;
-    textures.push_back(texture);
-  }
+  ZTexture cubeMap = ZEngine::Graphics()->Strategy()->LoadCubeMap(faces);
+  std::vector<ZTexture> textures = { cubeMap };
 
   return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
 }
 
-ZModel* ZModel::NewSkybox(std::string equirectHDR) {
-  unsigned int cubemapId = ZEngine::Graphics()->Strategy()->EquirectToCubemap(equirectHDR);
-  std::vector<ZTexture> textures;
-  ZTexture texture;
-  texture.id = cubemapId;
-  texture.type = "cubemap";
-  texture.path = equirectHDR;
-  textures.push_back(texture);
+ZModel* ZModel::NewSkybox(std::string equirectHDR, ZTexture& generatedIrradianceMap) {
+  ZBufferData cubemapBuffer;
+  ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(equirectHDR, cubemapBuffer);
+  generatedIrradianceMap = ZEngine::Graphics()->Strategy()->IrradianceMapFromCubeMap(cubemapBuffer, cubeMap);
+
+  std::vector<ZTexture> textures = { cubeMap };
 
   return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
 }
