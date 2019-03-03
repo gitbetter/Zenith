@@ -534,6 +534,7 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
   prefilterShader.Activate();
   prefilterShader.SetInt("environmentMap", 1);
   prefilterShader.SetMat4("P", captureProjection);
+  prefilterShader.SetFloat("resolution", ZEngine::PREFILTER_MAP_SIZE);
 
   BindTexture(cubemapTexture, 1);
   glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
