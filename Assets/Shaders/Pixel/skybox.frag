@@ -7,7 +7,8 @@ in vec3 localPos;
 uniform samplerCube cubemap;
 
 void main() {
-  vec3 envColor = texture(cubemap, localPos).rgb;
+  //vec3 envColor = texture(cubemap, localPos).rgb;
+  vec3 envColor = textureLod(cubemap, localPos, 1.2).rgb;
 
   envColor = envColor / (envColor + vec3(1.0));
   envColor = pow(envColor, vec3(1.0/2.2));

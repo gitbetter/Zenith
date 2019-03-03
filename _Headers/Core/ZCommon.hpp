@@ -80,6 +80,10 @@ enum class ZBufferDataType {
   FrameBuffer, VertexArray
 };
 
+enum class ZCubemapTextureType {
+  Normal, Irradiance, Prefilter
+};
+
 struct ZBufferData {
   ZBufferDataType type;
   union {

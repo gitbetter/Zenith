@@ -38,6 +38,8 @@ public:
   virtual void DisableAlphaBlending() = 0;
   virtual void EnableFaceCulling() = 0;
   virtual void DisableFaceCulling() = 0;
+  virtual void EnableSeamlessCubemap() = 0;
+  virtual void DisableSeamlessCubemap() = 0;
   virtual void BindFramebuffer(ZBufferData frameBuffer) = 0;
   virtual void UnbindFramebuffer() = 0;
   virtual ZTexture LoadDefaultTexture() = 0;
@@ -50,7 +52,7 @@ public:
   virtual void UnbindDepthMapBuffer() = 0;
   virtual void BindCubeMapBuffer(ZBufferData cubemapBuffer) = 0;
   virtual ZTexture LoadCubeMap(std::vector<std::string> faces) = 0;
-  virtual ZTexture LoadEmptyCubeMap(bool irradiance = false) = 0;
+  virtual ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) = 0;
   virtual ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
   virtual ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) = 0;
   virtual ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) = 0;
@@ -59,6 +61,7 @@ public:
   virtual void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) = 0;
   virtual ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) = 0;
   virtual ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
+  virtual ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
   virtual void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
   virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) = 0;
   virtual void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) = 0;

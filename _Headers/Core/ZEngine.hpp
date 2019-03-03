@@ -52,6 +52,7 @@ public:
   static const unsigned int SHADOW_MAP_SIZE;
   static const unsigned int CUBE_MAP_SIZE;
   static const unsigned int IRRADIANCE_MAP_SIZE;
+  static const unsigned int PREFILTER_MAP_SIZE;
   static const glm::vec4 WORLD_UP;
   static const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP;
   static const std::string DEFAULT_HDR_CUBEMAP;

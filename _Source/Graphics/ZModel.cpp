@@ -201,8 +201,9 @@ ZModel* ZModel::NewSkybox(std::string equirectHDR, ZTexture& generatedIrradiance
   ZBufferData cubemapBuffer;
   ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(equirectHDR, cubemapBuffer);
   generatedIrradianceMap = ZEngine::Graphics()->Strategy()->IrradianceMapFromCubeMap(cubemapBuffer, cubeMap);
+  ZTexture prefilteredMap = ZEngine::Graphics()->Strategy()->PrefilterCubeMap(cubemapBuffer, cubeMap);
 
-  std::vector<ZTexture> textures = { cubeMap };
+  std::vector<ZTexture> textures = { prefilteredMap };
 
   return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
 }

@@ -3,14 +3,14 @@
 ZGO_01
 	:position [15.0, 15.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [15.0, 15.0, 15.0]:
+	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
 		:damping 0.0 0.0:
 		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0] [15.0, 15.0, 0.0]:
+		:collider Box [1.0, 1.0, 1.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -21,14 +21,14 @@ ZGO_01
 ZGO_02
 	:position [-3.0, 30.0, 2.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [15.0, 15.0, 15.0]:
+	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
 		:damping 0.0 0.0:
 		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0] [-3.0, 30.0, 2.0]:
+		:collider Box [1.0, 1.0, 1.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -39,14 +39,14 @@ ZGO_02
 ZGO_03
 	:position [-3.0, 15.0, 2.0]:
 	:orientation [0.0, 0.0, 0.0]:
-	:scale [15.0, 15.0, 15.0]:
+	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
 		:type Dynamic:
 		:mass 5.0:
 		:damping 0.0 0.0:
 		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0] [-3.0, 15.0, 2.0]:
+		:collider Box [1.0, 1.0, 1.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -55,6 +55,60 @@ ZGO_03
 	^
 ^
 ZGO_04
+	:position [0.0, 15.0, 15.0]:
+	:orientation [0.0, 0.0, 0.0]:
+	:scale [1.0, 1.0, 1.0]:
+	PhysicsComponent
+		:type Dynamic:
+		:mass 5.0:
+		:damping 0.0 0.0:
+		:restitution 0.4:
+		:hasGravity Yes:
+		:collider Box [1.0, 1.0, 1.0]:
+	^
+	GraphicsComponent
+		:activeShader 0:
+		:shaders [ZSH_01]:
+		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+	^
+^
+ZGO_05
+	:position [10.0, 15.0, -10.0]:
+	:orientation [0.0, 0.0, 0.0]:
+	:scale [1.0, 1.0, 1.0]:
+	PhysicsComponent
+		:type Dynamic:
+		:mass 5.0:
+		:damping 0.0 0.0:
+		:restitution 0.4:
+		:hasGravity Yes:
+		:collider Box [1.0, 1.0, 1.0]:
+	^
+	GraphicsComponent
+		:activeShader 0:
+		:shaders [ZSH_01]:
+		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+	^
+^
+ZGO_06
+	:position [5.0, 15.0, -20.0]:
+	:orientation [0.0, 0.0, 0.0]:
+	:scale [1.0, 1.0, 1.0]:
+	PhysicsComponent
+		:type Dynamic:
+		:mass 5.0:
+		:damping 0.0 0.0:
+		:restitution 0.4:
+		:hasGravity Yes:
+		:collider Box [1.0, 1.0, 1.0]:
+	^
+	GraphicsComponent
+		:activeShader 0:
+		:shaders [ZSH_01]:
+		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+	^
+^
+ZGO_07
 	:position [0.0, 1.0, 0.0]:
 	:scale [100.0, 1.0, 100.0]:
 	GraphicsComponent
@@ -65,10 +119,10 @@ ZGO_04
 	PhysicsComponent
 		:type Static:
 		:restitution 0.4:
-		:collider Box [100.0, 1.0, 100.0] [0.0, 1.0, 0.0]:
+		:collider Box [100.0, 1.0, 100.0]:
 	^
 ^
-ZGO_05
+ZGO_08
 	:position [-5.0, 15.0, 50.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:

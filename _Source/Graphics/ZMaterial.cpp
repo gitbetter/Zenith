@@ -24,7 +24,7 @@ ZMaterial ZMaterial::DefaultMaterialSimple() {
 ZMaterial ZMaterial::DefaultMaterialPBR() {
   ZMaterialProperties materialProperties;
   materialProperties.albedo = glm::vec4(0.9f, 0.9f, 0.9f, 1.f);
-  materialProperties.metallic = 0.05f;
+  materialProperties.metallic = 0.01f;
   materialProperties.roughness = 0.65f;
   materialProperties.ao = 0.3f;
   ZMaterial material(materialProperties);

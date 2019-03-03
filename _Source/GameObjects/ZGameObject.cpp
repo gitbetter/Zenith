@@ -66,24 +66,32 @@ void ZGameObject::Render(float frameMix, unsigned char renderOp) {
 }
 
 void ZGameObject::SetPosition(glm::vec3 position) {
+  // TODO: set the btRigidBody transform position in the
+  // physics component, if there is one
   previousPosition_ = position_;
   position_ = glm::vec4(position, 1.f);
   CalculateDerivedData();
 }
 
 void ZGameObject::SetScale(glm::vec3 scale) {
+  // TODO: set the btRigidBody local scaling in the
+  // physics component, if there is one
   previousScale_ = scale_;
   scale_ = scale;
   CalculateDerivedData();
 }
 
 void ZGameObject::SetOrientation(glm::quat quaternion) {
+  // TODO: set the btRigidBody transform orientation in the
+  // physics component, if there is one
   previousOrientation_ = orientation_;
   orientation_ = quaternion;
   CalculateDerivedData();
 }
 
 void ZGameObject::SetOrientation(glm::vec3 euler) {
+  // TODO: set the btRigidBody transform orientation in the
+  // physics component, if there is one
   previousOrientation_ = orientation_;
   orientation_ = glm::quat(euler);
   CalculateDerivedData();

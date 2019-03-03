@@ -83,7 +83,10 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
   btTransform transform;
   transform.setIdentity();
   if (origin.size() >= 3) transform.setOrigin(btVector3(origin[0], origin[1], origin[2]));
-  else transform.setOrigin(btVector3(0.0, 1.0, 0.0));
+  else transform.setOrigin(btVector3(object_->Position().x, object_->Position().y, object_->Position().z));
+
+  if (size.size() < 3)
+    collider->setLocalScaling(btVector3(object_->Scale().x, object_->Scale().y, object_->Scale().z));
 
   if (mass < 0) mass = 0.0;
 

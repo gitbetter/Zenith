@@ -26,6 +26,7 @@ const int ZEngine::MAX_FIXED_UPDATE_ITERATIONS = 50;
 const unsigned int ZEngine::SHADOW_MAP_SIZE = 1024;
 const unsigned int ZEngine::CUBE_MAP_SIZE = 1024;
 const unsigned int ZEngine::IRRADIANCE_MAP_SIZE = 32;
+const unsigned int ZEngine::PREFILTER_MAP_SIZE = 128;
 const glm::vec4 ZEngine::WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);
 const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
   "Assets/Skyboxes/Default/right.png",

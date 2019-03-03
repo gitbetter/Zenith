@@ -29,7 +29,7 @@ struct ZLAttenuationProperties {
 
 struct ZLDirectional {
   ZLBaseProperties components;
-  glm::vec3 direction{2.f, 3.f, 1.f};
+  glm::vec3 direction{20.f, 30.f, 10.f};
 };
 
 struct ZLPoint {

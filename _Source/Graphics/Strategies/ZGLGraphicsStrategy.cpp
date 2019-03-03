@@ -22,6 +22,7 @@ void ZGLGraphicsStrategy::Initialize() {
 
   EnableDepthTesting();
   EnableStencilTesting();
+  EnableSeamlessCubemap();
 }
 
 void ZGLGraphicsStrategy::ClearViewport() {
@@ -77,6 +78,14 @@ void ZGLGraphicsStrategy::DisableFaceCulling() {
   glDisable(GL_CULL_FACE);
 }
 
+void ZGLGraphicsStrategy::EnableSeamlessCubemap() {
+  glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+}
+
+void ZGLGraphicsStrategy::DisableSeamlessCubemap() {
+  glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+}
+
 void ZGLGraphicsStrategy::BindFramebuffer(ZBufferData frameBuffer) {
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo);
 }
@@ -87,7 +96,7 @@ void ZGLGraphicsStrategy::UnbindFramebuffer() {
 
 void ZGLGraphicsStrategy::BindTexture(ZTexture texture, unsigned int index) {
   glActiveTexture(GL_TEXTURE0 + index);
-  if (texture.type == "cubemap" || texture.type == "irradiance") {
+  if (texture.type == "cubemap" || texture.type == "irradiance" || texture.type == "prefilter") {
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.id);
   } else {
     glBindTexture(GL_TEXTURE_2D, texture.id);
@@ -307,22 +316,33 @@ ZTexture ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
   return cubemap;
 }
 
-ZTexture ZGLGraphicsStrategy::LoadEmptyCubeMap(bool irradiance) {
+ZTexture ZGLGraphicsStrategy::LoadEmptyCubeMap(ZCubemapTextureType type) {
   ZTexture cubemap;
   cubemap.type = "cubemap";
   glGenTextures(1, &cubemap.id);
   glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
 
+  unsigned int size = ZEngine::CUBE_MAP_SIZE;
+  if (type == ZCubemapTextureType::Irradiance) {
+    size = ZEngine::IRRADIANCE_MAP_SIZE;
+  } else if (type == ZCubemapTextureType::Prefilter) {
+    size = ZEngine::PREFILTER_MAP_SIZE;
+  }
   for (unsigned int i = 0; i < 6; i++) {
-    unsigned int size = irradiance ? ZEngine::IRRADIANCE_MAP_SIZE : ZEngine::CUBE_MAP_SIZE;
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
   }
 
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  if (type == ZCubemapTextureType::Prefilter) {
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+  } else {
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  }
 
   return cubemap;
 }
@@ -420,11 +440,12 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBu
   ZShader equirectToCubemapShader;
   equirectToCubemapShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/equirect_to_cube.frag");
   equirectToCubemapShader.Activate();
-  equirectToCubemapShader.SetInt("equirectangularMap", 0);
+  equirectToCubemapShader.SetInt("equirectangularMap", 1);
   equirectToCubemapShader.SetMat4("P", captureProjection);
 
+  BindTexture(hdrTexture, 1);
+  glBindFramebuffer(GL_FRAMEBUFFER, bufferData.fbo);
   glViewport(0, 0, ZEngine::CUBE_MAP_SIZE, ZEngine::CUBE_MAP_SIZE);
-  BindCubeMapBuffer(bufferData);
   for (unsigned int i = 0; i < 6; i++) {
     equirectToCubemapShader.SetMat4("V", captureViews[i]);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeMap.id, 0);
@@ -440,11 +461,8 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBu
 }
 
 ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) {
-  ZTexture irradianceMap = LoadEmptyCubeMap(true);
+  ZTexture irradianceMap = LoadEmptyCubeMap(ZCubemapTextureType::Irradiance);
   irradianceMap.type = "irradiance";
-  glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
-  glBindRenderbuffer(GL_RENDERBUFFER, cubemapBufferData.rbo);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ZEngine::IRRADIANCE_MAP_SIZE, ZEngine::IRRADIANCE_MAP_SIZE);
 
   glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.f, 0.1f, 100.0f);
   glm::mat4 captureViews[] = {
@@ -460,10 +478,14 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
   ZShader irradianceShader;
   irradianceShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/irradiance.frag");
   irradianceShader.Activate();
-  irradianceShader.SetInt("environmentMap", 0);
+  irradianceShader.SetInt("environmentMap", 1);
   irradianceShader.SetMat4("P", captureProjection);
-  BindTexture(cubemapTexture, 0);
-  BindCubeMapBuffer(cubemapBufferData);
+
+  BindTexture(cubemapTexture, 1);
+  glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
+  glBindRenderbuffer(GL_RENDERBUFFER, cubemapBufferData.rbo);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ZEngine::IRRADIANCE_MAP_SIZE, ZEngine::IRRADIANCE_MAP_SIZE);
+  glViewport(0, 0, ZEngine::IRRADIANCE_MAP_SIZE, ZEngine::IRRADIANCE_MAP_SIZE);
   for (unsigned int i = 0; i < 6; i++) {
     irradianceShader.SetMat4("V", captureViews[i]);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap.id, 0);
@@ -476,6 +498,54 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
   delete cube;
 
   return irradianceMap;
+}
+
+ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) {
+  ZTexture prefilterMap = LoadEmptyCubeMap(ZCubemapTextureType::Prefilter);
+  prefilterMap.type = "prefilter";
+
+  glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.f, 0.1f, 100.0f);
+  glm::mat4 captureViews[] = {
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, -1.f, 0.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.f, 0.f, 0.f), glm::vec3(0.f, -1.f, 0.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f, 0.f, -1.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, -1.f, 0.f)),
+    glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
+  };
+
+  ZModel* cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+  ZShader prefilterShader;
+  prefilterShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/prefilter_convolution.frag");
+  prefilterShader.Activate();
+  prefilterShader.SetInt("environmentMap", 1);
+  prefilterShader.SetMat4("P", captureProjection);
+
+  BindTexture(cubemapTexture, 1);
+  glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
+
+  unsigned int maxMipLevels = 6;
+  for (unsigned int mip = 0; mip < maxMipLevels; ++mip) {
+    unsigned int mipSize = ZEngine::PREFILTER_MAP_SIZE * std::pow(0.5, mip);
+    glBindRenderbuffer(GL_RENDERBUFFER, cubemapBufferData.rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipSize, mipSize);
+
+    glViewport(0, 0, mipSize, mipSize);
+
+    float roughness = (float)mip / (float)(maxMipLevels - 1);
+    prefilterShader.SetFloat("roughness", roughness);
+    for (unsigned int i = 0; i < 6; ++i) {
+      prefilterShader.SetMat4("V", captureViews[i]);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap.id, mip);
+      ClearViewport();
+      cube->Render(&prefilterShader);
+    }
+  }
+  UnbindFramebuffer();
+
+  delete cube;
+
+  return prefilterMap;
 }
 
 void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) {
