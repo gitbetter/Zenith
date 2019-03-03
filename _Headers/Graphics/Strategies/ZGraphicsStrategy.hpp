@@ -44,6 +44,7 @@ public:
   virtual void UnbindFramebuffer() = 0;
   virtual ZTexture LoadDefaultTexture() = 0;
   virtual ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) = 0;
+  virtual ZTexture LoadEmptyLUT() = 0;
   virtual void BindTexture(ZTexture texture, unsigned int index) = 0;
   virtual ZTexture LoadDepthTexture() = 0;
   virtual ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) = 0;
@@ -62,6 +63,7 @@ public:
   virtual ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) = 0;
   virtual ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
   virtual ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
+  virtual ZTexture BRDFLUT(ZBufferData cubemapBufferData) = 0;
   virtual void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
   virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) = 0;
   virtual void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) = 0;

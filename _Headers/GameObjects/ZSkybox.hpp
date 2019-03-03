@@ -25,10 +25,10 @@ public:
 
   void Initialize(std::string hdrMap);
 
-  ZTexture IrradianceMap() const { return irradianceMap_; }
+  ZIBLTexture IBLTexture() const { return iblTexture_; }
 
 protected:
 
-  ZTexture irradianceMap_;
+  ZIBLTexture iblTexture_;
 
 };

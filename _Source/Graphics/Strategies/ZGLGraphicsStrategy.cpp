@@ -291,6 +291,20 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
   return texture;
 }
 
+ZTexture ZGLGraphicsStrategy::LoadEmptyLUT() {
+  ZTexture lut;
+  lut.type = "lut";
+  glGenTextures(1, &lut.id);
+  glBindTexture(GL_TEXTURE_2D, lut.id);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, ZEngine::LUT_SIZE, ZEngine::LUT_SIZE, 0, GL_RG, GL_FLOAT, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  return lut;
+}
+
 ZTexture ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
   ZTexture cubemap;
   cubemap.type = "cubemap";
@@ -546,6 +560,35 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
   delete cube;
 
   return prefilterMap;
+}
+
+ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData) {
+  ZTexture brdfLUT = LoadEmptyLUT();
+
+  std::vector<ZVertex2D> quadVertices = {
+    ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f)),
+    ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 0.f)),
+    ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f)),
+    ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
+  };
+  ZBufferData quadBufferData = LoadVertexData(quadVertices);
+  ZShader brdfLUTShader;
+  brdfLUTShader.Initialize("Assets/Shaders/Vertex/brdf_lut.vert", "Assets/Shaders/Pixel/brdf_lut.frag");
+  brdfLUTShader.Activate();
+
+  glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
+  glBindRenderbuffer(GL_RENDERBUFFER, cubemapBufferData.rbo);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ZEngine::LUT_SIZE, ZEngine::LUT_SIZE);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUT.id, 0);
+
+  glViewport(0, 0, ZEngine::LUT_SIZE, ZEngine::LUT_SIZE);
+
+  ClearViewport();
+
+  Draw(quadBufferData, quadVertices);
+
+  UnbindFramebuffer();
+  return brdfLUT;
 }
 
 void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) {

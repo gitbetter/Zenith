@@ -111,8 +111,12 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   shader->SetVec3("viewDirection", gameCamera_->Front());
 
   if (object_->Game()->Skybox() != nullptr) {
-    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IrradianceMap(), 1);
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().irradiance, 1);
     shader->SetInt("irradianceMap", 1);
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().prefiltered, 2);
+    shader->SetInt("prefilterMap", 2);
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().brdfLUT, 3);
+    shader->SetInt("brdfLUT", 3);
   }
 
   model_->Render(shader);

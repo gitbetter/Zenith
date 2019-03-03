@@ -20,7 +20,7 @@ uniform mat4 P_lightSpace;
 void main()
 {
     vs_out.FragPos = vec3(M * vec4(position, 1.0));
-    vs_out.FragNormal = normalize(transpose(inverse(mat3(M))) * normal);
+    vs_out.FragNormal = mat3(M) * normal;
     vs_out.FragUV = texCoords;
     vs_out.FragPosLightSpace = P_lightSpace * vec4(vs_out.FragPos, 1.0);
     gl_Position = P * V * M * vec4(position, 1.0);

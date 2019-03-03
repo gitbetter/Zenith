@@ -69,10 +69,10 @@ ZModel* ZModel::NewPlanePrimitive(glm::vec3 scale, std::vector<ZTexture> texture
 }
 
 void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
-  ZVertex3D topRight(glm::vec3(scale.x, 0.0f, -scale.z));
-  ZVertex3D bottomRight(glm::vec3(scale.x, 0.0f, scale.z));
-  ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.0f, scale.z));
-  ZVertex3D topLeft(glm::vec3(-scale.x, 0.0f, -scale.z));
+  ZVertex3D topRight(glm::vec3(scale.x, 0.0f, -scale.z)); topRight.uv = glm::vec2(1.f, 1.f);
+  ZVertex3D bottomRight(glm::vec3(scale.x, 0.0f, scale.z)); bottomRight.uv = glm::vec2(1.f, 0.f);
+  ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.0f, scale.z)); bottomLeft.uv = glm::vec2(0.f, 0.f);
+  ZVertex3D topLeft(glm::vec3(-scale.x, 0.0f, -scale.z)); topLeft.uv = glm::vec2(0.f, 1.f);
 
   minVertex_ = topLeft; maxVertex_ = bottomRight;
 
@@ -197,13 +197,15 @@ ZModel* ZModel::NewSkybox(std::vector<std::string> faces) {
   return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
 }
 
-ZModel* ZModel::NewSkybox(std::string equirectHDR, ZTexture& generatedIrradianceMap) {
+ZModel* ZModel::NewSkybox(std::string equirectHDR, ZIBLTexture& generatedIBLTexture) {
   ZBufferData cubemapBuffer;
   ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(equirectHDR, cubemapBuffer);
-  generatedIrradianceMap = ZEngine::Graphics()->Strategy()->IrradianceMapFromCubeMap(cubemapBuffer, cubeMap);
-  ZTexture prefilteredMap = ZEngine::Graphics()->Strategy()->PrefilterCubeMap(cubemapBuffer, cubeMap);
+  
+  generatedIBLTexture.irradiance = ZEngine::Graphics()->Strategy()->IrradianceMapFromCubeMap(cubemapBuffer, cubeMap);
+  generatedIBLTexture.prefiltered = ZEngine::Graphics()->Strategy()->PrefilterCubeMap(cubemapBuffer, cubeMap);
+  generatedIBLTexture.brdfLUT = ZEngine::Graphics()->Strategy()->BRDFLUT(cubemapBuffer);
 
-  std::vector<ZTexture> textures = { prefilteredMap };
+  std::vector<ZTexture> textures = { cubeMap };
 
   return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
 }

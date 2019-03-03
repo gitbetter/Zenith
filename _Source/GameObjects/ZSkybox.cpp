@@ -12,7 +12,7 @@
 #include "ZGraphicsComponent.hpp"
 
 void ZSkybox::Initialize(std::string hdrMap) {
-  ZModel* skybox = ZModel::NewSkybox(hdrMap, irradianceMap_);
+  ZModel* skybox = ZModel::NewSkybox(hdrMap, iblTexture_);
 
   ZShader* skyboxShader = new ZShader;
   skyboxShader->Initialize("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag");

@@ -43,6 +43,9 @@ struct Material {
 };
 
 uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
+
 uniform sampler2D shadowMap;
 uniform sampler2D albedo;
 uniform sampler2D normal;
@@ -68,6 +71,7 @@ void main() {
   Material mat = materials[materialIndex];
   vec3 N = normalize(fs_in.FragNormal);
   vec3 V = normalize(viewDirection - fs_in.FragPos);
+  vec3 R = reflect(V, N);
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
 
   vec3 F0 = vec3(0.04);
@@ -107,12 +111,21 @@ void main() {
 
   Lo /= contributingLights;
 
-  vec3 kS = FresnelSchlick(max(dot(N, V), 0.0), F0, mat.roughness);
+  vec3 F = FresnelSchlick(max(dot(N, V), 0.0), F0, mat.roughness);
+
+  vec3 kS = F;
   vec3 kD = 1.0 - kS;
   kD *= 1.0 - mat.metallic;
+
   vec3 irradiance = texture(irradianceMap, N).rgb;
   vec3 diffuse = irradiance * vec3(mat.albedo);
-  vec3 ambient = (kD * diffuse) * mat.ao;
+
+  const float MAX_REFLECTION_LOD = 4.0;
+  vec3 prefilteredColor = textureLod(prefilterMap, R, mat.roughness * MAX_REFLECTION_LOD).rgb;
+  vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), mat.roughness)).rg;
+  vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+  vec3 ambient = (kD * diffuse + specular) * mat.ao;
 
   vec3 color = ambient + (1.0 - shadow) * Lo;
 

@@ -45,6 +45,7 @@ public:
   void UnbindFramebuffer() override;
   ZTexture LoadDefaultTexture() override;
   ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) override;
+  ZTexture LoadEmptyLUT() override;
   void BindTexture(ZTexture texture, unsigned int index) override;
   ZTexture LoadDepthTexture() override;
   ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) override;
@@ -64,6 +65,7 @@ public:
   ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) override;
   ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
   ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
+  ZTexture BRDFLUT(ZBufferData cubemapBufferData) override;
 
   void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
   void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) override;

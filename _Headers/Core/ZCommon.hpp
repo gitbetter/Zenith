@@ -102,6 +102,12 @@ struct ZTexture {
   std::string path;
 };
 
+struct ZIBLTexture {
+  ZTexture irradiance;
+  ZTexture prefiltered;
+  ZTexture brdfLUT;
+};
+
 struct ZMaterialProperties {
   glm::vec4 albedo;
   union {
