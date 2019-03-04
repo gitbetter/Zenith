@@ -64,11 +64,10 @@ public:
   virtual ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
   virtual ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
   virtual ZTexture BRDFLUT(ZBufferData cubemapBufferData) = 0;
-  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
-  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) = 0;
+  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
+  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
   virtual void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) = 0;
 
 protected:
-
 
 };

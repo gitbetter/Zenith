@@ -84,6 +84,10 @@ enum class ZCubemapTextureType {
   Normal, Irradiance, Prefilter
 };
 
+enum class ZMeshDrawStyle {
+  Point, Line, LineStrip, Triangle, TriangleStrip
+};
+
 struct ZBufferData {
   ZBufferDataType type;
   union {

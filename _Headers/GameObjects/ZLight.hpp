@@ -18,7 +18,7 @@
 // Class and Data Structure Definitions
 struct ZLBaseProperties {
   glm::vec3 ambient{0.2f};
-  glm::vec3 color{5.f};
+  glm::vec3 color{3.f};
 };
 
 struct ZLAttenuationProperties {

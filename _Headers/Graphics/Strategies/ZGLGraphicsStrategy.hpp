@@ -67,11 +67,12 @@ public:
   ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
   ZTexture BRDFLUT(ZBufferData cubemapBufferData) override;
 
-  void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
-  void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) override;
+  void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
+  void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) override;
   void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) override;
 
 protected:
 
+  std::map<ZMeshDrawStyle, unsigned int> drawingStylesMap_;
 
 };

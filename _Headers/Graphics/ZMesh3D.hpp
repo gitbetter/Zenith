@@ -29,8 +29,8 @@ private:
 
 public:
 
-  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material);
-  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material, ZVertex3D min, ZVertex3D max);
+  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
+  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material, ZVertex3D min, ZVertex3D max, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
   ~ZMesh3D() { }
 
   ZVertex3D Min() const { return minVertex_; }

@@ -162,7 +162,45 @@ ZModel* ZModel::NewSpherePrimitive(glm::vec3 scale, std::vector<ZTexture> textur
 }
 
 void ZModel::CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures) {
+  std::vector<ZVertex3D> vertices;
+  std::vector<unsigned int> indices;
 
+  const unsigned int X_SEGMENTS = 64;
+  const unsigned int Y_SEGMENTS = 64;
+  for (unsigned int y = 0; y <= Y_SEGMENTS; ++y) {
+    for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
+      float xSegment = (float)x / (float)X_SEGMENTS;
+      float ySegment = (float)y / (float)Y_SEGMENTS;
+      float xPos = std::cos(xSegment * 2.0f * glm::pi<float>()) * std::sin(ySegment * glm::pi<float>());
+      float yPos = std::cos(ySegment * glm::pi<float>());
+      float zPos = std::sin(xSegment * 2.0f * glm::pi<float>()) * std::sin(ySegment * glm::pi<float>());
+
+      ZVertex3D vertex(glm::vec3(xPos, yPos, zPos), glm::vec3(xPos, yPos, zPos));
+      vertex.uv = glm::vec2(xSegment, ySegment);
+
+      vertices.push_back(vertex);
+    }
+  }
+
+  bool oddRow = false;
+  for (int y = 0; y < Y_SEGMENTS; ++y) {
+    if (!oddRow) {
+      for (int x = 0; x < X_SEGMENTS; ++x) {
+        indices.push_back(y * (X_SEGMENTS + 1) + x);
+        indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+      }
+    } else {
+      for (int x = X_SEGMENTS; x >= 0; --x) {
+        indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+        indices.push_back(y * (X_SEGMENTS + 1) + x);
+      }
+    }
+    oddRow = !oddRow;
+  }
+
+  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialPBR();
+
+  meshes_.push_back(ZMesh3D(vertices, indices, material, ZMeshDrawStyle::TriangleStrip));
 }
 
 /**
@@ -200,7 +238,7 @@ ZModel* ZModel::NewSkybox(std::vector<std::string> faces) {
 ZModel* ZModel::NewSkybox(std::string equirectHDR, ZIBLTexture& generatedIBLTexture) {
   ZBufferData cubemapBuffer;
   ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(equirectHDR, cubemapBuffer);
-  
+
   generatedIBLTexture.irradiance = ZEngine::Graphics()->Strategy()->IrradianceMapFromCubeMap(cubemapBuffer, cubeMap);
   generatedIBLTexture.prefiltered = ZEngine::Graphics()->Strategy()->PrefilterCubeMap(cubemapBuffer, cubeMap);
   generatedIBLTexture.brdfLUT = ZEngine::Graphics()->Strategy()->BRDFLUT(cubemapBuffer);

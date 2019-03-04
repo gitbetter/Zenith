@@ -18,6 +18,12 @@
 #include "ZCommon.hpp"
 
 void ZGLGraphicsStrategy::Initialize() {
+  drawingStylesMap_[ZMeshDrawStyle::Point] = GL_POINT;
+  drawingStylesMap_[ZMeshDrawStyle::Line] = GL_LINES;
+  drawingStylesMap_[ZMeshDrawStyle::LineStrip] = GL_LINE_STRIP;
+  drawingStylesMap_[ZMeshDrawStyle::Triangle] = GL_TRIANGLES;
+  drawingStylesMap_[ZMeshDrawStyle::TriangleStrip] = GL_TRIANGLE_STRIP;
+
   glfwSetErrorCallback(GLFWErrorCallback);
 
   EnableDepthTesting();
@@ -354,6 +360,8 @@ ZTexture ZGLGraphicsStrategy::LoadEmptyCubeMap(ZCubemapTextureType type) {
   if (type == ZCubemapTextureType::Prefilter) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+  } else if (type == ZCubemapTextureType::Normal) {
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   } else {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   }
@@ -468,6 +476,10 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBu
     cube->Render(&equirectToCubemapShader);
   }
   UnbindFramebuffer();
+
+  // Removes visible dots artifact
+  BindTexture(cubeMap, 1);
+  glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
   delete cube;
 
@@ -592,18 +604,18 @@ ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData) {
   return brdfLUT;
 }
 
-void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) {
+void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle) {
   glBindVertexArray(bufferData.vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+  glDrawElements(drawingStylesMap_[drawStyle], indices.size(), GL_UNSIGNED_INT, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
   glActiveTexture(GL_TEXTURE0);
 }
 
-void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices) {
+void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle) {
   glBindVertexArray(bufferData.vao);
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size());
+  glDrawArrays(drawingStylesMap_[drawStyle], 0, vertices.size());
   glBindVertexArray(0);
   glActiveTexture(GL_TEXTURE0);
 }

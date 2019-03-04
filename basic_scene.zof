@@ -91,7 +91,7 @@ ZGO_05
 	^
 ^
 ZGO_06
-	:position [5.0, 15.0, -20.0]:
+	:position [-3.0, 30.0, 2.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent
@@ -100,12 +100,12 @@ ZGO_06
 		:damping 0.0 0.0:
 		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [1.0, 1.0, 1.0]:
+		:collider Sphere [1.0, 1.0, 1.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
 		:shaders [ZSH_01]:
-		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+		:model Sphere [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
 	^
 ^
 ZGO_07
