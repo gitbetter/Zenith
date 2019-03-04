@@ -40,8 +40,7 @@ void ZPhysics::AddRigidBody(btRigidBody* body) {
 }
 
 ZGameObject* ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {
-  glm::vec3 end = start + direction * 10000.f;
-  _Z(glm::to_string(direction), ZINFO);
+  glm::vec3 end = direction * 1000.f;
   btCollisionWorld::ClosestRayResultCallback rayCallback(
     btVector3(start.x, start.y, start.z),
     btVector3(end.x, end.y, end.z)

@@ -72,13 +72,16 @@ void ZUICursor::HandleFire() {
   ZGameObject* camera = ZEngine::Game()->ActiveCamera();
   if (camera) {
     ZCameraComponent* cameraComp = camera->FindComponent<ZCameraComponent>();
-    glm::mat4 M = glm::inverse(cameraComp->ProjectionMatrix() * cameraComp->ViewMatrix(1.f));
+    glm::mat4 InverseProjection = glm::inverse(cameraComp->ProjectionMatrix());
+    glm::mat4 InverseView = glm::inverse(cameraComp->ViewMatrix(1.f));
 
     glm::vec4 rayStart(Position().x * 2.f - 1.f, Position().y * 2.f - 1.f, -1.f, 1.f);
     glm::vec4 rayEnd(Position().x * 2.f - 1.f, Position().y * 2.f - 1.f, 0.f, 1.f);
 
-    glm::vec4 rayStartWorld = M * rayStart; rayStartWorld /= rayStartWorld.w;
-    glm::vec4 rayEndWorld = M * rayEnd; rayEndWorld /= rayEndWorld.w;
+    glm::vec4 rayStartCamera = InverseProjection * rayStart; rayStartCamera /= rayStartCamera.w;
+    glm::vec4 rayStartWorld = InverseView * rayStartCamera; rayStartWorld /= rayStartWorld.w;
+    glm::vec4 rayEndCamera = InverseProjection * rayEnd; rayEndCamera /= rayEndCamera.w;
+    glm::vec4 rayEndWorld = InverseView * rayEndCamera; rayEndWorld /= rayEndWorld.w;
 
     glm::vec3 rayDir = glm::normalize(glm::vec3(rayEndWorld - rayStartWorld));
 
