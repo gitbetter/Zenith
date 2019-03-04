@@ -97,6 +97,8 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
   btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collider, localInertia);
   body_ = new btRigidBody(rbInfo);
 
+  body_->setUserPointer(object_);
+
   if (gravity) body_->setGravity(btVector3(0.0, -25.0, 0.0));
   body_->setDamping(damping, angularDamping);
   body_->setRestitution(restitution);

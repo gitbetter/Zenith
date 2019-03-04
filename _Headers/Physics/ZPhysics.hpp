@@ -36,6 +36,8 @@ public:
 
   void AddRigidBody(btRigidBody* body);
 
+  ZGameObject* Raycast(glm::vec3 lineStart, glm::vec3 lineEnd);
+
   void DebugDraw();
 
   void CleanUp() { }

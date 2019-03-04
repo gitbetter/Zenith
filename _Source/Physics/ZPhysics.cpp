@@ -34,9 +34,27 @@ void ZPhysics::Update() {
   dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, 1, ZEngine::UPDATE_STEP_SIZE);
 }
 
-void ZPhysics::AddRigidBody(btRigidBody* body) {
+void ZPhysics::AddRigidBody(btRigidBody* body, ZGameObject* gameObject) {
   dynamicsWorld_->addRigidBody(body);
-  collisionShapes_.push_back(body->getCollisionShape());
+  collisionObjectMap_[body] = gameObject;
+}
+
+ZGameObject* ZPhysics::Raycast(glm::vec3 lineStart, glm::vec3 lineEnd) {
+  btCollisionWorld::ClosestRayResultCallback rayCallback(
+    btVector3(lineStart.x, lineStart.y, lineStart.z),
+    btVector3(lineEnd.x, lineEnd.y, lineEnd.z)
+  );
+
+  dynamicsWorld_->rayTest(
+    btVector3(lineStart.x, lineStart.y, lineStart.z),
+    btVector3(lineEnd.x, lineEnd.y, lineEnd.z),
+    rayCallback
+  );
+
+  if (rayCallback.hasHit()) {
+    return static_cast<ZGameObject*>(btCollisionObjectrayCallback.m_collisionObject->getUserPointer());
+  }
+  return nullptr;
 }
 
 void ZPhysics::DebugDraw() {
