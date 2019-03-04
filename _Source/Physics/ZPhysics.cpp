@@ -34,25 +34,27 @@ void ZPhysics::Update() {
   dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, 1, ZEngine::UPDATE_STEP_SIZE);
 }
 
-void ZPhysics::AddRigidBody(btRigidBody* body, ZGameObject* gameObject) {
+void ZPhysics::AddRigidBody(btRigidBody* body) {
   dynamicsWorld_->addRigidBody(body);
-  collisionObjectMap_[body] = gameObject;
+  collisionShapes_.push_back(body->getCollisionShape());
 }
 
-ZGameObject* ZPhysics::Raycast(glm::vec3 lineStart, glm::vec3 lineEnd) {
+ZGameObject* ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {
+  glm::vec3 end = start + direction * 10000.f;
+  _Z(glm::to_string(direction), ZINFO);
   btCollisionWorld::ClosestRayResultCallback rayCallback(
-    btVector3(lineStart.x, lineStart.y, lineStart.z),
-    btVector3(lineEnd.x, lineEnd.y, lineEnd.z)
+    btVector3(start.x, start.y, start.z),
+    btVector3(end.x, end.y, end.z)
   );
 
   dynamicsWorld_->rayTest(
-    btVector3(lineStart.x, lineStart.y, lineStart.z),
-    btVector3(lineEnd.x, lineEnd.y, lineEnd.z),
+    btVector3(start.x, start.y, start.z),
+    btVector3(end.x, end.y, end.z),
     rayCallback
   );
 
   if (rayCallback.hasHit()) {
-    return static_cast<ZGameObject*>(btCollisionObjectrayCallback.m_collisionObject->getUserPointer());
+    return static_cast<ZGameObject*>(rayCallback.m_collisionObject->getUserPointer());
   }
   return nullptr;
 }
