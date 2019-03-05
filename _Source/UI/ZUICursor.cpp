@@ -87,9 +87,7 @@ void ZUICursor::HandleFire() {
 
     ZGameObject* objectHit = ZEngine::Physics()->Raycast(rayStartWorld, rayDir);
     if (objectHit) {
-      _Z("Hit an object!", ZINFO);
-    } else {
-      _Z("Missed...", ZINFO);
+      _Z("Object " + objectHit->ID() + " hit", ZINFO);
     }
   }
 }

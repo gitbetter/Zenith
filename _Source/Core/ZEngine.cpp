@@ -24,7 +24,7 @@
 const float ZEngine::UPDATE_STEP_SIZE = 0.017f;
 const int ZEngine::MAX_FIXED_UPDATE_ITERATIONS = 50;
 const unsigned int ZEngine::SHADOW_MAP_SIZE = 1024;
-const unsigned int ZEngine::CUBE_MAP_SIZE = 1024;
+const unsigned int ZEngine::CUBE_MAP_SIZE = 2048;
 const unsigned int ZEngine::IRRADIANCE_MAP_SIZE = 32;
 const unsigned int ZEngine::PREFILTER_MAP_SIZE = 128;
 const unsigned int ZEngine::LUT_SIZE = 512;
@@ -37,7 +37,7 @@ const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
   "Assets/Skyboxes/Default/front.png",
   "Assets/Skyboxes/Default/back.png",
 };
-const std::string ZEngine::DEFAULT_HDR_CUBEMAP = "Assets/Skyboxes/DefaultHDR/interior.hdr";
+const std::string ZEngine::DEFAULT_HDR_CUBEMAP = "Assets/Skyboxes/DefaultHDR/sky.hdr";
 
 ZGame* ZEngine::currentGame_ = nullptr;
 ZDomain* ZEngine::domain_ = nullptr;
