@@ -189,5 +189,5 @@ float CalculateShadow(vec4 lightSpacePosition) {
       shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
     }
   }
-  return shadow / 9.0;
+  return shadow / 12.0;
 }
