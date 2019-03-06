@@ -11,17 +11,23 @@
 // Includes
 #include "btBulletDynamicsCommon.h"
 #include "ZCommon.hpp"
+#include "ZPhysicsDebug.hpp"
+#include "ZObjectForceRegistry.hpp"
 
 // Forward Declarations
-class ZObjectForceRegistry;
-class ZPhysicsDebug;
 
 // Class and Data Structure Definitions
 class ZPhysics {
 
 private:
 
-  ZPhysicsDebug* debugDrawer_;
+  std::unique_ptr<ZPhysicsDebug> debugDrawer_;
+  std::unique_ptr<ZObjectForceRegistry> registry_;
+  btDefaultCollisionConfiguration* collisionConfig_ = nullptr;
+  btCollisionDispatcher* dispatcher_ = nullptr;
+  btBroadphaseInterface* overlappingPairCache_ = nullptr;
+  btSequentialImpulseConstraintSolver* solver_ = nullptr;
+  btDiscreteDynamicsWorld* dynamicsWorld_ = nullptr;
 
 public:
 
@@ -32,7 +38,7 @@ public:
 
   void Update();
 
-  ZObjectForceRegistry* Registry() { return registry_; }
+  ZObjectForceRegistry* Registry() { return registry_.get(); }
 
   void AddRigidBody(std::shared_ptr<btRigidBody> body);
 
@@ -42,12 +48,4 @@ public:
 
   void CleanUp() { }
 
-protected:
-
-  ZObjectForceRegistry* registry_ = nullptr;
-  btDefaultCollisionConfiguration* collisionConfig_ = nullptr;
-  btCollisionDispatcher* dispatcher_ = nullptr;
-  btBroadphaseInterface* overlappingPairCache_ = nullptr;
-  btSequentialImpulseConstraintSolver* solver_ = nullptr;
-  btDiscreteDynamicsWorld* dynamicsWorld_ = nullptr;
 };

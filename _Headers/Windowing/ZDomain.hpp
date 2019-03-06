@@ -9,10 +9,10 @@
 #pragma once
 
 // Includes
-// #include <iostream>
+#include "ZCommon.hpp"
+#include "ZDomainStrategy.hpp"
 
 // Forward Declarations
-class ZDomainStrategy;
 
 // Class and Data Structure Definitions
 class ZDomain {
@@ -31,7 +31,7 @@ public:
   unsigned int ResolutionX() const { return resolutionX_; }
   unsigned int ResolutionY() const { return resolutionY_; }
 
-  ZDomainStrategy* Strategy() { return domainStrategy_; }
+  ZDomainStrategy* Strategy() { return domainStrategy_.get(); }
 
   void ResizeWindow(int width, int height);
 
@@ -39,7 +39,7 @@ public:
 
 protected:
 
-  ZDomainStrategy* domainStrategy_ = nullptr;
+  std::unique_ptr<ZDomainStrategy> domainStrategy_;
   unsigned int windowWidth_, windowHeight_;
   unsigned int resolutionX_, resolutionY_;
 };

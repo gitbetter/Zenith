@@ -12,11 +12,11 @@
 // TODO: Conditional include based on graphics implementation
 #include "ZGLGraphicsStrategy.hpp"
 #include "ZUIElement.hpp"
+#include "ZTextStrategy.hpp"
 #include <vector>
 
 // Forward Declarations
 class ZUICursor;
-class ZTextStrategy;
 
 // Class and Data Structure Definitions
 class ZUI {
@@ -41,7 +41,7 @@ public:
   std::shared_ptr<ZUICursor> Cursor() { return cursor_; }
   std::vector<std::shared_ptr<ZUIElement>>& Elements() { return elements_; }
 
-  ZTextStrategy* TextStrategy() { return textStrategy_; }
+  ZTextStrategy* TextStrategy() { return textStrategy_.get(); }
 
   std::shared_ptr<ZShader> TextShader() { return textShader_; }
   std::shared_ptr<ZShader> UIShader() { return uiShader_; }
@@ -52,7 +52,7 @@ protected:
 
   std::vector<std::shared_ptr<ZUIElement>> elements_;
   std::shared_ptr<ZUICursor> cursor_;
-  ZTextStrategy* textStrategy_ = nullptr;
+  std::unique_ptr<ZTextStrategy> textStrategy_;
   std::shared_ptr<ZShader> uiShader_;
   std::shared_ptr<ZShader> textShader_;
 };

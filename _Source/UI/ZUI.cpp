@@ -17,7 +17,7 @@
 void ZUI::Initialize() {
   // TODO: Switch the strategies here based on implementation details
   if(textStrategy_ == nullptr) {
-    textStrategy_ = new ZGLTextStrategy();
+    textStrategy_.reset(new ZGLTextStrategy);
     textStrategy_->Initialize();
   }
 

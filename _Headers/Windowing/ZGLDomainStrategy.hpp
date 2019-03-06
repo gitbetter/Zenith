@@ -16,6 +16,7 @@ struct GLFWwindow;
 
 // Class and Data Structure Definitions
 class ZGLDomainStrategy : public ZDomainStrategy {
+  
 private:
 
   static void GLFWErrorCallback(int id, const char* description);
@@ -36,7 +37,7 @@ public:
   void CloseWindow() override;
   bool IsWindowClosing() override;
   void CleanUp() override;
-protected:
 
+protected:
 
 };

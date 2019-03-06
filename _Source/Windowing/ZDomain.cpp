@@ -12,7 +12,7 @@
 void ZDomain::Initialize() {
   // TODO: Switch the strategy here based on domain (windowing and input handling) implementation
   if (domainStrategy_ == nullptr) {
-    domainStrategy_ = new ZGLDomainStrategy();
+    domainStrategy_.reset(new ZGLDomainStrategy);
     domainStrategy_->Initialize();
     domainStrategy_->CreateWindow(windowWidth_, windowHeight_);
 
@@ -31,6 +31,6 @@ void ZDomain::ResizeWindow(int width, int height) {
 void ZDomain::CleanUp() {
   if (domainStrategy_ != nullptr) {
     domainStrategy_->CleanUp();
-    delete domainStrategy_;
+    domainStrategy_ = nullptr;
   }
 }
