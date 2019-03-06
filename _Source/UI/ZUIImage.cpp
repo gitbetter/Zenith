@@ -18,9 +18,9 @@ ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIE
 
 void ZUIImage::Draw(ZShader* shader) {
   ZUIElement::Draw(shader);
-  ZEngine::UI()->GraphicsStrategy()->EnableAlphaBlending();
+  ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
   ElementShape().Render(shader);
-  ZEngine::UI()->GraphicsStrategy()->DisableAlphaBlending();
+  ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
   RenderChildren(shader);
 }
 
@@ -40,7 +40,7 @@ ZMeshUI ZUIImage::ElementShape() {
 
 void ZUIImage::SetImage(std::string path) {
   if (!path.empty()) {
-    texture_ = ZEngine::UI()->GraphicsStrategy()->LoadTexture(path, "");
+    texture_ = ZEngine::Graphics()->Strategy()->LoadTexture(path, "");
     texture_.type = "image";
   }
 }

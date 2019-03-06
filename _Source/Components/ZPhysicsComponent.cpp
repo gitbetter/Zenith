@@ -95,7 +95,7 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
 
   btDefaultMotionState* motionState = new btDefaultMotionState(transform);
   btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collider, localInertia);
-  body_ = new btRigidBody(rbInfo);
+  body_ = std::shared_ptr<btRigidBody>(new btRigidBody(rbInfo));
 
   body_->setUserPointer(object_);
 

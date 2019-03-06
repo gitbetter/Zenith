@@ -8,6 +8,7 @@
 
 #include "ZUIText.hpp"
 #include "ZUI.hpp"
+#include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZTextStrategy.hpp"
 #include "ZEngine.hpp"
@@ -18,11 +19,11 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
   font_ = font;
   text_ = text;
   fontScale_ = fontSize;
-  bufferData_ = ZEngine::UI()->GraphicsStrategy()->LoadEmptyVertexData2D(4);
+  bufferData_ = ZEngine::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
 }
 
 void ZUIText::Draw(ZShader* shader) {
-  ZEngine::UI()->GraphicsStrategy()->EnableAlphaBlending();
+  ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
   float x = Position().x * (float)ZEngine::Domain()->ResolutionX() / 2.f,
         y = (Position().y * (float)ZEngine::Domain()->ResolutionY()) - (Size().y * (float)ZEngine::Domain()->ResolutionY()) / 2.f;
@@ -43,11 +44,11 @@ void ZUIText::Draw(ZShader* shader) {
     };
 
     ZUIElement::Draw(shader);
-    ZEngine::UI()->GraphicsStrategy()->UpdateBuffer(bufferData_, vertices);
-    ZEngine::UI()->GraphicsStrategy()->Draw(bufferData_, vertices);
+    ZEngine::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertices);
+    ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices);
 
     x += (character.advance >> 6) * fontScale_;
   }
-  ZEngine::UI()->GraphicsStrategy()->DisableAlphaBlending();
+  ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
   RenderChildren(shader);
 }

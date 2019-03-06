@@ -34,9 +34,8 @@ void ZPhysics::Update() {
   dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, 1, ZEngine::UPDATE_STEP_SIZE);
 }
 
-void ZPhysics::AddRigidBody(btRigidBody* body) {
-  dynamicsWorld_->addRigidBody(body);
-  collisionShapes_.push_back(body->getCollisionShape());
+void ZPhysics::AddRigidBody(std::shared_ptr<btRigidBody> body) {
+  dynamicsWorld_->addRigidBody(body.get());
 }
 
 ZGameObject* ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {

@@ -24,7 +24,7 @@ ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0),
 void ZUIElement::Draw(ZShader* shader) {
   shader->Activate();
 
-  ZEngine::UI()->GraphicsStrategy()->BindTexture(texture_, 0);
+  ZEngine::Graphics()->Strategy()->BindTexture(texture_, 0);
   shader->SetInt(texture_.type + "0", 0);
 
   glm::mat4 ortho = glm::ortho(0.f, (float)ZEngine::Domain()->ResolutionX(), (float)ZEngine::Domain()->ResolutionY(), 0.f);
@@ -34,13 +34,13 @@ void ZUIElement::Draw(ZShader* shader) {
 }
 
 void ZUIElement::RenderChildren(ZShader* shader) {
-  for (ZUIElement* child : children_) {
+  for (std::shared_ptr<ZUIElement> child : children_) {
     // TODO: Only render if the child has the dirty flag set
-    child->Draw((dynamic_cast<ZUIText*>(child)) ? ZEngine::UI()->TextShader() : shader);
+    child->Draw((std::dynamic_pointer_cast<ZUIText>(child)) ? ZEngine::UI()->TextShader().get() : shader);
   }
 }
 
-void ZUIElement::AddChild(ZUIElement* element) {
+void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element) {
   // Reset the child translation and move it to the parent's location
   element->ResetTranslation();
   element->Translate(Position());
@@ -65,7 +65,7 @@ void ZUIElement::Translate(glm::vec2 translation) {
                               modelMatrix_[3][3]);
 
   // Recursively update child positions
-  for (ZUIElement* child : children_) {
+  for (std::shared_ptr<ZUIElement> child : children_) {
     child->Translate(translation);
   }
 }
@@ -73,7 +73,7 @@ void ZUIElement::Translate(glm::vec2 translation) {
 void ZUIElement::Rotate(float angle) {
   modelMatrix_ = glm::rotate(modelMatrix_, angle, glm::vec3(0.f, 0.f, 1.f));
 
-  for (ZUIElement* child : children_) {
+  for (std::shared_ptr<ZUIElement> child : children_) {
     child->Rotate(angle);
   }
 }
@@ -105,14 +105,13 @@ float ZUIElement::Angle() {
 
 void ZUIElement::SetTranslationBounds(float left, float right, float bottom, float top) {
   translationBounds_ = glm::vec4(left, right, bottom, top);
-  for (ZUIElement* child : children_) {
+  for (std::shared_ptr<ZUIElement> child : children_) {
     child->SetTranslationBounds(left, right, bottom, top);
   }
 }
 
 void ZUIElement::CleanUp() {
-  for (ZUIElement* child : children_) {
+  for (std::shared_ptr<ZUIElement> child : children_) {
     child->CleanUp();
-    delete child;
   }
 }

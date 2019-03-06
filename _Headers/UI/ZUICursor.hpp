@@ -16,7 +16,6 @@ class ZShader;
 
 // Class and Data Structure Definitions
 class ZUICursor : public ZUIElement {
-private:
 
 public:
 
@@ -31,8 +30,5 @@ public:
 
     void SetCursorImage(std::string path);
     void SetColor(glm::vec4 color) override ;
-
-protected:
-
 
 };

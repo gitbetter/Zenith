@@ -34,7 +34,7 @@ public:
 
   ZObjectForceRegistry* Registry() { return registry_; }
 
-  void AddRigidBody(btRigidBody* body);
+  void AddRigidBody(std::shared_ptr<btRigidBody> body);
 
   ZGameObject* Raycast(glm::vec3 start, glm::vec3 direction);
 
@@ -50,5 +50,4 @@ protected:
   btBroadphaseInterface* overlappingPairCache_ = nullptr;
   btSequentialImpulseConstraintSolver* solver_ = nullptr;
   btDiscreteDynamicsWorld* dynamicsWorld_ = nullptr;
-  btAlignedObjectArray<btCollisionShape*> collisionShapes_;
 };
