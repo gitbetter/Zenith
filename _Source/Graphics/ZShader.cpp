@@ -218,11 +218,11 @@ void ZShader::Use(const ZMaterial& material) {
   }
 }
 
-void ZShader::Use(const std::map<std::string, ZLight*>& lights) {
+void ZShader::Use(const std::map<std::string, std::shared_ptr<ZLight>>& lights) {
   Activate();
   unsigned int i = 0;
   for (auto it = lights.begin(); it != lights.end(); it++) {
-    ZLight* light = it->second;
+    std::shared_ptr<ZLight> light = it->second;
     switch(light->type) {
       case ZLightType::Directional:
         SetBool("lights[" + std::to_string(i) + "].isEnabled", light->enabled);

@@ -61,32 +61,32 @@ public:
 
   template<class T>
   typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
-  AddComponent(T* component) {
-    T* foundComponent = FindComponent<T>();
+  AddComponent(std::shared_ptr<T> component) {
+    std::shared_ptr<T> foundComponent = FindComponent<T>();
     if (foundComponent == nullptr) {
       component->object_ = this;
       components_.push_back(component);
     }
   }
 
-  template<class T> T* RemoveComponent() {
-    std::vector<ZComponent*>::iterator found;
-    for (std::vector<ZComponent*>::iterator it = components_.begin(); it != components_.end(); ++it) {
-      if (dynamic_cast<T*>(*it)) {
+  template<class T> std::shared_ptr<T> RemoveComponent() {
+    std::vector<std::shared_ptr<ZComponent>>::iterator found;
+    for (std::vector<std::shared_ptr<ZComponent>>::iterator it = components_.begin(); it != components_.end(); ++it) {
+      if (std::dynamic_pointer_cast<T>(*it)) {
         found = it; break;
       }
     }
 
     if (found == components_.end()) return nullptr;
 
-    T* removed = *found;
+    std::shared_ptr<T> removed = *found;
     components_.erase(found);
     return removed;
   }
 
-  template<class T> T* FindComponent() {
-    for (ZComponent* comp : components_) {
-      if (dynamic_cast<T*>(comp)) return dynamic_cast<T*>(comp);
+  template<class T> std::shared_ptr<T> FindComponent() {
+    for (std::shared_ptr<ZComponent> comp : components_) {
+      if (std::dynamic_pointer_cast<T>(comp)) return std::dynamic_pointer_cast<T>(comp);
     }
     return nullptr;
   }
@@ -94,7 +94,7 @@ public:
 protected:
 
   ZGame* game_ = nullptr;
-  std::vector<ZComponent*> components_;
+  std::vector<std::shared_ptr<ZComponent>> components_;
   glm::vec4 position_, previousPosition_;
   glm::vec3 scale_, previousScale_;
   glm::quat orientation_, previousOrientation_;

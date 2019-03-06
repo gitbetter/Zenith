@@ -25,7 +25,7 @@ class ZGraphics {
 private:
 
   void Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
-  void DrawShadowMap(const ZGameObjectMap& gameObjects, ZLight* light, float frameMix = 0.0);
+  void DrawShadowMap(const ZGameObjectMap& gameObjects, std::shared_ptr<ZLight> light, float frameMix = 0.0);
 
 public:
 
@@ -34,25 +34,25 @@ public:
 
   void Initialize();
 
-  void Draw(const ZGameObjectMap& gameObjects, const std::map<std::string, ZLight*>& gameLights, float frameMix = 0.0);
+  void Draw(const ZGameObjectMap& gameObjects, const std::map<std::string, std::shared_ptr<ZLight>>& gameLights, float frameMix = 0.0);
 
   ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
   ZTexture DepthMap() { return depthMap_; };
-  ZShader* ShadowShader() { return shadowShader_; }
+  std::shared_ptr<ZShader> ShadowShader() { return shadowShader_; }
   ZTextureMap& Textures() { return loadedTextures_; }
   ZShaderMap& Shaders() { return loadedShaders_; }
 
   void SetStrategy(ZGraphicsStrategy* strategy) { graphicsStrategy_ = strategy; }
 
-  void AddShader(std::string id, ZShader* shader);
+  void AddShader(std::string id, std::shared_ptr<ZShader> shader);
   void AddTexture(std::string id, ZTexture texture);
 
   void CleanUp();
 
 protected:
 
-  ZShader* shadowShader_ = nullptr;
+  std::shared_ptr<ZShader> shadowShader_ = nullptr;
   ZGraphicsStrategy* graphicsStrategy_ = nullptr;
   ZBufferData depthFramebuffer_;
   ZTexture depthMap_;

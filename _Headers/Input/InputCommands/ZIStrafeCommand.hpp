@@ -21,7 +21,7 @@ private:
 public:
 
   ZIStrafeCommand(float controlThrow) : ZInputCommand(controlThrow) { }
-  virtual void Execute(ZObject* gameObject) const override;
+  virtual void Execute(std::shared_ptr<ZObject> gameObject) const override;
 protected:
 
 

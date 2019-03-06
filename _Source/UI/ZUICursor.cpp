@@ -69,7 +69,7 @@ void ZUICursor::HandleFire() {
   // as well, to preserve Z ordering
   if (elementFired) return;
 
-  ZGameObject* camera = ZEngine::Game()->ActiveCamera();
+  std::shared_ptr<ZGameObject> camera = ZEngine::Game()->ActiveCamera();
   if (camera) {
     ZCameraComponent* cameraComp = camera->FindComponent<ZCameraComponent>();
     glm::mat4 InverseProjection = glm::inverse(cameraComp->ProjectionMatrix());

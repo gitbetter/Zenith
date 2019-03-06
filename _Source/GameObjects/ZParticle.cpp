@@ -18,7 +18,7 @@ void ZParticle::Initialize() {
   // }
 
   if (FindComponent<ZPhysicsComponent>() == nullptr) {
-    AddComponent(new ZPhysicsComponent());
+    AddComponent(std::shared_ptr<ZPhysicsComponent>(new ZPhysicsComponent));
   }
 }
 

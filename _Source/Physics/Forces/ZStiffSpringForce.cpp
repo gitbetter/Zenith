@@ -14,7 +14,7 @@ ZStiffSpringForce::ZStiffSpringForce(glm::vec3 anchor, float springConstant, flo
 : anchor_(anchor), springConstant_(springConstant), damping_(damping) { }
 
 void ZStiffSpringForce::UpdateForce(ZGameObject* object) {
-  ZPhysicsComponent* physicsComp = object->FindComponent<ZPhysicsComponent>();
+  std::shared_ptr<ZPhysicsComponent> physicsComp = object->FindComponent<ZPhysicsComponent>();
   if (physicsComp == nullptr) return;
 
   if (!physicsComp->HasFiniteMass()) return;

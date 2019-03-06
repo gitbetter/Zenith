@@ -64,8 +64,8 @@ void ZModel::SetMaterial(ZMaterial material) {
 /**
  *  Plane Creation
  */
-ZModel* ZModel::NewPlanePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return new ZModel(ZPrimitiveType::Plane, scale, textures);
+std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Plane, scale, textures));
 }
 
 void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -93,8 +93,8 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Cube Creation
  */
-ZModel* ZModel::NewCubePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return new ZModel(ZPrimitiveType::Cube, scale, textures);
+std::unique_ptr<ZModel> ZModel::NewCubePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cube, scale, textures));
 }
 
 void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -157,8 +157,8 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Sphere Creation
  */
-ZModel* ZModel::NewSpherePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return new ZModel(ZPrimitiveType::Sphere, scale, textures);
+std::unique_ptr<ZModel> ZModel::NewSpherePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Sphere, scale, textures));
 }
 
 void ZModel::CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -206,8 +206,8 @@ void ZModel::CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Cylinder Creation
  */
-ZModel* ZModel::NewCylinderPrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return new ZModel(ZPrimitiveType::Cylinder, scale, textures);
+std::unique_ptr<ZModel> ZModel::NewCylinderPrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cylinder, scale, textures));
 }
 
 void ZModel::CreateCylinder(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -217,8 +217,8 @@ void ZModel::CreateCylinder(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Cone Creation
  */
-ZModel* ZModel::NewConePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
-  return new ZModel(ZPrimitiveType::Cone, scale, textures);
+std::unique_ptr<ZModel> ZModel::NewConePrimitive(glm::vec3 scale, std::vector<ZTexture> textures) {
+  return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cone, scale, textures));
 }
 
 void ZModel::CreateCone(glm::vec3 scale, std::vector<ZTexture> textures) {
@@ -228,14 +228,14 @@ void ZModel::CreateCone(glm::vec3 scale, std::vector<ZTexture> textures) {
 /**
  *  Skybox Creation
  */
-ZModel* ZModel::NewSkybox(std::vector<std::string> faces) {
+std::unique_ptr<ZModel> ZModel::NewSkybox(std::vector<std::string> faces) {
   ZTexture cubeMap = ZEngine::Graphics()->Strategy()->LoadCubeMap(faces);
   std::vector<ZTexture> textures = { cubeMap };
 
   return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f), textures);
 }
 
-ZModel* ZModel::NewSkybox(std::string equirectHDR, ZIBLTexture& generatedIBLTexture) {
+std::unique_ptr<ZModel> ZModel::NewSkybox(std::string equirectHDR, ZIBLTexture& generatedIBLTexture) {
   ZBufferData cubemapBuffer;
   ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(equirectHDR, cubemapBuffer);
 

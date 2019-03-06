@@ -21,7 +21,7 @@ ZGraphicsComponent::ZGraphicsComponent() : ZComponent() {
   id_ = "ZCGraphics_" + ZEngine::IDSequence()->Next();
 }
 
-void ZGraphicsComponent::Initialize(ZModel* model, ZShader* shader) {
+void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader) {
   model_ = model;
 
   if (shader != nullptr) {
@@ -60,10 +60,10 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
         }
       }
     } else if (prop->id == "model") {
-      ZModel* model;
+      std::shared_ptr<ZModel> model;
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
       if (terminal->value.find("\"") == 0) {
-        model = new ZModel(terminal->value.substr(1, terminal->value.length() - 2));
+        model = std::shared_ptr<ZModel>(new ZModel(terminal->value.substr(1, terminal->value.length() - 2)));
       } else {
         if (prop->values.size() > 1) {
           ZOFNumberList* param = dynamic_cast<ZOFNumberList*>(prop->values[1]);
@@ -87,7 +87,7 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
 void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   if (gameCamera_ == nullptr) return;
 
-  ZCameraComponent* cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
+  std::shared_ptr<ZCameraComponent> cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
 
   glm::mat4 modelMatrix = object_->ModelMatrix();
   glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
@@ -96,7 +96,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
-  ZShader* shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
+  std::shared_ptr<ZShader> shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
   if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
 
   shader->Activate();
@@ -119,14 +119,14 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
     shader->SetInt("brdfLUT", 3);
   }
 
-  model_->Render(shader);
+  model_->Render(shader.get());
 
   DrawOutlineIfEnabled(modelMatrix, viewMatrix, projectionMatrix);
 }
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
   if (highlightShader_ == nullptr) {
-    highlightShader_ = new ZShader;
+    highlightShader_ = std::shared_ptr<ZShader>(new ZShader);
     highlightShader_->Initialize("Assets/Shaders/Vertex/blinnphong.vert", "Assets/Shaders/Pixel/outline.frag");
   }
   highlightColor_ = color;
@@ -146,11 +146,11 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view,
   highlightShader_->SetMat4("M", highlightModelMatrix);
   highlightShader_->SetVec4("highlightColor", highlightColor_);
 
-  model_->Render(highlightShader_);
+  model_->Render(highlightShader_.get());
 
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 }
 
 void ZGraphicsComponent::ClearOutline() {
-  if (highlightShader_ != nullptr) delete highlightShader_;
+  if (highlightShader_ != nullptr) highlightShader_ = nullptr;
 }

@@ -17,7 +17,7 @@ class ZComponent;
 
 // Class and Data Structure Definitions
 class ZGOFactory {
-  using ZComponentCreator = ZComponent* (ZGOFactory::*)(ZGameObject*);
+  using ZComponentCreator = std::shared_ptr<ZComponent> (ZGOFactory::*)(std::shared_ptr<ZGameObject>);
 private:
 
 public:
@@ -27,9 +27,9 @@ public:
 
   ZGameObjectMap Create(ZOFTree* data);
 
-  ZComponent* CreateGraphicsComponent(ZGameObject* gameObject);
-  ZComponent* CreateCameraComponent(ZGameObject* gameObject);
-  ZComponent* CreatePhysicsComponent(ZGameObject* gameObject);
+  std::shared_ptr<ZComponent> CreateGraphicsComponent(std::shared_ptr<ZGameObject> gameObject);
+  std::shared_ptr<ZComponent> CreateCameraComponent(std::shared_ptr<ZGameObject> gameObject);
+  std::shared_ptr<ZComponent> CreatePhysicsComponent(std::shared_ptr<ZGameObject> gameObject);
 
 protected:
 

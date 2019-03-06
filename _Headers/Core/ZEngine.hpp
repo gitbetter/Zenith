@@ -32,7 +32,7 @@ class ZGame;
 class ZEngine {
 private:
 
-  static ZGame* currentGame_;
+  static std::shared_ptr<ZGame> currentGame_;
   static ZDomain* domain_;
   static ZGraphics* graphics_;
   static ZInput* input_;
@@ -58,9 +58,9 @@ public:
   static const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP;
   static const std::string DEFAULT_HDR_CUBEMAP;
 
-  static void Initialize(ZGame* game, int windowWidth, int windowHeight);
+  static void Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight);
 
-  static ZGame* Game();
+  static std::shared_ptr<ZGame> Game();
   static ZDomain* Domain();
   static ZGraphics* Graphics();
   static ZInput* Input();

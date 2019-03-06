@@ -20,9 +20,9 @@ class ZSkybox;
 class ZGame : public ZObject {
 private:
 
-  ZSkybox* skybox_ = nullptr;
+  std::shared_ptr<ZSkybox> skybox_ = nullptr;
   ZGameObjectMap gameObjects_;
-  std::map<std::string, ZLight*> gameLights_;
+  std::map<std::string, std::shared_ptr<ZLight>> gameLights_;
   std::string activeCameraObject_;
 
   void CleanUp();
@@ -34,12 +34,12 @@ public:
 
   void RunGameLoop();
 
-  ZGameObject* ActiveCamera();
-  const std::map<std::string, ZLight*>& GetGameLights() const { return gameLights_; }
-  ZSkybox* Skybox() const { return skybox_; }
+  std::shared_ptr<ZGameObject> ActiveCamera();
+  const std::map<std::string, std::shared_ptr<ZLight>>& GameLights() const { return gameLights_; }
+  std::shared_ptr<ZSkybox> Skybox() const { return skybox_; }
 
-  void AddGameObject(ZGameObject* gameObject);
-  void AddGameObjects(std::initializer_list<ZGameObject*> gameObjects);
+  void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
+  void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
 
   void SetDefaultSkybox();
 

@@ -39,7 +39,7 @@ const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
 };
 const std::string ZEngine::DEFAULT_HDR_CUBEMAP = "Assets/Skyboxes/DefaultHDR/sky.hdr";
 
-ZGame* ZEngine::currentGame_ = nullptr;
+std::shared_ptr<ZGame> ZEngine::currentGame_ = nullptr;
 ZDomain* ZEngine::domain_ = nullptr;
 ZGraphics* ZEngine::graphics_ = nullptr;
 ZInput* ZEngine::input_ = new ZNullInput;
@@ -50,7 +50,7 @@ ZGraphicsFactory* ZEngine::graphicsFactory_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 ZIDSequence* ZEngine::idGenerator_ = new ZIDSequence;
 
-void ZEngine::Initialize(ZGame* game, int windowWidth, int windowHeight) {
+void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight) {
   currentGame_ = game;
 
   domain_ = new ZDomain(windowWidth, windowHeight);
@@ -69,7 +69,7 @@ void ZEngine::Initialize(ZGame* game, int windowWidth, int windowHeight) {
   physics_->Initialize();
 }
 
-ZGame* ZEngine::Game() {
+std::shared_ptr<ZGame> ZEngine::Game() {
   return currentGame_;
 }
 

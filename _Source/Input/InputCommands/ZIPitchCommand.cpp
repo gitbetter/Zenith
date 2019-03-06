@@ -9,6 +9,6 @@
 #include "ZIPitchCommand.hpp"
 #include "ZObject.hpp"
 
-void ZIPitchCommand::Execute(ZObject* object) const {
+void ZIPitchCommand::Execute(std::shared_ptr<ZObject> object) const {
   object->HandlePitch(controlThrow_);
 }

@@ -9,6 +9,6 @@
 #include "ZIForwardBackCommand.hpp"
 #include "ZObject.hpp"
 
-void ZIForwardBackCommand::Execute(ZObject* object) const {
+void ZIForwardBackCommand::Execute(std::shared_ptr<ZObject> object) const {
   object->HandleForwardBack(controlThrow_);
 }

@@ -9,6 +9,6 @@
 #include "ZIUpDownCommand.hpp"
 #include "ZObject.hpp"
 
-void ZIUpDownCommand::Execute(ZObject* object) const {
+void ZIUpDownCommand::Execute(std::shared_ptr<ZObject> object) const {
   object->HandleUpDown(controlThrow_);
 }

@@ -47,18 +47,18 @@ void ZGameObject::Initialize(ZOFNode* root) {
 }
 
 void ZGameObject::Update() {
-  ZPhysicsComponent* physicsComp = FindComponent<ZPhysicsComponent>();
+  std::shared_ptr<ZPhysicsComponent> physicsComp = FindComponent<ZPhysicsComponent>();
   if (physicsComp) physicsComp->Update();
 
-  ZCameraComponent* cameraComp = FindComponent<ZCameraComponent>();
+  std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
   if (cameraComp) cameraComp->Update();
 }
 
 void ZGameObject::Render(float frameMix, unsigned char renderOp) {
-  ZGraphicsComponent* graphicsComp = FindComponent<ZGraphicsComponent>();
+  std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
   if (graphicsComp != nullptr) {
-    ZGameObject* camera = game_->ActiveCamera();
-    const std::map<std::string, ZLight*>& gameLights = game_->GetGameLights();
+    std::shared_ptr<ZGameObject> camera = game_->ActiveCamera();
+    const std::map<std::string, std::shared_ptr<ZLight>>& gameLights = game_->GameLights();
     graphicsComp->SetGameLights(gameLights);
     graphicsComp->SetGameCamera(camera);
     graphicsComp->Render(frameMix, renderOp);

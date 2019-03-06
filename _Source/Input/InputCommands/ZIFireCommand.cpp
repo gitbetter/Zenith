@@ -9,6 +9,6 @@
 #include "ZIFireCommand.hpp"
 #include "ZObject.hpp"
 
-void ZIFireCommand::Execute(ZObject* object) const {
+void ZIFireCommand::Execute(std::shared_ptr<ZObject> object) const {
   object->HandleFire();
 }

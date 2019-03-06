@@ -13,7 +13,7 @@ ZSpringForce::ZSpringForce(ZGameObject* other, float springConstant, float restL
 : other_(other), springConstant_(springConstant), restLength_(restLength) { }
 
 void ZSpringForce::UpdateForce(ZGameObject* object) {
-  ZPhysicsComponent* physicsComp = object->FindComponent<ZPhysicsComponent>();
+  std::shared_ptr<ZPhysicsComponent> physicsComp = object->FindComponent<ZPhysicsComponent>();
   if (physicsComp == nullptr) return;
 
   glm::vec3 force = object->Position();

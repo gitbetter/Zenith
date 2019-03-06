@@ -9,6 +9,6 @@
 #include "ZIStrafeCommand.hpp"
 #include "ZObject.hpp"
 
-void ZIStrafeCommand::Execute(ZObject* object) const {
+void ZIStrafeCommand::Execute(std::shared_ptr<ZObject> object) const {
   object->HandleStrafe(controlThrow_);
 }

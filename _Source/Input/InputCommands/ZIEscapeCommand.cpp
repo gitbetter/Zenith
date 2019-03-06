@@ -9,6 +9,6 @@
 #include "ZIEscapeCommand.hpp"
 #include "ZObject.hpp"
 
-void ZIEscapeCommand::Execute(ZObject* object) const {
+void ZIEscapeCommand::Execute(std::shared_ptr<ZObject> object) const {
   object->HandleEscape();
 }

@@ -22,7 +22,7 @@ public:
 
   ZInputCommand(float controlThrow = 0.0) : controlThrow_(controlThrow) { }
   virtual ~ZInputCommand() { }
-  virtual void Execute(ZObject* gameObject) const = 0;
+  virtual void Execute(std::shared_ptr<ZObject> gameObject) const = 0;
 protected:
 
   float controlThrow_ = 0.0;

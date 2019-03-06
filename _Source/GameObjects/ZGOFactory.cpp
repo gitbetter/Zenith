@@ -23,13 +23,13 @@ ZGameObjectMap ZGOFactory::Create(ZOFTree* data) {
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     ZOFNode* node = it->second;
     if (node->id.find("ZGO") == 0) {
-      ZGameObject* gameObject = new ZGameObject;
+      std::shared_ptr<ZGameObject> gameObject(new ZGameObject);
       gameObject->Initialize(node);
 
       for (ZOFChildMap::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++) {
         ZOFNode* componentNode = compIt->second;
         if (componentCreators_.find(compIt->first) != componentCreators_.end()) {
-          ZComponent* comp = (this->*componentCreators_[compIt->first])(gameObject);
+          std::shared_ptr<ZComponent> comp = (this->*componentCreators_[compIt->first])(gameObject);
           comp->Initialize(componentNode);
         } else {
           _Z("Component " + compIt->first + " is not available for creation", ZWARNING);
@@ -42,20 +42,20 @@ ZGameObjectMap ZGOFactory::Create(ZOFTree* data) {
   return gameObjects;
 }
 
-ZComponent* ZGOFactory::CreateGraphicsComponent(ZGameObject* gameObject) {
-  ZGraphicsComponent* comp = new ZGraphicsComponent;
+std::shared_ptr<ZComponent> ZGOFactory::CreateGraphicsComponent(std::shared_ptr<ZGameObject> gameObject) {
+  std::shared_ptr<ZGraphicsComponent> comp(new ZGraphicsComponent);
   gameObject->AddComponent(comp);
   return comp;
 }
 
-ZComponent* ZGOFactory::CreateCameraComponent(ZGameObject* gameObject) {
-  ZCameraComponent* comp = new ZCameraComponent;
+std::shared_ptr<ZComponent> ZGOFactory::CreateCameraComponent(std::shared_ptr<ZGameObject> gameObject) {
+  std::shared_ptr<ZCameraComponent> comp(new ZCameraComponent);
   gameObject->AddComponent(comp);
   return comp;
 }
 
-ZComponent* ZGOFactory::CreatePhysicsComponent(ZGameObject* gameObject) {
-  ZPhysicsComponent* comp = new ZPhysicsComponent;
+std::shared_ptr<ZComponent> ZGOFactory::CreatePhysicsComponent(std::shared_ptr<ZGameObject> gameObject) {
+  std::shared_ptr<ZPhysicsComponent> comp(new ZPhysicsComponent);
   gameObject->AddComponent(comp);
   return comp;
 }
