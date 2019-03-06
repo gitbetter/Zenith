@@ -40,32 +40,32 @@ const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
 const std::string ZEngine::DEFAULT_HDR_CUBEMAP = "Assets/Skyboxes/DefaultHDR/sky.hdr";
 
 std::shared_ptr<ZGame> ZEngine::currentGame_ = nullptr;
-ZDomain* ZEngine::domain_ = nullptr;
-ZGraphics* ZEngine::graphics_ = nullptr;
-ZInput* ZEngine::input_ = new ZNullInput;
-ZUI* ZEngine::ui_ = nullptr;
-ZPhysics* ZEngine::physics_ = nullptr;
-ZGOFactory* ZEngine::gameObjectFactory_ = nullptr;
-ZGraphicsFactory* ZEngine::graphicsFactory_ = nullptr;
+std::unique_ptr<ZDomain> ZEngine::domain_ = nullptr;
+std::unique_ptr<ZGraphics> ZEngine::graphics_ = nullptr;
+std::unique_ptr<ZInput> ZEngine::input_(new ZNullInput);
+std::unique_ptr<ZUI> ZEngine::ui_ = nullptr;
+std::unique_ptr<ZPhysics> ZEngine::physics_ = nullptr;
+std::unique_ptr<ZGOFactory> ZEngine::gameObjectFactory_ = nullptr;
+std::unique_ptr<ZGraphicsFactory> ZEngine::graphicsFactory_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
-ZIDSequence* ZEngine::idGenerator_ = new ZIDSequence;
+std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
 
 void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight) {
   currentGame_ = game;
 
-  domain_ = new ZDomain(windowWidth, windowHeight);
+  domain_.reset(new ZDomain(windowWidth, windowHeight));
   domain_->Initialize();
 
-  graphics_ = new ZGraphics;
+  graphics_.reset(new ZGraphics);
   graphics_->Initialize();
 
-  input_ = new ZGLInput;
+  input_.reset(new ZGLInput);
   input_->Register(currentGame_);
 
-  ui_ = new ZUI;
+  ui_.reset(new ZUI);
   ui_->Initialize();
 
-  physics_ = new ZPhysics;
+  physics_.reset(new ZPhysics);
   physics_->Initialize();
 }
 
@@ -74,35 +74,35 @@ std::shared_ptr<ZGame> ZEngine::Game() {
 }
 
 ZDomain* ZEngine::Domain() {
-  return domain_;
+  return domain_.get();
 }
 
 ZGraphics* ZEngine::Graphics() {
-  return graphics_;
+  return graphics_.get();
 }
 
 ZInput* ZEngine::Input() {
-  return input_;
+  return input_.get();
 }
 
 ZUI* ZEngine::UI() {
-  return ui_;
+  return ui_.get();
 }
 
 ZPhysics* ZEngine::Physics() {
-  return physics_;
+  return physics_.get();
 }
 
 ZIDSequence* ZEngine::IDSequence() {
-  return idGenerator_;
+  return idGenerator_.get();
 }
 
 ZGOFactory* ZEngine::GameObjectFactory() {
-  return gameObjectFactory_;
+  return gameObjectFactory_.get();
 }
 
 ZGraphicsFactory* ZEngine::GraphicsFactory() {
-  return graphicsFactory_;
+  return graphicsFactory_.get();
 }
 
 float ZEngine::DeltaTime() {
@@ -114,44 +114,44 @@ float ZEngine::MilliSecondTime() {
   return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0f;
 }
 
-void ZEngine::Provide(ZGraphics* graphics) {
-  if (graphics_ != nullptr) {
-    delete graphics_;
-  }
-  graphics_ = graphics;
-  graphics_->Initialize();
-}
-
-void ZEngine::Provide(ZDomain* domain) {
+void ZEngine::Provide(std::unique_ptr<ZDomain> domain) {
   if (domain_ != nullptr) {
-    delete domain_;
+    domain_ = nullptr;
   }
-  domain_ = domain;
+  domain_ = std::move(domain);
   domain_->Initialize();
 }
 
-void ZEngine::Provide(ZInput* input) {
-  // If the provided input object is not null and the existing engine input object
-  // is null, delete the existing one
-  if (!dynamic_cast<ZNullInput*>(input) && dynamic_cast<ZNullInput*>(input_)) {
-    delete input_;
+void ZEngine::Provide(std::unique_ptr<ZGraphics> graphics) {
+  if (graphics_ != nullptr) {
+    graphics_ = nullptr;
   }
-  input_ = input;
+  graphics_ = std::move(graphics);
+  graphics_->Initialize();
 }
 
-void ZEngine::Provide(ZUI* ui) {
-  if (ui_ != nullptr) {
-    delete ui_;
+void ZEngine::Provide(std::unique_ptr<ZInput> input) {
+  // If the provided input object is not null and the existing engine input object
+  // is null, delete the existing one
+  if (!dynamic_cast<ZNullInput*>(input.get()) && dynamic_cast<ZNullInput*>(input_.get())) {
+    input_ = nullptr;
   }
-  ui_ = ui;
+  input_ = std::move(input);
+}
+
+void ZEngine::Provide(std::unique_ptr<ZUI> ui) {
+  if (ui_ != nullptr) {
+    ui_ = nullptr;
+  }
+  ui_ = std::move(ui);
   ui_->Initialize();
 }
 
-void ZEngine::Provide(ZPhysics* physics) {
+void ZEngine::Provide(std::unique_ptr<ZPhysics> physics) {
   if (physics_ != nullptr) {
-    delete physics_;
+    physics_ = nullptr;
   }
-  physics_ = physics;
+  physics_ = std::move(physics);
   physics_->Initialize();
 }
 
@@ -161,11 +161,11 @@ void ZEngine::SetDeltaTime(float deltaTime) {
 
 ZGameObjectMap ZEngine::LoadZOF(std::string zofPath) {
   if (gameObjectFactory_ == nullptr) {
-    gameObjectFactory_ = new ZGOFactory;
+    gameObjectFactory_.reset(new ZGOFactory);
   }
 
   if (graphicsFactory_ == nullptr) {
-    graphicsFactory_ = new ZGraphicsFactory;
+    graphicsFactory_.reset(new ZGraphicsFactory);
   }
 
   // TODO: ZOFTree should have append functionality so that different

@@ -185,7 +185,7 @@ void ZModel::CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures) {
   bool oddRow = false;
   for (int y = 0; y < Y_SEGMENTS; ++y) {
     if (!oddRow) {
-      for (int x = 0; x < X_SEGMENTS; ++x) {
+      for (int x = 0; x <= X_SEGMENTS; ++x) {
         indices.push_back(y * (X_SEGMENTS + 1) + x);
         indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
       }

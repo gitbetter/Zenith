@@ -33,17 +33,17 @@ class ZEngine {
 private:
 
   static std::shared_ptr<ZGame> currentGame_;
-  static ZDomain* domain_;
-  static ZGraphics* graphics_;
-  static ZInput* input_;
-  static ZUI* ui_;
-  static ZPhysics* physics_;
+  static std::unique_ptr<ZDomain> domain_;
+  static std::unique_ptr<ZGraphics> graphics_;
+  static std::unique_ptr<ZInput> input_;
+  static std::unique_ptr<ZUI> ui_;
+  static std::unique_ptr<ZPhysics> physics_;
 
-  static ZGOFactory* gameObjectFactory_;
-  static ZGraphicsFactory* graphicsFactory_;
+  static std::unique_ptr<ZGOFactory> gameObjectFactory_;
+  static std::unique_ptr<ZGraphicsFactory> graphicsFactory_;
 
+  static std::unique_ptr<ZIDSequence> idGenerator_;
   static float deltaTime_;
-  static ZIDSequence* idGenerator_;
 
 public:
 
@@ -74,11 +74,11 @@ public:
   static float DeltaTime();
   static float MilliSecondTime();
 
-  static void Provide(ZDomain* domain);
-  static void Provide(ZGraphics* graphics);
-  static void Provide(ZInput* input);
-  static void Provide(ZUI* ui);
-  static void Provide(ZPhysics* physics);
+  static void Provide(std::unique_ptr<ZDomain> domain);
+  static void Provide(std::unique_ptr<ZGraphics> graphics);
+  static void Provide(std::unique_ptr<ZInput> input);
+  static void Provide(std::unique_ptr<ZUI> ui);
+  static void Provide(std::unique_ptr<ZPhysics> physics);
   // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
   static void SetDeltaTime(float deltaTime);
 
