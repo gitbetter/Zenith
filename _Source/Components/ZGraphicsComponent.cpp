@@ -23,6 +23,7 @@ ZGraphicsComponent::ZGraphicsComponent() : ZComponent() {
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader) {
   model_ = model;
+  materials_ = { textures.size() > 0 ? std::make_shared<ZMaterial>(textures) : ZMaterial::DefaultMaterialPBR() };
 
   if (shader != nullptr) {
     shaders_.push_back(shader);
@@ -38,29 +39,35 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
     return;
   }
 
+  unsigned int activeShaderIndex = -1;
+  glm::vec4 highlightColor(0.f);
+  std::shared_ptr<ZShader> highlightShader;
+  std::vector<std::shared_ptr<ZShader>> shaders;
+  std::shared_ptr<ZModel> model;
+  std::vector<std::shared_ptr<ZMaterial>> materials;
+
   for (ZOFPropertyNode* prop : node->properties) {
     if (prop->values.size() == 0) continue;
 
     if (prop->id == "activeShader") {
       ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      activeShaderIndex_ = terminal->value;
+      activeShaderIndex = terminal->value;
     } else if (prop->id == "highlightColor") {
       ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
-      highlightColor_ = glm::vec4(terminal->value[0], terminal->value[1], terminal->value[2], 1.f);
+      highlightColor = glm::vec4(terminal->value[0], terminal->value[1], terminal->value[2], 1.f);
     } else if (prop->id == "highlightShader") {
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
       if (ZEngine::Graphics()->Shaders().find(terminal->value) != ZEngine::Graphics()->Shaders().end()) {
-        highlightShader_ = ZEngine::Graphics()->Shaders()[terminal->value];
+        highlightShader = ZEngine::Graphics()->Shaders()[terminal->value];
       }
     } else if (prop->id == "shaders") {
       ZOFStringList* terminal = dynamic_cast<ZOFStringList*>(prop->values[0]);
       for (std::string id : terminal->value) {
         if (ZEngine::Graphics()->Shaders().find(id) != ZEngine::Graphics()->Shaders().end()) {
-          shaders_.push_back(ZEngine::Graphics()->Shaders()[id]);
+          shaders.push_back(ZEngine::Graphics()->Shaders()[id]);
         }
       }
     } else if (prop->id == "model") {
-      std::shared_ptr<ZModel> model;
       ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
       if (terminal->value.find("\"") == 0) {
         model = std::shared_ptr<ZModel>(new ZModel(terminal->value.substr(1, terminal->value.length() - 2)));
@@ -72,7 +79,6 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
           model = ZEngine::GraphicsFactory()->CreateModel(terminal->value);
         }
       }
-      model_ = model;
     } else if (prop->id == "textures") {
       ZOFStringList* terminal = dynamic_cast<ZOFStringList*>(prop->values[0]);
       for (std::string id : terminal->value) {
@@ -82,6 +88,13 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
       }
     }
   }
+
+  activeShaderIndex_ = activeShaderIndex;
+  highlightColor_ = highlightColor;
+  highlightShader_ = highlightShader;
+  shaders_ = shaders;
+  model_ = model;
+  materials_ = materials;
 }
 
 void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
@@ -119,7 +132,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
     shader->SetInt("brdfLUT", 3);
   }
 
-  model_->Render(shader.get());
+  model_->Render(shader.get(), materials_);
 
   DrawOutlineIfEnabled(modelMatrix, viewMatrix, projectionMatrix);
 }

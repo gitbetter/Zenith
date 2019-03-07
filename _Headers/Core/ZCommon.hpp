@@ -50,10 +50,14 @@
 
 class ZGameObject;
 class ZShader;
+class ZMesh3D;
+class ZMaterial;
 
 typedef std::function<void()> ZEventCallback;
 typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
 typedef std::map<std::string, std::shared_ptr<ZShader>> ZShaderMap;
+typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;
+typedef std::map<std::string, std::shared_ptr<ZMaterial>> ZMaterialMap;
 typedef unsigned char RENDER_OP;
 
 enum class ZEventType {

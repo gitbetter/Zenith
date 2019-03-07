@@ -20,6 +20,7 @@ private:
 
   ZMaterialProperties properties_;
   std::vector<ZTexture> textures_;
+  std::string meshId_;
   int index_;
   bool isPBR_ = false;
 
@@ -31,6 +32,9 @@ public:
 
   static std::unique_ptr<ZMaterial> DefaultMaterialSimple();
   static std::unique_ptr<ZMaterial> DefaultMaterialPBR();
+
+  void SetMeshID(std::string id) { meshId_ = id; }
+  const std::string MeshID() const { return meshId_; }
 
   void SetProperties(ZMaterialProperties properties) { properties_ = properties; }
   const ZMaterialProperties& Properties() const { return properties_; }

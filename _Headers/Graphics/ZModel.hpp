@@ -17,8 +17,6 @@
 class ZShader;
 
 // Class Definitions
-typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;
-
 class ZModel {
 
 private:
@@ -38,9 +36,9 @@ public:
   ZModel() { }
   virtual ~ZModel() { }
 
-  void SetMaterial(std::shared_ptr<ZMaterial> material);
+  virtual void Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials);
 
-  virtual void Render(ZShader* shader);
+  const ZMesh3DMap& Meshes() { return meshes_; }
 
   static std::unique_ptr<ZModel> NewPlanePrimitive(glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f), std::vector<ZTexture> textures = {});
   static std::unique_ptr<ZModel> NewCubePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});

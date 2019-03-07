@@ -33,15 +33,17 @@ ZModel::ZModel(std::string path) {
   importer.LoadModel(path, meshes_);
 }
 
-void ZModel::Render(ZShader* shader) {
-    for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) {
-        it->second->Render(shader);
+void ZModel::Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials) {
+  std::vector<std::shared_ptr<ZMaterial>> meshesLeft = meshes_;
+  for (auto it = materialsLeft.begin(); it != materialsLeft.end(); it++) {
+    if (!(*it)->MeshID().empty()) {
+      meshes_[(*it)->MeshID()]->Render(*it);
+      meshesLeft.erase((*it)->MeshID());
+    } else {
+      for (ZMesh3DMap::iterator it = meshesLeft.begin(); it != meshesLeft.end(); it++) {
+          it->second->Render(shader, material);
+      }
     }
-}
-
-void ZModel::SetMaterial(std::shared_ptr<ZMaterial> material) {
-  for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) {
-      it->second->SetMaterial(material);
   }
 }
 
@@ -67,9 +69,7 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
     1, 2, 3
   };
 
-  std::shared_ptr<ZMaterial> material = textures.size() > 0 ? std::make_shared<ZMaterial>(textures) : ZMaterial::DefaultMaterialPBR();
-
-  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, material);
+  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
   meshes_[mesh->ID()] = mesh;
 }
 
@@ -130,9 +130,7 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
     20, 21, 22, 20, 22, 23
   };
 
-  std::shared_ptr<ZMaterial> material = textures.size() > 0 ? std::make_shared<ZMaterial>(textures) : ZMaterial::DefaultMaterialPBR();
-
-  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, material);
+  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
   meshes_[mesh->ID()] = mesh;
 }
 
@@ -180,9 +178,7 @@ void ZModel::CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures) {
     oddRow = !oddRow;
   }
 
-  std::shared_ptr<ZMaterial> material = textures.size() > 0 ? std::make_shared<ZMaterial>(textures) : ZMaterial::DefaultMaterialPBR();
-
-  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, material, ZMeshDrawStyle::TriangleStrip);
+  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, ZMeshDrawStyle::TriangleStrip);
   meshes_[mesh->ID()] = mesh;
 }
 
