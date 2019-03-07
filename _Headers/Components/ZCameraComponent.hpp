@@ -33,8 +33,6 @@ private:
   glm::vec3 pitchVelocity_, yawVelocity_;
   glm::quat pitch_, yaw_;
 
-  ZPhysicsComponent* AddPhysicsComponentIfNeeded();
-
 public:
 
   ZCameraComponent(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f)) : ZComponent() {

@@ -25,7 +25,7 @@ private:
 
   unsigned int activeShaderIndex_ = -1;
   ZLightMap gameLights_;
-  ZGameObject* gameCamera_ = nullptr ;
+  ZGameObject* gameCamera_ = nullptr;
 
   void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
 
