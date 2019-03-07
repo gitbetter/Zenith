@@ -25,11 +25,7 @@ private:
 
   unsigned int activeShaderIndex_ = -1;
   ZLightMap gameLights_;
-<<<<<<< HEAD
-  ZGameObject* gameCamera_ = nullptr;
-=======
   std::shared_ptr<ZGameObject> gameCamera_;
->>>>>>> c0a4930e1082db03d65015326e8f04dbeb1b3417
 
   void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
 
