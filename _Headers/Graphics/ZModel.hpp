@@ -17,11 +17,13 @@
 class ZShader;
 
 // Class Definitions
+typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;
+
 class ZModel {
+
 private:
 
-  std::vector<ZMesh3D> meshes_;
-  ZVertex3D minVertex_, maxVertex_;
+  ZMesh3DMap meshes_;
 
   void CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures);
   void CreateCube(glm::vec3 scale, std::vector<ZTexture> textures);
@@ -36,12 +38,9 @@ public:
   ZModel() { }
   virtual ~ZModel() { }
 
-  void SetMaterial(ZMaterial material);
+  void SetMaterial(std::shared_ptr<ZMaterial> material);
 
   virtual void Render(ZShader* shader);
-
-  ZVertex3D MinVertex() const { return minVertex_; }
-  ZVertex3D MaxVertex() const { return maxVertex_; }
 
   static std::unique_ptr<ZModel> NewPlanePrimitive(glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f), std::vector<ZTexture> textures = {});
   static std::unique_ptr<ZModel> NewCubePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});

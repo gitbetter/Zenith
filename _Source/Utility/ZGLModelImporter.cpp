@@ -10,15 +10,8 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZGLModelImporter.hpp"
-#include "ZCommon.hpp"
 #include "ZMaterial.hpp"
-#include <glm/vec3.hpp>
 #include <assimp/Importer.hpp>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-// Store already loaded textures in a map, since lookups are faster, and we may have many
-std::unordered_map<std::string, ZTexture> ZGLModelImporter::loadedTextures;
 
 /**
     Loads the model at the given path and outputs a set of meshes into the last parameter.
@@ -26,7 +19,7 @@ std::unordered_map<std::string, ZTexture> ZGLModelImporter::loadedTextures;
     @param shaderPath the path to the model file.
     @param outMeshes the mesh vector to populate.
 */
-void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZMesh3D>& outMeshes) {
+void ZGLModelImporter::LoadModel(std::string modelPath, ZMesh3DMap& outMeshes) {
   // Attempt to read the file
   // TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
   Assimp::Importer import;
@@ -50,11 +43,12 @@ void ZGLModelImporter::LoadModel(std::string modelPath, std::vector<ZMesh3D>& ou
     @param shaderPath the path to the model file.
     @param outMeshes the mesh vector to populate.
 */
-void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZMesh3D>& outMeshes) {
+void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, ZMesh3DMap& outMeshes) {
   // Process the node's meshes and add them to the out parameter
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-    outMeshes.push_back(ProcessMesh(mesh, scene, directory));
+    std::shared_ptr<ZMesh3D> outMesh = ProcessMesh(mesh, scene, directory);
+    outMeshes[outMesh->ID()] = outMesh;
   }
 
   // Recursively visit the node's children in order to process their meshes
@@ -74,13 +68,10 @@ void ZGLModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::stri
     @param directory the model directory, used for loading the textures for the materials.
     @return a ZMesh3D instance with all the relevant data
 */
-ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
+std::shared_ptr<ZMesh3D> ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
   std::vector<ZVertex3D> vertices;
   std::vector<unsigned int> indices;
-  ZMaterial material;
-
-  ZVertex3D minVertex((glm::vec3(std::numeric_limits<float>::max())));
-  ZVertex3D maxVertex((glm::vec3(std::numeric_limits<float>::min())));
+  std::shared_ptr<ZMaterial> material;
 
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     ZVertex3D vertex;
@@ -106,14 +97,6 @@ ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::s
       vertex.uv = glm::vec2(0.0f, 0.0f);
     }
 
-    if (vertex.position.x < minVertex.position.x) minVertex.position.x = vertex.position.x;
-    if (vertex.position.y < minVertex.position.y) minVertex.position.y = vertex.position.y;
-    if (vertex.position.z < minVertex.position.z) minVertex.position.z = vertex.position.z;
-
-    if (vertex.position.x > maxVertex.position.x) maxVertex.position.x = vertex.position.x;
-    if (vertex.position.y > maxVertex.position.y) maxVertex.position.y = vertex.position.y;
-    if (vertex.position.z > maxVertex.position.z) maxVertex.position.z = vertex.position.z;
-
     vertices.push_back(vertex);
   }
 
@@ -131,12 +114,12 @@ ZMesh3D ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::s
     std::vector<ZTexture> specularMaps = LoadMaterialTextures(meshMaterial, aiTextureType_SPECULAR, "specular", directory);
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    material = ZMaterial(textures);
+    material = std::make_shared<ZMaterial>(textures);
   } else {
     material = ZMaterial::DefaultMaterialSimple();
   }
 
-  return ZMesh3D(vertices, indices, material, minVertex, maxVertex);
+  return std::make_shared<ZMesh3D>(vertices, indices, material);
 }
 
 /**

@@ -31,33 +31,17 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale, std::vector<ZTextu
 ZModel::ZModel(std::string path) {
   ZGLModelImporter importer;
   importer.LoadModel(path, meshes_);
-
-  if (meshes_.size() > 0) {
-    ZVertex3D minVertex((glm::vec3(std::numeric_limits<float>::max())));
-    ZVertex3D maxVertex((glm::vec3(std::numeric_limits<float>::min())));
-    for (ZMesh3D mesh : meshes_) {
-      ZVertex3D meshMin = mesh.Min(), meshMax = mesh.Max();
-      if (meshMin.position.x < minVertex.position.x) minVertex.position.x = meshMin.position.x;
-      if (meshMin.position.y < minVertex.position.y) minVertex.position.y = meshMin.position.x;
-      if (meshMin.position.z < minVertex.position.z) minVertex.position.z = meshMin.position.x;
-
-      if (meshMax.position.x > maxVertex.position.x) maxVertex.position.x = meshMax.position.x;
-      if (meshMax.position.y > maxVertex.position.y) maxVertex.position.y = meshMax.position.x;
-      if (meshMax.position.z > maxVertex.position.z) maxVertex.position.z = meshMax.position.x;
-    }
-    minVertex_ = minVertex; maxVertex_ = maxVertex;
-  }
 }
 
 void ZModel::Render(ZShader* shader) {
-    for (unsigned int i = 0; i < meshes_.size(); i++) {
-        meshes_[i].Render(shader);
+    for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) {
+        it->second->Render(shader);
     }
 }
 
-void ZModel::SetMaterial(ZMaterial material) {
-  for (unsigned int i = 0; i < meshes_.size(); i++) {
-      meshes_[i].SetMaterial(material);
+void ZModel::SetMaterial(std::shared_ptr<ZMaterial> material) {
+  for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) {
+      it->second->SetMaterial(material);
   }
 }
 
@@ -74,8 +58,6 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
   ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.0f, scale.z)); bottomLeft.uv = glm::vec2(0.f, 0.f);
   ZVertex3D topLeft(glm::vec3(-scale.x, 0.0f, -scale.z)); topLeft.uv = glm::vec2(0.f, 1.f);
 
-  minVertex_ = topLeft; maxVertex_ = bottomRight;
-
   std::vector<ZVertex3D> vertices = {
     topRight, bottomRight, bottomLeft, topLeft
   };
@@ -85,9 +67,10 @@ void ZModel::CreatePlane(glm::vec3 scale, std::vector<ZTexture> textures) {
     1, 2, 3
   };
 
-  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialPBR();
+  std::shared_ptr<ZMaterial> material = textures.size() > 0 ? std::make_shared<ZMaterial>(textures) : ZMaterial::DefaultMaterialPBR();
 
-  meshes_.push_back(ZMesh3D(vertices, indices, material));
+  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, material);
+  meshes_[mesh->ID()] = mesh;
 }
 
 /**
@@ -129,8 +112,6 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
   ZVertex3D bottom_TopRight(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f));
   ZVertex3D bottom_TopLeft(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f));
 
-  minVertex_ = back_BottomRight; maxVertex_ = top_BottomRight;
-
   std::vector<ZVertex3D> vertices = {
     front_BottomLeft, front_BottomRight, front_TopRight, front_TopLeft,
     right_BottomLeft, right_BottomRight, right_TopRight, right_TopLeft,
@@ -149,9 +130,10 @@ void ZModel::CreateCube(glm::vec3 scale, std::vector<ZTexture> textures) {
     20, 21, 22, 20, 22, 23
   };
 
-  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialPBR();
+  std::shared_ptr<ZMaterial> material = textures.size() > 0 ? std::make_shared<ZMaterial>(textures) : ZMaterial::DefaultMaterialPBR();
 
-  meshes_.push_back(ZMesh3D(vertices, indices, material));
+  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, material);
+  meshes_[mesh->ID()] = mesh;
 }
 
 /**
@@ -198,9 +180,10 @@ void ZModel::CreateSphere(glm::vec3 scale, std::vector<ZTexture> textures) {
     oddRow = !oddRow;
   }
 
-  ZMaterial material = textures.size() > 0 ? ZMaterial(textures) : ZMaterial::DefaultMaterialPBR();
+  std::shared_ptr<ZMaterial> material = textures.size() > 0 ? std::make_shared<ZMaterial>(textures) : ZMaterial::DefaultMaterialPBR();
 
-  meshes_.push_back(ZMesh3D(vertices, indices, material, ZMeshDrawStyle::TriangleStrip));
+  std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, material, ZMeshDrawStyle::TriangleStrip);
+  meshes_[mesh->ID()] = mesh;
 }
 
 /**

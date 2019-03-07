@@ -8,7 +8,7 @@
 
 #include "ZMaterial.hpp"
 
-ZMaterial ZMaterial::DefaultMaterialSimple() {
+std::unique_ptr<ZMaterial> ZMaterial::DefaultMaterialSimple() {
   ZMaterialProperties materialProperties;
   materialProperties.albedo = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
   materialProperties.emission = 0.f;
@@ -16,18 +16,17 @@ ZMaterial ZMaterial::DefaultMaterialSimple() {
   materialProperties.ambient = 0.3f;
   materialProperties.specular = 0.2f;
   materialProperties.shininess = 0.2f;
-  ZMaterial material(materialProperties);
-  material.SetPBR(false);
+  std::unique_ptr<ZMaterial> material(new ZMaterial(materialProperties));
   return material;
 }
 
-ZMaterial ZMaterial::DefaultMaterialPBR() {
+std::unique_ptr<ZMaterial> ZMaterial::DefaultMaterialPBR() {
   ZMaterialProperties materialProperties;
   materialProperties.albedo = glm::vec4(0.9f, 0.9f, 0.9f, 1.f);
   materialProperties.metallic = 0.1f;
   materialProperties.roughness = 0.75f;
   materialProperties.ao = 0.3f;
-  ZMaterial material(materialProperties);
-  material.SetPBR();
+  std::unique_ptr<ZMaterial> material(new ZMaterial(materialProperties));
+  material->SetPBR();
   return material;
 }

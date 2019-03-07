@@ -9,11 +9,10 @@
 #pragma once
 
 // Includes
+#include "ZModel.hpp"
 #include "ZMesh3D.hpp"
+#include "ZCommon.hpp"
 
-#include <vector>
-#include <string>
-#include <unordered_map>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/material.h>
@@ -25,16 +24,14 @@ struct ZTexture;
 class ZGLModelImporter {
 private:
 
-  static std::unordered_map<std::string, ZTexture> loadedTextures;
-
-  void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, std::vector<ZMesh3D>& outMeshes);
-  ZMesh3D ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory);
+  void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, ZMesh3DMap& outMeshes);
+  std::shared_ptr<ZMesh3D> ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory);
   std::vector<ZTexture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory);
   unsigned int TextureFromFile(std::string path, const std::string& directory);
 
 public:
 
-  void LoadModel(std::string modelPath, std::vector<ZMesh3D>& outMeshes);
+  void LoadModel(std::string modelPath, ZMesh3DMap& outMeshes);
 
 protected:
 

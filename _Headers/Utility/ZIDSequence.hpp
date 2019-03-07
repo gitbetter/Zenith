@@ -9,7 +9,7 @@
 #pragma once
 
 // Includes
-#include <string>
+#include <random>
 
 // Forward Declarations
 // class SomeClass;
@@ -18,15 +18,17 @@
 class ZIDSequence {
 private:
 
-  unsigned int current_ = 0;
+  std::mt19937 generator_;
+
 public:
 
   ZIDSequence() { }
+  ZIDSequence(std::string seed);
   ~ZIDSequence() { }
 
   // TODO: Use a random number generator to sample from a
   // list of tokens and use a few tokens as the prefix
-  std::string Next() { return std::to_string(current_++); }
+  std::string Next() { return std::to_string(generator_() % 100000); }
 
 protected:
 

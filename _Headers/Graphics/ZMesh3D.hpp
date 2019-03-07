@@ -18,25 +18,21 @@ class ZShader;
 
 // Class Definitions
 class ZMesh3D : public ZMesh {
+
   friend class ZModel;
+  
 private:
 
   std::vector<ZVertex3D> vertices_;
   std::vector<unsigned int> indices_;
-  ZMaterial material_;
-  // Used for calculating bounds of collision primitives and BVH nodes
-  ZVertex3D minVertex_, maxVertex_;
+  std::shared_ptr<ZMaterial> material_;
 
 public:
 
-  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
-  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMaterial material, ZVertex3D min, ZVertex3D max, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
+  ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, std::shared_ptr<ZMaterial> material, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
   ~ZMesh3D() { }
 
-  ZVertex3D Min() const { return minVertex_; }
-  ZVertex3D Max() const { return maxVertex_; }
-
-  void SetMaterial(ZMaterial material) { material_ = material; }
+  void SetMaterial(std::shared_ptr<ZMaterial> material) { material_ = material; }
 
   void Render(ZShader* shader);
 };

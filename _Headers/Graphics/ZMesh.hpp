@@ -10,12 +10,13 @@
 
 // Includes
 #include "ZCommon.hpp"
+#include "ZObject.hpp"
 
 // Forward Declarations
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZMesh {
+class ZMesh : public ZObject {
 private:
 
 public:
