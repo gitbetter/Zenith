@@ -13,7 +13,7 @@ ZBungeeForce::ZBungeeForce(ZGameObject* other, float springConstant, float restL
 : other_(other), springConstant_(springConstant), restLength_(restLength) { }
 
 void ZBungeeForce::UpdateForce(ZGameObject* object) {
-  ZPhysicsComponent* physicsComp = object->FindComponent<ZPhysicsComponent>();
+  std::shared_ptr<ZPhysicsComponent> physicsComp = object->FindComponent<ZPhysicsComponent>();
   if (physicsComp == nullptr) return;
 
   glm::vec3 force = object->Position();
@@ -22,7 +22,7 @@ void ZBungeeForce::UpdateForce(ZGameObject* object) {
   float magnitude = glm::length(force);
   if (magnitude <= restLength_) return;
 
-  magnitude = springConstant_ * (restLength_ - magnitude);    
+  magnitude = springConstant_ * (restLength_ - magnitude);
 
   force = glm::normalize(force);
   force *= -magnitude;

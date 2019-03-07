@@ -21,7 +21,7 @@ private:
 
 public:
 
-    virtual void Register(ZObject* gameObject) {
+    virtual void Register(std::shared_ptr<ZObject> gameObject) {
       _Z("No ZInput implementation has been provided", ZERROR);
     }
     virtual void Broadcast(const ZInputCommand& command) {

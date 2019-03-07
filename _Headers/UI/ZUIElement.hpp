@@ -26,7 +26,7 @@ public:
   ZUIElement(glm::vec2 position, glm::vec2 scale);
   virtual ~ZUIElement() { }
 
-  void AddChild(ZUIElement* element);
+  void AddChild(std::shared_ptr<ZUIElement> element);
 
   void Hide() { hidden_ = true; }
   void Show() { hidden_ = false; }
@@ -71,6 +71,6 @@ protected:
   glm::mat4 modelMatrix_;
   glm::vec4 translationBounds_;
   glm::vec4 color_;
-  std::vector<ZUIElement*> children_;
+  std::vector<std::shared_ptr<ZUIElement>> children_;
   ZTexture texture_;
 };

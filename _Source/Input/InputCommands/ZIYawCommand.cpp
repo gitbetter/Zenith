@@ -9,6 +9,6 @@
 #include "ZIYawCommand.hpp"
 #include "ZObject.hpp"
 
-void ZIYawCommand::Execute(ZObject* object) const {
+void ZIYawCommand::Execute(std::shared_ptr<ZObject> object) const {
   object->HandleYaw(controlThrow_);
 }

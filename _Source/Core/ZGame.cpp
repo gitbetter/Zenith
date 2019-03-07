@@ -71,36 +71,36 @@ void ZGame::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Strategy()->SwapBuffers();
 }
 
-void ZGame::AddGameObject(ZGameObject* gameObject) {
+void ZGame::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
   if (gameObject != nullptr) {
     gameObject->game_ = this;
     if (gameObject->FindComponent<ZCameraComponent>() != nullptr) {
       activeCameraObject_ = gameObject->ID();
     }
 
-    if (dynamic_cast<ZLight*>(gameObject) != nullptr) {
-      gameLights_.insert({gameObject->ID(), dynamic_cast<ZLight*>(gameObject)});
+    if (dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
+      gameLights_.insert({gameObject->ID(), dynamic_pointer_cast<ZLight>(gameObject)});
     } else {
       gameObjects_.insert({gameObject->ID(), gameObject});
     }
   }
 }
 
-void ZGame::AddGameObjects(std::initializer_list<ZGameObject*> gameObjects) {
-  for (ZGameObject* object : gameObjects) {
+void ZGame::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects) {
+  for (std::shared_ptr<ZGameObject> object : gameObjects) {
     AddGameObject(object);
   }
 }
 
 void ZGame::SetDefaultSkybox() {
-  ZSkybox* skybox = new ZSkybox;
+  std::shared_ptr<ZSkybox> skybox(new ZSkybox);
   skybox->Initialize(ZEngine::DEFAULT_HDR_CUBEMAP);
   skybox->game_ = this;
 
   skybox_ = skybox;
 }
 
-ZGameObject* ZGame::ActiveCamera() {
+std::shared_ptr<ZGameObject> ZGame::ActiveCamera() {
   if (gameObjects_.find(activeCameraObject_) == gameObjects_.end()) return nullptr;
   return gameObjects_[activeCameraObject_];
 }

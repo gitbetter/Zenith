@@ -12,11 +12,11 @@
 // TODO: Conditional include based on graphics implementation
 #include "ZGLGraphicsStrategy.hpp"
 #include "ZUIElement.hpp"
+#include "ZTextStrategy.hpp"
 #include <vector>
 
 // Forward Declarations
 class ZUICursor;
-class ZTextStrategy;
 
 // Class and Data Structure Definitions
 class ZUI {
@@ -30,31 +30,29 @@ public:
 
   void Draw();
 
-  void AddElement(ZUIElement* element);
-  void AddElements(std::initializer_list<ZUIElement*> elements);
+  void AddElement(std::shared_ptr<ZUIElement> element);
+  void AddElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements);
 
   void EnableCursor();
   void DisableCursor();
 
   void RegisterFont(std::string fontPath);
 
-  ZUICursor* Cursor() { return cursor_; }
-  std::vector<ZUIElement*>& Elements() { return elements_; }
+  std::shared_ptr<ZUICursor> Cursor() { return cursor_; }
+  std::vector<std::shared_ptr<ZUIElement>>& Elements() { return elements_; }
 
-  ZGraphicsStrategy* GraphicsStrategy() { return graphicsStrategy_; }
-  ZTextStrategy* TextStrategy() { return textStrategy_; }
+  ZTextStrategy* TextStrategy() { return textStrategy_.get(); }
 
-  ZShader* TextShader() { return textShader_; }
-  ZShader* UIShader() { return uiShader_; }
+  std::shared_ptr<ZShader> TextShader() { return textShader_; }
+  std::shared_ptr<ZShader> UIShader() { return uiShader_; }
 
   void CleanUp();
 
 protected:
 
-  std::vector<ZUIElement*> elements_;
-  ZUICursor* cursor_ = nullptr;
-  ZGraphicsStrategy* graphicsStrategy_ = nullptr;
-  ZTextStrategy* textStrategy_ = nullptr;
-  ZShader* uiShader_ = nullptr;
-  ZShader* textShader_ = nullptr;
+  std::vector<std::shared_ptr<ZUIElement>> elements_;
+  std::shared_ptr<ZUICursor> cursor_;
+  std::unique_ptr<ZTextStrategy> textStrategy_;
+  std::shared_ptr<ZShader> uiShader_;
+  std::shared_ptr<ZShader> textShader_;
 };

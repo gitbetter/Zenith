@@ -23,11 +23,11 @@ public:
 
   virtual ~ZInput() { }
 
-  virtual void Register(ZObject* gameObject);
+  virtual void Register(std::shared_ptr<ZObject> gameObject);
   virtual void Broadcast(const ZInputCommand& command);
   virtual void Process() = 0;
   virtual void GetPointerPosition(double& x, double& y) = 0;
 protected:
 
-  std::vector<ZObject*> registeredObjects_;
+  std::vector<std::shared_ptr<ZObject>> registeredObjects_;
 };

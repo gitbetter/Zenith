@@ -13,10 +13,10 @@
 #include "ZShader.hpp"
 
 ZMeshUI::ZMeshUI(std::vector<ZVertex2D> vertices) : vertices_(vertices) {
-  bufferData_ = ZEngine::UI()->GraphicsStrategy()->LoadVertexData(vertices);
+  bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices);
 }
 
 void ZMeshUI::Render(ZShader* shader) {
   shader->Activate();
-  ZEngine::UI()->GraphicsStrategy()->Draw(bufferData_, vertices_);
+  ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_);
 }

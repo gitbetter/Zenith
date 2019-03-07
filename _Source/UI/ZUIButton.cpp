@@ -13,7 +13,7 @@
 #include "ZUI.hpp"
 
 ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
-   texture_ = ZEngine::UI()->GraphicsStrategy()->LoadDefaultTexture();
+   texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
    selectable_ = true;
 }
 

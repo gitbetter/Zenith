@@ -16,7 +16,6 @@ class ZShader;
 
 // Class and Data Structure Definitions
 class ZUIButton : public ZUIElement {
-private:
 
 public:
 
@@ -25,7 +24,5 @@ public:
 
   void Draw(ZShader* shader) override;
   ZMeshUI ElementShape() override;
-protected:
-
 
 };

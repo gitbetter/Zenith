@@ -17,7 +17,7 @@
 #include "ZCameraComponent.hpp"
 
 ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
-  ZUIImage* cursorImage = new ZUIImage("Assets/Textures/z_cursor.png", position, scale);
+  auto cursorImage = std::make_shared<ZUIImage>("Assets/Textures/z_cursor.png", position, scale);
   AddChild(cursorImage);
 }
 
@@ -27,8 +27,8 @@ void ZUICursor::Draw(ZShader* shader) {
 }
 
 void ZUICursor::SetCursorImage(std::string path) {
-  for (ZUIElement* child : children_) {
-    ZUIImage* uiImage = dynamic_cast<ZUIImage*>(child);
+  for (std::shared_ptr<ZUIElement> child : children_) {
+    std::shared_ptr<ZUIImage> uiImage = std::dynamic_pointer_cast<ZUIImage>(child);
     if (uiImage != nullptr) {
       uiImage->SetImage(path);
     }
@@ -37,8 +37,8 @@ void ZUICursor::SetCursorImage(std::string path) {
 
 void ZUICursor::SetColor(glm::vec4 color) {
   ZUIElement::SetColor(color);
-  for (ZUIElement* child : children_) {
-    ZUIImage* uiImage = dynamic_cast<ZUIImage*>(child);
+  for (std::shared_ptr<ZUIElement> child : children_) {
+    std::shared_ptr<ZUIImage> uiImage = std::dynamic_pointer_cast<ZUIImage>(child);
     if (uiImage != nullptr) {
       uiImage->SetColor(color);
     }
@@ -54,9 +54,9 @@ void ZUICursor::HandleYaw(float controlThrow) {
 }
 
 void ZUICursor::HandleFire() {
-  std::vector<ZUIElement*> elements = ZEngine::UI()->Elements();
+  std::vector<std::shared_ptr<ZUIElement>> elements = ZEngine::UI()->Elements();
   bool elementFired = false;
-  for (ZUIElement* element : elements) {
+  for (std::shared_ptr<ZUIElement> element : elements) {
     if (!element->Selectable()) continue;
     if (Position().x >= element->Position().x - element->Size().x && Position().x <= element->Position().x + element->Size().x &&
         Position().y >= element->Position().y - element->Size().y && Position().y <= element->Position().y + element->Size().y) {
@@ -69,9 +69,9 @@ void ZUICursor::HandleFire() {
   // as well, to preserve Z ordering
   if (elementFired) return;
 
-  ZGameObject* camera = ZEngine::Game()->ActiveCamera();
+  std::shared_ptr<ZGameObject> camera = ZEngine::Game()->ActiveCamera();
   if (camera) {
-    ZCameraComponent* cameraComp = camera->FindComponent<ZCameraComponent>();
+    std::shared_ptr<ZCameraComponent> cameraComp = camera->FindComponent<ZCameraComponent>();
     glm::mat4 InverseProjection = glm::inverse(cameraComp->ProjectionMatrix());
     glm::mat4 InverseView = glm::inverse(cameraComp->ViewMatrix(1.f));
 

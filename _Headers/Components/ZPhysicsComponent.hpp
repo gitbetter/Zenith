@@ -59,6 +59,6 @@ protected:
 
   std::map<ZColliderType, ZColliderCreator> colliderCreators_;
 
-  btRigidBody* body_;
+  std::shared_ptr<btRigidBody> body_;
 
 };

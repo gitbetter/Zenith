@@ -11,9 +11,9 @@
 // Includes
 #include "btBulletDynamicsCommon.h"
 #include "ZCommon.hpp"
+#include "ZShader.hpp"
 
 // Forward Declarations
-class ZShader;
 
 // Class and Data Structure Definitions
 class ZPhysicsDebug : public btIDebugDraw {
@@ -33,6 +33,6 @@ protected:
 
 private:
 
-  ZShader* shader_ = nullptr;
+  std::unique_ptr<ZShader> shader_;
 
 };

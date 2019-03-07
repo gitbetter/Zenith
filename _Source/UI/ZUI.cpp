@@ -16,50 +16,45 @@
 
 void ZUI::Initialize() {
   // TODO: Switch the strategies here based on implementation details
-  if (graphicsStrategy_ == nullptr) {
-    graphicsStrategy_ = new ZGLGraphicsStrategy();
-    graphicsStrategy_->Initialize();
-  }
-
-  if (uiShader_ == nullptr) {
-    uiShader_ = new ZShader;
-    uiShader_->Initialize("Assets/Shaders/Vertex/ui.vert", "Assets/Shaders/Pixel/ui.frag");
-  }
-
   if(textStrategy_ == nullptr) {
-    textStrategy_ = new ZGLTextStrategy();
+    textStrategy_.reset(new ZGLTextStrategy);
     textStrategy_->Initialize();
   }
 
+  if (uiShader_ == nullptr) {
+    uiShader_ = std::shared_ptr<ZShader>(new ZShader);
+    uiShader_->Initialize("Assets/Shaders/Vertex/ui.vert", "Assets/Shaders/Pixel/ui.frag");
+  }
+
   if (textShader_ == nullptr) {
-    textShader_ = new ZShader;
+    textShader_ = std::shared_ptr<ZShader>(new ZShader);
     textShader_->Initialize("Assets/Shaders/Vertex/text.vert", "Assets/Shaders/Pixel/text.frag");
   }
 }
 
 void ZUI::Draw() {
-  if (cursor_ != nullptr) cursor_->Draw(uiShader_);
-  for (ZUIElement* element : elements_) {
-      element->Draw((dynamic_cast<ZUIText*>(element)) ? textShader_ : uiShader_);
+  if (cursor_ != nullptr) cursor_->Draw(uiShader_.get());
+  for (std::shared_ptr<ZUIElement> element : elements_) {
+      element->Draw((std::dynamic_pointer_cast<ZUIText>(element)) ? textShader_.get() : uiShader_.get());
   }
 }
 
-void ZUI::AddElement(ZUIElement* element) {
+void ZUI::AddElement(std::shared_ptr<ZUIElement> element) {
   if (element != nullptr) {
     // TODO: Check if this ui element is already in the array before the push_back
     elements_.push_back(element);
   }
 }
 
-void ZUI::AddElements(std::initializer_list<ZUIElement*> elements) {
-  for (ZUIElement* element : elements) {
+void ZUI::AddElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements) {
+  for (std::shared_ptr<ZUIElement> element : elements) {
     AddElement(element);
   }
 }
 
 void ZUI::EnableCursor() {
   if (cursor_ == nullptr) {
-    cursor_ = new ZUICursor();
+    cursor_ = std::shared_ptr<ZUICursor>(new ZUICursor);
     cursor_->SetColor(glm::vec4(1.f));
     ZEngine::Input()->Register(cursor_);
   }
@@ -67,7 +62,6 @@ void ZUI::EnableCursor() {
 
 void ZUI::DisableCursor() {
   if (cursor_ != nullptr) {
-    delete cursor_;
     cursor_ = nullptr;
   }
 }
@@ -77,21 +71,17 @@ void ZUI::RegisterFont(std::string fontPath) {
 }
 
 void ZUI::CleanUp() {
-  for (ZUIElement* element : elements_) {
+  for (std::shared_ptr<ZUIElement> element : elements_) {
     element->CleanUp();
-    delete element;
   }
+  elements_.clear();
 
   if (cursor_ != nullptr) {
     cursor_->CleanUp();
-    delete cursor_;
-  }
-
-  if (graphicsStrategy_ != nullptr) {
-    delete graphicsStrategy_;
+    cursor_ = nullptr;
   }
 
   if (uiShader_ != nullptr) {
-    delete uiShader_;
+    uiShader_ = nullptr;
   }
 }

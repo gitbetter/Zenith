@@ -10,7 +10,7 @@
 #include "ZPhysicsComponent.hpp"
 
 void ZGravityForce::UpdateForce(ZGameObject* object) {
-  ZPhysicsComponent* physicsComp = object->FindComponent<ZPhysicsComponent>();
+  std::shared_ptr<ZPhysicsComponent> physicsComp = object->FindComponent<ZPhysicsComponent>();
   if (physicsComp == nullptr) return;
 
   if (!physicsComp->HasFiniteMass()) return;

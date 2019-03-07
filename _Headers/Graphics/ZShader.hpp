@@ -50,7 +50,7 @@ public:
   void SetMat4(const std::string& name, const glm::mat4& value) const;
 
   void Use(const ZMaterial& material);
-  void Use(const std::map<std::string, ZLight*>& lights);
+  void Use(const std::map<std::string, std::shared_ptr<ZLight>>& lights);
 protected:
 
 

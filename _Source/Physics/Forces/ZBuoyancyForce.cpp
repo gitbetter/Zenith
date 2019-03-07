@@ -13,7 +13,7 @@ ZBuoyancyForce::ZBuoyancyForce(float maxDepth, float volume, float waterHeight, 
 : maxDepth_(maxDepth), volume_(volume), waterHeight_(waterHeight), liquidDensity_(density) { }
 
 void ZBuoyancyForce::UpdateForce(ZGameObject* object) {
-  ZPhysicsComponent* physicsComp = object->FindComponent<ZPhysicsComponent>();
+  std::shared_ptr<ZPhysicsComponent> physicsComp = object->FindComponent<ZPhysicsComponent>();
   if (physicsComp == nullptr) return;
 
   float depth = object->Position().y;

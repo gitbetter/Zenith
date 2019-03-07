@@ -12,15 +12,14 @@
 #include "ZGraphicsStrategy.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZGame.hpp"
-#include "ZShader.hpp"
 
 void ZPhysicsDebug::Initialize() {
-  shader_ = new ZShader;
+  shader_ = std::unique_ptr<ZShader>(new ZShader);
   shader_->Initialize("Assets/Shaders/Vertex/debug.vert", "Assets/Shaders/Pixel/debug.frag");
 }
 
 void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
-  ZCameraComponent* cameraComp = ZEngine::Game()->ActiveCamera()->FindComponent<ZCameraComponent>();
+  std::shared_ptr<ZCameraComponent> cameraComp = ZEngine::Game()->ActiveCamera()->FindComponent<ZCameraComponent>();
   glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
   glm::mat4 viewMatrix = cameraComp->ViewMatrix(0.5f);
 

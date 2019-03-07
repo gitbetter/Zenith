@@ -23,7 +23,7 @@ ZShaderMap ZGraphicsFactory::CreateShaders(ZOFTree* data) {
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     if (it->first.find("ZSH") == 0) {
       std::string vertexPath = "", pixelPath = "", geometryPath = "";
-      ZShader* shader = new ZShader;
+      std::shared_ptr<ZShader> shader(new ZShader);
 
       ZOFObjectNode* shaderNode = dynamic_cast<ZOFObjectNode*>(it->second);
       for (ZOFPropertyNode* prop : shaderNode->properties) {
@@ -54,6 +54,6 @@ ZTextureMap ZGraphicsFactory::CreateTextures(ZOFTree* data) {
   return textures;
 }
 
-ZModel* ZGraphicsFactory::CreateModel(std::string type, glm::vec3 scale, std::vector<ZTexture> textures) {
+std::unique_ptr<ZModel> ZGraphicsFactory::CreateModel(std::string type, glm::vec3 scale, std::vector<ZTexture> textures) {
   return modelCreators_[type](scale, textures);
 }

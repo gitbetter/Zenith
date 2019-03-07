@@ -52,8 +52,8 @@ class ZGameObject;
 class ZShader;
 
 typedef std::function<void()> ZEventCallback;
-typedef std::map<std::string, ZGameObject*> ZGameObjectMap;
-typedef std::map<std::string, ZShader*> ZShaderMap;
+typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
+typedef std::map<std::string, std::shared_ptr<ZShader>> ZShaderMap;
 typedef unsigned char RENDER_OP;
 
 enum class ZEventType {

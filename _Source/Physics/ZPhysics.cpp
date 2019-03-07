@@ -13,20 +13,20 @@
 #include "ZGameObject.hpp"
 
 void ZPhysics::Initialize() {
-  if (registry_ == nullptr) {
-    registry_ = new ZObjectForceRegistry;
-  }
-
   collisionConfig_ = new btDefaultCollisionConfiguration();
   dispatcher_ = new btCollisionDispatcher(collisionConfig_);
   overlappingPairCache_ = new btDbvtBroadphase();
   solver_ = new btSequentialImpulseConstraintSolver;
   dynamicsWorld_ = new btDiscreteDynamicsWorld(dispatcher_, overlappingPairCache_, solver_, collisionConfig_);
 
-  debugDrawer_ = new ZPhysicsDebug;
+  debugDrawer_.reset(new ZPhysicsDebug);
   debugDrawer_->Initialize();
-  dynamicsWorld_->setDebugDrawer(debugDrawer_);
+  dynamicsWorld_->setDebugDrawer(debugDrawer_.get());
   dynamicsWorld_->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+
+  if (registry_ == nullptr) {
+    registry_.reset(new ZObjectForceRegistry);
+  }
 }
 
 void ZPhysics::Update() {
@@ -34,9 +34,8 @@ void ZPhysics::Update() {
   dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, 1, ZEngine::UPDATE_STEP_SIZE);
 }
 
-void ZPhysics::AddRigidBody(btRigidBody* body) {
-  dynamicsWorld_->addRigidBody(body);
-  collisionShapes_.push_back(body->getCollisionShape());
+void ZPhysics::AddRigidBody(std::shared_ptr<btRigidBody> body) {
+  dynamicsWorld_->addRigidBody(body.get());
 }
 
 ZGameObject* ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {

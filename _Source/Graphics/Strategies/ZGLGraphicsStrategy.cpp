@@ -458,7 +458,7 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBu
     glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
   };
 
-  ZModel* cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+  std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
   ZShader equirectToCubemapShader;
   equirectToCubemapShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/equirect_to_cube.frag");
   equirectToCubemapShader.Activate();
@@ -481,8 +481,6 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBu
   BindTexture(cubeMap, 1);
   glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-  delete cube;
-
   return cubeMap;
 }
 
@@ -500,7 +498,7 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
     glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
   };
 
-  ZModel* cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+  std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
   ZShader irradianceShader;
   irradianceShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/irradiance.frag");
   irradianceShader.Activate();
@@ -521,8 +519,6 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
   }
   UnbindFramebuffer();
 
-  delete cube;
-
   return irradianceMap;
 }
 
@@ -540,7 +536,7 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
     glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
   };
 
-  ZModel* cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+  std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
   ZShader prefilterShader;
   prefilterShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/prefilter_convolution.frag");
   prefilterShader.Activate();
@@ -569,8 +565,6 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
     }
   }
   UnbindFramebuffer();
-
-  delete cube;
 
   return prefilterMap;
 }

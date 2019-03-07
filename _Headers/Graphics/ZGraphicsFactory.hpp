@@ -17,7 +17,7 @@ class ZModel;
 
 // Class and Data Structure Definitions
 class ZGraphicsFactory {
-  typedef ZModel* (*ZModelCreator)(glm::vec3, std::vector<ZTexture>);
+  typedef std::unique_ptr<ZModel> (*ZModelCreator)(glm::vec3, std::vector<ZTexture>);
 private:
 
 public:
@@ -28,7 +28,7 @@ public:
   ZShaderMap CreateShaders(ZOFTree* data);
   ZTextureMap CreateTextures(ZOFTree* data);
 
-  ZModel* CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});
+  std::unique_ptr<ZModel> CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f), std::vector<ZTexture> textures = {});
 
 protected:
 
