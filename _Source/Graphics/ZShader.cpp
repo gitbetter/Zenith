@@ -197,6 +197,7 @@ void ZShader::Use(ZMaterial* material) {
   Activate();
 
   SetInt("materialIndex", material->Index());
+  SetBool("isTextured", material->IsTextured());
   SetVec4("materials[" + std::to_string(material->Index()) + "].albedo", material->Properties().albedo);
   if (material->IsPBR()) {
     SetFloat("materials[" + std::to_string(material->Index()) + "].metallic", material->Properties().metallic);

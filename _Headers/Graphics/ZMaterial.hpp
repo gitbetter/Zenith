@@ -24,6 +24,9 @@ private:
   int index_;
   bool isPBR_ = false;
 
+  void SetMaterialProperty(std::string property, float value, ZMaterialProperties& materialProperties);
+  void SetMaterialProperty(std::string property, glm::vec4 value, ZMaterialProperties& materialProperties);
+
 public:
 
   ZMaterial(int index = 0) { index_ = index; }
@@ -33,6 +36,7 @@ public:
   // TODO: Add ZOFTree initializer. Set PBR flag based on present fields.
   // If a field is numeric then material field is purely programmatic, otherwise
   // there may be textures associated with that field.
+  void Initialize(ZOFTree* root);
 
   static std::unique_ptr<ZMaterial> DefaultMaterialSimple();
   static std::unique_ptr<ZMaterial> DefaultMaterialPBR();
@@ -48,6 +52,7 @@ public:
 
   int Index() const { return index_; }
   bool IsPBR() const { return isPBR_; }
+  bool IsTextured() const { return !textures_.empty(); }
   void SetPBR(bool pbr = true) { isPBR_ = pbr; }
 
 protected:

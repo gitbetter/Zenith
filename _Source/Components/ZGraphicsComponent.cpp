@@ -43,7 +43,7 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
   std::shared_ptr<ZShader> highlightShader;
   std::vector<std::shared_ptr<ZShader>> shaders;
   std::shared_ptr<ZModel> model;
-  std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::DefaultMaterialPBR() };
+  std::vector<std::shared_ptr<ZMaterial>> materials;
 
   for (ZOFPropertyNode* prop : node->properties) {
     if (prop->values.size() == 0) continue;
@@ -83,8 +83,13 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
 
   // TODO: If there are any material subcomponents for this graphics component, we parse them with this loop
   for (ZOFChildMap::iterator matIt = node->children.begin(); matIt != node->children.end(); matIt++) {
-
+    if (matIt->first == "Material") {
+      std::shared_ptr<ZMaterial> material = std::make_shared<ZMaterial>();
+      material->Initialize(matIt->second);
+      materials.push_back(material);
+    }
   }
+  if (materials.empty()) materials.push_back(ZMaterial::DefaultMaterialPBR());
 
   activeShaderIndex_ = activeShaderIndex;
   highlightColor_ = highlightColor;

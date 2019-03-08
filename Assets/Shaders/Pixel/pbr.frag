@@ -47,6 +47,9 @@ uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 
 uniform sampler2D shadowMap;
+
+uniform bool isTextured;
+
 uniform sampler2D albedo;
 uniform sampler2D normal;
 uniform sampler2D metallic;
@@ -69,13 +72,19 @@ float CalculateShadow(vec4 lightSpacePosition);
 
 void main() {
   Material mat = materials[materialIndex];
+
+  vec4 fragAlbedo = isTextured ? vec4(pow(texture(albedo, fs_in.FragUV).rgb, vec3(2.2)), 1.0) : mat.albedo;
+  float fragMetallic = isTextured ? texture(metallic, fs_in.FragUV).r : mat.metallic;
+  float fragRoughness = isTextured ? texture(roughness, fs_in.FragUV).r : mat.roughness;
+  float fragAO = isTextured ? texture(ao, fs_in.FragUV).r : mat.ao;
+
   vec3 N = normalize(fs_in.FragNormal);
   vec3 V = normalize(viewDirection - fs_in.FragPos);
   vec3 R = reflect(V, N);
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
 
   vec3 F0 = vec3(0.04);
-  F0 = mix(F0, vec3(mat.albedo), mat.metallic);
+  F0 = mix(F0, vec3(fragAlbedo), fragMetallic);
 
   vec3 Lo = vec3(0.0); int contributingLights = 0;
   for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
@@ -91,8 +100,8 @@ void main() {
         radiance = lights[i].color * attenuation;
       }
 
-      float NDF = DistributionGGX(N, H, mat.roughness);
-      float G = GeometrySmith(N, V, L, mat.roughness);
+      float NDF = DistributionGGX(N, H, fragRoughness);
+      float G = GeometrySmith(N, V, L, fragRoughness);
       vec3 F = FresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0, 0.0);
 
       vec3 numerator = NDF * G * F;
@@ -101,38 +110,38 @@ void main() {
 
       vec3 kS = F;
       vec3 kD = vec3(1.0) - kS;
-      kD *= 1.0 - mat.metallic;
+      kD *= 1.0 - fragMetallic;
 
       float NdotL = max(dot(N, L), 0.0);
 
-      Lo += (kD * vec3(mat.albedo) / PI + specular) * radiance * NdotL;
+      Lo += (kD * vec3(fragAlbedo) / PI + specular) * radiance * NdotL;
     }
   }
 
   Lo /= contributingLights;
 
-  vec3 F = FresnelSchlick(max(dot(N, V), 0.0), F0, mat.roughness);
+  vec3 F = FresnelSchlick(max(dot(N, V), 0.0), F0, fragRoughness);
 
   vec3 kS = F;
   vec3 kD = 1.0 - kS;
-  kD *= 1.0 - mat.metallic;
+  kD *= 1.0 - fragMetallic;
 
   vec3 irradiance = texture(irradianceMap, N).rgb;
-  vec3 diffuse = irradiance * vec3(mat.albedo);
+  vec3 diffuse = irradiance * vec3(fragAlbedo);
 
   const float MAX_REFLECTION_LOD = 4.0;
-  vec3 prefilteredColor = textureLod(prefilterMap, R, mat.roughness * MAX_REFLECTION_LOD).rgb;
-  vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), mat.roughness)).rg;
+  vec3 prefilteredColor = textureLod(prefilterMap, R, fragRoughness * MAX_REFLECTION_LOD).rgb;
+  vec2 brdf = texture(brdfLUT, vec2(max(dot(N, V), 0.0), fragRoughness)).rg;
   vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-  vec3 ambient = (kD * diffuse + specular) * mat.ao;
+  vec3 ambient = (kD * diffuse + specular) * fragAO;
 
   vec3 color = ambient + (1.0 - shadow) * Lo;
 
   color = color / (color + vec3(1.0));
   color = pow(color, vec3(1.0/2.2));
 
-  FragColor = vec4(color, mat.albedo.a);
+  FragColor = vec4(color, fragAlbedo.a);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness) {
