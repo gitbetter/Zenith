@@ -69,6 +69,7 @@ float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 FresnelSchlick(float cosTheta, vec3 F0, float roughness);
 float CalculateShadow(vec4 lightSpacePosition);
+vec3 NormalFromMap();
 
 void main() {
   Material mat = materials[materialIndex];
@@ -78,7 +79,7 @@ void main() {
   float fragRoughness = isTextured ? texture(roughness, fs_in.FragUV).r : mat.roughness;
   float fragAO = isTextured ? texture(ao, fs_in.FragUV).r : mat.ao;
 
-  vec3 N = normalize(fs_in.FragNormal);
+  vec3 N = isTextured ? NormalFromMap() : normalize(fs_in.FragNormal);
   vec3 V = normalize(viewDirection - fs_in.FragPos);
   vec3 R = reflect(V, N);
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
@@ -199,4 +200,20 @@ float CalculateShadow(vec4 lightSpacePosition) {
     }
   }
   return shadow / 12.0;
+}
+
+vec3 NormalFromMap() {
+  vec3 tangentNormal = texture(normal, fs_in.FragUV).xyz * 2.0 - 1.0;
+
+  vec3 Q1  = dFdx(fs_in.FragPos);
+  vec3 Q2  = dFdy(fs_in.FragPos);
+  vec2 st1 = dFdx(fs_in.FragUV);
+  vec2 st2 = dFdy(fs_in.FragUV);
+
+  vec3 N   = normalize(fs_in.FragNormal);
+  vec3 T  = normalize(Q1 * st2.t - Q2 * st1.t);
+  vec3 B  = -normalize(cross(N, T));
+  mat3 TBN = mat3(T, B, N);
+
+  return normalize(TBN * tangentNormal);
 }
