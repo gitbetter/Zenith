@@ -275,11 +275,11 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     } else {
-      _Z("ZGLGraphicsStrategy Error: Failed to load texture at " + path, ZERROR);
+      _Z("ZGLGraphicsStrategy Error: Failed to load HDR texture at " + path, ZERROR);
     }
     stbi_image_free(data);
   } else {
-    unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+    unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 4);
     if (data) {
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
       glGenerateMipmap(GL_TEXTURE_2D);

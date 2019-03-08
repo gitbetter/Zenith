@@ -18,12 +18,6 @@ ZGO_01
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
-		Material
-			:albedo ZTEX_01:
-			:metallic ZTEX_02:
-			:normal ZTEX_03:
-			:roughness ZTEX_04:
-		^
 	^
 ^
 ZGO_02
@@ -118,7 +112,12 @@ ZGO_06
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Sphere [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
-		# TODO: test out material node on graphics components
+		Material
+			:albedo ZTEX_01:
+			:metallic ZTEX_02:
+			:normal ZTEX_03:
+			:roughness ZTEX_04:
+		^
 	^
 ^
 ZGO_07

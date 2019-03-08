@@ -47,8 +47,18 @@ ZTextureMap ZGraphicsFactory::CreateTextures(ZOFTree* data) {
   ZTextureMap textures;
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     if (it->first.find("ZTEX") == 0) {
-      //ZOFNode* textureNode = it->second;
-      // TODO:
+      std::string path;
+      ZOFObjectNode* textureNode = dynamic_cast<ZOFObjectNode*>(it->second);
+      for (ZOFPropertyNode* prop : textureNode->properties) {
+        ZOFString* pathStr;
+        if (prop->id == "path" && (pathStr = dynamic_cast<ZOFString*>(prop->values[0])))
+          path = pathStr->value.substr(1, pathStr->value.size() - 2);
+      }
+
+      if (!path.empty()) {
+        ZTexture texture = ZEngine::Graphics()->Strategy()->LoadTexture(path, "");
+        textures[it->first] = texture;
+      }
     }
   }
   return textures;

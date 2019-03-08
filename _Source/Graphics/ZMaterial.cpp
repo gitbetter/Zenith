@@ -37,8 +37,6 @@ void ZMaterial::Initialize(ZOFTree* root) {
 
   if (isPBR) SetPBR();
 
-  _Z("Material has " + std::to_string(textures.size()) + " textures and " + (isPBR ? "is " : "is not ") + "PBR", ZINFO);
-
   if (!textures.empty()) textures_ = textures;
   else properties_ = materialProperties;
 }
