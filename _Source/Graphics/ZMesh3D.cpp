@@ -3,7 +3,7 @@
 //  Zenith
 //
 //  Created by Adrian Sanchez on 1/25/19.
-//  Copyright © 2019 Adrian Sanchez. All rights reserved.
+//  Copyright © 2019 Pervasive Sense. All rights reserved.
 //
 
 #include "ZMesh3D.hpp"
