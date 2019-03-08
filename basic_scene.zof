@@ -150,7 +150,7 @@ ZGO_08
 		:damping 0.0 0.0:
 		:restitution 0.4:
 		:hasGravity Yes:
-		:collider Box [3.0, 3.0, 2.0]:
+		:collider Box [3.0, 3.0, 1.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
