@@ -132,10 +132,33 @@ ZGO_07
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube:
-		# TODO: test out material node on graphics components
+		Material
+			:albedo ZTEX_05:
+			:metallic ZTEX_06:
+			:normal ZTEX_07:
+			:roughness ZTEX_08:
+			:ao ZTEX_09:
+		^
 	^
 ^
 ZGO_08
+	:position [0.0, 15.0, 15.0]:
+	:scale [1.0, 1.0, 1.0]:
+	PhysicsComponent
+		:type Dynamic:
+		:mass 5.0:
+		:damping 0.0 0.0:
+		:restitution 0.4:
+		:hasGravity Yes:
+		:collider Box [3.0, 3.0, 2.0]:
+	^
+	GraphicsComponent
+		:activeShader 0:
+		:shaders [ZSH_01]:
+		:model "Assets/Models/test_up.dae":
+	^
+^
+ZGO_09
 	:position [-5.0, 15.0, 50.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
@@ -170,4 +193,20 @@ ZTEX_03
 ^
 ZTEX_04
 	:path "Assets/Textures/Metal/roughness.png":
+^
+
+ZTEX_05
+	:path "Assets/Textures/PlanetSurface/albedo.png":
+^
+ZTEX_06
+	:path "Assets/Textures/PlanetSurface/metallic.png":
+^
+ZTEX_07
+	:path "Assets/Textures/PlanetSurface/normal.png":
+^
+ZTEX_08
+	:path "Assets/Textures/PlanetSurface/roughness.png":
+^
+ZTEX_09
+	:path "Assets/Textures/PlanetSurface/ao.png":
 ^
