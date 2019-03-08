@@ -193,28 +193,28 @@ void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const {
   glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
-void ZShader::Use(const ZMaterial& material) {
+void ZShader::Use(ZMaterial* material) {
   Activate();
 
-  SetInt("materialIndex", material.Index());
-  SetVec4("materials[" + std::to_string(material.Index()) + "].albedo", material.Properties().albedo);
-  if (material.IsPBR()) {
-    SetFloat("materials[" + std::to_string(material.Index()) + "].metallic", material.Properties().metallic);
-    SetFloat("materials[" + std::to_string(material.Index()) + "].roughness", material.Properties().roughness);
-    SetFloat("materials[" + std::to_string(material.Index()) + "].ao", material.Properties().ao);
+  SetInt("materialIndex", material->Index());
+  SetVec4("materials[" + std::to_string(material->Index()) + "].albedo", material->Properties().albedo);
+  if (material->IsPBR()) {
+    SetFloat("materials[" + std::to_string(material->Index()) + "].metallic", material->Properties().metallic);
+    SetFloat("materials[" + std::to_string(material->Index()) + "].roughness", material->Properties().roughness);
+    SetFloat("materials[" + std::to_string(material->Index()) + "].ao", material->Properties().ao);
   } else {
-    SetFloat("materials[" + std::to_string(material.Index()) + "].emission", material.Properties().emission);
-    SetFloat("materials[" + std::to_string(material.Index()) + "].diffuse", material.Properties().diffuse);
-    SetFloat("materials[" + std::to_string(material.Index()) + "].ambient", material.Properties().ambient);
-    SetFloat("materials[" + std::to_string(material.Index()) + "].specular", material.Properties().specular);
-    SetFloat("materials[" + std::to_string(material.Index()) + "].shininess", material.Properties().shininess);
+    SetFloat("materials[" + std::to_string(material->Index()) + "].emission", material->Properties().emission);
+    SetFloat("materials[" + std::to_string(material->Index()) + "].diffuse", material->Properties().diffuse);
+    SetFloat("materials[" + std::to_string(material->Index()) + "].ambient", material->Properties().ambient);
+    SetFloat("materials[" + std::to_string(material->Index()) + "].specular", material->Properties().specular);
+    SetFloat("materials[" + std::to_string(material->Index()) + "].shininess", material->Properties().shininess);
   }
 
   // We start the external texture indices at 2 due to the depth and PBR irradiance maps, which are set internally
   // and should not be overriden
-  for (unsigned int i = 0; i < material.Textures().size(); i++) {
-    SetInt(material.Textures()[i].type, i+2);
-    ZEngine::Graphics()->Strategy()->BindTexture(material.Textures()[i], i+2);
+  for (unsigned int i = 0; i < material->Textures().size(); i++) {
+    SetInt(material->Textures()[i].type, i+3);
+    ZEngine::Graphics()->Strategy()->BindTexture(material->Textures()[i], i+3);
   }
 }
 

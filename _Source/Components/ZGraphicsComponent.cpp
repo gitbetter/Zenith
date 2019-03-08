@@ -23,7 +23,6 @@ ZGraphicsComponent::ZGraphicsComponent() : ZComponent() {
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader) {
   model_ = model;
-  materials_ = { textures.size() > 0 ? std::make_shared<ZMaterial>(textures) : ZMaterial::DefaultMaterialPBR() };
 
   if (shader != nullptr) {
     shaders_.push_back(shader);
@@ -44,7 +43,7 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
   std::shared_ptr<ZShader> highlightShader;
   std::vector<std::shared_ptr<ZShader>> shaders;
   std::shared_ptr<ZModel> model;
-  std::vector<std::shared_ptr<ZMaterial>> materials;
+  std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::DefaultMaterialPBR() };
 
   for (ZOFPropertyNode* prop : node->properties) {
     if (prop->values.size() == 0) continue;
@@ -79,14 +78,12 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
           model = ZEngine::GraphicsFactory()->CreateModel(terminal->value);
         }
       }
-    } else if (prop->id == "textures") {
-      ZOFStringList* terminal = dynamic_cast<ZOFStringList*>(prop->values[0]);
-      for (std::string id : terminal->value) {
-        if (ZEngine::Graphics()->Textures().find(id) != ZEngine::Graphics()->Textures().end()) {
-          // TODO: Textures should be appended to the model, but right now the order of the zof properties matters unnecessarily
-        }
-      }
     }
+  }
+
+  // TODO: If there are any material subcomponents for this graphics component, we parse them with this loop
+  for (ZOFChildMap::iterator matIt = node->children.begin(); matIt != node->children.end(); matIt++) {
+
   }
 
   activeShaderIndex_ = activeShaderIndex;
@@ -145,6 +142,10 @@ void ZGraphicsComponent::SetOutline(glm::vec4 color) {
   highlightColor_ = color;
 }
 
+void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material) {
+  materials_.push_back(material);
+}
+
 void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection) {
   if (highlightShader_ == nullptr) return;
 
@@ -159,7 +160,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view,
   highlightShader_->SetMat4("M", highlightModelMatrix);
   highlightShader_->SetVec4("highlightColor", highlightColor_);
 
-  model_->Render(highlightShader_.get());
+  model_->Render(highlightShader_.get(), materials_);
 
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 }

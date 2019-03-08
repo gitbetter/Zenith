@@ -107,19 +107,7 @@ std::shared_ptr<ZMesh3D> ZGLModelImporter::ProcessMesh(aiMesh* mesh, const aiSce
     }
   }
 
-  if (mesh->mMaterialIndex >= 0) {
-    std::vector<ZTexture> textures;
-    aiMaterial* meshMaterial = scene->mMaterials[mesh->mMaterialIndex];
-    std::vector<ZTexture> diffuseMaps = LoadMaterialTextures(meshMaterial, aiTextureType_DIFFUSE, "diffuse", directory);
-    std::vector<ZTexture> specularMaps = LoadMaterialTextures(meshMaterial, aiTextureType_SPECULAR, "specular", directory);
-    textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    material = std::make_shared<ZMaterial>(textures);
-  } else {
-    material = ZMaterial::DefaultMaterialSimple();
-  }
-
-  return std::make_shared<ZMesh3D>(vertices, indices, material);
+  return std::make_shared<ZMesh3D>(vertices, indices);
 }
 
 /**

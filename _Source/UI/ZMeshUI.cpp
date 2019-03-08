@@ -16,7 +16,7 @@ ZMeshUI::ZMeshUI(std::vector<ZVertex2D> vertices) : vertices_(vertices) {
   bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices);
 }
 
-void ZMeshUI::Render(ZShader* shader) {
+void ZMeshUI::Render(ZShader* shader, ZMaterial* material) {
   shader->Activate();
   ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_);
 }

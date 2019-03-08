@@ -30,6 +30,10 @@ public:
   ZMaterial(ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
   ZMaterial(std::vector<ZTexture> textures) : ZMaterial(0) { textures_ = textures; }
 
+  // TODO: Add ZOFTree initializer. Set PBR flag based on present fields.
+  // If a field is numeric then material field is purely programmatic, otherwise
+  // there may be textures associated with that field.
+
   static std::unique_ptr<ZMaterial> DefaultMaterialSimple();
   static std::unique_ptr<ZMaterial> DefaultMaterialPBR();
 

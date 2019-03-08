@@ -12,7 +12,7 @@
 #include "ZCommon.hpp"
 
 ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle)
-: vertices_(vertices), indices_(indices), material_(material) {
+: vertices_(vertices), indices_(indices) {
   drawStyle_ = drawStyle;
   bufferData_ = ZEngine::Graphics()->Strategy()->LoadIndexedVertexData(vertices, indices);
   id_ = "ZMSH3D_" + ZEngine::IDSequence()->Next();

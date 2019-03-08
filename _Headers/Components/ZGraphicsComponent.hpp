@@ -48,6 +48,8 @@ public:
   void SetGameLights(ZLightMap lights) { gameLights_ = lights; }
   void SetGameCamera(std::shared_ptr<ZGameObject> camera) { gameCamera_ = camera; }
 
+  void AddMaterial(std::shared_ptr<ZMaterial> material);
+
 protected:
 
   std::shared_ptr<ZModel> model_ = nullptr;

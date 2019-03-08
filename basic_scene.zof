@@ -16,6 +16,7 @@ ZGO_01
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+		# TODO: test out material node on graphics components
 	^
 ^
 ZGO_02
@@ -34,6 +35,7 @@ ZGO_02
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+		# TODO: test out material node on graphics components
 	^
 ^
 ZGO_03
@@ -52,6 +54,7 @@ ZGO_03
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+		# TODO: test out material node on graphics components
 	^
 ^
 ZGO_04
@@ -70,6 +73,7 @@ ZGO_04
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+		# TODO: test out material node on graphics components
 	^
 ^
 ZGO_05
@@ -88,6 +92,7 @@ ZGO_05
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+		# TODO: test out material node on graphics components
 	^
 ^
 ZGO_06
@@ -106,20 +111,22 @@ ZGO_06
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Sphere [1.0, 1.0, 1.0]:	# could include a string to a model path or predefined primitive like this cube
+		# TODO: test out material node on graphics components
 	^
 ^
 ZGO_07
 	:position [0.0, 1.0, 0.0]:
 	:scale [100.0, 1.0, 100.0]:
-	GraphicsComponent
-		:activeShader 0:
-		:shaders [ZSH_01]:
-		:model Cube:
-	^
 	PhysicsComponent
 		:type Static:
 		:restitution 0.4:
 		:collider Box [100.0, 1.0, 100.0]:
+	^
+	GraphicsComponent
+		:activeShader 0:
+		:shaders [ZSH_01]:
+		:model Cube:
+		# TODO: test out material node on graphics components
 	^
 ^
 ZGO_08
@@ -132,6 +139,11 @@ ZGO_08
 		:movementStyle Follow:
 	^
 ^
+
+ZMAT_01
+	:textures []:
+^
+
 ZSH_01
 	:vertex "Assets/Shaders/Vertex/blinnphong.vert":
 	:pixel "Assets/Shaders/Pixel/pbr.frag":

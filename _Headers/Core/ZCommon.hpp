@@ -111,6 +111,7 @@ struct ZTexture {
 };
 
 struct ZIBLTexture {
+  ZTexture cubeMap;
   ZTexture irradiance;
   ZTexture prefiltered;
   ZTexture brdfLUT;

@@ -25,7 +25,7 @@ public:
   ZMeshUI(std::vector<ZVertex2D> vertices);
   ~ZMeshUI() { }
 
-  void Render(ZShader* shader) override;
+  void Render(ZShader* shader, ZMaterial* material = nullptr) override;
 
   std::vector<ZVertex2D> Vertices() const { return vertices_; }
 

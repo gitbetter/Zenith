@@ -20,5 +20,8 @@ void ZSkybox::Initialize(std::string hdrMap) {
   std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
   skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
+  std::vector<ZTexture> textures = { iblTexture_.cubeMap };
+  skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
+
   AddComponent(skyboxGraphicsComponent);
 }

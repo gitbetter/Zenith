@@ -54,6 +54,6 @@ ZTextureMap ZGraphicsFactory::CreateTextures(ZOFTree* data) {
   return textures;
 }
 
-std::unique_ptr<ZModel> ZGraphicsFactory::CreateModel(std::string type, glm::vec3 scale, std::vector<ZTexture> textures) {
-  return modelCreators_[type](scale, textures);
+std::unique_ptr<ZModel> ZGraphicsFactory::CreateModel(std::string type, glm::vec3 scale) {
+  return modelCreators_[type](scale);
 }
