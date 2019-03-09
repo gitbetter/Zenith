@@ -9,6 +9,7 @@
 #pragma once
 
 // Includes
+#include "ZCommon.hpp"
 
 // Forward Declarations
 
@@ -17,9 +18,9 @@ class ZResource {
 
 public:
 
-    ZResource() { }
-    ~ZResource() { }
+  std::string name;
 
-protected:
+  ZResource(const std::string& name);
+  ~ZResource() { }
 
 };
