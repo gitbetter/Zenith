@@ -21,7 +21,7 @@ class ZResourceFile {
 public:
 
   virtual ~ZResourceFile() { }
-  virtual bool Open(const std::string& filePath) = 0;
+  virtual bool Open() = 0;
   virtual unsigned int RawResourceSize(ZResource& resource) = 0;
   virtual unsigned int RawResource(ZResource& resource, char* buffer) = 0;
   virtual unsigned int ResourceCount() const = 0;

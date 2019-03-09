@@ -8,10 +8,9 @@
 
 #include "ZZipFile.hpp"
 
-bool ZZipFile::Open(const std::string& file) {
+bool ZZipFile::Open() {
   int error = 0;
-  zipFile_ = zip_open(file.c_str(), ZIP_RDONLY, &error);
-  fileName_ = file;
+  zipFile_ = zip_open(fileName_.c_str(), ZIP_RDONLY, &error);
 
   if (error) { LogZipError(error); return false; }
 

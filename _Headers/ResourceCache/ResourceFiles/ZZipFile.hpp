@@ -28,8 +28,9 @@ private:
 
 public:
 
+    ZZipFile(const std::string& filePath) : fileName_(filePath) { }
     ~ZZipFile() { }
-    bool Open(const std::string& filePath) override;
+    bool Open() override;
     unsigned int RawResourceSize(ZResource& resource) override;
     unsigned int RawResource(ZResource& resource, char* buffer) override;
     unsigned int ResourceCount() const override;

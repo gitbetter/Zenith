@@ -9,11 +9,10 @@
 #pragma once
 
 // Includes
-#include "ZResourceCache.hpp"
 #include "ZResource.hpp"
 
 // Forward Declarations
-//class SomeClass;
+class ZResourceCache;
 
 // Class and Data Structure Definitions
 class ZResourceHandle {

@@ -7,10 +7,11 @@
 //
 
 #include "ZResourceHandle.hpp"
+#include "ZResourceCache.hpp"
 
 ZResourceHandle::ZResourceHandle(ZResource& resource, char* buffer, unsigned int size, ZResourceCache* resourceCache) : resource_(resource), buffer_(buffer), size_(size), resourceCache_(resourceCache) {  }
 
 ZResourceHandle::~ZResourceHandle() {
   delete[] buffer_;
-  // TODO: resourceCache_->MemoryHasBeenFreed(size_);
+  resourceCache_->FreeMemory(size_);
 }

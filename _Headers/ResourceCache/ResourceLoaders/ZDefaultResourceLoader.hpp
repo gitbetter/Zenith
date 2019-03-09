@@ -20,7 +20,7 @@ class ZDefaultResourceLoader : public ZResourceLoader {
 public:
 
     ~ZDefaultResourceLoader() { }
-    std::string Pattern() override { return "*"; }
+    std::string Pattern() override { return ".*"; }
     bool UseRawFile() override { return true; };
     unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
     bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override { return true; }

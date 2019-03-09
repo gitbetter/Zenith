@@ -26,10 +26,12 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <list>
 #include <functional>
 #include <cassert>
 #include <type_traits>
 #include <memory>
+#include <regex>
 
 #define _Z(message, severity) { \
   switch(severity) {\

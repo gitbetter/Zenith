@@ -12,7 +12,6 @@
 #include "ZCommon.hpp"
 #include "ZOFTree.hpp"
 #include <fstream>
-#include <regex>
 
 // Forward Declarations
 
