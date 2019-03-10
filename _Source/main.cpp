@@ -63,6 +63,7 @@ int main(int argc, const char * argv[]) {
   // Now add some lights, because it's dark in here.
   game->AddGameObjects({std::shared_ptr<ZLight>(new ZLight(ZLightType::Directional))});
 
+  // TODO: Setup UI components to load from zof file
   // Let's add some UI components to the UI system to test
   auto uiButton = std::make_shared<ZUIButton>(glm::vec2(0.1f), glm::vec2(0.06f, 0.03f));
   uiButton->SetColor(glm::vec4(36.f/255.f, 37.f/255.f, 42.f/255.f, 1.f));

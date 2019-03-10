@@ -10,12 +10,17 @@
 
 bool ZZipFile::Open() {
   int error = 0;
-  zipFile_ = zip_open(fileName_.c_str(), ZIP_RDONLY, &error);
+  zipFile_ = zip_open(fileName_.c_str(), 0, &error);
 
   if (error) { LogZipError(error); return false; }
 
   zip_stat_init(&stats_);
   zip_stat(zipFile_, fileName_.c_str(), 0, &stats_);
+
+  if (zipFile_ == nullptr) {
+    _Z("Could not open zip " + fileName_, ZERROR);
+    return false;
+  }
 
   return true;
 }

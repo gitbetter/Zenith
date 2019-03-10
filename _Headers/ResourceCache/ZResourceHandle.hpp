@@ -33,9 +33,9 @@ public:
 protected:
 
   ZResource resource_;
-  char* buffer_;
+  char* buffer_ = nullptr;
   unsigned int size_;
-  ZResourceCache* resourceCache_;
+  ZResourceCache* resourceCache_ = nullptr;
   // TODO: More fields for extra data
 
 };

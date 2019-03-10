@@ -23,7 +23,7 @@ ifeq ($(OS),Windows_NT)
 	LDLIBS += -lGL -lgdi32
 endif
 
-LDLIBS += -lassimp -lfreetyped -lzip
+LDLIBS += -lassimp -lfreetyped -lbz2 -lz -lzip
 LDLIBS += -lLinearMath -lBulletCollision -lBulletDynamics
 
 all: game

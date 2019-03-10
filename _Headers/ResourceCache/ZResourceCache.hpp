@@ -19,6 +19,7 @@ class ZResource;
 // Class and Data Structure Definitions
 typedef std::list<std::shared_ptr<ZResourceHandle>> ResourceHandleList;
 typedef std::map<std::string, std::shared_ptr<ZResourceHandle>> ResourceHandleMap;
+typedef std::map<std::string, std::shared_ptr<ZResourceFile>> ResourceFileMap;
 typedef std::list<std::shared_ptr<ZResourceLoader>> ResourceLoaderList;
 
 class ZResourceCache {
@@ -27,11 +28,13 @@ class ZResourceCache {
 
 public:
 
-  ZResourceCache(const unsigned int sizeInMb, std::shared_ptr<ZResourceFile> resourceFile);
+  ZResourceCache(const unsigned int sizeInMb);
   ~ZResourceCache();
 
-  bool Init();
+  bool Initialize();
   void RegisterLoader(std::shared_ptr<ZResourceLoader> loader);
+  void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
+  void SetActiveResourceFile(std::shared_ptr<ZResourceFile> file);
   std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);
   int Preload(const std::string pattern, void (*progressCallback)(int, bool &));
   void Flush();
@@ -41,8 +44,7 @@ protected:
   ResourceHandleList lru_;
   ResourceHandleMap resources_;
   ResourceLoaderList resourceLoaders_;
-
-  std::shared_ptr<ZResourceFile> file_;
+  ResourceFileMap resourceFiles_;
 
   unsigned int cacheSize_;
   unsigned int allocated_;

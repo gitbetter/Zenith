@@ -33,6 +33,7 @@ public:
   ~ZGraphics() { }
 
   void Initialize();
+  void Load(ZOFTree* root);
 
   void Draw(const ZGameObjectMap& gameObjects, const std::map<std::string, std::shared_ptr<ZLight>>& gameLights, float frameMix = 0.0);
 

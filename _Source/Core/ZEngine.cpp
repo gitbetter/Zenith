@@ -19,6 +19,8 @@
 #include "ZOFParser.hpp"
 #include "ZGOFactory.hpp"
 #include "ZGraphicsFactory.hpp"
+#include "ZResourceCache.hpp"
+#include "ZZipFile.hpp"
 #include <chrono>
 
 const float ZEngine::UPDATE_STEP_SIZE = 0.017f;
@@ -45,11 +47,14 @@ std::unique_ptr<ZGraphics> ZEngine::graphics_ = nullptr;
 std::unique_ptr<ZInput> ZEngine::input_(new ZNullInput);
 std::unique_ptr<ZUI> ZEngine::ui_ = nullptr;
 std::unique_ptr<ZPhysics> ZEngine::physics_ = nullptr;
+std::unique_ptr<ZResourceCache> ZEngine::resourceCache_ = nullptr;
 std::unique_ptr<ZGOFactory> ZEngine::gameObjectFactory_ = nullptr;
 std::unique_ptr<ZGraphicsFactory> ZEngine::graphicsFactory_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
 
+// TODO: Useful to have a config file to parse for more global state info such as window dimensions
+// and maximum resource cache size
 void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight) {
   currentGame_ = game;
 
@@ -67,6 +72,13 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
 
   physics_.reset(new ZPhysics);
   physics_->Initialize();
+
+  resourceCache_.reset(new ZResourceCache(100));
+  resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
+  resourceCache_->Initialize();
+
+  gameObjectFactory_.reset(new ZGOFactory);
+  graphicsFactory_.reset(new ZGraphicsFactory);
 }
 
 std::shared_ptr<ZGame> ZEngine::Game() {
@@ -93,8 +105,8 @@ ZPhysics* ZEngine::Physics() {
   return physics_.get();
 }
 
-ZIDSequence* ZEngine::IDSequence() {
-  return idGenerator_.get();
+ZResourceCache* ZEngine::ResourceCache() {
+  return resourceCache_.get();
 }
 
 ZGOFactory* ZEngine::GameObjectFactory() {
@@ -103,6 +115,10 @@ ZGOFactory* ZEngine::GameObjectFactory() {
 
 ZGraphicsFactory* ZEngine::GraphicsFactory() {
   return graphicsFactory_.get();
+}
+
+ZIDSequence* ZEngine::IDSequence() {
+  return idGenerator_.get();
 }
 
 float ZEngine::DeltaTime() {
@@ -160,29 +176,12 @@ void ZEngine::SetDeltaTime(float deltaTime) {
 }
 
 ZGameObjectMap ZEngine::LoadZOF(std::string zofPath) {
-  if (gameObjectFactory_ == nullptr) {
-    gameObjectFactory_.reset(new ZGOFactory);
-  }
-
-  if (graphicsFactory_ == nullptr) {
-    graphicsFactory_.reset(new ZGraphicsFactory);
-  }
-
   // TODO: ZOFTree should have append functionality so that different
   // ZOFTrees can be combined (by combining children into a single tree)
   ZOFParser parser;
   ZOFTree* objectTree = parser.Parse(zofPath);
 
-  // TODO: Move these two loops to a ZGraphics::Load() function
-  ZShaderMap shaders = graphicsFactory_->CreateShaders(objectTree);
-  for (ZShaderMap::iterator it = shaders.begin(); it != shaders.end(); it++) {
-    if (graphics_ != nullptr) graphics_->AddShader(it->first, it->second);
-  }
-
-  ZTextureMap textures = graphicsFactory_->CreateTextures(objectTree);
-  for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++) {
-    if (graphics_ != nullptr) graphics_->AddTexture(it->first, it->second);
-  }
+  if (graphics_ != nullptr) graphics_->Load(objectTree);
 
   return gameObjectFactory_->Create(objectTree);
 }

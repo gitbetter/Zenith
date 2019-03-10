@@ -26,6 +26,7 @@ class ZPhysics;
 class ZIDSequence;
 class ZGOFactory;
 class ZGraphicsFactory;
+class ZResourceCache;
 class ZGame;
 
 // Class Definitions
@@ -39,6 +40,7 @@ private:
   static std::unique_ptr<ZUI> ui_;
   static std::unique_ptr<ZPhysics> physics_;
 
+  static std::unique_ptr<ZResourceCache> resourceCache_;
   static std::unique_ptr<ZGOFactory> gameObjectFactory_;
   static std::unique_ptr<ZGraphicsFactory> graphicsFactory_;
 
@@ -66,10 +68,12 @@ public:
   static ZInput* Input();
   static ZUI* UI();
   static ZPhysics* Physics();
-  static ZIDSequence* IDSequence();
 
+  static ZResourceCache* ResourceCache();
   static ZGOFactory* GameObjectFactory();
   static ZGraphicsFactory* GraphicsFactory();
+
+  static ZIDSequence* IDSequence();
 
   static float DeltaTime();
   static float MilliSecondTime();

@@ -20,7 +20,7 @@ class ZZipFile : public ZResourceFile {
 
 private:
 
-  zip* zipFile_;
+  zip* zipFile_ = nullptr;
   std::string fileName_;
   struct zip_stat stats_;
 
@@ -31,6 +31,7 @@ public:
     ZZipFile(const std::string& filePath) : fileName_(filePath) { }
     ~ZZipFile() { }
     bool Open() override;
+    const std::string& Name() const override { return fileName_; }
     unsigned int RawResourceSize(ZResource& resource) override;
     unsigned int RawResource(ZResource& resource, char* buffer) override;
     unsigned int ResourceCount() const override;

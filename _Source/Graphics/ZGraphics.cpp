@@ -8,6 +8,7 @@
 
 // TODO: Conditional include based on graphics implementation
 #include "ZGLGraphicsStrategy.hpp"
+#include "ZGraphicsFactory.hpp"
 #include "ZDomainStrategy.hpp"
 #include "ZGameObject.hpp"
 #include "ZGraphics.hpp"
@@ -22,6 +23,18 @@ void ZGraphics::Initialize() {
     graphicsStrategy_->Initialize();
     depthMap_ = graphicsStrategy_->LoadDepthTexture();
     depthFramebuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
+  }
+}
+
+void ZGraphics::Load(ZOFTree* root) {
+  ZShaderMap shaders = ZEngine::GraphicsFactory()->CreateShaders(root);
+  for (ZShaderMap::iterator it = shaders.begin(); it != shaders.end(); it++) {
+    AddShader(it->first, it->second);
+  }
+
+  ZTextureMap textures = ZEngine::GraphicsFactory()->CreateTextures(root);
+  for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++) {
+    AddTexture(it->first, it->second);
   }
 }
 

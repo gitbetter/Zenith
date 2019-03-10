@@ -22,6 +22,7 @@ public:
 
   virtual ~ZResourceFile() { }
   virtual bool Open() = 0;
+  virtual const std::string& Name() const = 0;
   virtual unsigned int RawResourceSize(ZResource& resource) = 0;
   virtual unsigned int RawResource(ZResource& resource, char* buffer) = 0;
   virtual unsigned int ResourceCount() const = 0;

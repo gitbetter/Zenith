@@ -9,28 +9,39 @@
 #include "ZResourceCache.hpp"
 #include "ZDefaultResourceLoader.hpp"
 
-ZResourceCache::ZResourceCache(const unsigned int sizeInMb, std::shared_ptr<ZResourceFile> resourceFile) {
+ZResourceCache::ZResourceCache(const unsigned int sizeInMb) {
   cacheSize_ = sizeInMb;
   allocated_ = 0;
-  file_ = resourceFile;
 }
 
 ZResourceCache::~ZResourceCache() {
   while (!lru_.empty()) FreeOneResource();
-  file_ = nullptr;
+  for(ResourceFileMap::iterator it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
+    it->second->Close();
+  }
+  resourceFiles_.clear();
 }
 
-bool ZResourceCache::Init() {
+bool ZResourceCache::Initialize() {
   bool success = false;
-  if (file_->Open()) {
-    RegisterLoader(std::shared_ptr<ZResourceLoader>(new ZDefaultResourceLoader));
-    success = true;
+  for(ResourceFileMap::iterator it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
+    if (it->second->Open()) {
+      success = true;
+    }
   }
+  if (success)
+    RegisterLoader(std::shared_ptr<ZResourceLoader>(new ZDefaultResourceLoader));
+
   return success;
 }
 
 void ZResourceCache::RegisterLoader(std::shared_ptr<ZResourceLoader> loader) {
   if (loader) resourceLoaders_.push_front(loader);
+}
+
+void ZResourceCache::RegisterResourceFile(std::shared_ptr<ZResourceFile> file) {
+  if (resourceFiles_.find(file->Name()) != resourceFiles_.end()) return;
+  resourceFiles_[file->Name()] = file;
 }
 
 std::shared_ptr<ZResourceHandle> ZResourceCache::GetHandle(ZResource* resource) {
@@ -84,14 +95,23 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
     return handle;
   }
 
-  unsigned int rawSize = file_->RawResourceSize(*resource);
+  // Gets the first resource file in the resource files list that contains the
+  // given resource (indicated by return size greater than 0)
+  unsigned int rawSize = 0;
+  ResourceFileMap::iterator it;
+  for (it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
+    rawSize = it->second->RawResourceSize(*resource);
+    if (rawSize != 0) break;
+  }
+
   char* rawBuffer = loader->UseRawFile() ? Allocate(rawSize) : new char[rawSize];
 
   if (rawBuffer == nullptr) {
     return nullptr;
   }
 
-  file_->RawResource(*resource, rawBuffer);
+  if (it != resourceFiles_.end())
+    it->second->RawResource(*resource, rawBuffer);
 
   char* buffer = nullptr;
   unsigned int size = 0;
