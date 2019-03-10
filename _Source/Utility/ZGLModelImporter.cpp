@@ -11,6 +11,8 @@
 #include "ZGraphicsStrategy.hpp"
 #include "ZGLModelImporter.hpp"
 #include "ZMaterial.hpp"
+#include "ZResource.hpp"
+#include "ZResourceCache.hpp"
 #include <assimp/Importer.hpp>
 
 /**
@@ -20,10 +22,13 @@
     @param outMeshes the mesh vector to populate.
 */
 void ZGLModelImporter::LoadModel(std::string modelPath, ZMesh3DMap& outMeshes) {
-  // Attempt to read the file
+  // Cache in the model data from the given file
+  ZResource resource(modelPath);
+  std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
+
   // TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
   Assimp::Importer import;
-  const aiScene* scene = import.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+  const aiScene* scene = import.ReadFileFromMemory((const void*)handle->Buffer(), (size_t)handle->Size(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
   // The file might have incomplete data or no nodes to traverse. Handle that.
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {

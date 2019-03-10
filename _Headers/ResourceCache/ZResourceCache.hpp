@@ -24,8 +24,6 @@ typedef std::list<std::shared_ptr<ZResourceLoader>> ResourceLoaderList;
 
 class ZResourceCache {
 
-  friend class ZResourceHandle;
-
 public:
 
   ZResourceCache(const unsigned int sizeInMb);
@@ -38,6 +36,7 @@ public:
   std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);
   int Preload(const std::string pattern, void (*progressCallback)(int, bool &));
   void Flush();
+  void FreeMemory(unsigned int size);
 
 protected:
 
@@ -58,5 +57,4 @@ protected:
   bool MakeRoom(unsigned int size);
   char* Allocate(unsigned int size);
   void FreeOneResource();
-  void FreeMemory(unsigned int size);
 };

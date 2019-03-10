@@ -10,5 +10,5 @@
 
 ZResource::ZResource(const std::string& name) {
   this->name = name;
-  std::transform(this->name.begin(), this->name.end(), this->name.begin(), (int(*)(int))std::tolower);
+  //std::transform(this->name.begin(), this->name.end(), this->name.begin(), (int(*)(int))std::tolower);
 }

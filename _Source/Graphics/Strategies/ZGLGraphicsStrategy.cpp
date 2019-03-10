@@ -16,6 +16,8 @@
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZCommon.hpp"
+#include "ZResourceCache.hpp"
+#include "ZResource.hpp"
 
 void ZGLGraphicsStrategy::Initialize() {
   drawingStylesMap_[ZMeshDrawStyle::Point] = GL_POINT;
@@ -256,17 +258,24 @@ ZTexture ZGLGraphicsStrategy::LoadDefaultTexture() {
 }
 
 ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &directory, bool hdr, bool flip) {
-  std::string filename = (!directory.empty() ? directory + '/' : "") + path;
-
   ZTexture texture;
   glGenTextures(1, &texture.id);
   glBindTexture(GL_TEXTURE_2D, texture.id);
+
+  std::string filename = (!directory.empty() ? directory + '/' : "") + path;
+  ZResource resource(filename);
+  std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
+
+  if (!handle) {
+    _Z("Failed to load texture at " + filename, ZERROR);
+    return texture;
+  }
 
   if (flip) { stbi_set_flip_vertically_on_load(true); }
 
   int width, height, nrComponents;
   if (hdr) {
-  float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
+  float *data = stbi_loadf_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &width, &height, &nrComponents, 0);
     if (data) {
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
 
@@ -279,7 +288,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
     }
     stbi_image_free(data);
   } else {
-    unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 4);
+    unsigned char *data = stbi_load_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &width, &height, &nrComponents, 4);
     if (data) {
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
       glGenerateMipmap(GL_TEXTURE_2D);
@@ -319,7 +328,14 @@ ZTexture ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
 
   int width, height, nrChannels;
   for (unsigned int i = 0; i < faces.size(); i++) {
-    unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+    ZResource resource(faces[i]);
+    std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
+
+    if (!handle) {
+      _Z("Failed to load texture at " + faces[i], ZERROR); continue;
+    }
+
+    unsigned char* data = stbi_load_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &width, &height, &nrChannels, 0);
     if (data) {
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     } else {

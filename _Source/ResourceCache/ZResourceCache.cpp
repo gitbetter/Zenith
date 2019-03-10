@@ -10,7 +10,7 @@
 #include "ZDefaultResourceLoader.hpp"
 
 ZResourceCache::ZResourceCache(const unsigned int sizeInMb) {
-  cacheSize_ = sizeInMb;
+  cacheSize_ = sizeInMb * 1024 * 1024;
   allocated_ = 0;
 }
 
@@ -46,7 +46,7 @@ void ZResourceCache::RegisterResourceFile(std::shared_ptr<ZResourceFile> file) {
 
 std::shared_ptr<ZResourceHandle> ZResourceCache::GetHandle(ZResource* resource) {
   std::shared_ptr<ZResourceHandle> handle(Find(resource));
-  if (handle == nullptr) handle = Load(resource);
+  if (!handle) handle = Load(resource);
   else Update(handle);
   return handle;
 }
@@ -64,7 +64,7 @@ void ZResourceCache::Flush() {
 std::shared_ptr<ZResourceHandle> ZResourceCache::Find(ZResource* resource) {
   if (resources_.find(resource->name) != resources_.end())
     return resources_[resource->name];
-  return nullptr;
+  return std::shared_ptr<ZResourceHandle>();
 }
 
 const void ZResourceCache::Update(std::shared_ptr<ZResourceHandle> handle) {
@@ -97,10 +97,10 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
 
   // Gets the first resource file in the resource files list that contains the
   // given resource (indicated by return size greater than 0)
-  unsigned int rawSize = 0;
+  unsigned int rawSize = 1;
   ResourceFileMap::iterator it;
   for (it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
-    rawSize = it->second->RawResourceSize(*resource);
+    rawSize += it->second->RawResourceSize(*resource);
     if (rawSize != 0) break;
   }
 
@@ -112,6 +112,8 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
 
   if (it != resourceFiles_.end())
     it->second->RawResource(*resource, rawBuffer);
+
+  rawBuffer[rawSize - 1] = '\0';
 
   char* buffer = nullptr;
   unsigned int size = 0;

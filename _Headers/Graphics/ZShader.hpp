@@ -24,7 +24,7 @@ private:
   std::string GetShaderCode(const std::string& shaderPath);
   int CompileShader(const std::string& shaderCode, ZShaderTypes shaderType);
   unsigned int CreateProgram(int vShader, int pShader, int gShader);
-  void CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shaderType);
+  void CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shaderType, const std::string& shaderSource);
 
 public:
 

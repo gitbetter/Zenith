@@ -27,6 +27,7 @@ public:
   virtual unsigned int RawResource(ZResource& resource, char* buffer) = 0;
   virtual unsigned int ResourceCount() const = 0;
   virtual std::string ResourceName(unsigned int num) const = 0;
+  virtual void ListResources() const = 0;
   virtual void Close() = 0;
 
 protected:

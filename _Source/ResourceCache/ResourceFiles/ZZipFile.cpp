@@ -20,14 +20,17 @@ bool ZZipFile::Open() {
 }
 
 unsigned int ZZipFile::RawResourceSize(ZResource& resource) {
-  return zipFile_ ? zip_entry_size(zipFile_) : 0;
+  zip_entry_open(zipFile_, resource.name.c_str());
+  unsigned int size = zip_entry_size(zipFile_);
+  zip_entry_close(zipFile_);
+  return size;
 }
 
 unsigned int ZZipFile::RawResource(ZResource& resource, char* buffer) {
   if (zipFile_) {
-    size_t bytes;
-    zip_entry_open(zipFile_, fileName_.c_str());
-    zip_entry_read(zipFile_, (void **)buffer, &bytes);
+    zip_entry_open(zipFile_, resource.name.c_str());
+    size_t bytes = zip_entry_size(zipFile_);
+    zip_entry_noallocread(zipFile_, (void *)buffer, bytes);
     zip_entry_close(zipFile_);
     return (unsigned int)bytes;
   }
@@ -43,6 +46,23 @@ std::string ZZipFile::ResourceName(unsigned int num) const {
   std::string name = std::string(zip_entry_name(zipFile_));
   zip_entry_close(zipFile_);
   return name;
+}
+
+void ZZipFile::ListResources() const {
+  if (zipFile_) {
+    int i, n = zip_total_entries(zipFile_);
+    for (i = 0; i < n; ++i) {
+        zip_entry_openbyindex(zipFile_, i);
+        {
+            const char *name = zip_entry_name(zipFile_);
+            int isdir = zip_entry_isdir(zipFile_);
+            unsigned long long size = zip_entry_size(zipFile_);
+            unsigned int crc32 = zip_entry_crc32(zipFile_);
+            _Z(name, ZINFO);
+        }
+        zip_entry_close(zipFile_);
+    }
+  }
 }
 
 void ZZipFile::Close() {

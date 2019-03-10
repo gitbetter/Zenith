@@ -6,18 +6,18 @@
 //  Copyright © 2019 Pervasive Sense. All rights reserved.
 //
 
+#include "ZShader.hpp"
+#include "ZEngine.hpp"
+#include "ZCommon.hpp"
+#include "ZMaterial.hpp"
+#include "ZResource.hpp"
+#include "ZResourceCache.hpp"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "ZShader.hpp"
-#include "ZCommon.hpp"
-#include "ZMaterial.hpp"
-
-#include <iostream>
 #include <sstream>
 #include <fstream>
-#include <string>
-#include <glm/gtx/string_cast.hpp>
 
 // TODO: Make ZShader an interface, and rework this specific implementation as ZGLShader
 // which derives from the ZShader interface
@@ -51,20 +51,10 @@ void ZShader::Initialize(const std::string& vShaderPath, const std::string& pSha
 std::string ZShader::GetShaderCode(const std::string& shaderPath) {
   std::string shaderCode;
   if (!shaderPath.empty()) {
-    std::ifstream shaderFile;
-    shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try {
-      // Open shader file
-      shaderFile.open(shaderPath);
-      // Read the contents out into a string stream
-      std::stringstream shaderStream, pShaderStream;
-      shaderStream << shaderFile.rdbuf();
-      // Close the shader file, we have the content
-      shaderFile.close();
-      // Convert the stream object to a string
-      shaderCode = shaderStream.str();
-    } catch (std::ifstream::failure e) {
-      _Z("There was an error reading a shader file. Consult the code.", ZERROR);
+    ZResource shaderResource(shaderPath);
+    std::shared_ptr<ZResourceHandle> shaderHandle = ZEngine::ResourceCache()->GetHandle(&shaderResource);
+    if (shaderHandle) {
+      shaderCode = std::string(shaderHandle->Buffer());
     }
   }
   return shaderCode;
@@ -95,7 +85,7 @@ int ZShader::CompileShader(const std::string& shaderCode, ZShaderTypes shaderTyp
     const char* shaderCode_cstr = shaderCode.c_str();
     glShaderSource(shader, 1, &shaderCode_cstr, NULL);
     glCompileShader(shader);
-    CheckCompileErrors(shader, shaderType);
+    CheckCompileErrors(shader, shaderType, shaderCode);
     return shader;
   }
   return -1;
@@ -115,7 +105,7 @@ unsigned int ZShader::CreateProgram(int vShader, int pShader, int gShader) {
   if (pShader != -1) glAttachShader(programId, pShader);
   if (gShader != -1) glAttachShader(programId, gShader);
   glLinkProgram(programId);
-  CheckCompileErrors(programId, ZShaderTypes::Other);
+  CheckCompileErrors(programId, ZShaderTypes::Other, "Program");
   return programId;
 }
 
@@ -127,7 +117,7 @@ unsigned int ZShader::CreateProgram(int vShader, int pShader, int gShader) {
     @param compilationUnit the compilation unit id to check against.
     @param shaderType the type of the compilation unit.
 */
-void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shaderType) {
+void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shaderType, const std::string& shaderSource) {
     GLint success; GLchar infoLog[1024];
     bool isShader = shaderType < ZShaderTypes::Other;
 
@@ -137,7 +127,7 @@ void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shad
     if(!success) {
         if (isShader) { glGetShaderInfoLog(compilationUnit, 1024, NULL, infoLog); }
         else { glGetProgramInfoLog(compilationUnit, 1024, NULL, infoLog); }
-        _Z("Shader Compilation Error: " + std::string(infoLog), ZERROR);
+        _Z("Shader Compilation Error: (" + std::to_string(compilationUnit) + ") " + std::string(infoLog) + "\n" + shaderSource, ZERROR);
     }
 }
 

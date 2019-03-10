@@ -10,10 +10,17 @@
 #include <GLFW/glfw3.h>
 
 #include "ZGLTextStrategy.hpp"
+#include "ZEngine.hpp"
+#include "ZResource.hpp"
+#include "ZResourceCache.hpp"
 
 void ZGLTextStrategy::LoadFont(std::string fontPath, unsigned int fontSize) {
+  ZResource resource(fontPath);
+  std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
+
   FT_Face face;
-  if (FT_New_Face(ft_, fontPath.c_str(), 0, &face)) _Z("Could not load font at " + fontPath, ZERROR);
+  if (FT_New_Memory_Face(ft_, (const FT_Byte*)handle->Buffer(), (FT_Long)handle->Size(), 0, &face))
+    _Z("Could not load font at " + fontPath, ZERROR);
 
   FT_Set_Pixel_Sizes(face, 0, fontSize);
 

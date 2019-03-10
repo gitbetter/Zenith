@@ -27,7 +27,7 @@ public:
     virtual ~ZResourceHandle();
 
     unsigned int Size() const { return size_; }
-    char* Buffer() const { return buffer_; }
+    const char* Buffer() const { return buffer_; }
     char* FluidBuffer() { return buffer_; }
 
 protected:

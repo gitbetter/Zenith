@@ -58,6 +58,10 @@ std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
 void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight) {
   currentGame_ = game;
 
+  resourceCache_.reset(new ZResourceCache(100));
+  resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
+  resourceCache_->Initialize();
+
   domain_.reset(new ZDomain(windowWidth, windowHeight));
   domain_->Initialize();
 
@@ -72,10 +76,6 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
 
   physics_.reset(new ZPhysics);
   physics_->Initialize();
-
-  resourceCache_.reset(new ZResourceCache(100));
-  resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
-  resourceCache_->Initialize();
 
   gameObjectFactory_.reset(new ZGOFactory);
   graphicsFactory_.reset(new ZGraphicsFactory);
