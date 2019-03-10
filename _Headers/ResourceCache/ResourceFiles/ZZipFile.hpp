@@ -10,7 +10,7 @@
 
 // Includes
 #include "ZResourceFile.hpp"
-#include <zip.h>
+#include "zip.h"
 
 // Forward Declarations
 //class SomeClass;
@@ -20,11 +20,8 @@ class ZZipFile : public ZResourceFile {
 
 private:
 
-  zip* zipFile_ = nullptr;
+  struct zip_t* zipFile_ = nullptr;
   std::string fileName_;
-  struct zip_stat stats_;
-
-  void LogZipError(int errorCode);
 
 public:
 
