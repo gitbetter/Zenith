@@ -34,42 +34,50 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
   bool gravity = false;
   std::vector<btScalar> size, origin;
 
-  for (ZOFPropertyNode* prop : node->properties) {
-    if (prop->values.size() == 0) continue;
+  ZOFPropertyMap props = node->properties;
 
-    if (prop->id == "type") {
-      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      if (terminal->value == "Static") mass = 0.f;
-    } else if (prop->id == "mass") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      if (mass == -1.f) mass = terminal->value;
-    } else if (prop->id == "damping") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      damping = terminal->value;
-      if (prop->values.size() > 1)
-        angularDamping = (dynamic_cast<ZOFNumber*>(prop->values[0]))->value;
-    } else if (prop->id == "restitution") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      restitution = terminal->value;
-    } else if (prop->id == "collider") {
-      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      if (terminal->value == "Box") type = ZColliderType::Box;
-      if (terminal->value == "Sphere") type = ZColliderType::Sphere;
-      if (terminal->value == "Capsule") type = ZColliderType::Capsule;
+  if (props.find("type") != props.end() && props["type"]->HasValues()) {
+    ZOFString* typeProp = props["type"]->Value<ZOFString>(0);
+    if (typeProp->value == "Static") mass = 0.f;
+  }
 
-      if (prop->values.size() > 1) {
-        ZOFNumberList* scale = dynamic_cast<ZOFNumberList*>(prop->values[1]);
-        std::transform(scale->value.begin(), scale->value.end(), std::back_inserter(size), [](float val) { return btScalar(val); });
-      }
+  if (props.find("mass") != props.end() && props["mass"]->HasValues()) {
+    ZOFNumber* massProp = props["mass"]->Value<ZOFNumber>(0);
+    if (mass == -1.f) mass = massProp->value;
+  }
 
-      if (prop->values.size() > 2) {
-        ZOFNumberList* center = dynamic_cast<ZOFNumberList*>(prop->values[2]);
-        std::transform(center->value.begin(), center->value.end(), std::back_inserter(origin), [](float val) { return btScalar(val); });
-      }
-    } else if (prop->id == "hasGravity") {
-      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      gravity = terminal->value == "Yes";
+  if (props.find("damping") != props.end() && props["damping"]->HasValues()) {
+    ZOFNumber* dampingProp = props["damping"]->Value<ZOFNumber>(0);
+    damping = dampingProp->value;
+    if (props["damping"]->ValueCount() > 1)
+      angularDamping = props["damping"]->Value<ZOFNumber>(1)->value;
+  }
+
+  if (props.find("restitution") != props.end() && props["restitution"]->HasValues()) {
+    ZOFNumber* restProp = props["restitution"]->Value<ZOFNumber>(0);
+    restitution = restProp->value;
+  }
+
+  if (props.find("collider") != props.end() && props["collider"]->HasValues()) {
+    ZOFString* colliderProp = props["collider"]->Value<ZOFString>(0);
+    if (colliderProp->value == "Box") type = ZColliderType::Box;
+    if (colliderProp->value == "Sphere") type = ZColliderType::Sphere;
+    if (colliderProp->value == "Capsule") type = ZColliderType::Capsule;
+
+    if (props["collider"]->ValueCount() > 1) {
+      ZOFNumberList* scaleProp = props["collider"]->Value<ZOFNumberList>(1);
+      std::transform(scaleProp->value.begin(), scaleProp->value.end(), std::back_inserter(size), [](float val) { return btScalar(val); });
     }
+
+    if (props["collider"]->ValueCount() > 2) {
+      ZOFNumberList* centerProp = props["collider"]->Value<ZOFNumberList>(2);
+      std::transform(centerProp->value.begin(), centerProp->value.end(), std::back_inserter(origin), [](float val) { return btScalar(val); });
+    }
+  }
+
+  if (props.find("hasGravity") != props.end() && props["hasGravity"]->HasValues()) {
+    ZOFString* gravProp = props["hasGravity"]->Value<ZOFString>(0);
+    gravity = gravProp->value == "Yes";
   }
 
   btCollisionShape* collider;

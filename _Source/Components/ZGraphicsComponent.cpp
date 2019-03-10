@@ -38,65 +38,57 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
     return;
   }
 
-  unsigned int activeShaderIndex = -1;
-  glm::vec4 highlightColor(0.f);
-  std::shared_ptr<ZShader> highlightShader;
-  std::vector<std::shared_ptr<ZShader>> shaders;
-  std::shared_ptr<ZModel> model;
-  std::vector<std::shared_ptr<ZMaterial>> materials;
+  ZOFPropertyMap props = node->properties;
 
-  for (ZOFPropertyNode* prop : node->properties) {
-    if (prop->values.size() == 0) continue;
+  if (props.find("activeShader") != props.end() && props["activeShader"]->HasValues()) {
+    ZOFNumber* activeShaderProp = props["activeShader"]->Value<ZOFNumber>(0);
+    activeShaderIndex_ = activeShaderProp->value;
+  }
 
-    if (prop->id == "activeShader") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      activeShaderIndex = terminal->value;
-    } else if (prop->id == "highlightColor") {
-      ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
-      highlightColor = glm::vec4(terminal->value[0], terminal->value[1], terminal->value[2], 1.f);
-    } else if (prop->id == "highlightShader") {
-      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      if (ZEngine::Graphics()->Shaders().find(terminal->value) != ZEngine::Graphics()->Shaders().end()) {
-        highlightShader = ZEngine::Graphics()->Shaders()[terminal->value];
-      }
-    } else if (prop->id == "shaders") {
-      ZOFStringList* terminal = dynamic_cast<ZOFStringList*>(prop->values[0]);
-      for (std::string id : terminal->value) {
-        if (ZEngine::Graphics()->Shaders().find(id) != ZEngine::Graphics()->Shaders().end()) {
-          shaders.push_back(ZEngine::Graphics()->Shaders()[id]);
-        }
-      }
-    } else if (prop->id == "model") {
-      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      if (terminal->value.find("\"") == 0) {
-        model = std::shared_ptr<ZModel>(new ZModel(terminal->value.substr(1, terminal->value.length() - 2)));
-      } else {
-        if (prop->values.size() > 1) {
-          ZOFNumberList* param = dynamic_cast<ZOFNumberList*>(prop->values[1]);
-          model = ZEngine::GraphicsFactory()->CreateModel(terminal->value, glm::vec3(param->value[0], param->value[1], param->value[2]));
-        } else {
-          model = ZEngine::GraphicsFactory()->CreateModel(terminal->value);
-        }
+  if (props.find("highlightColor") != props.end() && props["highlightColor"]->HasValues()) {
+    ZOFNumberList* hColorProp = props["highlightColor"]->Value<ZOFNumberList>(0);
+    highlightColor_ = glm::vec4(hColorProp->value[0], hColorProp->value[1], hColorProp->value[2], 1.f);
+  }
+
+  if (props.find("highlightShader") != props.end() && props["highlightShader"]->HasValues()) {
+    ZOFString* hShaderProp = props["highlightShader"]->Value<ZOFString>(0);
+    if (ZEngine::Graphics()->Shaders().find(hShaderProp->value) != ZEngine::Graphics()->Shaders().end()) {
+      highlightShader_ = ZEngine::Graphics()->Shaders()[hShaderProp->value];
+    }
+  }
+
+  if (props.find("shaders") != props.end() && props["shaders"]->HasValues()) {
+    ZOFStringList* shadersProp = props["shaders"]->Value<ZOFStringList>(0);
+    for (std::string id : shadersProp->value) {
+      if (ZEngine::Graphics()->Shaders().find(id) != ZEngine::Graphics()->Shaders().end()) {
+        shaders_.push_back(ZEngine::Graphics()->Shaders()[id]);
       }
     }
   }
 
-  // TODO: If there are any material subcomponents for this graphics component, we parse them with this loop
+  if (props.find("model") != props.end() && props["model"]->HasValues()) {
+    ZOFString* nameProp = props["model"]->Value<ZOFString>(0);
+    if (nameProp->value.find("\"") == 0) {
+      model_ = std::shared_ptr<ZModel>(new ZModel(nameProp->value.substr(1, nameProp->value.length() - 2)));
+    } else {
+      if (props["model"]->ValueCount() > 1) {
+        ZOFNumberList* scaleProp = props["model"]->Value<ZOFNumberList>(1);
+        model_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
+      } else {
+        model_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value);
+      }
+    }
+  }
+
+  // If there are any material subcomponents for this graphics component, we parse them with this loop
   for (ZOFChildMap::iterator matIt = node->children.begin(); matIt != node->children.end(); matIt++) {
     if (matIt->first == "Material") {
       std::shared_ptr<ZMaterial> material = std::make_shared<ZMaterial>();
       material->Initialize(matIt->second);
-      materials.push_back(material);
+      materials_.push_back(material);
     }
   }
-  if (materials.empty()) materials.push_back(ZMaterial::DefaultMaterialPBR());
-
-  activeShaderIndex_ = activeShaderIndex;
-  highlightColor_ = highlightColor;
-  highlightShader_ = highlightShader;
-  shaders_ = shaders;
-  model_ = model;
-  materials_ = materials;
+  if (materials_.empty()) materials_.push_back(ZMaterial::DefaultMaterialPBR());
 }
 
 void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {

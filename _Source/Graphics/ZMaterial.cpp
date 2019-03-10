@@ -16,22 +16,23 @@ void ZMaterial::Initialize(ZOFTree* root) {
   bool isPBR = false;
 
   ZOFObjectNode* materialNode = dynamic_cast<ZOFObjectNode*>(root);
-  for (ZOFPropertyNode* prop : materialNode->properties) {
-    if (prop->values.size() == 0) continue;
+
+  for (ZOFPropertyMap::iterator it = materialNode->properties.begin(); it != materialNode->properties.end(); it++) {
+    if (!it->second->HasValues()) continue;
 
     if (!isPBR)
-      isPBR = prop->id == "metallic" || prop->id == "roughness" || prop->id == "ao";
+      isPBR = it->second->id == "metallic" || it->second->id == "roughness" || it->second->id == "ao";
 
-    if (ZOFString* strProp = dynamic_cast<ZOFString*>(prop->values[0])) {
+    if (ZOFString* strProp = it->second->Value<ZOFString>(0)) {
       if (ZEngine::Graphics()->Textures().find(strProp->value) != ZEngine::Graphics()->Textures().end()) {
         ZTexture texture = ZEngine::Graphics()->Textures()[strProp->value];
-        texture.type = prop->id;
+        texture.type = it->second->id;
         textures.push_back(texture);
       }
-    } else if (ZOFNumber* numProp = dynamic_cast<ZOFNumber*>(prop->values[0])) {
-      SetMaterialProperty(prop->id, numProp->value, materialProperties);
-    } else if (ZOFNumberList* numListProp = dynamic_cast<ZOFNumberList*>(prop->values[0])) {
-      SetMaterialProperty(prop->id, glm::vec4(numListProp->value[0], numListProp->value[1], numListProp->value[2], 1.0), materialProperties);
+    } else if (ZOFNumber* numProp = it->second->Value<ZOFNumber>(0)) {
+      SetMaterialProperty(it->second->id, numProp->value, materialProperties);
+    } else if (ZOFNumberList* numListProp = it->second->Value<ZOFNumberList>(0)) {
+      SetMaterialProperty(it->second->id, glm::vec4(numListProp->value[0], numListProp->value[1], numListProp->value[2], 1.0), materialProperties);
     }
   }
 

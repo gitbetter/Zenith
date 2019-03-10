@@ -184,4 +184,5 @@ ZGameObjectMap ZEngine::LoadZOF(std::string zofPath) {
   if (graphics_ != nullptr) graphics_->Load(objectTree);
 
   return gameObjectFactory_->Create(objectTree);
+  // TODO: uiFactory_->Create(objectTree)
 }

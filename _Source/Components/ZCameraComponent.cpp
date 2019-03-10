@@ -34,38 +34,52 @@ void ZCameraComponent::Initialize(ZOFNode* root) {
     return;
   }
 
-  for (ZOFPropertyNode* prop : node->properties) {
-    if (prop->values.size() == 0) continue;
+  ZOFPropertyMap props = node->properties;
 
-    if (prop->id == "speed") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      movementSpeed_ = terminal->value;
-    } else if (prop->id == "sensitivity") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      lookSensitivity_ = terminal->value;
-    } else if (prop->id == "zoom") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      zoom_ = terminal->value;
-    } else if (prop->id == "zoomSpeed") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      zoomSpeed_ = terminal->value;
-    } else if (prop->id == "nearPlane") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      nearClippingPlane_ = terminal->value;
-    } else if (prop->id == "farPlane") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      farClippingPlane_ = terminal->value;
-    } else if (prop->id == "type") {
-      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      cameraType_ = terminal->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
-      zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
-    } else if (prop->id == "movementStyle") {
-      ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-      movementStyle_ = terminal->value == "Follow" ? ZCameraMovementStyle::Follow : ZCameraMovementStyle::Normal;
-    } else if (prop->id == "damping") {
-      ZOFNumber* terminal = dynamic_cast<ZOFNumber*>(prop->values[0]);
-      cameraDamping_ = terminal->value;
-    }
+  if (props.find("speed") != props.end() && props["speed"]->HasValues()) {
+    ZOFNumber* prop = props["speed"]->Value<ZOFNumber>(0);
+    movementSpeed_ = prop->value;
+  }
+
+  if (props.find("sensitivity") != props.end() && props["sensitivity"]->HasValues()) {
+    ZOFNumber* prop = props["sensitivity"]->Value<ZOFNumber>(0);
+    lookSensitivity_ = prop->value;
+  }
+
+  if (props.find("zoom") != props.end() && props["zoom"]->HasValues()) {
+    ZOFNumber* prop = props["zoom"]->Value<ZOFNumber>(0);
+    zoom_ = prop->value;
+  }
+
+  if (props.find("zoomSpeed") != props.end() && props["zoomSpeed"]->HasValues()) {
+    ZOFNumber* prop = props["zoomSpeed"]->Value<ZOFNumber>(0);
+    zoomSpeed_ = prop->value;
+  }
+
+  if (props.find("nearPlane") != props.end() && props["nearPlane"]->HasValues()) {
+    ZOFNumber* prop = props["nearPlane"]->Value<ZOFNumber>(0);
+    nearClippingPlane_ = prop->value;
+  }
+
+  if (props.find("farPlane") != props.end() && props["farPlane"]->HasValues()) {
+    ZOFNumber* prop = props["farPlane"]->Value<ZOFNumber>(0);
+    farClippingPlane_ = prop->value;
+  }
+
+  if (props.find("type") != props.end() && props["type"]->HasValues()) {
+    ZOFString* prop = props["type"]->Value<ZOFString>(0);
+    cameraType_ = prop->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
+    zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
+  }
+
+  if (props.find("movementStyle") != props.end() && props["movementStyle"]->HasValues()) {
+    ZOFString* prop = props["movementStyle"]->Value<ZOFString>(0);
+    movementStyle_ = prop->value == "Follow" ? ZCameraMovementStyle::Follow : ZCameraMovementStyle::Normal;
+  }
+
+  if (props.find("damping") != props.end() && props["damping"]->HasValues()) {
+    ZOFNumber* prop = props["damping"]->Value<ZOFNumber>(0);
+    cameraDamping_ = prop->value;
   }
 }
 

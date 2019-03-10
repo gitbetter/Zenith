@@ -26,14 +26,15 @@ ZShaderMap ZGraphicsFactory::CreateShaders(ZOFTree* data) {
       std::shared_ptr<ZShader> shader(new ZShader);
 
       ZOFObjectNode* shaderNode = dynamic_cast<ZOFObjectNode*>(it->second);
-      for (ZOFPropertyNode* prop : shaderNode->properties) {
-        if (prop->values.size() == 0) continue;
 
-        ZOFString* terminal = dynamic_cast<ZOFString*>(prop->values[0]);
-        std::string path = terminal->value.find("\"") == 0 ? terminal->value.substr(1, terminal->value.size() - 2) : terminal->value;
-        if (prop->id == "vertex") vertexPath = path;
-        else if (prop->id == "pixel") pixelPath = path;
-        else if (prop->id == "geometry") geometryPath = path;
+      for (ZOFPropertyMap::iterator it = shaderNode->properties.begin(); it != shaderNode->properties.end(); it++) {
+        if (!it->second->HasValues()) continue;
+
+        ZOFString* str = it->second->Value<ZOFString>(0);
+        std::string path = str->value.find("\"") == 0 ? str->value.substr(1, str->value.size() - 2) : str->value;
+        if (it->second->id == "vertex") vertexPath = path;
+        else if (it->second->id == "pixel") pixelPath = path;
+        else if (it->second->id == "geometry") geometryPath = path;
       }
 
       shader->Initialize(vertexPath, pixelPath, geometryPath);
@@ -49,10 +50,9 @@ ZTextureMap ZGraphicsFactory::CreateTextures(ZOFTree* data) {
     if (it->first.find("ZTEX") == 0) {
       std::string path;
       ZOFObjectNode* textureNode = dynamic_cast<ZOFObjectNode*>(it->second);
-      for (ZOFPropertyNode* prop : textureNode->properties) {
-        ZOFString* pathStr;
-        if (prop->id == "path" && (pathStr = dynamic_cast<ZOFString*>(prop->values[0])))
-          path = pathStr->value.substr(1, pathStr->value.size() - 2);
+      if (textureNode->properties.find("path") != textureNode->properties.end()) {
+        ZOFString* pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
+        path = pathStr->value.substr(1, pathStr->value.size() - 2);
       }
 
       if (!path.empty()) {

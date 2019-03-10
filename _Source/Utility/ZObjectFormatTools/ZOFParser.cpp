@@ -106,7 +106,7 @@ void ZOFParser::Prop(ZOFObjectNode* objectNode) {
     ZOFPropertyNode* propNode = new ZOFPropertyNode;
     propNode->id = currentToken_;
     propNode->root = objectNode->root;
-    objectNode->properties.push_back(propNode);
+    objectNode->properties[currentToken_] = propNode;
 
     Match(id_); ValuesList(propNode); Match(":");
   } else {

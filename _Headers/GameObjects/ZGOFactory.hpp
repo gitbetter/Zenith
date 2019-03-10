@@ -34,4 +34,5 @@ public:
 protected:
 
   std::map<std::string, ZComponentCreator> componentCreators_;
+
 };

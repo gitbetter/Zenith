@@ -30,17 +30,21 @@ void ZGameObject::Initialize(ZOFNode* root) {
     return;
   }
 
-  for (ZOFPropertyNode* prop : node->properties) {
-    if (prop->values.size() > 0) {
-      ZOFNumberList* terminal = dynamic_cast<ZOFNumberList*>(prop->values[0]);
-      if (prop->id == "position") {
-        position_ = glm::vec4(terminal->value[0], terminal->value[1], terminal->value[2], 1.f);
-      } else if (prop->id == "orientation") {
-        orientation_ = glm::quat(glm::vec3(terminal->value[0], terminal->value[1], terminal->value[2]));
-      } else if (prop->id == "scale") {
-        scale_ = glm::vec3(terminal->value[0], terminal->value[1], terminal->value[2]);
-      }
-    }
+  ZOFPropertyMap props = node->properties;
+
+  if (props.find("position") != props.end() && props["position"]->HasValues()) {
+    ZOFNumberList* posProp = props["position"]->Value<ZOFNumberList>(0);
+    position_ = glm::vec4(posProp->value[0], posProp->value[1], posProp->value[2], 1.f);
+  }
+
+  if (props.find("orientation") != props.end() && props["orientation"]->HasValues()) {
+    ZOFNumberList* ornProp = props["orientation"]->Value<ZOFNumberList>(0);
+    orientation_ = glm::quat(glm::vec3(ornProp->value[0], ornProp->value[1], ornProp->value[2]));
+  }
+
+  if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
+    ZOFNumberList* scaleProp = props["scale"]->Value<ZOFNumberList>(0);
+    scale_ = glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]);
   }
 
   CalculateDerivedData();
