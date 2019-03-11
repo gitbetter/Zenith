@@ -24,9 +24,10 @@ class ZDomain;
 class ZUI;
 class ZPhysics;
 class ZIDSequence;
+class ZResourceCache;
 class ZGOFactory;
 class ZGraphicsFactory;
-class ZResourceCache;
+class ZUIFactory;
 class ZGame;
 
 // Class Definitions
@@ -43,6 +44,7 @@ private:
   static std::unique_ptr<ZResourceCache> resourceCache_;
   static std::unique_ptr<ZGOFactory> gameObjectFactory_;
   static std::unique_ptr<ZGraphicsFactory> graphicsFactory_;
+  static std::unique_ptr<ZUIFactory> uiFactory_;
 
   static std::unique_ptr<ZIDSequence> idGenerator_;
   static float deltaTime_;
@@ -72,6 +74,7 @@ public:
   static ZResourceCache* ResourceCache();
   static ZGOFactory* GameObjectFactory();
   static ZGraphicsFactory* GraphicsFactory();
+  static ZUIFactory* UIFactory();
 
   static ZIDSequence* IDSequence();
 
@@ -86,7 +89,7 @@ public:
   // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
   static void SetDeltaTime(float deltaTime);
 
-  static ZGameObjectMap LoadZOF(std::string zofPath);
+  static ZOFLoadResult LoadZOF(std::string zofPath);
 
   static void CleanUp();
 protected:

@@ -17,9 +17,10 @@
 #include "ZIDSequence.hpp"
 #include "ZOFTree.hpp"
 #include "ZOFParser.hpp"
+#include "ZResourceCache.hpp"
 #include "ZGOFactory.hpp"
 #include "ZGraphicsFactory.hpp"
-#include "ZResourceCache.hpp"
+#include "ZUIFactory.hpp"
 #include "ZZipFile.hpp"
 #include <chrono>
 
@@ -50,6 +51,7 @@ std::unique_ptr<ZPhysics> ZEngine::physics_ = nullptr;
 std::unique_ptr<ZResourceCache> ZEngine::resourceCache_ = nullptr;
 std::unique_ptr<ZGOFactory> ZEngine::gameObjectFactory_ = nullptr;
 std::unique_ptr<ZGraphicsFactory> ZEngine::graphicsFactory_ = nullptr;
+std::unique_ptr<ZUIFactory> ZEngine::uiFactory_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
 
@@ -79,6 +81,7 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
 
   gameObjectFactory_.reset(new ZGOFactory);
   graphicsFactory_.reset(new ZGraphicsFactory);
+  uiFactory_.reset(new ZUIFactory);
 }
 
 std::shared_ptr<ZGame> ZEngine::Game() {
@@ -115,6 +118,10 @@ ZGOFactory* ZEngine::GameObjectFactory() {
 
 ZGraphicsFactory* ZEngine::GraphicsFactory() {
   return graphicsFactory_.get();
+}
+
+ZUIFactory* ZEngine::UIFactory() {
+  return uiFactory_.get();
 }
 
 ZIDSequence* ZEngine::IDSequence() {
@@ -175,7 +182,8 @@ void ZEngine::SetDeltaTime(float deltaTime) {
   deltaTime_ = deltaTime;
 }
 
-ZGameObjectMap ZEngine::LoadZOF(std::string zofPath) {
+ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
+  ZOFLoadResult results;
   // TODO: ZOFTree should have append functionality so that different
   // ZOFTrees can be combined (by combining children into a single tree)
   ZOFParser parser;
@@ -183,6 +191,8 @@ ZGameObjectMap ZEngine::LoadZOF(std::string zofPath) {
 
   if (graphics_ != nullptr) graphics_->Load(objectTree);
 
-  return gameObjectFactory_->Create(objectTree);
-  // TODO: uiFactory_->Create(objectTree)
+  results.gameObjects = gameObjectFactory_->Create(objectTree);
+  results.uiElements = uiFactory_->Create(objectTree);
+
+  return results;
 }

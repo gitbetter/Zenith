@@ -26,21 +26,21 @@ public:
   ZUIElement(glm::vec2 position, glm::vec2 scale);
   virtual ~ZUIElement() { }
 
+  virtual void Initialize(ZOFNode* root);
+
   void AddChild(std::shared_ptr<ZUIElement> element);
 
   void Hide() { hidden_ = true; }
   void Show() { hidden_ = false; }
   void Enable() { enabled_ = true; }
   void Disable() { enabled_ = false; }
-  void Select() { if (selectable_) selected_ = true; }
+  void Select() { if (enabled_) selected_ = true; }
   void Deselect() { selected_ = false; }
-  void SetSelectable(bool selectable) { selectable_ = selectable; }
 
   void Translate(glm::vec2 translation);
   void Rotate(float angle);
   void Scale(glm::vec2 factor);
 
-  bool Selectable() { return selectable_; }
   bool Enabled() { return enabled_; }
   bool Hidden() { return hidden_; }
   bool Selected() { return selected_; }
@@ -67,7 +67,7 @@ public:
 
 protected:
 
-  bool hidden_, enabled_, selected_, selectable_, dirty_;
+  bool hidden_, enabled_, selected_, dirty_;
   glm::mat4 modelMatrix_;
   glm::vec4 translationBounds_;
   glm::vec4 color_;

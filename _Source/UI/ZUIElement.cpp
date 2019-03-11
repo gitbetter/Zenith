@@ -19,6 +19,50 @@
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
   translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->ResolutionX(), 0.f, (float)ZEngine::Domain()->ResolutionY());
   Scale(scale); Translate(position);
+  id_ = "ZUI_" + ZEngine::IDSequence()->Next();
+}
+
+void ZUIElement::Initialize(ZOFNode* root) {
+  modelMatrix_ = glm::mat4(1.0); color_ = glm::vec4(0.6);
+
+  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  if(node == nullptr) {
+    _Z("Could not initalize ZUIElement", ZERROR);
+    return;
+  }
+
+  ZOFPropertyMap props = node->properties;
+
+  if (props.find("position") != props.end() && props["position"]->HasValues()) {
+    ZOFNumberList* posProp = props["position"]->Value<ZOFNumberList>(0);
+    Translate(glm::vec2(posProp->value[0], posProp->value[1]));
+  }
+
+  if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
+    ZOFNumberList* scaleProp = props["scale"]->Value<ZOFNumberList>(0);
+    Scale(glm::vec2(scaleProp->value[0], scaleProp->value[1]));
+  }
+
+  if (props.find("color") != props.end() && props["color"]->HasValues()) {
+    ZOFNumberList* colorProp = props["color"]->Value<ZOFNumberList>(0);
+    color_ = glm::vec4(colorProp->value[0], colorProp->value[1], colorProp->value[2], colorProp->value[3]);
+  }
+
+  if (props.find("isHidden") != props.end() && props["isHidden"]->HasValues()) {
+    ZOFString* hiddenProp = props["isHidden"]->Value<ZOFString>(0);
+    hidden_ = hiddenProp->value == "Yes";
+  }
+
+  if (props.find("isEnabled") != props.end() && props["isEnabled"]->HasValues()) {
+    ZOFString* enabledProp = props["isEnabled"]->Value<ZOFString>(0);
+    enabled_ = enabledProp->value == "Yes";
+  }
+
+  if (props.find("texture") != props.end() && props["texture"]->HasValues()) {
+    ZOFString* texProp = props["texture"]->Value<ZOFString>(0);
+    if (ZEngine::Graphics()->Textures().find(texProp->value) != ZEngine::Graphics()->Textures().end())
+      texture_ = ZEngine::Graphics()->Textures()[texProp->value];
+  }
 }
 
 void ZUIElement::Draw(ZShader* shader) {
@@ -42,8 +86,10 @@ void ZUIElement::RenderChildren(ZShader* shader) {
 
 void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element) {
   // Reset the child translation and move it to the parent's location
+  glm::vec3 elementPos = element->Position();
+
   element->ResetTranslation();
-  element->Translate(Position());
+  element->Translate(Position() + Position() * elementPos);
   element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
   children_.push_back(element);
 }

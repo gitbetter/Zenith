@@ -32,6 +32,7 @@
 #include <type_traits>
 #include <memory>
 #include <regex>
+#include <algorithm>
 
 #define _Z(message, severity) { \
   switch(severity) {\
@@ -94,6 +95,14 @@ enum class ZCubemapTextureType {
 
 enum class ZMeshDrawStyle {
   Point, Line, LineStrip, Triangle, TriangleStrip
+};
+
+enum class ZPrimitiveType {
+  Plane, Cube, Sphere, Cylinder, Cone
+};
+
+enum class ZShaderTypes {
+  Vertex, Pixel, Tesselation, Geometry, Other
 };
 
 struct ZBufferData {
@@ -170,10 +179,7 @@ struct ZFont {
   std::map<unsigned char, ZCharacter> characters;
 };
 
-enum class ZPrimitiveType {
-  Plane, Cube, Sphere, Cylinder, Cone
-};
-
-enum class ZShaderTypes {
-  Vertex, Pixel, Tesselation, Geometry, Other
+struct ZOFLoadResult {
+  ZGameObjectMap gameObjects;
+  ZUIElementMap uiElements;
 };

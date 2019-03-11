@@ -22,6 +22,32 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
   bufferData_ = ZEngine::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
 }
 
+void ZUIText::Initialize(ZOFNode* root) {
+  ZUIElement::Initialize(root);
+
+  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  if(node == nullptr) {
+    _Z("Could not initalize ZUIElement", ZERROR);
+    return;
+  }
+
+  ZOFPropertyMap props = node->properties;
+
+  if (props.find("font") != props.end() && props["font"]->HasValues()) {
+    ZOFString* fontProp = props["font"]->Value<ZOFString>(0);
+    font_ = fontProp->value;
+    if (props["font"]->ValueCount() > 1) {
+      ZOFNumber* fontSizeProp = props["font"]->Value<ZOFNumber>(1);
+      fontScale_ = fontSizeProp->value;
+    }
+  }
+
+  if (props.find("text") != props.end() && props["text"]->HasValues()) {
+    ZOFString* textProp = props["text"]->Value<ZOFString>(0);
+    text_ = textProp->value;
+  }
+}
+
 void ZUIText::Draw(ZShader* shader) {
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly

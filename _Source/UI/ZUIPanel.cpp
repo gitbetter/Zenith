@@ -7,3 +7,7 @@
 //
 
 #include "ZUIPanel.hpp"
+
+void ZUIPanel::Initialize(ZOFNode* root) {
+  ZUIElement::Initialize(root);
+}

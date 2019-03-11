@@ -18,7 +18,7 @@
 // Class and Data Structure Definitions
 class ZUIFactory {
 
-  using ZUICreator = std::shared_ptr<ZUIElement> (ZUIFactory::*)();
+  using ZUICreator = std::shared_ptr<ZUIElement> (ZUIFactory::*)(ZOFNode* root);
 
 private:
 
@@ -29,10 +29,10 @@ public:
 
   ZUIElementMap Create(ZOFTree* data);
 
-  std::shared_ptr<ZUIElement> CreateUIButton();
-  std::shared_ptr<ZUIElement> CreateUIImage();
-  std::shared_ptr<ZUIElement> CreateUIPanel();
-  std::shared_ptr<ZUIElement> CreateUIText();
+  std::shared_ptr<ZUIElement> CreateUIButton(ZOFNode* root);
+  std::shared_ptr<ZUIElement> CreateUIImage(ZOFNode* root);
+  std::shared_ptr<ZUIElement> CreateUIPanel(ZOFNode* root);
+  std::shared_ptr<ZUIElement> CreateUIText(ZOFNode* root);
 
 protected:
 

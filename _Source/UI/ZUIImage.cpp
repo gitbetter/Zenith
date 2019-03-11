@@ -16,6 +16,10 @@ ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIE
   SetImage(path);
 }
 
+void ZUIImage::Initialize(ZOFNode* root) {
+  ZUIElement::Initialize(root);
+}
+
 void ZUIImage::Draw(ZShader* shader) {
   ZUIElement::Draw(shader);
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();

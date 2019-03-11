@@ -50,9 +50,13 @@ int main(int argc, const char * argv[]) {
   ZEngine::UI()->EnableCursor();
 
   // Parse the ZOF file and create the resources
-  ZGameObjectMap gameObjects = ZEngine::LoadZOF("basic_scene.zof");
-  for (ZGameObjectMap::iterator it = gameObjects.begin(); it != gameObjects.end(); it++) {
+  ZOFLoadResult zofResult = ZEngine::LoadZOF("basic_scene.zof");
+  for (ZGameObjectMap::iterator it = zofResult.gameObjects.begin(); it != zofResult.gameObjects.end(); it++) {
     game->AddGameObject(it->second);
+  }
+
+  for (ZUIElementMap::iterator it = zofResult.uiElements.begin(); it != zofResult.uiElements.end(); it++) {
+    ZEngine::UI()->AddElement(it->second);
   }
 
   // Register the camera component so it receives input events
@@ -63,23 +67,10 @@ int main(int argc, const char * argv[]) {
   // Now add some lights, because it's dark in here.
   game->AddGameObjects({std::shared_ptr<ZLight>(new ZLight(ZLightType::Directional))});
 
-  // TODO: Setup UI components to load from zof file
-  // Let's add some UI components to the UI system to test
-  auto uiButton = std::make_shared<ZUIButton>(glm::vec2(0.1f), glm::vec2(0.06f, 0.03f));
-  uiButton->SetColor(glm::vec4(36.f/255.f, 37.f/255.f, 42.f/255.f, 1.f));
-  uiButton->On(ZEventType::FirePress, [&]{
-    uiButton->SetColor(glm::vec4(1.f));
-  });
-
-  // We can nest UI components by adding children to them, such as is done here
-  // where some text is embedded in a button
-  // TODO: Make sure the child always translates relative to the parent
-  auto uiText = std::make_shared<ZUIText>("Zenith", "earthorbiter", 0.8f, glm::vec2(0.f), glm::vec2(0.06f, 0.03f));
-  uiText->SetColor(glm::vec4(0.8f, 0.8f, 0.8f, 1.f));
-  uiButton->AddChild(uiText);
-  uiText->Translate(glm::vec2(0.012f, 0.f));
-
-  ZEngine::UI()->AddElements({uiButton});
+  // TODO: How to do this when ui elements are loaded from zof
+  // uiButton->On(ZEventType::FirePress, [&]{
+  //   uiButton->SetColor(glm::vec4(1.f));
+  // });
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is

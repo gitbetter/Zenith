@@ -31,10 +31,9 @@ ZShaderMap ZGraphicsFactory::CreateShaders(ZOFTree* data) {
         if (!it->second->HasValues()) continue;
 
         ZOFString* str = it->second->Value<ZOFString>(0);
-        std::string path = str->value.find("\"") == 0 ? str->value.substr(1, str->value.size() - 2) : str->value;
-        if (it->second->id == "vertex") vertexPath = path;
-        else if (it->second->id == "pixel") pixelPath = path;
-        else if (it->second->id == "geometry") geometryPath = path;
+        if (it->second->id == "vertex") vertexPath = str->value;
+        else if (it->second->id == "pixel") pixelPath = str->value;
+        else if (it->second->id == "geometry") geometryPath = str->value;
       }
 
       shader->Initialize(vertexPath, pixelPath, geometryPath);
@@ -52,7 +51,7 @@ ZTextureMap ZGraphicsFactory::CreateTextures(ZOFTree* data) {
       ZOFObjectNode* textureNode = dynamic_cast<ZOFObjectNode*>(it->second);
       if (textureNode->properties.find("path") != textureNode->properties.end()) {
         ZOFString* pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
-        path = pathStr->value.substr(1, pathStr->value.size() - 2);
+        path = pathStr->value;
       }
 
       if (!path.empty()) {

@@ -126,7 +126,9 @@ void ZOFParser::Value(ZOFPropertyNode* prop) {
   } else if (std::regex_match(currentToken_, id_)) {
     // Push a new string onto the prop
     ZOFString* terminal = new ZOFString;
-    terminal->value = currentToken_;
+    std::string s = currentToken_;
+    s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
+    terminal->value = s;
     terminal->root = prop->root;
     prop->values.push_back(terminal);
 
@@ -149,7 +151,9 @@ void ZOFParser::List(ZOFPropertyNode* prop) {
     if (std::regex_match(currentToken_, id_)) {
       // Push a new list of strings onto the list
       ZOFStringList* terminal = new ZOFStringList;
-      terminal->value.push_back(currentToken_);
+      std::string s = currentToken_;
+      s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
+      terminal->value.push_back(s);
       terminal->root = prop->root;
       prop->values.push_back(terminal);
 
@@ -175,8 +179,11 @@ void ZOFParser::ListTail(ZOFAbstractTerminal* terminal) {
     } else if (std::regex_match(currentToken_, id_)) {
       // Push a new string onto the list of strings
       ZOFStringList* term = dynamic_cast<ZOFStringList*>(terminal);
-      if (term != nullptr)
-        term->value.push_back(currentToken_);
+      if (term != nullptr) {
+        std::string s = currentToken_;
+        s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
+        term->value.push_back(s);
+      }
 
       Match(id_), ListTail(term);
     } else if (std::regex_match(currentToken_, number_)) {

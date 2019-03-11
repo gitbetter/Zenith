@@ -22,6 +22,8 @@ public:
     ZUICursor(glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.02f, 0.03f));
     ~ZUICursor() { }
 
+    void Initialize(ZOFNode* root) override;
+
     void Draw(ZShader* shader) override;
 
     void HandlePitch(float controlThrow) override;

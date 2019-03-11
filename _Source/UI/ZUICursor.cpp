@@ -21,6 +21,10 @@ ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position,
   AddChild(cursorImage);
 }
 
+void ZUICursor::Initialize(ZOFNode* root) {
+  ZUIElement::Initialize(root);
+}
+
 void ZUICursor::Draw(ZShader* shader) {
   ZUIElement::Draw(shader);
   RenderChildren(shader);
@@ -57,7 +61,7 @@ void ZUICursor::HandleFire() {
   std::vector<std::shared_ptr<ZUIElement>> elements = ZEngine::UI()->Elements();
   bool elementFired = false;
   for (std::shared_ptr<ZUIElement> element : elements) {
-    if (!element->Selectable()) continue;
+    if (!element->Enabled()) continue;
     if (Position().x >= element->Position().x - element->Size().x && Position().x <= element->Position().x + element->Size().x &&
         Position().y >= element->Position().y - element->Size().y && Position().y <= element->Position().y + element->Size().y) {
           element->Fire(ZEventType::FirePress);

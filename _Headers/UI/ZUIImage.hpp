@@ -24,6 +24,8 @@ public:
   ZUIImage(std::string path = "", glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.25f));
   ~ZUIImage() { }
 
+  void Initialize(ZOFNode* root) override;
+
   void Draw(ZShader* shader) override;
   ZMeshUI ElementShape() override;
 
