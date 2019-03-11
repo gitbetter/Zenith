@@ -34,15 +34,14 @@ void ZUI::Initialize() {
 
 void ZUI::Draw() {
   if (cursor_ != nullptr) cursor_->Draw(uiShader_.get());
-  for (std::shared_ptr<ZUIElement> element : elements_) {
-      element->Draw((std::dynamic_pointer_cast<ZUIText>(element)) ? textShader_.get() : uiShader_.get());
+  for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
+      it->second->Draw((std::dynamic_pointer_cast<ZUIText>(it->second)) ? textShader_.get() : uiShader_.get());
   }
 }
 
 void ZUI::AddElement(std::shared_ptr<ZUIElement> element) {
   if (element != nullptr) {
-    // TODO: Check if this ui element is already in the array before the push_back
-    elements_.push_back(element);
+    elements_[element->ID()] = element;
   }
 }
 
@@ -71,8 +70,8 @@ void ZUI::RegisterFont(std::string fontPath) {
 }
 
 void ZUI::CleanUp() {
-  for (std::shared_ptr<ZUIElement> element : elements_) {
-    element->CleanUp();
+  for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
+    it->second->CleanUp();
   }
   elements_.clear();
 

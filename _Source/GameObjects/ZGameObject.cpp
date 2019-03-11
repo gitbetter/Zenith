@@ -30,6 +30,8 @@ void ZGameObject::Initialize(ZOFNode* root) {
     return;
   }
 
+  id_ = node->id;
+
   ZOFPropertyMap props = node->properties;
 
   if (props.find("position") != props.end() && props["position"]->HasValues()) {

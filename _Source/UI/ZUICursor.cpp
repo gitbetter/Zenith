@@ -58,19 +58,18 @@ void ZUICursor::HandleYaw(float controlThrow) {
 }
 
 void ZUICursor::HandleFire() {
-  std::vector<std::shared_ptr<ZUIElement>> elements = ZEngine::UI()->Elements();
+  ZUIElementMap elements = ZEngine::UI()->Elements();
   bool elementFired = false;
-  for (std::shared_ptr<ZUIElement> element : elements) {
-    if (!element->Enabled()) continue;
-    if (Position().x >= element->Position().x - element->Size().x && Position().x <= element->Position().x + element->Size().x &&
-        Position().y >= element->Position().y - element->Size().y && Position().y <= element->Position().y + element->Size().y) {
-          element->Fire(ZEventType::FirePress);
+  for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++) {
+    if (!it->second->Enabled()) continue;
+    if (Position().x >= it->second->Position().x - it->second->Size().x && Position().x <= it->second->Position().x + it->second->Size().x &&
+        Position().y >= it->second->Position().y - it->second->Size().y && Position().y <= it->second->Position().y + it->second->Size().y) {
+          it->second->Fire(ZEventType::FirePress);
           elementFired = true; break;
     }
   }
 
-  // If a UI element is selected, underlying game objects should not be picked
-  // as well, to preserve Z ordering
+  // If a UI element is selected, underlying game objects should not be picked (i.e. Z ordering is preserved)
   if (elementFired) return;
 
   std::shared_ptr<ZGameObject> camera = ZEngine::Game()->ActiveCamera();

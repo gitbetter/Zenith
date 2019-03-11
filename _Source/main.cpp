@@ -67,10 +67,11 @@ int main(int argc, const char * argv[]) {
   // Now add some lights, because it's dark in here.
   game->AddGameObjects({std::shared_ptr<ZLight>(new ZLight(ZLightType::Directional))});
 
-  // TODO: How to do this when ui elements are loaded from zof
-  // uiButton->On(ZEventType::FirePress, [&]{
-  //   uiButton->SetColor(glm::vec4(1.f));
-  // });
+  // We can register callbacks for specific UI events
+  std::shared_ptr<ZUIButton> buttonEl = ZEngine::UI()->FindElement<ZUIButton>("ZUI_01");
+  buttonEl->On(ZEventType::FirePress, [&]{
+    buttonEl->SetColor(glm::vec4(1.f));
+  });
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is

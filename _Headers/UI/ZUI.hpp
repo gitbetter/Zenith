@@ -39,18 +39,26 @@ public:
   void RegisterFont(std::string fontPath);
 
   std::shared_ptr<ZUICursor> Cursor() { return cursor_; }
-  std::vector<std::shared_ptr<ZUIElement>>& Elements() { return elements_; }
+  ZUIElementMap& Elements() { return elements_; }
 
   ZTextStrategy* TextStrategy() { return textStrategy_.get(); }
 
   std::shared_ptr<ZShader> TextShader() { return textShader_; }
   std::shared_ptr<ZShader> UIShader() { return uiShader_; }
 
+  template<class T> std::shared_ptr<T> FindElement(std::string id) {
+    for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
+      if (std::dynamic_pointer_cast<T>(it->second) && it->second->ID() == id)
+        return std::dynamic_pointer_cast<T>(it->second);
+    }
+    return nullptr;
+  }
+
   void CleanUp();
 
 protected:
 
-  std::vector<std::shared_ptr<ZUIElement>> elements_;
+  ZUIElementMap elements_;
   std::shared_ptr<ZUICursor> cursor_;
   std::unique_ptr<ZTextStrategy> textStrategy_;
   std::shared_ptr<ZShader> uiShader_;
