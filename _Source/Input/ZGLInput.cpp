@@ -21,7 +21,7 @@
 
 void ZGLInput::Process() {
   GLFWwindow* windowHandle = glfwGetCurrentContext();
-  // Todo: Flyweight the commands
+  // Todo: Replace 'commands' with 'events', and use a global event managaer to dispatch
   if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) Broadcast(ZIForwardBackCommand(1.0));
   if (glfwGetKey(windowHandle, GLFW_KEY_A) == GLFW_PRESS) Broadcast(ZIStrafeCommand(-1.0));
   if (glfwGetKey(windowHandle, GLFW_KEY_S) == GLFW_PRESS) Broadcast(ZIForwardBackCommand(-1.0));
