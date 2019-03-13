@@ -18,21 +18,30 @@
 #include "ZSkybox.hpp"
 #include "ZShader.hpp"
 #include "ZCameraComponent.hpp"
+#include "ZEventAgent.hpp"
+#include "ZQuitEvent.hpp"
 
 #include <chrono>
 using namespace std;
 
 ZGame::ZGame() : activeCameraObject_("") { }
 
+void ZGame::Setup() {
+  ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZGame::HandleQuit);
+  ZEngine::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
+}
+
 void ZGame::RunGameLoop() {
+  Setup();
+
   _Z("Zenith is about to loop...", ZINFO);
 
-  float previousTime = ZEngine::MilliSecondTime();
+  float previousTime = ZEngine::SecondsTime();
   float lag = 0.0;
 
   while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
     int fixedUpdates = 0;
-    float currentTime = ZEngine::MilliSecondTime();
+    float currentTime = ZEngine::SecondsTime();
     ZEngine::SetDeltaTime(currentTime - previousTime);
     previousTime = currentTime;
     lag += ZEngine::DeltaTime();
@@ -46,6 +55,8 @@ void ZGame::RunGameLoop() {
 
     Render(lag / ZEngine::UPDATE_STEP_SIZE);
     ZEngine::Domain()->Strategy()->PollEvents();
+
+    ZEngine::EventAgent()->Process(ZEngine::UPDATE_STEP_SIZE * 2.f);
 
     MacDisplayHack();
   }
@@ -105,7 +116,7 @@ std::shared_ptr<ZGameObject> ZGame::ActiveCamera() {
   return gameObjects_[activeCameraObject_];
 }
 
-void ZGame::HandleEscape() {
+void ZGame::HandleQuit(std::shared_ptr<ZEvent> event) {
   ZEngine::Domain()->Strategy()->ReleaseCursor();
 }
 

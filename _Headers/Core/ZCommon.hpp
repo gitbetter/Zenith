@@ -14,6 +14,7 @@
 #define ZERROR 2
 
 #include "ZOFTree.hpp"
+#include "FastDelegate.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -33,6 +34,7 @@
 #include <memory>
 #include <regex>
 #include <algorithm>
+#include <sstream>
 
 #define _Z(message, severity) { \
   switch(severity) {\
@@ -48,14 +50,12 @@
   }\
 }
 
-#define RENDER_OP_COLOR 0x01
-#define RENDER_OP_SHADOW 0x02
-
 class ZGameObject;
 class ZUIElement;
 class ZShader;
 class ZMesh3D;
 class ZMaterial;
+class ZEvent;
 
 typedef std::function<void()> ZEventCallback;
 typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
@@ -63,11 +63,13 @@ typedef std::map<std::string, std::shared_ptr<ZUIElement>> ZUIElementMap;
 typedef std::map<std::string, std::shared_ptr<ZShader>> ZShaderMap;
 typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;
 typedef std::map<std::string, std::shared_ptr<ZMaterial>> ZMaterialMap;
-typedef unsigned char RENDER_OP;
+typedef fastdelegate::FastDelegate1<std::shared_ptr<ZEvent>> ZEventDelegate;
 
-enum class ZEventType {
-  FirePress
-};
+typedef unsigned char RENDER_OP;
+typedef unsigned long ZEventType;
+
+#define RENDER_OP_COLOR 0x01
+#define RENDER_OP_SHADOW 0x02
 
 enum class ZCameraType {
   Orthographic, Perspective

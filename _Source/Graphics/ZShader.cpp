@@ -16,7 +16,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <sstream>
 #include <fstream>
 
 // TODO: Make ZShader an interface, and rework this specific implementation as ZGLShader

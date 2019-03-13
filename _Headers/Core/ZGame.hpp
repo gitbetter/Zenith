@@ -25,6 +25,7 @@ private:
   std::map<std::string, std::shared_ptr<ZLight>> gameLights_;
   std::string activeCameraObject_;
 
+  void Setup();
   void CleanUp();
 
 public:
@@ -43,7 +44,7 @@ public:
 
   void SetDefaultSkybox();
 
-  void HandleEscape() override;
+  void HandleQuit(std::shared_ptr<ZEvent> event);
 
   void MacDisplayHack(); // TODO: Remove later
 

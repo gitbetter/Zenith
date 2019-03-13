@@ -18,6 +18,7 @@
 #include "ZOFTree.hpp"
 #include "ZOFParser.hpp"
 #include "ZResourceCache.hpp"
+#include "ZEventAgent.hpp"
 #include "ZGOFactory.hpp"
 #include "ZGraphicsFactory.hpp"
 #include "ZUIFactory.hpp"
@@ -49,6 +50,7 @@ std::unique_ptr<ZInput> ZEngine::input_(new ZNullInput);
 std::unique_ptr<ZUI> ZEngine::ui_ = nullptr;
 std::unique_ptr<ZPhysics> ZEngine::physics_ = nullptr;
 std::unique_ptr<ZResourceCache> ZEngine::resourceCache_ = nullptr;
+std::unique_ptr<ZEventAgent> ZEngine::eventAgent_ = nullptr;
 std::unique_ptr<ZGOFactory> ZEngine::gameObjectFactory_ = nullptr;
 std::unique_ptr<ZGraphicsFactory> ZEngine::graphicsFactory_ = nullptr;
 std::unique_ptr<ZUIFactory> ZEngine::uiFactory_ = nullptr;
@@ -71,7 +73,6 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   graphics_->Initialize();
 
   input_.reset(new ZGLInput);
-  input_->Register(currentGame_);
 
   ui_.reset(new ZUI);
   ui_->Initialize();
@@ -112,6 +113,10 @@ ZResourceCache* ZEngine::ResourceCache() {
   return resourceCache_.get();
 }
 
+ZEventAgent* ZEngine::EventAgent() {
+  return eventAgent_.get();
+}
+
 ZGOFactory* ZEngine::GameObjectFactory() {
   return gameObjectFactory_.get();
 }
@@ -132,7 +137,7 @@ float ZEngine::DeltaTime() {
   return deltaTime_;
 }
 
-float ZEngine::MilliSecondTime() {
+float ZEngine::SecondsTime() {
   using namespace std::chrono;
   return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0f;
 }

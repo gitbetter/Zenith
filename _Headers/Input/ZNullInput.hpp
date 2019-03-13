@@ -20,13 +20,6 @@ class ZNullInput : public ZInput {
 private:
 
 public:
-
-    virtual void Register(std::shared_ptr<ZObject> gameObject) {
-      _Z("No ZInput implementation has been provided", ZERROR);
-    }
-    virtual void Broadcast(const ZInputCommand& command) {
-      _Z("No ZInput implementation has been provided", ZERROR);
-    }
     virtual void Process() {
       _Z("No ZInput implementation has been provided", ZERROR);
     }

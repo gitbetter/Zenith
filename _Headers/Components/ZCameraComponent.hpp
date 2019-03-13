@@ -18,6 +18,7 @@ struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZCameraComponent : public ZComponent {
+  
 private:
 
   float movementSpeed_ = 25.f;
@@ -32,6 +33,9 @@ private:
 
   glm::vec3 pitchVelocity_, yawVelocity_;
   glm::quat pitch_, yaw_;
+
+  void HandleMove(std::shared_ptr<ZEvent> event);
+  void HandleLook(std::shared_ptr<ZEvent> event);
 
 public:
 
@@ -52,11 +56,6 @@ public:
   void Update() override;
 
   void UpdateCameraOrientation();
-
-  void HandleStrafe(float controlThrow) override;
-  void HandleForwardBack(float controlThrow) override;
-  void HandlePitch(float controlThrow) override;
-  void HandleYaw(float controlThrow) override;
 
   ZCameraType Type() { return cameraType_; }
   void SetType(ZCameraType type) { cameraType_ = type; }

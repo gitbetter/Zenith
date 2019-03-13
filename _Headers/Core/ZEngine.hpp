@@ -29,6 +29,7 @@ class ZGOFactory;
 class ZGraphicsFactory;
 class ZUIFactory;
 class ZGame;
+class ZEventAgent;
 
 // Class Definitions
 class ZEngine {
@@ -42,6 +43,7 @@ private:
   static std::unique_ptr<ZPhysics> physics_;
 
   static std::unique_ptr<ZResourceCache> resourceCache_;
+  static std::unique_ptr<ZEventAgent> eventAgent_;
   static std::unique_ptr<ZGOFactory> gameObjectFactory_;
   static std::unique_ptr<ZGraphicsFactory> graphicsFactory_;
   static std::unique_ptr<ZUIFactory> uiFactory_;
@@ -72,6 +74,7 @@ public:
   static ZPhysics* Physics();
 
   static ZResourceCache* ResourceCache();
+  static ZEventAgent* EventAgent();
   static ZGOFactory* GameObjectFactory();
   static ZGraphicsFactory* GraphicsFactory();
   static ZUIFactory* UIFactory();
@@ -79,7 +82,7 @@ public:
   static ZIDSequence* IDSequence();
 
   static float DeltaTime();
-  static float MilliSecondTime();
+  static float SecondsTime();
 
   static void Provide(std::unique_ptr<ZDomain> domain);
   static void Provide(std::unique_ptr<ZGraphics> graphics);

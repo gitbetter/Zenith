@@ -17,20 +17,21 @@ class ZShader;
 // Class and Data Structure Definitions
 class ZUICursor : public ZUIElement {
 
+private:
+
+  void HandleMouseMove(std::shared_ptr<ZEvent> event);
+  void HandleMousePress(std::shared_ptr<ZEvent> event);
+
 public:
 
-    ZUICursor(glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.02f, 0.03f));
-    ~ZUICursor() { }
+  ZUICursor(glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.02f, 0.03f));
+  ~ZUICursor() { }
 
-    void Initialize(ZOFNode* root) override;
+  void Initialize(ZOFNode* root) override;
 
-    void Draw(ZShader* shader) override;
+  void Draw(ZShader* shader) override;
 
-    void HandlePitch(float controlThrow) override;
-    void HandleYaw(float controlThrow) override;
-    void HandleFire() override;
-
-    void SetCursorImage(std::string path);
-    void SetColor(glm::vec4 color) override ;
+  void SetCursorImage(std::string path);
+  void SetColor(glm::vec4 color) override;
 
 };

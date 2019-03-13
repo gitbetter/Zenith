@@ -10,6 +10,9 @@
 #include "ZCommon.hpp"
 #include "ZDomain.hpp"
 #include "ZGameObject.hpp"
+#include "ZEventAgent.hpp"
+#include "ZObjectMoveEvent.hpp"
+#include "ZObjectLookEvent.hpp"
 #include "ZOFTree.hpp"
 
 void ZCameraComponent::Update() {
@@ -26,7 +29,7 @@ void ZCameraComponent::UpdateCameraOrientation() {
   }
 }
 
-// TODO: These initalize functions can get pretty hectic. Maybe there's a better way...
+// TODO: Initialize functions should come in two flavors
 void ZCameraComponent::Initialize(ZOFNode* root) {
   ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
   if(node == nullptr) {
@@ -81,37 +84,36 @@ void ZCameraComponent::Initialize(ZOFNode* root) {
     ZOFNumber* prop = props["damping"]->Value<ZOFNumber>(0);
     cameraDamping_ = prop->value;
   }
+
+  // TODO: AddListener takes a delegate reference, yet these delegates go out of scope at method end
+  ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
+  ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
+  ZEngine::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);
+  ZEngine::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
 }
 
-void ZCameraComponent::HandleStrafe(float controlThrow) {
-  float velocity = movementSpeed_ * ZEngine::DeltaTime();
-  object_->SetPosition(object_->Position() + object_->Right() * controlThrow * -velocity);
-}
+void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event) {
+  std::shared_ptr<ZObjectMoveEvent> moveEvent = std::static_pointer_cast<ZObjectMoveEvent>(event);
 
-void ZCameraComponent::HandleForwardBack(float controlThrow) {
   float velocity = movementSpeed_ * ZEngine::DeltaTime();
-  object_->SetPosition(object_->Position() + object_->Front() * controlThrow * velocity);
+  object_->SetPosition(object_->Position() + object_->Right() * moveEvent->X() * -velocity);
+  object_->SetPosition(object_->Position() + object_->Front() * moveEvent->Z() * velocity);
 
   if (cameraType_ == ZCameraType::Orthographic) {
-    zoom_ += zoomSpeed_ * controlThrow * velocity;
+    zoom_ += zoomSpeed_ * moveEvent->Z() * velocity;
   }
 }
 
-void ZCameraComponent::HandlePitch(float controlThrow) {
-  if (movementStyle_ == ZCameraMovementStyle::Follow) {
-    pitchVelocity_ += glm::vec3(glm::radians(-controlThrow * lookSensitivity_), 0.f, 0.f);
-  } else if (movementStyle_ == ZCameraMovementStyle::Normal) {
-    pitch_ = glm::angleAxis(glm::radians(-controlThrow * lookSensitivity_), glm::vec3(1.f, 0.f, 0.f));
-    object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation()));
-  }
-}
+void ZCameraComponent::HandleLook(std::shared_ptr<ZEvent> event) {
+  std::shared_ptr<ZObjectLookEvent> lookEvent = std::static_pointer_cast<ZObjectLookEvent>(event);
 
-void ZCameraComponent::HandleYaw(float controlThrow) {
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
-    yawVelocity_ += glm::vec3(0.f, glm::radians(controlThrow * lookSensitivity_), 0.f);
+    pitchVelocity_ += glm::vec3(glm::radians(-lookEvent->Pitch() * lookSensitivity_), 0.f, 0.f);
+    yawVelocity_ += glm::vec3(0.f, glm::radians(lookEvent->Yaw() * lookSensitivity_), 0.f);
   } else if (movementStyle_ == ZCameraMovementStyle::Normal) {
-    yaw_ = glm::angleAxis(glm::radians(controlThrow * lookSensitivity_), glm::vec3(0.f, 1.f, 0.f));
-    object_->SetOrientation(glm::normalize(object_->Orientation() * yaw_));
+    pitch_ = glm::angleAxis(glm::radians(-lookEvent->Pitch() * lookSensitivity_), glm::vec3(1.f, 0.f, 0.f));
+    yaw_ = glm::angleAxis(glm::radians(lookEvent->Yaw() * lookSensitivity_), glm::vec3(0.f, 1.f, 0.f));
+    object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
   }
 }
 

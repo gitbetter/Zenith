@@ -55,7 +55,6 @@ void ZUI::EnableCursor() {
   if (cursor_ == nullptr) {
     cursor_ = std::shared_ptr<ZUICursor>(new ZUICursor);
     cursor_->SetColor(glm::vec4(1.f));
-    ZEngine::Input()->Register(cursor_);
   }
 }
 

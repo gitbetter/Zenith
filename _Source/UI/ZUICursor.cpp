@@ -8,6 +8,9 @@
 
 #include "ZCommon.hpp"
 #include "ZEngine.hpp"
+#include "ZEventAgent.hpp"
+#include "ZObjectLookEvent.hpp"
+#include "ZFireEvent.hpp"
 #include "ZUICursor.hpp"
 #include "ZUIImage.hpp"
 #include "ZDomain.hpp"
@@ -23,6 +26,10 @@ ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position,
 
 void ZUICursor::Initialize(ZOFNode* root) {
   ZUIElement::Initialize(root);
+
+  ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZUICursor::HandleMouseMove);
+  ZEngine::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
+
 }
 
 void ZUICursor::Draw(ZShader* shader) {
@@ -49,22 +56,20 @@ void ZUICursor::SetColor(glm::vec4 color) {
   }
 }
 
-void ZUICursor::HandlePitch(float controlThrow) {
-  Translate(glm::vec2(0.f, -controlThrow * 0.05f * ZEngine::DeltaTime()));
+void ZUICursor::HandleMouseMove(std::shared_ptr<ZEvent> event) {
+  std::shared_ptr<ZObjectLookEvent> lookEvent = std::static_pointer_cast<ZObjectLookEvent>(event);
+  Translate(glm::vec2(0.f, -lookEvent->Pitch() * 0.05f * ZEngine::DeltaTime()));
+  Translate(glm::vec2(lookEvent->Yaw() * 0.05f * ZEngine::DeltaTime(), 0.f));
 }
 
-void ZUICursor::HandleYaw(float controlThrow) {
-  Translate(glm::vec2(controlThrow * 0.05f * ZEngine::DeltaTime(), 0.f));
-}
-
-void ZUICursor::HandleFire() {
+void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
   ZUIElementMap elements = ZEngine::UI()->Elements();
   bool elementFired = false;
   for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++) {
     if (!it->second->Enabled()) continue;
     if (Position().x >= it->second->Position().x - it->second->Size().x && Position().x <= it->second->Position().x + it->second->Size().x &&
         Position().y >= it->second->Position().y - it->second->Size().y && Position().y <= it->second->Position().y + it->second->Size().y) {
-          it->second->Fire(ZEventType::FirePress);
+          ZEngine::EventAgent()->TriggerEvent(std::shared_ptr<ZFireEvent>(new ZFireEvent));
           elementFired = true; break;
     }
   }

@@ -9,12 +9,11 @@
 #include "ZEngine.hpp"
 #include "ZGraphics.hpp"
 #include "ZGLInput.hpp"
-#include "ZIStrafeCommand.hpp"
-#include "ZIForwardBackCommand.hpp"
-#include "ZIEscapeCommand.hpp"
-#include "ZIPitchCommand.hpp"
-#include "ZIYawCommand.hpp"
-#include "ZIFireCommand.hpp"
+#include "ZEventAgent.hpp"
+#include "ZObjectLookEvent.hpp"
+#include "ZObjectMoveEvent.hpp"
+#include "ZQuitEvent.hpp"
+#include "ZFireEvent.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -22,15 +21,30 @@
 void ZGLInput::Process() {
   GLFWwindow* windowHandle = glfwGetCurrentContext();
   // Todo: Replace 'commands' with 'events', and use a global event managaer to dispatch
-  if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) Broadcast(ZIForwardBackCommand(1.0));
-  if (glfwGetKey(windowHandle, GLFW_KEY_A) == GLFW_PRESS) Broadcast(ZIStrafeCommand(-1.0));
-  if (glfwGetKey(windowHandle, GLFW_KEY_S) == GLFW_PRESS) Broadcast(ZIForwardBackCommand(-1.0));
-  if (glfwGetKey(windowHandle, GLFW_KEY_D) == GLFW_PRESS) Broadcast(ZIStrafeCommand(1.0));
+  if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) {
+    std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, 1.f));
+    ZEngine::EventAgent()->TriggerEvent(moveEvent);
+  }
+  if (glfwGetKey(windowHandle, GLFW_KEY_A) == GLFW_PRESS) {
+    std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(-1.f, 0.f, 0.f));
+    ZEngine::EventAgent()->TriggerEvent(moveEvent);
+  }
+  if (glfwGetKey(windowHandle, GLFW_KEY_S) == GLFW_PRESS) {
+    std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, -1.f));
+    ZEngine::EventAgent()->TriggerEvent(moveEvent);
+  }
+  if (glfwGetKey(windowHandle, GLFW_KEY_D) == GLFW_PRESS) {
+    std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(1.f, 0.f, 0.f));
+    ZEngine::EventAgent()->TriggerEvent(moveEvent);
+  }
   if (glfwGetKey(windowHandle, GLFW_KEY_SPACE) == GLFW_PRESS)
   ;
   if (glfwGetKey(windowHandle, GLFW_KEY_TAB) == GLFW_PRESS)
   ;
-  if (glfwGetKey(windowHandle, GLFW_KEY_ESCAPE) == GLFW_PRESS) Broadcast(ZIEscapeCommand());
+  if (glfwGetKey(windowHandle, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    std::shared_ptr<ZQuitEvent> quitEvent(new ZQuitEvent);
+    ZEngine::EventAgent()->TriggerEvent(quitEvent);
+  }
 
   double yaw, pitch;
   glfwGetCursorPos(windowHandle, &yaw, &pitch);
@@ -39,11 +53,20 @@ void ZGLInput::Process() {
     lastYaw_ = yaw; lastPitch_ = pitch;
     firstLook_ = false;
   }
-  if (yaw != lastYaw_) Broadcast(ZIYawCommand(yaw - lastYaw_));
-  if (pitch != lastPitch_) Broadcast(ZIPitchCommand(lastPitch_ - pitch));
+  if (yaw != lastYaw_) {
+    std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(yaw - lastYaw_, 0.f));
+    ZEngine::EventAgent()->TriggerEvent(lookEvent);
+  }
+  if (pitch != lastPitch_) {
+    std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(0.f, lastPitch_ - pitch));
+    ZEngine::EventAgent()->TriggerEvent(lookEvent);
+  }
   lastYaw_ = yaw; lastPitch_ = pitch;
 
-  if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) Broadcast(ZIFireCommand());
+  if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+    std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent);
+    ZEngine::EventAgent()->TriggerEvent(fireEvent);
+  }
 }
 
 void ZGLInput::GetPointerPosition(double& x, double& y) {
