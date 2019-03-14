@@ -26,3 +26,4 @@ game
 
 # Workspaces
 *.code-workspace
+.DS_Store
