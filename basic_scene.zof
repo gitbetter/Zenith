@@ -134,6 +134,7 @@ ZGO_07
 			:normal ZTEX_07:
 			:roughness ZTEX_08:
 			:ao ZTEX_09:
+			:height ZTEX_10:
 		^
 	^
 ^
@@ -205,4 +206,7 @@ ZTEX_08
 ^
 ZTEX_09
 	:path "Assets/Textures/CobbleStone/ao.png":
+^
+ZTEX_10
+	:path "Assets/Textures/CobbleStone/height.png":
 ^

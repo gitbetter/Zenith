@@ -13,7 +13,7 @@
 void ZMaterial::Initialize(ZOFTree* root) {
   std::vector<ZTexture> textures;
   ZMaterialProperties materialProperties;
-  bool isPBR = false;
+  bool isPBR = false, hasDisplacement = false;
 
   ZOFObjectNode* materialNode = dynamic_cast<ZOFObjectNode*>(root);
 
@@ -22,6 +22,9 @@ void ZMaterial::Initialize(ZOFTree* root) {
 
     if (!isPBR)
       isPBR = it->second->id == "metallic" || it->second->id == "roughness" || it->second->id == "ao";
+
+    if (!hasDisplacement)
+      hasDisplacement = it->second->id == "height";
 
     if (ZOFString* strProp = it->second->Value<ZOFString>(0)) {
       if (ZEngine::Graphics()->Textures().find(strProp->value) != ZEngine::Graphics()->Textures().end()) {
@@ -36,7 +39,8 @@ void ZMaterial::Initialize(ZOFTree* root) {
     }
   }
 
-  if (isPBR) SetPBR();
+  isPBR_ = isPBR;
+  hasDisplacement_ = hasDisplacement;
 
   if (!textures.empty()) textures_ = textures;
   else properties_ = materialProperties;
