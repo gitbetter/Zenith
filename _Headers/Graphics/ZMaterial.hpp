@@ -22,7 +22,7 @@ private:
   std::vector<ZTexture> textures_;
   std::string meshId_;
   int index_;
-  bool isPBR_ = false, hasDisplacement_ = false;
+  bool isPBR_ = false;
 
   void SetMaterialProperty(std::string property, float value, ZMaterialProperties& materialProperties);
   void SetMaterialProperty(std::string property, glm::vec4 value, ZMaterialProperties& materialProperties);
@@ -53,7 +53,6 @@ public:
   int Index() const { return index_; }
   bool IsPBR() const { return isPBR_; }
   bool IsTextured() const { return !textures_.empty(); }
-  bool HasDisplacement() const { return hasDisplacement_; }
   void SetPBR(bool pbr = true) { isPBR_ = pbr; }
 
 protected:
