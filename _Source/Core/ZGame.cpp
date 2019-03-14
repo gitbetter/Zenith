@@ -46,6 +46,8 @@ void ZGame::RunGameLoop() {
     previousTime = currentTime;
     lag += ZEngine::DeltaTime();
 
+    ZEngine::EventAgent()->Process(ZEngine::UPDATE_STEP_SIZE * 2.f);
+
     ZEngine::Input()->Process();
 
     while (lag >= ZEngine::UPDATE_STEP_SIZE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
@@ -55,8 +57,6 @@ void ZGame::RunGameLoop() {
 
     Render(lag / ZEngine::UPDATE_STEP_SIZE);
     ZEngine::Domain()->Strategy()->PollEvents();
-
-    ZEngine::EventAgent()->Process(ZEngine::UPDATE_STEP_SIZE * 2.f);
 
     MacDisplayHack();
   }

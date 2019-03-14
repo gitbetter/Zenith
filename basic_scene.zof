@@ -118,11 +118,11 @@ ZGO_06
 ^
 ZGO_07
 	:position [0.0, 1.0, 0.0]:
-	:scale [100.0, 1.0, 100.0]:
+	:scale [500.0, 1.0, 500.0]:
 	PhysicsComponent
 		:type Static:
 		:restitution 0.4:
-		:collider Box [100.0, 1.0, 100.0]:
+		:collider Box [500.0, 1.0, 500.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
@@ -135,23 +135,6 @@ ZGO_07
 			:roughness ZTEX_08:
 			:ao ZTEX_09:
 		^
-	^
-^
-ZGO_08
-	:position [0.0, 15.0, 15.0]:
-	:scale [1.0, 1.0, 1.0]:
-	PhysicsComponent
-		:type Dynamic:
-		:mass 5.0:
-		:damping 0.0 0.0:
-		:restitution 0.4:
-		:hasGravity Yes:
-		:collider Box [3.0, 3.0, 1.0]:
-	^
-	GraphicsComponent
-		:activeShader 0:
-		:shaders [ZSH_01]:
-		:model "Assets/Models/test_up.dae":
 	^
 ^
 ZGO_09
@@ -209,17 +192,17 @@ ZTEX_04
 ^
 
 ZTEX_05
-	:path "Assets/Textures/PlanetSurface/albedo.png":
+	:path "Assets/Textures/CobbleStone/albedo.png":
 ^
 ZTEX_06
-	:path "Assets/Textures/PlanetSurface/metallic.png":
+	:path "Assets/Textures/CobbleStone/metallic.png":
 ^
 ZTEX_07
-	:path "Assets/Textures/PlanetSurface/normal.png":
+	:path "Assets/Textures/CobbleStone/normal.png":
 ^
 ZTEX_08
-	:path "Assets/Textures/PlanetSurface/roughness.png":
+	:path "Assets/Textures/CobbleStone/roughness.png":
 ^
 ZTEX_09
-	:path "Assets/Textures/PlanetSurface/ao.png":
+	:path "Assets/Textures/CobbleStone/ao.png":
 ^

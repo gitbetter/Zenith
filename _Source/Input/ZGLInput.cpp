@@ -14,8 +14,6 @@
 #include "ZObjectMoveEvent.hpp"
 #include "ZQuitEvent.hpp"
 #include "ZFireEvent.hpp"
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <cassert>
 
 void ZGLInput::Process() {
@@ -63,9 +61,12 @@ void ZGLInput::Process() {
   }
   lastYaw_ = yaw; lastPitch_ = pitch;
 
-  if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+  if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !mousePressState_[GLFW_MOUSE_BUTTON_LEFT]) {
     std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent);
     ZEngine::EventAgent()->TriggerEvent(fireEvent);
+    mousePressState_[GLFW_MOUSE_BUTTON_LEFT] = true;
+  } else if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+    mousePressState_[GLFW_MOUSE_BUTTON_LEFT] = false;
   }
 }
 

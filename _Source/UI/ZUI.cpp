@@ -54,6 +54,7 @@ void ZUI::AddElements(std::initializer_list<std::shared_ptr<ZUIElement>> element
 void ZUI::EnableCursor() {
   if (cursor_ == nullptr) {
     cursor_ = std::shared_ptr<ZUICursor>(new ZUICursor);
+    cursor_->Initialize();
     cursor_->SetColor(glm::vec4(1.f));
   }
 }

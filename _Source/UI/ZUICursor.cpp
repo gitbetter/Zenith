@@ -10,7 +10,9 @@
 #include "ZEngine.hpp"
 #include "ZEventAgent.hpp"
 #include "ZObjectLookEvent.hpp"
+#include "ZObjectSelectedEvent.hpp"
 #include "ZFireEvent.hpp"
+#include "ZRaycastEvent.hpp"
 #include "ZUICursor.hpp"
 #include "ZUIImage.hpp"
 #include "ZDomain.hpp"
@@ -24,12 +26,16 @@ ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position,
   AddChild(cursorImage);
 }
 
+void ZUICursor::Initialize() {
+  ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZUICursor::HandleMouseMove);
+  ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICursor::HandleMousePress);
+  ZEngine::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
+  ZEngine::EventAgent()->AddListener(fireDelegate, ZFireEvent::Type);
+}
+
 void ZUICursor::Initialize(ZOFNode* root) {
   ZUIElement::Initialize(root);
-
-  ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZUICursor::HandleMouseMove);
-  ZEngine::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
-
+  Initialize();
 }
 
 void ZUICursor::Draw(ZShader* shader) {
@@ -58,44 +64,28 @@ void ZUICursor::SetColor(glm::vec4 color) {
 
 void ZUICursor::HandleMouseMove(std::shared_ptr<ZEvent> event) {
   std::shared_ptr<ZObjectLookEvent> lookEvent = std::static_pointer_cast<ZObjectLookEvent>(event);
-  Translate(glm::vec2(0.f, -lookEvent->Pitch() * 0.05f * ZEngine::DeltaTime()));
-  Translate(glm::vec2(lookEvent->Yaw() * 0.05f * ZEngine::DeltaTime(), 0.f));
+  Translate(glm::vec2(0.f, -lookEvent->Pitch() * cursorSensitivity_ * ZEngine::DeltaTime()));
+  Translate(glm::vec2(lookEvent->Yaw() * cursorSensitivity_ * ZEngine::DeltaTime(), 0.f));
 }
 
 void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
+  // Create a ZUISelectedEvent to handle UI element selection
   ZUIElementMap elements = ZEngine::UI()->Elements();
-  bool elementFired = false;
+  bool uiSelected = false;
   for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++) {
     if (!it->second->Enabled()) continue;
     if (Position().x >= it->second->Position().x - it->second->Size().x && Position().x <= it->second->Position().x + it->second->Size().x &&
         Position().y >= it->second->Position().y - it->second->Size().y && Position().y <= it->second->Position().y + it->second->Size().y) {
-          ZEngine::EventAgent()->TriggerEvent(std::shared_ptr<ZFireEvent>(new ZFireEvent));
-          elementFired = true; break;
+          std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(it->second->ID()));
+          ZEngine::EventAgent()->QueueEvent(objectSelectEvent);
+          uiSelected = true; break;
     }
   }
 
   // If a UI element is selected, underlying game objects should not be picked (i.e. Z ordering is preserved)
-  if (elementFired) return;
+  if (uiSelected) return;
 
-  std::shared_ptr<ZGameObject> camera = ZEngine::Game()->ActiveCamera();
-  if (camera) {
-    std::shared_ptr<ZCameraComponent> cameraComp = camera->FindComponent<ZCameraComponent>();
-    glm::mat4 InverseProjection = glm::inverse(cameraComp->ProjectionMatrix());
-    glm::mat4 InverseView = glm::inverse(cameraComp->ViewMatrix(1.f));
-
-    glm::vec4 rayStart(Position().x * 2.f - 1.f, -Position().y * 2.f + 1.f, -1.f, 1.f);
-    glm::vec4 rayEnd(Position().x * 2.f - 1.f, -Position().y * 2.f + 1.f, 0.f, 1.f);
-
-    glm::vec4 rayStartCamera = InverseProjection * rayStart; rayStartCamera /= rayStartCamera.w;
-    glm::vec4 rayStartWorld = InverseView * rayStartCamera; rayStartWorld /= rayStartWorld.w;
-    glm::vec4 rayEndCamera = InverseProjection * rayEnd; rayEndCamera /= rayEndCamera.w;
-    glm::vec4 rayEndWorld = InverseView * rayEndCamera; rayEndWorld /= rayEndWorld.w;
-
-    glm::vec3 rayDir = glm::normalize(glm::vec3(rayEndWorld - rayStartWorld));
-
-    ZGameObject* objectHit = ZEngine::Physics()->Raycast(rayStartWorld, rayDir);
-    if (objectHit) {
-      _Z("Object " + objectHit->ID() + " hit", ZINFO);
-    }
-  }
+  // Create a ZRaycastEvent to handle ray casting if no UI elements were selected
+  std::shared_ptr<ZRaycastEvent> raycastEvent(new ZRaycastEvent(glm::vec3(Position().x, Position().y, 0.f)));
+  ZEngine::EventAgent()->QueueEvent(raycastEvent);
 }

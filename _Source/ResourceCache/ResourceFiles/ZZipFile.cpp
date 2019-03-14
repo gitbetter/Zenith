@@ -48,7 +48,7 @@ std::string ZZipFile::ResourceName(unsigned int num) const {
   return name;
 }
 
-void ZZipFile::ListResources() const {
+void ZZipFile::PrintResources() const {
   if (zipFile_) {
     int i, n = zip_total_entries(zipFile_);
     for (i = 0; i < n; ++i) {

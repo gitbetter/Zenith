@@ -32,12 +32,20 @@
 #include "ZAnchoredSpringForce.hpp"
 #include "ZObjectForceRegistry.hpp"
 
+#include "ZEventAgent.hpp"
+#include "ZObjectSelectedEvent.hpp"
+
 #include "ZOFParser.hpp"
+
+std::shared_ptr<ZGame> game;
+std::shared_ptr<ZUIButton> button;
+
+void onButtonPress(std::shared_ptr<ZEvent> event);
 
 // TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
   // Create a new game instance
-  auto game = std::make_shared<ZGame>();
+  game = std::make_shared<ZGame>();
 
   // Initialize the engine before anything else
   ZEngine::Initialize(game, 1260, 800);
@@ -62,11 +70,10 @@ int main(int argc, const char * argv[]) {
   // Now add some lights, because it's dark in here.
   game->AddGameObjects({std::shared_ptr<ZLight>(new ZLight(ZLightType::Directional))});
 
-  // We can register callbacks for specific UI events
-  // std::shared_ptr<ZUIButton> buttonEl = ZEngine::UI()->FindElement<ZUIButton>("ZUI_01");
-  // buttonEl->On(ZEventType::FirePress, [&]{
-  //   buttonEl->SetColor(glm::vec4(1.f));
-  // });
+  // We can register delegate methods for specific UI events
+  button = ZEngine::UI()->FindElement<ZUIButton>("ZUI_01");
+  ZEventDelegate delegate(&onButtonPress);
+  ZEngine::EventAgent()->AddListener(delegate, ZObjectSelectedEvent::Type);
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
@@ -78,5 +85,26 @@ int main(int argc, const char * argv[]) {
   // for the duration of the game.
   game->RunGameLoop();
 
+  // We make sure to deregister delegates before objects are destroyed to avoid
+  // dangling pointers in the FastDelegate implementation
+  ZEngine::EventAgent()->RemoveListener(delegate, ZObjectSelectedEvent::Type);
+
   return 0;
+}
+
+void onButtonPress(std::shared_ptr<ZEvent> event) {
+  std::shared_ptr<ZObjectSelectedEvent> fireEvent = std::static_pointer_cast<ZObjectSelectedEvent>(event);
+  if (button->ID() == fireEvent->ObjectID()) {
+    if (button->Selected()) {
+      button->Deselect();
+      button->SetColor(glm::vec4(0.141f, 0.145f, 0.165f, 1.f));
+      std::shared_ptr<ZUIText> text = button->Child<ZUIText>();
+      text->SetColor(glm::vec4(1.f));
+    } else {
+      button->Select();
+      button->SetColor(glm::vec4(1.f));
+      std::shared_ptr<ZUIText> text = button->Child<ZUIText>();
+      text->SetColor(glm::vec4(0.141f, 0.145f, 0.165f, 1.f));
+    }
+  }
 }

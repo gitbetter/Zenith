@@ -66,6 +66,8 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
   resourceCache_->Initialize();
 
+  eventAgent_.reset(new ZEventAgent);
+
   domain_.reset(new ZDomain(windowWidth, windowHeight));
   domain_->Initialize();
 

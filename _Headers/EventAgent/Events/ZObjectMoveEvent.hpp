@@ -32,7 +32,7 @@ public:
   void Serialize(std::ostringstream& out) const override { out << z_ << " " << y_ << " " << x_; }
   std::string Name() const override { return "ZObjectMoveEvent"; }
 
-  float X() const { return z_; }
+  float X() const { return x_; }
   float Y() const { return y_; }
   float Z() const { return z_; }
 

@@ -19,6 +19,7 @@ class ZShader;
 // Class and Data Structure Definitions
 
 class ZUIElement : public ZObject {
+
 private:
 
 public:
@@ -28,7 +29,23 @@ public:
 
   virtual void Initialize(ZOFNode* root);
 
-  void AddChild(std::shared_ptr<ZUIElement> element);
+  bool Enabled() { return enabled_; }
+  bool Hidden() { return hidden_; }
+  bool Selected() { return selected_; }
+  glm::vec3 Position();
+  glm::vec3 Size();
+  float Angle();
+  glm::vec4 Color() { return color_; }
+  const ZTexture& Texture() { return texture_; }
+
+  void SetTexture(ZTexture texture) { texture_ = texture; }
+  virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
+  void SetTranslationBounds(float left, float right, float bottom, float top);
+  void ResetTranslation() { modelMatrix_ = glm::mat4(glm::mat3(modelMatrix_)); }
+
+  void Translate(glm::vec2 translation);
+  void Rotate(float angle);
+  void Scale(glm::vec2 factor);
 
   void Hide() { hidden_ = true; }
   void Show() { hidden_ = false; }
@@ -37,26 +54,7 @@ public:
   void Select() { if (enabled_) selected_ = true; }
   void Deselect() { selected_ = false; }
 
-  void Translate(glm::vec2 translation);
-  void Rotate(float angle);
-  void Scale(glm::vec2 factor);
-
-  bool Enabled() { return enabled_; }
-  bool Hidden() { return hidden_; }
-  bool Selected() { return selected_; }
-
-  glm::vec3 Position();
-  glm::vec3 Size();
-  float Angle();
-
-  glm::vec4 Color() { return color_; }
-
-  const ZTexture& Texture() { return texture_; }
-  void SetTexture(ZTexture texture) { texture_ = texture; }
-  virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
-  void SetTranslationBounds(float left, float right, float bottom, float top);
-
-  void ResetTranslation() { modelMatrix_ = glm::mat4(glm::mat3(modelMatrix_)); }
+  void AddChild(std::shared_ptr<ZUIElement> element);
 
   virtual void Draw(ZShader* shader);
   virtual ZMeshUI ElementShape() { };
@@ -64,6 +62,18 @@ public:
   void RenderChildren(ZShader* shader);
 
   void CleanUp();
+
+  template<class T>
+  std::shared_ptr<T> Child() {
+    if(!std::is_base_of<ZUIElement, T>::value) return nullptr;
+
+    std::shared_ptr<T> el;
+    for (auto it = children_.begin(); it != children_.end(); it++) {
+      if (el = std::dynamic_pointer_cast<T>(*it)) return el;
+    }
+    
+    return el;
+  }
 
 protected:
 

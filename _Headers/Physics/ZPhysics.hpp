@@ -42,6 +42,8 @@ public:
 
   void AddRigidBody(std::shared_ptr<btRigidBody> body);
 
+  void HandleRaycastEvent(std::shared_ptr<ZEvent> event);
+
   ZGameObject* Raycast(glm::vec3 start, glm::vec3 direction);
 
   void DebugDraw();

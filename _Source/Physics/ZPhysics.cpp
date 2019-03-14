@@ -11,6 +11,10 @@
 #include "ZPhysicsDebug.hpp"
 #include "ZObjectForceRegistry.hpp"
 #include "ZGameObject.hpp"
+#include "ZEventAgent.hpp"
+#include "ZRaycastEvent.hpp"
+#include "ZGame.hpp"
+#include "ZCameraComponent.hpp"
 
 void ZPhysics::Initialize() {
   collisionConfig_ = new btDefaultCollisionConfiguration();
@@ -27,6 +31,9 @@ void ZPhysics::Initialize() {
   if (registry_ == nullptr) {
     registry_.reset(new ZObjectForceRegistry);
   }
+
+  ZEventDelegate raycastDelegate = fastdelegate::MakeDelegate(this, &ZPhysics::HandleRaycastEvent);
+  ZEngine::EventAgent()->AddListener(raycastDelegate, ZRaycastEvent::Type);
 }
 
 void ZPhysics::Update() {
@@ -36,6 +43,37 @@ void ZPhysics::Update() {
 
 void ZPhysics::AddRigidBody(std::shared_ptr<btRigidBody> body) {
   dynamicsWorld_->addRigidBody(body.get());
+}
+
+void ZPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
+  std::shared_ptr<ZRaycastEvent> raycastEvent = std::dynamic_pointer_cast<ZRaycastEvent>(event);
+
+  if (raycastEvent->Origin().z == 0.f) { // Handle screen to world raycasting (i.e. mouse picking)
+    std::shared_ptr<ZGameObject> camera = ZEngine::Game()->ActiveCamera();
+    if (camera) {
+      std::shared_ptr<ZCameraComponent> cameraComp = camera->FindComponent<ZCameraComponent>();
+      glm::mat4 InverseProjection = glm::inverse(cameraComp->ProjectionMatrix());
+      glm::mat4 InverseView = glm::inverse(cameraComp->ViewMatrix(1.f));
+
+      glm::vec4 rayStart(raycastEvent->Origin().x * 2.f - 1.f, -raycastEvent->Origin().y * 2.f + 1.f, -1.f, 1.f);
+      glm::vec4 rayEnd(raycastEvent->Origin().x * 2.f - 1.f, -raycastEvent->Origin().y * 2.f + 1.f, 0.f, 1.f);
+
+      glm::vec4 rayStartCamera = InverseProjection * rayStart; rayStartCamera /= rayStartCamera.w;
+      glm::vec4 rayStartWorld = InverseView * rayStartCamera; rayStartWorld /= rayStartWorld.w;
+      glm::vec4 rayEndCamera = InverseProjection * rayEnd; rayEndCamera /= rayEndCamera.w;
+      glm::vec4 rayEndWorld = InverseView * rayEndCamera; rayEndWorld /= rayEndWorld.w;
+
+      glm::vec3 rayDir = glm::normalize(glm::vec3(rayEndWorld - rayStartWorld));
+
+      ZGameObject* objectHit = Raycast(rayStartWorld, rayDir);
+      if (objectHit) {
+        // TODO: Trigger another event?
+        _Z("Object " + objectHit->ID() + " hit", ZINFO);
+      }
+    }
+  } else { // Handle general 3D raycasting
+
+  }
 }
 
 ZGameObject* ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {

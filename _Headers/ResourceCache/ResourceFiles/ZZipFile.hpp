@@ -33,7 +33,7 @@ public:
     unsigned int RawResource(ZResource& resource, char* buffer) override;
     unsigned int ResourceCount() const override;
     std::string ResourceName(unsigned int num) const override;
-    void ListResources() const override;
+    void PrintResources() const override;
     void Close() override;
 
 protected:
