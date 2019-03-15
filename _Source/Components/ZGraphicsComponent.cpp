@@ -115,7 +115,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   shader->SetMat4("V", viewMatrix);
   shader->SetMat4("M", modelMatrix);
   shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
-  shader->SetVec3("viewDirection", gameCamera_->Front());
+  shader->SetVec3("viewPosition", gameCamera_->Position());
 
   if (object_->Game()->Skybox() != nullptr) {
     ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().irradiance, 1);

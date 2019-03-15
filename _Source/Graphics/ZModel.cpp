@@ -60,18 +60,18 @@ std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(glm::vec3 scale) {
 }
 
 void ZModel::CreatePlane(glm::vec3 scale) {
-  ZVertex3D topRight(glm::vec3(scale.x, 0.0f, -scale.z)); topRight.uv = glm::vec2(1.f, 1.f);
-  ZVertex3D bottomRight(glm::vec3(scale.x, 0.0f, scale.z)); bottomRight.uv = glm::vec2(1.f, 0.f);
-  ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.0f, scale.z)); bottomLeft.uv = glm::vec2(0.f, 0.f);
-  ZVertex3D topLeft(glm::vec3(-scale.x, 0.0f, -scale.z)); topLeft.uv = glm::vec2(0.f, 1.f);
+  ZVertex3D topLeft(glm::vec3(-scale.x, 0.f, -scale.z)); topLeft.uv = glm::vec2(0.f, 1.f);
+  ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.f, scale.z)); bottomLeft.uv = glm::vec2(0.f, 0.f);
+  ZVertex3D bottomRight(glm::vec3(scale.x, 0.f, scale.z)); bottomRight.uv = glm::vec2(1.f, 0.f);
+  ZVertex3D topRight(glm::vec3(scale.x, 0.f, -scale.z)); topRight.uv = glm::vec2(1.f, 1.f);
 
   std::vector<ZVertex3D> vertices = {
-    topRight, bottomRight, bottomLeft, topLeft
+    topLeft, bottomLeft, bottomRight, topRight
   };
 
   std::vector<unsigned int> indices = {
-    0, 1, 3,
-    1, 2, 3
+    0, 1, 2,
+    0, 2, 3
   };
 
   std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
@@ -87,38 +87,55 @@ std::unique_ptr<ZModel> ZModel::NewCubePrimitive(glm::vec3 scale) {
 
 void ZModel::CreateCube(glm::vec3 scale) {
   // TODO: Refactor the texture tiling. It does not belong in the model creation code.
-  float textureTiling = 20.f;
+  float textureTiling = 15.f;
 
   // Front face
   ZVertex3D front_BottomLeft(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_BottomLeft.uv = glm::vec2(0.f, 0.f);
   ZVertex3D front_BottomRight(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_BottomRight.uv = glm::vec2(textureTiling, 0.f);
   ZVertex3D front_TopRight(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_TopRight.uv = glm::vec2(textureTiling, textureTiling);
   ZVertex3D front_TopLeft(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_TopLeft.uv = glm::vec2(0.f, textureTiling);
+  // TODO: Calculate tangent and bitangent for (front_BottomLeft, front_BottomRight, front_TopRight)
+  // TODO: Calculate tangent and bitangent for (front_BottomLeft, front_TopRight, front_TopLeft)
+
   // Back face
   ZVertex3D back_BottomLeft(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_BottomLeft.uv = glm::vec2(0.f, 0.f);
   ZVertex3D back_BottomRight(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_BottomRight.uv = glm::vec2(textureTiling, 0.f);
   ZVertex3D back_TopRight(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_TopRight.uv = glm::vec2(textureTiling, textureTiling);
   ZVertex3D back_TopLeft(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_TopLeft.uv = glm::vec2(0.f, textureTiling);
+  // TODO: Calculate tangent and bitangent for (back_BottomLeft, back_BottomRight, back_TopRight)
+  // TODO: Calculate tangent and bitangent for (back_BottomLeft, back_TopRight, back_TopLeft)
+
   // Right Face
   ZVertex3D right_BottomLeft(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(1.f, 0.f, 0.f)); right_BottomLeft.uv = glm::vec2(0.f, 0.f);
   ZVertex3D right_BottomRight(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(1.f, 0.f, 0.f)); right_BottomRight.uv = glm::vec2(textureTiling, 0.f);
   ZVertex3D right_TopRight(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(1.f, 0.f, 0.f)); right_TopRight.uv = glm::vec2(textureTiling, textureTiling);
   ZVertex3D right_TopLeft(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(1.f, 0.f, 0.f)); right_TopLeft.uv = glm::vec2(0.f, textureTiling);
+  // TODO: Calculate tangent and bitangent for (right_BottomLeft, right_BottomRight, right_TopRight)
+  // TODO: Calculate tangent and bitangent for (right_BottomLeft, right_TopRight, right_TopLeft)
+
   // Left face
   ZVertex3D left_BottomLeft(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_BottomLeft.uv = glm::vec2(0.f, 0.f);
   ZVertex3D left_BottomRight(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_BottomRight.uv = glm::vec2(textureTiling, 0.f);
   ZVertex3D left_TopRight(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_TopRight.uv = glm::vec2(textureTiling, textureTiling);
   ZVertex3D left_TopLeft(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_TopLeft.uv = glm::vec2(0.f, textureTiling);
+  // TODO: Calculate tangent and bitangent for (left_BottomLeft, left_BottomRight, left_TopRight)
+  // TODO: Calculate tangent and bitangent for (left_BottomLeft, left_TopRight, left_TopLeft)
+
   // Top face
   ZVertex3D top_BottomLeft(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(0.f, 1.f, 0.f)); top_BottomLeft.uv = glm::vec2(0.f, 0.f);
   ZVertex3D top_BottomRight(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(0.f, 1.f, 0.f)); top_BottomRight.uv = glm::vec2(textureTiling, 0.f);
   ZVertex3D top_TopRight(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(0.f, 1.f, 0.f)); top_TopRight.uv = glm::vec2(textureTiling, textureTiling);
   ZVertex3D top_TopLeft(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(0.f, 1.f, 0.f)); top_TopLeft.uv = glm::vec2(0.f, textureTiling);
+  // TODO: Calculate tangent and bitangent for (top_BottomLeft, top_BottomRight, top_TopRight)
+  // TODO: Calculate tangent and bitangent for (top_BottomLeft, top_TopRight, top_TopLeft)
+
   // Bottom face
   ZVertex3D bottom_BottomLeft(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_BottomLeft.uv = glm::vec2(0.f, 0.f);
   ZVertex3D bottom_BottomRight(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_BottomRight.uv = glm::vec2(textureTiling, 0.f);
   ZVertex3D bottom_TopRight(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_TopRight.uv = glm::vec2(textureTiling, textureTiling);
   ZVertex3D bottom_TopLeft(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_TopLeft.uv = glm::vec2(0.f, textureTiling);
+  // TODO: Calculate tangent and bitangent for (bottom_BottomLeft, bottom_BottomRight, bottom_TopRight)
+  // TODO: Calculate tangent and bitangent for (bottom_BottomLeft, bottom_TopRight, bottom_TopLeft)
 
   std::vector<ZVertex3D> vertices = {
     front_BottomLeft, front_BottomRight, front_TopRight, front_TopLeft,

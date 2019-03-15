@@ -117,17 +117,17 @@ ZGO_06
 	^
 ^
 ZGO_07
-	:position [0.0, 1.0, 0.0]:
-	:scale [500.0, 1.0, 500.0]:
+	:position [0.0, 0.0, 0.0]:
+	:scale [100.0, 0.1, 100.0]:
 	PhysicsComponent
 		:type Static:
 		:restitution 0.4:
-		:collider Box [500.0, 1.0, 500.0]:
+		:collider Box [100.0, 0.1, 100.0]:
 	^
 	GraphicsComponent
 		:activeShader 0:
 		:shaders [ZSH_01]:
-		:model Cube:
+		:model Cube [1.0, 1.0, 1.0]:
 		Material
 			:albedo ZTEX_05:
 			:metallic ZTEX_06:
