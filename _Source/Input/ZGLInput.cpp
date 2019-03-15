@@ -11,6 +11,7 @@
 #include "ZGLInput.hpp"
 #include "ZEventAgent.hpp"
 #include "ZObjectLookEvent.hpp"
+#include "ZObjectDragEvent.hpp"
 #include "ZObjectMoveEvent.hpp"
 #include "ZQuitEvent.hpp"
 #include "ZFireEvent.hpp"
@@ -52,21 +53,29 @@ void ZGLInput::Process() {
     firstLook_ = false;
   }
   if (yaw != lastYaw_) {
+    if (mousePress_[GLFW_MOUSE_BUTTON_LEFT]) {
+      std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(yaw - lastYaw_, 0.f, 0.f));
+      ZEngine::EventAgent()->TriggerEvent(dragEvent);
+    }
     std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(yaw - lastYaw_, 0.f));
     ZEngine::EventAgent()->TriggerEvent(lookEvent);
   }
   if (pitch != lastPitch_) {
+    if (mousePress_[GLFW_MOUSE_BUTTON_LEFT]) {
+      std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(0.f, lastPitch_ - pitch, 0.f));
+      ZEngine::EventAgent()->TriggerEvent(dragEvent);
+    }
     std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(0.f, lastPitch_ - pitch));
     ZEngine::EventAgent()->TriggerEvent(lookEvent);
   }
   lastYaw_ = yaw; lastPitch_ = pitch;
 
-  if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !mousePressState_[GLFW_MOUSE_BUTTON_LEFT]) {
+  if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !mousePress_[GLFW_MOUSE_BUTTON_LEFT]) {
     std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent);
     ZEngine::EventAgent()->TriggerEvent(fireEvent);
-    mousePressState_[GLFW_MOUSE_BUTTON_LEFT] = true;
+    mousePress_[GLFW_MOUSE_BUTTON_LEFT] = true;
   } else if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
-    mousePressState_[GLFW_MOUSE_BUTTON_LEFT] = false;
+    mousePress_[GLFW_MOUSE_BUTTON_LEFT] = false;
   }
 }
 

@@ -61,6 +61,8 @@ public:
 
   void RenderChildren(ZShader* shader);
 
+  bool Contains(glm::vec3 point);
+
   void CleanUp();
 
   template<class T>
@@ -71,7 +73,7 @@ public:
     for (auto it = children_.begin(); it != children_.end(); it++) {
       if (el = std::dynamic_pointer_cast<T>(*it)) return el;
     }
-    
+
     return el;
   }
 

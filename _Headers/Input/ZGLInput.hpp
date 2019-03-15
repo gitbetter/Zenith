@@ -23,8 +23,8 @@ private:
 
   double lastPitch_, lastYaw_;
   bool firstLook_ = true;
-  bool keyPressState_[GLFW_KEY_LAST] = { false };
-  bool mousePressState_[GLFW_MOUSE_BUTTON_8] = { false };
+  bool keyPress_[GLFW_KEY_LAST] = { false };
+  bool mousePress_[GLFW_MOUSE_BUTTON_8] = { false };
 
 public:
 

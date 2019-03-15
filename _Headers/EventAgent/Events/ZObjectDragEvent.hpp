@@ -18,21 +18,23 @@ class ZObjectDragEvent : public ZBaseEvent {
 
 private:
 
-  glm::vec3 delta_;
+  float x_, y_, z_;
 
 public:
 
   static const ZEventType Type;
 
-  explicit ZObjectDragEvent(glm::vec3 delta = glm::vec3(0.f)) : delta_(delta) { }
-  explicit ZObjectDragEvent(std::istringstream& in) { in >> delta_.x; in >> delta_.y; in >> delta_.z; }
+  explicit ZObjectDragEvent(float x = 0.f, float y = 0.f, float z = 0.f) : x_(x), y_(y), z_(z) { }
+  explicit ZObjectDragEvent(std::istringstream& in) { in >> x_; in >> y_; in >> z_; }
 
   const ZEventType& EventType() const override { return Type; };
-  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectDragEvent>(new ZObjectDragEvent(delta_)); }
-  void Serialize(std::ostringstream& out) const override { out << delta_.x << " " << delta_.y << " " << delta_.z; }
+  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectDragEvent>(new ZObjectDragEvent(x_, y_, z_)); }
+  void Serialize(std::ostringstream& out) const override { out << x_ << " " << y_ << " " << z_; }
   std::string Name() const override { return "ZObjectDragEvent"; }
 
-  glm::vec3 Delta() const { return delta_; }
+  float DeltaX() const { return x_; }
+  float DeltaY() const { return y_; }
+  float DeltaZ() const { return z_; }
 
 protected:
 

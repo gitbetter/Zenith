@@ -74,8 +74,7 @@ void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
   bool uiSelected = false;
   for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++) {
     if (!it->second->Enabled()) continue;
-    if (Position().x >= it->second->Position().x - it->second->Size().x && Position().x <= it->second->Position().x + it->second->Size().x &&
-        Position().y >= it->second->Position().y - it->second->Size().y && Position().y <= it->second->Position().y + it->second->Size().y) {
+    if (it->second->Contains(Position())) {
           std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(it->second->ID()));
           ZEngine::EventAgent()->QueueEvent(objectSelectEvent);
           uiSelected = true; break;

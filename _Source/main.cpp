@@ -34,6 +34,7 @@
 
 #include "ZEventAgent.hpp"
 #include "ZObjectSelectedEvent.hpp"
+#include "ZObjectDragEvent.hpp"
 
 #include "ZOFParser.hpp"
 
@@ -41,6 +42,7 @@ std::shared_ptr<ZGame> game;
 std::shared_ptr<ZUIButton> button;
 
 void onButtonPress(std::shared_ptr<ZEvent> event);
+void onButtonDrag(std::shared_ptr<ZEvent> event);
 
 // TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
@@ -72,8 +74,11 @@ int main(int argc, const char * argv[]) {
 
   // We can register delegate methods for specific UI events
   button = ZEngine::UI()->FindElement<ZUIButton>("ZUI_01");
-  ZEventDelegate delegate(&onButtonPress);
-  ZEngine::EventAgent()->AddListener(delegate, ZObjectSelectedEvent::Type);
+  ZEventDelegate pressDelegate(&onButtonPress);
+  ZEngine::EventAgent()->AddListener(pressDelegate, ZObjectSelectedEvent::Type);
+
+  ZEventDelegate dragDelegate(&onButtonDrag);
+  ZEngine::EventAgent()->AddListener(dragDelegate, ZObjectDragEvent::Type);
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
@@ -87,7 +92,8 @@ int main(int argc, const char * argv[]) {
 
   // We make sure to deregister delegates before objects are destroyed to avoid
   // dangling pointers in the FastDelegate implementation
-  ZEngine::EventAgent()->RemoveListener(delegate, ZObjectSelectedEvent::Type);
+  ZEngine::EventAgent()->RemoveListener(pressDelegate, ZObjectSelectedEvent::Type);
+  ZEngine::EventAgent()->RemoveListener(dragDelegate, ZObjectDragEvent::Type);
 
   return 0;
 }
@@ -107,4 +113,9 @@ void onButtonPress(std::shared_ptr<ZEvent> event) {
       text->SetColor(glm::vec4(0.141f, 0.145f, 0.165f, 1.f));
     }
   }
+}
+
+void onButtonDrag(std::shared_ptr<ZEvent> event) {
+  std::shared_ptr<ZObjectDragEvent> dragEvent = std::static_pointer_cast<ZObjectDragEvent>(event);
+  button->Translate(glm::vec2(dragEvent->DeltaX() * 0.05f * ZEngine::DeltaTime(), -dragEvent->DeltaY() * 0.05f *  ZEngine::DeltaTime()));
 }

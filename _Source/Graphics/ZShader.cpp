@@ -188,6 +188,7 @@ void ZShader::Use(ZMaterial* material) {
   SetInt("materialIndex", material->Index());
   SetBool("isTextured", material->IsTextured());
   SetBool("hasDisplacement", material->HasDisplacement());
+  // TODO: Move this elsewhere for configurability
   SetFloat("heightScale", 0.05f);
   SetVec4("materials[" + std::to_string(material->Index()) + "].albedo", material->Properties().albedo);
   if (material->IsPBR()) {
