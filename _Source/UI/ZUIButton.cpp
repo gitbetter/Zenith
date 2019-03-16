@@ -28,15 +28,5 @@ void ZUIButton::Draw(ZShader* shader) {
 }
 
 ZMeshUI ZUIButton::ElementShape() {
-  static ZMeshUI mesh;
-  if (mesh.Vertices().size() == 0) {
-    std::vector<ZVertex2D> vertices = {
-     ZVertex2D(glm::vec2(-1.f, 1.f)),
-     ZVertex2D(glm::vec2(-1.f, -1.f)),
-     ZVertex2D(glm::vec2(1.f, 1.f)),
-     ZVertex2D(glm::vec2(1.f, -1.f))
-    };
-    mesh = ZMeshUI(vertices);
-  }
-  return mesh;
+  return ZUIElement::ElementShape();
 }

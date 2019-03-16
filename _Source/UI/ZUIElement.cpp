@@ -37,7 +37,9 @@ void ZUIElement::Initialize(ZOFNode* root) {
 
   if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
     ZOFNumberList* scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-    Scale(glm::vec2(scaleProp->value[0], scaleProp->value[1]));
+    float x = scaleProp->value[0] < 0 ? ZEngine::Domain()->ResolutionX() : scaleProp->value[0];
+    float y = scaleProp->value[1] < 0 ? ZEngine::Domain()->ResolutionY() : scaleProp->value[1];
+    Scale(glm::vec2(x, y));
   }
 
   if (props.find("position") != props.end() && props["position"]->HasValues()) {
@@ -91,7 +93,7 @@ void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element) {
   glm::vec3 elementPos = element->Position();
 
   element->ResetTranslation();
-  element->Translate(Position() + Position() * elementPos);
+  element->Translate(Position() + elementPos);
   element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
   children_.push_back(element);
 }
@@ -122,21 +124,21 @@ void ZUIElement::Rotate(float angle) {
 }
 
 void ZUIElement::Scale(glm::vec2 factor) {
-  modelMatrix_ = glm::scale(modelMatrix_, glm::vec3((float)ZEngine::Domain()->WindowWidth() * factor.x,
-                                                    (float)ZEngine::Domain()->WindowHeight() * factor.y,
+  modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(factor.x, 
+                                                    factor.y, 
                                                     0.f));
 }
 
 glm::vec3 ZUIElement::Position() {
-  return glm::vec3(modelMatrix_[3].x / (float)ZEngine::Domain()->WindowWidth(),
-                   modelMatrix_[3].y / (float)ZEngine::Domain()->WindowHeight(),
+  return glm::vec3(modelMatrix_[3].x,
+                   modelMatrix_[3].y,
                    0.f);
 }
 
 glm::vec3 ZUIElement::Size() {
   glm::mat3 scaleMatrix(modelMatrix_);
-  return glm::vec3(glm::length(scaleMatrix[0] / (float)ZEngine::Domain()->WindowWidth()),
-                   glm::length(scaleMatrix[1] / (float)ZEngine::Domain()->WindowHeight()),
+  return glm::vec3(glm::length(scaleMatrix[0]),
+                   glm::length(scaleMatrix[1]),
                    glm::length(scaleMatrix[2]));
 }
 
@@ -157,6 +159,20 @@ bool ZUIElement::Contains(glm::vec3 point) {
   return point.x >= Position().x - Size().x && point.x <= Position().x + Size().x &&
       point.y >= Position().y - Size().y && point.y <= Position().y + Size().y;
 }
+
+ZMeshUI ZUIElement::ElementShape() { 
+  static ZMeshUI mesh;
+  if (mesh.Vertices().size() == 0) {
+    std::vector<ZVertex2D> vertices = {
+    ZVertex2D(glm::vec2(-1.f, 1.f)),
+    ZVertex2D(glm::vec2(-1.f, -1.f)),
+    ZVertex2D(glm::vec2(1.f, 1.f)),
+    ZVertex2D(glm::vec2(1.f, -1.f))
+    };
+    mesh = ZMeshUI(vertices);
+  }
+  return mesh;
+};
 
 void ZUIElement::CleanUp() {
   for (std::shared_ptr<ZUIElement> child : children_) {

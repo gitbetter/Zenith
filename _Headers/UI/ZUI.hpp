@@ -33,8 +33,8 @@ public:
   void AddElement(std::shared_ptr<ZUIElement> element);
   void AddElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements);
 
-  void EnableCursor();
-  void DisableCursor();
+  void SetCursor(std::shared_ptr<ZUICursor> cursor) { cursor_ = cursor; }
+  void RemoveCursor() { cursor_ = nullptr; }
 
   void RegisterFont(std::string fontPath);
 

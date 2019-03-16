@@ -21,21 +21,29 @@
 #include "ZPhysics.hpp"
 #include "ZCameraComponent.hpp"
 
-ZUICursor::ZUICursor(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
-  auto cursorImage = std::make_shared<ZUIImage>("Assets/Textures/z_cursor.png", position, scale);
+void ZUICursor::Initialize(ZOFNode* root) {
+  ZUIElement::Initialize(root);
+  
+  auto cursorImage = std::make_shared<ZUIImage>("Assets/Textures/z_cursor.png", Position(), Size());
   AddChild(cursorImage);
-}
+  cursorImage->SetColor(Color());
 
-void ZUICursor::Initialize() {
   ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZUICursor::HandleMouseMove);
   ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICursor::HandleMousePress);
   ZEngine::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
   ZEngine::EventAgent()->AddListener(fireDelegate, ZFireEvent::Type);
-}
 
-void ZUICursor::Initialize(ZOFNode* root) {
-  ZUIElement::Initialize(root);
-  Initialize();
+  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  if(node == nullptr) {
+    _Z("Could not initalize ZUICursor", ZERROR); return;
+  }
+
+  ZOFPropertyMap props = node->properties;
+
+  if (props.find("speed") != props.end() && props["speed"]->HasValues()) {
+    ZOFNumber* speedProp = props["speed"]->Value<ZOFNumber>(0);
+    cursorSpeed_ = speedProp->value;
+  }
 }
 
 void ZUICursor::Draw(ZShader* shader) {
@@ -48,6 +56,7 @@ void ZUICursor::SetCursorImage(std::string path) {
     std::shared_ptr<ZUIImage> uiImage = std::dynamic_pointer_cast<ZUIImage>(child);
     if (uiImage != nullptr) {
       uiImage->SetImage(path);
+      uiImage->SetColor(Color());
     }
   }
 }
@@ -64,8 +73,8 @@ void ZUICursor::SetColor(glm::vec4 color) {
 
 void ZUICursor::HandleMouseMove(std::shared_ptr<ZEvent> event) {
   std::shared_ptr<ZObjectLookEvent> lookEvent = std::static_pointer_cast<ZObjectLookEvent>(event);
-  Translate(glm::vec2(0.f, -lookEvent->Pitch() * cursorSensitivity_ * ZEngine::DeltaTime()));
-  Translate(glm::vec2(lookEvent->Yaw() * cursorSensitivity_ * ZEngine::DeltaTime(), 0.f));
+  Translate(glm::vec2(0.f, -lookEvent->Pitch() * cursorSpeed_ * ZEngine::DeltaTime()));
+  Translate(glm::vec2(lookEvent->Yaw() * cursorSpeed_ * ZEngine::DeltaTime(), 0.f));
 }
 
 void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
@@ -85,6 +94,8 @@ void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
   if (uiSelected) return;
 
   // Create a ZRaycastEvent to handle ray casting if no UI elements were selected
-  std::shared_ptr<ZRaycastEvent> raycastEvent(new ZRaycastEvent(glm::vec3(Position().x, Position().y, 0.f)));
+  std::shared_ptr<ZRaycastEvent> raycastEvent(new ZRaycastEvent(glm::vec3(Position().x / (float)ZEngine::Domain()->ResolutionX(), 
+                                                                          Position().y / (float)ZEngine::Domain()->ResolutionY(), 
+                                                                          0.f)));
   ZEngine::EventAgent()->QueueEvent(raycastEvent);
 }

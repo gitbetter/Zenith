@@ -25,8 +25,8 @@ public:
 
   void Initialize(ZOFNode* root) override;
 
-  void Draw(ZShader* shader) override { }
-  ZMeshUI ElementShape() override { }
+  void Draw(ZShader* shader) override;
+  ZMeshUI ElementShape() override;
 
 protected:
 

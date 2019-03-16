@@ -56,9 +56,6 @@ int main(int argc, const char * argv[]) {
   // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
   ZEngine::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
 
-  // Enable our UI cursor
-  ZEngine::UI()->EnableCursor();
-
   // Parse the ZOF file and create the resources
   ZOFLoadResult zofResult = ZEngine::LoadZOF("basic_scene.zof");
   for (ZGameObjectMap::iterator it = zofResult.gameObjects.begin(); it != zofResult.gameObjects.end(); it++) {
@@ -66,7 +63,10 @@ int main(int argc, const char * argv[]) {
   }
 
   for (ZUIElementMap::iterator it = zofResult.uiElements.begin(); it != zofResult.uiElements.end(); it++) {
-    ZEngine::UI()->AddElement(it->second);
+    if (std::dynamic_pointer_cast<ZUICursor>(it->second))
+      ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
+    else
+      ZEngine::UI()->AddElement(it->second);
   }
 
   // Now add some lights, because it's dark in here.
@@ -75,10 +75,11 @@ int main(int argc, const char * argv[]) {
   // We can register delegate methods for specific UI events
   button = ZEngine::UI()->FindElement<ZUIButton>("ZUI_01");
   ZEventDelegate pressDelegate(&onButtonPress);
-  ZEngine::EventAgent()->AddListener(pressDelegate, ZObjectSelectedEvent::Type);
-
   ZEventDelegate dragDelegate(&onButtonDrag);
-  ZEngine::EventAgent()->AddListener(dragDelegate, ZObjectDragEvent::Type);
+  if (button) {
+    ZEngine::EventAgent()->AddListener(pressDelegate, ZObjectSelectedEvent::Type);
+    ZEngine::EventAgent()->AddListener(dragDelegate, ZObjectDragEvent::Type);
+  }
 
   // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
   // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
@@ -92,8 +93,10 @@ int main(int argc, const char * argv[]) {
 
   // We make sure to deregister delegates before objects are destroyed to avoid
   // dangling pointers in the FastDelegate implementation
-  ZEngine::EventAgent()->RemoveListener(pressDelegate, ZObjectSelectedEvent::Type);
-  ZEngine::EventAgent()->RemoveListener(dragDelegate, ZObjectDragEvent::Type);
+  if (button) {
+    ZEngine::EventAgent()->RemoveListener(pressDelegate, ZObjectSelectedEvent::Type);
+    ZEngine::EventAgent()->RemoveListener(dragDelegate, ZObjectDragEvent::Type);
+  }
 
   return 0;
 }

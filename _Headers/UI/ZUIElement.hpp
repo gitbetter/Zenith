@@ -57,7 +57,7 @@ public:
   void AddChild(std::shared_ptr<ZUIElement> element);
 
   virtual void Draw(ZShader* shader);
-  virtual ZMeshUI ElementShape() { };
+  virtual ZMeshUI ElementShape();
 
   void RenderChildren(ZShader* shader);
 

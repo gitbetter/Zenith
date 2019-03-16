@@ -152,18 +152,26 @@ ZGO_09
 # UI
 
 ZUI_01
-	:type Button:
-	:position [0.15, 0.1]:
-	:scale [0.1, 0.05]:
+	:type Panel:
+	:position [0.0, 0.0]:
+	:scale [-1.0, 125.0]:
 	:color [0.141, 0.145, 0.165, 1.0]:
 	ZUI_02
 		:type Text:
-		:position [0.1, 0.25]:
-		:scale [0.1, 0.05]:
+		:position [25.0, 35.0]:
+		:scale [50.0, 125.0]:
 		:color [1.0, 1.0, 1.0, 1.0]:
 		:text "Zenith":
-		:font "earthorbiter" 0.8:
+		:font "earthorbiter" 1.0:
 	^
+^
+
+ZUI_03
+	:type Cursor:
+	:position [500.0, 500.0]:
+	:scale [25.0, 25.0]:
+	:color [1.0, 1.0, 1.0, 1.0]:
+	:speed 100.0:
 ^
 
 # Shaders

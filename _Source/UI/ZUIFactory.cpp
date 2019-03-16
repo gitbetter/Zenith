@@ -11,12 +11,14 @@
 #include "ZUIImage.hpp"
 #include "ZUIPanel.hpp"
 #include "ZUIText.hpp"
+#include "ZUICursor.hpp"
 
 ZUIFactory::ZUIFactory() {
   elementCreators_["Button"] = &ZUIFactory::CreateUIButton;
   elementCreators_["Image"] = &ZUIFactory::CreateUIImage;
   elementCreators_["Panel"] = &ZUIFactory::CreateUIPanel;
   elementCreators_["Text"] = &ZUIFactory::CreateUIText;
+  elementCreators_["Cursor"] = &ZUIFactory::CreateUICursor;
 }
 
 ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
@@ -69,4 +71,10 @@ std::shared_ptr<ZUIElement> ZUIFactory::CreateUIText(ZOFNode* root) {
   std::shared_ptr<ZUIText> text = std::make_shared<ZUIText>();
   text->Initialize(root);
   return text;
+}
+
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUICursor(ZOFNode* root) {
+  std::shared_ptr<ZUICursor> cursor = std::make_shared<ZUICursor>();
+  cursor->Initialize(root);
+  return cursor;
 }

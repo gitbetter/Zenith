@@ -19,23 +19,22 @@ class ZUICursor : public ZUIElement {
 
 private:
 
-  float cursorSensitivity_ = 0.05f;
+  float cursorSpeed_ = 20.f;
 
   void HandleMouseMove(std::shared_ptr<ZEvent> event);
   void HandleMousePress(std::shared_ptr<ZEvent> event);
 
 public:
 
-  ZUICursor(glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.02f, 0.03f));
+  ZUICursor(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(25.f)) : ZUIElement(position, scale) { }
   ~ZUICursor() { }
 
-  void Initialize();
   void Initialize(ZOFNode* root) override;
 
   void Draw(ZShader* shader) override;
 
   void SetCursorImage(std::string path);
   void SetColor(glm::vec4 color) override;
-  void SetCursorSensitivity(float sensitivity) { cursorSensitivity_ = sensitivity; }
+  void SetCursorSpeed(float sensitivity) { cursorSpeed_ = sensitivity; }
 
 };
