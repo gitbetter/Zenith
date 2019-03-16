@@ -51,8 +51,8 @@ void ZUIText::Initialize(ZOFNode* root) {
 void ZUIText::Draw(ZShader* shader) {
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
-  float x = Position().x * (float)ZEngine::Domain()->ResolutionX() / 2.f,
-        y = (Position().y * (float)ZEngine::Domain()->ResolutionY()) - (Size().y * (float)ZEngine::Domain()->ResolutionY()) / 2.f;
+  float x = Position().x * (float)ZEngine::Domain()->WindowWidth() - (Size().x * (float)ZEngine::Domain()->WindowWidth()),
+        y = Position().y * (float)ZEngine::Domain()->WindowHeight() - (Size().y * (float)ZEngine::Domain()->WindowHeight());
   for (auto c = text_.begin(); c != text_.end(); c++) {
     ZCharacter character = ZEngine::UI()->TextStrategy()->Character(font_, *c);
     texture_ = character.texture;
