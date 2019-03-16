@@ -33,10 +33,10 @@ void ZUI::Initialize() {
 }
 
 void ZUI::Draw() {
-  if (cursor_ != nullptr) cursor_->Draw(uiShader_.get());
   for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
       it->second->Draw((std::dynamic_pointer_cast<ZUIText>(it->second)) ? textShader_.get() : uiShader_.get());
   }
+  if (cursor_ != nullptr) cursor_->Draw(uiShader_.get());
 }
 
 void ZUI::AddElement(std::shared_ptr<ZUIElement> element) {
