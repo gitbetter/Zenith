@@ -120,5 +120,6 @@ void onButtonPress(std::shared_ptr<ZEvent> event) {
 
 void onButtonDrag(std::shared_ptr<ZEvent> event) {
   std::shared_ptr<ZObjectDragEvent> dragEvent = std::static_pointer_cast<ZObjectDragEvent>(event);
-  button->Translate(glm::vec2(dragEvent->DeltaX() * 0.05f * ZEngine::DeltaTime(), -dragEvent->DeltaY() * 0.05f *  ZEngine::DeltaTime()));
+  button->Translate(glm::vec2(dragEvent->DeltaX() * 100.f * ZEngine::DeltaTime(), 
+                              -dragEvent->DeltaY() * 100.f * ZEngine::DeltaTime()));
 }

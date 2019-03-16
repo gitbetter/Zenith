@@ -18,7 +18,7 @@
 
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
   translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->ResolutionX(), 0.f, (float)ZEngine::Domain()->ResolutionY());
-  Scale(scale); Translate(position);
+  SetPosition(position); SetSize(scale);
   id_ = "ZUI_" + ZEngine::IDSequence()->Next();
 }
 
@@ -35,17 +35,22 @@ void ZUIElement::Initialize(ZOFNode* root) {
 
   ZOFPropertyMap props = node->properties;
 
+  glm::vec2 size = Size(), position = Position();
+
   if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
     ZOFNumberList* scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-    float x = scaleProp->value[0] < 0 ? ZEngine::Domain()->ResolutionX() : scaleProp->value[0];
-    float y = scaleProp->value[1] < 0 ? ZEngine::Domain()->ResolutionY() : scaleProp->value[1];
-    Scale(glm::vec2(x, y));
+    float x = scaleProp->value[0] < 0 ? ZEngine::Domain()->WindowWidth() : scaleProp->value[0];
+    float y = scaleProp->value[1] < 0 ? ZEngine::Domain()->WindowHeight() : scaleProp->value[1];
+    size = glm::vec2(x, y);
   }
 
   if (props.find("position") != props.end() && props["position"]->HasValues()) {
     ZOFNumberList* posProp = props["position"]->Value<ZOFNumberList>(0);
-    Translate(glm::vec2(posProp->value[0], posProp->value[1]));
+    position = glm::vec2(posProp->value[0] + size.x, posProp->value[1] + size.y);
   }
+
+  SetPosition(position);
+  SetSize(size);
 
   if (props.find("color") != props.end() && props["color"]->HasValues()) {
     ZOFNumberList* colorProp = props["color"]->Value<ZOFNumberList>(0);
@@ -91,42 +96,37 @@ void ZUIElement::RenderChildren(ZShader* shader) {
 void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element) {
   // Reset the child translation and move it to the parent's location
   glm::vec3 elementPos = element->Position();
+  glm::vec3 elementSize = element->Size();
 
-  element->ResetTranslation();
-  element->Translate(Position() + elementPos);
+  element->ResetModelMatrix();
+  element->SetPosition(Position() - Size() + elementPos);
+  element->SetSize(elementSize);
   element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
   children_.push_back(element);
 }
 
-void ZUIElement::Translate(glm::vec2 translation) {
-  modelMatrix_ = glm::translate(modelMatrix_,
-                                glm::vec3(translation.x / Size().x,
-                                          translation.y / Size().y,
-                                          0.f));
-
-  modelMatrix_[3] = glm::vec4(glm::clamp(modelMatrix_[3][0], translationBounds_.x, translationBounds_.y),
-                              glm::clamp(modelMatrix_[3][1], translationBounds_.z, translationBounds_.w),
-                              modelMatrix_[3][2],
-                              modelMatrix_[3][3]);
-
-  // Recursively update child positions
-  for (std::shared_ptr<ZUIElement> child : children_) {
-    child->Translate(translation);
-  }
+void ZUIElement::SetSize(glm::vec2 size) {
+  modelMatrix_[0][0] = modelMatrix_[1][1] = modelMatrix_[2][2] = 1.f;
+  modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(size, 0.f));
 }
 
-void ZUIElement::Rotate(float angle) {
+void ZUIElement::SetPosition(glm::vec2 position) {
+  modelMatrix_[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);
+  modelMatrix_ = glm::translate(modelMatrix_, glm::vec3(position, 0.f));
+  ClampToBounds();
+}
+
+void ZUIElement::SetRotation(float angle) {
+  modelMatrix_[0][1] = modelMatrix_[0][2] = modelMatrix_[1][0] = modelMatrix_[1][2] =
+  modelMatrix_[2][0] = modelMatrix_[2][1] = 0.f;
   modelMatrix_ = glm::rotate(modelMatrix_, angle, glm::vec3(0.f, 0.f, 1.f));
-
-  for (std::shared_ptr<ZUIElement> child : children_) {
-    child->Rotate(angle);
-  }
 }
 
-void ZUIElement::Scale(glm::vec2 factor) {
-  modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(factor.x, 
-                                                    factor.y, 
-                                                    0.f));
+void ZUIElement::SetTranslationBounds(float left, float right, float bottom, float top) {
+  translationBounds_ = glm::vec4(left, right, bottom, top);
+  for (std::shared_ptr<ZUIElement> child : children_) {
+    child->SetTranslationBounds(left, right, bottom, top);
+  }
 }
 
 glm::vec3 ZUIElement::Position() {
@@ -148,11 +148,31 @@ float ZUIElement::Angle() {
   return angle;
 }
 
-void ZUIElement::SetTranslationBounds(float left, float right, float bottom, float top) {
-  translationBounds_ = glm::vec4(left, right, bottom, top);
+void ZUIElement::Translate(glm::vec2 translation) {
+  modelMatrix_ = glm::translate(modelMatrix_,
+                                glm::vec3(translation.x / Size().x,
+                                          translation.y / Size().y,
+                                          0.f));
+  ClampToBounds();                                          
+
+  // Recursively update child positions
   for (std::shared_ptr<ZUIElement> child : children_) {
-    child->SetTranslationBounds(left, right, bottom, top);
+    child->Translate(translation);
   }
+}
+
+void ZUIElement::Rotate(float angle) {
+  modelMatrix_ = glm::rotate(modelMatrix_, angle, glm::vec3(0.f, 0.f, 1.f));
+
+  for (std::shared_ptr<ZUIElement> child : children_) {
+    child->Rotate(angle);
+  }
+}
+
+void ZUIElement::Scale(glm::vec2 factor) {
+  modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(factor.x, 
+                                                    factor.y, 
+                                                    0.f));
 }
 
 bool ZUIElement::Contains(glm::vec3 point) {
@@ -178,4 +198,11 @@ void ZUIElement::CleanUp() {
   for (std::shared_ptr<ZUIElement> child : children_) {
     child->CleanUp();
   }
+}
+
+void ZUIElement::ClampToBounds() {
+  modelMatrix_[3] = glm::vec4(glm::clamp(modelMatrix_[3][0], translationBounds_.x, translationBounds_.y),
+                              glm::clamp(modelMatrix_[3][1], translationBounds_.z, translationBounds_.w),
+                              modelMatrix_[3][2],
+                              modelMatrix_[3][3]);
 }

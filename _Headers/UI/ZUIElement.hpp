@@ -22,6 +22,8 @@ class ZUIElement : public ZObject {
 
 private:
 
+  void ClampToBounds();
+
 public:
 
   ZUIElement(glm::vec2 position, glm::vec2 scale);
@@ -38,10 +40,14 @@ public:
   glm::vec4 Color() { return color_; }
   const ZTexture& Texture() { return texture_; }
 
+  void SetSize(glm::vec2 size);
+  void SetPosition(glm::vec2 position);
+  void SetRotation(float angle);
+
   void SetTexture(ZTexture texture) { texture_ = texture; }
   virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
   void SetTranslationBounds(float left, float right, float bottom, float top);
-  void ResetTranslation() { modelMatrix_ = glm::mat4(glm::mat3(modelMatrix_)); }
+  void ResetModelMatrix() { modelMatrix_ = glm::mat4(1.f); }
 
   void Translate(glm::vec2 translation);
   void Rotate(float angle);

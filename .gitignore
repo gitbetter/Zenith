@@ -1,6 +1,4 @@
 game
-.DS_Store
-**/.DS_Store
 
 # Prerequisites
 *.d
@@ -27,3 +25,4 @@ game
 # Workspaces
 *.code-workspace
 .DS_Store
+**/.DS_Store

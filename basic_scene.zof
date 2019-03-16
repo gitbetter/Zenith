@@ -154,12 +154,12 @@ ZGO_09
 ZUI_01
 	:type Panel:
 	:position [0.0, 0.0]:
-	:scale [-1.0, 125.0]:
+	:scale [-1.0, 75.0]:
 	:color [0.141, 0.145, 0.165, 1.0]:
 	ZUI_02
 		:type Text:
-		:position [25.0, 35.0]:
-		:scale [50.0, 125.0]:
+		:position [50.0, 0.0]:
+		:scale [55.0, 45.0]:
 		:color [1.0, 1.0, 1.0, 1.0]:
 		:text "Zenith":
 		:font "earthorbiter" 1.0:
