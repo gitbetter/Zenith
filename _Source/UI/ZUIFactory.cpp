@@ -12,6 +12,7 @@
 #include "ZUIPanel.hpp"
 #include "ZUIText.hpp"
 #include "ZUICursor.hpp"
+#include "ZUICheckBox.hpp"
 
 ZUIFactory::ZUIFactory() {
   elementCreators_["Button"] = &ZUIFactory::CreateUIButton;
@@ -19,6 +20,7 @@ ZUIFactory::ZUIFactory() {
   elementCreators_["Panel"] = &ZUIFactory::CreateUIPanel;
   elementCreators_["Text"] = &ZUIFactory::CreateUIText;
   elementCreators_["Cursor"] = &ZUIFactory::CreateUICursor;
+  elementCreators_["Checkbox"] = &ZUIFactory::CreateUICheckbox;
 }
 
 ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
@@ -33,6 +35,9 @@ ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
 
       if (props.find("type") != props.end() && props["type"]->HasValues()) {
         ZOFString* typeProp = props["type"]->Value<ZOFString>(0);
+        if (elementCreators_.find(typeProp->value) == elementCreators_.end()) {
+          _Z("Could not create a UI component of type " + typeProp->value, ZERROR); continue;
+        }
         element = std::shared_ptr<ZUIElement>((this->*elementCreators_[typeProp->value])(uiNode));
         uiElements[uiNode->id] = element;
       }
@@ -77,4 +82,10 @@ std::shared_ptr<ZUIElement> ZUIFactory::CreateUICursor(ZOFNode* root) {
   std::shared_ptr<ZUICursor> cursor = std::make_shared<ZUICursor>();
   cursor->Initialize(root);
   return cursor;
+}
+
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUICheckbox(ZOFNode* root) {
+  std::shared_ptr<ZUICheckBox> checkbox = std::make_shared<ZUICheckBox>();
+  checkbox->Initialize(root);
+  return checkbox;
 }

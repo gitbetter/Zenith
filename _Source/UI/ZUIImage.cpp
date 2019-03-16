@@ -25,7 +25,7 @@ void ZUIImage::Draw(ZShader* shader) {
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
   ElementShape().Render(shader);
   ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
-  RenderChildren(shader);
+  ZUIElement::RenderChildren(shader);
 }
 
 ZMeshUI ZUIImage::ElementShape() {

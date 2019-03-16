@@ -61,6 +61,7 @@ public:
   void Deselect() { selected_ = false; }
 
   void AddChild(std::shared_ptr<ZUIElement> element);
+  bool RemoveChild(std::shared_ptr<ZUIElement> element);
 
   virtual void Draw(ZShader* shader);
   virtual ZMeshUI ElementShape();

@@ -34,6 +34,7 @@ public:
   std::shared_ptr<ZUIElement> CreateUIPanel(ZOFNode* root);
   std::shared_ptr<ZUIElement> CreateUIText(ZOFNode* root);
   std::shared_ptr<ZUIElement> CreateUICursor(ZOFNode* root);
+  std::shared_ptr<ZUIElement> CreateUICheckbox(ZOFNode* root);
 
 protected:
 

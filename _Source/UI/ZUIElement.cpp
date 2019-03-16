@@ -88,8 +88,9 @@ void ZUIElement::Draw(ZShader* shader) {
 
 void ZUIElement::RenderChildren(ZShader* shader) {
   for (std::shared_ptr<ZUIElement> child : children_) {
-    // TODO: Only render if the child has the dirty flag set
-    child->Draw((std::dynamic_pointer_cast<ZUIText>(child)) ? ZEngine::UI()->TextShader().get() : shader);
+    // TODO: Also only render if the child has the dirty flag set
+    if (!child->Hidden())
+      child->Draw((std::dynamic_pointer_cast<ZUIText>(child)) ? ZEngine::UI()->TextShader().get() : shader);
   }
 }
 
@@ -103,6 +104,16 @@ void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element) {
   element->SetSize(elementSize);
   element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
   children_.push_back(element);
+}
+
+bool ZUIElement::RemoveChild(std::shared_ptr<ZUIElement> element) {
+  bool success = false;
+  for (auto it = children_.begin(); it != children_.end(); it++) {
+    if ((*it) == element) {
+      children_.erase(it); success = true; break;
+    }
+  }
+  return success;
 }
 
 void ZUIElement::SetSize(glm::vec2 size) {

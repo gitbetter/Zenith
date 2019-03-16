@@ -24,7 +24,7 @@
 void ZUICursor::Initialize(ZOFNode* root) {
   ZUIElement::Initialize(root);
   
-  auto cursorImage = std::make_shared<ZUIImage>("Assets/Textures/z_cursor.png", Position(), Size());
+  auto cursorImage = std::make_shared<ZUIImage>("Assets/Textures/UI/z_cursor.png", Position(), Size());
   AddChild(cursorImage);
   cursorImage->SetColor(Color());
 
@@ -48,7 +48,7 @@ void ZUICursor::Initialize(ZOFNode* root) {
 
 void ZUICursor::Draw(ZShader* shader) {
   ZUIElement::Draw(shader);
-  RenderChildren(shader);
+  ZUIElement::RenderChildren(shader);
 }
 
 void ZUICursor::SetCursorImage(std::string path) {
