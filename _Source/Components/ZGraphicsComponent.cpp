@@ -155,7 +155,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view,
   highlightShader_->SetMat4("P", projection);
   highlightShader_->SetMat4("V", view);
   highlightShader_->SetMat4("M", highlightModelMatrix);
-  highlightShader_->SetVec4("highlightColor", highlightColor_);
+  highlightShader_->SetVec4("color", highlightColor_);
 
   model_->Render(highlightShader_.get(), materials_);
 

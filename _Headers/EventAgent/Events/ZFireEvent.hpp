@@ -19,20 +19,23 @@ class ZFireEvent : public ZBaseEvent {
 
 private:
 
-  std::string objectId_;
+  float x_, y_, z_;
 
 public:
 
   static const ZEventType Type;
 
-  explicit ZFireEvent(const std::string& objectId = "") : objectId_(objectId) { }
-  explicit ZFireEvent(std::istringstream& in) { in >> objectId_; }
+  explicit ZFireEvent(float x = 0.f, float y = 0.f, float z = 0.f) : x_(x), y_(y), z_(z) { }
+  explicit ZFireEvent(std::istringstream& in) { in >> x_ >> y_ >> z_; }
 
-  const std::string& ObjectID() const { return objectId_; }
   const ZEventType& EventType() const override { return Type; };
-  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZFireEvent>(new ZFireEvent(objectId_)); }
-  void Serialize(std::ostringstream& out) const override { out << objectId_; }
+  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZFireEvent>(new ZFireEvent(x_, y_, z_)); }
+  void Serialize(std::ostringstream& out) const override { out << x_ << " " << y_ << " " << z_; }
   std::string Name() const override { return "ZFireEvent"; }
+
+  float X() const { return x_; }
+  float Y() const { return y_; }
+  float Z() const { return z_; }
 
 protected:
 

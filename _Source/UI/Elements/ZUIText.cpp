@@ -12,6 +12,7 @@
 #include "ZGraphicsStrategy.hpp"
 #include "ZTextStrategy.hpp"
 #include "ZEngine.hpp"
+#include "ZShader.hpp"
 #include "ZDomain.hpp"
 
 ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 position, glm::vec2 scale)
@@ -19,6 +20,7 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
   font_ = font;
   text_ = text;
   fontScale_ = fontSize;
+  enabled_ = false;
   bufferData_ = ZEngine::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
 }
 
@@ -69,7 +71,8 @@ void ZUIText::Draw(ZShader* shader) {
       ZVertex2D(glm::vec2(xpos + w, ypos + h), glm::vec2(1.f, 1.f))
     };
 
-    ZUIElement::Draw(shader);
+    Render(shader);
+
     ZEngine::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertices);
     ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices);
 

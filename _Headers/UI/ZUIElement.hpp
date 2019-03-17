@@ -18,6 +18,11 @@ class ZShader;
 
 // Class and Data Structure Definitions
 
+struct ZUIBorder {
+  float width = 0.f;
+  glm::vec4 color = glm::vec4(1.f);
+};
+
 class ZUIElement : public ZObject {
 
 private:
@@ -63,11 +68,12 @@ public:
   void AddChild(std::shared_ptr<ZUIElement> element);
   bool RemoveChild(std::shared_ptr<ZUIElement> element);
 
-  virtual void Draw(ZShader* shader);
+  virtual void Draw(ZShader* shader) = 0;
   virtual ZMeshUI ElementShape();
 
   void RenderChildren(ZShader* shader);
 
+  bool TrySelect(glm::vec3 position);
   bool Contains(glm::vec3 point);
 
   void CleanUp();
@@ -92,4 +98,8 @@ protected:
   glm::vec4 color_;
   std::vector<std::shared_ptr<ZUIElement>> children_;
   ZTexture texture_;
+  ZUIBorder border_;
+
+  void Render(ZShader* shader, ZMeshUI* mesh = nullptr);
+
 };

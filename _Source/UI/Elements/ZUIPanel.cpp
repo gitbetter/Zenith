@@ -17,9 +17,9 @@ void ZUIPanel::Initialize(ZOFNode* root) {
 }
 
 void ZUIPanel::Draw(ZShader* shader) {
-  ZUIElement::Draw(shader);
-  ElementShape().Render(shader);
-  ZUIElement::RenderChildren(shader);
+  ZMeshUI mesh = ElementShape();
+  Render(shader, &mesh);
+  RenderChildren(shader);
 }
 
 ZMeshUI ZUIPanel::ElementShape() {

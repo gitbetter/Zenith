@@ -13,12 +13,15 @@
 #include "ZDomain.hpp"
 #include "ZUI.hpp"
 #include "ZCommon.hpp"
+#include "ZEventAgent.hpp"
+#include "ZObjectSelectedEvent.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
   translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->ResolutionX(), 0.f, (float)ZEngine::Domain()->ResolutionY());
   SetPosition(position); SetSize(scale);
+  enabled_ = true;
   id_ = "ZUI_" + ZEngine::IDSequence()->Next();
 }
 
@@ -39,14 +42,14 @@ void ZUIElement::Initialize(ZOFNode* root) {
 
   if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
     ZOFNumberList* scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-    float x = scaleProp->value[0] < 0 ? ZEngine::Domain()->WindowWidth() : scaleProp->value[0];
-    float y = scaleProp->value[1] < 0 ? ZEngine::Domain()->WindowHeight() : scaleProp->value[1];
+    float x = scaleProp->value[0] < 0 ? glm::min(ZEngine::Domain()->WindowWidth(), ZEngine::Domain()->ResolutionX()) - 1.0: scaleProp->value[0];
+    float y = scaleProp->value[1] < 0 ? glm::min(ZEngine::Domain()->WindowHeight(), ZEngine::Domain()->ResolutionY()) - 1.0 : scaleProp->value[1];
     size = glm::vec2(x, y);
   }
 
   if (props.find("position") != props.end() && props["position"]->HasValues()) {
     ZOFNumberList* posProp = props["position"]->Value<ZOFNumberList>(0);
-    position = glm::vec2(posProp->value[0] + size.x, posProp->value[1] + size.y);
+    position = glm::vec2(posProp->value[0] + size.x, posProp->value[1] + size.y + 1.0);
   }
 
   SetPosition(position);
@@ -72,9 +75,19 @@ void ZUIElement::Initialize(ZOFNode* root) {
     if (ZEngine::Graphics()->Textures().find(texProp->value) != ZEngine::Graphics()->Textures().end())
       texture_ = ZEngine::Graphics()->Textures()[texProp->value];
   }
+
+  if (props.find("borderWidth") != props.end() && props["borderWidth"]->HasValues()) {
+    ZOFNumber* borderWidthProp = props["borderWidth"]->Value<ZOFNumber>(0);
+    border_.width = borderWidthProp->value;
+  }
+
+  if (props.find("borderColor") != props.end() && props["borderColor"]->HasValues()) {
+    ZOFNumberList* borderColorProp = props["borderColor"]->Value<ZOFNumberList>(0);
+    border_.color = glm::vec4(borderColorProp->value[0], borderColorProp->value[1], borderColorProp->value[2], borderColorProp->value[3]);
+  }
 }
 
-void ZUIElement::Draw(ZShader* shader) {
+void ZUIElement::Render(ZShader* shader, ZMeshUI* mesh) {
   shader->Activate();
 
   ZEngine::Graphics()->Strategy()->BindTexture(texture_, 0);
@@ -84,6 +97,18 @@ void ZUIElement::Draw(ZShader* shader) {
   shader->SetMat4("M", modelMatrix_);
   shader->SetMat4("P", ortho);
   shader->SetVec4("color", color_);
+  shader->SetVec4("borderColor", glm::vec4(0.f));
+  shader->SetFloat("borderWidth", 0.f);  
+
+  if (mesh && border_.width > 0.f) {
+    float borderWidth = border_.width / glm::length(Size());
+    float aspect = Size().y / Size().x;
+    shader->SetVec4("borderColor", border_.color);
+    shader->SetFloat("borderWidth", borderWidth);
+    shader->SetFloat("aspectRatio", aspect);
+  }
+
+  if (mesh) mesh->Render(shader);
 }
 
 void ZUIElement::RenderChildren(ZShader* shader) {
@@ -186,6 +211,24 @@ void ZUIElement::Scale(glm::vec2 factor) {
                                                     0.f));
 }
 
+bool ZUIElement::TrySelect(glm::vec3 position) {
+  bool selected = false;
+  if (enabled_ && Contains(position)) {
+    bool selectedChild = false;
+    for (std::shared_ptr<ZUIElement>& child : children_) {
+      selectedChild = child->TrySelect(position);
+    }
+
+    if (!selectedChild) {
+      std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(id_));
+      ZEngine::EventAgent()->QueueEvent(objectSelectEvent);
+    }
+    
+    selected = true;
+  }
+  return selected;
+}
+
 bool ZUIElement::Contains(glm::vec3 point) {
   return point.x >= Position().x - Size().x && point.x <= Position().x + Size().x &&
       point.y >= Position().y - Size().y && point.y <= Position().y + Size().y;
@@ -195,10 +238,10 @@ ZMeshUI ZUIElement::ElementShape() {
   static ZMeshUI mesh;
   if (mesh.Vertices().size() == 0) {
     std::vector<ZVertex2D> vertices = {
-    ZVertex2D(glm::vec2(-1.f, 1.f)),
-    ZVertex2D(glm::vec2(-1.f, -1.f)),
-    ZVertex2D(glm::vec2(1.f, 1.f)),
-    ZVertex2D(glm::vec2(1.f, -1.f))
+    ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f)),
+    ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 1.f)),
+    ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 0.f)),
+    ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f))
     };
     mesh = ZMeshUI(vertices);
   }

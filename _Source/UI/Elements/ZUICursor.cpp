@@ -47,8 +47,8 @@ void ZUICursor::Initialize(ZOFNode* root) {
 }
 
 void ZUICursor::Draw(ZShader* shader) {
-  ZUIElement::Draw(shader);
-  ZUIElement::RenderChildren(shader);
+  Render(shader);
+  RenderChildren(shader);
 }
 
 void ZUICursor::SetCursorImage(std::string path) {
@@ -82,12 +82,7 @@ void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
   ZUIElementMap elements = ZEngine::UI()->Elements();
   bool uiSelected = false;
   for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++) {
-    if (!it->second->Enabled()) continue;
-    if (it->second->Contains(Position())) {
-          std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(it->second->ID()));
-          ZEngine::EventAgent()->QueueEvent(objectSelectEvent);
-          uiSelected = true; break;
-    }
+    uiSelected = it->second->TrySelect(Position());
   }
 
   // If a UI element is selected, underlying game objects should not be picked (i.e. Z ordering is preserved)

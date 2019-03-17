@@ -71,7 +71,7 @@ void ZGLInput::Process() {
   lastYaw_ = yaw; lastPitch_ = pitch;
 
   if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !mousePress_[GLFW_MOUSE_BUTTON_LEFT]) {
-    std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent);
+    std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent(yaw, pitch, 0.f));
     ZEngine::EventAgent()->TriggerEvent(fireEvent);
     mousePress_[GLFW_MOUSE_BUTTON_LEFT] = true;
   } else if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {

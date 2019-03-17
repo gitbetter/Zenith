@@ -14,7 +14,6 @@
 
 ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
    texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
-   enabled_ = true;
 }
 
 void ZUIButton::Initialize(ZOFNode* root) {
@@ -22,9 +21,9 @@ void ZUIButton::Initialize(ZOFNode* root) {
 }
 
 void ZUIButton::Draw(ZShader* shader) {
-  ZUIElement::Draw(shader);
-  ElementShape().Render(shader);
-  ZUIElement::RenderChildren(shader);
+  ZMeshUI mesh = ElementShape();
+  ZUIElement::Render(shader, &mesh);  
+  RenderChildren(shader);
 }
 
 ZMeshUI ZUIButton::ElementShape() {

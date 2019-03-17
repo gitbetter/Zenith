@@ -13,7 +13,7 @@ rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 CPP=$(call rwildcard,$(SRC_DIR),*.cpp)
 OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP))
 
-_dummy := $(shell mkdir -p $(OBJ_DIR)/{Components,Core,GameObjects,Graphics/Strategies,Utility/ZObjectFormatTools,Input,UI,Windowing,Physics/Forces,Physics/Collision,ResourceCache/ResourceFiles,ResourceCache/ResourceLoaders,EventAgent/Events})
+_dummy := $(shell mkdir -p $(OBJ_DIR)/{Components,Core,GameObjects,Graphics/Strategies,Utility/ZObjectFormatTools,Input,UI/Elements,UI/Decorators,Windowing,Physics/Forces,Physics/Collision,ResourceCache/ResourceFiles,ResourceCache/ResourceLoaders,EventAgent/Events})
 
 ifeq ($(shell uname -s),Darwin)
 	LDLIBS += -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo -framework CoreFoundation

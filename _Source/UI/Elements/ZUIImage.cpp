@@ -14,6 +14,7 @@
 
 ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
   SetImage(path);
+  enabled_ = false;
 }
 
 void ZUIImage::Initialize(ZOFNode* root) {
@@ -21,11 +22,11 @@ void ZUIImage::Initialize(ZOFNode* root) {
 }
 
 void ZUIImage::Draw(ZShader* shader) {
-  ZUIElement::Draw(shader);
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
-  ElementShape().Render(shader);
+  ZMeshUI mesh = ElementShape();
+  Render(shader, &mesh);
   ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
-  ZUIElement::RenderChildren(shader);
+  RenderChildren(shader);
 }
 
 ZMeshUI ZUIImage::ElementShape() {
