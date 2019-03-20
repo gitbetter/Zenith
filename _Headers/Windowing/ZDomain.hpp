@@ -51,6 +51,8 @@ public:
   unsigned int WindowHeight() const { return windowHeight_; }
   unsigned int ResolutionX() const { return resolutionX_; }
   unsigned int ResolutionY() const { return resolutionY_; }
+  float ResolutionXRatio() const { return resolutionX_ / ZEngine::DEFAULT_X_RESOLUTION; }
+  float ResolutionYRatio() const { return resolutionY_ / ZEngine::DEFAULT_Y_RESOLUTION; }
 
   ZDomainStrategy* Strategy() { return domainStrategy_.get(); }
 

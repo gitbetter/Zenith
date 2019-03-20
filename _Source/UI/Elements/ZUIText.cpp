@@ -82,8 +82,8 @@ void ZUIText::Draw(ZShader* shader) {
 
     float xpos = x + character.bearing.x * fontScale_;
     float ypos = y - (character.size.y - character.bearing.y) * fontScale_;
-    float w = character.size.x * fontScale_;
-    float h = character.size.y * fontScale_;
+    float w = character.size.x * fontScale_ * ZEngine::Domain()->ResolutionXRatio();
+    float h = character.size.y * fontScale_ * ZEngine::Domain()->ResolutionYRatio();
 
     std::vector<ZVertex2D> vertices = {
       ZVertex2D(glm::vec2(xpos, ypos), glm::vec2(0.f, 0.f)),
@@ -97,7 +97,7 @@ void ZUIText::Draw(ZShader* shader) {
     ZEngine::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertices);
     ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices);
 
-    x += (character.advance >> 6) * fontScale_;
+    x += (character.advance >> 6) * fontScale_ * ZEngine::Domain()->ResolutionXRatio();
   }
   ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
   RenderChildren(shader);

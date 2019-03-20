@@ -63,14 +63,16 @@ void ZUIElement::Initialize(ZOFNode* root) {
 
   if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
     ZOFNumberList* scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-    float x = scaleProp->value[0] < 0 ? glm::min(ZEngine::Domain()->WindowWidth(), ZEngine::Domain()->ResolutionX()) - 1.0: scaleProp->value[0];
-    float y = scaleProp->value[1] < 0 ? glm::min(ZEngine::Domain()->WindowHeight(), ZEngine::Domain()->ResolutionY()) - 1.0 : scaleProp->value[1];
+    float x = scaleProp->value[0] < 0 ? glm::min(ZEngine::Domain()->WindowWidth(), ZEngine::Domain()->ResolutionX()) : scaleProp->value[0] * ZEngine::Domain()->ResolutionXRatio();
+    float y = scaleProp->value[1] < 0 ? glm::min(ZEngine::Domain()->WindowHeight(), ZEngine::Domain()->ResolutionY()) : scaleProp->value[1] * ZEngine::Domain()->ResolutionYRatio();
     size = glm::vec2(x, y);
   }
 
   if (props.find("position") != props.end() && props["position"]->HasValues()) {
     ZOFNumberList* posProp = props["position"]->Value<ZOFNumberList>(0);
-    position = glm::vec2(posProp->value[0] + size.x, posProp->value[1] + size.y + 1.0);
+    float x = posProp->value[0] * ZEngine::Domain()->ResolutionXRatio();
+    float y = posProp->value[1] * ZEngine::Domain()->ResolutionYRatio();
+    position = glm::vec2(x + size.x, y + size.y);
   }
 
   SetPosition(position);

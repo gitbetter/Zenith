@@ -178,22 +178,30 @@ ZUI_01
 ZUI_04
 	:type ListPanel:
 	:position [0.0, 110.0]:
-	:scale [200.0, 100.0]:
+	:scale [100.0, 100.0]:
 	ZUI_05
 		:type Panel:
-		:color [0.141, 0.145, 0.165, 1.0]:
+		:color [0.5, 0.5, 0.5, 1.0]:
+		:borderWidth 1.0:
+		:borderColor [1.0, 1.0, 1.0, 1.0]:
 	^
 	ZUI_06
 		:type Panel:
-		:color [1.0, 1.0, 1.0, 1.0]:
+		:color [0.5, 0.5, 0.5, 1.0]:
+		:borderWidth 1.0:
+		:borderColor [1.0, 1.0, 1.0, 1.0]:
 	^
 	ZUI_07
 		:type Panel:
-		:color [0.141, 0.145, 0.165, 1.0]:
+		:color [0.5, 0.5, 0.5, 1.0]:
+		:borderWidth 1.0:
+		:borderColor [1.0, 1.0, 1.0, 1.0]:
 	^
 	ZUI_08
 		:type Panel:
-		:color [1.0, 1.0, 1.0, 1.0]:
+		:color [0.5, 0.5, 0.5, 1.0]:
+		:borderWidth 1.0:
+		:borderColor [1.0, 1.0, 1.0, 1.0]:
 	^
 ^
 
