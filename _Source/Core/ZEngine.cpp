@@ -25,6 +25,8 @@
 #include "ZZipFile.hpp"
 #include <chrono>
 
+const float DEFAULT_X_RESOLUTION = 2560.f;
+const float DEFAULT_Y_RESOLUTION = 1600.f;
 const float ZEngine::UPDATE_STEP_SIZE = 0.017f;
 const int ZEngine::MAX_FIXED_UPDATE_ITERATIONS = 50;
 const unsigned int ZEngine::SHADOW_MAP_SIZE = 1024;

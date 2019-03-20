@@ -156,8 +156,6 @@ ZUI_01
 	:position [0.0, 0.0]:
 	:scale [-1.0, 60.0]:
 	:color [0.141, 0.145, 0.165, 1.0]:
-	:borderWidth 3.0:
-	:borderColor [1.0, 1.0, 1.0, 1.0]:
 	ZUI_02
 		:type Text:
 		:position [50.0, 0.0]:
@@ -168,7 +166,7 @@ ZUI_01
 	^
 	ZUI_03
 		:type Checkbox:
-		:position [400.0, 25.0]:
+		:position [50.0, 40.0]:
 		:scale [15.0, 15.0]:
 		:color [0.141, 0.145, 0.165, 1.0]:
 		:checkColor [1.0, 1.0, 1.0, 1.0]:
@@ -178,6 +176,28 @@ ZUI_01
 ^
 
 ZUI_04
+	:type ListPanel:
+	:position [0.0, 110.0]:
+	:scale [200.0, 100.0]:
+	ZUI_05
+		:type Panel:
+		:color [0.141, 0.145, 0.165, 1.0]:
+	^
+	ZUI_06
+		:type Panel:
+		:color [1.0, 1.0, 1.0, 1.0]:
+	^
+	ZUI_07
+		:type Panel:
+		:color [0.141, 0.145, 0.165, 1.0]:
+	^
+	ZUI_08
+		:type Panel:
+		:color [1.0, 1.0, 1.0, 1.0]:
+	^
+^
+
+ZUI_09
 	:type Cursor:
 	:position [0.0, 0.0]:
 	:scale [20.0, 20.0]:

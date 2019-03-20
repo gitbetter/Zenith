@@ -21,6 +21,7 @@ void ZGLDomainStrategy::Initialize() {
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+  glfwWindowHint(GLFW_SAMPLES, 4);
 
 }
 

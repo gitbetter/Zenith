@@ -53,6 +53,8 @@ private:
 
 public:
 
+  static const float DEFAULT_X_RESOLUTION;
+  static const float DEFAULT_Y_RESOLUTION;
   static const float UPDATE_STEP_SIZE;
   static const int MAX_FIXED_UPDATE_ITERATIONS;
   static const unsigned int SHADOW_MAP_SIZE;

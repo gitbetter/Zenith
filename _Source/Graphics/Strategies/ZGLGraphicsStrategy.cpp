@@ -31,6 +31,7 @@ void ZGLGraphicsStrategy::Initialize() {
   EnableDepthTesting();
   EnableStencilTesting();
   EnableSeamlessCubemap();
+  EnableMSAA();
 }
 
 void ZGLGraphicsStrategy::ClearViewport() {
@@ -92,6 +93,14 @@ void ZGLGraphicsStrategy::EnableSeamlessCubemap() {
 
 void ZGLGraphicsStrategy::DisableSeamlessCubemap() {
   glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+}
+
+void ZGLGraphicsStrategy::EnableMSAA() {
+  glEnable(GL_MULTISAMPLE);
+}
+
+void ZGLGraphicsStrategy::DisableMSAA() {
+  glDisable(GL_MULTISAMPLE);
 }
 
 void ZGLGraphicsStrategy::BindFramebuffer(ZBufferData frameBuffer) {

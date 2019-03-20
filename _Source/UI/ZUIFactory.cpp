@@ -13,6 +13,7 @@
 #include "ZUIText.hpp"
 #include "ZUICursor.hpp"
 #include "ZUICheckBox.hpp"
+#include "ZUIListPanel.hpp"
 
 ZUIFactory::ZUIFactory() {
   elementCreators_["Button"] = &ZUIFactory::CreateUIButton;
@@ -21,6 +22,7 @@ ZUIFactory::ZUIFactory() {
   elementCreators_["Text"] = &ZUIFactory::CreateUIText;
   elementCreators_["Cursor"] = &ZUIFactory::CreateUICursor;
   elementCreators_["Checkbox"] = &ZUIFactory::CreateUICheckbox;
+  elementCreators_["ListPanel"] = &ZUIFactory::CreateUIListPanel;
 }
 
 ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
@@ -88,4 +90,10 @@ std::shared_ptr<ZUIElement> ZUIFactory::CreateUICheckbox(ZOFNode* root) {
   std::shared_ptr<ZUICheckBox> checkbox = std::make_shared<ZUICheckBox>();
   checkbox->Initialize(root);
   return checkbox;
+}
+
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUIListPanel(ZOFNode* root) {
+  std::shared_ptr<ZUIListPanel> list = std::make_shared<ZUIListPanel>();
+  list->Initialize(root);
+  return list;
 }

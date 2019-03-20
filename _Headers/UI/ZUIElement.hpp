@@ -65,7 +65,7 @@ public:
   void Select() { if (enabled_) selected_ = true; }
   void Deselect() { selected_ = false; }
 
-  void AddChild(std::shared_ptr<ZUIElement> element);
+  virtual void AddChild(std::shared_ptr<ZUIElement> element);
   bool RemoveChild(std::shared_ptr<ZUIElement> element);
 
   virtual void Draw(ZShader* shader) = 0;
@@ -84,7 +84,7 @@ public:
 
     std::shared_ptr<T> el;
     for (auto it = children_.begin(); it != children_.end(); it++) {
-      if (el = std::dynamic_pointer_cast<T>(*it)) return el;
+      if ((el = std::dynamic_pointer_cast<T>(*it))) return el;
     }
 
     return el;
