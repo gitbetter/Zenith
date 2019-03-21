@@ -75,6 +75,13 @@ void ZUIElement::Initialize(ZOFNode* root) {
     position = glm::vec2(x + size.x, y + size.y);
   }
 
+  if (props.find("anchor") != props.end() && props["anchor"]->HasValues()) {
+    ZOFString* vAnchorProp = props["anchor"]->Value<ZOFString>(0);
+    ZOFString* hAnchorProp = props["anchor"]->Value<ZOFString>(1);
+    // TODO: A parent pointer is needed to determine the bounds and therefore the anchor relative positioning.
+    // if there is no parent we simply anchor to the screen/resolution bounds
+  }
+
   SetPosition(position);
   SetSize(size);
 

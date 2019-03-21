@@ -41,12 +41,15 @@ void ZMaterial::Initialize(ZOFTree* root) {
   for (ZOFPropertyMap::iterator it = materialNode->properties.begin(); it != materialNode->properties.end(); it++) {
     if (!it->second->HasValues()) continue;
 
+    // Sets PBR flag based on present fields.
     if (!isPBR)
       isPBR = it->second->id == "metallic" || it->second->id == "roughness" || it->second->id == "ao";
 
     if (!hasDisplacement)
       hasDisplacement = it->second->id == "height";
 
+    // If a field is string based there may be textures associated with that field, otherwise
+    // the material field is simple and programmatic.
     if (ZOFString* strProp = it->second->Value<ZOFString>(0)) {
       if (ZEngine::Graphics()->Textures().find(strProp->value) != ZEngine::Graphics()->Textures().end()) {
         ZTexture texture = ZEngine::Graphics()->Textures()[strProp->value];

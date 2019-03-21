@@ -106,7 +106,6 @@ void ZCameraComponent::Initialize(ZOFNode* root) {
     cameraDamping_ = prop->value;
   }
 
-  // TODO: AddListener takes a delegate reference, yet these delegates go out of scope at method end
   ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
   ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
   ZEngine::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);

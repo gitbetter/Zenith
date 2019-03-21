@@ -40,7 +40,6 @@
 
 void ZGLInput::Process() {
   GLFWwindow* windowHandle = glfwGetCurrentContext();
-  // Todo: Replace 'commands' with 'events', and use a global event managaer to dispatch
   if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) {
     std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, 1.f));
     ZEngine::EventAgent()->TriggerEvent(moveEvent);

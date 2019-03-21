@@ -62,7 +62,6 @@ ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
           _Z("Could not create a UI component of type " + typeProp->value, ZERROR); continue;
         }
         element = std::shared_ptr<ZUIElement>((this->*elementCreators_[typeProp->value])(uiNode));
-        uiElements[uiNode->id] = element;
       }
 
       // Recursively create children if there are any nested UI nodes
@@ -71,6 +70,8 @@ ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
         for (ZUIElementMap::iterator it = uiChildren.begin(); it != uiChildren.end(); it++) {
           element->AddChild(it->second);
         }
+
+        uiElements[uiNode->id] = element;
       }
     }
   }

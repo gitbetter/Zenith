@@ -179,6 +179,7 @@ ZUI_04
 	:type ListPanel:
 	:position [0.0, 110.0]:
 	:scale [100.0, 100.0]:
+	:anchor Left Center:
 	ZUI_05
 		:type Panel:
 		:color [0.5, 0.5, 0.5, 1.0]:
