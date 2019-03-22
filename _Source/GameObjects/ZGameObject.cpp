@@ -85,7 +85,7 @@ void ZGameObject::Render(float frameMix, unsigned char renderOp) {
   std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
   if (graphicsComp != nullptr) {
     std::shared_ptr<ZGameObject> camera = game_->ActiveCamera();
-    const std::map<std::string, std::shared_ptr<ZLight>>& gameLights = game_->GameLights();
+    const ZLightMap& gameLights = game_->GameLights();
     graphicsComp->SetGameLights(gameLights);
     graphicsComp->SetGameCamera(camera);
     graphicsComp->Render(frameMix, renderOp);

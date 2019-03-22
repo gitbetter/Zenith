@@ -31,7 +31,7 @@
 
 // Includes
 #include "ZEngine.hpp"
-#include "ZObject.hpp"
+#include "ZProcess.hpp"
 #include "ZGraphicsComponent.hpp"
 
 // Forward Declarations
@@ -40,7 +40,7 @@ class ZGOFactory;
 struct ZOFNode;
 
 // Class Definitions
-class ZGameObject : public ZObject {
+class ZGameObject : public ZProcess {
   friend class ZGame;
   friend class ZGOFactory;
 

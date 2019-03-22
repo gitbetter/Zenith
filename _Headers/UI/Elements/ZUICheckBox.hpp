@@ -54,8 +54,7 @@ public:
   bool Checked() const { return checked_; }
   void SetChecked(bool checked = true) { checked_ = checked; }
 
-  void Draw(ZShader* shader) override;
-  ZMeshUI ElementShape() override;
+  void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
   
 protected:
 

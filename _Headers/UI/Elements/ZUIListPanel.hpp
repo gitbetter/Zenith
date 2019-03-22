@@ -52,8 +52,7 @@ public:
   float ItemHeight() const { return itemHeight_; }
   void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
 
-  void Draw(ZShader* shader) override;
-  ZMeshUI ElementShape() override;
+  void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
   void AddChild(std::shared_ptr<ZUIElement> element) override;
 

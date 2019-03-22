@@ -232,7 +232,7 @@ void ZShader::Use(ZMaterial* material) {
   }
 }
 
-void ZShader::Use(const std::map<std::string, std::shared_ptr<ZLight>>& lights) {
+void ZShader::Use(const ZLightMap& lights) {
   Activate();
   unsigned int i = 0;
   for (auto it = lights.begin(); it != lights.end(); it++) {

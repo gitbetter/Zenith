@@ -67,9 +67,9 @@ void ZUICursor::Initialize(ZOFNode* root) {
   }
 }
 
-void ZUICursor::Draw(ZShader* shader) {
-  Render(shader);
-  RenderChildren(shader);
+void ZUICursor::Render(float frameMix, RENDER_OP renderOp) {
+  ZUIElement::Render();
+  RenderChildren();
 }
 
 void ZUICursor::SetCursorImage(std::string path) {

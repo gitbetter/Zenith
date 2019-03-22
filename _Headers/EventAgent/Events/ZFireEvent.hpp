@@ -31,7 +31,7 @@
 
 // Includes
 #include "ZEvent.hpp"
-#include "ZObject.hpp"
+#include "ZProcess.hpp"
 
 // Forward Declarations
 

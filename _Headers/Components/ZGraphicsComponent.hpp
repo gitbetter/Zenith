@@ -20,7 +20,7 @@ struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZGraphicsComponent : public ZComponent {
-  typedef std::map<std::string, std::shared_ptr<ZLight>> ZLightMap;
+  typedef ZLightMap ZLightMap;
 private:
 
   unsigned int activeShaderIndex_ = -1;

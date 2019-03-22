@@ -31,7 +31,7 @@
 
 // Includes
 #include "ZMeshUI.hpp"
-#include "ZObject.hpp"
+#include "ZProcess.hpp"
 
 // Forward Declarations
 class ZMeshUI;
@@ -44,7 +44,7 @@ struct ZUIBorder {
   glm::vec4 color = glm::vec4(1.f);
 };
 
-class ZUIElement : public ZObject {
+class ZUIElement : public ZProcess {
 
 private:
 
@@ -65,6 +65,7 @@ public:
   float Angle();
   glm::vec4 Color() { return color_; }
   const ZTexture& Texture() { return texture_; }
+  const std::shared_ptr<ZShader>& Shader() const { return shader_; }
 
   void SetSize(glm::vec2 size);
   void SetPosition(glm::vec2 position);
@@ -73,6 +74,7 @@ public:
   void SetTexture(ZTexture texture) { texture_ = texture; }
   virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
   void SetTranslationBounds(float left, float right, float bottom, float top);
+  void SetShader(std::shared_ptr<ZShader> shader) { shader_ = shader; }
   void ResetModelMatrix() { modelMatrix_ = glm::mat4(1.f); }
 
   void Translate(glm::vec2 translation);
@@ -89,10 +91,10 @@ public:
   virtual void AddChild(std::shared_ptr<ZUIElement> element);
   bool RemoveChild(std::shared_ptr<ZUIElement> element);
 
-  virtual void Draw(ZShader* shader) = 0;
+  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
   virtual ZMeshUI ElementShape();
 
-  void RenderChildren(ZShader* shader);
+  void RenderChildren();
 
   bool TrySelect(glm::vec3 position);
   bool Contains(glm::vec3 point);
@@ -118,9 +120,8 @@ protected:
   glm::vec4 translationBounds_;
   glm::vec4 color_;
   std::vector<std::shared_ptr<ZUIElement>> children_;
+  std::shared_ptr<ZShader> shader_;
   ZTexture texture_;
   ZUIBorder border_;
-
-  void Render(ZShader* shader, ZMeshUI* mesh = nullptr);
 
 };

@@ -72,6 +72,7 @@
 }
 
 class ZGameObject;
+class ZLight;
 class ZUIElement;
 class ZShader;
 class ZMesh3D;
@@ -80,6 +81,7 @@ class ZEvent;
 
 typedef std::function<void()> ZEventCallback;
 typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
+typedef std::map<std::string, std::shared_ptr<ZLight>> ZLightMap;
 typedef std::map<std::string, std::shared_ptr<ZUIElement>> ZUIElementMap;
 typedef std::map<std::string, std::shared_ptr<ZShader>> ZShaderMap;
 typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;

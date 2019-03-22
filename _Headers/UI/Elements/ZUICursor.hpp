@@ -52,7 +52,8 @@ public:
 
   void Initialize(ZOFNode* root) override;
 
-  void Draw(ZShader* shader) override;
+  void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+  ZMeshUI ElementShape() override { return ZMeshUI(); }
 
   void SetCursorImage(std::string path);
   void SetColor(glm::vec4 color) override;

@@ -55,14 +55,20 @@ void ZUI::Initialize() {
 
 void ZUI::Draw() {
   for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
-    if (!it->second->Hidden())
-      it->second->Draw((std::dynamic_pointer_cast<ZUIText>(it->second)) ? textShader_.get() : uiShader_.get());
+    if (!it->second->Hidden()) it->second->Render();
   }
-  if (cursor_ != nullptr) cursor_->Draw(uiShader_.get());
+  if (cursor_ != nullptr) cursor_->Render();
+}
+
+void ZUI::SetCursor(std::shared_ptr<ZUICursor> cursor) {
+  cursor_ = cursor;
+  cursor_->SetShader(ZEngine::UI()->UIShader());
 }
 
 void ZUI::AddElement(std::shared_ptr<ZUIElement> element) {
   if (element != nullptr) {
+    if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(textShader_);
+    else element->SetShader(uiShader_);
     elements_[element->ID()] = element;
   }
 }

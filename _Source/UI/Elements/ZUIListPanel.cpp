@@ -50,14 +50,9 @@ void ZUIListPanel::Initialize(ZOFNode* root) {
   }
 }
 
-void ZUIListPanel::Draw(ZShader* shader) {
-  ZMeshUI mesh = ElementShape();
-  Render(shader, &mesh);
-  RenderChildren(shader);
-}
-
-ZMeshUI ZUIListPanel::ElementShape() {
-  return ZUIElement::ElementShape();
+void ZUIListPanel::Render(float frameMix, RENDER_OP renderOp) {
+  ZUIElement::Render();
+  RenderChildren();
 }
 
 void ZUIListPanel::AddChild(std::shared_ptr<ZUIElement> element) {

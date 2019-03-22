@@ -32,14 +32,14 @@
 // Includes
 #include "ZIDSequence.hpp"
 #include "ZEngine.hpp"
-#include "ZObject.hpp"
+#include "ZProcess.hpp"
 
 // Forward Declarations
 class ZGameObject;
 struct ZOFNode;
 
 // Class and Data Structure Definitions
-class ZComponent : public ZObject {
+class ZComponent : public ZProcess {
 friend class ZGameObject;
 private:
 

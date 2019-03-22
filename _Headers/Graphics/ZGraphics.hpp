@@ -56,7 +56,7 @@ public:
   void Initialize();
   void Load(ZOFTree* root);
 
-  void Draw(const ZGameObjectMap& gameObjects, const std::map<std::string, std::shared_ptr<ZLight>>& gameLights, float frameMix = 0.0);
+  void Draw(const ZGameObjectMap& gameObjects, const ZLightMap& gameLights, float frameMix = 1.0);
 
   ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }

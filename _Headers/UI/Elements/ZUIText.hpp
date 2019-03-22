@@ -47,7 +47,7 @@ public:
 
   void Initialize(ZOFNode* root) override;
 
-  void Draw(ZShader* shader) override;
+  void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
 protected:
 

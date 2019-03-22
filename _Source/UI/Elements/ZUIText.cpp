@@ -71,7 +71,7 @@ void ZUIText::Initialize(ZOFNode* root) {
   }
 }
 
-void ZUIText::Draw(ZShader* shader) {
+void ZUIText::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
   float x = Position().x,
@@ -92,7 +92,7 @@ void ZUIText::Draw(ZShader* shader) {
       ZVertex2D(glm::vec2(xpos + w, ypos + h), glm::vec2(1.f, 1.f))
     };
 
-    Render(shader);
+    ZUIElement::Render();
 
     ZEngine::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertices);
     ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices);
@@ -100,5 +100,5 @@ void ZUIText::Draw(ZShader* shader) {
     x += (character.advance >> 6) * fontScale_ * ZEngine::Domain()->ResolutionXRatio();
   }
   ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
-  RenderChildren(shader);
+  RenderChildren();
 }

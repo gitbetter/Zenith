@@ -31,13 +31,13 @@
 
 // Includes
 #include "ZCommon.hpp"
-#include "ZObject.hpp"
+#include "ZProcess.hpp"
 
 // Forward Declarations
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZMesh : public ZObject {
+class ZMesh : public ZProcess {
 private:
 
 public:

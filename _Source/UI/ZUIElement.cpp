@@ -117,35 +117,35 @@ void ZUIElement::Initialize(ZOFNode* root) {
   }
 }
 
-void ZUIElement::Render(ZShader* shader, ZMeshUI* mesh) {
-  shader->Activate();
+void ZUIElement::Render(float frameMix, RENDER_OP renderOp) {
+  ZMeshUI mesh = ElementShape();
+  shader_->Activate();
 
   ZEngine::Graphics()->Strategy()->BindTexture(texture_, 0);
-  shader->SetInt(texture_.type + "0", 0);
+  shader_->SetInt(texture_.type + "0", 0);
 
   glm::mat4 ortho = glm::ortho(0.f, (float)ZEngine::Domain()->ResolutionX(), (float)ZEngine::Domain()->ResolutionY(), 0.f);
-  shader->SetMat4("M", modelMatrix_);
-  shader->SetMat4("P", ortho);
-  shader->SetVec4("color", color_);
-  shader->SetVec4("borderColor", glm::vec4(0.f));
-  shader->SetFloat("borderWidth", 0.f);  
+  shader_->SetMat4("M", modelMatrix_);
+  shader_->SetMat4("P", ortho);
+  shader_->SetVec4("color", color_);
+  shader_->SetVec4("borderColor", glm::vec4(0.f));
+  shader_->SetFloat("borderWidth", 0.f);  
 
-  if (mesh && border_.width > 0.f) {
+  if (border_.width > 0.f) {
     float borderWidth = border_.width / glm::length(Size());
     float aspect = Size().y / Size().x;
-    shader->SetVec4("borderColor", border_.color);
-    shader->SetFloat("borderWidth", borderWidth);
-    shader->SetFloat("aspectRatio", aspect);
+    shader_->SetVec4("borderColor", border_.color);
+    shader_->SetFloat("borderWidth", borderWidth);
+    shader_->SetFloat("aspectRatio", aspect);
   }
 
-  if (mesh) mesh->Render(shader);
+  mesh.Render(shader_.get());
 }
 
-void ZUIElement::RenderChildren(ZShader* shader) {
+void ZUIElement::RenderChildren() {
   for (std::shared_ptr<ZUIElement> child : children_) {
     // TODO: Also only render if the child has the dirty flag set
-    if (!child->Hidden())
-      child->Draw((std::dynamic_pointer_cast<ZUIText>(child)) ? ZEngine::UI()->TextShader().get() : shader);
+    if (!child->Hidden()) child->Render();
   }
 }
 
@@ -158,6 +158,10 @@ void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element) {
   element->SetPosition(Position() - Size() + elementPos);
   element->SetSize(elementSize);
   element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
+
+  if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(ZEngine::UI()->TextShader());
+  else element->SetShader(ZEngine::UI()->UIShader());
+
   children_.push_back(element);
 }
 

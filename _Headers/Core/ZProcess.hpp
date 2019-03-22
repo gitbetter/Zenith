@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZObject.hpp
+    ZProcess.hpp
 
     Created by Adrian Sanchez on 09/02/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -36,15 +36,19 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZObject {
+class ZProcess {
 private:
 
 public:
 
-  virtual ~ZObject() { }
+  virtual ~ZProcess() { }
 
+  virtual void Initialize() { };
   virtual void Update() { };
-  virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) { };
+  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) { };
+  virtual void Pause() { };
+  virtual void Continue() { };
+  virtual void CleanUp() { };
 
   std::string ID() { return id_; }
 

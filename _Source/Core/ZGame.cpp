@@ -77,6 +77,7 @@ void ZGame::RunGameLoop() {
     }
 
     Render(lag / ZEngine::UPDATE_STEP_SIZE);
+
     ZEngine::Domain()->Strategy()->PollEvents();
 
     MacDisplayHack();
@@ -103,6 +104,12 @@ void ZGame::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Strategy()->SwapBuffers();
 }
 
+void ZGame::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects) {
+  for (std::shared_ptr<ZGameObject> object : gameObjects) {
+    AddGameObject(object);
+  }
+}
+
 void ZGame::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
   if (gameObject != nullptr) {
     gameObject->game_ = this;
@@ -115,12 +122,6 @@ void ZGame::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
     } else {
       gameObjects_.insert({gameObject->ID(), gameObject});
     }
-  }
-}
-
-void ZGame::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects) {
-  for (std::shared_ptr<ZGameObject> object : gameObjects) {
-    AddGameObject(object);
   }
 }
 

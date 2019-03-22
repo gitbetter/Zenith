@@ -42,16 +42,11 @@ void ZUIImage::Initialize(ZOFNode* root) {
   ZUIElement::Initialize(root);
 }
 
-void ZUIImage::Draw(ZShader* shader) {
+void ZUIImage::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
-  ZMeshUI mesh = ElementShape();
-  Render(shader, &mesh);
+  ZUIElement::Render();
   ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
-  RenderChildren(shader);
-}
-
-ZMeshUI ZUIImage::ElementShape() {
-  return ZUIElement::ElementShape();
+  RenderChildren();
 }
 
 void ZUIImage::SetImage(std::string path) {

@@ -32,6 +32,7 @@
 // Includes
 #include "ZCommon.hpp"
 #include "ZDomainStrategy.hpp"
+#include "ZEngine.hpp"
 
 // Forward Declarations
 

@@ -41,12 +41,7 @@ void ZUIButton::Initialize(ZOFNode* root) {
   ZUIElement::Initialize(root);
 }
 
-void ZUIButton::Draw(ZShader* shader) {
-  ZMeshUI mesh = ElementShape();
-  ZUIElement::Render(shader, &mesh);  
-  RenderChildren(shader);
-}
-
-ZMeshUI ZUIButton::ElementShape() {
-  return ZUIElement::ElementShape();
+void ZUIButton::Render(float frameMix, RENDER_OP renderOp) {
+  ZUIElement::Render();  
+  RenderChildren();
 }

@@ -37,12 +37,7 @@ void ZUIPanel::Initialize(ZOFNode* root) {
   texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
-void ZUIPanel::Draw(ZShader* shader) {
-  ZMeshUI mesh = ElementShape();
-  Render(shader, &mesh);
-  RenderChildren(shader);
-}
-
-ZMeshUI ZUIPanel::ElementShape() {
-  return ZUIElement::ElementShape();
+void ZUIPanel::Render(float frameMix, RENDER_OP renderOp) {
+  ZUIElement::Render();
+  RenderChildren();
 }

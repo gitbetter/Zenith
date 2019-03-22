@@ -38,12 +38,12 @@ struct ZLight;
 class ZSkybox;
 
 // Class and Data Structure Definitions
-class ZGame : public ZObject {
+class ZGame {
 private:
 
   std::shared_ptr<ZSkybox> skybox_ = nullptr;
   ZGameObjectMap gameObjects_;
-  std::map<std::string, std::shared_ptr<ZLight>> gameLights_;
+  ZLightMap gameLights_;
   std::string activeCameraObject_;
 
   void Setup();
@@ -57,7 +57,7 @@ public:
   void RunGameLoop();
 
   std::shared_ptr<ZGameObject> ActiveCamera();
-  const std::map<std::string, std::shared_ptr<ZLight>>& GameLights() const { return gameLights_; }
+  const ZLightMap& GameLights() const { return gameLights_; }
   std::shared_ptr<ZSkybox> Skybox() const { return skybox_; }
   const ZGameObjectMap& GameObjects() const { return gameObjects_; }
 
@@ -68,10 +68,11 @@ public:
 
   void HandleQuit(std::shared_ptr<ZEvent> event);
 
-  void MacDisplayHack(); // TODO: Remove later
+  // TODO: Remove later when we figure out why some screens don't refresh on startup
+  void MacDisplayHack(); 
 
 protected:
 
-  void Update() override;
-  void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+  void Update();
+  void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
 };

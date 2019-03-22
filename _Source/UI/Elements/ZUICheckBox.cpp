@@ -63,14 +63,9 @@ void ZUICheckBox::Initialize(ZOFNode* root) {
   }
 }
 
-void ZUICheckBox::Draw(ZShader* shader) {
-  ZMeshUI mesh = ElementShape();
-  Render(shader, &mesh);
-  RenderChildren(shader);
-}
-
-ZMeshUI ZUICheckBox::ElementShape() {
-  return ZUIElement::ElementShape();
+void ZUICheckBox::Render(float frameMix, RENDER_OP renderOp) {
+  ZUIElement::Render();
+  RenderChildren();
 }
 
 void ZUICheckBox::HandleMousePress(std::shared_ptr<ZEvent> event) {

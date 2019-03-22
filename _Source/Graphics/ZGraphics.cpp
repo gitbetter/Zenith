@@ -59,7 +59,7 @@ void ZGraphics::Load(ZOFTree* root) {
   }
 }
 
-void ZGraphics::Draw(const ZGameObjectMap& gameObjects, const std::map<std::string, std::shared_ptr<ZLight>>& gameLights, float frameMix) {
+void ZGraphics::Draw(const ZGameObjectMap& gameObjects, const ZLightMap& gameLights, float frameMix) {
   if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
     graphicsStrategy_->ClearViewport();
 
