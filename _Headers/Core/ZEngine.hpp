@@ -51,6 +51,7 @@ class ZGraphicsFactory;
 class ZUIFactory;
 class ZGame;
 class ZEventAgent;
+class ZLuaScriptManager;
 
 // Class Definitions
 class ZEngine {
@@ -65,6 +66,7 @@ private:
 
   static std::unique_ptr<ZResourceCache> resourceCache_;
   static std::unique_ptr<ZEventAgent> eventAgent_;
+  static std::unique_ptr<ZLuaScriptManager> scriptManager_;
   static std::unique_ptr<ZGOFactory> gameObjectFactory_;
   static std::unique_ptr<ZGraphicsFactory> graphicsFactory_;
   static std::unique_ptr<ZUIFactory> uiFactory_;
@@ -98,6 +100,7 @@ public:
 
   static ZResourceCache* ResourceCache();
   static ZEventAgent* EventAgent();
+  static ZLuaScriptManager* ScriptManager();
   static ZGOFactory* GameObjectFactory();
   static ZGraphicsFactory* GraphicsFactory();
   static ZUIFactory* UIFactory();
@@ -113,6 +116,7 @@ public:
   static void Provide(std::unique_ptr<ZUI> ui);
   static void Provide(std::unique_ptr<ZPhysics> physics);
   // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
+  
   static void SetDeltaTime(float deltaTime);
 
   static ZOFLoadResult LoadZOF(std::string zofPath);

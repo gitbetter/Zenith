@@ -56,6 +56,7 @@
 #include <regex>
 #include <algorithm>
 #include <sstream>
+#include <chrono>
 
 #define _Z(message, severity) { \
   switch(severity) {\

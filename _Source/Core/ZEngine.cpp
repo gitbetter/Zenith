@@ -44,7 +44,7 @@
 #include "ZGraphicsFactory.hpp"
 #include "ZUIFactory.hpp"
 #include "ZZipFile.hpp"
-#include <chrono>
+#include "ZLuaScriptManager.hpp"
 
 const float ZEngine::DEFAULT_X_RESOLUTION = 2560.f;
 const float ZEngine::DEFAULT_Y_RESOLUTION = 1600.f;
@@ -74,6 +74,7 @@ std::unique_ptr<ZUI> ZEngine::ui_ = nullptr;
 std::unique_ptr<ZPhysics> ZEngine::physics_ = nullptr;
 std::unique_ptr<ZResourceCache> ZEngine::resourceCache_ = nullptr;
 std::unique_ptr<ZEventAgent> ZEngine::eventAgent_ = nullptr;
+std::unique_ptr<ZLuaScriptManager> ZEngine::scriptManager_ = nullptr;
 std::unique_ptr<ZGOFactory> ZEngine::gameObjectFactory_ = nullptr;
 std::unique_ptr<ZGraphicsFactory> ZEngine::graphicsFactory_ = nullptr;
 std::unique_ptr<ZUIFactory> ZEngine::uiFactory_ = nullptr;
@@ -90,6 +91,8 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   resourceCache_->Initialize();
 
   eventAgent_.reset(new ZEventAgent);
+
+  scriptManager_.reset(new ZLuaScriptManager);
 
   domain_.reset(new ZDomain(windowWidth, windowHeight));
   domain_->Initialize();
@@ -140,6 +143,10 @@ ZResourceCache* ZEngine::ResourceCache() {
 
 ZEventAgent* ZEngine::EventAgent() {
   return eventAgent_.get();
+}
+
+ZLuaScriptManager* ZEngine::ScriptManager() {
+  return scriptManager_.get();
 }
 
 ZGOFactory* ZEngine::GameObjectFactory() {
