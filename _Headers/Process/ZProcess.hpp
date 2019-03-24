@@ -68,7 +68,7 @@ public:
   bool IsPaused() const { return state_ == ZProcessState::Paused; }
   
   void SetState(ZProcessState state) { state_ = state; }
-  inline void AttachChild(std::shared_ptr<ZProcess> child);
+  void AttachChild(std::shared_ptr<ZProcess> child);
   std::shared_ptr<ZProcess> RemoveChild();  
 
 protected:

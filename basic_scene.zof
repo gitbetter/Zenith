@@ -164,45 +164,13 @@ ZUI_01
 		:text "Zenith":
 		:font "earthorbiter" 1.0:
 	^
-	ZUI_03
-		:type Checkbox:
-		:position [50.0, 40.0]:
-		:scale [15.0, 15.0]:
-		:color [0.141, 0.145, 0.165, 1.0]:
-		:checkColor [1.0, 1.0, 1.0, 1.0]:
-		:borderWidth 1.0:
-		:borderColor [1.0, 1.0, 1.0, 1.0]:
-	^
-^
-
-ZUI_04
-	:type ListPanel:
-	:position [0.0, 110.0]:
-	:scale [100.0, 100.0]:
-	:anchor Left Center:
-	ZUI_05
-		:type Panel:
-		:color [0.5, 0.5, 0.5, 1.0]:
-		:borderWidth 1.0:
-		:borderColor [1.0, 1.0, 1.0, 1.0]:
-	^
-	ZUI_06
-		:type Panel:
-		:color [0.5, 0.5, 0.5, 1.0]:
-		:borderWidth 1.0:
-		:borderColor [1.0, 1.0, 1.0, 1.0]:
-	^
-	ZUI_07
-		:type Panel:
-		:color [0.5, 0.5, 0.5, 1.0]:
-		:borderWidth 1.0:
-		:borderColor [1.0, 1.0, 1.0, 1.0]:
-	^
-	ZUI_08
-		:type Panel:
-		:color [0.5, 0.5, 0.5, 1.0]:
-		:borderWidth 1.0:
-		:borderColor [1.0, 1.0, 1.0, 1.0]:
+	ZUI_FPS_COUNTER
+		:type Text:
+		:position [300.0, 25.0]:
+		:scale [100.0, 25.0]:
+		:color [1.0, 1.0, 1.0, 1.0]:
+		:text "FPS":
+		:font "earthorbiter" 0.65:
 	^
 ^
 

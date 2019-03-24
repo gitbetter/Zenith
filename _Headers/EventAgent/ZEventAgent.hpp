@@ -30,7 +30,9 @@
 #pragma once
 
 // Includes
+#include "ZEngine.hpp"
 #include "ZEvent.hpp"
+#include "ZProcess.hpp"
 
 // Forward Declarations
 //class SomeClass;
@@ -38,7 +40,7 @@
 // Class and Data Structure Definitions
 const unsigned int NUM_EVENT_QUEUES = 2;
 
-class ZEventAgent {
+class ZEventAgent : public ZProcess {
 
   typedef std::list<ZEventDelegate> EventListenerList;
   typedef std::map<ZEventType, EventListenerList> EventListenerMap;
@@ -49,18 +51,21 @@ private:
   EventListenerMap eventListeners_;
   EventQueue eventQueues_[NUM_EVENT_QUEUES];
   int activeQueue_;
+  float updateTimeoutMax_;
 
 public:
 
-    ZEventAgent() : activeQueue_(0) { }
+    ZEventAgent() : activeQueue_(0), updateTimeoutMax_(ZEngine::UPDATE_STEP_SIZE * 2.f) { }
     ~ZEventAgent() { }
+
+    void Initialize() override { ZProcess::Initialize(); }
+    void Update() override;
 
     bool AddListener(const ZEventDelegate& eventDelegate, const ZEventType& type);
     bool RemoveListener(const ZEventDelegate& eventDelegate, const ZEventType& type);
     bool TriggerEvent(const std::shared_ptr<ZEvent>& event);
     bool QueueEvent(const std::shared_ptr<ZEvent>& event);
     bool AbortEvent(const ZEventType& eventType, bool allOfType = false);
-    bool Process(float timeoutMax = std::numeric_limits<float>::max());
 
 protected:
 

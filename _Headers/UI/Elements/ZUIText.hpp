@@ -49,6 +49,10 @@ public:
 
   void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
+  void SetText(const std::string& text) { text_ = text; }
+  void SetFontScale(float scale) { fontScale_ = scale; }
+  void SetFont(const std::string& font) { font_ = font; }
+
 protected:
 
   std::string text_;

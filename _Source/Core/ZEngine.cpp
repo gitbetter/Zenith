@@ -31,7 +31,6 @@
 #include "ZGame.hpp"
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
-#include "ZNullInput.hpp"
 #include "ZGLInput.hpp"
 #include "ZUI.hpp"
 #include "ZPhysics.hpp"
@@ -70,17 +69,18 @@ const std::string ZEngine::DEFAULT_HDR_CUBEMAP = "Assets/Skyboxes/DefaultHDR/sky
 std::shared_ptr<ZGame> ZEngine::currentGame_ = nullptr;
 std::shared_ptr<ZDomain> ZEngine::domain_ = nullptr;
 std::shared_ptr<ZGraphics> ZEngine::graphics_ = nullptr;
-std::shared_ptr<ZInput> ZEngine::input_(new ZNullInput);
+std::shared_ptr<ZInput> ZEngine::input_ = nullptr;
 std::shared_ptr<ZUI> ZEngine::ui_ = nullptr;
 std::shared_ptr<ZPhysics> ZEngine::physics_ = nullptr;
 std::unique_ptr<ZProcessRunner> ZEngine::processRunner_ = nullptr;
+std::shared_ptr<ZEventAgent> ZEngine::eventAgent_ = nullptr;
 std::unique_ptr<ZResourceCache> ZEngine::resourceCache_ = nullptr;
-std::unique_ptr<ZEventAgent> ZEngine::eventAgent_ = nullptr;
 std::unique_ptr<ZLuaScriptManager> ZEngine::scriptManager_ = nullptr;
 std::unique_ptr<ZGOFactory> ZEngine::gameObjectFactory_ = nullptr;
 std::unique_ptr<ZGraphicsFactory> ZEngine::graphicsFactory_ = nullptr;
 std::unique_ptr<ZUIFactory> ZEngine::uiFactory_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
+float ZEngine::lastDeltaTime_ = 0.0f;
 std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
 
 // TODO: Useful to have a config file to parse for more global state info such as window dimensions
@@ -94,13 +94,11 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
   resourceCache_->Initialize();
 
-  eventAgent_.reset(new ZEventAgent);
+  eventAgent_ = std::make_shared<ZEventAgent>();
+  eventAgent_->Initialize();
+  processRunner_->AttachProcess(eventAgent_);
 
   scriptManager_.reset(new ZLuaScriptManager);
-
-  gameObjectFactory_.reset(new ZGOFactory);
-  graphicsFactory_.reset(new ZGraphicsFactory);
-  uiFactory_.reset(new ZUIFactory);
 
   domain_ = std::make_shared<ZDomain>(windowWidth, windowHeight);
   domain_->Initialize();
@@ -109,6 +107,8 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   graphics_->Initialize();
 
   input_ = std::make_shared<ZGLInput>();
+  input_->Initialize();
+  processRunner_->AttachProcess(input_);
 
   ui_ = std::make_shared<ZUI>();
   ui_->Initialize();
@@ -116,6 +116,10 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   physics_ = std::make_shared<ZPhysics>();
   physics_->Initialize();
   processRunner_->AttachProcess(physics_);
+
+  gameObjectFactory_.reset(new ZGOFactory);
+  graphicsFactory_.reset(new ZGraphicsFactory);
+  uiFactory_.reset(new ZUIFactory);
 }
 
 std::shared_ptr<ZGame> ZEngine::Game() {
@@ -174,6 +178,10 @@ ZIDSequence* ZEngine::IDSequence() {
   return idGenerator_.get();
 }
 
+float ZEngine::LastDeltaTime() {
+  return lastDeltaTime_;
+}
+
 float ZEngine::DeltaTime() {
   return deltaTime_;
 }
@@ -200,9 +208,7 @@ void ZEngine::Provide(std::shared_ptr<ZGraphics> graphics) {
 }
 
 void ZEngine::Provide(std::shared_ptr<ZInput> input) {
-  // If the provided input object is not null and the existing engine input object
-  // is null, delete the existing one
-  if (!dynamic_cast<ZNullInput*>(input.get()) && dynamic_cast<ZNullInput*>(input_.get())) {
+  if (input_ != nullptr) {
     input_ = nullptr;
   }
   input_ = std::move(input);
@@ -225,6 +231,7 @@ void ZEngine::Provide(std::shared_ptr<ZPhysics> physics) {
 }
 
 void ZEngine::SetDeltaTime(float deltaTime) {
+  lastDeltaTime_ = deltaTime_;
   deltaTime_ = deltaTime;
 }
 

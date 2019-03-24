@@ -28,7 +28,6 @@
 */
 
 #include "ZEventAgent.hpp"
-#include "ZEngine.hpp"
 
 bool ZEventAgent::AddListener(const ZEventDelegate& eventDelegate, const ZEventType& type) {
   EventListenerList& listeners = eventListeners_[type];
@@ -109,10 +108,10 @@ bool ZEventAgent::AbortEvent(const ZEventType& eventType, bool allOfType) {
   return success;
 }
 
-bool ZEventAgent::Process(float timeoutMax) {
+void ZEventAgent::Update() {
   float floatMax = std::numeric_limits<float>::max();
   float currentTime = ZEngine::SecondsTime();
-  float maxTime = ((timeoutMax == floatMax) ? floatMax : currentTime + timeoutMax);
+  float maxTime = ((updateTimeoutMax_ == floatMax) ? floatMax : currentTime + updateTimeoutMax_);
 
   int queueToProcess = activeQueue_;
   activeQueue_ = (activeQueue_ + 1) % NUM_EVENT_QUEUES;
@@ -132,7 +131,7 @@ bool ZEventAgent::Process(float timeoutMax) {
     }
 
     currentTime = ZEngine::SecondsTime();
-    if (timeoutMax != floatMax && currentTime >= maxTime) {
+    if (updateTimeoutMax_ != floatMax && currentTime >= maxTime) {
       _Z("ZEventAgent processing timeout", ZWARNING);
       break;
     }
@@ -146,6 +145,4 @@ bool ZEventAgent::Process(float timeoutMax) {
       eventQueues_[activeQueue_].push_front(event);
     }
   }
-
-  return queueFlushed;
 }

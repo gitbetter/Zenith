@@ -66,15 +66,15 @@ private:
   static std::shared_ptr<ZPhysics> physics_;
 
   static std::unique_ptr<ZProcessRunner> processRunner_;
+  static std::shared_ptr<ZEventAgent> eventAgent_;
   static std::unique_ptr<ZResourceCache> resourceCache_;
-  static std::unique_ptr<ZEventAgent> eventAgent_;
   static std::unique_ptr<ZLuaScriptManager> scriptManager_;
   static std::unique_ptr<ZGOFactory> gameObjectFactory_;
   static std::unique_ptr<ZGraphicsFactory> graphicsFactory_;
   static std::unique_ptr<ZUIFactory> uiFactory_;
 
   static std::unique_ptr<ZIDSequence> idGenerator_;
-  static float deltaTime_;
+  static float deltaTime_, lastDeltaTime_;
 
 public:
 
@@ -101,8 +101,8 @@ public:
   static ZPhysics* Physics();
 
   static ZProcessRunner* ProcessRunner();
-  static ZResourceCache* ResourceCache();
   static ZEventAgent* EventAgent();
+  static ZResourceCache* ResourceCache();
   static ZLuaScriptManager* ScriptManager();
   static ZGOFactory* GameObjectFactory();
   static ZGraphicsFactory* GraphicsFactory();
@@ -110,6 +110,7 @@ public:
 
   static ZIDSequence* IDSequence();
 
+  static float LastDeltaTime();
   static float DeltaTime();
   static float SecondsTime();
 

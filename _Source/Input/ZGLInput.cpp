@@ -38,7 +38,7 @@
 #include "ZFireEvent.hpp"
 #include <cassert>
 
-void ZGLInput::Process() {
+void ZGLInput::Update() {
   GLFWwindow* windowHandle = glfwGetCurrentContext();
   if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) {
     std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, 1.f));

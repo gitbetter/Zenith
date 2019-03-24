@@ -53,7 +53,7 @@ bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scr
 }
 
 void ZInternalScriptExports::AttachScriptProcess(sol::table scriptProcess) {
-  sol::object obj = scriptProcess["process"];
+  sol::object obj = scriptProcess["_object"];
   if (obj.valid()) {
     std::shared_ptr<ZProcess> process = obj.as<std::shared_ptr<ZProcess>>();
     ZEngine::ProcessRunner()->AttachProcess(process);

@@ -33,6 +33,8 @@
 
 const std::string ZScriptProcess::SCRIPT_PROCESS_NAME = "ZScriptProcess";
 
+ZScriptProcess::ZScriptProcess() : frequency_(0), time_(0) { }
+
 void ZScriptProcess::RegisterScriptClass() {
   sol::table metaTable = ZEngine::ScriptManager()->LuaState().create_named_table(SCRIPT_PROCESS_NAME);
   metaTable[sol::metatable_key] = metaTable;
@@ -44,20 +46,20 @@ void ZScriptProcess::RegisterScriptClass() {
 
 void ZScriptProcess::RegisterScriptClassFunctions() {
   sol::table metaTable = ZEngine::ScriptManager()->LuaState()[SCRIPT_PROCESS_NAME];
-  metaTable["initialize"] = ZProcess::Initialize;
-  metaTable["finish"] = ZProcess::Finish;
-  metaTable["fail"] = ZProcess::Fail;
-  metaTable["pause"] = ZProcess::Pause;
-  metaTable["continue"] = ZProcess::Continue;
-  metaTable["abort"] = ZProcess::Abort;
-  metaTable["isAlive"] = ZScriptProcess::IsAlive;
-  metaTable["isDead"] = ZScriptProcess::IsDead;
-  metaTable["isPaused"] = ZScriptProcess::IsPaused;
-  metaTable["attachChild"] = ZScriptProcess::ScriptAttachChild;
+  metaTable["initialize"] = &ZProcess::Initialize;
+  metaTable["finish"] = &ZProcess::Finish;
+  metaTable["fail"] = &ZProcess::Fail;
+  metaTable["pause"] = &ZProcess::Pause;
+  metaTable["continue"] = &ZProcess::Continue;
+  metaTable["abort"] = &ZProcess::Abort;
+  metaTable["isAlive"] = &ZScriptProcess::IsAlive;
+  metaTable["isDead"] = &ZScriptProcess::IsDead;
+  metaTable["isPaused"] = &ZScriptProcess::IsPaused;
+  metaTable["attachChild"] = &ZScriptProcess::ScriptAttachChild;
 }
 
 void ZScriptProcess::ScriptAttachChild(sol::table child) {
-  std::shared_ptr<ZProcess> process = child["process"];
+  std::shared_ptr<ZProcess> process = child["_object"];
   if (process) AttachChild(process);
   else _Z("Child process being attached is not valid", ZERROR);
 }
@@ -68,7 +70,7 @@ sol::table ZScriptProcess::CreateFromScript(sol::table self, sol::table construc
   if (process->BuildCppDataFromScript(originalSubclass, constructionData)) {
     sol::table metaTable = ZEngine::ScriptManager()->LuaState()[SCRIPT_PROCESS_NAME];
     assert(metaTable.valid());
-    process->self_["process"] = process;
+    process->self_["_object"] = process;
     process->self_[sol::metatable_key] = metaTable;
   } else {
     process->self_ = sol::lua_nil;
@@ -119,7 +121,7 @@ bool ZScriptProcess::BuildCppDataFromScript(sol::table scriptClass, sol::table c
   }
 
   if (constructionData.valid()) {
-    for (sol::basic_table_iterator it = constructionData.begin(); it != constructionData.end(); it++) {
+    for (auto it = constructionData.begin(); it != constructionData.end(); it++) {
       std::string key = (*it).first.as<std::string>();
       sol::object val = (*it).second;
       if (key == "frequency" && val.is<int>()) {
@@ -148,7 +150,7 @@ void ZScriptProcess::Update() {
   }
 }
 
-void ZScriptProcess::Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) {
+void ZScriptProcess::Render(float frameMix, RENDER_OP renderOp) {
   ZProcess::Render();
 }
 

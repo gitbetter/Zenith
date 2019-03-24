@@ -48,8 +48,8 @@ private:
   sol::table self_;
   static const std::string SCRIPT_PROCESS_NAME;
 
-  static void RegisterScriptClassFunctions();
   static sol::table CreateFromScript(sol::table self, sol::table constructionData, sol::table originalSubclass);
+  static void RegisterScriptClassFunctions();
   bool BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData);
 
   bool ScriptIsAlive() { return IsAlive(); }

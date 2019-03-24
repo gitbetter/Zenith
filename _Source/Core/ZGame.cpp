@@ -43,6 +43,8 @@
 #include "ZQuitEvent.hpp"
 #include "ZProcessRunner.hpp"
 
+#include "ZUIText.hpp"
+
 #include <chrono>
 using namespace std;
 
@@ -59,25 +61,34 @@ void ZGame::RunGameLoop() {
   _Z("Zenith is about to loop...", ZINFO);
 
   float previousTime = ZEngine::SecondsTime();
-  float lag = 0.0;
+  
+  // TODO: Remove this
+  float fpsUpdateTime = 0.f;
+  //
 
   while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
-    int fixedUpdates = 0;
     float currentTime = ZEngine::SecondsTime();
     ZEngine::SetDeltaTime(currentTime - previousTime);
     previousTime = currentTime;
-    lag += ZEngine::DeltaTime();
+    float frameMix = glm::clamp(ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
+                                0.f, 1.f);
 
-    ZEngine::EventAgent()->Process(ZEngine::UPDATE_STEP_SIZE * 2.f);
+    ZEngine::ProcessRunner()->UpdateProcesses();
 
-    ZEngine::Input()->Process();
-
-    while (lag >= ZEngine::UPDATE_STEP_SIZE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
-      ZEngine::ProcessRunner()->UpdateProcesses();
-      lag -= ZEngine::UPDATE_STEP_SIZE;
+    // TODO: Make OnUpdate event for processes, so that this sort of code can be customized outside of the engine
+    // TODO: Remove this
+    fpsUpdateTime += ZEngine::DeltaTime();
+    if (fpsUpdateTime >= 0.1f) {
+      std::shared_ptr<ZUIText> fps = ZEngine::UI()->FindElement<ZUIText>("ZUI_FPS_COUNTER");
+      if (fps) {
+        float framesPerSecond = ZEngine::LastDeltaTime() * 0.8f + ZEngine::DeltaTime() * (1.f - 0.8f);
+        fps->SetText("FPS: " + std::to_string(1.f / framesPerSecond));
+      }
+      fpsUpdateTime = 0.f;
     }
+    //
 
-    Render(lag / ZEngine::UPDATE_STEP_SIZE);
+    Render(frameMix);
 
     ZEngine::Domain()->Strategy()->PollEvents();
 

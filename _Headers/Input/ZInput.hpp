@@ -30,12 +30,13 @@
 #pragma once
 
 // Includes
+#include "ZProcess.hpp"
 
 // Forward Declarations
 class ZObject;
 
 // Class and Data Structure Definitions
-class ZInput {
+class ZInput : public ZProcess {
 
 private:
 
@@ -43,7 +44,7 @@ public:
 
   virtual ~ZInput() { }
 
-  virtual void Process() = 0;
+  virtual void Initialize() { ZProcess::Initialize(); }
   virtual void GetPointerPosition(double& x, double& y) = 0;
 
 protected:

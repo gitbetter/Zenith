@@ -49,7 +49,7 @@ private:
 
 public:
 
-  void Process() override;
+  void Update() override;
   void GetPointerPosition(double& x, double& y) override;
 
 protected:
