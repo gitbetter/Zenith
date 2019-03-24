@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZScriptProcess.hpp
+    ZScriptableProcess.hpp
 
     Created by Adrian Sanchez on 23/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -38,7 +38,7 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZScriptProcess : public ZProcess {
+class ZScriptableProcess : public ZProcess {
 
 private:
 
@@ -58,10 +58,10 @@ private:
 
   void ScriptAttachChild(sol::table child);
 
-  explicit ZScriptProcess();
+  explicit ZScriptableProcess();
 
-  static ZScriptProcess* Create(const std::string& scriptName = "");
-  static void Destroy(ZScriptProcess* process);
+  static ZScriptableProcess* Create(const std::string& scriptName = "");
+  static void Destroy(ZScriptableProcess* process);
 
 public:
 

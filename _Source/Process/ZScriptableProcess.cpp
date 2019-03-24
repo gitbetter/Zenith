@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZScriptProcess.cpp
+    ZScriptableProcess.cpp
 
     Created by Adrian Sanchez on 23/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -27,24 +27,24 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZScriptProcess.hpp"
+#include "ZScriptableProcess.hpp"
 #include "ZEngine.hpp"
 #include "ZLuaScriptManager.hpp"
 
-const std::string ZScriptProcess::SCRIPT_PROCESS_NAME = "ZScriptProcess";
+const std::string ZScriptableProcess::SCRIPT_PROCESS_NAME = "ZScriptableProcess";
 
-ZScriptProcess::ZScriptProcess() : frequency_(0), time_(0) { }
+ZScriptableProcess::ZScriptableProcess() : frequency_(0), time_(0) { }
 
-void ZScriptProcess::RegisterScriptClass() {
+void ZScriptableProcess::RegisterScriptClass() {
   sol::table metaTable = ZEngine::ScriptManager()->LuaState().create_named_table(SCRIPT_PROCESS_NAME);
   metaTable[sol::metatable_key] = metaTable;
   metaTable["base"] = metaTable;
   metaTable["cpp"] = true;
   RegisterScriptClassFunctions();
-  metaTable["new"] = ZScriptProcess::CreateFromScript;
+  metaTable["new"] = ZScriptableProcess::CreateFromScript;
 }
 
-void ZScriptProcess::RegisterScriptClassFunctions() {
+void ZScriptableProcess::RegisterScriptClassFunctions() {
   sol::table metaTable = ZEngine::ScriptManager()->LuaState()[SCRIPT_PROCESS_NAME];
   metaTable["initialize"] = &ZProcess::Initialize;
   metaTable["finish"] = &ZProcess::Finish;
@@ -52,20 +52,20 @@ void ZScriptProcess::RegisterScriptClassFunctions() {
   metaTable["pause"] = &ZProcess::Pause;
   metaTable["continue"] = &ZProcess::Continue;
   metaTable["abort"] = &ZProcess::Abort;
-  metaTable["isAlive"] = &ZScriptProcess::IsAlive;
-  metaTable["isDead"] = &ZScriptProcess::IsDead;
-  metaTable["isPaused"] = &ZScriptProcess::IsPaused;
-  metaTable["attachChild"] = &ZScriptProcess::ScriptAttachChild;
+  metaTable["isAlive"] = &ZScriptableProcess::IsAlive;
+  metaTable["isDead"] = &ZScriptableProcess::IsDead;
+  metaTable["isPaused"] = &ZScriptableProcess::IsPaused;
+  metaTable["attachChild"] = &ZScriptableProcess::ScriptAttachChild;
 }
 
-void ZScriptProcess::ScriptAttachChild(sol::table child) {
+void ZScriptableProcess::ScriptAttachChild(sol::table child) {
   std::shared_ptr<ZProcess> process = child["_object"];
   if (process) AttachChild(process);
   else _Z("Child process being attached is not valid", ZERROR);
 }
 
-sol::table ZScriptProcess::CreateFromScript(sol::table self, sol::table constructionData, sol::table originalSubclass) {
-  std::shared_ptr<ZScriptProcess> process(new ZScriptProcess);
+sol::table ZScriptableProcess::CreateFromScript(sol::table self, sol::table constructionData, sol::table originalSubclass) {
+  std::shared_ptr<ZScriptableProcess> process(new ZScriptableProcess);
   process->self_ = ZEngine::ScriptManager()->LuaState().create_table();
   if (process->BuildCppDataFromScript(originalSubclass, constructionData)) {
     sol::table metaTable = ZEngine::ScriptManager()->LuaState()[SCRIPT_PROCESS_NAME];
@@ -78,7 +78,7 @@ sol::table ZScriptProcess::CreateFromScript(sol::table self, sol::table construc
   return process->self_;
 }
 
-bool ZScriptProcess::BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData) {
+bool ZScriptableProcess::BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData) {
   if (scriptClass.valid()) {
     sol::table temp = scriptClass["initialize"];
     if (temp.valid())
@@ -135,13 +135,13 @@ bool ZScriptProcess::BuildCppDataFromScript(sol::table scriptClass, sol::table c
   return true;
 }
 
-void ZScriptProcess::Initialize() {
+void ZScriptableProcess::Initialize() {
   ZProcess::Initialize();
   if (scriptInitialize_.valid())
     scriptInitialize_(self_);
 }
 
-void ZScriptProcess::Update() {
+void ZScriptableProcess::Update() {
   ZProcess::Update();
   time_ += ZEngine::UPDATE_STEP_SIZE;
   if (time_ > frequency_) {
@@ -150,35 +150,35 @@ void ZScriptProcess::Update() {
   }
 }
 
-void ZScriptProcess::Render(float frameMix, RENDER_OP renderOp) {
+void ZScriptableProcess::Render(float frameMix, RENDER_OP renderOp) {
   ZProcess::Render();
 }
 
-void ZScriptProcess::Pause() {
+void ZScriptableProcess::Pause() {
   ZProcess::Pause();
   if (scriptPause_.valid())
     scriptPause_(self_);
 }
 
-void ZScriptProcess::Continue() {
+void ZScriptableProcess::Continue() {
   ZProcess::Continue();
   if (scriptContinue_.valid())
     scriptContinue_(self_);
 }
 
-void ZScriptProcess::Finish() {
+void ZScriptableProcess::Finish() {
   ZProcess::Finish();
   if (scriptFinish_.valid())
     scriptFinish_(self_);
 }
 
-void ZScriptProcess::Fail() {
+void ZScriptableProcess::Fail() {
   ZProcess::Fail();
   if (scriptFail_.valid())
     scriptFail_(self_);
 }
 
-void ZScriptProcess::Abort() {
+void ZScriptableProcess::Abort() {
   ZProcess::Abort();
   if (scriptAbort_.valid())
     scriptAbort_(self_);

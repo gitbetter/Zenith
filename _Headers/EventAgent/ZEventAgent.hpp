@@ -33,12 +33,28 @@
 #include "ZEngine.hpp"
 #include "ZEvent.hpp"
 #include "ZProcess.hpp"
+#include "ZScriptableEvent.hpp"
 
 // Forward Declarations
 //class SomeClass;
 
 // Class and Data Structure Definitions
 const unsigned int NUM_EVENT_QUEUES = 2;
+
+class ZScriptableEventAgent {
+  typedef std::set<ZScriptableEventDelegate*> ScriptEventListeners;
+
+  private:
+
+    ScriptEventListeners listeners_;
+
+  public:
+
+    ~ZScriptableEventAgent() { }
+    void AddListener(ZScriptableEventDelegate* listener);
+    void DestroyListener(ZScriptableEventDelegate* listener);
+
+};
 
 class ZEventAgent : public ZProcess {
 
@@ -47,6 +63,8 @@ class ZEventAgent : public ZProcess {
   typedef std::list<std::shared_ptr<ZEvent>> EventQueue;
 
 private:
+
+  std::unique_ptr<ZScriptableEventAgent> scriptableEventAgent_;
 
   EventListenerMap eventListeners_;
   EventQueue eventQueues_[NUM_EVENT_QUEUES];
@@ -58,7 +76,7 @@ public:
     ZEventAgent() : activeQueue_(0), updateTimeoutMax_(ZEngine::UPDATE_STEP_SIZE * 2.f) { }
     ~ZEventAgent() { }
 
-    void Initialize() override { ZProcess::Initialize(); }
+    void Initialize() override;
     void Update() override;
 
     bool AddListener(const ZEventDelegate& eventDelegate, const ZEventType& type);
@@ -66,6 +84,8 @@ public:
     bool TriggerEvent(const std::shared_ptr<ZEvent>& event);
     bool QueueEvent(const std::shared_ptr<ZEvent>& event);
     bool AbortEvent(const ZEventType& eventType, bool allOfType = false);
+
+    ZScriptableEventAgent* Scriptable() const { return scriptableEventAgent_.get(); }
 
 protected:
 

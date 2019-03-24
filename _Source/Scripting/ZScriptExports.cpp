@@ -33,14 +33,8 @@
 #include "ZLuaScriptManager.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZResourceCache.hpp"
-
-bool ZInternalScriptExports::Initialize() {
-
-}
-
-bool ZInternalScriptExports::Destroy() {
-
-}
+#include "ZScriptableEvent.hpp"
+#include "ZEventAgent.hpp"
 
 bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scriptResource) {
   ZResource resource(scriptResource);
@@ -62,10 +56,49 @@ void ZInternalScriptExports::AttachScriptProcess(sol::table scriptProcess) {
   }
 }
 
+bool ZInternalScriptExports::QueueEvent(ZEventType eventType, sol::table eventData) {
+  std::shared_ptr<ZScriptableEvent> event(BuildEvent(eventType, eventData));
+  if (event) {
+    return ZEngine::EventAgent()->QueueEvent(event);
+  }
+  return false;
+}
+
+bool ZInternalScriptExports::TriggerEvent(ZEventType eventType, sol::table eventData) {
+  std::shared_ptr<ZScriptableEvent> event(BuildEvent(eventType, eventData));
+  if (event) {
+    return ZEngine::EventAgent()->TriggerEvent(event);
+  }
+  return false;
+}
+
+std::shared_ptr<ZScriptableEvent> ZInternalScriptExports::BuildEvent(ZEventType eventType, sol::table& eventData) {
+  std::shared_ptr<ZScriptableEvent> event(ZScriptableEvent::CreateEventFromScript(eventType));
+  if (!event) return nullptr;
+  if (!event->SetEventData(eventData)) return nullptr;
+  return event;
+}
+
+unsigned long ZInternalScriptExports::RegisterEventListener(ZEventType eventType, sol::function callback) {
+  if (callback.valid()) {
+    ZScriptableEventDelegate* listener = new ZScriptableEventDelegate(eventType, callback);
+    ZEngine::EventAgent()->Scriptable()->AddListener(listener);
+    ZEngine::EventAgent()->AddListener(listener->Delegate(), eventType);
+    unsigned long handle = reinterpret_cast<unsigned long>(listener);
+    return handle;
+  }
+
+  _Z("Could not register the script event delegate using an invalid callback", ZERROR);
+  return 0;
+}
+
 void ZScriptExports::Register() {
   sol::state& lua = ZEngine::ScriptManager()->LuaState();
   lua["loadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
   lua["attachProcess"] = ZInternalScriptExports::AttachScriptProcess;
+  lua["queueEvent"] = ZInternalScriptExports::QueueEvent;
+  lua["triggerEvent"] = ZInternalScriptExports::TriggerEvent;
+  lua["registerEventListener"] = ZInternalScriptExports::RegisterEventListener;
 }
 
 void ZScriptExports::UnRegister() {

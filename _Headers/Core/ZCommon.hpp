@@ -49,6 +49,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include <set>
 #include <functional>
 #include <cassert>
 #include <type_traits>

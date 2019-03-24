@@ -29,6 +29,11 @@
 
 #include "ZEventAgent.hpp"
 
+void ZEventAgent::Initialize() {
+  ZProcess::Initialize();
+  scriptableEventAgent_.reset(new ZScriptableEventAgent);
+}
+
 bool ZEventAgent::AddListener(const ZEventDelegate& eventDelegate, const ZEventType& type) {
   EventListenerList& listeners = eventListeners_[type];
   for (auto it = listeners.begin(); it != listeners.end(); it++) {

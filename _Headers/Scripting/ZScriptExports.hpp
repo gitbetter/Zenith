@@ -34,17 +34,25 @@
 #include "sol.hpp"
 
 // Forward Declarations
+class ZScriptableEvent;
 
 // Class and Data Structure Definitions
 class ZInternalScriptExports {
 
 public:
 
-  static bool Initialize();
-  static bool Destroy();
+  static bool Initialize() { }
+  static bool Destroy() { }
 
   static bool LoadAndExecuteScriptResource(const std::string& scriptResource);
+
   static void AttachScriptProcess(sol::table scriptProcess);
+
+  static bool QueueEvent(ZEventType eventType, sol::table eventData);
+  static bool TriggerEvent(ZEventType eventType, sol::table eventData);
+  static std::shared_ptr<ZScriptableEvent> BuildEvent(ZEventType eventType, sol::table& eventData);
+  static unsigned long RegisterEventListener(ZEventType eventType, sol::function callback);
+
 
 };
 
