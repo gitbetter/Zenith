@@ -81,7 +81,7 @@ void ZGame::RunGameLoop() {
     if (fpsUpdateTime >= 0.1f) {
       std::shared_ptr<ZUIText> fps = ZEngine::UI()->FindElement<ZUIText>("ZUI_FPS_COUNTER");
       if (fps) {
-        float framesPerSecond = ZEngine::LastDeltaTime() * 0.8f + ZEngine::DeltaTime() * (1.f - 0.8f);
+        float framesPerSecond = ZEngine::LastDeltaTime() * 0.65f + ZEngine::DeltaTime() * (1.f - 0.65f);
         fps->SetText("FPS: " + std::to_string(1.f / framesPerSecond));
       }
       fpsUpdateTime = 0.f;

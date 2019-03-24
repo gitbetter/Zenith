@@ -151,3 +151,23 @@ void ZEventAgent::Update() {
     }
   }
 }
+
+ZScriptableEventAgent::~ZScriptableEventAgent() {
+  for (auto it = listeners_.begin(); it != listeners_.end(); it++) {
+    ZScriptableEventDelegate* listener = (*it);
+    delete listener;
+  }
+  listeners_.clear();
+}
+
+void ZScriptableEventAgent::AddListener(ZScriptableEventDelegate* listener) {
+  listeners_.insert(listener);
+}
+
+void ZScriptableEventAgent::DestroyListener(ZScriptableEventDelegate* listener) {
+  ScriptEventListeners::iterator foundIt = listeners_.find(listener);
+  if (foundIt != listeners_.end()) {
+    listeners_.erase(foundIt);
+    delete listener;
+  }
+}

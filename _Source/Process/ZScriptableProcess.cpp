@@ -100,10 +100,6 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table scriptClass, sol::tab
     if (temp.valid())
       scriptContinue_ = temp;
 
-    temp = scriptClass["continue"];
-    if (temp.valid())
-      scriptContinue_ = temp;
-
     temp = scriptClass["finish"];
     if (temp.valid())
       scriptFinish_ = temp;

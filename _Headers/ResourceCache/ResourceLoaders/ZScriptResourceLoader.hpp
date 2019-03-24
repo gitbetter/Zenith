@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZScriptManager.hpp
+    ZScriptResourceLoader.hpp
 
-    Created by Adrian Sanchez on 23/03/2019.
+    Created by Adrian Sanchez on 24/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -30,20 +30,22 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
+#include "ZResourceLoader.hpp"
 
 // Forward Declarations
+//class SomeClass;
 
 // Class and Data Structure Definitions
-class ZScriptManager {
+class ZScriptResourceLoader : public ZResourceLoader {
 
 public:
 
-  virtual ~ZScriptManager() { }
+    ~ZScriptResourceLoader() { }
+    std::string Pattern() override { return ".*lua"; }
+    bool UseRawFile() override { return false; };
+    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
+    bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
 
-  virtual bool Initialize() = 0;
-  virtual bool Load(ZOFTree* zof) = 0;
-  virtual void ExecuteFile(const std::string& resource) = 0;
-  virtual void ExecuteString(const std::string& script) = 0;
+protected:
 
 };

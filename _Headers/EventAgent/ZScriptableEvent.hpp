@@ -51,6 +51,7 @@
 #include "sol.hpp"
 
 // Forward Declarations
+class ZScriptableEvent;
 
 // Class and Data Structure Definitions
 typedef ZScriptableEvent* (*CreateEventForScriptFunctionType)();

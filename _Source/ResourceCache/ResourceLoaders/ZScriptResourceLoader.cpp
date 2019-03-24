@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZScriptManager.hpp
+    ZScriptResourceLoader.cpp
 
-    Created by Adrian Sanchez on 23/03/2019.
+    Created by Adrian Sanchez on 09/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,23 +27,12 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZScriptResourceLoader.hpp"
+#include "ZEngine.hpp"
+#include "ZLuaScriptManager.hpp"
 
-// Includes
-#include "ZCommon.hpp"
-
-// Forward Declarations
-
-// Class and Data Structure Definitions
-class ZScriptManager {
-
-public:
-
-  virtual ~ZScriptManager() { }
-
-  virtual bool Initialize() = 0;
-  virtual bool Load(ZOFTree* zof) = 0;
-  virtual void ExecuteFile(const std::string& resource) = 0;
-  virtual void ExecuteString(const std::string& script) = 0;
-
-};
+bool ZScriptResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
+  if (rawSize <= 0) return false;
+  ZEngine::ScriptManager()->ExecuteString(rawBuffer);
+  return true;
+}

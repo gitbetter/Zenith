@@ -50,7 +50,7 @@ class ZScriptableEventAgent {
 
   public:
 
-    ~ZScriptableEventAgent() { }
+    ~ZScriptableEventAgent();
     void AddListener(ZScriptableEventDelegate* listener);
     void DestroyListener(ZScriptableEventDelegate* listener);
 

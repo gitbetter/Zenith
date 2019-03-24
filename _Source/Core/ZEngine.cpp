@@ -45,6 +45,8 @@
 #include "ZUIFactory.hpp"
 #include "ZZipFile.hpp"
 #include "ZLuaScriptManager.hpp"
+#include "ZScriptResourceLoader.hpp"
+#include "ZScriptableProcess.hpp"
 
 const float ZEngine::DEFAULT_X_RESOLUTION = 2560.f;
 const float ZEngine::DEFAULT_Y_RESOLUTION = 1600.f;
@@ -88,38 +90,61 @@ std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
 void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight) {
   currentGame_ = game;
 
+  /* ========= Process System ============ */
   processRunner_.reset(new ZProcessRunner);
+  /* ===================================== */
 
+  /* ========= Resource Cache System ============ */
   resourceCache_.reset(new ZResourceCache(100));
-  resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
+  resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));  
   resourceCache_->Initialize();
+  resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
+  /* ============================================ */
 
+  /* ========= Event System ============ */
   eventAgent_ = std::make_shared<ZEventAgent>();
   eventAgent_->Initialize();
   processRunner_->AttachProcess(eventAgent_);
+  /* =================================== */
 
+  /* ========= Scripting System ============ */
   scriptManager_.reset(new ZLuaScriptManager);
+  scriptManager_->Initialize();
+  ZScriptableProcess::RegisterScriptClass();
+  /* ======================================= */
 
+  /* ========= Windowing System ============ */
   domain_ = std::make_shared<ZDomain>(windowWidth, windowHeight);
   domain_->Initialize();
+  /* ======================================= */
 
+  /* ========= Graphics System ============ */
   graphics_ = std::make_shared<ZGraphics>();
   graphics_->Initialize();
+  /* ====================================== */
 
+  /* ========= Input System ============ */
   input_ = std::make_shared<ZGLInput>();
   input_->Initialize();
   processRunner_->AttachProcess(input_);
+  /* =================================== */
 
+  /* ========= UI System ============ */
   ui_ = std::make_shared<ZUI>();
   ui_->Initialize();
+  /* ================================ */
 
+  /* ========= Physics System ============ */
   physics_ = std::make_shared<ZPhysics>();
   physics_->Initialize();
   processRunner_->AttachProcess(physics_);
+  /* ===================================== */
 
+  /* ========= Object Factories ============ */
   gameObjectFactory_.reset(new ZGOFactory);
   graphicsFactory_.reset(new ZGraphicsFactory);
   uiFactory_.reset(new ZUIFactory);
+  /* ======================================= */
 }
 
 std::shared_ptr<ZGame> ZEngine::Game() {
@@ -242,7 +267,10 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
   ZOFParser parser;
   ZOFTree* objectTree = parser.Parse(zofPath);
 
+  // TODO: The more systems are populated this way, the more of a hamper we place on
+  // load times. Refactor this so the object tree is only traversed once.
   if (graphics_ != nullptr) graphics_->Load(objectTree);
+  if (scriptManager_ != nullptr) scriptManager_->Load(objectTree);
 
   results.gameObjects = gameObjectFactory_->Create(objectTree);
   results.uiElements = uiFactory_->Create(objectTree);

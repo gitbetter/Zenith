@@ -28,12 +28,38 @@
 */
 
 #include "ZLuaScriptManager.hpp"
+#include "ZResource.hpp"
+#include "ZEngine.hpp"
+#include "ZResourceCache.hpp"
 
 bool ZLuaScriptManager::Initialize() {
   lua_.open_libraries(sol::lib::base);
   lua_.set_function("executeFile", &ZLuaScriptManager::ExecuteFile, (*this));
   lua_.set_function("executeString", &ZLuaScriptManager::ExecuteString, (*this));
+
+  // We don't need to do anything with this resource. The resource loader
+  // will load and execute the script for us.
+  ZResource luaSetupScript("Assets/Scripts/init.lua");
+  ZEngine::ResourceCache()->GetHandle(&luaSetupScript);
+
   return true;
+}
+
+bool ZLuaScriptManager::Load(ZOFTree* zof) {
+  for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++) {
+    if (it->first.find("ZSCR") == 0) {
+
+      ZOFObjectNode* scriptNode = dynamic_cast<ZOFObjectNode*>(it->second);
+
+      ZOFPropertyMap props = scriptNode->properties;
+
+      if (props.find("path") != props.end() && props["path"]->HasValues()) {
+        ZOFString* prop = props["path"]->Value<ZOFString>(0);
+        ZResource scriptResource(prop->value);
+        ZEngine::ResourceCache()->GetHandle(&scriptResource);
+      }
+    }
+  }
 }
 
 void ZLuaScriptManager::ExecuteFile(const std::string& resource) {
