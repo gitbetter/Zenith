@@ -31,6 +31,7 @@
 #include "ZResource.hpp"
 #include "ZEngine.hpp"
 #include "ZLuaScriptManager.hpp"
+#include "ZProcessRunner.hpp"
 #include "ZResourceCache.hpp"
 
 bool ZInternalScriptExports::Initialize() {
@@ -51,9 +52,20 @@ bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scr
   return false;
 }
 
+void ZInternalScriptExports::AttachScriptProcess(sol::table scriptProcess) {
+  sol::object obj = scriptProcess["process"];
+  if (obj.valid()) {
+    std::shared_ptr<ZProcess> process = obj.as<std::shared_ptr<ZProcess>>();
+    ZEngine::ProcessRunner()->AttachProcess(process);
+  } else {
+    _Z("Could not find 'process' object in script to attach", ZERROR);
+  }
+}
+
 void ZScriptExports::Register() {
   sol::state& lua = ZEngine::ScriptManager()->LuaState();
-  lua["LoadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
+  lua["loadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
+  lua["attachProcess"] = ZInternalScriptExports::AttachScriptProcess;
 }
 
 void ZScriptExports::UnRegister() {

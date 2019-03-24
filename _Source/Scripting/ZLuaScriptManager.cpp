@@ -31,8 +31,8 @@
 
 bool ZLuaScriptManager::Initialize() {
   lua_.open_libraries(sol::lib::base);
-  lua_.set_function("ExecuteFile", &ZLuaScriptManager::ExecuteFile, (*this));
-  lua_.set_function("ExecuteString", &ZLuaScriptManager::ExecuteString, (*this));
+  lua_.set_function("executeFile", &ZLuaScriptManager::ExecuteFile, (*this));
+  lua_.set_function("executeString", &ZLuaScriptManager::ExecuteString, (*this));
   return true;
 }
 

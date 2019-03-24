@@ -45,6 +45,7 @@ class ZDomain;
 class ZUI;
 class ZPhysics;
 class ZIDSequence;
+class ZProcessRunner;
 class ZResourceCache;
 class ZGOFactory;
 class ZGraphicsFactory;
@@ -58,12 +59,13 @@ class ZEngine {
 private:
 
   static std::shared_ptr<ZGame> currentGame_;
-  static std::unique_ptr<ZDomain> domain_;
-  static std::unique_ptr<ZGraphics> graphics_;
-  static std::unique_ptr<ZInput> input_;
-  static std::unique_ptr<ZUI> ui_;
-  static std::unique_ptr<ZPhysics> physics_;
+  static std::shared_ptr<ZDomain> domain_;
+  static std::shared_ptr<ZGraphics> graphics_;
+  static std::shared_ptr<ZInput> input_;
+  static std::shared_ptr<ZUI> ui_;
+  static std::shared_ptr<ZPhysics> physics_;
 
+  static std::unique_ptr<ZProcessRunner> processRunner_;
   static std::unique_ptr<ZResourceCache> resourceCache_;
   static std::unique_ptr<ZEventAgent> eventAgent_;
   static std::unique_ptr<ZLuaScriptManager> scriptManager_;
@@ -98,6 +100,7 @@ public:
   static ZUI* UI();
   static ZPhysics* Physics();
 
+  static ZProcessRunner* ProcessRunner();
   static ZResourceCache* ResourceCache();
   static ZEventAgent* EventAgent();
   static ZLuaScriptManager* ScriptManager();
@@ -110,11 +113,11 @@ public:
   static float DeltaTime();
   static float SecondsTime();
 
-  static void Provide(std::unique_ptr<ZDomain> domain);
-  static void Provide(std::unique_ptr<ZGraphics> graphics);
-  static void Provide(std::unique_ptr<ZInput> input);
-  static void Provide(std::unique_ptr<ZUI> ui);
-  static void Provide(std::unique_ptr<ZPhysics> physics);
+  static void Provide(std::shared_ptr<ZDomain> domain);
+  static void Provide(std::shared_ptr<ZGraphics> graphics);
+  static void Provide(std::shared_ptr<ZInput> input);
+  static void Provide(std::shared_ptr<ZUI> ui);
+  static void Provide(std::shared_ptr<ZPhysics> physics);
   // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
   
   static void SetDeltaTime(float deltaTime);

@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZProcess.hpp
+    ZProcessRunner.hpp
 
-    Created by Adrian Sanchez on 09/02/2019.
+    Created by Adrian Sanchez on 23/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -36,24 +36,24 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZProcess {
+class ZProcessRunner {
+
 private:
+
+  void ClearProcesses();
 
 public:
 
-  virtual ~ZProcess() { }
+  ~ZProcessRunner();
 
-  virtual void Initialize() { };
-  virtual void Update() { };
-  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) { };
-  virtual void Pause() { };
-  virtual void Continue() { };
-  virtual void CleanUp() { };
+  unsigned int UpdateProcesses();
+  void AttachProcess(std::shared_ptr<ZProcess> process);
+  void AbortAllProcesses(bool immediate);
 
-  std::string ID() { return id_; }
+  unsigned int ProcessCount() const { return processList_.size(); }
 
 protected:
 
-  std::string id_;
-  
+  ZProcessList processList_;
+
 };

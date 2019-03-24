@@ -44,7 +44,7 @@ void ZParticle::Initialize() {
 }
 
 void ZParticle::Update() {
-  physicsComponent_->Update();
+  ZGameObject::Update();
   age_ -= ZEngine::UPDATE_STEP_SIZE;
 }
 

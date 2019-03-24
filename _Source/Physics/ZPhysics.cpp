@@ -38,6 +38,8 @@
 #include "ZCameraComponent.hpp"
 
 void ZPhysics::Initialize() {
+  ZProcess::Initialize();
+  
   collisionConfig_ = new btDefaultCollisionConfiguration();
   dispatcher_ = new btCollisionDispatcher(collisionConfig_);
   overlappingPairCache_ = new btDbvtBroadphase();

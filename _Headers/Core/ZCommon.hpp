@@ -73,12 +73,13 @@
 }
 
 class ZGameObject;
-class ZLight;
 class ZUIElement;
 class ZShader;
 class ZMesh3D;
 class ZMaterial;
+class ZProcess;
 class ZEvent;
+struct ZLight;
 
 typedef std::function<void()> ZEventCallback;
 typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
@@ -87,6 +88,7 @@ typedef std::map<std::string, std::shared_ptr<ZUIElement>> ZUIElementMap;
 typedef std::map<std::string, std::shared_ptr<ZShader>> ZShaderMap;
 typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;
 typedef std::map<std::string, std::shared_ptr<ZMaterial>> ZMaterialMap;
+typedef std::list<std::shared_ptr<ZProcess>> ZProcessList;
 typedef fastdelegate::FastDelegate1<std::shared_ptr<ZEvent>> ZEventDelegate;
 
 typedef unsigned char RENDER_OP;
@@ -129,6 +131,10 @@ enum class ZPrimitiveType {
 
 enum class ZShaderTypes {
   Vertex, Pixel, Tesselation, Geometry, Other
+};
+
+enum class ZProcessState {
+  Uninitialized, Removed, Running, Paused, Finished, Failed, Aborted
 };
 
 struct ZBufferData {

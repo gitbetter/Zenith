@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZObject.cpp
+    ZProcess.cpp
 
-    Created by Adrian Sanchez on 09/02/2019.
+    Created by Adrian Sanchez on 23/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -28,3 +28,15 @@
 */
 
 #include "ZProcess.hpp"
+
+void ZProcess::AttachChild(std::shared_ptr<ZProcess> child) {
+  if (child_) RemoveChild();
+  child_ = child;
+}
+
+std::shared_ptr<ZProcess> ZProcess::RemoveChild() {
+  std::shared_ptr<ZProcess> child = child_;
+  child_->SetState(ZProcessState::Removed);
+  child_ = nullptr;
+  return child;
+} 

@@ -52,6 +52,8 @@ void ZCameraComponent::UpdateCameraOrientation() {
 
 // TODO: Initialize functions should come in two flavors
 void ZCameraComponent::Initialize(ZOFNode* root) {
+  ZComponent::Initialize(); 
+  
   ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZCameraComponent", ZERROR);

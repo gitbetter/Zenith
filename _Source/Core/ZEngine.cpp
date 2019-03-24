@@ -38,6 +38,7 @@
 #include "ZIDSequence.hpp"
 #include "ZOFTree.hpp"
 #include "ZOFParser.hpp"
+#include "ZProcessRunner.hpp"
 #include "ZResourceCache.hpp"
 #include "ZEventAgent.hpp"
 #include "ZGOFactory.hpp"
@@ -67,11 +68,12 @@ const std::vector<std::string> ZEngine::DEFAULT_SKYBOX_CUBEMAP{
 const std::string ZEngine::DEFAULT_HDR_CUBEMAP = "Assets/Skyboxes/DefaultHDR/sky.hdr";
 
 std::shared_ptr<ZGame> ZEngine::currentGame_ = nullptr;
-std::unique_ptr<ZDomain> ZEngine::domain_ = nullptr;
-std::unique_ptr<ZGraphics> ZEngine::graphics_ = nullptr;
-std::unique_ptr<ZInput> ZEngine::input_(new ZNullInput);
-std::unique_ptr<ZUI> ZEngine::ui_ = nullptr;
-std::unique_ptr<ZPhysics> ZEngine::physics_ = nullptr;
+std::shared_ptr<ZDomain> ZEngine::domain_ = nullptr;
+std::shared_ptr<ZGraphics> ZEngine::graphics_ = nullptr;
+std::shared_ptr<ZInput> ZEngine::input_(new ZNullInput);
+std::shared_ptr<ZUI> ZEngine::ui_ = nullptr;
+std::shared_ptr<ZPhysics> ZEngine::physics_ = nullptr;
+std::unique_ptr<ZProcessRunner> ZEngine::processRunner_ = nullptr;
 std::unique_ptr<ZResourceCache> ZEngine::resourceCache_ = nullptr;
 std::unique_ptr<ZEventAgent> ZEngine::eventAgent_ = nullptr;
 std::unique_ptr<ZLuaScriptManager> ZEngine::scriptManager_ = nullptr;
@@ -86,6 +88,8 @@ std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
 void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight) {
   currentGame_ = game;
 
+  processRunner_.reset(new ZProcessRunner);
+
   resourceCache_.reset(new ZResourceCache(100));
   resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
   resourceCache_->Initialize();
@@ -94,23 +98,24 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
 
   scriptManager_.reset(new ZLuaScriptManager);
 
-  domain_.reset(new ZDomain(windowWidth, windowHeight));
-  domain_->Initialize();
-
-  graphics_.reset(new ZGraphics);
-  graphics_->Initialize();
-
-  input_.reset(new ZGLInput);
-
-  ui_.reset(new ZUI);
-  ui_->Initialize();
-
-  physics_.reset(new ZPhysics);
-  physics_->Initialize();
-
   gameObjectFactory_.reset(new ZGOFactory);
   graphicsFactory_.reset(new ZGraphicsFactory);
   uiFactory_.reset(new ZUIFactory);
+
+  domain_ = std::make_shared<ZDomain>(windowWidth, windowHeight);
+  domain_->Initialize();
+
+  graphics_ = std::make_shared<ZGraphics>();
+  graphics_->Initialize();
+
+  input_ = std::make_shared<ZGLInput>();
+
+  ui_ = std::make_shared<ZUI>();
+  ui_->Initialize();
+
+  physics_ = std::make_shared<ZPhysics>();
+  physics_->Initialize();
+  processRunner_->AttachProcess(physics_);
 }
 
 std::shared_ptr<ZGame> ZEngine::Game() {
@@ -135,6 +140,10 @@ ZUI* ZEngine::UI() {
 
 ZPhysics* ZEngine::Physics() {
   return physics_.get();
+}
+
+ZProcessRunner* ZEngine::ProcessRunner() {
+  return processRunner_.get();
 }
 
 ZResourceCache* ZEngine::ResourceCache() {
@@ -174,7 +183,7 @@ float ZEngine::SecondsTime() {
   return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0f;
 }
 
-void ZEngine::Provide(std::unique_ptr<ZDomain> domain) {
+void ZEngine::Provide(std::shared_ptr<ZDomain> domain) {
   if (domain_ != nullptr) {
     domain_ = nullptr;
   }
@@ -182,7 +191,7 @@ void ZEngine::Provide(std::unique_ptr<ZDomain> domain) {
   domain_->Initialize();
 }
 
-void ZEngine::Provide(std::unique_ptr<ZGraphics> graphics) {
+void ZEngine::Provide(std::shared_ptr<ZGraphics> graphics) {
   if (graphics_ != nullptr) {
     graphics_ = nullptr;
   }
@@ -190,7 +199,7 @@ void ZEngine::Provide(std::unique_ptr<ZGraphics> graphics) {
   graphics_->Initialize();
 }
 
-void ZEngine::Provide(std::unique_ptr<ZInput> input) {
+void ZEngine::Provide(std::shared_ptr<ZInput> input) {
   // If the provided input object is not null and the existing engine input object
   // is null, delete the existing one
   if (!dynamic_cast<ZNullInput*>(input.get()) && dynamic_cast<ZNullInput*>(input_.get())) {
@@ -199,7 +208,7 @@ void ZEngine::Provide(std::unique_ptr<ZInput> input) {
   input_ = std::move(input);
 }
 
-void ZEngine::Provide(std::unique_ptr<ZUI> ui) {
+void ZEngine::Provide(std::shared_ptr<ZUI> ui) {
   if (ui_ != nullptr) {
     ui_ = nullptr;
   }
@@ -207,7 +216,7 @@ void ZEngine::Provide(std::unique_ptr<ZUI> ui) {
   ui_->Initialize();
 }
 
-void ZEngine::Provide(std::unique_ptr<ZPhysics> physics) {
+void ZEngine::Provide(std::shared_ptr<ZPhysics> physics) {
   if (physics_ != nullptr) {
     physics_ = nullptr;
   }

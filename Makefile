@@ -13,7 +13,7 @@ rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 CPP=$(call rwildcard,$(SRC_DIR),*.cpp)
 OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP))
 
-_dummy := $(shell mkdir -p $(OBJ_DIR)/{Components,Core,GameObjects,Graphics/Strategies,Utility/ZObjectFormatTools,Input,UI/Elements,UI/Decorators,Windowing,Physics/Forces,Physics/Collision,ResourceCache/ResourceFiles,ResourceCache/ResourceLoaders,EventAgent/Events,Scripting})
+_dummy := $(shell mkdir -p $(OBJ_DIR)/{Components,Core,GameObjects,Graphics/Strategies,Utility/ZObjectFormatTools,Input,UI/Elements,UI/Decorators,Windowing,Physics/Forces,Physics/Collision,ResourceCache/ResourceFiles,ResourceCache/ResourceLoaders,EventAgent/Events,Scripting,Process})
 
 ifeq ($(shell uname -s),Darwin)
 	LDLIBS += -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo -framework CoreFoundation
@@ -35,4 +35,4 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	$(RM) $(OBJ_DIR)/{Components,Core,GameObjects,Graphics,Utility,UI,Input,Physics,Windowing,ResourceCache,EventAgent,Scripting,*.o} game
+	$(RM) $(OBJ_DIR)/{Components,Core,GameObjects,Graphics,Utility,UI,Input,Physics,Windowing,ResourceCache,EventAgent,Scripting,Process,*.o} game

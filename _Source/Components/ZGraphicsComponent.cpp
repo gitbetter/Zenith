@@ -54,6 +54,8 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_p
 
 // TODO: These initalize functions can get pretty hectic. Maybe there's a better way...
 void ZGraphicsComponent::Initialize(ZOFNode* root) {
+  ZComponent::Initialize();
+  
   ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZGraphicsComponent", ZERROR);

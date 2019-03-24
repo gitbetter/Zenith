@@ -34,11 +34,12 @@
 #include "ZCommon.hpp"
 #include "ZPhysicsDebug.hpp"
 #include "ZObjectForceRegistry.hpp"
+#include "ZProcess.hpp"
 
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZPhysics {
+class ZPhysics : public ZProcess {
 
 private:
 
@@ -55,9 +56,9 @@ public:
   ZPhysics() { }
   ~ZPhysics() { }
 
-  void Initialize();
+  void Initialize() override;
 
-  void Update();
+  void Update() override;
 
   ZObjectForceRegistry* Registry() { return registry_.get(); }
 
@@ -69,6 +70,6 @@ public:
 
   void DebugDraw();
 
-  void CleanUp() { }
+  void CleanUp() override { ZProcess::CleanUp(); }
 
 };

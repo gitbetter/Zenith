@@ -33,6 +33,7 @@
 #include "ZEngine.hpp"
 #include "ZProcess.hpp"
 #include "ZGraphicsComponent.hpp"
+#include "ZProcessRunner.hpp"
 
 // Forward Declarations
 class ZGame;
@@ -55,7 +56,6 @@ public:
 
   void Initialize(ZOFNode* root);
 
-  virtual void Update() override;
   virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
   void CalculateDerivedData();
@@ -87,6 +87,7 @@ public:
     if (foundComponent == nullptr) {
       component->object_ = this;
       components_.push_back(component);
+      ZEngine::ProcessRunner()->AttachProcess(component);
     }
   }
 

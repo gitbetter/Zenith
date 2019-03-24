@@ -44,6 +44,7 @@ public:
   static bool Destroy();
 
   static bool LoadAndExecuteScriptResource(const std::string& scriptResource);
+  static void AttachScriptProcess(sol::table scriptProcess);
 
 };
 

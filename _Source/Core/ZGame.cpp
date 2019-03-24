@@ -41,6 +41,7 @@
 #include "ZCameraComponent.hpp"
 #include "ZEventAgent.hpp"
 #include "ZQuitEvent.hpp"
+#include "ZProcessRunner.hpp"
 
 #include <chrono>
 using namespace std;
@@ -72,7 +73,7 @@ void ZGame::RunGameLoop() {
     ZEngine::Input()->Process();
 
     while (lag >= ZEngine::UPDATE_STEP_SIZE && ++fixedUpdates <= ZEngine::MAX_FIXED_UPDATE_ITERATIONS) {
-      Update();
+      ZEngine::ProcessRunner()->UpdateProcesses();
       lag -= ZEngine::UPDATE_STEP_SIZE;
     }
 
@@ -81,13 +82,6 @@ void ZGame::RunGameLoop() {
     ZEngine::Domain()->Strategy()->PollEvents();
 
     MacDisplayHack();
-  }
-}
-
-void ZGame::Update() {
-  ZEngine::Physics()->Update();
-  for (auto it = gameObjects_.begin(); it != gameObjects_.end(); it++) {
-    it->second->Update();
   }
 }
 

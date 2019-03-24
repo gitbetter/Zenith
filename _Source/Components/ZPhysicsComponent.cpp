@@ -44,6 +44,8 @@ ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
 
 // TODO: These initalize functions can get pretty hectic. Maybe there's a better way...
 void ZPhysicsComponent::Initialize(ZOFNode* root) {
+  ZComponent::Initialize(); 
+  
   ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZPhysicsComponent", ZERROR);

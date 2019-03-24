@@ -73,14 +73,6 @@ void ZGameObject::Initialize(ZOFNode* root) {
   CalculateDerivedData();
 }
 
-void ZGameObject::Update() {
-  std::shared_ptr<ZPhysicsComponent> physicsComp = FindComponent<ZPhysicsComponent>();
-  if (physicsComp) physicsComp->Update();
-
-  std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
-  if (cameraComp) cameraComp->Update();
-}
-
 void ZGameObject::Render(float frameMix, unsigned char renderOp) {
   std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
   if (graphicsComp != nullptr) {

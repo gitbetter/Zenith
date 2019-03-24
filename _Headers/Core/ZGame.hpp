@@ -73,6 +73,6 @@ public:
 
 protected:
 
-  void Update();
   void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
+  
 };
