@@ -53,6 +53,7 @@ public:
   static std::shared_ptr<ZScriptableEvent> BuildEvent(ZEventType eventType, sol::table& eventData);
   static unsigned long RegisterEventListener(ZEventType eventType, sol::function callback);
 
+  static void Log(sol::object string);
 
 };
 

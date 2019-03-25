@@ -226,3 +226,7 @@ ZTEX_09
 ZTEX_10
 	:path "Assets/Textures/CobbleStone/height.png":
 ^
+
+#ZSCR_01
+#	:path "Assets/Scripts/process.lua":
+#^

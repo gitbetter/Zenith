@@ -92,6 +92,14 @@ unsigned long ZInternalScriptExports::RegisterEventListener(ZEventType eventType
   return 0;
 }
 
+void ZInternalScriptExports::Log(sol::object obj) {
+  if (obj.is<std::string>()) {
+    _Z(obj.as<std::string>(), ZINFO);
+  } else {
+    _Z("<Sol Type " + std::to_string((int)obj.get_type()) + ">", ZINFO);
+  }
+}
+
 void ZScriptExports::Register() {
   sol::state& lua = ZEngine::ScriptManager()->LuaState();
   lua["loadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
@@ -99,6 +107,7 @@ void ZScriptExports::Register() {
   lua["queueEvent"] = ZInternalScriptExports::QueueEvent;
   lua["triggerEvent"] = ZInternalScriptExports::TriggerEvent;
   lua["registerEventListener"] = ZInternalScriptExports::RegisterEventListener;
+  lua["log"] = ZInternalScriptExports::Log;
 }
 
 void ZScriptExports::UnRegister() {

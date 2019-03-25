@@ -36,26 +36,42 @@ const std::string ZScriptableProcess::SCRIPT_PROCESS_NAME = "ZScriptableProcess"
 ZScriptableProcess::ZScriptableProcess() : frequency_(0), time_(0) { }
 
 void ZScriptableProcess::RegisterScriptClass() {
-  sol::table metaTable = ZEngine::ScriptManager()->LuaState().create_named_table(SCRIPT_PROCESS_NAME);
-  metaTable[sol::metatable_key] = metaTable;
-  metaTable["base"] = metaTable;
-  metaTable["cpp"] = true;
-  RegisterScriptClassFunctions();
-  metaTable["new"] = ZScriptableProcess::CreateFromScript;
+  sol::state& lua = ZEngine::ScriptManager()->LuaState();
+  lua.new_usertype<ZScriptableProcess>(SCRIPT_PROCESS_NAME, 
+    "initialize", &ZProcess::Initialize,
+    "finish", &ZProcess::Finish,
+    "fail", &ZProcess::Fail,
+    "pause", &ZProcess::Pause,
+    "continue", &ZProcess::Continue,
+    "abort", &ZProcess::Abort,
+    "isAlive", &ZScriptableProcess::IsAlive,
+    "isDead", &ZScriptableProcess::IsDead,
+    "isPaused", &ZScriptableProcess::IsPaused,
+    "attachChild", &ZScriptableProcess::ScriptAttachChild,
+    "create", ZScriptableProcess::CreateFromScript
+  );
+  lua[SCRIPT_PROCESS_NAME]["base"] = lua[SCRIPT_PROCESS_NAME];
+  lua[SCRIPT_PROCESS_NAME]["cpp"] = true;
+  //lua[SCRIPT_PROCESS_NAME] = lua.create_table();
+  //lua[SCRIPT_PROCESS_NAME][sol::metatable_key] = lua[SCRIPT_PROCESS_NAME];
+  //lua[SCRIPT_PROCESS_NAME]["base"] = lua[SCRIPT_PROCESS_NAME];
+  //lua[SCRIPT_PROCESS_NAME]["cpp"] = true;
+  //RegisterScriptClassFunctions();
+  //lua[SCRIPT_PROCESS_NAME]["new"] = ZScriptableProcess::CreateFromScript;
 }
 
 void ZScriptableProcess::RegisterScriptClassFunctions() {
-  sol::table metaTable = ZEngine::ScriptManager()->LuaState()[SCRIPT_PROCESS_NAME];
-  metaTable["initialize"] = &ZProcess::Initialize;
-  metaTable["finish"] = &ZProcess::Finish;
-  metaTable["fail"] = &ZProcess::Fail;
-  metaTable["pause"] = &ZProcess::Pause;
-  metaTable["continue"] = &ZProcess::Continue;
-  metaTable["abort"] = &ZProcess::Abort;
-  metaTable["isAlive"] = &ZScriptableProcess::IsAlive;
-  metaTable["isDead"] = &ZScriptableProcess::IsDead;
-  metaTable["isPaused"] = &ZScriptableProcess::IsPaused;
-  metaTable["attachChild"] = &ZScriptableProcess::ScriptAttachChild;
+  sol::state& lua = ZEngine::ScriptManager()->LuaState();
+  lua[SCRIPT_PROCESS_NAME]["initialize"] = &ZProcess::Initialize;
+  lua[SCRIPT_PROCESS_NAME]["finish"] = &ZProcess::Finish;
+  lua[SCRIPT_PROCESS_NAME]["fail"] = &ZProcess::Fail;
+  lua[SCRIPT_PROCESS_NAME]["pause"] = &ZProcess::Pause;
+  lua[SCRIPT_PROCESS_NAME]["continue"] = &ZProcess::Continue;
+  lua[SCRIPT_PROCESS_NAME]["abort"] = &ZProcess::Abort;
+  lua[SCRIPT_PROCESS_NAME]["isAlive"] = &ZScriptableProcess::IsAlive;
+  lua[SCRIPT_PROCESS_NAME]["isDead"] = &ZScriptableProcess::IsDead;
+  lua[SCRIPT_PROCESS_NAME]["isPaused"] = &ZScriptableProcess::IsPaused;
+  lua[SCRIPT_PROCESS_NAME]["attachChild"] = &ZScriptableProcess::ScriptAttachChild;
 }
 
 void ZScriptableProcess::ScriptAttachChild(sol::table child) {
@@ -80,7 +96,7 @@ sol::table ZScriptableProcess::CreateFromScript(sol::table self, sol::table cons
 
 bool ZScriptableProcess::BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData) {
   if (scriptClass.valid()) {
-    sol::table temp = scriptClass["initialize"];
+    sol::function temp = scriptClass["initialize"];
     if (temp.valid())
       scriptInitialize_ = temp;
 
@@ -117,15 +133,14 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table scriptClass, sol::tab
   }
 
   if (constructionData.valid()) {
-    for (auto it = constructionData.begin(); it != constructionData.end(); it++) {
-      std::string key = (*it).first.as<std::string>();
-      sol::object val = (*it).second;
-      if (key == "frequency" && val.is<int>()) {
-        frequency_ = val.as<int>();
+    constructionData.for_each([this](sol::object key, sol::object value) {
+      std::string k = key.as<std::string>();
+      if (k == "frequency" && value.is<int>()) {
+        frequency_ = value.as<int>();
       } else {
-        self_[key] = val;
+        self_[key] = value;
       }
-    }
+    });
   }
 
   return true;

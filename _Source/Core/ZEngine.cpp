@@ -44,6 +44,8 @@
 #include "ZGraphicsFactory.hpp"
 #include "ZUIFactory.hpp"
 #include "ZZipFile.hpp"
+
+#include "ZScriptExports.hpp"
 #include "ZLuaScriptManager.hpp"
 #include "ZScriptResourceLoader.hpp"
 #include "ZScriptableProcess.hpp"
@@ -110,6 +112,7 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   /* ========= Scripting System ============ */
   scriptManager_.reset(new ZLuaScriptManager);
   scriptManager_->Initialize();
+  ZScriptExports::Register();
   ZScriptableProcess::RegisterScriptClass();
   /* ======================================= */
 
