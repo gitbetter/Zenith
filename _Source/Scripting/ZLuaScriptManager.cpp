@@ -33,14 +33,9 @@
 #include "ZResourceCache.hpp"
 
 bool ZLuaScriptManager::Initialize() {
-  lua_.open_libraries(sol::lib::base);
+  lua_.open_libraries(sol::lib::base, sol::lib::package);
   lua_.set_function("executeFile", &ZLuaScriptManager::ExecuteFile, (*this));
   lua_.set_function("executeString", &ZLuaScriptManager::ExecuteString, (*this));
-
-  // We don't need to do anything with this resource. The resource loader
-  // will load and execute the script for us.
-  ZResource luaSetupScript("Assets/Scripts/init.lua");
-  ZEngine::ResourceCache()->GetHandle(&luaSetupScript);
 
   return true;
 }

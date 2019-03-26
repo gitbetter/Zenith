@@ -32,6 +32,7 @@
 #include "ZEngine.hpp"
 #include "ZLuaScriptManager.hpp"
 #include "ZProcessRunner.hpp"
+#include "ZScriptableProcess.hpp"
 #include "ZResourceCache.hpp"
 #include "ZScriptableEvent.hpp"
 #include "ZEventAgent.hpp"
@@ -47,9 +48,8 @@ bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scr
 }
 
 void ZInternalScriptExports::AttachScriptProcess(sol::table scriptProcess) {
-  sol::object obj = scriptProcess["_object"];
-  if (obj.valid()) {
-    std::shared_ptr<ZProcess> process = obj.as<std::shared_ptr<ZProcess>>();
+  if (scriptProcess.valid()) {
+    std::shared_ptr<ZScriptableProcess> process = scriptProcess.as<std::shared_ptr<ZScriptableProcess>>();
     ZEngine::ProcessRunner()->AttachProcess(process);
   } else {
     _Z("Could not find 'process' object in script to attach", ZERROR);

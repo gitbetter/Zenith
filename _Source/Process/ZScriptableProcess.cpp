@@ -38,6 +38,7 @@ ZScriptableProcess::ZScriptableProcess() : frequency_(0), time_(0) { }
 void ZScriptableProcess::RegisterScriptClass() {
   sol::state& lua = ZEngine::ScriptManager()->LuaState();
   lua.new_usertype<ZScriptableProcess>(SCRIPT_PROCESS_NAME, 
+    "new", sol::no_constructor,
     "initialize", &ZProcess::Initialize,
     "finish", &ZProcess::Finish,
     "fail", &ZProcess::Fail,
@@ -48,16 +49,10 @@ void ZScriptableProcess::RegisterScriptClass() {
     "isDead", &ZScriptableProcess::IsDead,
     "isPaused", &ZScriptableProcess::IsPaused,
     "attachChild", &ZScriptableProcess::ScriptAttachChild,
-    "create", ZScriptableProcess::CreateFromScript
+    "create", sol::factories(ZScriptableProcess::CreateFromScript)
   );
   lua[SCRIPT_PROCESS_NAME]["base"] = lua[SCRIPT_PROCESS_NAME];
   lua[SCRIPT_PROCESS_NAME]["cpp"] = true;
-  //lua[SCRIPT_PROCESS_NAME] = lua.create_table();
-  //lua[SCRIPT_PROCESS_NAME][sol::metatable_key] = lua[SCRIPT_PROCESS_NAME];
-  //lua[SCRIPT_PROCESS_NAME]["base"] = lua[SCRIPT_PROCESS_NAME];
-  //lua[SCRIPT_PROCESS_NAME]["cpp"] = true;
-  //RegisterScriptClassFunctions();
-  //lua[SCRIPT_PROCESS_NAME]["new"] = ZScriptableProcess::CreateFromScript;
 }
 
 void ZScriptableProcess::RegisterScriptClassFunctions() {
@@ -75,23 +70,18 @@ void ZScriptableProcess::RegisterScriptClassFunctions() {
 }
 
 void ZScriptableProcess::ScriptAttachChild(sol::table child) {
-  std::shared_ptr<ZProcess> process = child["_object"];
+  std::shared_ptr<ZScriptableProcess> process = child.as<std::shared_ptr<ZScriptableProcess>>();
   if (process) AttachChild(process);
   else _Z("Child process being attached is not valid", ZERROR);
 }
 
-sol::table ZScriptableProcess::CreateFromScript(sol::table self, sol::table constructionData, sol::table originalSubclass) {
+std::shared_ptr<ZScriptableProcess> ZScriptableProcess::CreateFromScript(sol::table self, sol::table constructionData) {
   std::shared_ptr<ZScriptableProcess> process(new ZScriptableProcess);
-  process->self_ = ZEngine::ScriptManager()->LuaState().create_table();
-  if (process->BuildCppDataFromScript(originalSubclass, constructionData)) {
-    sol::table metaTable = ZEngine::ScriptManager()->LuaState()[SCRIPT_PROCESS_NAME];
-    assert(metaTable.valid());
-    process->self_["_object"] = process;
-    process->self_[sol::metatable_key] = metaTable;
-  } else {
+  process->self_ = self;
+  if (!process->BuildCppDataFromScript(self, constructionData)) {
     process->self_ = sol::lua_nil;
   }
-  return process->self_;
+  return process;
 }
 
 bool ZScriptableProcess::BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData) {
@@ -155,7 +145,7 @@ void ZScriptableProcess::Initialize() {
 void ZScriptableProcess::Update() {
   ZProcess::Update();
   time_ += ZEngine::UPDATE_STEP_SIZE;
-  if (time_ > frequency_) {
+  if (time_ > frequency_ / 1000.f) {
     scriptUpdate_(self_);
     time_ = 0;
   }
