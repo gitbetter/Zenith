@@ -150,6 +150,8 @@ void ZEventAgent::Update() {
       eventQueues_[activeQueue_].push_front(event);
     }
   }
+
+  ZProcess::Update();
 }
 
 ZScriptableEventAgent::~ZScriptableEventAgent() {

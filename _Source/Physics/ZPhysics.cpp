@@ -59,9 +59,10 @@ void ZPhysics::Initialize() {
   ZEngine::EventAgent()->AddListener(raycastDelegate, ZRaycastEvent::Type);
 }
 
-void ZPhysics::Update() {
+void ZPhysics::Update() {  
   registry_->UpdateForces();
   dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, 1, ZEngine::UPDATE_STEP_SIZE);
+  ZProcess::Update();
 }
 
 void ZPhysics::AddRigidBody(std::shared_ptr<btRigidBody> body) {

@@ -102,12 +102,12 @@ void ZInternalScriptExports::Log(sol::object obj) {
 
 void ZScriptExports::Register() {
   sol::state& lua = ZEngine::ScriptManager()->LuaState();
-  lua["loadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
-  lua["attachProcess"] = ZInternalScriptExports::AttachScriptProcess;
-  lua["queueEvent"] = ZInternalScriptExports::QueueEvent;
-  lua["triggerEvent"] = ZInternalScriptExports::TriggerEvent;
-  lua["registerEventListener"] = ZInternalScriptExports::RegisterEventListener;
-  lua["log"] = ZInternalScriptExports::Log;
+  lua["LoadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
+  lua["AttachProcess"] = ZInternalScriptExports::AttachScriptProcess;
+  lua["QueueEvent"] = ZInternalScriptExports::QueueEvent;
+  lua["TriggerEvent"] = ZInternalScriptExports::TriggerEvent;
+  lua["RegisterEventListener"] = ZInternalScriptExports::RegisterEventListener;
+  lua["Log"] = ZInternalScriptExports::Log;
 }
 
 void ZScriptExports::UnRegister() {

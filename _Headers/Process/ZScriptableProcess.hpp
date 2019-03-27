@@ -42,14 +42,13 @@ class ZScriptableProcess : public ZProcess {
 
 private:
 
-  unsigned long frequency_, time_;
+  float frequency_, time_;
   sol::function scriptInitialize_, scriptUpdate_, scriptPause_, scriptContinue_,
                 scriptFinish_, scriptFail_, scriptAbort_;
   sol::table self_;
   static const std::string SCRIPT_PROCESS_NAME;
 
   static std::shared_ptr<ZScriptableProcess> CreateFromScript(sol::table self, sol::table constructionData);
-  static void RegisterScriptClassFunctions();
   bool BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData);
 
   bool ScriptIsAlive() { return IsAlive(); }
@@ -60,23 +59,20 @@ private:
 
   explicit ZScriptableProcess();
 
-  static ZScriptableProcess* Create(const std::string& scriptName = "");
-  static void Destroy(ZScriptableProcess* process);
-
 public:
 
   static void RegisterScriptClass();
 
 protected:
 
-  virtual void Initialize() override;
-  virtual void Update() override;
-  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
-  virtual void Pause() override;
-  virtual void Continue() override;
-  virtual void Finish() override;
-  virtual void Fail() override;
-  virtual void Abort() override;
+  virtual void OnInitialize() override;
+  virtual void OnUpdate() override;
+  virtual void OnRender() override;
+  virtual void OnPause() override;
+  virtual void OnContinue() override;
+  virtual void OnFinish() override;
+  virtual void OnFail() override;
+  virtual void OnAbort() override;
   virtual void CleanUp() override { }
 
 };

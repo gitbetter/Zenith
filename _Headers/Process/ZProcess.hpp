@@ -47,14 +47,22 @@ public:
   ZProcess() { }
   virtual ~ZProcess() { }
 
-  virtual void Initialize() { state_ = ZProcessState::Running; };
-  virtual void Update() { };
-  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) { };
-  virtual void Pause() { state_ = ZProcessState::Paused; };
-  virtual void Continue() { state_ = ZProcessState::Running; };
-  virtual void Finish() { state_ = ZProcessState::Finished; };
-  virtual void Fail() { state_ = ZProcessState::Failed; };
-  virtual void Abort() { state_ = ZProcessState::Aborted; };
+  virtual void Initialize() { state_ = ZProcessState::Running; OnInitialize(); };
+  virtual void OnInitialize() { };
+  virtual void Update() { OnUpdate(); };
+  virtual void OnUpdate() { };
+  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) { OnRender(); };
+  virtual void OnRender() { };
+  virtual void Pause() { state_ = ZProcessState::Paused; OnPause(); };
+  virtual void OnPause() { };
+  virtual void Continue() { state_ = ZProcessState::Running; OnContinue(); };
+  virtual void OnContinue() { };
+  virtual void Finish() { state_ = ZProcessState::Finished; OnFinish(); };
+  virtual void OnFinish() { };
+  virtual void Fail() { state_ = ZProcessState::Failed; OnFail(); };
+  virtual void OnFail() { };
+  virtual void Abort() { state_ = ZProcessState::Aborted; OnAbort(); };
+  virtual void OnAbort() { };
   virtual void CleanUp() { };
 
   std::string ID() { return id_; }

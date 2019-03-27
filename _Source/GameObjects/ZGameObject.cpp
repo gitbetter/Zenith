@@ -45,6 +45,8 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
 }
 
 void ZGameObject::Initialize(ZOFNode* root) {
+  ZProcess::Initialize();
+
   ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZGameObject", ZERROR);
@@ -82,6 +84,8 @@ void ZGameObject::Render(float frameMix, unsigned char renderOp) {
     graphicsComp->SetGameCamera(camera);
     graphicsComp->Render(frameMix, renderOp);
   }
+
+  ZProcess::Render();
 }
 
 void ZGameObject::SetPosition(glm::vec3 position) {
