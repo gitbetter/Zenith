@@ -46,25 +46,20 @@ void ZScriptableProcess::RegisterScriptClass() {
     "Pause", &ZProcess::Pause,
     "Continue", &ZProcess::Continue,
     "Abort", &ZProcess::Abort,
-    "IsAlive", &ZScriptableProcess::IsAlive,
-    "IsDead", &ZScriptableProcess::IsDead,
-    "IsPaused", &ZScriptableProcess::IsPaused,
+    "IsAlive", &ZScriptableProcess::ScriptIsAlive,
+    "IsDead", &ZScriptableProcess::ScriptIsDead,
+    "IsPaused", &ZScriptableProcess::ScriptIsPaused,
     "AttachChild", &ZScriptableProcess::ScriptAttachChild,
+    sol::meta_function::index, &ZScriptableProcess::GetDynamic,
+    sol::meta_function::new_index, &ZScriptableProcess::SetDynamic,
     sol::base_classes, sol::bases<ZProcess>()
   );
 }
 
-void ZScriptableProcess::ScriptAttachChild(sol::table child) {
-  std::shared_ptr<ZScriptableProcess> process = child.as<std::shared_ptr<ZScriptableProcess>>();
-  if (process) AttachChild(process);
-  else _Z("Child process being attached is not valid", ZERROR);
-}
-
 std::shared_ptr<ZScriptableProcess> ZScriptableProcess::CreateFromScript(sol::table self, sol::table constructionData) {
   std::shared_ptr<ZScriptableProcess> process(new ZScriptableProcess);
-  process->self_ = self;
   if (!process->BuildCppDataFromScript(self, constructionData)) {
-    process->self_ = sol::lua_nil;
+    return nullptr;
   }
   return process;
 }
@@ -113,7 +108,7 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table const
       if (k == "frequency" && value.is<float>()) {
         frequency_ = value.as<float>();
       } else {
-        self_[key] = value;
+        SetDynamic(k, value);
       }
     });
   }
@@ -121,17 +116,42 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table const
   return true;
 }
 
+void ZScriptableProcess::ScriptAttachChild(sol::table child) {
+  std::shared_ptr<ZScriptableProcess> process = child.as<std::shared_ptr<ZScriptableProcess>>();
+  if (process) AttachChild(process);
+  else _Z("Child process being attached is not valid", ZERROR);
+}
+
+sol::object ZScriptableProcess::GetDynamic(std::string key) {
+  auto it = dynamicFields_.find(key);
+  if (it == dynamicFields_.cend())
+    return sol::lua_nil;
+  return it->second;
+}
+
+void ZScriptableProcess::SetDynamic(std::string key, sol::object value) {
+  auto it = dynamicFields_.find(key);
+  if (it == dynamicFields_.cend()) {
+    dynamicFields_.insert(it, { std::move(key), std::move(value) });
+  } else {
+		std::pair<const std::string, sol::object>& pair = *it;
+		sol::object& entry = pair.second;
+    entry = sol::object(std::move(value));
+  }
+}
+
 void ZScriptableProcess::OnInitialize() {
   ZProcess::OnInitialize();
   if (scriptInitialize_.valid())
-    scriptInitialize_(self_);
+    scriptInitialize_(*this);
 }
 
 void ZScriptableProcess::OnUpdate() {
   ZProcess::OnUpdate();
+
   time_ += ZEngine::DeltaTime();
   if (time_ > frequency_ / 1000.f) {
-    scriptUpdate_(self_);
+    scriptUpdate_(*this);
     time_ = 0;
   }
 }
@@ -143,29 +163,29 @@ void ZScriptableProcess::OnRender() {
 void ZScriptableProcess::OnPause() {
   ZProcess::OnPause();
   if (scriptPause_.valid())
-    scriptPause_(self_);
+    scriptPause_(*this);
 }
 
 void ZScriptableProcess::OnContinue() {
   ZProcess::OnContinue();
   if (scriptContinue_.valid())
-    scriptContinue_(self_);
+    scriptContinue_(*this);
 }
 
 void ZScriptableProcess::OnFinish() {
   ZProcess::OnFinish();
   if (scriptFinish_.valid())
-    scriptFinish_(self_);
+    scriptFinish_(*this);
 }
 
 void ZScriptableProcess::OnFail() {
   ZProcess::OnFail();
   if (scriptFail_.valid())
-    scriptFail_(self_);
+    scriptFail_(*this);
 }
 
 void ZScriptableProcess::OnAbort() {
   ZProcess::OnAbort();
   if (scriptAbort_.valid())
-    scriptAbort_(self_);
+    scriptAbort_(*this);
 }

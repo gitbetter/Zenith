@@ -45,7 +45,7 @@ private:
   float frequency_, time_;
   sol::function scriptInitialize_, scriptUpdate_, scriptPause_, scriptContinue_,
                 scriptFinish_, scriptFail_, scriptAbort_;
-  sol::table self_;
+  std::unordered_map<std::string, sol::object> dynamicFields_;
   static const std::string SCRIPT_PROCESS_NAME;
 
   static std::shared_ptr<ZScriptableProcess> CreateFromScript(sol::table self, sol::table constructionData);
@@ -58,6 +58,9 @@ private:
   void ScriptAttachChild(sol::table child);
 
   explicit ZScriptableProcess();
+
+  sol::object GetDynamic(std::string key);
+  void SetDynamic(std::string key, sol::object value);
 
 public:
 

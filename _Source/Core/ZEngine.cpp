@@ -118,10 +118,6 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   // will load and execute the script for us.
   ZResource luaSetupScript("Assets/Scripts/init.lua");
   ZEngine::ResourceCache()->GetHandle(&luaSetupScript);
-
-  ZResource middleclassResource("Assets/Scripts/middleclass.lua");
-  auto handle = ZEngine::ResourceCache()->GetHandle(&middleclassResource);
-  scriptManager_->LuaState().require_script("class", std::string(handle->Buffer()));
   /* ======================================= */
 
   /* ========= Windowing System ============ */
