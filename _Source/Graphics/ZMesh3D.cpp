@@ -39,6 +39,10 @@ ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indi
   id_ = "ZMSH3D_" + ZEngine::IDSequence()->Next();
 }
 
+ZMesh3D::~ZMesh3D() {
+  vertices_.clear();
+}
+
 void ZMesh3D::Render(ZShader* shader, ZMaterial* material) {
   shader->Activate();
   shader->Use(material);

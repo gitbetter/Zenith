@@ -71,7 +71,6 @@ ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
           element->AddChild(it->second);
         }
 
-        uiElements.insert(uiChildren.begin(), uiChildren.end());
         uiElements[uiNode->id] = element;
       }
     }

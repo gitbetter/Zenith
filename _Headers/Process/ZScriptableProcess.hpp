@@ -55,7 +55,7 @@ private:
   bool ScriptIsDead() { return IsDead(); }
   bool ScriptIsPaused() { return IsPaused(); }
 
-  void ScriptAttachChild(sol::table child);
+  void ScriptAttachChild(std::shared_ptr<ZScriptableProcess> process);
 
   explicit ZScriptableProcess();
 
@@ -63,6 +63,8 @@ private:
   void SetDynamic(std::string key, sol::object value);
 
 public:
+
+  ~ZScriptableProcess();
 
   static void RegisterScriptClass();
 

@@ -126,6 +126,7 @@ public:
   static ZOFLoadResult LoadZOF(std::string zofPath);
 
   static void CleanUp();
+  
 protected:
 
 };

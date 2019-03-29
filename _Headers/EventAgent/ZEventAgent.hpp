@@ -87,6 +87,8 @@ public:
 
     ZScriptableEventAgent* Scriptable() const { return scriptableEventAgent_.get(); }
 
+    void CleanUp() override;
+
 protected:
 
 };

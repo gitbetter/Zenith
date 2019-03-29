@@ -55,7 +55,9 @@ void ZUI::Initialize() {
 
 void ZUI::Draw() {
   for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
-    if (!it->second->Hidden()) it->second->Render();
+    // Only render the top level elements that are not hidden. The children will
+    // be rendered within the respective parent elements.
+    if (!it->second->Hidden() && !it->second->Parent()) it->second->Render();
   }
   if (cursor_ != nullptr) cursor_->Render();
 }
@@ -90,11 +92,16 @@ void ZUI::CleanUp() {
   elements_.clear();
 
   if (cursor_ != nullptr) {
-    cursor_->CleanUp();
-    cursor_ = nullptr;
+    cursor_->CleanUp(); cursor_.reset();
   }
 
   if (uiShader_ != nullptr) {
-    uiShader_ = nullptr;
+    uiShader_.reset();
+  }
+
+  textStrategy_.reset();
+
+  if (textShader_ != nullptr) {
+    textShader_.reset();
   }
 }

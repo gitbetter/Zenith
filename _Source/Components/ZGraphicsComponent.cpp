@@ -43,6 +43,11 @@ ZGraphicsComponent::ZGraphicsComponent() : ZComponent() {
   id_ = "ZCGraphics_" + ZEngine::IDSequence()->Next();
 }
 
+ZGraphicsComponent::~ZGraphicsComponent() {
+  shaders_.clear();
+  materials_.clear();
+}
+
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader) {
   model_ = model;
 

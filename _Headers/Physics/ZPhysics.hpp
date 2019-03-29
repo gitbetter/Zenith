@@ -70,6 +70,6 @@ public:
 
   void DebugDraw();
 
-  void CleanUp() override { ZProcess::CleanUp(); }
+  void CleanUp() override;
 
 };

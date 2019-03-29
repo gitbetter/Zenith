@@ -52,6 +52,6 @@ void ZDomain::ResizeWindow(int width, int height) {
 void ZDomain::CleanUp() {
   if (domainStrategy_ != nullptr) {
     domainStrategy_->CleanUp();
-    domainStrategy_ = nullptr;
+    domainStrategy_.reset();
   }
 }

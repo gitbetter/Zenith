@@ -56,8 +56,11 @@ unsigned int ZProcessRunner::UpdateProcesses() {
       switch (process->State()) {
         case ZProcessState::Finished: 
         {
-          std::shared_ptr<ZProcess> child = process->RemoveChild();          
-          if (child) AttachProcess(child);
+          std::shared_ptr<ZProcess> child = process->RemoveChild();
+          if (child) {
+            child->SetState(ZProcessState::Uninitialized);       
+            if (child) AttachProcess(child);
+          }
           else ++successCount;
           break;
         }

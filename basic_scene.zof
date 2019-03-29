@@ -164,14 +164,6 @@ ZUI_01
 		:text "Zenith":
 		:font "earthorbiter" 1.0:
 	^
-	ZUI_FPS_COUNTER
-		:type Text:
-		:position [300.0, 25.0]:
-		:scale [100.0, 25.0]:
-		:color [1.0, 1.0, 1.0, 1.0]:
-		:text "FPS":
-		:font "earthorbiter" 0.65:
-	^
 ^
 
 ZUI_09
@@ -207,7 +199,6 @@ ZTEX_03
 ZTEX_04
 	:path "Assets/Textures/Metal/roughness.png":
 ^
-
 ZTEX_05
 	:path "Assets/Textures/CobbleStone/albedo.png":
 ^
@@ -226,6 +217,8 @@ ZTEX_09
 ZTEX_10
 	:path "Assets/Textures/CobbleStone/height.png":
 ^
+
+# Scripts
 
 ZSCR_01
 	:path "Assets/Scripts/process.lua":

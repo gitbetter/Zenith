@@ -91,6 +91,9 @@ public:
   virtual void AddChild(std::shared_ptr<ZUIElement> element);
   bool RemoveChild(std::shared_ptr<ZUIElement> element);
 
+  void SetParent(ZUIElement* parent) { parent_ = parent; }
+  void RemoveParent();
+
   virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
   virtual ZMeshUI ElementShape();
 
@@ -100,6 +103,8 @@ public:
   bool Contains(glm::vec3 point);
 
   void CleanUp();
+
+  ZUIElement* Parent() const { return parent_; }
 
   template<class T>
   std::shared_ptr<T> Child() {
@@ -116,6 +121,7 @@ public:
 protected:
 
   bool hidden_, enabled_, selected_, dirty_;
+  ZUIElement* parent_ = nullptr;
   glm::mat4 modelMatrix_;
   glm::vec4 translationBounds_;
   glm::vec4 color_;

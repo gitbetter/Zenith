@@ -35,6 +35,8 @@ const std::string ZScriptableProcess::SCRIPT_PROCESS_NAME = "ZScriptableProcess"
 
 ZScriptableProcess::ZScriptableProcess() : frequency_(0), time_(0) { }
 
+ZScriptableProcess::~ZScriptableProcess() { dynamicFields_.clear(); }
+
 void ZScriptableProcess::RegisterScriptClass() {
   sol::state& lua = ZEngine::ScriptManager()->LuaState();
   lua.new_usertype<ZScriptableProcess>(SCRIPT_PROCESS_NAME, 
@@ -116,8 +118,8 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table const
   return true;
 }
 
-void ZScriptableProcess::ScriptAttachChild(sol::table child) {
-  std::shared_ptr<ZScriptableProcess> process = child.as<std::shared_ptr<ZScriptableProcess>>();
+void ZScriptableProcess::ScriptAttachChild(std::shared_ptr<ZScriptableProcess> process) {
+  //std::shared_ptr<ZScriptableProcess> process = child.as<std::shared_ptr<ZScriptableProcess>>();
   if (process) AttachChild(process);
   else _Z("Child process being attached is not valid", ZERROR);
 }

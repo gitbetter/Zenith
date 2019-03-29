@@ -61,10 +61,6 @@ void ZGame::RunGameLoop() {
   _Z("Zenith is about to loop...", ZINFO);
 
   float previousTime = ZEngine::SecondsTime();
-  
-  // TODO: Remove this
-  float fpsUpdateTime = 0.f;
-  //
 
   while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
     float currentTime = ZEngine::SecondsTime();
@@ -74,19 +70,6 @@ void ZGame::RunGameLoop() {
                                 0.f, 1.f);
 
     ZEngine::ProcessRunner()->UpdateProcesses();
-
-    // TODO: Make OnUpdate event for processes, so that this sort of code can be customized outside of the engine
-    // TODO: Remove this
-    fpsUpdateTime += ZEngine::DeltaTime();
-    if (fpsUpdateTime >= 0.1f) {
-      std::shared_ptr<ZUIText> fps = ZEngine::UI()->FindElement<ZUIText>("ZUI_FPS_COUNTER");
-      if (fps) {
-        float framesPerSecond = ZEngine::LastDeltaTime() * 0.65f + ZEngine::DeltaTime() * (1.f - 0.65f);
-        fps->SetText("FPS: " + std::to_string(1.f / framesPerSecond));
-      }
-      fpsUpdateTime = 0.f;
-    }
-    //
 
     Render(frameMix);
 

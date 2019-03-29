@@ -32,7 +32,7 @@ private:
 public:
 
   ZGraphicsComponent();
-  ~ZGraphicsComponent() { }
+  ~ZGraphicsComponent();
 
   void Initialize(ZOFNode* root);
   void Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader);

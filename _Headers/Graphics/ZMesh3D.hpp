@@ -50,7 +50,7 @@ private:
 public:
 
   ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
-  ~ZMesh3D() { }
+  ~ZMesh3D();
 
   void Render(ZShader* shader, ZMaterial* material) override;
 };

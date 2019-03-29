@@ -154,6 +154,11 @@ void ZEventAgent::Update() {
   ZProcess::Update();
 }
 
+void ZEventAgent::CleanUp() {
+  eventListeners_.clear();
+  scriptableEventAgent_.reset();
+}
+
 ZScriptableEventAgent::~ZScriptableEventAgent() {
   for (auto it = listeners_.begin(); it != listeners_.end(); it++) {
     ZScriptableEventDelegate* listener = (*it);

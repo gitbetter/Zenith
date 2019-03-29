@@ -162,6 +162,8 @@ void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element) {
   if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(ZEngine::UI()->TextShader());
   else element->SetShader(ZEngine::UI()->UIShader());
 
+  element->SetParent(this);
+
   children_.push_back(element);
 }
 
@@ -169,10 +171,15 @@ bool ZUIElement::RemoveChild(std::shared_ptr<ZUIElement> element) {
   bool success = false;
   for (auto it = children_.begin(); it != children_.end(); it++) {
     if ((*it) == element) {
+      (*it)->RemoveParent();
       children_.erase(it); success = true; break;
     }
   }
   return success;
+}
+
+void ZUIElement::RemoveParent() {
+  parent_ = nullptr;
 }
 
 void ZUIElement::SetSize(glm::vec2 size) {

@@ -119,6 +119,9 @@ int main(int argc, const char * argv[]) {
     ZEngine::EventAgent()->RemoveListener(dragDelegate, ZObjectDragEvent::Type);
   }
 
+  // Make sure to clean up all resources after we're done
+  ZEngine::CleanUp();
+
   return 0;
 }
 

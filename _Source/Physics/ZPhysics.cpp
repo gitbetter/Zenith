@@ -122,3 +122,14 @@ ZGameObject* ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {
 void ZPhysics::DebugDraw() {
   dynamicsWorld_->debugDrawWorld();
 }
+
+void ZPhysics::CleanUp() { 
+  debugDrawer_.reset();
+  registry_.reset();
+  delete dynamicsWorld_;
+  delete solver_;
+  delete overlappingPairCache_;
+  delete dispatcher_;
+  delete collisionConfig_;
+  ZProcess::CleanUp();
+}

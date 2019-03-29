@@ -97,7 +97,7 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   /* ===================================== */
 
   /* ========= Resource Cache System ============ */
-  resourceCache_.reset(new ZResourceCache(100));
+  resourceCache_.reset(new ZResourceCache(512));
   resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));  
   resourceCache_->Initialize();
   resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
@@ -117,7 +117,7 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   // We don't need to do anything with this resource. The resource loader
   // will load and execute the script for us.
   ZResource luaSetupScript("Assets/Scripts/init.lua");
-  ZEngine::ResourceCache()->GetHandle(&luaSetupScript);
+  resourceCache_->GetHandle(&luaSetupScript);
   /* ======================================= */
 
   /* ========= Windowing System ============ */
@@ -283,4 +283,17 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
   results.uiElements = uiFactory_->Create(objectTree);
 
   return results;
+}
+
+void ZEngine::CleanUp() {
+  processRunner_->AbortAllProcesses(true);
+
+  resourceCache_.reset();
+  eventAgent_->CleanUp();
+  scriptManager_.reset();
+  domain_->CleanUp(); domain_.reset();
+  graphics_->CleanUp(); graphics_.reset();
+  input_.reset();
+  ui_->CleanUp(); ui_.reset();
+  physics_->CleanUp(); physics_.reset();
 }
