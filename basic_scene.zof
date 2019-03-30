@@ -93,7 +93,7 @@ ZGO_05
 	^
 ^
 ZGO_06
-	:position [-3.0001, 30.0, 2.0]:
+	:position [-5.0, 30.0, 2.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
 	PhysicsComponent

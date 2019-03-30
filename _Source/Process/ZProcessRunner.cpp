@@ -31,6 +31,7 @@
 #include "ZProcess.hpp"
 
 ZProcessRunner::~ZProcessRunner() {
+  AbortAllProcesses(true);
   ClearProcesses();
 }
 

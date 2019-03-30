@@ -86,13 +86,17 @@ void ZUI::RegisterFont(std::string fontPath) {
 }
 
 void ZUI::CleanUp() {
+  if (cursor_ != nullptr) {
+    cursor_->CleanUp(); cursor_.reset();
+  }
+
   for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
     it->second->CleanUp();
   }
   elements_.clear();
 
-  if (cursor_ != nullptr) {
-    cursor_->CleanUp(); cursor_.reset();
+  if (textShader_ != nullptr) {
+    textShader_.reset();
   }
 
   if (uiShader_ != nullptr) {
@@ -100,8 +104,4 @@ void ZUI::CleanUp() {
   }
 
   textStrategy_.reset();
-
-  if (textShader_ != nullptr) {
-    textShader_.reset();
-  }
 }
