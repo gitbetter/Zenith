@@ -28,5 +28,5 @@ game
 **/.DS_Store
 
 # Visual Studio files
-*.vscode
+*.vscode/**
 **/.vscode
