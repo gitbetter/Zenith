@@ -41,12 +41,11 @@ void ZCameraComponent::Update() {
 }
 
 void ZCameraComponent::UpdateCameraOrientation() {
-  float deltaTime = ZEngine::DeltaTime();
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
-    pitchVelocity_ *= glm::pow(cameraDamping_, deltaTime);
-    yawVelocity_ *= glm::pow(cameraDamping_, deltaTime);
-    pitch_ = glm::quat(pitchVelocity_ * deltaTime);
-    yaw_ = glm::quat(yawVelocity_ * deltaTime);
+    pitchVelocity_ *= glm::pow(cameraDamping_, ZEngine::UPDATE_STEP_SIZE);
+    yawVelocity_ *= glm::pow(cameraDamping_, ZEngine::UPDATE_STEP_SIZE);
+    pitch_ = glm::quat(pitchVelocity_ * ZEngine::UPDATE_STEP_SIZE);
+    yaw_ = glm::quat(yawVelocity_ * ZEngine::UPDATE_STEP_SIZE);
     object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
   }
 }
@@ -118,7 +117,7 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event) {
   std::shared_ptr<ZObjectMoveEvent> moveEvent = std::static_pointer_cast<ZObjectMoveEvent>(event);
 
-  float velocity = movementSpeed_ * ZEngine::DeltaTime();
+  float velocity = movementSpeed_ * ZEngine::UPDATE_STEP_SIZE;
   object_->SetPosition(object_->Position() + object_->Right() * moveEvent->X() * -velocity);
   object_->SetPosition(object_->Position() + object_->Front() * moveEvent->Z() * velocity);
 
@@ -161,5 +160,5 @@ glm::mat4 ZCameraComponent::ViewMatrix(float frameMix) {
   glm::vec3 interpolatedPosition = object_->PreviousPosition() * (1.f - frameMix) + object_->Position() * frameMix;
   glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
   glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
-  return glm::lookAt(interpolatedPosition, object_->Position() + interpolatedFront, interpolatedUp);
+  return glm::lookAt(interpolatedPosition, interpolatedPosition + interpolatedFront, interpolatedUp);
 }
