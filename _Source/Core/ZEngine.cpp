@@ -276,8 +276,8 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
 
   // TODO: The more systems are populated this way, the more of a hamper we place on
   // load times. Refactor this so the object tree is only traversed once.
-  if (graphics_ != nullptr) graphics_->Load(objectTree);
   if (scriptManager_ != nullptr) scriptManager_->Load(objectTree);
+  if (graphics_ != nullptr) graphics_->Load(objectTree);
 
   results.gameObjects = gameObjectFactory_->Create(objectTree);
   results.uiElements = uiFactory_->Create(objectTree);

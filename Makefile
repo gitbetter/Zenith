@@ -3,10 +3,11 @@ H_DIR=_Headers
 OBJ_DIR=_Bin
 
 CXX=g++
+
 RM=rm -rf
 CPPFLAGS= -std=c++14 -Wall -g $(shell find $(H_DIR) -type d | sed s/^/-I/)
-LDFLAGS=-g
-LDLIBS= -L./_Drivers/lib/ -lglew -lglfw3
+LDFLAGS=-g -L./_Drivers/lib/
+LDLIBS=-lglew -lglfw
 
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
@@ -23,7 +24,7 @@ ifeq ($(OS),Windows_NT)
 	LDLIBS += -lGL -lgdi32
 endif
 
-LDLIBS += -lassimp -lfreetyped -lbz2 -lz -lzip -llua
+LDLIBS += -lbz2 -lz -lirrxml -lfreetyped -lassimp -lzip -llua
 LDLIBS += -lLinearMath -lBulletCollision -lBulletDynamics
 
 all: game

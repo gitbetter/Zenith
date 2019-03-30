@@ -88,4 +88,5 @@ void ZZipFile::PrintResources() const {
 
 void ZZipFile::Close() {
   if (zipFile_) zip_close(zipFile_);
+  zipFile_ = nullptr;
 }

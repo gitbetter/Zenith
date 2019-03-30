@@ -64,7 +64,7 @@ private:
 
 public:
 
-  ~ZScriptableProcess();
+  virtual ~ZScriptableProcess();
 
   static void RegisterScriptClass();
 

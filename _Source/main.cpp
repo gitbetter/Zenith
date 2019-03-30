@@ -79,15 +79,15 @@ int main(int argc, const char * argv[]) {
 
   // Parse the ZOF file and create the resources
   ZOFLoadResult zofResult = ZEngine::LoadZOF("basic_scene.zof");
-  for (ZGameObjectMap::iterator it = zofResult.gameObjects.begin(); it != zofResult.gameObjects.end(); it++) {
-    game->AddGameObject(it->second);
-  }
-
   for (ZUIElementMap::iterator it = zofResult.uiElements.begin(); it != zofResult.uiElements.end(); it++) {
     if (std::dynamic_pointer_cast<ZUICursor>(it->second))
       ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
     else
       ZEngine::UI()->AddElement(it->second);
+  }
+
+  for (ZGameObjectMap::iterator it = zofResult.gameObjects.begin(); it != zofResult.gameObjects.end(); it++) {
+    game->AddGameObject(it->second);
   }
 
   // Now add some lights, because it's dark in here.
