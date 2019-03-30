@@ -4,8 +4,14 @@ OBJ_DIR=_Bin
 
 CXX=g++
 
-RM=rm -rf
+RM=rm -r
+
+ifeq ($(OS),Windows_NT)
+CPPFLAGS= -std=c++14 -Wall -g $(shell dir $(H_DIR) -Attributes Directory -Name | sed s/^/-I/)
+else
 CPPFLAGS= -std=c++14 -Wall -g $(shell find $(H_DIR) -type d | sed s/^/-I/)
+endif
+
 LDFLAGS=-g -L./_Drivers/lib/
 LDLIBS=-lglew -lglfw
 
