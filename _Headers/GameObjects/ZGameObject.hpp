@@ -72,7 +72,7 @@ public:
   glm::vec3 Front() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 0.f, -1.f); }
   glm::vec3 Up() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 1.f, 0.f); }
   glm::vec3 Right() const { return glm::conjugate(orientation_) * glm::vec3(-1.f, 0.f, 0.f); }
-  glm::mat4 ModelMatrix(float frameMix = 0.f);
+  glm::mat4 ModelMatrix() { return modelMatrix_; }
 
   glm::vec3 PreviousPosition() const { return glm::vec3(previousPosition_); }
   glm::vec3 PreviousFront() const { return glm::conjugate(previousOrientation_) * glm::vec3(0.f, 0.f, -1.f); }

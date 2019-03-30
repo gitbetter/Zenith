@@ -125,7 +125,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 
   std::shared_ptr<ZCameraComponent> cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
 
-  glm::mat4 modelMatrix = object_->ModelMatrix(frameMix);
+  glm::mat4 modelMatrix = object_->ModelMatrix();
   glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
   glm::mat4 viewMatrix = cameraComp->ViewMatrix(frameMix);
 

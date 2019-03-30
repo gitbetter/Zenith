@@ -157,8 +157,7 @@ glm::mat4 ZCameraComponent::ProjectionMatrix() {
 }
 
 glm::mat4 ZCameraComponent::ViewMatrix(float frameMix) {
-  glm::vec3 interpolatedPosition = object_->PreviousPosition() * (1.f - frameMix) + object_->Position() * frameMix;
   glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
   glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
-  return glm::lookAt(interpolatedPosition, interpolatedPosition + interpolatedFront, interpolatedUp);
+  return glm::lookAt(object_->Position(), object_->Position() + interpolatedFront, interpolatedUp);
 }

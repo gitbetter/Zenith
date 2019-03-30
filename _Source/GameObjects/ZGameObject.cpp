@@ -91,19 +91,6 @@ void ZGameObject::Render(float frameMix, unsigned char renderOp) {
   ZProcess::Render();
 }
 
-glm::mat4 ZGameObject::ModelMatrix(float frameMix) {
-  if (frameMix == 0.f) return modelMatrix_;
-
-  glm::quat interpolatedOrientation = previousOrientation_ * (1.f - frameMix) + orientation_ * frameMix;
-  interpolatedOrientation = glm::normalize(interpolatedOrientation);
-  glm::vec3 interpolatedScale = previousScale_ * (1.f - frameMix) + scale_ * frameMix;
-  glm::vec3 interpolatedPosition = previousPosition_ * (1.f - frameMix) + position_ * frameMix;
-
-  modelMatrix_ = glm::mat4_cast(interpolatedOrientation);
-  modelMatrix_ = glm::scale(modelMatrix_, interpolatedScale);
-  modelMatrix_ = glm::translate(modelMatrix_, interpolatedPosition);
-}
-
 void ZGameObject::SetPosition(glm::vec3 position) {
   // TODO: set the btRigidBody transform position in the
   // physics component, if there is one
