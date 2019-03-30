@@ -72,7 +72,7 @@ public:
   }
   ~ZCameraComponent() { }
 
-  void Initialize(ZOFNode* root) override;
+  void Initialize(std::shared_ptr<ZOFNode> root) override;
 
   void Update() override;
 

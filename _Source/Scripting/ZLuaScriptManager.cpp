@@ -40,16 +40,16 @@ bool ZLuaScriptManager::Initialize() {
   return true;
 }
 
-bool ZLuaScriptManager::Load(ZOFTree* zof) {
+bool ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
   for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++) {
     if (it->first.find("ZSCR") == 0) {
 
-      ZOFObjectNode* scriptNode = dynamic_cast<ZOFObjectNode*>(it->second);
+      std::shared_ptr<ZOFObjectNode> scriptNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
 
       ZOFPropertyMap props = scriptNode->properties;
 
       if (props.find("path") != props.end() && props["path"]->HasValues()) {
-        ZOFString* prop = props["path"]->Value<ZOFString>(0);
+        std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
         ZResource scriptResource(prop->value);
         ZEngine::ResourceCache()->GetHandle(&scriptResource);
       }

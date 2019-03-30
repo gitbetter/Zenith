@@ -32,11 +32,11 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
-void ZUIListPanel::Initialize(ZOFNode* root) {
+void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
   texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
 
-   ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+   std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZUIElement", ZERROR);
     return;
@@ -45,7 +45,7 @@ void ZUIListPanel::Initialize(ZOFNode* root) {
   ZOFPropertyMap props = node->properties;
 
   if (props.find("itemHeight") != props.end() && props["itemHeight"]->HasValues()) {
-    ZOFNumber* itemHeightProp = props["itemHeight"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> itemHeightProp = props["itemHeight"]->Value<ZOFNumber>(0);
     itemHeight_ = itemHeightProp->value;
   }
 }

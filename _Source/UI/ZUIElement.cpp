@@ -46,10 +46,10 @@ ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0),
   id_ = "ZUI_" + ZEngine::IDSequence()->Next();
 }
 
-void ZUIElement::Initialize(ZOFNode* root) {
+void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
   modelMatrix_ = glm::mat4(1.0); color_ = glm::vec4(0.6);
 
-  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZUIElement", ZERROR);
     return;
@@ -62,22 +62,22 @@ void ZUIElement::Initialize(ZOFNode* root) {
   glm::vec2 size = Size(), position = Position();
 
   if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
-    ZOFNumberList* scaleProp = props["scale"]->Value<ZOFNumberList>(0);
+    std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
     float x = scaleProp->value[0] < 0 ? glm::min(ZEngine::Domain()->WindowWidth(), ZEngine::Domain()->ResolutionX()) : scaleProp->value[0] * ZEngine::Domain()->ResolutionXRatio();
     float y = scaleProp->value[1] < 0 ? glm::min(ZEngine::Domain()->WindowHeight(), ZEngine::Domain()->ResolutionY()) : scaleProp->value[1] * ZEngine::Domain()->ResolutionYRatio();
     size = glm::vec2(x, y);
   }
 
   if (props.find("position") != props.end() && props["position"]->HasValues()) {
-    ZOFNumberList* posProp = props["position"]->Value<ZOFNumberList>(0);
+    std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
     float x = posProp->value[0] * ZEngine::Domain()->ResolutionXRatio();
     float y = posProp->value[1] * ZEngine::Domain()->ResolutionYRatio();
     position = glm::vec2(x + size.x, y + size.y);
   }
 
   if (props.find("anchor") != props.end() && props["anchor"]->HasValues()) {
-    ZOFString* vAnchorProp = props["anchor"]->Value<ZOFString>(0);
-    ZOFString* hAnchorProp = props["anchor"]->Value<ZOFString>(1);
+    std::shared_ptr<ZOFString> vAnchorProp = props["anchor"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> hAnchorProp = props["anchor"]->Value<ZOFString>(1);
     // TODO: A parent pointer is needed to determine the bounds and therefore the anchor relative positioning.
     // if there is no parent we simply anchor to the screen/resolution bounds
   }
@@ -86,33 +86,33 @@ void ZUIElement::Initialize(ZOFNode* root) {
   SetSize(size);
 
   if (props.find("color") != props.end() && props["color"]->HasValues()) {
-    ZOFNumberList* colorProp = props["color"]->Value<ZOFNumberList>(0);
+    std::shared_ptr<ZOFNumberList> colorProp = props["color"]->Value<ZOFNumberList>(0);
     color_ = glm::vec4(colorProp->value[0], colorProp->value[1], colorProp->value[2], colorProp->value[3]);
   }
 
   if (props.find("isHidden") != props.end() && props["isHidden"]->HasValues()) {
-    ZOFString* hiddenProp = props["isHidden"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> hiddenProp = props["isHidden"]->Value<ZOFString>(0);
     hidden_ = hiddenProp->value == "Yes";
   }
 
   if (props.find("isEnabled") != props.end() && props["isEnabled"]->HasValues()) {
-    ZOFString* enabledProp = props["isEnabled"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> enabledProp = props["isEnabled"]->Value<ZOFString>(0);
     enabled_ = enabledProp->value == "Yes";
   }
 
   if (props.find("texture") != props.end() && props["texture"]->HasValues()) {
-    ZOFString* texProp = props["texture"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> texProp = props["texture"]->Value<ZOFString>(0);
     if (ZEngine::Graphics()->Textures().find(texProp->value) != ZEngine::Graphics()->Textures().end())
       texture_ = ZEngine::Graphics()->Textures()[texProp->value];
   }
 
   if (props.find("borderWidth") != props.end() && props["borderWidth"]->HasValues()) {
-    ZOFNumber* borderWidthProp = props["borderWidth"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> borderWidthProp = props["borderWidth"]->Value<ZOFNumber>(0);
     border_.width = borderWidthProp->value;
   }
 
   if (props.find("borderColor") != props.end() && props["borderColor"]->HasValues()) {
-    ZOFNumberList* borderColorProp = props["borderColor"]->Value<ZOFNumberList>(0);
+    std::shared_ptr<ZOFNumberList> borderColorProp = props["borderColor"]->Value<ZOFNumberList>(0);
     border_.color = glm::vec4(borderColorProp->value[0], borderColorProp->value[1], borderColorProp->value[2], borderColorProp->value[3]);
   }
 }
@@ -293,6 +293,7 @@ void ZUIElement::CleanUp() {
   for (std::shared_ptr<ZUIElement> child : children_) {
     child->CleanUp();
   }
+  children_.clear();
 }
 
 void ZUIElement::ClampToBounds() {

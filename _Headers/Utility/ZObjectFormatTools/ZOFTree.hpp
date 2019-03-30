@@ -42,20 +42,18 @@ struct ZOFAbstractTerminal;
 template<typename T> struct ZOFValueTerminal;
 
 // Class and Data Structure Definitions
-typedef std::map<std::string, ZOFNode*> ZOFChildMap;
-typedef std::map<std::string, ZOFPropertyNode*> ZOFPropertyMap;
-typedef std::vector<ZOFAbstractTerminal*> ZOFAbstractTerminalList;
+typedef std::map<std::string, std::shared_ptr<ZOFNode>> ZOFChildMap;
+typedef std::map<std::string, std::shared_ptr<ZOFPropertyNode>> ZOFPropertyMap;
+typedef std::vector<std::shared_ptr<ZOFAbstractTerminal>> ZOFAbstractTerminalList;
 
 struct ZOFNode {
   std::string id;
-  ZOFNode* root = nullptr;
+  std::shared_ptr<ZOFNode> root;
   ZOFChildMap children;
 
   virtual ~ZOFNode() { }
 
   void Clear() {
-    ZOFChildMap::iterator it = children.begin();
-    for (; it != children.end(); it++) delete it->second;
     children.clear();
   }
 
@@ -68,7 +66,7 @@ struct ZOFNode {
 };
 
 struct ZOFAbstractTerminal {
-  ZOFNode* root = nullptr;
+  std::shared_ptr<ZOFNode> root;
   virtual ~ZOFAbstractTerminal() { };
   virtual std::string ToString() { return ""; }
 };
@@ -85,7 +83,7 @@ struct ZOFPropertyNode : public ZOFNode {
   ZOFAbstractTerminalList values;
 
   ~ZOFPropertyNode() {
-    for (ZOFAbstractTerminal* val : values) delete val;
+    values.clear();
   }
 
   bool HasValues() const { return values.size() > 0; }
@@ -93,17 +91,17 @@ struct ZOFPropertyNode : public ZOFNode {
   unsigned int ValueCount() const { return values.size(); }
 
   template<typename T>
-  T* Value(unsigned int index) {
+  std::shared_ptr<T> Value(unsigned int index) {
     if (index >= values.size()) return nullptr;
 
-    T* val = dynamic_cast<T*>(values[index]);
+    std::shared_ptr<T> val = std::dynamic_pointer_cast<T>(values[index]);
 
     return val;
   }
 
   std::string ToString() override {
     std::string propString = "\t:" + id;
-    for (ZOFAbstractTerminal* val : values) propString += val->ToString();
+    for (std::shared_ptr<ZOFAbstractTerminal> val : values) propString += val->ToString();
     propString += ZOFNode::ToString();
     propString += ":\n";
     return propString;
@@ -114,8 +112,7 @@ struct ZOFObjectNode : public ZOFNode {
   ZOFPropertyMap properties;
 
   ~ZOFObjectNode() {
-    for (ZOFPropertyMap::iterator it = properties.begin(); it != properties.end(); it++)
-      delete it->second;
+    properties.clear();
   }
 
   std::string ToString() override {

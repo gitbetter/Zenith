@@ -31,12 +31,12 @@
 #include "ZEngine.hpp"
 #include "ZGraphics.hpp"
 
-void ZMaterial::Initialize(ZOFTree* root) {
+void ZMaterial::Initialize(std::shared_ptr<ZOFTree> root) {
   std::vector<ZTexture> textures;
   ZMaterialProperties materialProperties;
   bool isPBR = false, hasDisplacement = false;
 
-  ZOFObjectNode* materialNode = dynamic_cast<ZOFObjectNode*>(root);
+  std::shared_ptr<ZOFObjectNode> materialNode = std::dynamic_pointer_cast<ZOFObjectNode>(root);
 
   for (ZOFPropertyMap::iterator it = materialNode->properties.begin(); it != materialNode->properties.end(); it++) {
     if (!it->second->HasValues()) continue;
@@ -50,15 +50,15 @@ void ZMaterial::Initialize(ZOFTree* root) {
 
     // If a field is string based there may be textures associated with that field, otherwise
     // the material field is simple and programmatic.
-    if (ZOFString* strProp = it->second->Value<ZOFString>(0)) {
+    if (std::shared_ptr<ZOFString> strProp = it->second->Value<ZOFString>(0)) {
       if (ZEngine::Graphics()->Textures().find(strProp->value) != ZEngine::Graphics()->Textures().end()) {
         ZTexture texture = ZEngine::Graphics()->Textures()[strProp->value];
         texture.type = it->second->id;
         textures.push_back(texture);
       }
-    } else if (ZOFNumber* numProp = it->second->Value<ZOFNumber>(0)) {
+    } else if (std::shared_ptr<ZOFNumber> numProp = it->second->Value<ZOFNumber>(0)) {
       SetMaterialProperty(it->second->id, numProp->value, materialProperties);
-    } else if (ZOFNumberList* numListProp = it->second->Value<ZOFNumberList>(0)) {
+    } else if (std::shared_ptr<ZOFNumberList> numListProp = it->second->Value<ZOFNumberList>(0)) {
       SetMaterialProperty(it->second->id, glm::vec4(numListProp->value[0], numListProp->value[1], numListProp->value[2], 1.0), materialProperties);
     }
   }

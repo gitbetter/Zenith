@@ -39,19 +39,19 @@ ZGraphicsFactory::ZGraphicsFactory() {
   modelCreators_["Cone"] = &ZModel::NewConePrimitive;
 }
 
-ZShaderMap ZGraphicsFactory::CreateShaders(ZOFTree* data) {
+ZShaderMap ZGraphicsFactory::CreateShaders(std::shared_ptr<ZOFTree> data) {
   ZShaderMap shaders;
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     if (it->first.find("ZSH") == 0) {
       std::string vertexPath = "", pixelPath = "", geometryPath = "";
       std::shared_ptr<ZShader> shader(new ZShader);
 
-      ZOFObjectNode* shaderNode = dynamic_cast<ZOFObjectNode*>(it->second);
+      std::shared_ptr<ZOFObjectNode> shaderNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
 
       for (ZOFPropertyMap::iterator it = shaderNode->properties.begin(); it != shaderNode->properties.end(); it++) {
         if (!it->second->HasValues()) continue;
 
-        ZOFString* str = it->second->Value<ZOFString>(0);
+        std::shared_ptr<ZOFString> str = it->second->Value<ZOFString>(0);
         if (it->second->id == "vertex") vertexPath = str->value;
         else if (it->second->id == "pixel") pixelPath = str->value;
         else if (it->second->id == "geometry") geometryPath = str->value;
@@ -64,14 +64,14 @@ ZShaderMap ZGraphicsFactory::CreateShaders(ZOFTree* data) {
   return shaders;
 }
 
-ZTextureMap ZGraphicsFactory::CreateTextures(ZOFTree* data) {
+ZTextureMap ZGraphicsFactory::CreateTextures(std::shared_ptr<ZOFTree> data) {
   ZTextureMap textures;
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     if (it->first.find("ZTEX") == 0) {
       std::string path;
-      ZOFObjectNode* textureNode = dynamic_cast<ZOFObjectNode*>(it->second);
+      std::shared_ptr<ZOFObjectNode> textureNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
       if (textureNode->properties.find("path") != textureNode->properties.end()) {
-        ZOFString* pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
+        std::shared_ptr<ZOFString> pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
         path = pathStr->value;
       }
 

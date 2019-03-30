@@ -47,7 +47,7 @@ public:
   ZUIListPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f)) : ZUIElement(position, scale) { }
   ~ZUIListPanel() { }
 
-  void Initialize(ZOFNode* root) override;
+  void Initialize(std::shared_ptr<ZOFNode> root) override;
 
   float ItemHeight() const { return itemHeight_; }
   void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }

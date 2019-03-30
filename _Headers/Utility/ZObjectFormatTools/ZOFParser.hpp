@@ -48,24 +48,24 @@ private:
   std::string Scan();
   void Match(std::string);
   void Match(std::regex pattern);
-  void HandleParseError(ZOFNode* node);
+  void HandleParseError(std::shared_ptr<ZOFNode> node);
 
-  void Start(ZOFTree* tree);
-  void ObjectList(ZOFNode* node);
-  void Object(ZOFTree* tree);
-  void PropsList(ZOFObjectNode* node);
-  void Prop(ZOFObjectNode* node);
-  void ValuesList(ZOFPropertyNode* prop);
-  void Value(ZOFPropertyNode* prop);
-  void List(ZOFPropertyNode* prop);
-  void ListTail(ZOFAbstractTerminal* terminal);
+  void Start(std::shared_ptr<ZOFTree> tree);
+  void ObjectList(std::shared_ptr<ZOFTree> node);
+  void Object(std::shared_ptr<ZOFTree> tree);
+  void PropsList(std::shared_ptr<ZOFObjectNode> node);
+  void Prop(std::shared_ptr<ZOFObjectNode> node);
+  void ValuesList(std::shared_ptr<ZOFPropertyNode> prop);
+  void Value(std::shared_ptr<ZOFPropertyNode> prop);
+  void List(std::shared_ptr<ZOFPropertyNode> prop);
+  void ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal);
 
 public:
 
     ZOFParser() { }
     ~ZOFParser() { }
 
-    ZOFTree* Parse(std::string zofFile);
+    std::shared_ptr<ZOFTree> Parse(std::string zofFile);
 
 protected:
 

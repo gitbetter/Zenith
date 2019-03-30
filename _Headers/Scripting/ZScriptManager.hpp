@@ -42,7 +42,7 @@ public:
   virtual ~ZScriptManager() { }
 
   virtual bool Initialize() = 0;
-  virtual bool Load(ZOFTree* zof) = 0;
+  virtual bool Load(std::shared_ptr<ZOFTree> zof) = 0;
   virtual void ExecuteFile(const std::string& resource) = 0;
   virtual void ExecuteString(const std::string& script) = 0;
 

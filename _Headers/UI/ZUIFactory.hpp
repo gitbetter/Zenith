@@ -39,7 +39,7 @@
 // Class and Data Structure Definitions
 class ZUIFactory {
 
-  using ZUICreator = std::shared_ptr<ZUIElement> (ZUIFactory::*)(ZOFNode* root);
+  using ZUICreator = std::shared_ptr<ZUIElement> (ZUIFactory::*)(std::shared_ptr<ZOFNode> root);
 
 private:
 
@@ -48,15 +48,15 @@ public:
   ZUIFactory();
   ~ZUIFactory() { }
 
-  ZUIElementMap Create(ZOFTree* data);
+  ZUIElementMap Create(std::shared_ptr<ZOFTree> data);
 
-  std::shared_ptr<ZUIElement> CreateUIButton(ZOFNode* root);
-  std::shared_ptr<ZUIElement> CreateUIImage(ZOFNode* root);
-  std::shared_ptr<ZUIElement> CreateUIPanel(ZOFNode* root);
-  std::shared_ptr<ZUIElement> CreateUIText(ZOFNode* root);
-  std::shared_ptr<ZUIElement> CreateUICursor(ZOFNode* root);
-  std::shared_ptr<ZUIElement> CreateUICheckbox(ZOFNode* root);
-  std::shared_ptr<ZUIElement> CreateUIListPanel(ZOFNode* root);
+  std::shared_ptr<ZUIElement> CreateUIButton(std::shared_ptr<ZOFNode> root);
+  std::shared_ptr<ZUIElement> CreateUIImage(std::shared_ptr<ZOFNode> root);
+  std::shared_ptr<ZUIElement> CreateUIPanel(std::shared_ptr<ZOFNode> root);
+  std::shared_ptr<ZUIElement> CreateUIText(std::shared_ptr<ZOFNode> root);
+  std::shared_ptr<ZUIElement> CreateUICursor(std::shared_ptr<ZOFNode> root);
+  std::shared_ptr<ZUIElement> CreateUICheckbox(std::shared_ptr<ZOFNode> root);
+  std::shared_ptr<ZUIElement> CreateUIListPanel(std::shared_ptr<ZOFNode> root);
 
 protected:
 

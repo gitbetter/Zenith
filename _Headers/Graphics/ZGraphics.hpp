@@ -54,7 +54,7 @@ public:
   ~ZGraphics() { }
 
   void Initialize();
-  void Load(ZOFTree* root);
+  void Load(std::shared_ptr<ZOFTree> root);
 
   void Draw(const ZGameObjectMap& gameObjects, const ZLightMap& gameLights, float frameMix = 1.0);
 
@@ -69,6 +69,8 @@ public:
 
   void AddShader(std::string id, std::shared_ptr<ZShader> shader);
   void AddTexture(std::string id, ZTexture texture);
+
+  static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
 
   void CleanUp();
 

@@ -48,7 +48,7 @@ public:
   virtual ~ZComponent() { }
 
   virtual void Initialize() override { ZProcess::Initialize(); }
-  virtual void Initialize(ZOFNode* root) = 0;
+  virtual void Initialize(std::shared_ptr<ZOFNode> root) = 0;
 
   ZGameObject* Object() { return object_; }
 

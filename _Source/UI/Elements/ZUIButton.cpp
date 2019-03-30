@@ -37,7 +37,7 @@ ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position,
    texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
-void ZUIButton::Initialize(ZOFNode* root) {
+void ZUIButton::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
 }
 

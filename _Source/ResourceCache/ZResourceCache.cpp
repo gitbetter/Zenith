@@ -41,6 +41,7 @@ ZResourceCache::~ZResourceCache() {
     it->second->Close();
   }
   resourceFiles_.clear();
+  lru_.clear();
 }
 
 bool ZResourceCache::Initialize() {

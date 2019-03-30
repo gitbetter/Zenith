@@ -42,7 +42,7 @@
 #include "ZPhysics.hpp"
 #include "ZCameraComponent.hpp"
 
-void ZUICursor::Initialize(ZOFNode* root) {
+void ZUICursor::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
   
   auto cursorImage = std::make_shared<ZUIImage>("Assets/Textures/UI/z_cursor.png", Position(), Size());
@@ -54,7 +54,7 @@ void ZUICursor::Initialize(ZOFNode* root) {
   ZEngine::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
   ZEngine::EventAgent()->AddListener(fireDelegate, ZFireEvent::Type);
 
-  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZUICursor", ZERROR); return;
   }
@@ -62,7 +62,7 @@ void ZUICursor::Initialize(ZOFNode* root) {
   ZOFPropertyMap props = node->properties;
 
   if (props.find("speed") != props.end() && props["speed"]->HasValues()) {
-    ZOFNumber* speedProp = props["speed"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> speedProp = props["speed"]->Value<ZOFNumber>(0);
     cursorSpeed_ = speedProp->value;
   }
 }

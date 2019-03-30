@@ -41,20 +41,21 @@ void ZCameraComponent::Update() {
 }
 
 void ZCameraComponent::UpdateCameraOrientation() {
+  float deltaTime = ZEngine::DeltaTime();
   if (movementStyle_ == ZCameraMovementStyle::Follow) {
-    pitchVelocity_ *= glm::pow(cameraDamping_, ZEngine::UPDATE_STEP_SIZE);
-    yawVelocity_ *= glm::pow(cameraDamping_, ZEngine::UPDATE_STEP_SIZE);
-    pitch_ = glm::quat(pitchVelocity_ * ZEngine::UPDATE_STEP_SIZE);
-    yaw_ = glm::quat(yawVelocity_ * ZEngine::UPDATE_STEP_SIZE);
+    pitchVelocity_ *= glm::pow(cameraDamping_, deltaTime);
+    yawVelocity_ *= glm::pow(cameraDamping_, deltaTime);
+    pitch_ = glm::quat(pitchVelocity_ * deltaTime);
+    yaw_ = glm::quat(yawVelocity_ * deltaTime);
     object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
   }
 }
 
 // TODO: Initialize functions should come in two flavors
-void ZCameraComponent::Initialize(ZOFNode* root) {
+void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
   ZComponent::Initialize(); 
   
-  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZCameraComponent", ZERROR);
     return;
@@ -63,48 +64,48 @@ void ZCameraComponent::Initialize(ZOFNode* root) {
   ZOFPropertyMap props = node->properties;
 
   if (props.find("speed") != props.end() && props["speed"]->HasValues()) {
-    ZOFNumber* prop = props["speed"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> prop = props["speed"]->Value<ZOFNumber>(0);
     movementSpeed_ = prop->value;
   }
 
   if (props.find("sensitivity") != props.end() && props["sensitivity"]->HasValues()) {
-    ZOFNumber* prop = props["sensitivity"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> prop = props["sensitivity"]->Value<ZOFNumber>(0);
     lookSensitivity_ = prop->value;
   }
 
   if (props.find("zoom") != props.end() && props["zoom"]->HasValues()) {
-    ZOFNumber* prop = props["zoom"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> prop = props["zoom"]->Value<ZOFNumber>(0);
     zoom_ = prop->value;
   }
 
   if (props.find("zoomSpeed") != props.end() && props["zoomSpeed"]->HasValues()) {
-    ZOFNumber* prop = props["zoomSpeed"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> prop = props["zoomSpeed"]->Value<ZOFNumber>(0);
     zoomSpeed_ = prop->value;
   }
 
   if (props.find("nearPlane") != props.end() && props["nearPlane"]->HasValues()) {
-    ZOFNumber* prop = props["nearPlane"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> prop = props["nearPlane"]->Value<ZOFNumber>(0);
     nearClippingPlane_ = prop->value;
   }
 
   if (props.find("farPlane") != props.end() && props["farPlane"]->HasValues()) {
-    ZOFNumber* prop = props["farPlane"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> prop = props["farPlane"]->Value<ZOFNumber>(0);
     farClippingPlane_ = prop->value;
   }
 
   if (props.find("type") != props.end() && props["type"]->HasValues()) {
-    ZOFString* prop = props["type"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> prop = props["type"]->Value<ZOFString>(0);
     cameraType_ = prop->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
     zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
   }
 
   if (props.find("movementStyle") != props.end() && props["movementStyle"]->HasValues()) {
-    ZOFString* prop = props["movementStyle"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> prop = props["movementStyle"]->Value<ZOFString>(0);
     movementStyle_ = prop->value == "Follow" ? ZCameraMovementStyle::Follow : ZCameraMovementStyle::Normal;
   }
 
   if (props.find("damping") != props.end() && props["damping"]->HasValues()) {
-    ZOFNumber* prop = props["damping"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> prop = props["damping"]->Value<ZOFNumber>(0);
     cameraDamping_ = prop->value;
   }
 
@@ -157,9 +158,8 @@ glm::mat4 ZCameraComponent::ProjectionMatrix() {
 }
 
 glm::mat4 ZCameraComponent::ViewMatrix(float frameMix) {
+  glm::vec3 interpolatedPosition = object_->PreviousPosition() * (1.f - frameMix) + object_->Position() * frameMix;
   glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
   glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
-  return glm::lookAt(glm::vec3(object_->Position()),
-                     glm::vec3(object_->Position()) + interpolatedFront,
-                     interpolatedUp);
+  return glm::lookAt(interpolatedPosition, object_->Position() + interpolatedFront, interpolatedUp);
 }

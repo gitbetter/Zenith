@@ -56,7 +56,7 @@ public:
   sol::state& LuaState() { return lua_; }
 
   virtual bool Initialize() override;
-  virtual bool Load(ZOFTree* zof) override;
+  virtual bool Load(std::shared_ptr<ZOFTree> zof) override;
   virtual void ExecuteFile(const std::string& resource) override;
   virtual void ExecuteString(const std::string& script) override;
 

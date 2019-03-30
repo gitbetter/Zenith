@@ -55,7 +55,7 @@ public:
   ZUIElement(glm::vec2 position, glm::vec2 scale);
   virtual ~ZUIElement() { }
 
-  virtual void Initialize(ZOFNode* root);
+  virtual void Initialize(std::shared_ptr<ZOFNode> root);
 
   bool Enabled() { return enabled_; }
   bool Hidden() { return hidden_; }

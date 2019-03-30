@@ -64,7 +64,7 @@ void ZUI::Draw() {
 
 void ZUI::SetCursor(std::shared_ptr<ZUICursor> cursor) {
   cursor_ = cursor;
-  cursor_->SetShader(ZEngine::UI()->UIShader());
+  cursor_->SetShader(uiShader_);
 }
 
 void ZUI::AddElement(std::shared_ptr<ZUIElement> element) {

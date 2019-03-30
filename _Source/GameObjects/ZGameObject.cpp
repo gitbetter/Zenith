@@ -44,10 +44,10 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
   CalculateDerivedData();
 }
 
-void ZGameObject::Initialize(ZOFNode* root) {
+void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root) {
   ZProcess::Initialize();
 
-  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZGameObject", ZERROR);
     return;
@@ -58,18 +58,21 @@ void ZGameObject::Initialize(ZOFNode* root) {
   ZOFPropertyMap props = node->properties;
 
   if (props.find("position") != props.end() && props["position"]->HasValues()) {
-    ZOFNumberList* posProp = props["position"]->Value<ZOFNumberList>(0);
+    std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
     position_ = glm::vec4(posProp->value[0], posProp->value[1], posProp->value[2], 1.f);
+    previousPosition_ = position_;
   }
 
   if (props.find("orientation") != props.end() && props["orientation"]->HasValues()) {
-    ZOFNumberList* ornProp = props["orientation"]->Value<ZOFNumberList>(0);
+    std::shared_ptr<ZOFNumberList> ornProp = props["orientation"]->Value<ZOFNumberList>(0);
     orientation_ = glm::quat(glm::vec3(ornProp->value[0], ornProp->value[1], ornProp->value[2]));
+    previousOrientation_ = orientation_;
   }
 
   if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
-    ZOFNumberList* scaleProp = props["scale"]->Value<ZOFNumberList>(0);
+    std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
     scale_ = glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]);
+    previousScale_ = scale_;
   }
 
   CalculateDerivedData();
@@ -86,6 +89,19 @@ void ZGameObject::Render(float frameMix, unsigned char renderOp) {
   }
 
   ZProcess::Render();
+}
+
+glm::mat4 ZGameObject::ModelMatrix(float frameMix) {
+  if (frameMix == 0.f) return modelMatrix_;
+
+  glm::quat interpolatedOrientation = previousOrientation_ * (1.f - frameMix) + orientation_ * frameMix;
+  interpolatedOrientation = glm::normalize(interpolatedOrientation);
+  glm::vec3 interpolatedScale = previousScale_ * (1.f - frameMix) + scale_ * frameMix;
+  glm::vec3 interpolatedPosition = previousPosition_ * (1.f - frameMix) + position_ * frameMix;
+
+  modelMatrix_ = glm::mat4_cast(interpolatedOrientation);
+  modelMatrix_ = glm::scale(modelMatrix_, interpolatedScale);
+  modelMatrix_ = glm::translate(modelMatrix_, interpolatedPosition);
 }
 
 void ZGameObject::SetPosition(glm::vec3 position) {

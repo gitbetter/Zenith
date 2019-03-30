@@ -60,9 +60,9 @@ void ZPhysics::Initialize() {
 }
 
 void ZPhysics::Update() {  
+  ZProcess::Update();
   registry_->UpdateForces();
   dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, 1, ZEngine::UPDATE_STEP_SIZE);
-  ZProcess::Update();
 }
 
 void ZPhysics::AddRigidBody(std::shared_ptr<btRigidBody> body) {

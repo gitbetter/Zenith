@@ -46,7 +46,7 @@ public:
   ZGOFactory();
   ~ZGOFactory() { }
 
-  ZGameObjectMap Create(ZOFTree* data);
+  ZGameObjectMap Create(std::shared_ptr<ZOFTree> data);
 
   std::shared_ptr<ZComponent> CreateGraphicsComponent(std::shared_ptr<ZGameObject> gameObject);
   std::shared_ptr<ZComponent> CreateCameraComponent(std::shared_ptr<ZGameObject> gameObject);

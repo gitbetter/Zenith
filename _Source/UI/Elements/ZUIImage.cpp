@@ -38,7 +38,7 @@ ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIE
   enabled_ = false;
 }
 
-void ZUIImage::Initialize(ZOFNode* root) {
+void ZUIImage::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
 }
 

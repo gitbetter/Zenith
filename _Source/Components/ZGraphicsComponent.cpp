@@ -58,10 +58,10 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_p
 }
 
 // TODO: These initalize functions can get pretty hectic. Maybe there's a better way...
-void ZGraphicsComponent::Initialize(ZOFNode* root) {
+void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
   ZComponent::Initialize();
   
-  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZGraphicsComponent", ZERROR);
     return;
@@ -70,24 +70,24 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
   ZOFPropertyMap props = node->properties;
 
   if (props.find("activeShader") != props.end() && props["activeShader"]->HasValues()) {
-    ZOFNumber* activeShaderProp = props["activeShader"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> activeShaderProp = props["activeShader"]->Value<ZOFNumber>(0);
     activeShaderIndex_ = activeShaderProp->value;
   }
 
   if (props.find("highlightColor") != props.end() && props["highlightColor"]->HasValues()) {
-    ZOFNumberList* hColorProp = props["highlightColor"]->Value<ZOFNumberList>(0);
+    std::shared_ptr<ZOFNumberList> hColorProp = props["highlightColor"]->Value<ZOFNumberList>(0);
     highlightColor_ = glm::vec4(hColorProp->value[0], hColorProp->value[1], hColorProp->value[2], 1.f);
   }
 
   if (props.find("highlightShader") != props.end() && props["highlightShader"]->HasValues()) {
-    ZOFString* hShaderProp = props["highlightShader"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> hShaderProp = props["highlightShader"]->Value<ZOFString>(0);
     if (ZEngine::Graphics()->Shaders().find(hShaderProp->value) != ZEngine::Graphics()->Shaders().end()) {
       highlightShader_ = ZEngine::Graphics()->Shaders()[hShaderProp->value];
     }
   }
 
   if (props.find("shaders") != props.end() && props["shaders"]->HasValues()) {
-    ZOFStringList* shadersProp = props["shaders"]->Value<ZOFStringList>(0);
+    std::shared_ptr<ZOFStringList> shadersProp = props["shaders"]->Value<ZOFStringList>(0);
     for (std::string id : shadersProp->value) {
       if (ZEngine::Graphics()->Shaders().find(id) != ZEngine::Graphics()->Shaders().end()) {
         shaders_.push_back(ZEngine::Graphics()->Shaders()[id]);
@@ -96,12 +96,12 @@ void ZGraphicsComponent::Initialize(ZOFNode* root) {
   }
 
   if (props.find("model") != props.end() && props["model"]->HasValues()) {
-    ZOFString* nameProp = props["model"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> nameProp = props["model"]->Value<ZOFString>(0);
     if (nameProp->value.find(".") != std::string::npos) {
       model_ = std::shared_ptr<ZModel>(new ZModel(nameProp->value));
     } else {
       if (props["model"]->ValueCount() > 1) {
-        ZOFNumberList* scaleProp = props["model"]->Value<ZOFNumberList>(1);
+        std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);
         model_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
       } else {
         model_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value);
@@ -125,7 +125,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 
   std::shared_ptr<ZCameraComponent> cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
 
-  glm::mat4 modelMatrix = object_->ModelMatrix();
+  glm::mat4 modelMatrix = object_->ModelMatrix(frameMix);
   glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
   glm::mat4 viewMatrix = cameraComp->ViewMatrix(frameMix);
 

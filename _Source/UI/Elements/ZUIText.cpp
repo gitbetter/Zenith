@@ -45,10 +45,10 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
   bufferData_ = ZEngine::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
 }
 
-void ZUIText::Initialize(ZOFNode* root) {
+void ZUIText::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
 
-  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZUIElement", ZERROR);
     return;
@@ -57,16 +57,16 @@ void ZUIText::Initialize(ZOFNode* root) {
   ZOFPropertyMap props = node->properties;
 
   if (props.find("font") != props.end() && props["font"]->HasValues()) {
-    ZOFString* fontProp = props["font"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> fontProp = props["font"]->Value<ZOFString>(0);
     font_ = fontProp->value;
     if (props["font"]->ValueCount() > 1) {
-      ZOFNumber* fontSizeProp = props["font"]->Value<ZOFNumber>(1);
+      std::shared_ptr<ZOFNumber> fontSizeProp = props["font"]->Value<ZOFNumber>(1);
       fontScale_ = fontSizeProp->value;
     }
   }
 
   if (props.find("text") != props.end() && props["text"]->HasValues()) {
-    ZOFString* textProp = props["text"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> textProp = props["text"]->Value<ZOFString>(0);
     text_ = textProp->value;
   }
 }
@@ -75,15 +75,17 @@ void ZUIText::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
   float x = Position().x,
-        y = Position().y;
+        y = Position().y,
+        xRatio = ZEngine::Domain()->ResolutionXRatio(),
+        yRatio = ZEngine::Domain()->ResolutionYRatio();
   for (auto c = text_.begin(); c != text_.end(); c++) {
     ZCharacter character = ZEngine::UI()->TextStrategy()->Character(font_, *c);
     texture_ = character.texture;
 
     float xpos = x + character.bearing.x * fontScale_;
     float ypos = y - (character.size.y - character.bearing.y) * fontScale_;
-    float w = character.size.x * fontScale_ * ZEngine::Domain()->ResolutionXRatio();
-    float h = character.size.y * fontScale_ * ZEngine::Domain()->ResolutionYRatio();
+    float w = character.size.x * fontScale_ * xRatio;
+    float h = character.size.y * fontScale_ * yRatio;
 
     std::vector<ZVertex2D> vertices = {
       ZVertex2D(glm::vec2(xpos, ypos), glm::vec2(0.f, 0.f)),
@@ -97,7 +99,7 @@ void ZUIText::Render(float frameMix, RENDER_OP renderOp) {
     ZEngine::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertices);
     ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices);
 
-    x += (character.advance >> 6) * fontScale_ * ZEngine::Domain()->ResolutionXRatio();
+    x += (character.advance >> 6) * fontScale_ * xRatio;
   }
   ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
   RenderChildren();

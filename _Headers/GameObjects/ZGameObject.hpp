@@ -54,7 +54,7 @@ public:
   ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
   virtual ~ZGameObject() { }
 
-  void Initialize(ZOFNode* root);
+  void Initialize(std::shared_ptr<ZOFNode> root);
 
   virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 
@@ -72,8 +72,9 @@ public:
   glm::vec3 Front() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 0.f, -1.f); }
   glm::vec3 Up() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 1.f, 0.f); }
   glm::vec3 Right() const { return glm::conjugate(orientation_) * glm::vec3(-1.f, 0.f, 0.f); }
-  glm::mat4 ModelMatrix() const { return modelMatrix_; }
+  glm::mat4 ModelMatrix(float frameMix = 0.f);
 
+  glm::vec3 PreviousPosition() const { return glm::vec3(previousPosition_); }
   glm::vec3 PreviousFront() const { return glm::conjugate(previousOrientation_) * glm::vec3(0.f, 0.f, -1.f); }
   glm::vec3 PreviousUp() const { return glm::conjugate(previousOrientation_) * glm::vec3(0.f, 1.f, 0.f); }
   glm::vec3 PreviousRight() const { return glm::conjugate(previousOrientation_) * glm::vec3(-1.f, 0.f, 0.f); }

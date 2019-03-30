@@ -54,7 +54,7 @@ public:
   ZMaterial(ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
   ZMaterial(std::vector<ZTexture> textures) : ZMaterial(0) { textures_ = textures; }
 
-  void Initialize(ZOFTree* root);
+  void Initialize(std::shared_ptr<ZOFTree> root);
 
   static std::unique_ptr<ZMaterial> DefaultMaterialSimple();
   static std::unique_ptr<ZMaterial> DefaultMaterialPBR();

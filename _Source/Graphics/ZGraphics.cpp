@@ -47,7 +47,7 @@ void ZGraphics::Initialize() {
   }
 }
 
-void ZGraphics::Load(ZOFTree* root) {
+void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
   ZShaderMap shaders = ZEngine::GraphicsFactory()->CreateShaders(root);
   for (ZShaderMap::iterator it = shaders.begin(); it != shaders.end(); it++) {
     AddShader(it->first, it->second);
@@ -109,6 +109,20 @@ void ZGraphics::AddShader(std::string id, std::shared_ptr<ZShader> shader) {
 
 void ZGraphics::AddTexture(std::string id, ZTexture texture) {
   loadedTextures_[id] = texture;
+}
+
+void ZGraphics::ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3) {
+  glm::vec3 deltaPos1 = v2.position - v1.position;
+  glm::vec3 deltaPos2 = v3.position - v1.position;
+  glm::vec2 deltaUV1 = v2.uv - v1.uv;
+  glm::vec2 deltaUV2 = v3.uv - v1.uv;
+
+  float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+  glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+  glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
+
+  v1.tangent = tangent; v2.tangent = tangent; v3.tangent = tangent;
+  v1.bitangent = bitangent; v2.bitangent = bitangent; v3.bitangent = bitangent;
 }
 
 void ZGraphics::CleanUp() {

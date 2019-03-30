@@ -40,17 +40,12 @@
 bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scriptResource) {
   ZResource resource(scriptResource);
   std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
-  if (handle) {
-    ZEngine::ScriptManager()->ExecuteString(std::string(handle->Buffer()));
-    return true;
-  }
-  return false;
+  return handle != nullptr;
 }
 
-void ZInternalScriptExports::AttachScriptProcess(sol::table scriptProcess) {
-  if (scriptProcess.valid()) {
-    std::shared_ptr<ZScriptableProcess> process = scriptProcess.as<std::shared_ptr<ZScriptableProcess>>();
-    ZEngine::ProcessRunner()->AttachProcess(process);
+void ZInternalScriptExports::AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess) {
+  if (scriptProcess) {
+    ZEngine::ProcessRunner()->AttachProcess(scriptProcess);
   } else {
     _Z("Could not find 'process' object in script to attach", ZERROR);
   }

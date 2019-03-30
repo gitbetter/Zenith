@@ -45,7 +45,7 @@ public:
   ZUIImage(std::string path = "", glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.25f));
   ~ZUIImage() { }
 
-  void Initialize(ZOFNode* root) override;
+  void Initialize(std::shared_ptr<ZOFNode> root) override;
 
   void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 

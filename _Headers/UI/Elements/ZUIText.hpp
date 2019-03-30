@@ -45,7 +45,7 @@ public:
   ZUIText(std::string text = "", std::string font = "", float fontSize = 1.f, glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.1f));
   ~ZUIText() { }
 
-  void Initialize(ZOFNode* root) override;
+  void Initialize(std::shared_ptr<ZOFNode> root) override;
 
   void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 

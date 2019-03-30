@@ -78,4 +78,6 @@ protected:
   bool MakeRoom(unsigned int size);
   char* Allocate(unsigned int size);
   void FreeOneResource();
+
+  void CleanUp();
 };

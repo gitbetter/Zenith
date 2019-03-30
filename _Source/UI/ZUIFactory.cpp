@@ -46,18 +46,18 @@ ZUIFactory::ZUIFactory() {
   elementCreators_["ListPanel"] = &ZUIFactory::CreateUIListPanel;
 }
 
-ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
+ZUIElementMap ZUIFactory::Create(std::shared_ptr<ZOFTree> data) {
   ZUIElementMap uiElements;
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
-    ZOFNode* node = it->second;
+    std::shared_ptr<ZOFNode> node = it->second;
     if (node->id.find("ZUI") == 0) {
-      ZOFObjectNode* uiNode = dynamic_cast<ZOFObjectNode*>(node);
+      std::shared_ptr<ZOFObjectNode> uiNode = std::dynamic_pointer_cast<ZOFObjectNode>(node);
       ZOFPropertyMap props = uiNode->properties;
 
       std::shared_ptr<ZUIElement> element;
 
       if (props.find("type") != props.end() && props["type"]->HasValues()) {
-        ZOFString* typeProp = props["type"]->Value<ZOFString>(0);
+        std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
         if (elementCreators_.find(typeProp->value) == elementCreators_.end()) {
           _Z("Could not create a UI component of type " + typeProp->value, ZERROR); continue;
         }
@@ -78,43 +78,43 @@ ZUIElementMap ZUIFactory::Create(ZOFTree* data) {
   return uiElements;
 }
 
-std::shared_ptr<ZUIElement> ZUIFactory::CreateUIButton(ZOFNode* root) {
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUIButton(std::shared_ptr<ZOFNode> root) {
   std::shared_ptr<ZUIButton> button = std::make_shared<ZUIButton>();
   button->Initialize(root);
   return button;
 }
 
-std::shared_ptr<ZUIElement> ZUIFactory::CreateUIImage(ZOFNode* root) {
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUIImage(std::shared_ptr<ZOFNode> root) {
   std::shared_ptr<ZUIImage> image = std::make_shared<ZUIImage>();
   image->Initialize(root);
   return image;
 }
 
-std::shared_ptr<ZUIElement> ZUIFactory::CreateUIPanel(ZOFNode* root) {
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUIPanel(std::shared_ptr<ZOFNode> root) {
   std::shared_ptr<ZUIPanel> panel = std::make_shared<ZUIPanel>();
   panel->Initialize(root);
   return panel;
 }
 
-std::shared_ptr<ZUIElement> ZUIFactory::CreateUIText(ZOFNode* root) {
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUIText(std::shared_ptr<ZOFNode> root) {
   std::shared_ptr<ZUIText> text = std::make_shared<ZUIText>();
   text->Initialize(root);
   return text;
 }
 
-std::shared_ptr<ZUIElement> ZUIFactory::CreateUICursor(ZOFNode* root) {
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUICursor(std::shared_ptr<ZOFNode> root) {
   std::shared_ptr<ZUICursor> cursor = std::make_shared<ZUICursor>();
   cursor->Initialize(root);
   return cursor;
 }
 
-std::shared_ptr<ZUIElement> ZUIFactory::CreateUICheckbox(ZOFNode* root) {
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUICheckbox(std::shared_ptr<ZOFNode> root) {
   std::shared_ptr<ZUICheckBox> checkbox = std::make_shared<ZUICheckBox>();
   checkbox->Initialize(root);
   return checkbox;
 }
 
-std::shared_ptr<ZUIElement> ZUIFactory::CreateUIListPanel(ZOFNode* root) {
+std::shared_ptr<ZUIElement> ZUIFactory::CreateUIListPanel(std::shared_ptr<ZOFNode> root) {
   std::shared_ptr<ZUIListPanel> list = std::make_shared<ZUIListPanel>();
   list->Initialize(root);
   return list;

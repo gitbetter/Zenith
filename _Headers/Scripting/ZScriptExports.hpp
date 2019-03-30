@@ -35,6 +35,7 @@
 
 // Forward Declarations
 class ZScriptableEvent;
+class ZScriptableProcess;
 
 // Class and Data Structure Definitions
 class ZInternalScriptExports {
@@ -46,7 +47,7 @@ public:
 
   static bool LoadAndExecuteScriptResource(const std::string& scriptResource);
 
-  static void AttachScriptProcess(sol::table scriptProcess);
+  static void AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess);
 
   static bool QueueEvent(ZEventType eventType, sol::table eventData);
   static bool TriggerEvent(ZEventType eventType, sol::table eventData);

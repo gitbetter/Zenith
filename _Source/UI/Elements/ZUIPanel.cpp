@@ -32,7 +32,7 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
-void ZUIPanel::Initialize(ZOFNode* root) {
+void ZUIPanel::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
   texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
 }

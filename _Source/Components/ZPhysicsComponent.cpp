@@ -43,10 +43,10 @@ ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
 }
 
 // TODO: These initalize functions can get pretty hectic. Maybe there's a better way...
-void ZPhysicsComponent::Initialize(ZOFNode* root) {
+void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
   ZComponent::Initialize(); 
   
-  ZOFObjectNode* node = dynamic_cast<ZOFObjectNode*>(root);
+  std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZPhysicsComponent", ZERROR);
     return;
@@ -60,46 +60,46 @@ void ZPhysicsComponent::Initialize(ZOFNode* root) {
   ZOFPropertyMap props = node->properties;
 
   if (props.find("type") != props.end() && props["type"]->HasValues()) {
-    ZOFString* typeProp = props["type"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
     if (typeProp->value == "Static") mass = 0.f;
   }
 
   if (props.find("mass") != props.end() && props["mass"]->HasValues()) {
-    ZOFNumber* massProp = props["mass"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> massProp = props["mass"]->Value<ZOFNumber>(0);
     if (mass == -1.f) mass = massProp->value;
   }
 
   if (props.find("damping") != props.end() && props["damping"]->HasValues()) {
-    ZOFNumber* dampingProp = props["damping"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> dampingProp = props["damping"]->Value<ZOFNumber>(0);
     damping = dampingProp->value;
     if (props["damping"]->ValueCount() > 1)
       angularDamping = props["damping"]->Value<ZOFNumber>(1)->value;
   }
 
   if (props.find("restitution") != props.end() && props["restitution"]->HasValues()) {
-    ZOFNumber* restProp = props["restitution"]->Value<ZOFNumber>(0);
+    std::shared_ptr<ZOFNumber> restProp = props["restitution"]->Value<ZOFNumber>(0);
     restitution = restProp->value;
   }
 
   if (props.find("collider") != props.end() && props["collider"]->HasValues()) {
-    ZOFString* colliderProp = props["collider"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> colliderProp = props["collider"]->Value<ZOFString>(0);
     if (colliderProp->value == "Box") type = ZColliderType::Box;
     if (colliderProp->value == "Sphere") type = ZColliderType::Sphere;
     if (colliderProp->value == "Capsule") type = ZColliderType::Capsule;
 
     if (props["collider"]->ValueCount() > 1) {
-      ZOFNumberList* scaleProp = props["collider"]->Value<ZOFNumberList>(1);
+      std::shared_ptr<ZOFNumberList> scaleProp = props["collider"]->Value<ZOFNumberList>(1);
       std::transform(scaleProp->value.begin(), scaleProp->value.end(), std::back_inserter(size), [](float val) { return btScalar(val); });
     }
 
     if (props["collider"]->ValueCount() > 2) {
-      ZOFNumberList* centerProp = props["collider"]->Value<ZOFNumberList>(2);
+      std::shared_ptr<ZOFNumberList> centerProp = props["collider"]->Value<ZOFNumberList>(2);
       std::transform(centerProp->value.begin(), centerProp->value.end(), std::back_inserter(origin), [](float val) { return btScalar(val); });
     }
   }
 
   if (props.find("hasGravity") != props.end() && props["hasGravity"]->HasValues()) {
-    ZOFString* gravProp = props["hasGravity"]->Value<ZOFString>(0);
+    std::shared_ptr<ZOFString> gravProp = props["hasGravity"]->Value<ZOFString>(0);
     gravity = gravProp->value == "Yes";
   }
 

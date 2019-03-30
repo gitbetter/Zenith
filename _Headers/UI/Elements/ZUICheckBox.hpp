@@ -49,7 +49,7 @@ public:
   ZUICheckBox(glm::vec2 position = glm::vec2(0.1f), glm::vec2 scale = glm::vec2(0.07f, 0.03f));
   ~ZUICheckBox() { }
 
-  void Initialize(ZOFNode* root) override;
+  void Initialize(std::shared_ptr<ZOFNode> root) override;
 
   bool Checked() const { return checked_; }
   void SetChecked(bool checked = true) { checked_ = checked; }
