@@ -34,8 +34,6 @@
 #define ZWARNING 1
 #define ZERROR 2
 
-#include "ZOFTree.hpp"
-#include "FastDelegate.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -58,6 +56,8 @@
 #include <algorithm>
 #include <sstream>
 #include <chrono>
+#include "ZOFTree.hpp"
+#include "FastDelegate.h"
 
 #define _Z(message, severity) { \
   switch(severity) {\

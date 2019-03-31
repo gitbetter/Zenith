@@ -7,9 +7,9 @@ CXX=g++
 RM=rm -r
 
 ifeq ($(OS),Windows_NT)
-CPPFLAGS= -std=c++14 -Wall -g $(shell dir $(H_DIR) -Attributes Directory -Name | sed s/^/-I/)
+CPPFLAGS=-std=c++14 -Wall -g $(shell powershell -NoProfile Get-ChildItem $(H_DIR) -Name -Recurse -Attribute Directory | sed s/^/-I\.\\\\$(H_DIR)\\\\/)
 else
-CPPFLAGS= -std=c++14 -Wall -g $(shell find $(H_DIR) -type d | sed s/^/-I/)
+CPPFLAGS=-std=c++14 -Wall -g $(shell find $(H_DIR) -type d | sed s/^/-I/)
 endif
 
 LDFLAGS=-g -L./_Drivers/lib/
@@ -27,11 +27,12 @@ ifeq ($(shell uname -s),Darwin)
 endif
 
 ifeq ($(OS),Windows_NT)
-	LDLIBS += -lGL -lgdi32
+	LDLIBS += -lGL -lgdi32 -llua53
+else
+	LDLIBS += -llua
 endif
 
-LDLIBS += -lbz2 -lz -lirrxml -lfreetyped -lassimp -lzip -llua
-LDLIBS += -lLinearMath -lBulletCollision -lBulletDynamics
+LDLIBS += -lbz2 -lz -lfreetyped -lassimp -lzip -lBulletDynamics -lBulletCollision -lLinearMath
 
 all: game
 

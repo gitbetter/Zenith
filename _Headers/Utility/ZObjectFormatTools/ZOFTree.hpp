@@ -30,6 +30,7 @@
 #pragma once
 
 // Includes
+#include <memory>
 #include <string>
 #include <vector>
 #include <map>
