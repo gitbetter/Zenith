@@ -47,7 +47,7 @@ std::shared_ptr<ZOFTree> ZOFParser::Parse(std::string zofFile) {
 }
 
 std::string ZOFParser::Scan() {
-  std::string whitepace("\n\t ");
+  std::string whitepace("\r\n\t ");
   std::string specialCharacters("^,:[]");
   std::string token;
   char c;

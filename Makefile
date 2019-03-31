@@ -21,16 +21,16 @@ OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP))
 
 _dummy := $(shell mkdir -p $(OBJ_DIR)/{Components,Core,GameObjects,Graphics/Strategies,Utility/ZObjectFormatTools,Input,UI/Elements,UI/Decorators,Windowing,Physics/Forces,Physics/Collision,ResourceCache/ResourceFiles,ResourceCache/ResourceLoaders,EventAgent/Events,Scripting,Process})
 
-LDLIBS=-L./_Drivers/lib/ -lglew -lbz2 -lz
+LDLIBS=-L./_Drivers/lib/ -lglew -lglfw -lbz2 -lz
 
 ifeq ($(shell uname -s),Darwin)
 	LDLIBS += -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo -framework CoreFoundation
 endif
 
 ifeq ($(OS),Windows_NT)
-	LDLIBS += -lGL -lgdi32 -lglfw3 -lfreetyped_cyg -lzip_cyg -llua53
+	LDLIBS += -lGL -lgdi32 -lfreetyped_cyg -lzip_cyg -llua53
 else
-	LDLIBS += -lglfw -lfreetyped -lzip -llua
+	LDLIBS += -lfreetyped -lzip -llua
 endif
 
 LDLIBS += -lassimp -lLinearMath -lBulletCollision -lBulletDynamics
