@@ -12,8 +12,7 @@ else
 CPPFLAGS=-std=c++14 -Wall -g $(shell find $(H_DIR) -type d | sed s/^/-I/)
 endif
 
-LDFLAGS=-g -L./_Drivers/lib/
-LDLIBS=-lglew -lglfw
+LDFLAGS=-g 
 
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
@@ -22,18 +21,20 @@ OBJS=$(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(CPP))
 
 _dummy := $(shell mkdir -p $(OBJ_DIR)/{Components,Core,GameObjects,Graphics/Strategies,Utility/ZObjectFormatTools,Input,UI/Elements,UI/Decorators,Windowing,Physics/Forces,Physics/Collision,ResourceCache/ResourceFiles,ResourceCache/ResourceLoaders,EventAgent/Events,Scripting,Process})
 
+LDLIBS=-L./_Drivers/lib/ -lglew -lbz2 -lz
+
 ifeq ($(shell uname -s),Darwin)
 	LDLIBS += -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo -framework CoreFoundation
 endif
 
 ifeq ($(OS),Windows_NT)
-	LDLIBS += -lGL -lgdi32 -llua53
+	LDLIBS += -lGL -lgdi32 -lglfw3 -lfreetyped_cyg -lzip_cyg -llua53
 else
-	LDLIBS += -llua
+	LDLIBS += -lglfw -lfreetyped -lzip -llua
 endif
 
-LDLIBS += -lbz2 -lz -lfreetyped -lassimp -lzip -lBulletDynamics -lBulletCollision -lLinearMath
-
+LDLIBS += -lassimp -lLinearMath -lBulletCollision -lBulletDynamics
+ 
 all: game
 
 game: $(OBJS)
