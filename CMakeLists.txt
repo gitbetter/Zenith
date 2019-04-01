@@ -221,351 +221,209 @@ set(SOURCES
     ${HEADERS_DIR}/_ThirdParty/assimp/Compiler/pushpack1.h
     ${HEADERS_DIR}/_ThirdParty/bullet/btBulletCollisionCommon.h
     ${HEADERS_DIR}/_ThirdParty/bullet/btBulletDynamicsCommon.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btAxisSweep3.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btAxisSweep3.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btAxisSweep3Internal.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btBroadphaseInterface.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btBroadphaseProxy.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btBroadphaseProxy.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btDbvt.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btDbvt.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btDbvtBroadphase.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btDbvtBroadphase.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btDispatcher.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btDispatcher.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btOverlappingPairCache.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btOverlappingPairCache.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btOverlappingPairCallback.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btQuantizedBvh.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btQuantizedBvh.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btSimpleBroadphase.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/BroadphaseCollision/btSimpleBroadphase.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btActivatingCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btBox2dBox2dCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btBoxBoxCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btBoxBoxDetector.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btBoxBoxDetector.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionConfiguration.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionCreateFunc.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionDispatcher.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionDispatcher.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionDispatcherMt.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionDispatcherMt.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionObject.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionObject.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionWorld.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionWorld.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionWorldImporter.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCollisionWorldImporter.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btConvex2dConvex2dAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btConvexConcaveCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btConvexConvexAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btConvexPlaneCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btEmptyCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btGhostObject.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btGhostObject.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btHashedSimplePairCache.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btHashedSimplePairCache.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btInternalEdgeUtility.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btInternalEdgeUtility.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btManifoldResult.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btManifoldResult.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btSimulationIslandManager.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btSimulationIslandManager.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btSphereBoxCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btSphereSphereCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btSphereTriangleCollisionAlgorithm.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btUnionFind.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/btUnionFind.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/SphereTriangleDetector.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionDispatch/SphereTriangleDetector.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btBox2dShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btBox2dShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btBoxShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btBoxShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btBvhTriangleMeshShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCapsuleShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCapsuleShape.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCollisionMargin.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCollisionShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCollisionShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCompoundShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCompoundShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConcaveShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConcaveShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConeShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConeShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvex2dShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvex2dShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexHullShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexHullShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexInternalShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexInternalShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexPointCloudShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexPointCloudShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexPolyhedron.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexPolyhedron.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexTriangleMeshShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCylinderShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btCylinderShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btEmptyShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btEmptyShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMaterial.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMiniSDF.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMiniSDF.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMinkowskiSumShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMinkowskiSumShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMultiSphereShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btMultiSphereShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btOptimizedBvh.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btOptimizedBvh.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btPolyhedralConvexShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btPolyhedralConvexShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btSdfCollisionShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btSdfCollisionShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btShapeHull.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btShapeHull.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btSphereShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btSphereShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btStaticPlaneShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btStaticPlaneShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btStridingMeshInterface.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btStridingMeshInterface.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTetrahedronShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTetrahedronShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleBuffer.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleBuffer.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleCallback.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleCallback.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleIndexVertexArray.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleIndexVertexMaterialArray.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleIndexVertexMaterialArray.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleInfoMap.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleMesh.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleMesh.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleMeshShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleMeshShape.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btTriangleShape.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btUniformScalingShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/CollisionShapes/btUniformScalingShape.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btBoxCollision.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btClipPolygon.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btCompoundFromGimpact.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btContactProcessing.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btContactProcessing.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btContactProcessingStructs.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGenericPoolAllocator.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGenericPoolAllocator.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGeometryOperations.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactBvh.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactBvh.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactBvhStructs.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactMassUtil.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactQuantizedBvh.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactQuantizedBvh.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactQuantizedBvhStructs.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactShape.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btGImpactShape.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btQuantization.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btTriangleShapeEx.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/btTriangleShapeEx.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_array.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_basic_geometry_operations.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_bitset.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_box_collision.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_box_set.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_box_set.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_clip_polygon.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_contact.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_contact.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_geometry.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_geom_types.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_hash_table.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_linear_math.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_math.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_memory.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_memory.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_pair.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_radixsort.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_tri_collision.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/Gimpact/gim_tri_collision.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btComputeGjkEpaPenetration.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btConvexCast.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btConvexCast.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btConvexPenetrationDepthSolver.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btDiscreteCollisionDetectorInterface.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkCollisionDescription.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkConvexCast.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkEpa2.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkEpa2.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkEpa3.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkEpaPenetrationDepthSolver.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkPairDetector.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btGjkPairDetector.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btManifoldPoint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btMinkowskiPenetrationDepthSolver.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btMprPenetration.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btPersistentManifold.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btPersistentManifold.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btPointCollector.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btPolyhedralContactClipping.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btPolyhedralContactClipping.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btRaycastCallback.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletCollision/NarrowPhaseCollision/btVoronoiSimplexSolver.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Character/btCharacterControllerInterface.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Character/btKinematicCharacterController.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Character/btKinematicCharacterController.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btBatchedConstraints.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btBatchedConstraints.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btConeTwistConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btConeTwistConstraint.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btConstraintSolver.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btContactConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btContactConstraint.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btContactSolverInfo.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btFixedConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btFixedConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btGearConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btGearConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btHinge2Constraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btHinge2Constraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btHingeConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btHingeConstraint.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btJacobianEntry.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSliderConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSliderConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSolve2LinearConstraint.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSolverBody.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btSolverConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btTypedConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btTypedConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btUniversalConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/ConstraintSolver/btUniversalConstraint.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btActionInterface.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btDynamicsWorld.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btRigidBody.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btRigidBody.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btSimpleDynamicsWorld.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btSimpleDynamicsWorld.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btSimulationIslandManagerMt.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Dynamics/btSimulationIslandManagerMt.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBody.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBody.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyConstraintSolver.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyFixedConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyGearConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyGearConstraint.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyJointFeedback.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyJointMotor.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyJointMotor.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyLink.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyLinkCollider.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyMLCPConstraintSolver.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyPoint2Point.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodyPoint2Point.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodySliderConstraint.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodySliderConstraint.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodySolverConstraint.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Featherstone/btMultiBodySphericalJointMotor.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btDantzigLCP.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btDantzigLCP.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btDantzigSolver.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btLemkeAlgorithm.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btLemkeAlgorithm.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btLemkeSolver.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btMLCPSolver.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btMLCPSolver.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btMLCPSolverInterface.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btPATHSolver.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Vehicle/btRaycastVehicle.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Vehicle/btRaycastVehicle.h
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Vehicle/btVehicleRaycaster.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Vehicle/btWheelInfo.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics/Vehicle/btWheelInfo.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btAabbUtil2.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btAlignedAllocator.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btAlignedAllocator.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btAlignedObjectArray.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btConvexHull.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btConvexHull.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btConvexHullComputer.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btConvexHullComputer.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btCpuFeatureUtility.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btDefaultMotionState.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btGeometryUtil.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btGeometryUtil.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btGrahamScan2dConvexHull.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btHashMap.h
@@ -575,30 +433,21 @@ set(SOURCES
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btMatrixX.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btMinMax.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btMotionState.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btPolarDecomposition.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btPolarDecomposition.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btPoolAllocator.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btQuadWord.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btQuaternion.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btQuickprof.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btQuickprof.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btRandom.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btScalar.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btSerializer.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btSerializer.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btSerializer64.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btSpatialAlgebra.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btStackAlloc.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btThreads.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btThreads.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btTransform.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btTransformUtil.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btVector3.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btVector3.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/TaskScheduler/btTaskScheduler.cpp
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/TaskScheduler/btThreadSupportInterface.h
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/TaskScheduler/btThreadSupportPosix.cpp
-    ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/TaskScheduler/btThreadSupportWin32.cpp
     ${HEADERS_DIR}/_ThirdParty/bzip2/bzlib.h
     ${HEADERS_DIR}/_ThirdParty/fastdelegate/FastDelegate.h
     ${HEADERS_DIR}/_ThirdParty/fastdelegate/FastDelegateBind.h

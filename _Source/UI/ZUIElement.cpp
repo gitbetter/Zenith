@@ -43,6 +43,7 @@ ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0),
   translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->ResolutionX(), 0.f, (float)ZEngine::Domain()->ResolutionY());
   SetPosition(position); SetSize(scale);
   enabled_ = true;
+	hidden_ = false;
   id_ = "ZUI_" + ZEngine::IDSequence()->Next();
 }
 
