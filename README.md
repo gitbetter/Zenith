@@ -19,7 +19,7 @@ Make sure that you have met the requirements above. There is currently no way to
 * Once the build succeeds, run the `run.sh` script any time to run the engine.
 
 ### Windows
-* Open a powershell window, then go the project directory using `cd *your\project\path*`. Run the `build.ps1` or `rebuild.ps1` powershell script to generate a Visual Studio project. You can then open the Zenith.sln solution to run and build the project as normal
+* Open a powershell window, then go the project directory using `cd *your\project\path*`. Run the `build.ps1` or `rebuild.ps1` powershell script to generate a Visual Studio project. You can then open the `Zenith.sln` solution to run and build the project as normal
 
   **OR**
   
