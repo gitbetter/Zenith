@@ -1,3 +1,3 @@
 #!/bin/bash
 
-make clean; make;
+cd ./_Bin; rm -rf *; cmake ..; make
