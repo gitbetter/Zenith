@@ -5,7 +5,9 @@ Zenith is an extensible, C++ based game engine replete with PBR, built in UI fun
 
 * CMake, available for download at [https://cmake.org/download/](https://cmake.org/download/)
 * An Apple computer with any of the latest macOS images
+
   **OR**
+  
 * A 64 bit Windows image, in which case you will also need Visual Studio, available for download at [https://visualstudio.microsoft.com/vs/community/](https://visualstudio.microsoft.com/vs/community/)
 
 ## Building and Running
