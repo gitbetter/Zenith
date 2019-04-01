@@ -16,7 +16,9 @@ Make sure that you have met the requirements above. There is currently no way to
 * Run the `build.sh` or `rebuild.sh` scripts from within the project directory to generate the necessary Makefile and build configuration
 * Once the build succeeds, run the `run.sh` script any time to run the engine.
 
-## Windows
+### Windows
 * Open a powershell window, then go the project directory using `cd *your\project\path*`. Run the `build.ps1` or `rebuild.ps1` powershell script to generate a Visual Studio project. You can then open the Zenith.sln solution to run and build the project as normal
+
   **OR**
+  
 * Use the CMake GUI to generate the Visual Studio project files, making sure to select *Visual Studio 15 2017 Win64* as the generator.
