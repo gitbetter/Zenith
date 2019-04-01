@@ -8,7 +8,7 @@ Zenith is an extensible, **C++ based game engine** replete with **PBR**, built i
 
   **OR**
   
-* A 64 bit Windows image, in which case you will also need Visual Studio, available for download at [https://visualstudio.microsoft.com/vs/community/](https://visualstudio.microsoft.com/vs/community/)
+* A 64 bit Windows installation, in which case you will also need Visual Studio, available for download at [https://visualstudio.microsoft.com/vs/community/](https://visualstudio.microsoft.com/vs/community/)
 
 ## Building and Running
 
