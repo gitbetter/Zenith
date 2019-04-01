@@ -164,6 +164,15 @@ ZUI_01
 		:text "Zenith":
 		:font "earthorbiter" 1.0:
 	^
+	ZUI_03
+		:type Checkbox:
+		:position [50.0, 50.0]:
+		:scale [15.0, 15.0]:
+		:color [0.141, 0.145, 0.165, 1.0]:
+		:checkColor [1.0, 1.0, 1.0, 1.0]:
+		:borderWidth 1.0:
+		:borderColor [1.0, 1.0, 1.0, 1.0]:
+	^
 ^
 
 ZUI_09
