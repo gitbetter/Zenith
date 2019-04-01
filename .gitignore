@@ -30,5 +30,6 @@ game
 # Visual Studio files
 *.vscode/**
 **/.vscode
+*.vs/**
 
 *.stackdump
