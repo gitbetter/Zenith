@@ -273,6 +273,7 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
   // ZOFTrees can be combined (by combining children into a single tree)
   ZOFParser parser;
   std::shared_ptr<ZOFTree> objectTree = parser.Parse(zofPath);
+	_Z(objectTree->ToString(), ZINFO);
 
   // TODO: The more systems are populated this way, the more of a hamper we place on
   // load times. Refactor this so the object tree is only traversed once.
@@ -288,12 +289,12 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
 void ZEngine::CleanUp() {
   processRunner_->AbortAllProcesses(true);
 
-  resourceCache_.reset();
-  eventAgent_->CleanUp();
-  scriptManager_.reset();
-  domain_->CleanUp(); domain_.reset();
-  graphics_->CleanUp(); graphics_.reset();
-  input_.reset();
-  ui_->CleanUp(); ui_.reset();
-  physics_->CleanUp(); physics_.reset();
+	physics_->CleanUp(); physics_.reset();
+	ui_->CleanUp(); ui_.reset();
+	input_.reset();
+	graphics_->CleanUp(); graphics_.reset();
+	domain_->CleanUp(); domain_.reset();
+	resourceCache_.reset();
+	eventAgent_->CleanUp();
+	scriptManager_.reset();
 }

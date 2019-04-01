@@ -32,16 +32,9 @@
 std::shared_ptr<ZOFTree> ZOFParser::Parse(std::string zofFile) {
   std::shared_ptr<ZOFTree> parseTree = std::make_shared<ZOFTree>();
   if (!zofFile.empty()) {
-    zof_.exceptions(std::ifstream::failbit);
-    try {
       zof_.open(zofFile);
-
       Start(parseTree);
-
       zof_.close();
-    } catch (std::ifstream::failure e) {
-      _Z("There was an error reading the .zof object file.", ZERROR);
-    }
   }
   return parseTree;
 }
