@@ -29,4 +29,4 @@ Make sure that you have met the requirements above. There is currently no way to
 Zenith is available under the GNU General Public License, and therefore anyone is free to fork the project and modify it to their hearts content as long as they maintain attributions to the original author of the project.
 
 ## Contributing
-If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master, as it is easier for me to integrate changes selectively if need be. If you have any inquiries or ideas you wish to run by me feel free to shoot me an email at aj.adrian7@gmail.com
+If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master, as it is easier for me to integrate changes selectively if need be.
