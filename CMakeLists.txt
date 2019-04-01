@@ -52,6 +52,7 @@ include_directories(${HEADERS_DIR}/Utility)
 include_directories(${HEADERS_DIR}/Utility/ZObjectFormatTools)
 include_directories(${HEADERS_DIR}/Windowing)
 
+# UNIX/APPLE Libraries
 find_library(GLEW_LIB NAMES GLEW GLEWd HINTS "${LIB_DIR}")
 find_library(GLFW_LIB NAMES glfw HINTS "${LIB_DIR}")
 find_library(BZ2_LIB NAMES bz2 HINTS "${LIB_DIR}")
@@ -62,11 +63,15 @@ find_library(BULLETCOLLISION_BULLET_LIB NAMES BulletCollision HINTS "${LIB_DIR}"
 find_library(BULLETDYNAMICS_BULLET_LIB NAMES BulletDynamics HINTS "${LIB_DIR}")
 find_library(BULLETDYNAMICS_BULLET_LIB NAMES BulletDynamics HINTS "${LIB_DIR}")
 find_library(FREETYPE_LIB NAMES freetyped HINTS "${LIB_DIR}")
-find_library(FREETYPECYG_LIB NAMES freetyped_cyg HINTS "${LIB_DIR}")
 find_library(ZIP_LIB NAMES zip HINTS "${LIB_DIR}")
-find_library(ZIPCYG_LIB NAMES zip_cyg HINTS "${LIB_DIR}")
 find_library(LUA_LIB NAMES lua HINTS "${LIB_DIR}")
+
+# CYGWIN Libraries
+find_library(FREETYPECYG_LIB NAMES freetyped_cyg HINTS "${LIB_DIR}")
+find_library(ZIPCYG_LIB NAMES zip_cyg HINTS "${LIB_DIR}")
 find_library(LUACYG_LIB NAMES lua53 HINTS "${LIB_DIR}")
+
+# Win32 Libraries
 
 
 add_executable(zenith 
@@ -154,7 +159,10 @@ add_executable(zenith
   ${SOURCE_DIR}/main.cpp
 )
 
-target_link_libraries(zenith ${GLEW_LIB} ${GLFW_LIB} ${BZ2_LIB} ${ZLIB_LIB})
+target_link_libraries(zenith ${GLEW_LIB} 
+                             ${GLFW_LIB} 
+                             ${BZ2_LIB} 
+                             ${ZLIB_LIB})
 
 if (APPLE)
   target_link_libraries(zenith "-framework Cocoa" 
@@ -165,9 +173,18 @@ if (APPLE)
 endif (APPLE)
 
 if (CYGWIN)
-  target_link_libraries(zenith GL gdi32 ${FREETYPECYG_LIB} ${ZIPCYG_LIB} ${LUACYG_LIB})
+  target_link_libraries(zenith GL 
+                               gdi32 
+                               ${FREETYPECYG_LIB} 
+                               ${ZIPCYG_LIB} 
+                               ${LUACYG_LIB})
 elseif (UNIX)
-  target_link_libraries(zenith ${FREETYPE_LIB} ${ZIP_LIB} ${LUA_LIB})
+  target_link_libraries(zenith ${FREETYPE_LIB} 
+                               ${ZIP_LIB} 
+                               ${LUA_LIB})
 endif (CYGWIN)
 
-target_link_libraries(zenith ${ASSIMP_LIB} ${LINEARMATH_BULLET_LIB} ${BULLETCOLLISION_BULLET_LIB} ${BULLETDYNAMICS_BULLET_LIB})
+target_link_libraries(zenith ${ASSIMP_LIB} 
+                             ${LINEARMATH_BULLET_LIB} 
+                             ${BULLETCOLLISION_BULLET_LIB} 
+                             ${BULLETDYNAMICS_BULLET_LIB})
