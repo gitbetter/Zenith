@@ -44,7 +44,7 @@ private:
 
 public:
 
-  ZProcess() { }
+  ZProcess() : state_(ZProcessState::Uninitialized) { }
   virtual ~ZProcess() { }
 
   virtual void Initialize() { state_ = ZProcessState::Running; OnInitialize(); };

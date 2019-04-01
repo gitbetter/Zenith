@@ -33,7 +33,7 @@
 
 const std::string ZScriptableProcess::SCRIPT_PROCESS_NAME = "ZScriptableProcess";
 
-ZScriptableProcess::ZScriptableProcess() : frequency_(0), time_(0) { }
+ZScriptableProcess::ZScriptableProcess() : ZProcess() { frequency_ = 0; time_ = 0; }
 
 ZScriptableProcess::~ZScriptableProcess() { dynamicFields_.clear(); }
 
