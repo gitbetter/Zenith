@@ -138,17 +138,17 @@ template<> std::string ZOFString::ToString();
 template<> std::string ZOFNumberList::ToString();
 template<> std::string ZOFStringList::ToString();
 
-template<> std::string ZOFNumber::ToString() {
+template<> inline std::string ZOFNumber::ToString() {
   std::string valueString = " " + std::to_string(value);
   return valueString;
 }
 
-template<> std::string ZOFString::ToString() {
+template<> inline std::string ZOFString::ToString() {
   std::string valueString = " " + value;
   return valueString;
 }
 
-template<> std::string ZOFNumberList::ToString() {
+template<> inline std::string ZOFNumberList::ToString() {
   std::string valueString = " [";
   for (float v : value) {
     valueString += std::to_string(v) + ", ";
@@ -157,7 +157,7 @@ template<> std::string ZOFNumberList::ToString() {
   return valueString + "]";
 }
 
-template<> std::string ZOFStringList::ToString() {
+template<> inline std::string ZOFStringList::ToString() {
   std::string valueString = " [";
   for (std::string v : value) {
     valueString += v + ", ";
