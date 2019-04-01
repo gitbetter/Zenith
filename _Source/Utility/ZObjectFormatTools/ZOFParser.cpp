@@ -40,7 +40,7 @@ std::shared_ptr<ZOFTree> ZOFParser::Parse(std::string zofFile) {
 
       zof_.close();
     } catch (std::ifstream::failure e) {
-      _Z("There was an error reading the .zof object file. Please consult the code.", ZERROR);
+      _Z("There was an error reading the .zof object file.", ZERROR);
     }
   }
   return parseTree;

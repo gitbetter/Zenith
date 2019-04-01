@@ -39,6 +39,8 @@ void ZGLTextStrategy::LoadFont(std::string fontPath, unsigned int fontSize) {
   ZResource resource(fontPath);
   std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
 
+	if (handle == nullptr) return;
+
   FT_Face face;
   if (FT_New_Memory_Face(ft_, (const FT_Byte*)handle->Buffer(), (FT_Long)handle->Size(), 0, &face))
     _Z("Could not load font at " + fontPath, ZERROR);

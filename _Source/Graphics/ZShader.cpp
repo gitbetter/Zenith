@@ -46,7 +46,7 @@ void ZShader::Initialize(const std::string& vShaderPath, const std::string& pSha
   // Get the shader sources
   std::string vShaderCode = GetShaderCode(vShaderPath);
   std::string pShaderCode = GetShaderCode(pShaderPath);
-  std::string gShaderCode = GetShaderCode(gShaderCode);
+  std::string gShaderCode = GetShaderCode(gShaderPath);
 
   // Compile the shaders
   int vShader = CompileShader(vShaderCode, ZShaderTypes::Vertex);

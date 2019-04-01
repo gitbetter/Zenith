@@ -52,7 +52,7 @@ public:
   void AddForce(glm::vec3& force);
   void AddForceAtPoint(glm::vec3& force, glm::vec3& point);
   void AddTorque(glm::vec3& torque);
-  bool HasFiniteMass() { }
+	bool HasFiniteMass() { return true; }
 
   void SetVelocity(glm::vec3 velocity) { }
   void SetDamping(float damping) { }

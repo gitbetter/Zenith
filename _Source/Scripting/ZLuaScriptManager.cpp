@@ -41,6 +41,7 @@ bool ZLuaScriptManager::Initialize() {
 }
 
 bool ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
+	bool found = false;
   for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++) {
     if (it->first.find("ZSCR") == 0) {
 
@@ -52,9 +53,11 @@ bool ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
         std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
         ZResource scriptResource(prop->value);
         ZEngine::ResourceCache()->GetHandle(&scriptResource);
+				found = true;
       }
     }
   }
+	return found;
 }
 
 void ZLuaScriptManager::ExecuteFile(const std::string& resource) {

@@ -42,8 +42,8 @@ class ZInternalScriptExports {
 
 public:
 
-  static bool Initialize() { }
-  static bool Destroy() { }
+	static bool Initialize() { return true;  }
+	static bool Destroy() { return true; }
 
   static bool LoadAndExecuteScriptResource(const std::string& scriptResource);
 
