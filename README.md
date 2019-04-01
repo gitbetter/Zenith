@@ -1,5 +1,5 @@
 # Zenith
-Zenith is an extensible, **C++ based game engine** replete with **PBR**, built in **UI functionality**, **Lua scripting** and a **custom object format (.zof)**. The project is currently in its inception period but there are many other features and additions that I will implement as time passes. Anyone is free to fork the project and modify it to their hearts content, as it is available under the GNU GPL. If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master. Without further ado, here's how to get started.
+Zenith is an extensible, **C++ based game engine** replete with **PBR**, built in **UI functionality**, **Lua scripting** and a **custom object format (.zof)**. The project is currently in its inception period but there are many other features and additions that I will implement as time passes. Without further ado, here's how to get started.
 
 ## Requirements
 
@@ -24,3 +24,9 @@ Make sure that you have met the requirements above. There is currently no way to
   **OR**
   
 * Use the CMake GUI to generate the Visual Studio project files, making sure to select *Visual Studio 15 2017 Win64* as the generator.
+
+## License
+Zenith is available under the GNU General Public License, and therefore anyone is free to fork the project and modify it to their hearts content as long as they maintain attributions to the original author of the project.
+
+## Contributing
+If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master, as it is easier for me to integrate changes selectively if need be. If you have any inquiries or ideas you wish to run by me feel free to shoot me an email at aj.adrian7@gmail.com
