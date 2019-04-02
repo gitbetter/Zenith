@@ -83,12 +83,12 @@ int main(int argc, const char * argv[]) {
     game->AddGameObject(it->second);
   }
 
-	for (ZUIElementMap::iterator it = zofResult.uiElements.begin(); it != zofResult.uiElements.end(); it++) {
-		if (std::dynamic_pointer_cast<ZUICursor>(it->second))
-			ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
-		else
-			ZEngine::UI()->AddElement(it->second);
-	}
+  for (ZUIElementMap::iterator it = zofResult.uiElements.begin(); it != zofResult.uiElements.end(); it++) {
+    if (std::dynamic_pointer_cast<ZUICursor>(it->second))
+      ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
+    else
+      ZEngine::UI()->AddElement(it->second);
+  }
 
   // Now add some lights, because it's dark in here.
   game->AddGameObjects({std::shared_ptr<ZLight>(new ZLight(ZLightType::Directional))});
