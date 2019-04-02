@@ -130,11 +130,10 @@ ZGO_07
 		:model Cube [1.0, 1.0, 1.0]:
 		Material
 			:albedo ZTEX_05:
-			:metallic ZTEX_06:
-			:normal ZTEX_07:
-			:roughness ZTEX_08:
-			:ao ZTEX_09:
-			:height ZTEX_10:
+			:normal ZTEX_06:
+			:roughness ZTEX_07:
+			:ao ZTEX_08:
+			:height ZTEX_09:
 		^
 	^
 ^
@@ -209,22 +208,19 @@ ZTEX_04
 	:path "Assets/Textures/Metal/roughness.png":
 ^
 ZTEX_05
-	:path "Assets/Textures/CobbleStone/albedo.png":
+	:path "Assets/Textures/Mahogany/albedo.png":
 ^
 ZTEX_06
-	:path "Assets/Textures/CobbleStone/metallic.png":
+	:path "Assets/Textures/Mahogany/normal.png":
 ^
 ZTEX_07
-	:path "Assets/Textures/CobbleStone/normal.png":
+	:path "Assets/Textures/Mahogany/roughness.png":
 ^
 ZTEX_08
-	:path "Assets/Textures/CobbleStone/roughness.png":
+	:path "Assets/Textures/Mahogany/ao.png":
 ^
 ZTEX_09
-	:path "Assets/Textures/CobbleStone/ao.png":
-^
-ZTEX_10
-	:path "Assets/Textures/CobbleStone/height.png":
+	:path "Assets/Textures/Mahogany/height.png":
 ^
 
 # Scripts
