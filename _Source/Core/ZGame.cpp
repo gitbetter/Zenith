@@ -113,6 +113,11 @@ void ZGame::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
   }
 }
 
+void ZGame::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
+  if (gameObject && gameObject->FindComponent<ZCameraComponent>())
+    activeCameraObject_ = gameObject->ID();
+}
+
 void ZGame::SetDefaultSkybox() {
   std::shared_ptr<ZSkybox> skybox(new ZSkybox);
   skybox->Initialize(ZEngine::DEFAULT_HDR_CUBEMAP);

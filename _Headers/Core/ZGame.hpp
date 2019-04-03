@@ -64,6 +64,7 @@ public:
   void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
   void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
 
+  void SetActiveCamera(std::shared_ptr<ZGameObject> gameObject);
   void SetDefaultSkybox();
 
   void HandleQuit(std::shared_ptr<ZEvent> event);
