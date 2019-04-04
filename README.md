@@ -27,7 +27,7 @@ Make sure that you have met the requirements above. There is currently no way to
 
 ## Overview
 
-The file `main.cpp` contains a pretty quick and dirty (albeit far from complete) run-through of some of the current features of the engine. Take a look at the [Zenith Wiki](https://github.com/gitbetter/Zenith/wiki) for more info, but keep in mind that it is not authoritative. For now, perusing some of the headers and source files shouldn't be too daunting. In case you're wondering about the large project size, most if it resides in the Assets.zip file, which contains some hefty textures used for demo purposes, but they are by no means required for the engine to run properly, and you are free to play with your own assets if you have any laying around. Stay tuned for more developments.
+Take a look at the [Zenith Wiki](https://github.com/gitbetter/Zenith/wiki) for more info, but keep in mind that it is not  an authoritative API reference. To that end, perusing the headers and source files is a much better idea. In case you're wondering why the project size is so large, most if it resides in the Assets.zip file, which contains some hefty demo, but they are by no means required for the engine to run properly, and you are free to play with your own assets if you have any laying around. Stay tuned for more developments.
 
 ## License
 Zenith is available under the GNU General Public License, and therefore anyone is free to fork the project and modify it to their hearts content as long as they maintain attributions to the original author of the project.
