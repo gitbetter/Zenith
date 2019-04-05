@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZEvent.hpp
+    ZPhysicsFactory.hpp
 
-    Created by Adrian Sanchez on 12/03/2019.
+    Created by Adrian Sanchez on 05/04/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -30,45 +30,29 @@
 #pragma once
 
 // Includes
+#include "btBulletDynamicsCommon.h"
 #include "ZCommon.hpp"
 
 // Forward Declarations
-//class SomeClass;
 
 // Class and Data Structure Definitions
-class ZEvent {
+class ZPhysicsFactory {
 
-private:
+  using ZColliderCreator = btCollisionShape* (ZPhysicsFactory::*)(std::vector<btScalar> params);
 
 public:
 
-  virtual const ZEventType& EventType() const = 0;
-  virtual float TimeStamp() const = 0;
-  virtual void SetTimeStamp(float timestamp) = 0;
-  virtual void Serialize(std::ostringstream& out) const = 0;
-  virtual std::shared_ptr<ZEvent> Copy() const = 0;
-  virtual std::string Name() const = 0;
+  ZPhysicsFactory();
+  ~ZPhysicsFactory() { };
+
+  btCollisionShape* CreateCollider(std::string type, std::vector<btScalar> size);
+
+  btCollisionShape* CreateBoxCollider(std::vector<btScalar> params);
+  btCollisionShape* CreateSphereCollider(std::vector<btScalar> params);
+  btCollisionShape* CreateCapsuleCollider(std::vector<btScalar> params);
 
 protected:
 
-};
-
-class ZBaseEvent : public ZEvent {
-
-private:
-
-  float timeStamp_;
-
-public:
-
-  explicit ZBaseEvent(const float timeStamp = 0.f) : timeStamp_(timeStamp) { }
-  virtual ~ZBaseEvent() { }
-
-  virtual const ZEventType& EventType() const = 0;
-  float TimeStamp() const override { return timeStamp_; }
-
-  void SetTimeStamp(float timestamp) override { timeStamp_ = timestamp; }
-
-  virtual void Serialize(std::ostringstream& out) const override { }
+  std::map<std::string, ZColliderCreator> colliderCreators_;
 
 };

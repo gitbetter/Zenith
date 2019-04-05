@@ -52,7 +52,7 @@ private:
 
 public:
 
-  ZUIElement(glm::vec2 position, glm::vec2 scale);
+  ZUIElement(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f));
   virtual ~ZUIElement() { }
 
   virtual void Initialize(std::shared_ptr<ZOFNode> root);
@@ -107,12 +107,13 @@ public:
   ZUIElement* Parent() const { return parent_; }
 
   template<class T>
-  std::shared_ptr<T> Child() {
+  std::shared_ptr<T> Child(std::string id) {
     if(!std::is_base_of<ZUIElement, T>::value) return nullptr;
 
     std::shared_ptr<T> el;
     for (auto it = children_.begin(); it != children_.end(); it++) {
-      if ((el = std::dynamic_pointer_cast<T>(*it))) return el;
+      if ((el = std::dynamic_pointer_cast<T>(*it)) && el->ID() == id) return el;
+      el = nullptr;
     }
 
     return el;

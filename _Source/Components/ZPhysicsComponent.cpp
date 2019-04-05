@@ -29,6 +29,7 @@
 
 #include "ZEngine.hpp"
 #include "ZGameObject.hpp"
+#include "ZPhysicsFactory.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZGravityForce.hpp"
 #include "ZObjectForceRegistry.hpp"
@@ -36,9 +37,6 @@
 #include "ZOFTree.hpp"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
-  colliderCreators_[ZColliderType::Box] = &ZPhysicsComponent::CreateBoxCollider;
-  colliderCreators_[ZColliderType::Sphere] = &ZPhysicsComponent::CreateSphereCollider;
-  colliderCreators_[ZColliderType::Capsule] = &ZPhysicsComponent::CreateCapsuleCollider;
   id_ = "ZCPhysics_" + ZEngine::IDSequence()->Next();
 }
 
@@ -53,7 +51,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 
   btScalar mass = -1., damping = 1., angularDamping = 1., restitution = 0.;
-  ZColliderType type = ZColliderType::None;
+  std::string type = "";
   bool gravity = false;
   std::vector<btScalar> size, origin;
 
@@ -83,9 +81,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 
   if (props.find("collider") != props.end() && props["collider"]->HasValues()) {
     std::shared_ptr<ZOFString> colliderProp = props["collider"]->Value<ZOFString>(0);
-    if (colliderProp->value == "Box") type = ZColliderType::Box;
-    if (colliderProp->value == "Sphere") type = ZColliderType::Sphere;
-    if (colliderProp->value == "Capsule") type = ZColliderType::Capsule;
+    type = colliderProp->value;
 
     if (props["collider"]->ValueCount() > 1) {
       std::shared_ptr<ZOFNumberList> scaleProp = props["collider"]->Value<ZOFNumberList>(1);
@@ -104,11 +100,11 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 
   btCollisionShape* collider;
-  if (type != ZColliderType::None) {
-    collider = (this->*colliderCreators_[type])(size);
+  if (!type.empty()) {
+    collider = ZEngine::PhysicsFactory()->CreateCollider(type, size);
   } else {
     _Z("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZWARNING);
-    collider = (this->*colliderCreators_[ZColliderType::Box])(size);
+    collider = ZEngine::PhysicsFactory()->CreateCollider("Box", size);
   }
 
   btTransform transform;
@@ -173,37 +169,4 @@ void ZPhysicsComponent::SetAwake(const bool awake) {
 
 void ZPhysicsComponent::SetCanSleep(const bool canSleep) {
 
-}
-
-btCollisionShape* ZPhysicsComponent::CreateBoxCollider(std::vector<btScalar> params) {
-  btVector3 extents(1.0, 1.0, 1.0);
-  switch (params.size()) {
-    case 1: extents = btVector3(params[0], 1.0, 1.0); break;
-    case 2: extents = btVector3(params[0], params[1], 1.0); break;
-    case 3: extents = btVector3(params[0], params[1], params[2]); break;
-    default: break;
-  }
-
-  return new btBoxShape(extents);
-}
-
-btCollisionShape* ZPhysicsComponent::CreateSphereCollider(std::vector<btScalar> params) {
-  btScalar radius = 1.0;
-  switch (params.size()) {
-    case 1: radius = params[0]; break;
-    default: break;
-  }
-
-  return new btSphereShape(radius);
-}
-
-btCollisionShape* ZPhysicsComponent::CreateCapsuleCollider(std::vector<btScalar> params) {
-  btScalar radius = 1.0, height = 1.0;
-  switch (params.size()) {
-    case 1: radius = params[0]; break;
-    case 2: height = params[1]; break;
-    default: break;
-  }
-
-  return new btCapsuleShape(radius, height);
 }

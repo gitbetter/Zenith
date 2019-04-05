@@ -10,7 +10,6 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/_Source)
 
 set(SOURCES   
     ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
-    ${SOURCE_DIR}/UI/ZUIFactory.cpp
     ${SOURCE_DIR}/UI/ZUIElement.cpp
     ${SOURCE_DIR}/UI/ZMeshUI.cpp
     ${SOURCE_DIR}/UI/Elements/ZUICursor.cpp
@@ -43,7 +42,6 @@ set(SOURCES
     ${SOURCE_DIR}/Components/ZPhysicsComponent.cpp
     ${SOURCE_DIR}/GameObjects/ZLight.cpp
     ${SOURCE_DIR}/GameObjects/ZGameObject.cpp
-    ${SOURCE_DIR}/GameObjects/ZGOFactory.cpp
     ${SOURCE_DIR}/GameObjects/ZSkybox.cpp
     ${SOURCE_DIR}/GameObjects/ZParticleSystem.cpp
     ${SOURCE_DIR}/GameObjects/ZParticle.cpp
@@ -68,10 +66,13 @@ set(SOURCES
     ${SOURCE_DIR}/Graphics/Strategies/ZGLTextStrategy.cpp
     ${SOURCE_DIR}/Graphics/Strategies/ZTextStrategy.cpp
     ${SOURCE_DIR}/Graphics/ZShader.cpp
-    ${SOURCE_DIR}/Graphics/ZGraphicsFactory.cpp
     ${SOURCE_DIR}/Graphics/ZMesh.cpp
     ${SOURCE_DIR}/Graphics/ZPhysicsDebug.cpp
     ${SOURCE_DIR}/Graphics/ZModel.cpp
+    ${SOURCE_DIR}/Factories/ZGOFactory.cpp
+    ${SOURCE_DIR}/Factories/ZGraphicsFactory.cpp
+    ${SOURCE_DIR}/Factories/ZPhysicsFactory.cpp
+    ${SOURCE_DIR}/Factories/ZUIFactory.cpp
     ${SOURCE_DIR}/EventAgent/ZEventAgent.cpp
     ${SOURCE_DIR}/EventAgent/ZEvent.cpp
     ${SOURCE_DIR}/EventAgent/Events/ZObjectLookEvent.cpp
@@ -108,14 +109,16 @@ set(SOURCES
     ${HEADERS_DIR}/EventAgent/Events/ZObjectSelectedEvent.hpp
     ${HEADERS_DIR}/EventAgent/Events/ZQuitEvent.hpp
     ${HEADERS_DIR}/EventAgent/Events/ZRaycastEvent.hpp
+    ${HEADERS_DIR}/Factories/ZGOFactory.hpp
+    ${HEADERS_DIR}/Factories/ZGraphicsFactory.hpp
+    ${HEADERS_DIR}/Factories/ZPhysicsFactory.hpp
+    ${HEADERS_DIR}/Factories/ZUIFactory.hpp
     ${HEADERS_DIR}/GameObjects/ZGameObject.hpp
-    ${HEADERS_DIR}/GameObjects/ZGOFactory.hpp
     ${HEADERS_DIR}/GameObjects/ZLight.hpp
     ${HEADERS_DIR}/GameObjects/ZParticle.hpp
     ${HEADERS_DIR}/GameObjects/ZParticleSystem.hpp
     ${HEADERS_DIR}/GameObjects/ZSkybox.hpp
     ${HEADERS_DIR}/Graphics/ZGraphics.hpp
-    ${HEADERS_DIR}/Graphics/ZGraphicsFactory.hpp
     ${HEADERS_DIR}/Graphics/ZMaterial.hpp
     ${HEADERS_DIR}/Graphics/ZMesh.hpp
     ${HEADERS_DIR}/Graphics/ZMesh3D.hpp
@@ -155,7 +158,6 @@ set(SOURCES
     ${HEADERS_DIR}/UI/ZMeshUI.hpp
     ${HEADERS_DIR}/UI/ZUI.hpp
     ${HEADERS_DIR}/UI/ZUIElement.hpp
-    ${HEADERS_DIR}/UI/ZUIFactory.hpp
     ${HEADERS_DIR}/UI/Elements/ZUIButton.hpp
     ${HEADERS_DIR}/UI/Elements/ZUICheckBox.hpp
     ${HEADERS_DIR}/UI/Elements/ZUICursor.hpp
@@ -971,6 +973,7 @@ target_include_directories(zenith PUBLIC
   ${HEADERS_DIR}/Core
   ${HEADERS_DIR}/EventAgent
   ${HEADERS_DIR}/EventAgent/Events
+  ${HEADERS_DIR}/Factories
   ${HEADERS_DIR}/GameObjects
   ${HEADERS_DIR}/Graphics
   ${HEADERS_DIR}/Graphics/Strategies

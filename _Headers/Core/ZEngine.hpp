@@ -50,6 +50,7 @@ class ZResourceCache;
 class ZGOFactory;
 class ZGraphicsFactory;
 class ZUIFactory;
+class ZPhysicsFactory;
 class ZGame;
 class ZEventAgent;
 class ZLuaScriptManager;
@@ -69,9 +70,11 @@ private:
   static std::shared_ptr<ZEventAgent> eventAgent_;
   static std::unique_ptr<ZResourceCache> resourceCache_;
   static std::unique_ptr<ZLuaScriptManager> scriptManager_;
+
   static std::unique_ptr<ZGOFactory> gameObjectFactory_;
   static std::unique_ptr<ZGraphicsFactory> graphicsFactory_;
   static std::unique_ptr<ZUIFactory> uiFactory_;
+  static std::unique_ptr<ZPhysicsFactory> physicsFactory_;
 
   static std::unique_ptr<ZIDSequence> idGenerator_;
   static float deltaTime_, lastDeltaTime_;
@@ -104,9 +107,11 @@ public:
   static ZEventAgent* EventAgent();
   static ZResourceCache* ResourceCache();
   static ZLuaScriptManager* ScriptManager();
+
   static ZGOFactory* GameObjectFactory();
   static ZGraphicsFactory* GraphicsFactory();
   static ZUIFactory* UIFactory();
+  static ZPhysicsFactory* PhysicsFactory();
 
   static ZIDSequence* IDSequence();
 

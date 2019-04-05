@@ -73,6 +73,7 @@ bool ZEventAgent::TriggerEvent(const std::shared_ptr<ZEvent>& event) {
     const EventListenerList& listeners = findIt->second;
     for (auto it = listeners.begin(); it != listeners.end(); it++) {
       ZEventDelegate delegate = (*it);
+      event->SetTimeStamp(ZEngine::SecondsTime());
       delegate(event);
       processed = true;
     }
@@ -131,6 +132,7 @@ void ZEventAgent::Update() {
     if (findIt != eventListeners_.end()) {
       const EventListenerList& listeners = findIt->second;
       for (auto it = listeners.begin(); it != listeners.end(); it++) {
+        event->SetTimeStamp(ZEngine::SecondsTime());
         (*it)(event);
       }
     }

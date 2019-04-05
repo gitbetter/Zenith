@@ -131,12 +131,12 @@ void onButtonPress(std::shared_ptr<ZEvent> event) {
     if (button->Selected()) {
       button->Deselect();
       button->SetColor(glm::vec4(0.141f, 0.145f, 0.165f, 1.f));
-      std::shared_ptr<ZUIText> text = button->Child<ZUIText>();
+      std::shared_ptr<ZUIText> text = button->Child<ZUIText>("ZUI_02");
       text->SetColor(glm::vec4(1.f));
     } else {
       button->Select();
       button->SetColor(glm::vec4(1.f));
-      std::shared_ptr<ZUIText> text = button->Child<ZUIText>();
+      std::shared_ptr<ZUIText> text = button->Child<ZUIText>("ZUI_02");
       text->SetColor(glm::vec4(0.141f, 0.145f, 0.165f, 1.f));
     }
   }

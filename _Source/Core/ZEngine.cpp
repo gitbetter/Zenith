@@ -43,6 +43,7 @@
 #include "ZGOFactory.hpp"
 #include "ZGraphicsFactory.hpp"
 #include "ZUIFactory.hpp"
+#include "ZPhysicsFactory.hpp"
 #include "ZZipFile.hpp"
 
 #include "ZScriptExports.hpp"
@@ -83,6 +84,7 @@ std::unique_ptr<ZLuaScriptManager> ZEngine::scriptManager_ = nullptr;
 std::unique_ptr<ZGOFactory> ZEngine::gameObjectFactory_ = nullptr;
 std::unique_ptr<ZGraphicsFactory> ZEngine::graphicsFactory_ = nullptr;
 std::unique_ptr<ZUIFactory> ZEngine::uiFactory_ = nullptr;
+std::unique_ptr<ZPhysicsFactory> ZEngine::physicsFactory_ = nullptr;
 float ZEngine::deltaTime_ = 0.0f;
 float ZEngine::lastDeltaTime_ = 0.0f;
 std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
@@ -151,6 +153,7 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   gameObjectFactory_.reset(new ZGOFactory);
   graphicsFactory_.reset(new ZGraphicsFactory);
   uiFactory_.reset(new ZUIFactory);
+  physicsFactory_.reset(new ZPhysicsFactory);
   /* ======================================= */
 }
 
@@ -204,6 +207,10 @@ ZGraphicsFactory* ZEngine::GraphicsFactory() {
 
 ZUIFactory* ZEngine::UIFactory() {
   return uiFactory_.get();
+}
+
+ZPhysicsFactory* ZEngine::PhysicsFactory() {
+  return physicsFactory_.get();
 }
 
 ZIDSequence* ZEngine::IDSequence() {

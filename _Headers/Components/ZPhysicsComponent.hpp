@@ -39,7 +39,7 @@ struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZPhysicsComponent : public ZComponent {
-    using ZColliderCreator = btCollisionShape* (ZPhysicsComponent::*)(std::vector<btScalar> params);
+
 public:
 
   ZPhysicsComponent();
@@ -72,13 +72,7 @@ public:
   float AngularDamping() { return 1.f; }
   float Mass() { return 1.f; }
 
-  btCollisionShape* CreateBoxCollider(std::vector<btScalar> params);
-  btCollisionShape* CreateSphereCollider(std::vector<btScalar> params);
-  btCollisionShape* CreateCapsuleCollider(std::vector<btScalar> params);
-
 protected:
-
-  std::map<ZColliderType, ZColliderCreator> colliderCreators_;
 
   std::shared_ptr<btRigidBody> body_;
 
