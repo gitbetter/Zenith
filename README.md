@@ -10,6 +10,14 @@ Zenith is an extensible, **C++ based game engine** replete with **PBR**, built i
   
 * A 64 bit Windows installation, in which case you will also need Visual Studio, available for download at [https://visualstudio.microsoft.com/vs/community/](https://visualstudio.microsoft.com/vs/community/)
 
+## Downloading
+
+Please make sure to clone the repository from a command line using 
+
+`git clone https://github.com/gitbetter/Zenith.git`
+
+or using your favorite Git desktop GUI client. Zenith uses LFS to store certain sizable files, so downloading directly via the ZIP option will not resolve the git LFS links, and you will most likely encounter errors when attempting to run the project.
+
 ## Building and Running
 
 Make sure that you have met the requirements above. There is currently no way to build the project without CMake, and you might be left out in the cold if you try to run on any Linux distro or older Windows/OSX versions, as these have not yet been tested.
