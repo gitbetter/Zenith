@@ -39,7 +39,7 @@
 // Class and Data Structure Definitions
 struct ZLBaseProperties {
   glm::vec3 ambient{0.2f};
-  glm::vec3 color{3.f};
+  glm::vec3 color{0.25f};
 };
 
 struct ZLAttenuationProperties {
@@ -50,7 +50,7 @@ struct ZLAttenuationProperties {
 
 struct ZLDirectional {
   ZLBaseProperties components;
-  glm::vec3 direction{20.f, 30.f, 10.f};
+  glm::vec3 direction{20.f, 5.f, 10.f};
 };
 
 struct ZLPoint {
