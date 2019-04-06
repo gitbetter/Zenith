@@ -54,7 +54,7 @@ public:
   ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
   virtual ~ZGameObject() { }
 
-  void Initialize(std::shared_ptr<ZOFNode> root);
+  virtual void Initialize(std::shared_ptr<ZOFNode> root);
 
   virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
 

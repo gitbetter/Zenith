@@ -36,7 +36,7 @@
 
 // Forward Declarations
 class ZGameObject;
-struct ZLight;
+class ZLight;
 
 // Class and Data Structure Definitions
 class ZGraphicsStrategy {

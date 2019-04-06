@@ -28,3 +28,86 @@
 */
 
 #include "ZLight.hpp"
+
+std::map<std::string, ZLightType> ZLight::lightTypesMap = {
+	{"Directional", ZLightType::Directional},
+	{"Point", ZLightType::Point},
+	{"Spot", ZLightType::Spot},
+  {"Hemisphere", ZLightType::Hemisphere}
+};
+
+ZLight::ZLight(ZLightType lightType) : ZGameObject(glm::vec3(1.f)) { 
+	type = lightType; enabled = true; 
+}
+
+void ZLight::Initialize(std::shared_ptr<ZOFNode> root) {
+	ZGameObject::Initialize(root);
+
+	std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
+	if (node == nullptr) {
+		_Z("Could not initalize ZLight", ZERROR);
+		return;
+	}
+
+	ZOFPropertyMap props = node->properties;
+
+	if (props.find("type") != props.end() && props["type"]->HasValues()) {
+		std::shared_ptr<ZOFString> prop = props["type"]->Value<ZOFString>(0);
+		type = lightTypesMap[prop->value];
+	}
+
+	if (props.find("ambient") != props.end() && props["ambient"]->HasValues()) {
+		std::shared_ptr<ZOFNumberList> prop = props["ambient"]->Value<ZOFNumberList>(0);
+		ambient = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
+	}
+
+	if (props.find("color") != props.end() && props["color"]->HasValues()) {
+		std::shared_ptr<ZOFNumberList> prop = props["color"]->Value<ZOFNumberList>(0);
+		color = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
+	}
+
+	if (props.find("direction") != props.end() && props["direction"]->HasValues()) {
+		std::shared_ptr<ZOFNumberList> prop = props["direction"]->Value<ZOFNumberList>(0);
+		direction = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
+	}
+
+	if (props.find("constantAttenuation") != props.end() && props["constantAttenuation"]->HasValues()) {
+		std::shared_ptr<ZOFNumber> prop = props["constantAttenuation"]->Value<ZOFNumber>(0);
+		attenuation.constant = prop->value;
+	}
+
+	if (props.find("linearAttenuation") != props.end() && props["linearAttenuation"]->HasValues()) {
+		std::shared_ptr<ZOFNumber> prop = props["linearAttenuation"]->Value<ZOFNumber>(0);
+		attenuation.linear = prop->value;
+	}
+
+	if (props.find("quadraticProp") != props.end() && props["quadraticProp"]->HasValues()) {
+		std::shared_ptr<ZOFNumber> prop = props["quadraticProp"]->Value<ZOFNumber>(0);
+		attenuation.quadratic = prop->value;
+	}
+
+	if (props.find("spotConeDirection") != props.end() && props["spotConeDirection"]->HasValues()) {
+		std::shared_ptr<ZOFNumberList> prop = props["spotConeDirection"]->Value<ZOFNumberList>(0);
+		spot.coneDirection = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
+	}
+
+	if (props.find("spotCutoff") != props.end() && props["spotCutoff"]->HasValues()) {
+		std::shared_ptr<ZOFNumber> prop = props["spotCutoff"]->Value<ZOFNumber>(0);
+		spot.cutoff = prop->value;
+	}
+
+	if (props.find("spotExponent") != props.end() && props["spotExponent"]->HasValues()) {
+		std::shared_ptr<ZOFNumber> prop = props["spotExponent"]->Value<ZOFNumber>(0);
+		spot.exponent = prop->value;
+	}
+
+	if (props.find("hemisphereSky") != props.end() && props["hemisphereSky"]->HasValues()) {
+		std::shared_ptr<ZOFNumberList> prop = props["hemisphereSky"]->Value<ZOFNumberList>(0);
+		hemisphere.skyColor = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
+	}
+
+	if (props.find("hemisphereGround") != props.end() && props["hemisphereGround"]->HasValues()) {
+		std::shared_ptr<ZOFNumberList> prop = props["hemisphereGround"]->Value<ZOFNumberList>(0);
+		hemisphere.groundColor = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
+	}
+}

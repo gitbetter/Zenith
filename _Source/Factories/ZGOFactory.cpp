@@ -29,6 +29,7 @@
 
 #include "ZGOFactory.hpp"
 #include "ZGameObject.hpp"
+#include "ZLight.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZCameraComponent.hpp"
@@ -39,28 +40,43 @@ ZGOFactory::ZGOFactory() {
   componentCreators_["PhysicsComponent"] = &ZGOFactory::CreatePhysicsComponent;
 }
 
-ZGameObjectMap ZGOFactory::Create(std::shared_ptr<ZOFTree> data) {
+ZGameObjectMap ZGOFactory::Load(std::shared_ptr<ZOFTree> data) {
   ZGameObjectMap gameObjects;
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     std::shared_ptr<ZOFNode> node = it->second;
     if (node->id.find("ZGO") == 0) {
-      std::shared_ptr<ZGameObject> gameObject(new ZGameObject);
-      gameObject->Initialize(node);
-
-      for (ZOFChildMap::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++) {
-        std::shared_ptr<ZOFNode> componentNode = compIt->second;
-        if (componentCreators_.find(compIt->first) != componentCreators_.end()) {
-          std::shared_ptr<ZComponent> comp = (this->*componentCreators_[compIt->first])(gameObject);
-          comp->Initialize(componentNode);
-        } else {
-          _Z("Component " + compIt->first + " is not available for creation", ZWARNING);
-        }
-      }
-
+			std::shared_ptr<ZGameObject> gameObject = CreateGameObject(node);
       gameObjects[gameObject->ID()] = gameObject;
-    }
+		} else if (node->id.find("ZLT") == 0) {
+			std::shared_ptr<ZLight> light = CreateLight(node);
+			light->Initialize(node);
+			gameObjects[light->ID()] = light;
+		}
   }
   return gameObjects;
+}
+
+std::shared_ptr<ZGameObject> ZGOFactory::CreateGameObject(std::shared_ptr<ZOFNode> data) {
+	std::shared_ptr<ZGameObject> gameObject(new ZGameObject);
+	gameObject->Initialize(data);
+
+	for (ZOFChildMap::iterator compIt = data->children.begin(); compIt != data->children.end(); compIt++) {
+		std::shared_ptr<ZOFNode> componentNode = compIt->second;
+		if (componentCreators_.find(compIt->first) != componentCreators_.end()) {
+			std::shared_ptr<ZComponent> comp = (this->*componentCreators_[compIt->first])(gameObject);
+			comp->Initialize(componentNode);
+		} else {
+			_Z("Component " + compIt->first + " is not available for creation", ZWARNING);
+		}
+	}
+
+	return gameObject;
+}
+
+std::shared_ptr<ZLight> ZGOFactory::CreateLight(std::shared_ptr<ZOFNode> data) {
+	std::shared_ptr<ZLight> light(new ZLight);
+	light->Initialize(data);
+	return light;
 }
 
 std::shared_ptr<ZComponent> ZGOFactory::CreateGraphicsComponent(std::shared_ptr<ZGameObject> gameObject) {

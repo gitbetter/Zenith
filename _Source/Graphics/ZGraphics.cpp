@@ -93,7 +93,7 @@ void ZGraphics::DrawShadowMap(const ZGameObjectMap& gameObjects, std::shared_ptr
   // TODO: Do something about these magic numbers!
   glm::mat4 lightP = glm::ortho(-25.f, 25.f, -25.f, 25.f, -100.f, 100.f);
   glm::mat4 lightV = glm::lookAt(light->type == ZLightType::Directional ?
-                                  light->directional.direction :
+                                  light->direction :
                                   light->Position(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
   glm::mat4 lightSpaceMatrix = lightP * lightV;
   currentLightSpaceMatrix_ = lightSpaceMatrix;

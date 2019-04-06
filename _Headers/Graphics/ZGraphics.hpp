@@ -37,7 +37,7 @@ class ZGameObject;
 class ZWindow;
 class ZShader;
 class ZGraphicsStrategy;
-struct ZLight;
+class ZLight;
 
 // Class and Data Structure Definitions
 typedef std::map<std::string, ZTexture> ZTextureMap;

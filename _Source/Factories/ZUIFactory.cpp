@@ -46,7 +46,7 @@ ZUIFactory::ZUIFactory() {
   elementCreators_["ListPanel"] = &ZUIFactory::CreateUIListPanel;
 }
 
-ZUIElementMap ZUIFactory::Create(std::shared_ptr<ZOFTree> data) {
+ZUIElementMap ZUIFactory::Load(std::shared_ptr<ZOFTree> data) {
   ZUIElementMap uiElements;
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     std::shared_ptr<ZOFNode> node = it->second;
@@ -66,7 +66,7 @@ ZUIElementMap ZUIFactory::Create(std::shared_ptr<ZOFTree> data) {
 
       // Recursively create children if there are any nested UI nodes
       if (element) {
-        ZUIElementMap uiChildren = Create(uiNode);
+        ZUIElementMap uiChildren = Load(uiNode);
         for (ZUIElementMap::iterator it = uiChildren.begin(); it != uiChildren.end(); it++) {
           element->AddChild(it->second);
         }

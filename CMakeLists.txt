@@ -8,7 +8,8 @@ set(WINDOWS_LIB_DIR ${CMAKE_SOURCE_DIR}/_Drivers/win64)
 set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/_Headers)
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/_Source)
 
-set(SOURCES   
+set(SOURCES
+    ${CMAKE_SOURCE_DIR}/basic_scene.zof
     ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
     ${SOURCE_DIR}/UI/ZUIElement.cpp
     ${SOURCE_DIR}/UI/ZMeshUI.cpp

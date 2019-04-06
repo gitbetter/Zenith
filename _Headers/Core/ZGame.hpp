@@ -34,7 +34,7 @@
 #include <initializer_list>
 
 // Forward Declarations
-struct ZLight;
+class ZLight;
 class ZSkybox;
 
 // Class and Data Structure Definitions

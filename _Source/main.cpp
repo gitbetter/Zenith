@@ -90,9 +90,6 @@ int main(int argc, const char * argv[]) {
       ZEngine::UI()->AddElement(it->second);
   }
 
-  // Now add some lights, because it's dark in here.
-  game->AddGameObjects({std::shared_ptr<ZLight>(new ZLight(ZLightType::Directional))});
-
   // We can register delegate methods for specific UI events
   button = ZEngine::UI()->FindElement<ZUIButton>("ZUI_01");
   ZEventDelegate pressDelegate(&onButtonPress);

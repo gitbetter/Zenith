@@ -99,7 +99,8 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   /* ===================================== */
 
   /* ========= Resource Cache System ============ */
-  resourceCache_.reset(new ZResourceCache(512));
+  resourceCache_.reset(new ZResourceCache(100));
+	// TODO: Switch to development resource file based on compile flag
   resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));  
   resourceCache_->Initialize();
   resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
@@ -286,8 +287,8 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
   if (scriptManager_ != nullptr) scriptManager_->Load(objectTree);
   if (graphics_ != nullptr) graphics_->Load(objectTree);
 
-  results.gameObjects = gameObjectFactory_->Create(objectTree);
-  results.uiElements = uiFactory_->Create(objectTree);
+  results.gameObjects = gameObjectFactory_->Load(objectTree);
+  results.uiElements = uiFactory_->Load(objectTree);
 
   return results;
 }

@@ -37,10 +37,6 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-struct ZLBaseProperties {
-  glm::vec3 ambient{0.2f};
-  glm::vec3 color{0.25f};
-};
 
 struct ZLAttenuationProperties {
   float constant{1.0f};
@@ -48,40 +44,42 @@ struct ZLAttenuationProperties {
   float quadratic{1.8f};
 };
 
-struct ZLDirectional {
-  ZLBaseProperties components;
-  glm::vec3 direction{20.f, 5.f, 10.f};
-};
-
-struct ZLPoint {
-  ZLBaseProperties components;
-  ZLAttenuationProperties attenunation;
-};
-
-struct ZLSpot {
-  ZLBaseProperties components;
-  ZLAttenuationProperties attenunation;
+struct ZLSpotProperties {
   glm::vec3 coneDirection{0.f, 1.f, 1.f};
-  float spotCutoff;
-  float spotExponent;
+  float cutoff;
+  float exponent;
 };
 
-struct ZLHemisphere {
-  ZLBaseProperties components;
+struct ZLHemisphereProperties {
   glm::vec3 skyColor{0.8f};
   glm::vec3 groundColor{0.1f};
 };
 
-struct ZLight : public ZGameObject {
-  ZLight() { }
-  ZLight(ZLightType lightType) : ZGameObject(glm::vec3(1.f)) { type = lightType; }
+class ZLight : public ZGameObject {
+
+public:
+
+  ZLight() : type(ZLightType::Point), enabled(true) { }
+	ZLight(ZLightType lightType);
   ~ZLight() { }
 
-  ZLightType type{ZLightType::Point};
-  bool enabled{true};
+	void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-  ZLDirectional directional;
-  ZLPoint point;
-  ZLSpot spot;
-  ZLHemisphere hemisphere;
+  ZLightType type;
+  bool enabled;
+
+	glm::vec3 ambient{0.1f};
+	glm::vec3 color{0.9f};
+	ZLAttenuationProperties attenuation;
+
+	union {
+		glm::vec3 direction{0.f};
+		ZLSpotProperties spot;
+		ZLHemisphereProperties hemisphere;
+	};
+
+private:
+
+	static std::map<std::string, ZLightType> lightTypesMap;
+
 };

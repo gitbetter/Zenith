@@ -48,7 +48,7 @@ public:
   ZUIFactory();
   ~ZUIFactory() { }
 
-  ZUIElementMap Create(std::shared_ptr<ZOFTree> data);
+  ZUIElementMap Load(std::shared_ptr<ZOFTree> data);
 
   std::shared_ptr<ZUIElement> CreateUIButton(std::shared_ptr<ZOFNode> root);
   std::shared_ptr<ZUIElement> CreateUIImage(std::shared_ptr<ZOFNode> root);

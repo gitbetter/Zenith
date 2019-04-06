@@ -241,31 +241,31 @@ void ZShader::Use(const ZLightMap& lights) {
       case ZLightType::Directional:
         SetBool("lights[" + std::to_string(i) + "].isEnabled", light->enabled);
         SetBool("lights[" + std::to_string(i) + "].isDirectional", true);
-        SetVec3("lights[" + std::to_string(i) + "].ambient", light->directional.components.ambient);
-        SetVec3("lights[" + std::to_string(i) + "].color", light->directional.components.color);
-        SetVec3("lights[" + std::to_string(i) + "].direction", light->directional.direction);
+        SetVec3("lights[" + std::to_string(i) + "].ambient", light->ambient);
+        SetVec3("lights[" + std::to_string(i) + "].color", light->color);
+        SetVec3("lights[" + std::to_string(i) + "].direction", light->direction);
         SetVec3("lights[" + std::to_string(i) + "].position", light->Position());
         break;
       case ZLightType::Point:
         SetBool("lights[" + std::to_string(i) + "].isEnabled", light->enabled);
-        SetVec3("lights[" + std::to_string(i) + "].ambient", light->point.components.ambient);
-        SetVec3("lights[" + std::to_string(i) + "].color", light->point.components.color);
-        SetFloat("lights[" + std::to_string(i) + "].constantAttenuation", light->point.attenunation.constant);
-        SetFloat("lights[" + std::to_string(i) + "].linearAttenuation", light->point.attenunation.linear);
-        SetFloat("lights[" + std::to_string(i) + "].quadraticAttenuation", light->point.attenunation.quadratic);
+        SetVec3("lights[" + std::to_string(i) + "].ambient", light->ambient);
+        SetVec3("lights[" + std::to_string(i) + "].color", light->color);
+        SetFloat("lights[" + std::to_string(i) + "].constantAttenuation", light->attenuation.constant);
+        SetFloat("lights[" + std::to_string(i) + "].linearAttenuation", light->attenuation.linear);
+        SetFloat("lights[" + std::to_string(i) + "].quadraticAttenuation", light->attenuation.quadratic);
         SetVec3("lights[" + std::to_string(i) + "].position", light->Position());
         break;
       case ZLightType::Spot:
         SetBool("lights[" + std::to_string(i) + "].isEnabled", light->enabled);
         SetBool("lights[" + std::to_string(i) + "].isSpot", true);
-        SetVec3("lights[" + std::to_string(i) + "].ambient", light->spot.components.ambient);
-        SetVec3("lights[" + std::to_string(i) + "].color", light->spot.components.color);
-        SetFloat("lights[" + std::to_string(i) + "].constantAttenuation", light->spot.attenunation.constant);
-        SetFloat("lights[" + std::to_string(i) + "].linearAttenuation", light->spot.attenunation.linear);
-        SetFloat("lights[" + std::to_string(i) + "].quadraticAttenuation", light->spot.attenunation.quadratic);
+        SetVec3("lights[" + std::to_string(i) + "].ambient", light->ambient);
+        SetVec3("lights[" + std::to_string(i) + "].color", light->color);
+        SetFloat("lights[" + std::to_string(i) + "].constantAttenuation", light->attenuation.constant);
+        SetFloat("lights[" + std::to_string(i) + "].linearAttenuation", light->attenuation.linear);
+        SetFloat("lights[" + std::to_string(i) + "].quadraticAttenuation", light->attenuation.quadratic);
         SetVec3("lights[" + std::to_string(i) + "].coneDirection", light->spot.coneDirection);
-        SetFloat("lights[" + std::to_string(i) + "].spotCutoff", light->spot.spotCutoff);
-        SetFloat("lights[" + std::to_string(i) + "].spotExponent", light->spot.spotExponent);
+        SetFloat("lights[" + std::to_string(i) + "].cutoff", light->spot.cutoff);
+        SetFloat("lights[" + std::to_string(i) + "].exponent", light->spot.exponent);
         SetVec3("lights[" + std::to_string(i) + "].position", light->Position());
         break;
       case ZLightType::Hemisphere:

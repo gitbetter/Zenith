@@ -80,7 +80,7 @@ class ZMesh3D;
 class ZMaterial;
 class ZProcess;
 class ZEvent;
-struct ZLight;
+class ZLight;
 
 typedef std::function<void()> ZEventCallback;
 typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
