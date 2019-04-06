@@ -153,8 +153,8 @@ ZGO_09
 ZLT_01
     :type Directional:
 	:direction [20.0, 5.0, 10.0]:
-	:ambient [0.15, 0.15, 0.15]:
-	:color [0.25, 0.25, 0.25]:
+	:ambient [0.1, 0.1, 0.1]:
+	:color [0.1, 0.1, 0.1]:
 ^
 
 # UI

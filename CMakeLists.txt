@@ -9,6 +9,7 @@ set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/_Headers)
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/_Source)
 
 set(SOURCES
+    ${CMAKE_SOURCE_DIR}/Assets.zip
     ${CMAKE_SOURCE_DIR}/basic_scene.zof
     ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
     ${SOURCE_DIR}/UI/ZUIElement.cpp
@@ -33,6 +34,7 @@ set(SOURCES
     ${SOURCE_DIR}/ResourceCache/ZResourceHandle.cpp
     ${SOURCE_DIR}/ResourceCache/ZResourceCache.cpp
     ${SOURCE_DIR}/ResourceCache/ResourceFiles/ZZipFile.cpp
+    ${SOURCE_DIR}/ResourceCache/ResourceFiles/ZDevResourceFile.cpp
     ${SOURCE_DIR}/ResourceCache/ZResourceLoader.cpp
     ${SOURCE_DIR}/ResourceCache/ZResource.cpp
     ${SOURCE_DIR}/ResourceCache/ZResourceFile.cpp
@@ -151,6 +153,7 @@ set(SOURCES
     ${HEADERS_DIR}/ResourceCache/ZResourceHandle.hpp
     ${HEADERS_DIR}/ResourceCache/ZResourceLoader.hpp
     ${HEADERS_DIR}/ResourceCache/ResourceFiles/ZZipFile.hpp
+    ${HEADERS_DIR}/ResourceCache/ResourceFiles/ZDevResourceFile.hpp
     ${HEADERS_DIR}/ResourceCache/ResourceLoaders/ZDefaultResourceLoader.hpp
     ${HEADERS_DIR}/ResourceCache/ResourceLoaders/ZScriptResourceLoader.hpp
     ${HEADERS_DIR}/Scripting/ZLuaScriptManager.hpp
@@ -1006,6 +1009,7 @@ if (APPLE)
   find_library(FREETYPE_LIB NAMES freetyped HINTS "${DARWIN_LIB_DIR}")
   find_library(ZIP_LIB NAMES zip HINTS "${DARWIN_LIB_DIR}")
   find_library(LUA_LIB NAMES lua HINTS "${DARWIN_LIB_DIR}")
+  find_library(CPPFS_LIB NAMES cppfs HINTS "${DARWIN_LIB_DIR}")
 
   target_link_libraries(zenith "-framework Cocoa" 
                                "-framework OpenGL" 
@@ -1014,6 +1018,7 @@ if (APPLE)
                                "-framework CoreFoundation"
                                ${GLEW_LIB}
                                ${GLFW_LIB}
+			       ${CPPFS_LIB}
                                ${BZ2_LIB}
                                ${ZLIB_LIB}
                                ${FREETYPE_LIB} 
@@ -1038,11 +1043,13 @@ elseif (WIN32)
   find_library(FREETYPE_LIB NAMES freetyped HINTS "${WINDOWS_LIB_DIR}")
   find_library(ZIP_LIB NAMES zip HINTS "${WINDOWS_LIB_DIR}")
   find_library(LUA_LIB NAMES lua53 HINTS "${WINDOWS_LIB_DIR}")
+  find_library(CPPFS_LIB NAMES cppfsd HINTS "${WINDOWS_LIB_DIR}")
 
   target_link_libraries(zenith ${OPENGL_LIBRARY} 
                                gdi32 
                                ${GLEW_LIB}
                                ${GLFW_LIB}
+			       ${CPPFS_LIB}
                                ${BZ2_LIB}
                                ${ZLIB_LIB}
                                ${FREETYPE_LIB} 
