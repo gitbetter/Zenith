@@ -1009,7 +1009,7 @@ if (APPLE)
   find_library(FREETYPE_LIB NAMES freetyped HINTS "${DARWIN_LIB_DIR}")
   find_library(ZIP_LIB NAMES zip HINTS "${DARWIN_LIB_DIR}")
   find_library(LUA_LIB NAMES lua HINTS "${DARWIN_LIB_DIR}")
-  find_library(CPPFS_LIB NAMES cppfs HINTS "${DARWIN_LIB_DIR}")
+  find_library(CPPFS_LIB NAMES cppfsd HINTS "${DARWIN_LIB_DIR}")
 
   target_link_libraries(zenith "-framework Cocoa" 
                                "-framework OpenGL" 
@@ -1018,7 +1018,7 @@ if (APPLE)
                                "-framework CoreFoundation"
                                ${GLEW_LIB}
                                ${GLFW_LIB}
-			       ${CPPFS_LIB}
+			       									 ${CPPFS_LIB}
                                ${BZ2_LIB}
                                ${ZLIB_LIB}
                                ${FREETYPE_LIB} 
@@ -1049,7 +1049,7 @@ elseif (WIN32)
                                gdi32 
                                ${GLEW_LIB}
                                ${GLFW_LIB}
-			       ${CPPFS_LIB}
+												       ${CPPFS_LIB}
                                ${BZ2_LIB}
                                ${ZLIB_LIB}
                                ${FREETYPE_LIB} 
