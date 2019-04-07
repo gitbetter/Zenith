@@ -29,12 +29,11 @@
 
 #include "ZOFParser.hpp"
 
-std::shared_ptr<ZOFTree> ZOFParser::Parse(std::string zofFile) {
+std::shared_ptr<ZOFTree> ZOFParser::Parse(std::string contents) {
   std::shared_ptr<ZOFTree> parseTree = std::make_shared<ZOFTree>();
-  if (!zofFile.empty()) {
-      zof_.open(zofFile);
-      Start(parseTree);
-      zof_.close();
+  if (!contents.empty()) {
+		zof_ = std::stringstream(contents);
+    Start(parseTree);
   }
   return parseTree;
 }

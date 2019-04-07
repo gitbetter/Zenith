@@ -105,7 +105,7 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   /* ========= Resource Cache System ============ */
   resourceCache_.reset(new ZResourceCache(100));
 #ifdef DEV_BUILD
-	resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("Assets")));
+	resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../Assets")));
 #else
 	resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
 #endif
@@ -283,11 +283,20 @@ void ZEngine::SetDeltaTime(float deltaTime) {
 }
 
 ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
-  ZOFLoadResult results;
+	ZOFLoadResult results;
+
+	ZResource zofResource(zofPath);
+	std::shared_ptr<ZResourceHandle> handle = resourceCache_->GetHandle(&zofResource);
+
+	if (!handle) {
+		_Z("Could not find zof file at " + zofPath, ZERROR);
+		return results;
+	}
+
   // TODO: ZOFTree should have append functionality so that different
   // ZOFTrees can be combined (by combining children into a single tree)
   ZOFParser parser;
-  std::shared_ptr<ZOFTree> objectTree = parser.Parse(zofPath);
+  std::shared_ptr<ZOFTree> objectTree = parser.Parse(std::string(handle->Buffer()));
 
   // TODO: The more systems are populated this way, the more of a hamper we place on
   // load times. Refactor this so the object tree is only traversed once.

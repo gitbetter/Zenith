@@ -11,8 +11,6 @@ set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/_Headers)
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/_Source)
 
 set(SOURCES
-    ${CMAKE_SOURCE_DIR}/Assets.zip
-    ${CMAKE_SOURCE_DIR}/basic_scene.zof
     ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
     ${SOURCE_DIR}/UI/ZUIElement.cpp
     ${SOURCE_DIR}/UI/ZMeshUI.cpp
@@ -979,12 +977,14 @@ set(SOURCES
     ${HEADERS_DIR}/_ThirdParty/zlib/zlib.h
 )
 
-file(GLOB RESOURCE_FILES
-  "*.zip" "*.zof"
-)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/_Bin/build)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/_Bin/build)
+
+if(DEVELOPMENT)
+	add_compile_definitions(DEV_BUILD)
+	file(GLOB_RECURSE DEV_ASSETS "${CMAKE_SOURCE_DIR}/Assets/*")
+	list(APPEND SOURCES ${DEV_ASSETS})
+endif(DEVELOPMENT)
 
 add_executable(zenith ${SOURCES})
 
@@ -1040,10 +1040,6 @@ target_include_directories(zenith PUBLIC
   ${HEADERS_DIR}/Utility/ZObjectFormatTools
   ${HEADERS_DIR}/Windowing
 )
-
-if (DEVELOPMENT)
-	add_compile_definitions(DEV_BUILD)
-endif()
 
 if (APPLE) 
   find_library(GLEW_LIB NAMES GLEW GLEWd HINTS "${DARWIN_LIB_DIR}")
@@ -1112,6 +1108,10 @@ elseif (WIN32)
   add_custom_command(TARGET zenith POST_BUILD
                      COMMAND "${CMAKE_COMMAND}" -E copy_directory "${WINDOWS_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
                     )
+
+  file(GLOB RESOURCE_FILES
+  "*.zip"
+  )
 
   foreach(FILE ${RESOURCE_FILES})
     get_filename_component(FILENAME ${FILE} NAME)

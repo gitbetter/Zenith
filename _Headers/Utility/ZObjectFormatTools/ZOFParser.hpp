@@ -32,7 +32,6 @@
 // Includes
 #include "ZCommon.hpp"
 #include "ZOFTree.hpp"
-#include <fstream>
 
 // Forward Declarations
 
@@ -41,7 +40,7 @@ class ZOFParser {
 private:
 
   std::string currentToken_;
-  std::ifstream zof_;
+  std::stringstream zof_;
   std::regex id_ = std::regex("[^\\-\\d]\\S*");
   std::regex number_ = std::regex("-?\\d+\\.?\\d*");
 
@@ -65,7 +64,7 @@ public:
     ZOFParser() { }
     ~ZOFParser() { }
 
-    std::shared_ptr<ZOFTree> Parse(std::string zofFile);
+    std::shared_ptr<ZOFTree> Parse(std::string contents);
 
 protected:
 

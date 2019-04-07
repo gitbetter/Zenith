@@ -30,6 +30,9 @@
 #include "ZResource.hpp"
 
 ZResource::ZResource(const std::string& name) {
+#ifdef DEV_BUILD
+	this->name = "../" + name;
+#else
   this->name = name;
-  //std::transform(this->name.begin(), this->name.end(), this->name.begin(), (int(*)(int))std::tolower);
+#endif
 }

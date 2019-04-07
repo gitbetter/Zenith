@@ -78,7 +78,7 @@ int main(int argc, const char * argv[]) {
   ZEngine::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
 
   // Parse the ZOF file and create the resources
-  ZOFLoadResult zofResult = ZEngine::LoadZOF("basic_scene.zof");
+  ZOFLoadResult zofResult = ZEngine::LoadZOF("Assets/basic_scene.zof");
   for (ZGameObjectMap::iterator it = zofResult.gameObjects.begin(); it != zofResult.gameObjects.end(); it++) {
     game->AddGameObject(it->second);
   }
