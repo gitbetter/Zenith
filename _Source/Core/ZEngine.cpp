@@ -44,12 +44,16 @@
 #include "ZGraphicsFactory.hpp"
 #include "ZUIFactory.hpp"
 #include "ZPhysicsFactory.hpp"
-#include "ZZipFile.hpp"
-
 #include "ZScriptExports.hpp"
 #include "ZLuaScriptManager.hpp"
 #include "ZScriptResourceLoader.hpp"
 #include "ZScriptableProcess.hpp"
+
+#ifdef DEV_BUILD
+#include "ZDevResourceFile.hpp"
+#else
+#include "ZZipFile.hpp"
+#endif
 
 const float ZEngine::DEFAULT_X_RESOLUTION = 2560.f;
 const float ZEngine::DEFAULT_Y_RESOLUTION = 1600.f;
@@ -100,8 +104,11 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
 
   /* ========= Resource Cache System ============ */
   resourceCache_.reset(new ZResourceCache(100));
-	// TODO: Switch to development resource file based on compile flag
-  resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));  
+#ifdef DEV_BUILD
+	resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("Assets")));
+#else
+	resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
+#endif
   resourceCache_->Initialize();
   resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
   /* ============================================ */

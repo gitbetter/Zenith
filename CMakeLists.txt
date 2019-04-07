@@ -3,6 +3,8 @@ set(CMAKE_CXX_STANDARD 14)
 
 project(Zenith VERSION 1.0.0.0 LANGUAGES CXX)
 
+option(DEVELOPMENT "Generate a development build" OFF)
+
 set(DARWIN_LIB_DIR ${CMAKE_SOURCE_DIR}/_Drivers/darwin)
 set(WINDOWS_LIB_DIR ${CMAKE_SOURCE_DIR}/_Drivers/win64)
 set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/_Headers)
@@ -455,6 +457,44 @@ set(SOURCES
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/btVector3.h
     ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath/TaskScheduler/btThreadSupportInterface.h
     ${HEADERS_DIR}/_ThirdParty/bzip2/bzlib.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/AbstractFileHandleBackend.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/AbstractFileIteratorBackend.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/AbstractFileSystem.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/AbstractFileWatcherBackend.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/Change.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/cppfs-version.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/cppfs_api.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/cppfs.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/Diff.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/FileEventHandler.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/FileHandle.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/FileIterator.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/FilePath.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/FileVisitor.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/FileWatcher.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/fs.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/FunctionalFileEventHandler.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/FunctionalFileVisitor.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/InputStream.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/LoginCredentials.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/OutputStream.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/system.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/Tree.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/units.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/Url.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/linux/LocalFileWatcher.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/posix/LocalFileHandle.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/posix/LocalFileIterator.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/posix/LocalFileSystem.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/ssh/SshFileHandle.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/ssh/SshFileIterator.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/ssh/SshFileSystem.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/ssh/SshInputStreamBuffer.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/ssh/SshOutputStreamBuffer.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/windows/LocalFileHandle.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/windows/LocalFileIterator.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/windows/LocalFileSystem.h
+	${HEADERS_DIR}/_ThirdParty/cppfs/windows/LocalFileWatcher.h
     ${HEADERS_DIR}/_ThirdParty/fastdelegate/FastDelegate.h
     ${HEADERS_DIR}/_ThirdParty/fastdelegate/FastDelegateBind.h
     ${HEADERS_DIR}/_ThirdParty/freetype/freetype.h
@@ -958,6 +998,11 @@ target_include_directories(zenith PUBLIC
   ${HEADERS_DIR}/_ThirdParty/bullet/BulletDynamics
   ${HEADERS_DIR}/_ThirdParty/bullet/LinearMath
   ${HEADERS_DIR}/_ThirdParty/bzip2
+  ${HEADERS_DIR}/_ThirdParty/cppfs
+  ${HEADERS_DIR}/_ThirdParty/cppfs/linux
+  ${HEADERS_DIR}/_ThirdParty/cppfs/posix
+  ${HEADERS_DIR}/_ThirdParty/cppfs/ssh
+  ${HEADERS_DIR}/_ThirdParty/cppfs/windows
   ${HEADERS_DIR}/_ThirdParty/fastdelegate
   ${HEADERS_DIR}/_ThirdParty/freetype
   ${HEADERS_DIR}/_ThirdParty/freetype/config
@@ -996,6 +1041,10 @@ target_include_directories(zenith PUBLIC
   ${HEADERS_DIR}/Windowing
 )
 
+if (DEVELOPMENT)
+	add_compile_definitions(DEV_BUILD)
+endif()
+
 if (APPLE) 
   find_library(GLEW_LIB NAMES GLEW GLEWd HINTS "${DARWIN_LIB_DIR}")
   find_library(GLFW_LIB NAMES glfw HINTS "${DARWIN_LIB_DIR}")
@@ -1018,7 +1067,7 @@ if (APPLE)
                                "-framework CoreFoundation"
                                ${GLEW_LIB}
                                ${GLFW_LIB}
-			       									 ${CPPFS_LIB}
+							   ${CPPFS_LIB}
                                ${BZ2_LIB}
                                ${ZLIB_LIB}
                                ${FREETYPE_LIB} 
@@ -1049,7 +1098,7 @@ elseif (WIN32)
                                gdi32 
                                ${GLEW_LIB}
                                ${GLFW_LIB}
-												       ${CPPFS_LIB}
+							   ${CPPFS_LIB}
                                ${BZ2_LIB}
                                ${ZLIB_LIB}
                                ${FREETYPE_LIB} 

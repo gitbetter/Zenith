@@ -31,6 +31,8 @@
 
 // Includes
 #include "ZResourceFile.hpp"
+#include <cppfs/fs.h>
+#include <cppfs/FileHandle.h>
 
 // Forward Declarations
 //class SomeClass;
@@ -56,5 +58,10 @@ public:
 	void Close() override;
 
 protected:
+
+	std::map<std::string, unsigned int> assetIndices_;
+	std::vector<cppfs::FileHandle> assets_;
+
+	void ReadDirectoryEntries(cppfs::FileHandle& fh);
 
 };

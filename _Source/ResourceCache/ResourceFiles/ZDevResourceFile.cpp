@@ -28,3 +28,74 @@
 */
 
 #include "ZDevResourceFile.hpp"
+#include <cppfs/FileIterator.h>
+
+using namespace cppfs;
+
+bool ZDevResourceFile::Open() {
+	FileHandle handle = fs::open(fileName_);
+	if (!handle.exists() || !handle.isDirectory()) {
+		_Z("Development resource file is invalid", ZERROR);
+		return false;
+	}
+
+	ReadDirectoryEntries(handle);
+	return true;
+}
+
+unsigned int ZDevResourceFile::RawResourceSize(ZResource& resource) {
+	auto it = assetIndices_.find(resource.name);
+	if (it == assetIndices_.end())
+		return 0;
+
+	return assets_[it->second].size();
+}
+
+unsigned int ZDevResourceFile::RawResource(ZResource& resource, char* buffer) {
+	auto it = assetIndices_.find(resource.name);
+	if (it == assetIndices_.end())
+		return 0;
+
+	std::unique_ptr<std::istream> in = assets_[it->second].createInputStream(std::ios_base::in | std::ios_base::binary);
+	std::stringstream stream;
+	stream << in->rdbuf();
+	std::string contents = stream.str();
+	const char* data = contents.data();
+
+	// Cannot use c_str to copy because it will truncate on first \0 character
+	// which might appear multiple times in binary data
+	memcpy(buffer, data, contents.size());
+
+	return assets_[it->second].size();
+}
+
+unsigned int ZDevResourceFile::ResourceCount() const {
+	return assets_.size();
+}
+
+std::string ZDevResourceFile::ResourceName(unsigned int num) const {
+	return assets_[num].fileName();
+}
+
+void ZDevResourceFile::PrintResources() const {
+	for (auto it = assetIndices_.begin(), end = assetIndices_.end(); it != end; it++) {
+		_Z(assets_[it->second].path(), ZINFO);
+	}
+}
+
+void ZDevResourceFile::Close() {
+	assetIndices_.clear();
+	assets_.clear();
+}
+
+void ZDevResourceFile::ReadDirectoryEntries(FileHandle& fh) {
+	for (FileIterator it = fh.begin(); it != fh.end(); ++it) {
+		FileHandle file = fs::open(fh.path() + "/" + *it);
+		if (file.isDirectory()) {
+			ReadDirectoryEntries(file);
+		} else {
+			assetIndices_[file.path()] = assets_.size();
+			assets_.push_back(file);
+		}
+	}
+}
