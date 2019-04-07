@@ -33,7 +33,7 @@ Make sure that you have met the requirements above. There is currently no way to
   
 * Use the CMake GUI to generate the Visual Studio project files, making sure to select *Visual Studio 15 2017 Win64* as the generator.
 
-**Note:** You can include `-development` as a command line flag for both the `build` and `rebuild` commands. This has some additional implications on how resources are expected to be bundled. For more information check out the [Resources and Assets](https://github.com/gitbetter/Zenith/wiki/Resources-and-Assets) wiki page.
+**Note:** You can include `-development` (`--development` on Unix) as a command line flag for both the `build` and `rebuild` commands. This has some additional implications on how resources are expected to be bundled. For more information check out the [Resources and Assets](https://github.com/gitbetter/Zenith/wiki/Resources-and-Assets) wiki page.
 
 ## Overview
 
