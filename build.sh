@@ -16,5 +16,5 @@ if [ ! -d _Bin/ ] || [ ! -f _Bin/Makefile ]; then
 		sh rebuild.sh
 	fi
 else
-	make ./_Bin
+	cd _Bin/; make; cd ..;
 fi
