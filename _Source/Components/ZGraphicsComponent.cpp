@@ -133,12 +133,12 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
   std::shared_ptr<ZShader> shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
-  if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
 
   shader->Activate();
   shader->Use(gameLights_);
 
-  ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
+	ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
+	if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
 
   shader->SetMat4("P", projectionMatrix);
   shader->SetMat4("V", viewMatrix);
