@@ -64,6 +64,8 @@ public:
   void DisableSeamlessCubemap() override;
   void EnableMSAA() override;
   void DisableMSAA() override;
+	void CullFrontFaces() override;
+	void CullBackFaces() override;
   void BindFramebuffer(ZBufferData frameBuffer) override;
   void UnbindFramebuffer() override;
   ZTexture LoadDefaultTexture() override;

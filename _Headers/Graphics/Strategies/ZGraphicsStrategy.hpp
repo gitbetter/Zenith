@@ -63,6 +63,8 @@ public:
   virtual void DisableSeamlessCubemap() = 0;
   virtual void EnableMSAA() = 0;
   virtual void DisableMSAA() = 0;
+	virtual void CullFrontFaces() = 0;
+	virtual void CullBackFaces() = 0;
   virtual void BindFramebuffer(ZBufferData frameBuffer) = 0;
   virtual void UnbindFramebuffer() = 0;
   virtual ZTexture LoadDefaultTexture() = 0;

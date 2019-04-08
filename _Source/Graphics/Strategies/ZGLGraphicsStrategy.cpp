@@ -124,6 +124,14 @@ void ZGLGraphicsStrategy::DisableMSAA() {
   glDisable(GL_MULTISAMPLE);
 }
 
+void ZGLGraphicsStrategy::CullFrontFaces() {
+	glCullFace(GL_FRONT);
+}
+
+void ZGLGraphicsStrategy::CullBackFaces() {
+	glCullFace(GL_BACK);
+}
+
 void ZGLGraphicsStrategy::BindFramebuffer(ZBufferData frameBuffer) {
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo);
 }
@@ -422,6 +430,7 @@ ZBufferData ZGLGraphicsStrategy::LoadDepthMapBuffer(ZTexture depthTexture) {
   glBindFramebuffer(GL_FRAMEBUFFER, depth.fbo);
   glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture.id, 0);
   glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
 
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
     _Z("Framebuffer operation incomplete dimensions", ZERROR);
@@ -448,24 +457,22 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
   depthMap.type = "depth";
   glGenTextures(1, &depthMap.id);
   glBindTexture(GL_TEXTURE_2D, depthMap.id);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
   float borderColor[] = { 1.f, 1.f, 1.f, 1.f };
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
   glBindTexture(GL_TEXTURE_2D, 0);
   return depthMap;
 }
 
 void ZGLGraphicsStrategy::BindDepthMapBuffer(ZBufferData frameBuffer) {
-  BindFramebuffer(frameBuffer);
   glViewport(0, 0, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE);
+	BindFramebuffer(frameBuffer);
   glClearDepth(1.0f);
   glClear(GL_DEPTH_BUFFER_BIT);
 }
