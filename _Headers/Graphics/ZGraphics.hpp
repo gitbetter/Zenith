@@ -60,7 +60,7 @@ public:
 
   ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
-  ZTexture DepthMap() { return depthMap_; };
+  ZTexture DepthMap() { return depthMap_; }
   std::shared_ptr<ZShader> ShadowShader() { return shadowShader_; }
   ZTextureMap& Textures() { return loadedTextures_; }
   ZShaderMap& Shaders() { return loadedShaders_; }
