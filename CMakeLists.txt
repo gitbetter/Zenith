@@ -972,6 +972,7 @@ ${HEADERS_DIR}/_ThirdParty/lua/lua.hpp
 ${HEADERS_DIR}/_ThirdParty/lua/luaconf.h
 ${HEADERS_DIR}/_ThirdParty/lua/lualib.h
 ${HEADERS_DIR}/_ThirdParty/lua/sol.hpp
+${HEADERS_DIR}/_ThirdParty/PoissonGenerator/PoissonGenerator.h
 ${HEADERS_DIR}/_ThirdParty/zip/zip.h
 ${HEADERS_DIR}/_ThirdParty/zlib/zconf.h
 ${HEADERS_DIR}/_ThirdParty/zlib/zlib.h
@@ -1016,6 +1017,7 @@ ${HEADERS_DIR}/_ThirdParty/glm/gtc
 ${HEADERS_DIR}/_ThirdParty/glm/gtx
 ${HEADERS_DIR}/_ThirdParty/glm/simd
 ${HEADERS_DIR}/_ThirdParty/lua
+${HEADERS_DIR}/_ThirdParty/PoissonGenerator
 ${HEADERS_DIR}/_ThirdParty/zip
 ${HEADERS_DIR}/_ThirdParty/zlib
 ${HEADERS_DIR}/Components
