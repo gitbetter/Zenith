@@ -42,6 +42,7 @@ void ZGraphics::Initialize() {
   if (graphicsStrategy_ == nullptr) {
     graphicsStrategy_ = new ZGLGraphicsStrategy();
     graphicsStrategy_->Initialize();
+    poissonDisk_ = graphicsStrategy_->LoadPoissonTexture();
     depthMap_ = graphicsStrategy_->LoadDepthTexture();
     depthFramebuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
   }

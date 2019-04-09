@@ -71,6 +71,7 @@ public:
   virtual ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) = 0;
   virtual ZTexture LoadEmptyLUT() = 0;
   virtual ZTexture LoadDepthTexture() = 0;
+  virtual ZTexture LoadPoissonTexture() = 0;
   virtual void BindTexture(ZTexture texture, unsigned int index) = 0;
   virtual ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) = 0;
   virtual ZBufferData LoadCubeMapBuffer() = 0;

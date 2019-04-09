@@ -470,6 +470,10 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
   return depthMap;
 }
 
+ZTexture ZGLGraphicsStrategy::LoadPoissonTexture() {
+  return ZTexture();
+}
+
 void ZGLGraphicsStrategy::BindDepthMapBuffer(ZBufferData frameBuffer) {
   glViewport(0, 0, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE);
 	BindFramebuffer(frameBuffer);

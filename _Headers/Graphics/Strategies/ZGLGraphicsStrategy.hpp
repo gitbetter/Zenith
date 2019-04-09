@@ -72,6 +72,7 @@ public:
   ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) override;
   ZTexture LoadEmptyLUT() override;
   ZTexture LoadDepthTexture() override;
+  ZTexture LoadPoissonTexture() override;
   void BindTexture(ZTexture texture, unsigned int index) override;
   ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) override;
   ZBufferData LoadCubeMapBuffer() override;
