@@ -224,11 +224,11 @@ void ZShader::Use(ZMaterial* material) {
     SetFloat("materials[" + std::to_string(material->Index()) + "].shininess", material->Properties().shininess);
   }
 
-  // We start the external texture indices at 2 due to the depth and PBR irradiance maps, which are set internally
+  // We start the external texture indices at 4 due to the depth, shadow and PBR irradiance maps, which are set internally
   // and should not be overriden
   for (unsigned int i = 0; i < material->Textures().size(); i++) {
-    SetInt(material->Textures()[i].type, i+3);
-    ZEngine::Graphics()->Strategy()->BindTexture(material->Textures()[i], i+3);
+    SetInt(material->Textures()[i].type, i+4);
+    ZEngine::Graphics()->Strategy()->BindTexture(material->Textures()[i], i+4);
   }
 }
 

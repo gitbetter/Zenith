@@ -39,6 +39,7 @@
 #include "ZCommon.hpp"
 #include "ZResourceCache.hpp"
 #include "ZResource.hpp"
+#include "PoissonGenerator.h"
 
 void ZGLGraphicsStrategy::Initialize() {
   drawingStylesMap_[ZMeshDrawStyle::Point] = GL_POINT;
@@ -471,7 +472,33 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
 }
 
 ZTexture ZGLGraphicsStrategy::LoadPoissonTexture() {
-  return ZTexture();
+	unsigned int numSamples = 16, attempts = 0;
+	auto points = PoissonGenerator::GeneratePoissonPoints(numSamples * 2, PoissonGenerator::DefaultPRNG());
+
+	while (points.size() < numSamples && ++attempts < 100)
+		points = PoissonGenerator::GeneratePoissonPoints(numSamples * 2, PoissonGenerator::DefaultPRNG());
+
+	if (attempts == 100) {
+		_Z("Couldn't generate Poisson-disc distribution with " + std::to_string(numSamples) + " samples", ZWARNING);
+		numSamples = points.size();
+	}
+	std::vector<float> data(numSamples * 2);
+	for (unsigned int i = 0, j = 0; i < numSamples; i++, j += 2) {
+		auto& point = points[i];
+		data[j] = point.x;
+		data[j + 1] = point.y;
+	}
+
+	ZTexture poissonTexture;
+	glGenTextures(1, &poissonTexture.id);
+	glBindTexture(GL_TEXTURE_1D, poissonTexture.id);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RG, numSamples, 0, GL_RG, GL_FLOAT, &data[0]);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_1D, 0);
+  return poissonTexture;
 }
 
 void ZGLGraphicsStrategy::BindDepthMapBuffer(ZBufferData frameBuffer) {

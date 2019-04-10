@@ -138,7 +138,11 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   shader->Use(gameLights_);
 
 	ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
-	if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
+	if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) {
+		shader->SetInt("shadowMap", 0);
+		ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->PoissonDisk(), 1);
+		shader->SetInt("poissonDistribution", 1);
+	}
 
   shader->SetMat4("P", projectionMatrix);
   shader->SetMat4("V", viewMatrix);
@@ -147,12 +151,12 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   shader->SetVec3("viewPosition", gameCamera_->Position());
 
   if (object_->Game()->Skybox() != nullptr) {
-    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().irradiance, 1);
-    shader->SetInt("irradianceMap", 1);
-    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().prefiltered, 2);
-    shader->SetInt("prefilterMap", 2);
-    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().brdfLUT, 3);
-    shader->SetInt("brdfLUT", 3);
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().irradiance, 2);
+    shader->SetInt("irradianceMap", 2);
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().prefiltered, 3);
+    shader->SetInt("prefilterMap", 3);
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().brdfLUT, 4);
+    shader->SetInt("brdfLUT", 4);
   }
 
   model_->Render(shader.get(), materials_);
