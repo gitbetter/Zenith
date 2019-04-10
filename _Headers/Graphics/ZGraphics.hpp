@@ -61,7 +61,6 @@ public:
   ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
   glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
   ZTexture DepthMap() { return depthMap_; }
-  ZTexture PoissonDisk() { return poissonDisk_; }
   std::shared_ptr<ZShader> ShadowShader() { return shadowShader_; }
   ZTextureMap& Textures() { return loadedTextures_; }
   ZShaderMap& Shaders() { return loadedShaders_; }
@@ -80,7 +79,7 @@ protected:
   std::shared_ptr<ZShader> shadowShader_ = nullptr;
   ZGraphicsStrategy* graphicsStrategy_ = nullptr;
   ZBufferData depthFramebuffer_;
-  ZTexture depthMap_, poissonDisk_;
+  ZTexture depthMap_;
   glm::mat4 currentLightSpaceMatrix_;
   ZShaderMap loadedShaders_;
   ZTextureMap loadedTextures_;

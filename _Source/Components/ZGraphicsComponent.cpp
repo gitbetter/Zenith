@@ -140,8 +140,6 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 	ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
 	if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) {
 		shader->SetInt("shadowMap", 0);
-		ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->PoissonDisk(), 1);
-		shader->SetInt("poissonDistribution", 1);
 	}
 
   shader->SetMat4("P", projectionMatrix);
