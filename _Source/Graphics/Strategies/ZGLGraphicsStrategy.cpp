@@ -458,8 +458,7 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
   depthMap.type = "depth";
   glGenTextures(1, &depthMap.id);
   glBindTexture(GL_TEXTURE_2D, depthMap.id);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::
-		_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
