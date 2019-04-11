@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZScriptResourceLoader.hpp
+    ZWavResourceLoader.cpp
 
-    Created by Adrian Sanchez on 24/03/2019.
+    Created by Adrian Sanchez on 11/04/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,25 +27,13 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZWavResourceLoader.hpp"
 
-// Includes
-#include "ZResourceLoader.hpp"
+bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
 
-// Forward Declarations
-//class SomeClass;
+}
 
-// Class and Data Structure Definitions
-class ZScriptResourceLoader : public ZResourceLoader {
 
-public:
-
-    ~ZScriptResourceLoader() { }
-    std::string Pattern() override { return ".*\\.lua"; }
-    bool UseRawFile() override { return false; };
-    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
-    bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
-
-protected:
-
-};
+bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle) {
+    
+}

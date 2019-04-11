@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZScriptResourceLoader.hpp
+    ZResourceExtraData.hpp
 
-    Created by Adrian Sanchez on 24/03/2019.
+    Created by Adrian Sanchez on 11/04/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -30,22 +30,27 @@
 #pragma once
 
 // Includes
-#include "ZResourceLoader.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
-//class SomeClass;
 
 // Class and Data Structure Definitions
-class ZScriptResourceLoader : public ZResourceLoader {
+class ZResourceExtraData { };
+
+class ZSoundResourceExtraData : public ZResourceExtraData {
 
 public:
 
-    ~ZScriptResourceLoader() { }
-    std::string Pattern() override { return ".*\\.lua"; }
-    bool UseRawFile() override { return false; };
-    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
-    bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
+    ZSoundResourceExtraData();
+    virtual ~ZSoundResourceExtraData() { }
 
+    std::string ToString() { return "ZSoundResourceExtraData"; }
+    ZSoundType SoundType() { return soundType_; }
+    unsigned int LengthMilli() const { return lengthMilli_; }
+    
 protected:
+
+    ZSoundType soundType_;
+    unsigned int lengthMilli_;
 
 };

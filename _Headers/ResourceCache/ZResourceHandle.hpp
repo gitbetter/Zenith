@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZResourceCache;
+class ZResourceExtraData;
 
 // Class and Data Structure Definitions
 class ZResourceHandle {
@@ -50,6 +51,7 @@ public:
     unsigned int Size() const { return size_; }
     const char* Buffer() const { return buffer_; }
     char* FluidBuffer() { return buffer_; }
+    std::shared_ptr<ZResourceExtraData> ExtraData() { return extraData_; }
 
 protected:
 
@@ -57,6 +59,6 @@ protected:
   char* buffer_ = nullptr;
   unsigned int size_;
   ZResourceCache* resourceCache_ = nullptr;
-  // TODO: More fields for extra data
+  std::shared_ptr<ZResourceExtraData> extraData_;
 
 };

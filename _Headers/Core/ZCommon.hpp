@@ -138,6 +138,10 @@ enum class ZProcessState {
   Uninitialized, Removed, Running, Paused, Finished, Failed, Aborted
 };
 
+enum class ZSoundType {
+  Ambient, Music, Normal
+};
+
 struct ZBufferData {
   ZBufferDataType type;
   union {
