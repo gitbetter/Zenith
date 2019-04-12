@@ -74,7 +74,7 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath) {
     ZResource shaderResource(shaderPath);
     std::shared_ptr<ZResourceHandle> shaderHandle = ZEngine::ResourceCache()->GetHandle(&shaderResource);
     if (shaderHandle) {
-      shaderCode = std::string(shaderHandle->Buffer());
+      shaderCode = std::string((char*)shaderHandle->Buffer());
     }
   }
   return shaderCode;

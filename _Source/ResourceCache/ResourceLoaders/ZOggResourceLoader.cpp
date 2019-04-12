@@ -28,11 +28,17 @@
 */
 
 #include "ZOggResourceLoader.hpp"
+#include "ZResourceExtraData.hpp"
 
 bool ZOggResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
-
+	std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();
+	extra->soundType_ = ZSoundType::Ogg;
+	handle->SetExtra(extra);
+	if (!ParseOgg(rawBuffer, rawSize, handle)) return false;
+	return true;
 }
 
 bool ZOggResourceLoader::ParseOgg(char *oggStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle) {
-    
+	// TODO: Implement with libsndfile
+	return true;
 }

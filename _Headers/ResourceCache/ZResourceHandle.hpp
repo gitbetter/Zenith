@@ -45,18 +45,20 @@ private:
 
 public:
 
-    ZResourceHandle(ZResource& resource, char* buffer, unsigned int size, ZResourceCache* resourceCache);
+    ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache);
     virtual ~ZResourceHandle();
 
     unsigned int Size() const { return size_; }
-    const char* Buffer() const { return buffer_; }
-    char* FluidBuffer() { return buffer_; }
+    const void* Buffer() const { return buffer_; }
+    void* FluidBuffer() { return buffer_; }
     std::shared_ptr<ZResourceExtraData> ExtraData() { return extraData_; }
+
+		void SetExtra(std::shared_ptr<ZResourceExtraData> extra) { extraData_ = extra; }
 
 protected:
 
   ZResource resource_;
-  char* buffer_ = nullptr;
+  void* buffer_ = nullptr;
   unsigned int size_;
   ZResourceCache* resourceCache_ = nullptr;
   std::shared_ptr<ZResourceExtraData> extraData_;

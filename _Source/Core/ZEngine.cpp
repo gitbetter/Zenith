@@ -296,7 +296,7 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
   // TODO: ZOFTree should have append functionality so that different
   // ZOFTrees can be combined (by combining children into a single tree)
   ZOFParser parser;
-  std::shared_ptr<ZOFTree> objectTree = parser.Parse(std::string(handle->Buffer()));
+  std::shared_ptr<ZOFTree> objectTree = parser.Parse(std::string((char*)handle->Buffer()));
 
   // TODO: The more systems are populated this way, the more of a hamper we place on
   // load times. Refactor this so the object tree is only traversed once.

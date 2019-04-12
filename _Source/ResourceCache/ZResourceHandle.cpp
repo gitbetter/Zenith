@@ -30,7 +30,7 @@
 #include "ZResourceHandle.hpp"
 #include "ZResourceCache.hpp"
 
-ZResourceHandle::ZResourceHandle(ZResource& resource, char* buffer, unsigned int size, ZResourceCache* resourceCache) : resource_(resource), size_(size) { 
+ZResourceHandle::ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache) : resource_(resource), size_(size) { 
   buffer_ = buffer;
   resourceCache_ = resourceCache;
 }

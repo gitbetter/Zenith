@@ -29,4 +29,4 @@
 
 #include "ZResourceExtraData.hpp"
 
-ZSoundResourceExtraData::ZSoundResourceExtraData() : soundType_(ZSoundType::Normal), lengthMilli_(0) { }
+ZSoundResourceExtraData::ZSoundResourceExtraData() : soundType_(ZSoundType::Unknown), lengthMilli_(0) { }

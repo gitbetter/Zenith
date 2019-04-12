@@ -142,14 +142,14 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
 
   if (loader->UseRawFile()) {
     buffer = rawBuffer;
-    handle = std::shared_ptr<ZResourceHandle>(new ZResourceHandle(*resource, buffer, rawSize, this));
+    handle = std::shared_ptr<ZResourceHandle>(new ZResourceHandle(*resource, (void*)buffer, rawSize, this));
   } else {
     size = loader->LoadedResourceSize(rawBuffer, rawSize);
     buffer = Allocate(size);
 
     if (rawBuffer == nullptr || buffer == nullptr) return nullptr;
 
-    handle = std::shared_ptr<ZResourceHandle>(new ZResourceHandle(*resource, buffer, size, this));
+    handle = std::shared_ptr<ZResourceHandle>(new ZResourceHandle(*resource, (void*)buffer, size, this));
     bool success = loader->LoadResource(rawBuffer, rawSize, handle);
 
     delete[] rawBuffer;

@@ -139,7 +139,7 @@ enum class ZProcessState {
 };
 
 enum class ZSoundType {
-  Ambient, Music, Normal
+  Wav, Ogg, Unknown
 };
 
 struct ZBufferData {

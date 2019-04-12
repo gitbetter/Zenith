@@ -33,11 +33,16 @@
 #include "ZCommon.hpp"
 
 // Forward Declarations
+class ZWavResourceLoader;
+class ZOggResourceLoader;
 
 // Class and Data Structure Definitions
 class ZResourceExtraData { };
 
 class ZSoundResourceExtraData : public ZResourceExtraData {
+
+	friend class ZWavResourceLoader;
+	friend class ZOggResourceLoader;
 
 public:
 
