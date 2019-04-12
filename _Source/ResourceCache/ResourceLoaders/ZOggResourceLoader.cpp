@@ -29,6 +29,7 @@
 
 #include "ZOggResourceLoader.hpp"
 #include "ZResourceExtraData.hpp"
+#include "sndfile.h"
 
 bool ZOggResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
 	std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();

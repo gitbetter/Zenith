@@ -501,6 +501,11 @@ ${HEADERS_DIR}/_ThirdParty/cppfs/windows/LocalFileSystem.h
 ${HEADERS_DIR}/_ThirdParty/cppfs/windows/LocalFileWatcher.h
 ${HEADERS_DIR}/_ThirdParty/fastdelegate/FastDelegate.h
 ${HEADERS_DIR}/_ThirdParty/fastdelegate/FastDelegateBind.h
+${HEADERS_DIR}/_ThirdParty/FLAC++/all.h
+${HEADERS_DIR}/_ThirdParty/FLAC++/decoder.h
+${HEADERS_DIR}/_ThirdParty/FLAC++/encoder.h
+${HEADERS_DIR}/_ThirdParty/FLAC++/export.h
+${HEADERS_DIR}/_ThirdParty/FLAC++/metadata.h
 ${HEADERS_DIR}/_ThirdParty/freetype/freetype.h
 ${HEADERS_DIR}/_ThirdParty/freetype/ftadvanc.h
 ${HEADERS_DIR}/_ThirdParty/freetype/ftbbox.h
@@ -978,6 +983,14 @@ ${HEADERS_DIR}/_ThirdParty/lua/lua.hpp
 ${HEADERS_DIR}/_ThirdParty/lua/luaconf.h
 ${HEADERS_DIR}/_ThirdParty/lua/lualib.h
 ${HEADERS_DIR}/_ThirdParty/lua/sol.hpp
+${HEADERS_DIR}/_ThirdParty/ogg/config_types.h
+${HEADERS_DIR}/_ThirdParty/ogg/ogg.h
+${HEADERS_DIR}/_ThirdParty/ogg/os_types.h
+${HEADERS_DIR}/_ThirdParty/sndfile/sndfile.h
+${HEADERS_DIR}/_ThirdParty/sndfile/config.h
+${HEADERS_DIR}/_ThirdParty/vorbis/codec.h
+${HEADERS_DIR}/_ThirdParty/vorbis/vorbisenc.h
+${HEADERS_DIR}/_ThirdParty/vorbis/vorbisfile.h
 ${HEADERS_DIR}/_ThirdParty/zip/zip.h
 ${HEADERS_DIR}/_ThirdParty/zlib/zconf.h
 ${HEADERS_DIR}/_ThirdParty/zlib/zlib.h
@@ -1010,6 +1023,7 @@ ${HEADERS_DIR}/_ThirdParty/cppfs/posix
 ${HEADERS_DIR}/_ThirdParty/cppfs/ssh
 ${HEADERS_DIR}/_ThirdParty/cppfs/windows
 ${HEADERS_DIR}/_ThirdParty/fastdelegate
+${HEADERS_DIR}/_ThirdParty/FLAC++
 ${HEADERS_DIR}/_ThirdParty/freetype
 ${HEADERS_DIR}/_ThirdParty/freetype/config
 ${HEADERS_DIR}/_ThirdParty/freetype/internal
@@ -1022,6 +1036,9 @@ ${HEADERS_DIR}/_ThirdParty/glm/gtc
 ${HEADERS_DIR}/_ThirdParty/glm/gtx
 ${HEADERS_DIR}/_ThirdParty/glm/simd
 ${HEADERS_DIR}/_ThirdParty/lua
+${HEADERS_DIR}/_ThirdParty/ogg
+${HEADERS_DIR}/_ThirdParty/sndfile
+${HEADERS_DIR}/_ThirdParty/vorbis
 ${HEADERS_DIR}/_ThirdParty/zip
 ${HEADERS_DIR}/_ThirdParty/zlib
 ${HEADERS_DIR}/Components
@@ -1074,24 +1091,33 @@ if (APPLE)
   find_library(ZIP_LIB NAMES zip HINTS "${DARWIN_LIB_DIR}")
   find_library(LUA_LIB NAMES lua HINTS "${DARWIN_LIB_DIR}")
   find_library(CPPFS_LIB NAMES cppfsd HINTS "${DARWIN_LIB_DIR}")
+  find_library(FLAC_LIB NAMES FLAC libFLAC++ HINTS "${DARWIN_LIB_DIR}")
+  find_library(OGG_LIB NAMES ogg HINTS "${DARWIN_LIB_DIR}")
+  find_library(VORBIS_LIB NAMES vorbis HINTS "${DARWIN_LIB_DIR}")
+  find_library(SNDFILE_LIB NAMES sndfile HINTS "${DARWIN_LIB_DIR}")
 
-  target_link_libraries(zenith "-framework Cocoa" 
-                               "-framework OpenGL" 
-                               "-framework IOKit" 
-                               "-framework CoreVideo" 
-                               "-framework CoreFoundation"
-                               ${GLEW_LIB}
-                               ${GLFW_LIB}
-							   ${CPPFS_LIB}
-                               ${BZ2_LIB}
-                               ${ZLIB_LIB}
-                               ${FREETYPE_LIB} 
-                               ${ZIP_LIB} 
-                               ${LUA_LIB}
-                               ${ASSIMP_LIB} 
-                               ${LINEARMATH_BULLET_LIB} 
-                               ${BULLETCOLLISION_BULLET_LIB} 
-                               ${BULLETDYNAMICS_BULLET_LIB})
+  target_link_libraries(zenith 
+  "-framework Cocoa" 
+  "-framework OpenGL" 
+  "-framework IOKit" 
+  "-framework CoreVideo" 
+  "-framework CoreFoundation"
+  ${GLEW_LIB}
+  ${GLFW_LIB}
+  ${CPPFS_LIB}
+  ${BZ2_LIB}
+  ${ZLIB_LIB}
+  ${FREETYPE_LIB} 
+  ${ZIP_LIB} 
+  ${LUA_LIB}
+  ${ASSIMP_LIB} 
+  ${LINEARMATH_BULLET_LIB} 
+  ${BULLETCOLLISION_BULLET_LIB} 
+  ${BULLETDYNAMICS_BULLET_LIB}
+  ${FLAC_LIB}
+  ${OGG_LIB}
+  ${VORBIS_LIB}
+  ${SNDFILE_LIB})
 
 elseif (WIN32)
   find_package(OpenGL REQUIRED)
@@ -1109,20 +1135,21 @@ elseif (WIN32)
   find_library(LUA_LIB NAMES lua53 HINTS "${WINDOWS_LIB_DIR}")
   find_library(CPPFS_LIB NAMES cppfsd HINTS "${WINDOWS_LIB_DIR}")
 
-  target_link_libraries(zenith ${OPENGL_LIBRARY} 
-                               gdi32 
-                               ${GLEW_LIB}
-                               ${GLFW_LIB}
-							   ${CPPFS_LIB}
-                               ${BZ2_LIB}
-                               ${ZLIB_LIB}
-                               ${FREETYPE_LIB} 
-                               ${ZIP_LIB} 
-                               ${LUA_LIB}
-                               ${ASSIMP_LIB} 
-                               ${LINEARMATH_BULLET_LIB} 
-                               ${BULLETCOLLISION_BULLET_LIB} 
-                               ${BULLETDYNAMICS_BULLET_LIB})
+  target_link_libraries(zenith 
+  ${OPENGL_LIBRARY} 
+  gdi32 
+  ${GLEW_LIB}
+  ${GLFW_LIB}
+  ${CPPFS_LIB}
+  ${BZ2_LIB}
+  ${ZLIB_LIB}
+  ${FREETYPE_LIB} 
+  ${ZIP_LIB} 
+  ${LUA_LIB}
+  ${ASSIMP_LIB} 
+  ${LINEARMATH_BULLET_LIB} 
+  ${BULLETCOLLISION_BULLET_LIB} 
+  ${BULLETDYNAMICS_BULLET_LIB})
 
   add_custom_command(TARGET zenith POST_BUILD
                      COMMAND "${CMAKE_COMMAND}" -E copy_directory "${WINDOWS_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
