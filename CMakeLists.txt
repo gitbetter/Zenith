@@ -986,6 +986,17 @@ ${HEADERS_DIR}/_ThirdParty/lua/sol.hpp
 ${HEADERS_DIR}/_ThirdParty/ogg/config_types.h
 ${HEADERS_DIR}/_ThirdParty/ogg/ogg.h
 ${HEADERS_DIR}/_ThirdParty/ogg/os_types.h
+${HEADERS_DIR}/_ThirdParty/openal/default-44100.mhr.h
+${HEADERS_DIR}/_ThirdParty/openal/efx-creative.h
+${HEADERS_DIR}/_ThirdParty/openal/bsinc_inc.h
+${HEADERS_DIR}/_ThirdParty/openal/version.h
+${HEADERS_DIR}/_ThirdParty/openal/config.h
+${HEADERS_DIR}/_ThirdParty/openal/default-48000.mhr.h
+${HEADERS_DIR}/_ThirdParty/openal/al.h
+${HEADERS_DIR}/_ThirdParty/openal/efx.h
+${HEADERS_DIR}/_ThirdParty/openal/efx-presets.h
+${HEADERS_DIR}/_ThirdParty/openal/alc.h
+${HEADERS_DIR}/_ThirdParty/openal/alext.h
 ${HEADERS_DIR}/_ThirdParty/sndfile/sndfile.h
 ${HEADERS_DIR}/_ThirdParty/sndfile/config.h
 ${HEADERS_DIR}/_ThirdParty/vorbis/codec.h
@@ -1037,6 +1048,7 @@ ${HEADERS_DIR}/_ThirdParty/glm/gtx
 ${HEADERS_DIR}/_ThirdParty/glm/simd
 ${HEADERS_DIR}/_ThirdParty/lua
 ${HEADERS_DIR}/_ThirdParty/ogg
+${HEADERS_DIR}/_ThirdParty/openal
 ${HEADERS_DIR}/_ThirdParty/sndfile
 ${HEADERS_DIR}/_ThirdParty/vorbis
 ${HEADERS_DIR}/_ThirdParty/zip
@@ -1095,6 +1107,7 @@ if (APPLE)
   find_library(OGG_LIB NAMES ogg HINTS "${DARWIN_LIB_DIR}")
   find_library(VORBIS_LIB NAMES vorbis HINTS "${DARWIN_LIB_DIR}")
   find_library(SNDFILE_LIB NAMES sndfile HINTS "${DARWIN_LIB_DIR}")
+  find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
 
   target_link_libraries(zenith 
   "-framework Cocoa" 
@@ -1117,7 +1130,8 @@ if (APPLE)
   ${FLAC_LIB}
   ${OGG_LIB}
   ${VORBIS_LIB}
-  ${SNDFILE_LIB})
+  ${SNDFILE_LIB}
+  ${OPENAL_LIB})
 
 elseif (WIN32)
   find_package(OpenGL REQUIRED)
