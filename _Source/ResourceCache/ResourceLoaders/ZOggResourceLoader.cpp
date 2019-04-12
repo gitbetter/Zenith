@@ -29,7 +29,6 @@
 
 #include "ZOggResourceLoader.hpp"
 #include "ZResourceExtraData.hpp"
-#include "sndfile.h"
 
 bool ZOggResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
 	std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();
@@ -40,6 +39,6 @@ bool ZOggResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std
 }
 
 bool ZOggResourceLoader::ParseOgg(char *oggStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle) {
-	// TODO: Implement with libsndfile
+	// TODO:
 	return true;
 }

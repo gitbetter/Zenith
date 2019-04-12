@@ -997,8 +997,6 @@ ${HEADERS_DIR}/_ThirdParty/openal/efx.h
 ${HEADERS_DIR}/_ThirdParty/openal/efx-presets.h
 ${HEADERS_DIR}/_ThirdParty/openal/alc.h
 ${HEADERS_DIR}/_ThirdParty/openal/alext.h
-${HEADERS_DIR}/_ThirdParty/sndfile/sndfile.h
-${HEADERS_DIR}/_ThirdParty/sndfile/config.h
 ${HEADERS_DIR}/_ThirdParty/vorbis/codec.h
 ${HEADERS_DIR}/_ThirdParty/vorbis/vorbisenc.h
 ${HEADERS_DIR}/_ThirdParty/vorbis/vorbisfile.h
@@ -1049,7 +1047,6 @@ ${HEADERS_DIR}/_ThirdParty/glm/simd
 ${HEADERS_DIR}/_ThirdParty/lua
 ${HEADERS_DIR}/_ThirdParty/ogg
 ${HEADERS_DIR}/_ThirdParty/openal
-${HEADERS_DIR}/_ThirdParty/sndfile
 ${HEADERS_DIR}/_ThirdParty/vorbis
 ${HEADERS_DIR}/_ThirdParty/zip
 ${HEADERS_DIR}/_ThirdParty/zlib
@@ -1106,7 +1103,6 @@ if (APPLE)
   find_library(FLAC_LIB NAMES FLAC libFLAC++ HINTS "${DARWIN_LIB_DIR}")
   find_library(OGG_LIB NAMES ogg HINTS "${DARWIN_LIB_DIR}")
   find_library(VORBIS_LIB NAMES vorbis HINTS "${DARWIN_LIB_DIR}")
-  find_library(SNDFILE_LIB NAMES sndfile HINTS "${DARWIN_LIB_DIR}")
   find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
 
   target_link_libraries(zenith 

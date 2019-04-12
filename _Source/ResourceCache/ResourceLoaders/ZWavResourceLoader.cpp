@@ -29,7 +29,6 @@
 
 #include "ZWavResourceLoader.hpp"
 #include "ZResourceExtraData.hpp"
-#include "sndfile.h"
 
 bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
 	std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();
@@ -41,6 +40,6 @@ bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std
 
 
 bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle) {
-	// TODO: Implement with libsndfile
+	// TODO:
 	return true;
 }
