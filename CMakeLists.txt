@@ -1093,6 +1093,9 @@ if (APPLE)
   find_library(ZIP_LIB NAMES zip HINTS "${DARWIN_LIB_DIR}")
   find_library(LUA_LIB NAMES lua HINTS "${DARWIN_LIB_DIR}")
   find_library(CPPFS_LIB NAMES cppfsd HINTS "${DARWIN_LIB_DIR}")
+  find_library(OGG_LIB NAMES ogg HINTS "${DARWIN_LIB_DIR}")
+  find_library(VORBIS_LIB NAMES vorbis HINTS "${DARWIN_LIB_DIR}")
+  find_library(VORBISFILE_LIB NAMES vorbisfile HINTS "${DARWIN_LIB_DIR}")
   find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
 
   target_link_libraries(zenith 
@@ -1113,6 +1116,9 @@ if (APPLE)
   ${LINEARMATH_BULLET_LIB} 
   ${BULLETCOLLISION_BULLET_LIB} 
   ${BULLETDYNAMICS_BULLET_LIB}
+  ${OGG_LIB}
+  ${VORBIS_LIB}
+  ${VORBISFILE_LIB}
   ${OPENAL_LIB})
 
 elseif (WIN32)
