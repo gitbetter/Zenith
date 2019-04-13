@@ -501,11 +501,6 @@ ${HEADERS_DIR}/_ThirdParty/cppfs/windows/LocalFileSystem.h
 ${HEADERS_DIR}/_ThirdParty/cppfs/windows/LocalFileWatcher.h
 ${HEADERS_DIR}/_ThirdParty/fastdelegate/FastDelegate.h
 ${HEADERS_DIR}/_ThirdParty/fastdelegate/FastDelegateBind.h
-${HEADERS_DIR}/_ThirdParty/FLAC++/all.h
-${HEADERS_DIR}/_ThirdParty/FLAC++/decoder.h
-${HEADERS_DIR}/_ThirdParty/FLAC++/encoder.h
-${HEADERS_DIR}/_ThirdParty/FLAC++/export.h
-${HEADERS_DIR}/_ThirdParty/FLAC++/metadata.h
 ${HEADERS_DIR}/_ThirdParty/freetype/freetype.h
 ${HEADERS_DIR}/_ThirdParty/freetype/ftadvanc.h
 ${HEADERS_DIR}/_ThirdParty/freetype/ftbbox.h
@@ -983,7 +978,6 @@ ${HEADERS_DIR}/_ThirdParty/lua/lua.hpp
 ${HEADERS_DIR}/_ThirdParty/lua/luaconf.h
 ${HEADERS_DIR}/_ThirdParty/lua/lualib.h
 ${HEADERS_DIR}/_ThirdParty/lua/sol.hpp
-${HEADERS_DIR}/_ThirdParty/ogg/config_types.h
 ${HEADERS_DIR}/_ThirdParty/ogg/ogg.h
 ${HEADERS_DIR}/_ThirdParty/ogg/os_types.h
 ${HEADERS_DIR}/_ThirdParty/openal/default-44100.mhr.h
@@ -1032,7 +1026,6 @@ ${HEADERS_DIR}/_ThirdParty/cppfs/posix
 ${HEADERS_DIR}/_ThirdParty/cppfs/ssh
 ${HEADERS_DIR}/_ThirdParty/cppfs/windows
 ${HEADERS_DIR}/_ThirdParty/fastdelegate
-${HEADERS_DIR}/_ThirdParty/FLAC++
 ${HEADERS_DIR}/_ThirdParty/freetype
 ${HEADERS_DIR}/_ThirdParty/freetype/config
 ${HEADERS_DIR}/_ThirdParty/freetype/internal
@@ -1100,9 +1093,6 @@ if (APPLE)
   find_library(ZIP_LIB NAMES zip HINTS "${DARWIN_LIB_DIR}")
   find_library(LUA_LIB NAMES lua HINTS "${DARWIN_LIB_DIR}")
   find_library(CPPFS_LIB NAMES cppfsd HINTS "${DARWIN_LIB_DIR}")
-  find_library(FLAC_LIB NAMES FLAC libFLAC++ HINTS "${DARWIN_LIB_DIR}")
-  find_library(OGG_LIB NAMES ogg HINTS "${DARWIN_LIB_DIR}")
-  find_library(VORBIS_LIB NAMES vorbis HINTS "${DARWIN_LIB_DIR}")
   find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
 
   target_link_libraries(zenith 
@@ -1123,10 +1113,6 @@ if (APPLE)
   ${LINEARMATH_BULLET_LIB} 
   ${BULLETCOLLISION_BULLET_LIB} 
   ${BULLETDYNAMICS_BULLET_LIB}
-  ${FLAC_LIB}
-  ${OGG_LIB}
-  ${VORBIS_LIB}
-  ${SNDFILE_LIB}
   ${OPENAL_LIB})
 
 elseif (WIN32)
@@ -1144,6 +1130,10 @@ elseif (WIN32)
   find_library(ZIP_LIB NAMES zip HINTS "${WINDOWS_LIB_DIR}")
   find_library(LUA_LIB NAMES lua53 HINTS "${WINDOWS_LIB_DIR}")
   find_library(CPPFS_LIB NAMES cppfsd HINTS "${WINDOWS_LIB_DIR}")
+  find_library(OGG_LIB NAMES ogg_static libogg_static HINTS "${WINDOWS_LIB_DIR}")
+  find_library(VORBIS_LIB NAMES vorbis libvorbis HINTS "${WINDOWS_LIB_DIR}")
+  find_library(VORBISFILE_LIB NAMES vorbisfil libvorbisfile HINTS "${WINDOWS_LIB_DIR}")
+  find_library(OPENAL_LIB NAMES OpenAL32 HINTS "${WINDOWS_LIB_DIR}")
 
   target_link_libraries(zenith 
   ${OPENGL_LIBRARY} 
@@ -1159,7 +1149,11 @@ elseif (WIN32)
   ${ASSIMP_LIB} 
   ${LINEARMATH_BULLET_LIB} 
   ${BULLETCOLLISION_BULLET_LIB} 
-  ${BULLETDYNAMICS_BULLET_LIB})
+  ${BULLETDYNAMICS_BULLET_LIB}
+  ${OGG_LIB}
+  ${VORBIS_LIB}
+  ${VORBISFILE_LIB}
+  ${OPENAL_LIB})
 
   add_custom_command(TARGET zenith POST_BUILD
                      COMMAND "${CMAKE_COMMAND}" -E copy_directory "${WINDOWS_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
