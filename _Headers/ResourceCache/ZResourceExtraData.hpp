@@ -52,10 +52,12 @@ public:
     std::string ToString() { return "ZSoundResourceExtraData"; }
     ZSoundType SoundType() { return soundType_; }
     unsigned int LengthMilli() const { return lengthMilli_; }
+		ZWavFormatDesc* WavFormatDesc() { return &wavFormatDesc_; }
     
 protected:
 
     ZSoundType soundType_;
     unsigned int lengthMilli_;
+		ZWavFormatDesc wavFormatDesc_;
 
 };

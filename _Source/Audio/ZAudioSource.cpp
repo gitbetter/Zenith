@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZOggResourceLoader.hpp
+    ZAudioSource.cpp
 
-    Created by Adrian Sanchez on 11/04/2019.
+    Created by Adrian Sanchez on 13/04/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,27 +27,8 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZAudioSource.hpp"
 
-// Includes
-#include "ZResourceLoader.hpp"
-
-// Forward Declarations
-//class SomeClass;
-
-// Class and Data Structure Definitions
-class ZOggResourceLoader : public ZResourceLoader {
-
-public:
-
-    ~ZOggResourceLoader() { }
-    std::string Pattern() override { return ".*\\.ogg"; }
-    bool UseRawFile() override { return false; };
-		unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override;
-    bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
-
-protected:
-
-    bool ParseOgg(char *oggStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle);
-
-};
+ZAudioSource::ZAudioSource(std::shared_ptr<ZResourceHandle> resource) : isPaused_(false), isLooping_(false), volume_(0) { 
+	resourceHandle_ = resource; 
+}

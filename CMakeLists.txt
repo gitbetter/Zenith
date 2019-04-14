@@ -12,6 +12,10 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/_Source)
 
 set(SOURCES
 ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
+${SOURCE_DIR}/Utility/ZGLModelImporter.cpp
+${SOURCE_DIR}/Utility/ZIDSequence.cpp
+${SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
+${SOURCE_DIR}/Utility/stb_image.cpp
 ${SOURCE_DIR}/UI/ZUIElement.cpp
 ${SOURCE_DIR}/UI/ZMeshUI.cpp
 ${SOURCE_DIR}/UI/Elements/ZUICursor.cpp
@@ -54,6 +58,9 @@ ${SOURCE_DIR}/GameObjects/ZParticle.cpp
 ${SOURCE_DIR}/Windowing/ZGLDomainStrategy.cpp
 ${SOURCE_DIR}/Windowing/ZDomainStrategy.cpp
 ${SOURCE_DIR}/Windowing/ZDomain.cpp
+${SOURCE_DIR}/Process/ZProcessRunner.cpp
+${SOURCE_DIR}/Process/ZProcess.cpp
+${SOURCE_DIR}/Process/ZScriptableProcess.cpp
 ${SOURCE_DIR}/Physics/Forces/ZAnchoredSpringForce.cpp
 ${SOURCE_DIR}/Physics/Forces/ZGravityForce.cpp
 ${SOURCE_DIR}/Physics/Forces/ZBungeeForce.cpp
@@ -89,14 +96,15 @@ ${SOURCE_DIR}/EventAgent/Events/ZFireEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectSelectedEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectDragEvent.cpp
 ${SOURCE_DIR}/EventAgent/ZScriptableEvent.cpp
-${SOURCE_DIR}/Process/ZProcessRunner.cpp
-${SOURCE_DIR}/Process/ZProcess.cpp
-${SOURCE_DIR}/Process/ZScriptableProcess.cpp
-${SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
-${SOURCE_DIR}/Utility/ZGLModelImporter.cpp
-${SOURCE_DIR}/Utility/ZIDSequence.cpp
-${SOURCE_DIR}/Utility/stb_image.cpp
+${SOURCE_DIR}/Audio/ZAudioSource.cpp
+${SOURCE_DIR}/Audio/ZAudio.cpp
+${SOURCE_DIR}/Audio/ZALAudio.cpp
+${SOURCE_DIR}/Audio/ZALAudioSource.cpp
 ${SOURCE_DIR}/main.cpp
+${HEADERS_DIR}/Audio/ZAudioSource.hpp
+${HEADERS_DIR}/Audio/ZAudio.hpp
+${HEADERS_DIR}/Audio/ZALAudio.hpp
+${HEADERS_DIR}/Audio/ZALAudioSource.hpp
 ${HEADERS_DIR}/Components/ZCameraComponent.hpp
 ${HEADERS_DIR}/Components/ZComponent.hpp
 ${HEADERS_DIR}/Components/ZGraphicsComponent.hpp
@@ -1043,6 +1051,7 @@ ${HEADERS_DIR}/_ThirdParty/openal
 ${HEADERS_DIR}/_ThirdParty/vorbis
 ${HEADERS_DIR}/_ThirdParty/zip
 ${HEADERS_DIR}/_ThirdParty/zlib
+${HEADERS_DIR}/Audio
 ${HEADERS_DIR}/Components
 ${HEADERS_DIR}/Core
 ${HEADERS_DIR}/EventAgent
@@ -1137,8 +1146,8 @@ elseif (WIN32)
   find_library(LUA_LIB NAMES lua53 HINTS "${WINDOWS_LIB_DIR}")
   find_library(CPPFS_LIB NAMES cppfsd HINTS "${WINDOWS_LIB_DIR}")
   find_library(OGG_LIB NAMES ogg_static libogg_static HINTS "${WINDOWS_LIB_DIR}")
-  find_library(VORBIS_LIB NAMES vorbis libvorbis HINTS "${WINDOWS_LIB_DIR}")
-  find_library(VORBISFILE_LIB NAMES vorbisfil libvorbisfile HINTS "${WINDOWS_LIB_DIR}")
+  find_library(VORBIS_LIB NAMES vorbis_static libvorbis_static HINTS "${WINDOWS_LIB_DIR}")
+  find_library(VORBISFILE_LIB NAMES vorbisfile_static libvorbisfile_static HINTS "${WINDOWS_LIB_DIR}")
   find_library(OPENAL_LIB NAMES OpenAL32 HINTS "${WINDOWS_LIB_DIR}")
 
   target_link_libraries(zenith 

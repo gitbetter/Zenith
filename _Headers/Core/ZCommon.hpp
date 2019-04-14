@@ -220,3 +220,13 @@ struct ZOFLoadResult {
   ZGameObjectMap gameObjects;
   ZUIElementMap uiElements;
 };
+
+struct ZWavFormatDesc {
+	unsigned short formatTag;
+	unsigned short channels;
+	unsigned long samplesPerSec;
+	unsigned long avgBytesPerSec;
+	unsigned short blockAlign;
+	unsigned short bitsPerSample;
+	unsigned short cbSize;
+};

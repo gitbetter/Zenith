@@ -34,6 +34,7 @@
 #include "ZGLInput.hpp"
 #include "ZUI.hpp"
 #include "ZPhysics.hpp"
+#include "ZALAudio.hpp"
 #include "ZIDSequence.hpp"
 #include "ZOFTree.hpp"
 #include "ZOFParser.hpp"
@@ -81,6 +82,7 @@ std::shared_ptr<ZGraphics> ZEngine::graphics_ = nullptr;
 std::shared_ptr<ZInput> ZEngine::input_ = nullptr;
 std::shared_ptr<ZUI> ZEngine::ui_ = nullptr;
 std::shared_ptr<ZPhysics> ZEngine::physics_ = nullptr;
+std::shared_ptr<ZAudio> ZEngine::audio_ = nullptr;
 std::unique_ptr<ZProcessRunner> ZEngine::processRunner_ = nullptr;
 std::shared_ptr<ZEventAgent> ZEngine::eventAgent_ = nullptr;
 std::unique_ptr<ZResourceCache> ZEngine::resourceCache_ = nullptr;
@@ -157,6 +159,11 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   processRunner_->AttachProcess(physics_);
   /* ===================================== */
 
+	/* ========= Audio System ============ */
+	audio_ = std::make_shared<ZALAudio>();
+	audio_->Initialize();
+	/* ===================================== */
+
   /* ========= Object Factories ============ */
   gameObjectFactory_.reset(new ZGOFactory);
   graphicsFactory_.reset(new ZGraphicsFactory);
@@ -186,7 +193,11 @@ ZUI* ZEngine::UI() {
 }
 
 ZPhysics* ZEngine::Physics() {
-  return physics_.get();
+	return physics_.get();
+}
+
+ZAudio* ZEngine::Audio() {
+	return audio_.get();
 }
 
 ZProcessRunner* ZEngine::ProcessRunner() {
@@ -239,42 +250,35 @@ float ZEngine::SecondsTime() {
 }
 
 void ZEngine::Provide(std::shared_ptr<ZDomain> domain) {
-  if (domain_ != nullptr) {
-    domain_ = nullptr;
-  }
-  domain_ = std::move(domain);
+	domain_ = domain;
   domain_->Initialize();
 }
 
 void ZEngine::Provide(std::shared_ptr<ZGraphics> graphics) {
-  if (graphics_ != nullptr) {
-    graphics_ = nullptr;
-  }
-  graphics_ = std::move(graphics);
+	graphics_ = graphics;
   graphics_->Initialize();
 }
 
 void ZEngine::Provide(std::shared_ptr<ZInput> input) {
-  if (input_ != nullptr) {
-    input_ = nullptr;
-  }
-  input_ = std::move(input);
+	if(input_) input_->Abort();
+	input_ = input;
+	processRunner_->AttachProcess(input_);
 }
 
 void ZEngine::Provide(std::shared_ptr<ZUI> ui) {
-  if (ui_ != nullptr) {
-    ui_ = nullptr;
-  }
-  ui_ = std::move(ui);
+	ui_ = ui;
   ui_->Initialize();
 }
 
 void ZEngine::Provide(std::shared_ptr<ZPhysics> physics) {
-  if (physics_ != nullptr) {
-    physics_ = nullptr;
-  }
-  physics_ = std::move(physics);
+	if (physics_) physics_->Abort();
+	physics_ = physics;
   physics_->Initialize();
+}
+
+void ZEngine::Provide(std::shared_ptr<ZAudio> audio) {
+	audio_ = audio;
+	audio_->Initialize();
 }
 
 void ZEngine::SetDeltaTime(float deltaTime) {
@@ -312,6 +316,7 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
 void ZEngine::CleanUp() {
   processRunner_->AbortAllProcesses(true);
 
+	audio_->CleanUp(); audio_.reset();
 	physics_->CleanUp(); physics_.reset();
 	ui_->CleanUp(); ui_.reset();
 	input_.reset();

@@ -43,7 +43,7 @@ public:
     ~ZWavResourceLoader() { }
     std::string Pattern() override { return ".*\\.wav"; }
     bool UseRawFile() override { return false; };
-    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
+		unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override;
     bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
 
 protected:

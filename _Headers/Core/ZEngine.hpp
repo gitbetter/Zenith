@@ -44,6 +44,7 @@ class ZInput;
 class ZDomain;
 class ZUI;
 class ZPhysics;
+class ZAudio;
 class ZIDSequence;
 class ZProcessRunner;
 class ZResourceCache;
@@ -65,6 +66,7 @@ private:
   static std::shared_ptr<ZInput> input_;
   static std::shared_ptr<ZUI> ui_;
   static std::shared_ptr<ZPhysics> physics_;
+	static std::shared_ptr<ZAudio> audio_;
 
   static std::unique_ptr<ZProcessRunner> processRunner_;
   static std::shared_ptr<ZEventAgent> eventAgent_;
@@ -102,6 +104,7 @@ public:
   static ZInput* Input();
   static ZUI* UI();
   static ZPhysics* Physics();
+	static ZAudio* Audio();
 
   static ZProcessRunner* ProcessRunner();
   static ZEventAgent* EventAgent();
@@ -124,6 +127,7 @@ public:
   static void Provide(std::shared_ptr<ZInput> input);
   static void Provide(std::shared_ptr<ZUI> ui);
   static void Provide(std::shared_ptr<ZPhysics> physics);
+	static void Provide(std::shared_ptr<ZAudio> audio);
   // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
   
   static void SetDeltaTime(float deltaTime);

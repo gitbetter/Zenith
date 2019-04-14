@@ -30,6 +30,60 @@
 #include "ZWavResourceLoader.hpp"
 #include "ZResourceExtraData.hpp"
 
+#define MAKEFOURCC(ch0, ch1, ch2, ch3) \
+	((unsigned long)(unsigned char)(ch0) | ((unsigned long)(unsigned char)(ch1) << 8) |\
+   ((unsigned long)(unsigned char)(ch2) << 16) | ((unsigned long)(unsigned char)(ch3) << 24))
+
+unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned int rawSize) {
+	unsigned long file = 0, fileEnd = 0, length = 0, type = 0;
+	unsigned long pos = 0;
+
+	type = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
+	if (type != MAKEFOURCC('R', 'I', 'F', 'F'))
+		return false;
+
+	length = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
+	type = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
+	if (type != MAKEFOURCC('W', 'A', 'V', 'E'))
+		return false;
+
+	fileEnd = length - 4;
+
+	bool copiedBuffer = false;
+	while (file < fileEnd) {
+		type = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
+		file += sizeof(unsigned long);
+
+		length = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
+		file += sizeof(unsigned long);
+
+		switch (type) {
+		case MAKEFOURCC('f', 'a', 'c', 't'):
+		{
+			_Z("Compressed .wav files are not yet supported", ZWARNING);
+			break;
+		}
+		case MAKEFOURCC('f', 'm', 't', ' '):
+		{
+			pos += length;
+			break;
+		}
+		case MAKEFOURCC('d', 'a', 't', 'a'):
+		{
+			return length;
+		}
+		}
+
+		file += length;
+
+		if (length & 1) {
+			++pos; ++file;
+		}
+	}
+
+	return false;
+}
+
 bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
 	std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();
 	extra->soundType_ = ZSoundType::Wav;
@@ -39,7 +93,67 @@ bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std
 }
 
 
-bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle) {
-	// TODO:
-	return true;
+bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int bufferLength, std::shared_ptr<ZResourceHandle> handle) {
+	std::shared_ptr<ZSoundResourceExtraData> extra = std::static_pointer_cast<ZSoundResourceExtraData>(handle->ExtraData());
+	unsigned long file = 0, fileEnd = 0, length = 0, type = 0;
+	unsigned long pos = 0;
+
+	type = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
+	if (type != MAKEFOURCC('R', 'I', 'F', 'F'))
+		return false;
+
+	length = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
+	type = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
+	if (type != MAKEFOURCC('W', 'A', 'V', 'E'))
+		return false;
+
+	fileEnd = length - 4;
+
+	memset(&extra->wavFormatDesc_, 0, sizeof(ZWavFormatDesc));
+
+	bool copiedBuffer = false;
+	while (file < fileEnd) {
+		type = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
+		file += sizeof(unsigned long);
+
+		length = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
+		file += sizeof(unsigned long);
+
+		switch (type) {
+		case MAKEFOURCC('f', 'a', 'c', 't'):
+		{
+			_Z("Compressed .wav files are not yet supported", ZWARNING);
+			break;
+		}
+		case MAKEFOURCC('f', 'm', 't', ' '):
+		{
+			memcpy(&extra->wavFormatDesc_, wavStream + pos, length); pos += length;
+			extra->wavFormatDesc_.cbSize = (unsigned short)length;
+			break;
+		}
+		case MAKEFOURCC('d', 'a', 't', 'a'):
+		{
+			copiedBuffer = true;
+			if (length != handle->Size()) {
+				_Z("Resource size and buffer size do not match", ZERROR);
+				return 0;
+			}
+			memcpy(handle->FluidBuffer(), wavStream + pos, length); pos += length;
+			break;
+			return length;
+		}
+		}
+
+		file += length;
+
+		if (copiedBuffer) {
+			extra->lengthMilli_ = (handle->Size() * 1000) / extra->wavFormatDesc_.avgBytesPerSec;
+		}
+
+		if (length & 1) {
+			++pos; ++file;
+		}
+	}
+
+	return false;
 }
