@@ -41,7 +41,9 @@ ZALAudioSource::~ZALAudioSource() {
 	alDeleteBuffers(1, &sampleBuffer_);
 }
 
-bool ZALAudioSource::Initialize() {
+void ZALAudioSource::Initialize() {
+	ZProcess::Initialize();
+
 	std::shared_ptr<ZSoundResourceExtraData> extra = std::static_pointer_cast<ZSoundResourceExtraData>(resourceHandle_->ExtraData());
 	ALenum format, error;
 	if (extra->WavFormatDesc()->channels == 2) {
@@ -54,85 +56,95 @@ bool ZALAudioSource::Initialize() {
 	alGenSources(1, &source_);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error generating audio source", ZERROR);
-		return false;
+		return;
 	}
 
 	alGetError();
 	alGenBuffers(1, &sampleBuffer_);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error generating audio buffer", ZERROR);
-		return false;
+		return;
 	}
 
 	alGetError();
 	alBufferData(sampleBuffer_, format, resourceHandle_->Buffer(), resourceHandle_->Size(), extra->WavFormatDesc()->samplesPerSec);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error setting up audio buffer data", ZERROR);
-		return false;
+		return;
 	}
 
 	alGetError();
 	alSourcei(source_, AL_BUFFER, sampleBuffer_);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error attaching audio buffer data to audio source", ZERROR);
-		return false;
+		return;
 	}
 
-	return true;
+	if (playOnLoad_) Play(volume_, isLooping_);
 }
 
-bool ZALAudioSource::Play(int volume, bool looping) {
+void ZALAudioSource::Update() {
+	ZProcess::Update();
+
+	if (!IsPlaying() && !isLooping_)
+		Finish();
+}
+
+void ZALAudioSource::Play(int volume, bool looping) {
+	if (source_ == 0) return;
+
 	ALenum error;
 
-	if (!SetVolume(volume)) return false;
+	isLooping_ = looping;
+	SetVolume(volume);
 
 	alGetError();
 	alSourcei(source_, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
 	alSourcePlay(source_);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error playing audio source", ZERROR);
-		return false;
 	}
-	return true;
 }
 
-bool ZALAudioSource::Pause() {
+void ZALAudioSource::Pause() {
+	if (source_ == 0) return;
+
 	ALenum error;
 
 	alGetError();
 	alSourcePause(source_);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error pausing audio source", ZERROR);
-		return false;
 	}
-	return true;
 }
 
-bool ZALAudioSource::Stop() {
+void ZALAudioSource::Stop() {
+	if (source_ == 0) return;
+
 	ALenum error;
 
 	alGetError();
 	alSourceStop(source_);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error stopping audio source", ZERROR);
-		return false;
 	}
-	return true;
 }
 
-bool ZALAudioSource::Resume() {
+void ZALAudioSource::Resume() {
+	if (source_ == 0) return;
+
 	ALenum error;
 
 	alGetError();
 	alSourcePlay(source_);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error resuming audio source", ZERROR);
-		return false;
 	}
-	return true;
 }
 
-bool ZALAudioSource::TogglePause() {
+void ZALAudioSource::TogglePause() {
+	if (source_ == 0) return;
+
 	ALenum error;
 	ALint state;
 
@@ -140,14 +152,16 @@ bool ZALAudioSource::TogglePause() {
 	alGetSourcei(source_, AL_SOURCE_STATE, &state);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error toggling pause on audio source", ZERROR);
-		return false;
+		return;
 	}
 
-	if (state == AL_PAUSED) return Resume();
-	else return Pause();
+	if (state == AL_PAUSED) Resume();
+	else Pause();
 }
 
 bool ZALAudioSource::IsPlaying() {
+	if (source_ == 0) return false;
+
 	ALenum error;
 	ALint state;
 
@@ -161,17 +175,18 @@ bool ZALAudioSource::IsPlaying() {
 	return state == AL_PLAYING;
 }
 
-bool ZALAudioSource::SetVolume(int volume) {
-	ALenum error;
+void ZALAudioSource::SetVolume(int volume) {
+	volume_ = volume;
+	if (source_ == 0) return;
 
+	ALenum error;
 	// TODO: Make a max volume property somewhere
 	alGetError();
 	alSourcef(source_, AL_GAIN, glm::clamp((float)volume / 100.f, 0.f, 100.f));
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error setting audio source volume", ZERROR);
-		return false;
+		return;
 	}
-	return true;
 }
 
 float ZALAudioSource::Progress() const {

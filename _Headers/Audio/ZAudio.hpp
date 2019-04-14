@@ -46,7 +46,7 @@ public:
 	virtual bool Initialize() = 0;
 
 	virtual bool Active() = 0;
-	virtual std::shared_ptr<ZAudioSource> NewAudioSource(std::shared_ptr<ZResourceHandle> resource) = 0;
+	virtual std::shared_ptr<ZAudioSource> NewAudioSource(std::shared_ptr<ZResourceHandle> resource, bool playOnLoad = false) = 0;
 	virtual bool ReleaseAudioSource(std::shared_ptr<ZAudioSource> audioSource) = 0;
 	virtual void CleanUp();
 

@@ -46,7 +46,7 @@ public:
 	bool Initialize() override;
 
 	bool Active() override;
-	std::shared_ptr<ZAudioSource> NewAudioSource(std::shared_ptr<ZResourceHandle> resource) override;
+	std::shared_ptr<ZAudioSource> NewAudioSource(std::shared_ptr<ZResourceHandle> resource, bool playOnLoad = false) override;
 	bool ReleaseAudioSource(std::shared_ptr<ZAudioSource> audioSource) override;
 	void CleanUp() override;
 

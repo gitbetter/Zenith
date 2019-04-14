@@ -43,15 +43,16 @@ public:
 	ZALAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr);
 	~ZALAudioSource();
 
-	bool Initialize() override;
-	bool Play(int volume, bool looping = true) override;
-	bool Pause() override;
-	bool Stop() override;
-	bool Resume() override;
+	void Initialize() override;
+	void Update() override;
+	void Play(int volume, bool looping = true) override;
+	void Pause() override;
+	void Stop() override;
+	void Resume() override;
 
-	bool TogglePause() override;
+	void TogglePause() override;
 	bool IsPlaying() override;
-	bool SetVolume(int volume) override;
+	void SetVolume(int volume) override;
 	float Progress() const override;
 
 private:

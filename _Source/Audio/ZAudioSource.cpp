@@ -29,6 +29,6 @@
 
 #include "ZAudioSource.hpp"
 
-ZAudioSource::ZAudioSource(std::shared_ptr<ZResourceHandle> resource) : isPaused_(false), isLooping_(false), volume_(0) { 
+ZAudioSource::ZAudioSource(std::shared_ptr<ZResourceHandle> resource) : isPaused_(false), isLooping_(false), playOnLoad_(false), volume_(50) { 
 	resourceHandle_ = resource; 
 }

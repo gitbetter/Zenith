@@ -55,8 +55,8 @@ public:
   virtual void OnRender() { };
   virtual void Pause() { state_ = ZProcessState::Paused; OnPause(); };
   virtual void OnPause() { };
-  virtual void Continue() { state_ = ZProcessState::Running; OnContinue(); };
-  virtual void OnContinue() { };
+  virtual void Resume() { state_ = ZProcessState::Running; OnResume(); };
+  virtual void OnResume() { };
   virtual void Finish() { state_ = ZProcessState::Finished; OnFinish(); };
   virtual void OnFinish() { };
   virtual void Fail() { state_ = ZProcessState::Failed; OnFail(); };

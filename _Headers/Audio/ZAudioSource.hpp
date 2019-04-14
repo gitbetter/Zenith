@@ -30,12 +30,15 @@
 
 // Includes
 #include "ZCommon.hpp"
+#include "ZProcess.hpp"
 
 // Forward Declarations
 class ZResourceHandle;
 
 // Class and Data Structure Definitions
-class ZAudioSource {
+class ZAudioSource : public ZProcess {
+
+	friend class ZALAudio;
 
 public:
 
@@ -44,23 +47,21 @@ public:
 
 	virtual std::shared_ptr<ZResourceHandle> const Resource() { return resourceHandle_; }
 
-	virtual bool Initialize() = 0;
-	virtual bool Play(int volume, bool looping = true) = 0;
-	virtual bool Pause() = 0;
-	virtual bool Stop() = 0;
-	virtual bool Resume() = 0;
+	virtual void Play(int volume, bool looping = true) = 0;
+	virtual void Stop() = 0;
 
-	virtual bool TogglePause() = 0;
+	virtual void TogglePause() = 0;
 	virtual bool IsPlaying() = 0;
 	virtual bool IsLooping() { return isLooping_; }
-	virtual bool SetVolume(int volume) = 0;
 	virtual int Volume() const { return volume_; }
 	virtual float Progress() const = 0;
+	virtual void SetLooping(bool looping) { isLooping_ = looping; }
+	virtual void SetVolume(int volume) = 0;
 
 protected:
 
 	std::shared_ptr<ZResourceHandle> resourceHandle_;
-	bool isPaused_, isLooping_;
+	bool isPaused_, isLooping_, playOnLoad_;
 	int volume_;
 
 };

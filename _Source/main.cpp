@@ -112,11 +112,11 @@ int main(int argc, const char * argv[]) {
   game->SetDefaultSkybox();
 
 	// Let's test the audio system by adding some background music to the scene.
-	ZResource bgMusic("Assets/Sounds/wind.ogg");
-	auto handle = ZEngine::ResourceCache()->GetHandle(&bgMusic);
-	if (handle) {
-		auto audioSource = ZEngine::Audio()->NewAudioSource(handle);
-		audioSource->Play(35);
+	ZResource bgAmbient("Assets/Sounds/wind.ogg");
+	auto ambientHandle = ZEngine::ResourceCache()->GetHandle(&bgAmbient);
+	if (ambientHandle) {
+		auto audioSource = ZEngine::Audio()->NewAudioSource(ambientHandle);
+		audioSource->Play(35, true);
 	}
 
   // Create the game and start the main game loop. Nothing beyond this point will execute

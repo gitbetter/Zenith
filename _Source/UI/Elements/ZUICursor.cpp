@@ -41,6 +41,10 @@
 #include "ZGame.hpp"
 #include "ZPhysics.hpp"
 #include "ZCameraComponent.hpp"
+#include "ZResource.hpp"
+#include "ZResourceCache.hpp"
+#include "ZAudio.hpp"
+#include "ZAudioSource.hpp"
 
 void ZUICursor::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
@@ -99,6 +103,14 @@ void ZUICursor::HandleMouseMove(std::shared_ptr<ZEvent> event) {
 }
 
 void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
+	// Play a clicky sound effect
+	ZResource bgMusic("Assets/Sounds/click.ogg");
+	auto musicHandle = ZEngine::ResourceCache()->GetHandle(&bgMusic);
+	if (musicHandle) {
+		auto audioSource = ZEngine::Audio()->NewAudioSource(musicHandle);
+		audioSource->Play(65, false);
+	}
+
   // Create a ZUISelectedEvent to handle UI element selection
   ZUIElementMap elements = ZEngine::UI()->Elements();
   bool uiSelected = false;

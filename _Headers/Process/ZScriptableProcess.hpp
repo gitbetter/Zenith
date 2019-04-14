@@ -43,7 +43,7 @@ class ZScriptableProcess : public ZProcess {
 private:
 
   float frequency_, time_;
-  sol::function scriptInitialize_, scriptUpdate_, scriptPause_, scriptContinue_,
+  sol::function scriptInitialize_, scriptUpdate_, scriptPause_, scriptResume_,
                 scriptFinish_, scriptFail_, scriptAbort_;
   std::unordered_map<std::string, sol::object> dynamicFields_;
   static const std::string SCRIPT_PROCESS_NAME;
@@ -74,7 +74,7 @@ protected:
   virtual void OnUpdate() override;
   virtual void OnRender() override;
   virtual void OnPause() override;
-  virtual void OnContinue() override;
+  virtual void OnResume() override;
   virtual void OnFinish() override;
   virtual void OnFail() override;
   virtual void OnAbort() override;

@@ -46,7 +46,7 @@ void ZScriptableProcess::RegisterScriptClass() {
     "Finish", &ZProcess::Finish,
     "Fail", &ZProcess::Fail,
     "Pause", &ZProcess::Pause,
-    "Continue", &ZProcess::Continue,
+    "Resume", &ZProcess::Resume,
     "Abort", &ZProcess::Abort,
     "IsAlive", &ZScriptableProcess::ScriptIsAlive,
     "IsDead", &ZScriptableProcess::ScriptIsDead,
@@ -86,7 +86,7 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table const
 
     temp = obj["OnContinue"];
     if (temp.valid())
-      scriptContinue_ = temp;
+      scriptResume_ = temp;
 
     temp = obj["OnFinish"];
     if (temp.valid())
@@ -168,10 +168,10 @@ void ZScriptableProcess::OnPause() {
     scriptPause_(*this);
 }
 
-void ZScriptableProcess::OnContinue() {
-  ZProcess::OnContinue();
-  if (scriptContinue_.valid())
-    scriptContinue_(*this);
+void ZScriptableProcess::OnResume() {
+  ZProcess::OnResume();
+  if (scriptResume_.valid())
+		scriptResume_(*this);
 }
 
 void ZScriptableProcess::OnFinish() {

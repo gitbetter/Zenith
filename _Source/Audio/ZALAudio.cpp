@@ -47,9 +47,10 @@ bool ZALAudio::Active() {
 	return context_ != nullptr;
 }
 
-std::shared_ptr<ZAudioSource> ZALAudio::NewAudioSource(std::shared_ptr<ZResourceHandle> resource) {
+std::shared_ptr<ZAudioSource> ZALAudio::NewAudioSource(std::shared_ptr<ZResourceHandle> resource, bool playOnLoad) {
 	std::shared_ptr<ZAudioSource> audioSource = std::make_shared<ZALAudioSource>(resource);
-	audioSource->Initialize();
+	audioSource->playOnLoad_ = playOnLoad;
+	if (!playOnLoad) audioSource->Initialize();
 	allSamples_.push_front(audioSource);
 	return audioSource;
 }
