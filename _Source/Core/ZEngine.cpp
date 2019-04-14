@@ -40,6 +40,9 @@
 #include "ZOFParser.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZResourceCache.hpp"
+#include "ZScriptResourceLoader.hpp"
+#include "ZWavResourceLoader.hpp"
+#include "ZOggResourceLoader.hpp"
 #include "ZEventAgent.hpp"
 #include "ZGOFactory.hpp"
 #include "ZGraphicsFactory.hpp"
@@ -47,7 +50,6 @@
 #include "ZPhysicsFactory.hpp"
 #include "ZScriptExports.hpp"
 #include "ZLuaScriptManager.hpp"
-#include "ZScriptResourceLoader.hpp"
 #include "ZScriptableProcess.hpp"
 
 #ifdef DEV_BUILD
@@ -113,6 +115,8 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
 #endif
   resourceCache_->Initialize();
   resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
+	resourceCache_->RegisterLoader(std::shared_ptr<ZWavResourceLoader>(new ZWavResourceLoader));
+	resourceCache_->RegisterLoader(std::shared_ptr<ZOggResourceLoader>(new ZOggResourceLoader));
   /* ============================================ */
 
   /* ========= Event System ============ */

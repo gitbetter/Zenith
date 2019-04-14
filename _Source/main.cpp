@@ -53,9 +53,15 @@
 #include "ZAnchoredSpringForce.hpp"
 #include "ZObjectForceRegistry.hpp"
 
+#include "ZAudio.hpp"
+#include "ZAudioSource.hpp"
+
 #include "ZEventAgent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZObjectDragEvent.hpp"
+
+#include "ZResource.hpp"
+#include "ZResourceCache.hpp"
 
 #include "ZOFParser.hpp"
 
@@ -104,6 +110,14 @@ int main(int argc, const char * argv[]) {
   // culled properly.
   // TODO: Maintain the skybox at the end of the game objects list internally
   game->SetDefaultSkybox();
+
+	// Let's test the audio system by adding some background music to the scene.
+	ZResource bgMusic("Assets/Sounds/wind.ogg");
+	auto handle = ZEngine::ResourceCache()->GetHandle(&bgMusic);
+	if (handle) {
+		auto audioSource = ZEngine::Audio()->NewAudioSource(handle);
+		audioSource->Play(35);
+	}
 
   // Create the game and start the main game loop. Nothing beyond this point will execute
   // for the duration of the game.

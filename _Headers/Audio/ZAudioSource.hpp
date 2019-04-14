@@ -39,12 +39,13 @@ class ZAudioSource {
 
 public:
 
+	ZAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr);
   virtual ~ZAudioSource() { }
 
 	virtual std::shared_ptr<ZResourceHandle> const Resource() { return resourceHandle_; }
 
 	virtual bool Initialize() = 0;
-	virtual bool Play(int volume, bool looping) = 0;
+	virtual bool Play(int volume, bool looping = true) = 0;
 	virtual bool Pause() = 0;
 	virtual bool Stop() = 0;
 	virtual bool Resume() = 0;
@@ -57,8 +58,6 @@ public:
 	virtual float Progress() const = 0;
 
 protected:
-
-	ZAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr);
 
 	std::shared_ptr<ZResourceHandle> resourceHandle_;
 	bool isPaused_, isLooping_;

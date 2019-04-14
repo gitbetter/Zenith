@@ -59,8 +59,8 @@ void ZAudio::ResumeAll() {
 
 void ZAudio::CleanUp() {
 	ZAudioSourceList::iterator it = allSamples_.begin();
-	while (it != allSamples_.end()) {
-		std::shared_ptr<ZAudioSource> audioSource = (*it);
+	while (!allSamples_.empty()) {
+		std::shared_ptr<ZAudioSource> audioSource = allSamples_.front();
 		audioSource->Stop();
 		allSamples_.pop_front();
 	}

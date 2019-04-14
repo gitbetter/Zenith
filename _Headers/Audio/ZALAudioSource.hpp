@@ -40,11 +40,11 @@ class ZALAudioSource : public ZAudioSource {
 
 public:
 
-	ZALAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr) : ZAudioSource(resource) { }
+	ZALAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr);
 	~ZALAudioSource();
 
 	bool Initialize() override;
-	bool Play(int volume, bool looping) override;
+	bool Play(int volume, bool looping = true) override;
 	bool Pause() override;
 	bool Stop() override;
 	bool Resume() override;

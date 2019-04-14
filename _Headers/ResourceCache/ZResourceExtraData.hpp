@@ -37,7 +37,13 @@ class ZWavResourceLoader;
 class ZOggResourceLoader;
 
 // Class and Data Structure Definitions
-class ZResourceExtraData { };
+class ZResourceExtraData {
+
+public:
+
+	virtual ~ZResourceExtraData() { }
+
+};
 
 class ZSoundResourceExtraData : public ZResourceExtraData {
 
@@ -47,7 +53,7 @@ class ZSoundResourceExtraData : public ZResourceExtraData {
 public:
 
     ZSoundResourceExtraData();
-    virtual ~ZSoundResourceExtraData() { }
+    ~ZSoundResourceExtraData() { }
 
     std::string ToString() { return "ZSoundResourceExtraData"; }
     ZSoundType SoundType() { return soundType_; }

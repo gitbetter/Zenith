@@ -68,6 +68,12 @@ unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned in
 			pos += length;
 			break;
 		}
+		case MAKEFOURCC('L', 'I', 'S', 'T'):
+		case MAKEFOURCC('I', 'N', 'F', 'O'):
+		{
+			pos += length;
+			break;
+		}
 		case MAKEFOURCC('d', 'a', 't', 'a'):
 		{
 			return length;
@@ -131,6 +137,12 @@ bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int bufferLength, st
 			extra->wavFormatDesc_.cbSize = (unsigned short)length;
 			break;
 		}
+		case MAKEFOURCC('L', 'I', 'S', 'T'):
+		case MAKEFOURCC('I', 'N', 'F', 'O'):
+		{
+			pos += length; // Skip the metadata
+			break;
+		}
 		case MAKEFOURCC('d', 'a', 't', 'a'):
 		{
 			copiedBuffer = true;
@@ -140,7 +152,6 @@ bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int bufferLength, st
 			}
 			memcpy(handle->FluidBuffer(), wavStream + pos, length); pos += length;
 			break;
-			return length;
 		}
 		}
 
@@ -148,6 +159,7 @@ bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int bufferLength, st
 
 		if (copiedBuffer) {
 			extra->lengthMilli_ = (handle->Size() * 1000) / extra->wavFormatDesc_.avgBytesPerSec;
+			return true;
 		}
 
 		if (length & 1) {

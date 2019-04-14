@@ -32,6 +32,10 @@
 #include "ZResourceHandle.hpp"
 #include "al.h"
 
+ZALAudioSource::ZALAudioSource(std::shared_ptr<ZResourceHandle> resource) : ZAudioSource(resource) {
+	source_ = 0; sampleBuffer_ = 0;
+}
+
 ZALAudioSource::~ZALAudioSource() {
 	alDeleteSources(1, &source_);
 	alDeleteBuffers(1, &sampleBuffer_);
@@ -79,6 +83,8 @@ bool ZALAudioSource::Initialize() {
 
 bool ZALAudioSource::Play(int volume, bool looping) {
 	ALenum error;
+
+	if (!SetVolume(volume)) return false;
 
 	alGetError();
 	alSourcei(source_, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
