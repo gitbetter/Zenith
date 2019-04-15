@@ -150,15 +150,19 @@ void onObjectSelect(std::shared_ptr<ZEvent> event) {
     }
   } else {
     std::shared_ptr<ZGameObject> object = game->GameObjects()[fireEvent->ObjectID()];
-    std::shared_ptr<ZPhysicsComponent> comp = object->FindComponent<ZPhysicsComponent>();
-    glm::vec3 force = game->ActiveCamera()->Front() * 1000.f;
-    glm::vec3 position = glm::inverse(object->ModelMatrix()) * glm::vec4(fireEvent->Position(), 1.0);
-    comp->AddForceAtPoint(force, position);
+    if (object != nullptr) {
+      std::shared_ptr<ZPhysicsComponent> comp = object->FindComponent<ZPhysicsComponent>();
+      glm::vec3 force = game->ActiveCamera()->Front() * 1000.f;
+      glm::vec3 position = glm::inverse(object->ModelMatrix()) * glm::vec4(fireEvent->Position(), 1.0);
+      comp->AddForceAtPoint(force, position);
+    }
   }
 }
 
 void onObjectDrag(std::shared_ptr<ZEvent> event) {
   std::shared_ptr<ZObjectDragEvent> dragEvent = std::static_pointer_cast<ZObjectDragEvent>(event);
-  button->Translate(glm::vec2(dragEvent->DeltaX() * 100.f * ZEngine::DeltaTime(), 
-                              -dragEvent->DeltaY() * 100.f * ZEngine::DeltaTime()));
+  if (button != nullptr) {
+    button->Translate(glm::vec2(dragEvent->DeltaX() * 100.f * ZEngine::DeltaTime(), 
+                                -dragEvent->DeltaY() * 100.f * ZEngine::DeltaTime()));
+  }
 }
