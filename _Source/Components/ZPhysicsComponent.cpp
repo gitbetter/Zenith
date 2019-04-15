@@ -99,6 +99,8 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     gravity = gravProp->value == "Yes";
   }
 
+
+  // TODO: Extract rigid body into an interface
   btCollisionShape* collider;
   if (!type.empty()) {
     collider = ZEngine::PhysicsFactory()->CreateCollider(type, size);
@@ -136,7 +138,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 void ZPhysicsComponent::Update() {
   assert(object_ != nullptr && body_ != nullptr);
 
-  // Don't update static rigid bodies, since the physics
+  // Don't update static rigid bodies, since the physics engine
   // cannot affect them
   if (body_->getInvMass() == 0.0) return;
 
@@ -152,15 +154,18 @@ void ZPhysicsComponent::Update() {
 }
 
 void ZPhysicsComponent::AddForce(glm::vec3& force) {
-
+  body_->activate();
+  body_->applyCentralForce(btVector3(force.x, force.y, force.z));
 }
 
 void ZPhysicsComponent::AddForceAtPoint(glm::vec3& force, glm::vec3& point) {
-
+  body_->activate();
+  body_->applyForce(btVector3(force.x, force.y, force.z), btVector3(point.x, point.y, point.z));
 }
 
 void ZPhysicsComponent::AddTorque(glm::vec3& torque) {
-
+  body_->activate();
+  body_->applyTorque(btVector3(torque.x, torque.y, torque.z));
 }
 
 void ZPhysicsComponent::SetAwake(const bool awake) {

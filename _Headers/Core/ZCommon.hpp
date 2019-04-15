@@ -230,3 +230,9 @@ struct ZWavFormatDesc {
 	unsigned short bitsPerSample;
 	unsigned short cbSize;
 };
+
+struct ZRaycastHitResult {
+  ZGameObject* objectHit;
+  glm::vec3 hitPosition;
+  bool hasHit;
+};

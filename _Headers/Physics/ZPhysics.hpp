@@ -27,6 +27,9 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// TODO: Make ZPhysics an interface, with the current implementation being the 
+// Bullet 3D specialization of the ZPhysics interface
+
 #pragma once
 
 // Includes
@@ -66,7 +69,7 @@ public:
 
   void HandleRaycastEvent(std::shared_ptr<ZEvent> event);
 
-  ZGameObject* Raycast(glm::vec3 start, glm::vec3 direction);
+  ZRaycastHitResult Raycast(glm::vec3 start, glm::vec3 direction);
 
   void DebugDraw();
 

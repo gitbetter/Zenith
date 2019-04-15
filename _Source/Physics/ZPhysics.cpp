@@ -28,14 +28,15 @@
 */
 
 #include "ZPhysics.hpp"
+#include "ZGame.hpp"
+#include "ZCameraComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZPhysicsDebug.hpp"
 #include "ZObjectForceRegistry.hpp"
 #include "ZGameObject.hpp"
 #include "ZEventAgent.hpp"
 #include "ZRaycastEvent.hpp"
-#include "ZGame.hpp"
-#include "ZCameraComponent.hpp"
+#include "ZObjectSelectedEvent.hpp"
 
 void ZPhysics::Initialize() {
   ZProcess::Initialize();
@@ -89,10 +90,10 @@ void ZPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
 
       glm::vec3 rayDir = glm::normalize(glm::vec3(rayEndWorld - rayStartWorld));
 
-      ZGameObject* objectHit = Raycast(rayStartWorld, rayDir);
-      if (objectHit) {
-        // TODO: Trigger another event?
-        _Z("Object " + objectHit->ID() + " hit", ZINFO);
+      ZRaycastHitResult hitResult = Raycast(rayStartWorld, rayDir);
+      if (hitResult.hasHit) {
+        std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(hitResult.objectHit->ID(), hitResult.hitPosition));
+        ZEngine::EventAgent()->TriggerEvent(objectSelectEvent);
       }
     }
   } else { // Handle general 3D raycasting
@@ -100,7 +101,7 @@ void ZPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
   }
 }
 
-ZGameObject* ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {
+ZRaycastHitResult ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {
   glm::vec3 end = direction * 1000.f;
   btCollisionWorld::ClosestRayResultCallback rayCallback(
     btVector3(start.x, start.y, start.z),
@@ -113,10 +114,14 @@ ZGameObject* ZPhysics::Raycast(glm::vec3 start, glm::vec3 direction) {
     rayCallback
   );
 
+  ZRaycastHitResult hitResult;
+  hitResult.hasHit = false;
   if (rayCallback.hasHit()) {
-    return static_cast<ZGameObject*>(rayCallback.m_collisionObject->getUserPointer());
+    hitResult.objectHit = static_cast<ZGameObject*>(rayCallback.m_collisionObject->getUserPointer());
+    hitResult.hitPosition = glm::vec3(rayCallback.m_hitPointWorld.x(), rayCallback.m_hitPointWorld.y(), rayCallback.m_hitPointWorld.z());
+    hitResult.hasHit = true;
   }
-  return nullptr;
+  return hitResult;
 }
 
 void ZPhysics::DebugDraw() {

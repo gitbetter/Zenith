@@ -262,7 +262,7 @@ bool ZUIElement::TrySelect(glm::vec3 position) {
     }
 
     if (!selectedChild) {
-      std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(id_));
+      std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(id_, position));
       ZEngine::EventAgent()->QueueEvent(objectSelectEvent);
     }
     

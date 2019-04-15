@@ -40,20 +40,22 @@ class ZObjectSelectedEvent : public ZBaseEvent {
 private:
 
   std::string objectId_;
+  glm::vec3 position_;
 
 public:
 
   static const ZEventType Type;
 
-  explicit ZObjectSelectedEvent(const std::string& objectId) : objectId_(objectId) { }
+  explicit ZObjectSelectedEvent(const std::string& objectId, const glm::vec3& pos) : objectId_(objectId), position_(pos) { }
   explicit ZObjectSelectedEvent(std::istringstream& in) { in >> objectId_; }
 
   const ZEventType& EventType() const override { return Type; };
-  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectSelectedEvent>(new ZObjectSelectedEvent(objectId_)); }
+  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectSelectedEvent>(new ZObjectSelectedEvent(objectId_, position_)); }
   void Serialize(std::ostringstream& out) const override { out << objectId_; }
   std::string Name() const override { return "ZObjectSelectedEvent"; }
 
   const std::string& ObjectID() const { return objectId_; }
+  const glm::vec3& Position() const { return position_; }
 
 protected:
 
