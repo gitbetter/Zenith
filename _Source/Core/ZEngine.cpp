@@ -33,7 +33,7 @@
 #include "ZDomain.hpp"
 #include "ZGLInput.hpp"
 #include "ZUI.hpp"
-#include "ZPhysics.hpp"
+#include "ZBulletPhysics.hpp"
 #include "ZALAudio.hpp"
 #include "ZIDSequence.hpp"
 #include "ZOFTree.hpp"
@@ -158,7 +158,7 @@ void ZEngine::Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windo
   /* ================================ */
 
   /* ========= Physics System ============ */
-  physics_ = std::make_shared<ZPhysics>();
+  physics_ = std::make_shared<ZBulletPhysics>();
   physics_->Initialize();
   processRunner_->AttachProcess(physics_);
   /* ===================================== */

@@ -27,14 +27,17 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZPhysicsComponent.hpp"
 #include "ZEngine.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsFactory.hpp"
-#include "ZPhysicsComponent.hpp"
 #include "ZGravityForce.hpp"
 #include "ZObjectForceRegistry.hpp"
 #include "ZPhysics.hpp"
 #include "ZOFTree.hpp"
+#include "ZBulletRigidBody.hpp"
+
+#include "btBulletDynamicsCommon.h"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
   id_ = "ZCPhysics_" + ZEngine::IDSequence()->Next();
@@ -100,7 +103,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 
 
-  // TODO: Extract rigid body into an interface
+  // TODO: Encapsulate these operations in new ZRigidBody interface
   btCollisionShape* collider;
   if (!type.empty()) {
     collider = ZEngine::PhysicsFactory()->CreateCollider(type, size);
@@ -124,13 +127,16 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 
   btDefaultMotionState* motionState = new btDefaultMotionState(transform);
   btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collider, localInertia);
-  body_ = std::shared_ptr<btRigidBody>(new btRigidBody(rbInfo));
+  btRigidBody* bodyPtr = new btRigidBody(rbInfo);
 
-  body_->setUserPointer(object_);
+  bodyPtr->setUserPointer(object_);
+  if (gravity) bodyPtr->setGravity(btVector3(0.0, -30.0, 0.0));
+  bodyPtr->setDamping(damping, angularDamping);
+  bodyPtr->setRestitution(restitution);
 
-  if (gravity) body_->setGravity(btVector3(0.0, -30.0, 0.0));
-  body_->setDamping(damping, angularDamping);
-  body_->setRestitution(restitution);
+  body_ = std::make_shared<ZBulletRigidBody>();
+  body_->ptr = bodyPtr;
+  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   ZEngine::Physics()->AddRigidBody(body_);
 }
@@ -138,40 +144,24 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 void ZPhysicsComponent::Update() {
   assert(object_ != nullptr && body_ != nullptr);
 
-  // Don't update static rigid bodies, since the physics engine
-  // cannot affect them
-  if (body_->getInvMass() == 0.0) return;
+  // Don't update static rigid bodies, since the physics engine cannot affect them
+  if (body_->InverseMass() == 0.0) return;
 
-  btTransform transform;
-  if (body_->getMotionState()) {
-    body_->getMotionState()->getWorldTransform(transform);
-  }
-
-  glm::mat4 modelMatrix;
-  transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
-
-  object_->SetModelMatrix(modelMatrix);
+  object_->SetModelMatrix(body_->TransformMatrix());
 }
 
 void ZPhysicsComponent::AddForce(glm::vec3& force) {
-  body_->activate();
-  body_->applyCentralForce(btVector3(force.x, force.y, force.z));
+  body_->ApplyForce(force);
 }
 
 void ZPhysicsComponent::AddForceAtPoint(glm::vec3& force, glm::vec3& point) {
-  body_->activate();
-  body_->applyForce(btVector3(force.x, force.y, force.z), btVector3(point.x, point.y, point.z));
+  body_->ApplyForceAtPoint(force, point);
 }
 
 void ZPhysicsComponent::AddTorque(glm::vec3& torque) {
-  body_->activate();
-  body_->applyTorque(btVector3(torque.x, torque.y, torque.z));
+  body_->ApplyTorque(torque);
 }
 
-void ZPhysicsComponent::SetAwake(const bool awake) {
-
-}
-
-void ZPhysicsComponent::SetCanSleep(const bool canSleep) {
-
+bool ZPhysicsComponent::HasFiniteMass() {
+  return body_->InverseMass() != 0.0;
 }

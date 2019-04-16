@@ -1,10 +1,12 @@
 #!/bin/bash
 
 dev=false
+xcode=false
 
 while test $# -gt 0; do
 	case "$1" in
 		-d|--development) dev=true; shift;;
+		-x|--xcode) xcode=true; shift;;
 		*) break;;
 	esac
 done
@@ -16,10 +18,21 @@ fi
 cd _Bin; rm -rf *; 
 
 if [ "$dev" = true ]; then 
-  cmake -DDEVELOPMENT=ON ..; 
+	if [ "$xcode" = true ]; then
+		cmake -G Xcode -DDEVELOPMENT=ON ..; 
+	else
+  		cmake -DDEVELOPMENT=ON ..; 
+	fi	
 else
-  cmake ..;
+	if [ "$xcode" = true ]; then
+		cmake -G Xcode ..; 
+	else
+  		cmake ..; 
+	fi	
 fi
 
-
-make
+if [ "$xcode" = false ]; then
+	make
+else
+	open .
+fi

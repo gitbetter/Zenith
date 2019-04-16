@@ -5,6 +5,7 @@ project(Zenith VERSION 1.0.0.0 LANGUAGES CXX)
 
 option(DEVELOPMENT "Generate a development build" OFF)
 
+set(PROJECT_NAME zenith)
 set(DARWIN_LIB_DIR ${CMAKE_SOURCE_DIR}/_Drivers/darwin)
 set(WINDOWS_LIB_DIR ${CMAKE_SOURCE_DIR}/_Drivers/win64)
 set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/_Headers)
@@ -71,6 +72,9 @@ ${SOURCE_DIR}/Physics/Forces/ZDragForce.cpp
 ${SOURCE_DIR}/Physics/Forces/ZForceGenerator.cpp
 ${SOURCE_DIR}/Physics/Forces/ZObjectForceRegistry.cpp
 ${SOURCE_DIR}/Physics/ZPhysics.cpp
+${SOURCE_DIR}/Physics/ZBulletPhysics.cpp
+${SOURCE_DIR}/Physics/ZRigidBody.cpp
+${SOURCE_DIR}/Physics/ZBulletRigidBody.cpp
 ${SOURCE_DIR}/Graphics/ZMaterial.cpp
 ${SOURCE_DIR}/Graphics/ZMesh3D.cpp
 ${SOURCE_DIR}/Graphics/ZGraphics.cpp
@@ -145,6 +149,9 @@ ${HEADERS_DIR}/Graphics/Strategies/ZGraphicsStrategy.hpp
 ${HEADERS_DIR}/Graphics/Strategies/ZTextStrategy.hpp
 ${HEADERS_DIR}/Input/ZGLInput.hpp
 ${HEADERS_DIR}/Input/ZInput.hpp
+${HEADERS_DIR}/Physics/ZBulletRigidBody.hpp
+${HEADERS_DIR}/Physics/ZRigidBody.hpp
+${HEADERS_DIR}/Physics/ZBulletPhysics.hpp
 ${HEADERS_DIR}/Physics/ZPhysics.hpp
 ${HEADERS_DIR}/Physics/Forces/ZAnchoredSpringForce.hpp
 ${HEADERS_DIR}/Physics/Forces/ZBungeeForce.hpp
@@ -1016,9 +1023,9 @@ if(DEVELOPMENT)
 	list(APPEND SOURCES ${DEV_ASSETS})
 endif(DEVELOPMENT)
 
-add_executable(zenith ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_include_directories(zenith PUBLIC 
+target_include_directories(${PROJECT_NAME} PUBLIC 
 ${HEADERS_DIR}
 ${HEADERS_DIR}/_ThirdParty
 ${HEADERS_DIR}/_ThirdParty/assimp
@@ -1082,10 +1089,19 @@ if (NOT DEVELOPMENT)
 
   foreach(FILE ${RESOURCE_FILES})
     get_filename_component(FILENAME ${FILE} NAME)
-    add_custom_command(TARGET zenith POST_BUILD
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E copy ${FILE} ${CMAKE_SOURCE_DIR}/_Bin/${FILENAME}
                       )
   endforeach()
+else() 
+  set (source "${CMAKE_SOURCE_DIR}/Assets")
+  set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/Assets")
+      add_custom_command(
+      TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
+      DEPENDS ${destination}
+      COMMENT "symbolically link Assets folder from ${source} => ${destination}"
+  )
 endif()
 
 if (APPLE) 
@@ -1107,7 +1123,7 @@ if (APPLE)
   find_library(VORBISFILE_LIB NAMES vorbisfile HINTS "${DARWIN_LIB_DIR}")
   find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
 
-  target_link_libraries(zenith 
+  target_link_libraries(${PROJECT_NAME} 
   "-framework Cocoa" 
   "-framework OpenGL" 
   "-framework IOKit" 
@@ -1130,6 +1146,10 @@ if (APPLE)
   ${VORBISFILE_LIB}
   ${OPENAL_LIB})
 
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${DARWIN_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
+  )
+
 elseif (WIN32)
   find_package(OpenGL REQUIRED)
   find_library(GLEW_LIB NAMES glew32 HINTS "${WINDOWS_LIB_DIR}")
@@ -1150,7 +1170,7 @@ elseif (WIN32)
   find_library(VORBISFILE_LIB NAMES vorbisfile_static libvorbisfile_static HINTS "${WINDOWS_LIB_DIR}")
   find_library(OPENAL_LIB NAMES OpenAL32 HINTS "${WINDOWS_LIB_DIR}")
 
-  target_link_libraries(zenith 
+  target_link_libraries(${PROJECT_NAME} 
   ${OPENGL_LIBRARY} 
   gdi32 
   ${GLEW_LIB}
@@ -1170,15 +1190,15 @@ elseif (WIN32)
   ${VORBISFILE_LIB}
   ${OPENAL_LIB})
 
-  add_custom_command(TARGET zenith POST_BUILD
-                     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${WINDOWS_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${WINDOWS_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
   )
 
-  foreach(FILE ${SOURCES}) 
-    get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
-    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
-    string(REPLACE "/" "\\" GROUP "${GROUP}")
-    source_group("${GROUP}" FILES "${FILE}")
-  endforeach()
-
 endif (APPLE)
+
+foreach(FILE ${SOURCES}) 
+	get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
+	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
+	string(REPLACE "/" "\\" GROUP "${GROUP}")
+	source_group("${GROUP}" FILES "${FILE}")
+endforeach()

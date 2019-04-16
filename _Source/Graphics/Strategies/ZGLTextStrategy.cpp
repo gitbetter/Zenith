@@ -42,8 +42,10 @@ void ZGLTextStrategy::LoadFont(std::string fontPath, unsigned int fontSize) {
 	if (handle == nullptr) return;
 
   FT_Face face;
-  if (FT_New_Memory_Face(ft_, (const FT_Byte*)handle->Buffer(), (FT_Long)handle->Size(), 0, &face))
+  if (FT_New_Memory_Face(ft_, (const FT_Byte*)handle->Buffer(), (FT_Long)handle->Size(), 0, &face)) {
     _Z("Could not load font at " + fontPath, ZERROR);
+    return;
+  }
 
   FT_Set_Pixel_Sizes(face, 0, fontSize);
 

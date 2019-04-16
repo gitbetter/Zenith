@@ -30,12 +30,12 @@
 #pragma once
 
 // Includes
-#include "btBulletDynamicsCommon.h"
 #include "ZCommon.hpp"
 #include "ZComponent.hpp"
 
 // Forward Declarations
 struct ZOFNode;
+class ZRigidBody;
 
 // Class and Data Structure Definitions
 class ZPhysicsComponent : public ZComponent {
@@ -52,7 +52,7 @@ public:
   void AddForce(glm::vec3& force);
   void AddForceAtPoint(glm::vec3& force, glm::vec3& point);
   void AddTorque(glm::vec3& torque);
-	bool HasFiniteMass() { return true; }
+	bool HasFiniteMass();
 
   void SetVelocity(glm::vec3 velocity) { }
   void SetDamping(float damping) { }
@@ -61,8 +61,6 @@ public:
   void SetAcceleration(glm::vec3 acceleration) { }
   void SetMass(float mass) { }
   void SetInertiaTensor(glm::mat3 inertiaTensor) { }
-  void SetAwake(const bool awake = true);
-  void SetCanSleep(const bool canSleep = true);
 
   glm::vec3 Velocity() { return glm::vec3(0.f); }
   glm::vec3 AngularVelocity() { return glm::vec3(0.f); }
@@ -74,6 +72,6 @@ public:
 
 protected:
 
-  std::shared_ptr<btRigidBody> body_;
+  std::shared_ptr<ZRigidBody> body_;
 
 };

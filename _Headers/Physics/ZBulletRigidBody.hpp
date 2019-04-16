@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZPhysics.hpp
+    ZBulletRigidBody.hpp
 
-    Created by Adrian Sanchez on 14/02/2019.
+    Created by Adrian Sanchez on 16/04/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -33,36 +33,19 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
-#include "ZObjectForceRegistry.hpp"
-#include "ZProcess.hpp"
+#include "ZRigidBody.hpp"
 
 // Forward Declarations
-class ZRigidBody;
 
 // Class and Data Structure Definitions
-class ZPhysics : public ZProcess {
+class ZBulletRigidBody : public ZRigidBody {
 
 public:
 
-  virtual ~ZPhysics() { }
-
-  virtual void Initialize() override;
-
-  virtual void Update() override;
-
-  virtual void CleanUp() override;
-
-  ZObjectForceRegistry* Registry() { return registry_.get(); }
-
-  virtual void AddRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
-
-  virtual ZRaycastHitResult Raycast(glm::vec3 start, glm::vec3 direction) = 0;
-
-  virtual void DebugDraw() = 0;
-
-protected:
-
-  std::unique_ptr<ZObjectForceRegistry> registry_;
+    float InverseMass() override;
+    glm::mat4 TransformMatrix() override;
+    void ApplyForce(glm::vec3& force) override;
+    void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) override;
+    void ApplyTorque(glm::vec3& torque) override;
 
 };
