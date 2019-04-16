@@ -149,8 +149,8 @@ void onObjectSelect(std::shared_ptr<ZEvent> event) {
       }
     }
   } else {
-    std::shared_ptr<ZGameObject> object = game->GameObjects()[fireEvent->ObjectID()];
-    if (object != nullptr) {
+    if (game->GameObjects().find(fireEvent->ObjectID()) != game->GameObjects().end()) {
+			std::shared_ptr<ZGameObject> object = game->GameObjects()[fireEvent->ObjectID()];
       std::shared_ptr<ZPhysicsComponent> comp = object->FindComponent<ZPhysicsComponent>();
       glm::vec3 force = game->ActiveCamera()->Front() * 1000.f;
       glm::vec3 position = glm::inverse(object->ModelMatrix()) * glm::vec4(fireEvent->Position(), 1.0);
