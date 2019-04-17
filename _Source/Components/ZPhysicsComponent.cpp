@@ -56,14 +56,14 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     
     ZOFPropertyMap props = node->properties;
     
-    if (props.find("type") != props.end() && props["type"]->HasValues()) {
-        std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
-        if (typeProp->value == "Static") mass = 0.f;
-    }
-    
     if (props.find("mass") != props.end() && props["mass"]->HasValues()) {
         std::shared_ptr<ZOFNumber> massProp = props["mass"]->Value<ZOFNumber>(0);
         if (mass == -1.f) mass = massProp->value;
+    }
+    
+    if (props.find("type") != props.end() && props["type"]->HasValues()) {
+        std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
+        if (typeProp->value == "Static") mass = 0.f;
     }
     
     if (props.find("damping") != props.end() && props["damping"]->HasValues()) {

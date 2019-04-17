@@ -30,7 +30,7 @@
 #include "ZBulletRigidBody.hpp"
 #include "btBulletDynamicsCommon.h"
 
-ZBulletRigidBody::ZBulletRigidBody(std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale) {
+ZBulletRigidBody::ZBulletRigidBody(std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale) : ZBulletRigidBody() {
     btCollisionShape* coll = static_cast<btCollisionShape*>(collider->Get());
     
     btTransform transform;
