@@ -75,6 +75,7 @@ ${SOURCE_DIR}/Physics/ZPhysics.cpp
 ${SOURCE_DIR}/Physics/ZBulletPhysics.cpp
 ${SOURCE_DIR}/Physics/ZRigidBody.cpp
 ${SOURCE_DIR}/Physics/ZBulletRigidBody.cpp
+${SOURCE_DIR}/Physics/ZCollider.cpp
 ${SOURCE_DIR}/Graphics/ZMaterial.cpp
 ${SOURCE_DIR}/Graphics/ZMesh3D.cpp
 ${SOURCE_DIR}/Graphics/ZGraphics.cpp
@@ -149,6 +150,7 @@ ${HEADERS_DIR}/Graphics/Strategies/ZGraphicsStrategy.hpp
 ${HEADERS_DIR}/Graphics/Strategies/ZTextStrategy.hpp
 ${HEADERS_DIR}/Input/ZGLInput.hpp
 ${HEADERS_DIR}/Input/ZInput.hpp
+${HEADERS_DIR}/Physics/ZCollider.hpp
 ${HEADERS_DIR}/Physics/ZBulletRigidBody.hpp
 ${HEADERS_DIR}/Physics/ZRigidBody.hpp
 ${HEADERS_DIR}/Physics/ZBulletPhysics.hpp
@@ -1093,15 +1095,6 @@ if (NOT DEVELOPMENT)
                        COMMAND ${CMAKE_COMMAND} -E copy ${FILE} ${CMAKE_SOURCE_DIR}/_Bin/${FILENAME}
                       )
   endforeach()
-else() 
-  set (source "${CMAKE_SOURCE_DIR}/Assets")
-  set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets")
-      add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
-      DEPENDS ${destination}
-      COMMENT "symbolically link Assets folder from ${source} => ${destination}"
-  )
 endif()
 
 if (APPLE) 
@@ -1149,6 +1142,17 @@ if (APPLE)
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${DARWIN_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
   )
+
+  if (DEVELOPMENT)
+	  set (source "${CMAKE_SOURCE_DIR}/Assets")
+	  set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets")
+	      add_custom_command(
+	      TARGET ${PROJECT_NAME} POST_BUILD
+	      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
+	      DEPENDS ${destination}
+	      COMMENT "symbolically link Assets folder from ${source} => ${destination}"
+	  )
+  endif()
 
 elseif (WIN32)
   find_package(OpenGL REQUIRED)

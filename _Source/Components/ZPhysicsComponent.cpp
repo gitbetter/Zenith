@@ -104,13 +104,14 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 
 
   // TODO: Encapsulate these operations in new ZRigidBody interface
-  btCollisionShape* collider;
+  std::shared_ptr<ZCollider> collider;
   if (!type.empty()) {
     collider = ZEngine::PhysicsFactory()->CreateCollider(type, size);
   } else {
     _Z("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZWARNING);
     collider = ZEngine::PhysicsFactory()->CreateCollider("Box", size);
   }
+	btCollisionShape* coll = static_cast<btCollisionShape*>(collider->Get());
 
   btTransform transform;
   transform.setIdentity();
@@ -118,15 +119,15 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
   else transform.setOrigin(btVector3(object_->Position().x, object_->Position().y, object_->Position().z));
 
   if (size.size() < 3)
-    collider->setLocalScaling(btVector3(object_->Scale().x, object_->Scale().y, object_->Scale().z));
+		coll->setLocalScaling(btVector3(object_->Scale().x, object_->Scale().y, object_->Scale().z));
 
   if (mass < 0) mass = 0.0;
 
   btVector3 localInertia(0, 0, 0);
-  if (mass > 0.f) collider->calculateLocalInertia(mass, localInertia);
+  if (mass > 0.f) coll->calculateLocalInertia(mass, localInertia);
 
   btDefaultMotionState* motionState = new btDefaultMotionState(transform);
-  btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collider, localInertia);
+  btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, coll, localInertia);
   btRigidBody* bodyPtr = new btRigidBody(rbInfo);
 
   bodyPtr->setUserPointer(object_);
@@ -134,8 +135,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
   bodyPtr->setDamping(damping, angularDamping);
   bodyPtr->setRestitution(restitution);
 
-  body_ = std::make_shared<ZBulletRigidBody>();
-  body_->ptr = bodyPtr;
+  body_ = std::make_shared<ZBulletRigidBody>(bodyPtr);
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   ZEngine::Physics()->AddRigidBody(body_);

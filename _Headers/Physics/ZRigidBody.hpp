@@ -38,13 +38,21 @@
 class ZRigidBody {
 
 public:
-    
-    void* ptr = nullptr;
+
+		virtual ~ZRigidBody() { }
+
+		virtual void Initialize() = 0;
 
     virtual float InverseMass() = 0;
     virtual glm::mat4 TransformMatrix() = 0;
     virtual void ApplyForce(glm::vec3& force) = 0;
     virtual void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) = 0;
     virtual void ApplyTorque(glm::vec3& torque) = 0;
+
+		void* Get() { return ptr_; }
+
+protected:
+
+		void* ptr_ = nullptr;
 
 };

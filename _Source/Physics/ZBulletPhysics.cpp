@@ -64,7 +64,7 @@ void ZBulletPhysics::Update() {
 }
 
 void ZBulletPhysics::AddRigidBody(std::shared_ptr<ZRigidBody> body) {
-  btRigidBody* ptr = static_cast<btRigidBody*>(body->ptr);
+  btRigidBody* ptr = static_cast<btRigidBody*>(body->Get());
   if (!ptr) {
       _Z("The given rigid body is not a btRigidBody", ZERROR);
       return;

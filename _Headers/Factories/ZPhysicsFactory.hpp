@@ -32,24 +32,25 @@
 // Includes
 #include "btBulletDynamicsCommon.h"
 #include "ZCommon.hpp"
+#include "ZCollider.hpp"
 
 // Forward Declarations
 
 // Class and Data Structure Definitions
 class ZPhysicsFactory {
 
-  using ZColliderCreator = btCollisionShape* (ZPhysicsFactory::*)(std::vector<btScalar> params);
+  using ZColliderCreator = std::shared_ptr<ZCollider> (ZPhysicsFactory::*)(std::vector<float> params);
 
 public:
 
   ZPhysicsFactory();
   ~ZPhysicsFactory() { };
 
-  btCollisionShape* CreateCollider(std::string type, std::vector<btScalar> size);
+	std::shared_ptr<ZCollider> CreateCollider(std::string type, std::vector<float> size);
 
-  btCollisionShape* CreateBoxCollider(std::vector<btScalar> params);
-  btCollisionShape* CreateSphereCollider(std::vector<btScalar> params);
-  btCollisionShape* CreateCapsuleCollider(std::vector<btScalar> params);
+	std::shared_ptr<ZCollider> CreateBoxCollider(std::vector<float> params);
+	std::shared_ptr<ZCollider> CreateSphereCollider(std::vector<float> params);
+	std::shared_ptr<ZCollider> CreateCapsuleCollider(std::vector<float> params);
 
 protected:
 

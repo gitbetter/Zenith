@@ -30,35 +30,39 @@
 #include "ZBulletRigidBody.hpp"
 #include "btBulletDynamicsCommon.h"
 
+void ZBulletRigidBody::Initialize() {
+
+}
+
 float ZBulletRigidBody::InverseMass() {
-    btRigidBody* body = static_cast<btRigidBody*>(ptr);
-    return body->getInvMass();
+  btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+  return body->getInvMass();
 }
 
 glm::mat4 ZBulletRigidBody::TransformMatrix() {
-    btRigidBody* body = static_cast<btRigidBody*>(ptr);
-    btTransform transform; ATTRIBUTE_ALIGNED16(glm::mat4) modelMatrix;
-    if (body->getMotionState()) {
-        body->getMotionState()->getWorldTransform(transform);
-    }
-    transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
-    return modelMatrix;
+  btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+  btTransform transform; ATTRIBUTE_ALIGNED16(glm::mat4) modelMatrix;
+  if (body->getMotionState()) {
+      body->getMotionState()->getWorldTransform(transform);
+  }
+  transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
+  return modelMatrix;
 }
 
 void ZBulletRigidBody::ApplyForce(glm::vec3& force) {
-    btRigidBody* body = static_cast<btRigidBody*>(ptr);
-    body->activate();
-    body->applyCentralForce(btVector3(force.x, force.y, force.z));
+  btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+  body->activate();
+  body->applyCentralForce(btVector3(force.x, force.y, force.z));
 }
 
 void ZBulletRigidBody::ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) {
-    btRigidBody* body = static_cast<btRigidBody*>(ptr);
-    body->activate();
-    body->applyForce(btVector3(force.x, force.y, force.z), btVector3(point.x, point.y, point.z));
+  btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+  body->activate();
+  body->applyForce(btVector3(force.x, force.y, force.z), btVector3(point.x, point.y, point.z));
 }
 
 void ZBulletRigidBody::ApplyTorque(glm::vec3& torque) {
-    btRigidBody* body = static_cast<btRigidBody*>(ptr);
-    body->activate();
-    body->applyTorque(btVector3(torque.x, torque.y, torque.z));
+  btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+  body->activate();
+  body->applyTorque(btVector3(torque.x, torque.y, torque.z));
 }

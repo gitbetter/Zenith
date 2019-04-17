@@ -35,39 +35,39 @@ ZPhysicsFactory::ZPhysicsFactory() {
   colliderCreators_["Capsule"] = &ZPhysicsFactory::CreateCapsuleCollider;
 }
 
-btCollisionShape* ZPhysicsFactory::CreateCollider(std::string type, std::vector<btScalar> size) {
+std::shared_ptr<ZCollider> ZPhysicsFactory::CreateCollider(std::string type, std::vector<float> size) {
   return (this->*colliderCreators_[type])(size);
 }
 
-btCollisionShape* ZPhysicsFactory::CreateBoxCollider(std::vector<btScalar> params) {
-  btVector3 extents(1.0, 1.0, 1.0);
+std::shared_ptr<ZCollider> ZPhysicsFactory::CreateBoxCollider(std::vector<float> params) {
+  glm::vec3 extents(1.f, 1.f, 1.f);
   switch (params.size()) {
-    case 1: extents = btVector3(params[0], 1.0, 1.0); break;
-    case 2: extents = btVector3(params[0], params[1], 1.0); break;
-    case 3: extents = btVector3(params[0], params[1], params[2]); break;
+    case 1: extents = glm::vec3(params[0], 1.f, 1.f); break;
+    case 2: extents = glm::vec3(params[0], params[1], 1.f); break;
+    case 3: extents = glm::vec3(params[0], params[1], params[2]); break;
     default: break;
   }
 
-  return new btBoxShape(extents);
+	return std::make_shared<ZCollider>(new btBoxShape(btVector3(extents[0], extents[1], extents[2])), ZColliderType::Box);
 }
 
-btCollisionShape* ZPhysicsFactory::CreateSphereCollider(std::vector<btScalar> params) {
-  btScalar radius = 1.0;
+std::shared_ptr<ZCollider> ZPhysicsFactory::CreateSphereCollider(std::vector<float> params) {
+  float radius = 1.f;
   switch (params.size()) {
     case 1: radius = params[0]; break;
     default: break;
   }
 
-  return new btSphereShape(radius);
+	return std::make_shared<ZCollider>(new btSphereShape(radius), ZColliderType::Sphere);
 }
 
-btCollisionShape* ZPhysicsFactory::CreateCapsuleCollider(std::vector<btScalar> params) {
-  btScalar radius = 1.0, height = 1.0;
+std::shared_ptr<ZCollider> ZPhysicsFactory::CreateCapsuleCollider(std::vector<float> params) {
+  float radius = 1.0, height = 1.0;
   switch (params.size()) {
     case 1: radius = params[0]; break;
     case 2: height = params[1]; break;
     default: break;
   }
 
-  return new btCapsuleShape(radius, height);
+	return std::make_shared<ZCollider>(new btCapsuleShape(radius, height), ZColliderType::Capsule);
 }

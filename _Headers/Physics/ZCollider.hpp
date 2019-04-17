@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZBulletRigidBody.hpp
+    ZCollider.hpp
 
     Created by Adrian Sanchez on 16/04/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -30,25 +30,24 @@
 #pragma once
 
 // Includes
-#include "ZRigidBody.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZBulletRigidBody : public ZRigidBody {
+class ZCollider {
 
 public:
 
-	ZBulletRigidBody() { }
-	ZBulletRigidBody(void* bodyPtr) { ptr_ = bodyPtr; }
-	~ZBulletRigidBody() { }
+	ZCollider(void* colliderPtr, ZColliderType type) : ptr_(colliderPtr), type_(type) { }
+	virtual ~ZCollider() { }
 
-	void Initialize() override;
+	void* Get() { return ptr_; }
+	ZColliderType Type() { return type_; }
 
-  float InverseMass() override;
-  glm::mat4 TransformMatrix() override;
-  void ApplyForce(glm::vec3& force) override;
-  void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) override;
-  void ApplyTorque(glm::vec3& torque) override;
+protected:
+
+	void* ptr_ = nullptr;
+	ZColliderType type_ = ZColliderType::None;
 
 };
