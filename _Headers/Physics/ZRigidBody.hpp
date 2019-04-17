@@ -39,20 +39,31 @@ class ZRigidBody {
 
 public:
 
-		virtual ~ZRigidBody() { }
+    virtual ~ZRigidBody() { }
 
-		virtual void Initialize() = 0;
+    virtual void Initialize() = 0;
 
     virtual float InverseMass() = 0;
     virtual glm::mat4 TransformMatrix() = 0;
     virtual void ApplyForce(glm::vec3& force) = 0;
     virtual void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) = 0;
     virtual void ApplyTorque(glm::vec3& torque) = 0;
+    
+    virtual void SetGravity(glm::vec3& gravity) = 0;
+    virtual void SetLinearDamping(float damping) = 0;
+    virtual void SetAngularDamping(float damping) = 0;
+    virtual void SetRestitution(float restitution) = 0;
+    
+    void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
 
-		void* Get() { return ptr_; }
+    void* Get() { return ptr_; }
+    
+    virtual glm::vec3 Velocity() = 0;
+    virtual glm::vec3 AngularVelocity() = 0;
 
 protected:
 
-		void* ptr_ = nullptr;
+    void* ptr_ = nullptr;
+    ZGameObject* gameObject_ = nullptr;
 
 };

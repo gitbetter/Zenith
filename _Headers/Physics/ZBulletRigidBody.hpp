@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZRigidBody.hpp"
+#include "ZCollider.hpp"
 
 // Forward Declarations
 
@@ -41,14 +42,23 @@ public:
 
 	ZBulletRigidBody() { }
 	ZBulletRigidBody(void* bodyPtr) { ptr_ = bodyPtr; }
+    ZBulletRigidBody(std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale);
 	~ZBulletRigidBody() { }
 
 	void Initialize() override;
 
-  float InverseMass() override;
-  glm::mat4 TransformMatrix() override;
-  void ApplyForce(glm::vec3& force) override;
-  void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) override;
-  void ApplyTorque(glm::vec3& torque) override;
+    float InverseMass() override;
+    glm::mat4 TransformMatrix() override;
+    glm::vec3 Velocity() override;
+    glm::vec3 AngularVelocity() override;
+    
+    void SetGravity(glm::vec3& gravity) override;
+    void SetLinearDamping(float damping) override;
+    void SetAngularDamping(float damping) override;
+    void SetRestitution(float restitution) override;
+    
+    void ApplyForce(glm::vec3& force) override;
+    void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) override;
+    void ApplyTorque(glm::vec3& torque) override;
 
 };

@@ -35,17 +35,5 @@ ZAnchoredSpringForce::ZAnchoredSpringForce(glm::vec3 anchor, float springConstan
 : anchor_(anchor), springConstant_(springConstant), restLength_(restLength) { }
 
 void ZAnchoredSpringForce::UpdateForce(ZGameObject* object) {
-  std::shared_ptr<ZPhysicsComponent> physicsComp = object->FindComponent<ZPhysicsComponent>();
-  if (physicsComp == nullptr) return;
 
-  glm::vec3 force = object->Position();
-  force -= anchor_;
-
-  float magnitude = glm::length(force);
-  magnitude = glm::abs(magnitude - restLength_);
-  magnitude *= springConstant_;
-
-  force = glm::normalize(force);
-  force *= -magnitude;
-  physicsComp->AddForce(force);
 }

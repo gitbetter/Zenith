@@ -48,9 +48,6 @@
 
 #include "ZPhysics.hpp"
 #include "ZPhysicsComponent.hpp"
-#include "ZGravityForce.hpp"
-#include "ZSpringForce.hpp"
-#include "ZAnchoredSpringForce.hpp"
 #include "ZObjectForceRegistry.hpp"
 
 #include "ZAudio.hpp"

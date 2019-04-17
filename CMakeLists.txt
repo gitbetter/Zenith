@@ -63,7 +63,6 @@ ${SOURCE_DIR}/Process/ZProcessRunner.cpp
 ${SOURCE_DIR}/Process/ZProcess.cpp
 ${SOURCE_DIR}/Process/ZScriptableProcess.cpp
 ${SOURCE_DIR}/Physics/Forces/ZAnchoredSpringForce.cpp
-${SOURCE_DIR}/Physics/Forces/ZGravityForce.cpp
 ${SOURCE_DIR}/Physics/Forces/ZBungeeForce.cpp
 ${SOURCE_DIR}/Physics/Forces/ZBuoyancyForce.cpp
 ${SOURCE_DIR}/Physics/Forces/ZStiffSpringForce.cpp
@@ -160,7 +159,6 @@ ${HEADERS_DIR}/Physics/Forces/ZBungeeForce.hpp
 ${HEADERS_DIR}/Physics/Forces/ZBuoyancyForce.hpp
 ${HEADERS_DIR}/Physics/Forces/ZDragForce.hpp
 ${HEADERS_DIR}/Physics/Forces/ZForceGenerator.hpp
-${HEADERS_DIR}/Physics/Forces/ZGravityForce.hpp
 ${HEADERS_DIR}/Physics/Forces/ZObjectForceRegistry.hpp
 ${HEADERS_DIR}/Physics/Forces/ZSpringForce.hpp
 ${HEADERS_DIR}/Physics/Forces/ZStiffSpringForce.hpp
