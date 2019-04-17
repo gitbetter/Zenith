@@ -26,8 +26,8 @@ or using your favorite Git desktop GUI client. Zenith uses LFS to store certain 
 Make sure that you have met the requirements above. There is currently no way to build the project without CMake, and you might be left out in the cold if you try to run on any Linux distro or older Windows/OSX versions, as these have not yet been tested.
 
 ### macOS
-* Run the `build.sh` or `rebuild.sh` scripts from within the project directory to generate the necessary Makefile and build configuration
-* Once the build succeeds, run the `run.sh` script any time to run the engine.
+* Run the `build.sh` or `rebuild.sh` scripts from within the project directory to generate the necessary Makefile and build configuration. You can optionally specify the `--xcode` command line flag when building with either command to generate an Xcode project if you prefer to work with Xcode.
+* Once the build succeeds, run the `run.sh` script any time to run the engine. On Xcode you can simply click on the build and run button to achieve the same result.
 
 ### Windows
 * Open a powershell window, then go the project directory using `cd your\project\path`. Run the `build.ps1` or `rebuild.ps1` powershell script to generate a Visual Studio project. You can then open the `Zenith.sln` solution to run and build the project as normal
