@@ -31,12 +31,9 @@
 #include "ZEngine.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsFactory.hpp"
-#include "ZObjectForceRegistry.hpp"
 #include "ZPhysics.hpp"
 #include "ZOFTree.hpp"
 #include "ZBulletRigidBody.hpp"
-
-#include "btBulletDynamicsCommon.h"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
     id_ = "ZCPhysics_" + ZEngine::IDSequence()->Next();

@@ -54,12 +54,16 @@ void ZBulletRigidBody::Initialize() {
 
 float ZBulletRigidBody::InverseMass() {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return 0.f;
+    
     return body->getInvMass();
 }
 
 glm::mat4 ZBulletRigidBody::TransformMatrix() {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     btTransform transform; ATTRIBUTE_ALIGNED16(glm::mat4) modelMatrix;
+    if (!body) return modelMatrix;
+    
     if (body->getMotionState()) {
       body->getMotionState()->getWorldTransform(transform);
     }
@@ -69,50 +73,76 @@ glm::mat4 ZBulletRigidBody::TransformMatrix() {
 
 glm::vec3 ZBulletRigidBody::Velocity() {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return glm::vec3(0.f);
+    
     btVector3 vel = body->getLinearVelocity();
     return glm::vec3(vel.x(), vel.y(), vel.z());
 }
 
 glm::vec3 ZBulletRigidBody::AngularVelocity() {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return glm::vec3(0.f);
+    
     btVector3 vel = body->getAngularVelocity();
     return glm::vec3(vel.x(), vel.y(), vel.z());
 }
 
 void ZBulletRigidBody::ApplyForce(glm::vec3& force) {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
     body->activate();
     body->applyCentralForce(btVector3(force.x, force.y, force.z));
 }
 
 void ZBulletRigidBody::ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
     body->activate();
     body->applyForce(btVector3(force.x, force.y, force.z), btVector3(point.x, point.y, point.z));
 }
 
 void ZBulletRigidBody::ApplyTorque(glm::vec3& torque) {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
     body->activate();
     body->applyTorque(btVector3(torque.x, torque.y, torque.z));
 }
 
 void ZBulletRigidBody::SetGravity(glm::vec3& gravity) {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
     body->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));
 }
 
 void ZBulletRigidBody::SetLinearDamping(float damping) {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
     body->setDamping(damping, body->getAngularDamping());
 }
 
 void ZBulletRigidBody::SetAngularDamping(float damping) {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
     body->setDamping(body->getLinearDamping(), damping);
 }
 
 void ZBulletRigidBody::SetRestitution(float restitution) {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
     body->setRestitution(restitution);
+}
+
+void ZBulletRigidBody::SetGameObject(ZGameObject* gameObject) {
+    ZRigidBody::SetGameObject(gameObject);
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
+    body->setUserPointer(gameObject);
 }

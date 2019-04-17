@@ -56,6 +56,7 @@ public:
     void SetLinearDamping(float damping) override;
     void SetAngularDamping(float damping) override;
     void SetRestitution(float restitution) override;
+    void SetGameObject(ZGameObject* gameObject) override;
     
     void ApplyForce(glm::vec3& force) override;
     void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) override;

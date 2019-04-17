@@ -28,21 +28,15 @@
 */
 
 #include "ZPhysics.hpp"
-#include "ZObjectForceRegistry.hpp"
 
 void ZPhysics::Initialize() {
   ZProcess::Initialize();
-
-  if (registry_ == nullptr) {
-    registry_.reset(new ZObjectForceRegistry);
-  }
 }
 
 void ZPhysics::Update() {
   ZProcess::Update();
 }
 
-void ZPhysics::CleanUp() { 
-  registry_.reset();
+void ZPhysics::CleanUp() {
   ZProcess::CleanUp();
 }

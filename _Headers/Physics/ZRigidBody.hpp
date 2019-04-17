@@ -54,7 +54,7 @@ public:
     virtual void SetAngularDamping(float damping) = 0;
     virtual void SetRestitution(float restitution) = 0;
     
-    void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
+    virtual void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
 
     void* Get() { return ptr_; }
     

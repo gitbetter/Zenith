@@ -34,7 +34,6 @@
 
 // Includes
 #include "ZCommon.hpp"
-#include "ZObjectForceRegistry.hpp"
 #include "ZProcess.hpp"
 
 // Forward Declarations
@@ -53,16 +52,10 @@ public:
 
   virtual void CleanUp() override;
 
-  ZObjectForceRegistry* Registry() { return registry_.get(); }
-
   virtual void AddRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
 
   virtual ZRaycastHitResult Raycast(glm::vec3 start, glm::vec3 direction) = 0;
 
   virtual void DebugDraw() = 0;
-
-protected:
-
-  std::unique_ptr<ZObjectForceRegistry> registry_;
 
 };

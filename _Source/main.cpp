@@ -48,7 +48,6 @@
 
 #include "ZPhysics.hpp"
 #include "ZPhysicsComponent.hpp"
-#include "ZObjectForceRegistry.hpp"
 
 #include "ZAudio.hpp"
 #include "ZAudioSource.hpp"

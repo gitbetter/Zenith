@@ -32,7 +32,6 @@
 #include "ZCameraComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZPhysicsDebug.hpp"
-#include "ZObjectForceRegistry.hpp"
 #include "ZGameObject.hpp"
 #include "ZEventAgent.hpp"
 #include "ZRaycastEvent.hpp"
@@ -59,7 +58,6 @@ void ZBulletPhysics::Initialize() {
 
 void ZBulletPhysics::Update() {  
   ZPhysics::Update();
-  registry_->UpdateForces();
   dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, ZEngine::MAX_FIXED_UPDATE_ITERATIONS, ZEngine::UPDATE_STEP_SIZE);
 }
 
