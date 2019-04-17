@@ -37,7 +37,7 @@ float ZBulletRigidBody::InverseMass() {
 
 glm::mat4 ZBulletRigidBody::TransformMatrix() {
     btRigidBody* body = static_cast<btRigidBody*>(ptr);
-    btTransform transform; glm::mat4 modelMatrix;
+    btTransform transform; ATTRIBUTE_ALIGNED16(glm::mat4) modelMatrix;
     if (body->getMotionState()) {
         body->getMotionState()->getWorldTransform(transform);
     }

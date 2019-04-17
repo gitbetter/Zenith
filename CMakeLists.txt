@@ -1095,7 +1095,7 @@ if (NOT DEVELOPMENT)
   endforeach()
 else() 
   set (source "${CMAKE_SOURCE_DIR}/Assets")
-  set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>/Assets")
+  set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets")
       add_custom_command(
       TARGET ${PROJECT_NAME} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
