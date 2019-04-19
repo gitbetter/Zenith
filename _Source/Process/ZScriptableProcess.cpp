@@ -158,10 +158,6 @@ void ZScriptableProcess::OnUpdate() {
   }
 }
 
-void ZScriptableProcess::OnRender() {
-  ZProcess::OnRender();
-}
-
 void ZScriptableProcess::OnPause() {
   ZProcess::OnPause();
   if (scriptPause_.valid())

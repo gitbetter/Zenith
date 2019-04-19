@@ -138,9 +138,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   shader->Use(gameLights_);
 
 	ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
-	if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) {
-		shader->SetInt("shadowMap", 0);
-	}
+	if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
 
   shader->SetMat4("P", projectionMatrix);
   shader->SetMat4("V", viewMatrix);

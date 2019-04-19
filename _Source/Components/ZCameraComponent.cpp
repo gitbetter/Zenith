@@ -36,6 +36,18 @@
 #include "ZObjectLookEvent.hpp"
 #include "ZOFTree.hpp"
 
+ZCameraComponent::ZCameraComponent(ZCameraType type, glm::vec3 position) : ZComponent() {
+	cameraType_ = type;
+	zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
+	movementStyle_ = ZCameraMovementStyle::Normal;
+	pitch_ = glm::quat(0.f, glm::vec3(1.f, 0.f, 0.f));
+	yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
+	pitchVelocity_ = glm::vec3(0.f);
+	yawVelocity_ = glm::vec3(0.f);
+	frustum_ = ZFrustum(zoom_, ZEngine::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
+	id_ = "ZCCamera_" + ZEngine::IDSequence()->Next();
+}
+
 void ZCameraComponent::Update() {
   UpdateCameraOrientation();
 }
@@ -107,6 +119,8 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     std::shared_ptr<ZOFNumber> prop = props["damping"]->Value<ZOFNumber>(0);
     cameraDamping_ = prop->value;
   }
+
+	frustum_ = ZFrustum(zoom_, ZEngine::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
 
   ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
   ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);

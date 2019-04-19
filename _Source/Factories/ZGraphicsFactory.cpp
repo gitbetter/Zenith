@@ -33,7 +33,7 @@
 
 ZGraphicsFactory::ZGraphicsFactory() {
   modelCreators_["Cube"] = &ZModel::NewCubePrimitive;
-  modelCreators_["Plane"] = &ZModel::NewPlanePrimitive;
+  modelCreators_["Plane"] = &ZModel::NewGroundPrimitive;
   modelCreators_["Sphere"] = &ZModel::NewSpherePrimitive;
   modelCreators_["Cylinder"] = &ZModel::NewCylinderPrimitive;
   modelCreators_["Cone"] = &ZModel::NewConePrimitive;

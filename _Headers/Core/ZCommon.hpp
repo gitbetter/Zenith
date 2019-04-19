@@ -30,6 +30,7 @@
 #pragma once
 
 #define GLM_ENABLE_EXPERIMENTAL
+
 #define ZINFO 0
 #define ZWARNING 1
 #define ZERROR 2
@@ -74,6 +75,7 @@
 }
 
 class ZGameObject;
+class ZComponent;
 class ZUIElement;
 class ZShader;
 class ZMesh3D;
@@ -89,6 +91,8 @@ typedef std::map<std::string, std::shared_ptr<ZUIElement>> ZUIElementMap;
 typedef std::map<std::string, std::shared_ptr<ZShader>> ZShaderMap;
 typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;
 typedef std::map<std::string, std::shared_ptr<ZMaterial>> ZMaterialMap;
+typedef std::vector<std::shared_ptr<ZGameObject>> ZGameObjectList;
+typedef std::vector<std::shared_ptr<ZComponent>> ZComponentList;
 typedef std::list<std::shared_ptr<ZProcess>> ZProcessList;
 typedef fastdelegate::FastDelegate1<std::shared_ptr<ZEvent>> ZEventDelegate;
 

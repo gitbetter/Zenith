@@ -33,6 +33,7 @@
 #include "ZCommon.hpp"
 #include "ZEngine.hpp"
 #include "ZMesh3D.hpp"
+#include "ZAABBox.hpp"
 
 // Forward Declarations
 class ZShader;
@@ -43,8 +44,9 @@ class ZModel {
 private:
 
   ZMesh3DMap meshes_;
+	ZAABBox boundingBox_;
 
-  void CreatePlane(glm::vec3 scale);
+  void CreateGround(glm::vec3 scale);
   void CreateCube(glm::vec3 scale);
   void CreateSphere(glm::vec3 scale);
   void CreateCylinder(glm::vec3 scale);
@@ -61,8 +63,12 @@ public:
   virtual void Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials);
 
   const ZMesh3DMap& Meshes() { return meshes_; }
+	const ZAABBox& AABB() { return boundingBox_; }
 
-  static std::unique_ptr<ZModel> NewPlanePrimitive(glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f));
+	virtual void InitializeAABB();
+	virtual void UpdateAABB(glm::mat4 transform);
+
+  static std::unique_ptr<ZModel> NewGroundPrimitive(glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f));
   static std::unique_ptr<ZModel> NewCubePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
   static std::unique_ptr<ZModel> NewSpherePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
   static std::unique_ptr<ZModel> NewCylinderPrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));

@@ -43,6 +43,7 @@ class ZLight;
 typedef std::map<std::string, ZTexture> ZTextureMap;
 
 class ZGraphics {
+
 private:
 
   void Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);

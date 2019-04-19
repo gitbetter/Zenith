@@ -94,7 +94,7 @@ public:
   void SetParent(ZUIElement* parent) { parent_ = parent; }
   void RemoveParent();
 
-  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR);
   virtual ZMeshUI ElementShape();
 
   void RenderChildren();

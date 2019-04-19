@@ -72,9 +72,10 @@ void ZGraphics::Draw(const ZGameObjectMap& gameObjects, const ZLightMap& gameLig
   }
 }
 
-void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, unsigned char renderOp) {
+void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp) {
   for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
-    it->second->Render(frameMix, renderOp);
+		if (it->second->IsVisible())
+			it->second->Render(frameMix, renderOp);
   }
 }
 

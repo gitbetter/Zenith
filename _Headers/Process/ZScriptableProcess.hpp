@@ -72,7 +72,6 @@ protected:
 
   virtual void OnInitialize() override;
   virtual void OnUpdate() override;
-  virtual void OnRender() override;
   virtual void OnPause() override;
   virtual void OnResume() override;
   virtual void OnFinish() override;

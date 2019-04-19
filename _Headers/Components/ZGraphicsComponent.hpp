@@ -37,7 +37,7 @@ public:
   void Initialize(std::shared_ptr<ZOFNode> root);
   void Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader);
 
-  void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+  void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
 
   std::shared_ptr<ZShader> ActiveShader() const { return shaders_[activeShaderIndex_]; }
   std::shared_ptr<ZModel> Model() const { return model_; }

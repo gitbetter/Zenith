@@ -51,8 +51,6 @@ public:
   virtual void OnInitialize() { };
   virtual void Update() { OnUpdate(); };
   virtual void OnUpdate() { };
-  virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) { OnRender(); };
-  virtual void OnRender() { };
   virtual void Pause() { state_ = ZProcessState::Paused; OnPause(); };
   virtual void OnPause() { };
   virtual void Resume() { state_ = ZProcessState::Running; OnResume(); };

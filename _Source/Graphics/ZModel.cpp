@@ -37,7 +37,7 @@
 ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) {
   switch (primitiveType) {
     case ZPrimitiveType::Plane:
-      CreatePlane(scale); break;
+      CreateGround(scale); break;
     case ZPrimitiveType::Cube:
       CreateCube(scale); break;
     case ZPrimitiveType::Sphere:
@@ -47,11 +47,13 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) {
     case ZPrimitiveType::Cone:
       CreateCone(scale); break;
   }
+	InitializeAABB();
 }
 
 ZModel::ZModel(std::string path) {
   ZGLModelImporter importer;
   importer.LoadModel(path, meshes_);
+	InitializeAABB();
 }
 
 void ZModel::Render(ZShader* shader) {
@@ -73,14 +75,39 @@ void ZModel::Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> mat
   }
 }
 
+void ZModel::InitializeAABB() {
+	glm::vec3 min(0.f), max(0.f);
+
+	ZMesh3DMap::iterator it = meshes_.begin(), end = meshes_.end();
+	for (; it != end; it++) {
+		const std::vector<ZVertex3D>& vertices = it->second->vertices_;
+		for (int i = 0; i < vertices.size(); i++) {
+			if (vertices[i].position.x < min.x) min.x = vertices[i].position.x;
+			if (vertices[i].position.x < min.y) min.y = vertices[i].position.y;
+			if (vertices[i].position.x < min.z) min.z = vertices[i].position.z;
+			if (vertices[i].position.x > max.x) max.x = vertices[i].position.x;
+			if (vertices[i].position.x > max.y) max.y = vertices[i].position.y;
+			if (vertices[i].position.x > max.z) max.z = vertices[i].position.z;
+		}
+	}
+
+	boundingBox_.minimum = min;
+	boundingBox_.maximum = max;
+}
+
+void ZModel::UpdateAABB(glm::mat4 transform) {
+	boundingBox_.minimum = transform * glm::vec4(boundingBox_.minimum, 1.f);
+	boundingBox_.maximum = transform * glm::vec4(boundingBox_.maximum, 1.f);
+}
+
 /**
  *  Plane Creation
  */
-std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(glm::vec3 scale) {
+std::unique_ptr<ZModel> ZModel::NewGroundPrimitive(glm::vec3 scale) {
   return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Plane, scale));
 }
 
-void ZModel::CreatePlane(glm::vec3 scale) {
+void ZModel::CreateGround(glm::vec3 scale) {
   ZVertex3D topLeft(glm::vec3(-scale.x, 0.f, -scale.z)); topLeft.uv = glm::vec2(0.f, 1.f);
   ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.f, scale.z)); bottomLeft.uv = glm::vec2(0.f, 0.f);
   ZVertex3D bottomRight(glm::vec3(scale.x, 0.f, scale.z)); bottomRight.uv = glm::vec2(1.f, 0.f);

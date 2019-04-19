@@ -67,6 +67,9 @@ ${SOURCE_DIR}/Physics/ZBulletPhysics.cpp
 ${SOURCE_DIR}/Physics/ZRigidBody.cpp
 ${SOURCE_DIR}/Physics/ZBulletRigidBody.cpp
 ${SOURCE_DIR}/Physics/ZCollider.cpp
+${SOURCE_DIR}/Graphics/AbstractGeometry/ZAABBox.cpp
+${SOURCE_DIR}/Graphics/AbstractGeometry/ZFrustum.cpp
+${SOURCE_DIR}/Graphics/AbstractGeometry/ZPlane.cpp
 ${SOURCE_DIR}/Graphics/ZMaterial.cpp
 ${SOURCE_DIR}/Graphics/ZMesh3D.cpp
 ${SOURCE_DIR}/Graphics/ZGraphics.cpp
@@ -135,6 +138,9 @@ ${HEADERS_DIR}/Graphics/ZMesh3D.hpp
 ${HEADERS_DIR}/Graphics/ZModel.hpp
 ${HEADERS_DIR}/Graphics/ZPhysicsDebug.hpp
 ${HEADERS_DIR}/Graphics/ZShader.hpp
+${HEADERS_DIR}/Graphics/AbstractGeometry/ZAABBox.hpp
+${HEADERS_DIR}/Graphics/AbstractGeometry/ZFrustum.hpp
+${HEADERS_DIR}/Graphics/AbstractGeometry/ZPlane.hpp
 ${HEADERS_DIR}/Graphics/Strategies/ZGLGraphicsStrategy.hpp
 ${HEADERS_DIR}/Graphics/Strategies/ZGLTextStrategy.hpp
 ${HEADERS_DIR}/Graphics/Strategies/ZGraphicsStrategy.hpp
@@ -1050,6 +1056,7 @@ ${HEADERS_DIR}/EventAgent/Events
 ${HEADERS_DIR}/Factories
 ${HEADERS_DIR}/GameObjects
 ${HEADERS_DIR}/Graphics
+${HEADERS_DIR}/Graphics/AbstractGeometry
 ${HEADERS_DIR}/Graphics/Strategies
 ${HEADERS_DIR}/Input
 ${HEADERS_DIR}/Physics

@@ -32,6 +32,7 @@
 // Includes
 #include "ZCommon.hpp"
 #include "ZComponent.hpp"
+#include "ZFrustum.hpp"
 
 // Forward Declarations
 class ZPhysicsComponent;
@@ -48,9 +49,10 @@ private:
   float zoomSpeed_ = 5.0f;
   float nearClippingPlane_ = 0.01f;
   float farClippingPlane_ = 1000.0f;
-  ZCameraType cameraType_;
-  ZCameraMovementStyle movementStyle_;
   float cameraDamping_ = 0.02f;
+	ZCameraType cameraType_;
+	ZCameraMovementStyle movementStyle_;
+	ZFrustum frustum_;
 
   glm::vec3 pitchVelocity_, yawVelocity_;
   glm::quat pitch_, yaw_;
@@ -60,16 +62,7 @@ private:
 
 public:
 
-  ZCameraComponent(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f)) : ZComponent() {
-    cameraType_ = type;
-    zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
-    movementStyle_ = ZCameraMovementStyle::Normal;
-    pitch_ = glm::quat(0.f, glm::vec3(1.f, 0.f, 0.f));
-    yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
-    pitchVelocity_ = glm::vec3(0.f);
-    yawVelocity_ = glm::vec3(0.f);
-    id_ = "ZCCamera_" + ZEngine::IDSequence()->Next();
-  }
+	ZCameraComponent(ZCameraType type = ZCameraType::Orthographic, glm::vec3 position = glm::vec3(0.0f));
   ~ZCameraComponent() { }
 
   void Initialize(std::shared_ptr<ZOFNode> root) override;
@@ -82,9 +75,10 @@ public:
   void SetType(ZCameraType type) { cameraType_ = type; }
   void SetMovementStyle(ZCameraMovementStyle style) { movementStyle_ = style; }
 
-  float GetZoom() const { return zoom_; }
-  float GetNearField() const { return nearClippingPlane_; }
-  float GetFarField() const { return farClippingPlane_; }
+  float Zoom() const { return zoom_; }
+  float NearField() const { return nearClippingPlane_; }
+  float FarField() const { return farClippingPlane_; }
+	ZFrustum& Frustum() { return frustum_; }
   glm::mat4 ProjectionMatrix();
   glm::mat4 ViewMatrix(float frameMix);
 

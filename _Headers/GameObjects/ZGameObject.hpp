@@ -41,13 +41,17 @@ class ZGOFactory;
 struct ZOFNode;
 
 // Class Definitions
+struct ZGameObjectProperties {
+	glm::vec4 position, previousPosition;
+	glm::vec3 scale, previousScale;
+	glm::quat orientation, previousOrientation;
+	glm::mat4 modelMatrix;
+};
+
 class ZGameObject : public ZProcess {
+
   friend class ZGame;
   friend class ZGOFactory;
-
-private:
-
-  void CalculateTangentBasis();
 
 public:
 
@@ -56,30 +60,35 @@ public:
 
   virtual void Initialize(std::shared_ptr<ZOFNode> root);
 
-  virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+	virtual void PreRender() { /* TODO: Push transform matrix to stack */ }
+  virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
+	virtual void RenderChildren(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) { }
+	virtual void PostRender() { /* TODO: Pop transform matrix from stack */ }
 
   void CalculateDerivedData();
 
-  void SetPosition(glm::vec3 position);
-  void SetScale(glm::vec3 scale);
-  void SetOrientation(glm::quat quaternion);
-  void SetOrientation(glm::vec3 euler);
-  void SetModelMatrix(glm::mat4 modelMatrix);
+	void AddChild(std::shared_ptr<ZGameObject> gameObject);
+	void RemoveChild(std::shared_ptr<ZGameObject> gameObject);
+	bool IsVisible();
 
-  glm::vec3 Position() const { return glm::vec3(position_); }
-  glm::vec3 Scale() const { return scale_; }
-  glm::quat Orientation() const { return orientation_; }
-  glm::vec3 Front() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 0.f, -1.f); }
-  glm::vec3 Up() const { return glm::conjugate(orientation_) * glm::vec3(0.f, 1.f, 0.f); }
-  glm::vec3 Right() const { return glm::conjugate(orientation_) * glm::vec3(-1.f, 0.f, 0.f); }
-  glm::mat4 ModelMatrix() { return modelMatrix_; }
-
-  glm::vec3 PreviousPosition() const { return glm::vec3(previousPosition_); }
-  glm::vec3 PreviousFront() const { return glm::conjugate(previousOrientation_) * glm::vec3(0.f, 0.f, -1.f); }
-  glm::vec3 PreviousUp() const { return glm::conjugate(previousOrientation_) * glm::vec3(0.f, 1.f, 0.f); }
-  glm::vec3 PreviousRight() const { return glm::conjugate(previousOrientation_) * glm::vec3(-1.f, 0.f, 0.f); }
-
+  glm::vec3 Position() const { return glm::vec3(properties_.position); }
+  glm::vec3 Scale() const { return properties_.scale; }
+  glm::quat Orientation() const { return properties_.orientation; }
+  glm::vec3 Front() const { return glm::conjugate(properties_.orientation) * glm::vec3(0.f, 0.f, -1.f); }
+  glm::vec3 Up() const { return glm::conjugate(properties_.orientation) * glm::vec3(0.f, 1.f, 0.f); }
+  glm::vec3 Right() const { return glm::conjugate(properties_.orientation) * glm::vec3(-1.f, 0.f, 0.f); }
+  glm::mat4 ModelMatrix() { return properties_.modelMatrix; }
+  glm::vec3 PreviousPosition() const { return glm::vec3(properties_.previousPosition); }
+  glm::vec3 PreviousFront() const { return glm::conjugate(properties_.previousOrientation) * glm::vec3(0.f, 0.f, -1.f); }
+  glm::vec3 PreviousUp() const { return glm::conjugate(properties_.previousOrientation) * glm::vec3(0.f, 1.f, 0.f); }
+  glm::vec3 PreviousRight() const { return glm::conjugate(properties_.previousOrientation) * glm::vec3(-1.f, 0.f, 0.f); }
   ZGame* Game() const { return game_; }
+
+	void SetPosition(glm::vec3 position);
+	void SetScale(glm::vec3 scale);
+	void SetOrientation(glm::quat quaternion);
+	void SetOrientation(glm::vec3 euler);
+	void SetModelMatrix(glm::mat4 modelMatrix);
 
   template<class T>
   typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
@@ -93,8 +102,8 @@ public:
   }
 
   template<class T> std::shared_ptr<T> RemoveComponent() {
-    std::vector<std::shared_ptr<ZComponent>>::iterator found;
-    for (std::vector<std::shared_ptr<ZComponent>>::iterator it = components_.begin(); it != components_.end(); ++it) {
+    ZComponentList::iterator found;
+    for (ZComponentList::iterator it = components_.begin(); it != components_.end(); ++it) {
       if (std::dynamic_pointer_cast<T>(*it)) {
         found = it; break;
       }
@@ -117,9 +126,8 @@ public:
 protected:
 
   ZGame* game_ = nullptr;
-  std::vector<std::shared_ptr<ZComponent>> components_;
-  glm::vec4 position_, previousPosition_;
-  glm::vec3 scale_, previousScale_;
-  glm::quat orientation_, previousOrientation_;
-  glm::mat4 modelMatrix_;
+  ZComponentList components_;
+	ZGameObjectList children_;
+	ZGameObject* parent_;
+	ZGameObjectProperties properties_;
 };
