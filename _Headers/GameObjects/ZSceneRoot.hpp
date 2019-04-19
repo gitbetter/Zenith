@@ -1,15 +1,15 @@
 /*
  
- ______     ______     __   __     __     ______   __  __
+  ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
- /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
- \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
- ZSkybox.hpp
+   ZSceneRoot.hpp
  
- Created by Adrian Sanchez on 02/03/2019.
- Copyright © 2019 Pervasive Sense. All rights reserved.
+   Created by Adrian Sanchez on 19/04/19.
+   Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
  
@@ -30,28 +30,11 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
 #include "ZGameObject.hpp"
 
 // Forward Declarations
-// class SomeClass;
 
-// Class and Data Structure Definitions
-class ZSkybox : public ZGameObject {
-    
-    public:
-    
-    ZSkybox() : ZGameObject(glm::vec3(0.f)) { }
-    ~ZSkybox() { }
-    
-    void Initialize() override { }
-    void Initialize(std::shared_ptr<ZOFNode> root) override { }
-    void Initialize(std::string hdrMap);
-    
-    ZIBLTexture IBLTexture() const { return iblTexture_; }
-    
-    protected:
-    
-    ZIBLTexture iblTexture_;
+// Class Definitions
+class ZSceneRoot : public ZGameObject {
     
 };

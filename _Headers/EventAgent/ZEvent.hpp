@@ -64,7 +64,7 @@ public:
   explicit ZBaseEvent(const float timeStamp = 0.f) : timeStamp_(timeStamp) { }
   virtual ~ZBaseEvent() { }
 
-  virtual const ZEventType& EventType() const = 0;
+  virtual const ZEventType& EventType() const override = 0;
   float TimeStamp() const override { return timeStamp_; }
 
   void SetTimeStamp(float timestamp) override { timeStamp_ = timestamp; }

@@ -9,7 +9,7 @@
 		ZAudio.cpp
 
 		Created by Adrian Sanchez on 13/04/2019.
-		Copyright © 2019 Pervasive Sense. All rights reserved.
+		Copyright ï¿½ 2019 Pervasive Sense. All rights reserved.
 
 	This file is part of Zenith.
 
@@ -58,7 +58,6 @@ void ZAudio::ResumeAll() {
 }
 
 void ZAudio::CleanUp() {
-	ZAudioSourceList::iterator it = allSamples_.begin();
 	while (!allSamples_.empty()) {
 		std::shared_ptr<ZAudioSource> audioSource = allSamples_.front();
 		audioSource->Stop();

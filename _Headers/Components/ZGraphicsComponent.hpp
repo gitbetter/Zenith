@@ -20,41 +20,44 @@ struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZGraphicsComponent : public ZComponent {
-  typedef ZLightMap ZLightMap;
+    
+    typedef ZLightMap ZLightMap;
+    
 private:
-
-  unsigned int activeShaderIndex_ = -1;
-  ZLightMap gameLights_;
-  std::shared_ptr<ZGameObject> gameCamera_;
-
-  void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
-
+    
+    unsigned int activeShaderIndex_ = -1;
+    ZLightMap gameLights_;
+    std::shared_ptr<ZGameObject> gameCamera_;
+    
+    void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
+    
 public:
-
-  ZGraphicsComponent();
-  ~ZGraphicsComponent();
-
-  void Initialize(std::shared_ptr<ZOFNode> root);
-  void Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader);
-
-  void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
-
-  std::shared_ptr<ZShader> ActiveShader() const { return shaders_[activeShaderIndex_]; }
-  std::shared_ptr<ZModel> Model() const { return model_; }
-
-  void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
-  void ClearOutline();
-
-  void SetGameLights(ZLightMap lights) { gameLights_ = lights; }
-  void SetGameCamera(std::shared_ptr<ZGameObject> camera) { gameCamera_ = camera; }
-
-  void AddMaterial(std::shared_ptr<ZMaterial> material);
-
+    
+    ZGraphicsComponent();
+    ~ZGraphicsComponent();
+    
+    void Initialize() override { }
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader);
+    
+    void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
+    
+    std::shared_ptr<ZShader> ActiveShader() const { return shaders_[activeShaderIndex_]; }
+    std::shared_ptr<ZModel> Model() const { return model_; }
+    
+    void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
+    void ClearOutline();
+    
+    void SetGameLights(ZLightMap lights) { gameLights_ = lights; }
+    void SetGameCamera(std::shared_ptr<ZGameObject> camera) { gameCamera_ = camera; }
+    
+    void AddMaterial(std::shared_ptr<ZMaterial> material);
+    
 protected:
-
-  std::shared_ptr<ZModel> model_ = nullptr;
-  std::vector<std::shared_ptr<ZShader>> shaders_;
-  std::vector<std::shared_ptr<ZMaterial>> materials_;
-  std::shared_ptr<ZShader> highlightShader_ = nullptr;
-  glm::vec4 highlightColor_{0.f};
+    
+    std::shared_ptr<ZModel> model_ = nullptr;
+    std::vector<std::shared_ptr<ZShader>> shaders_;
+    std::vector<std::shared_ptr<ZMaterial>> materials_;
+    std::shared_ptr<ZShader> highlightShader_ = nullptr;
+    glm::vec4 highlightColor_{0.f};
 };

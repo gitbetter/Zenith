@@ -34,7 +34,7 @@
 #include "ZCameraComponent.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
-#include "ZGame.hpp"
+#include "ZScene.hpp"
 #include "ZSkybox.hpp"
 #include "ZOFTree.hpp"
 
@@ -146,12 +146,12 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
   shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
   shader->SetVec3("viewPosition", gameCamera_->Position());
 
-  if (object_->Game()->Skybox() != nullptr) {
-    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().irradiance, 2);
+  if (object_->Scene()->Skybox() != nullptr) {
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 2);
     shader->SetInt("irradianceMap", 2);
-    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().prefiltered, 3);
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 3);
     shader->SetInt("prefilterMap", 3);
-    ZEngine::Graphics()->Strategy()->BindTexture(object_->Game()->Skybox()->IBLTexture().brdfLUT, 4);
+    ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 4);
     shader->SetInt("brdfLUT", 4);
   }
 

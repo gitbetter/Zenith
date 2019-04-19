@@ -44,6 +44,8 @@ void ZGraphics::Initialize() {
     graphicsStrategy_->Initialize();
     depthMap_ = graphicsStrategy_->LoadDepthTexture();
     depthFramebuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
+    shadowShader_ = std::shared_ptr<ZShader>(new ZShader);
+    shadowShader_->Initialize("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
   }
 }
 
@@ -59,17 +61,39 @@ void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
   }
 }
 
+void ZGraphics::SetupShadowPass(std::shared_ptr<ZLight> light) {
+    graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
+    
+    shadowShader_->Activate();
+    // TODO: For now we support one light source for shadows, but this should change
+    // so that multiple light space matrices are supported for multiple light sources
+    // that can cast shadows, possibly using deferred rendering
+    // TODO: Do something about these magic numbers!
+    glm::mat4 lightP = glm::ortho(-25.f, 25.f, -25.f, 25.f, 0.01f, 100.f);
+    glm::mat4 lightV = glm::lookAt(light->type == ZLightType::Directional ?
+                                   light->direction :
+                                   light->Position(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+    glm::mat4 lightSpaceMatrix = lightP * lightV;
+    currentLightSpaceMatrix_ = lightSpaceMatrix;
+}
+
 void ZGraphics::Draw(const ZGameObjectMap& gameObjects, const ZLightMap& gameLights, float frameMix) {
   if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
     graphicsStrategy_->ClearViewport();
 
     // TODO: Support more shadow casting lights!
     if (gameLights.size() > 0) {
-      DrawShadowMap(gameObjects, gameLights.begin()->second, frameMix);
+        SetupShadowPass(gameLights.begin()->second);
+        Render(gameObjects, frameMix, RENDER_OP_SHADOW);
+        FinishShadowPass();
     }
 
     Render(gameObjects, frameMix);
   }
+}
+
+void ZGraphics::FinishShadowPass() {
+    graphicsStrategy_->UnbindDepthMapBuffer();
 }
 
 void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp) {
@@ -77,31 +101,6 @@ void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER
 		if (it->second->IsVisible())
 			it->second->Render(frameMix, renderOp);
   }
-}
-
-void ZGraphics::DrawShadowMap(const ZGameObjectMap& gameObjects, std::shared_ptr<ZLight> light, float frameMix) {
-  graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
-
-  if (shadowShader_ == nullptr) {
-    shadowShader_ = std::shared_ptr<ZShader>(new ZShader);
-    shadowShader_->Initialize("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
-  }
-  shadowShader_->Activate();
-
-  // TODO: For now we support one light source for shadows, but this should change
-  // so that multiple light space matrices are supported for multiple light sources
-  // that can cast shadows, possibly using deferred rendering
-  // TODO: Do something about these magic numbers!
-  glm::mat4 lightP = glm::ortho(-25.f, 25.f, -25.f, 25.f, 0.01f, 100.f);
-  glm::mat4 lightV = glm::lookAt(light->type == ZLightType::Directional ?
-                                  light->direction :
-                                  light->Position(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
-  glm::mat4 lightSpaceMatrix = lightP * lightV;
-  currentLightSpaceMatrix_ = lightSpaceMatrix;
-
-  Render(gameObjects, frameMix, RENDER_OP_SHADOW);
-
-  graphicsStrategy_->UnbindDepthMapBuffer();
 }
 
 void ZGraphics::AddShader(std::string id, std::shared_ptr<ZShader> shader) {

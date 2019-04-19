@@ -122,9 +122,6 @@ unsigned int ZOggResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned in
 
 	vorbis_info* vi = ov_info(&vf, -1);
 
-	unsigned long size = 4096 * 16, pos = 0;
-	int sec = 0, ret = 1;
-
 	unsigned long bytes = (unsigned long)ov_pcm_total(&vf, -1);
 	bytes *= 2 * vi->channels;
 	

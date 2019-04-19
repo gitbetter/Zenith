@@ -75,7 +75,7 @@ void ZBulletPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
   std::shared_ptr<ZRaycastEvent> raycastEvent = std::dynamic_pointer_cast<ZRaycastEvent>(event);
 
   if (raycastEvent->Origin().z == 0.f) { // Handle screen to world raycasting (i.e. mouse picking)
-    std::shared_ptr<ZGameObject> camera = ZEngine::Game()->ActiveCamera();
+    std::shared_ptr<ZGameObject> camera = ZEngine::Game()->ActiveScene()->ActiveCamera();
     if (camera) {
       std::shared_ptr<ZCameraComponent> cameraComp = camera->FindComponent<ZCameraComponent>();
       glm::mat4 InverseProjection = glm::inverse(cameraComp->ProjectionMatrix());

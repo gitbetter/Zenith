@@ -29,35 +29,15 @@
 
 #include "ZGame.hpp"
 #include "ZEngine.hpp"
-#include "ZGraphics.hpp"
 #include "ZDomain.hpp"
-#include "ZDomainStrategy.hpp"
-#include "ZInput.hpp"
-#include "ZUI.hpp"
-#include "ZPhysics.hpp"
-#include "ZModel.hpp"
-#include "ZSkybox.hpp"
-#include "ZShader.hpp"
-#include "ZCameraComponent.hpp"
-#include "ZEventAgent.hpp"
-#include "ZQuitEvent.hpp"
 #include "ZProcessRunner.hpp"
-
-#include "ZUIText.hpp"
 
 #include <chrono>
 using namespace std;
 
-ZGame::ZGame() : activeCameraObject_("") { }
-
-void ZGame::Setup() {
-  ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZGame::HandleQuit);
-  ZEngine::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
-}
+ZGame::ZGame() : activeScene_(0) { }
 
 void ZGame::RunGameLoop() {
-  Setup();
-
   _Z("Zenith is about to loop...", ZINFO);
 
   float previousTime = ZEngine::SecondsTime();
@@ -71,7 +51,7 @@ void ZGame::RunGameLoop() {
 
     ZEngine::ProcessRunner()->UpdateProcesses();
 
-    Render(frameMix);
+    scenes_[activeScene_]->Render(frameMix);
 
     ZEngine::Domain()->Strategy()->PollEvents();
 
@@ -79,60 +59,14 @@ void ZGame::RunGameLoop() {
   }
 }
 
-void ZGame::Render(float frameMix, RENDER_OP renderOp) {
-  ZEngine::Graphics()->Draw(gameObjects_, gameLights_, frameMix);
-  if (skybox_ != nullptr) skybox_->Render(frameMix, renderOp);
-
-  // TODO: If the UI has changed, draw it. Otherwise, leave it.
-  // The dirty flag trick might come in handy here
-  ZEngine::UI()->Draw();
-
-  ZEngine::Physics()->DebugDraw();
-
-  ZEngine::Graphics()->Strategy()->SwapBuffers();
+void ZGame::AddScene(std::shared_ptr<ZScene> scene) {
+    activeScene_ = scenes_.size();
+    scenes_.push_back(scene);
 }
 
-void ZGame::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects) {
-  for (std::shared_ptr<ZGameObject> object : gameObjects) {
-    AddGameObject(object);
-  }
-}
-
-void ZGame::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
-  if (gameObject != nullptr) {
-    gameObject->game_ = this;
-    if (gameObject->FindComponent<ZCameraComponent>() != nullptr) {
-      activeCameraObject_ = gameObject->ID();
-    }
-
-    if (dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
-      gameLights_.insert({gameObject->ID(), dynamic_pointer_cast<ZLight>(gameObject)});
-    } else {
-      gameObjects_.insert({gameObject->ID(), gameObject});
-    }
-  }
-}
-
-void ZGame::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
-  if (gameObject && gameObject->FindComponent<ZCameraComponent>())
-    activeCameraObject_ = gameObject->ID();
-}
-
-void ZGame::SetDefaultSkybox() {
-  std::shared_ptr<ZSkybox> skybox(new ZSkybox);
-  skybox->Initialize(ZEngine::DEFAULT_HDR_CUBEMAP);
-  skybox->game_ = this;
-
-  skybox_ = skybox;
-}
-
-std::shared_ptr<ZGameObject> ZGame::ActiveCamera() {
-  if (gameObjects_.find(activeCameraObject_) == gameObjects_.end()) return nullptr;
-  return gameObjects_[activeCameraObject_];
-}
-
-void ZGame::HandleQuit(std::shared_ptr<ZEvent> event) {
-  ZEngine::Domain()->Strategy()->ReleaseCursor();
+void ZGame::SetActiveScene(unsigned int index) {
+    if (index < 0 || index >= scenes_.size()) return;
+    activeScene_ = index;
 }
 
 // -.-

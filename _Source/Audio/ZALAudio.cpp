@@ -9,7 +9,7 @@
 		ZALAudio.cpp
 
 		Created by Adrian Sanchez on 13/04/2019.
-		Copyright © 2019 Pervasive Sense. All rights reserved.
+		Copyright ï¿½ 2019 Pervasive Sense. All rights reserved.
 
 	This file is part of Zenith.
 
@@ -41,6 +41,7 @@ bool ZALAudio::Initialize() {
 	alcMakeContextCurrent(context_);
 
 	alGetError();	// Clears any OpenAL error code
+    return true;
 }
 
 bool ZALAudio::Active() {

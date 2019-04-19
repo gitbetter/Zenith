@@ -9,7 +9,7 @@
 		ZALAudioSource.cpp
 
 		Created by Adrian Sanchez on 13/04/2019.
-		Copyright © 2019 Pervasive Sense. All rights reserved.
+		Copyright ï¿½ 2019 Pervasive Sense. All rights reserved.
 
 	This file is part of Zenith.
 
@@ -198,8 +198,8 @@ float ZALAudioSource::Progress() const {
 	alGetSourcei(source_, AL_BYTE_OFFSET, &byteOffset);
 	if ((error = alGetError()) != AL_NO_ERROR) {
 		_Z("Error getting audio source playback progress", ZERROR);
-		return false;
+		return -1.f;
 	}
 
-	(float)byteOffset / (float)sizeInBytes;
+	return (float)byteOffset / (float)sizeInBytes;
 }

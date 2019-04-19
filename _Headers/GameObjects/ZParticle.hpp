@@ -50,7 +50,7 @@ public:
   ZParticle() : ZGameObject() { }
   ~ZParticle() { }
 
-  void Initialize();
+  void Initialize() override;
 
   void Update() override;
 	void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;

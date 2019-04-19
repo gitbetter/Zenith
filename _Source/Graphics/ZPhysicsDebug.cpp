@@ -40,7 +40,7 @@ void ZPhysicsDebug::Initialize() {
 }
 
 void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
-  std::shared_ptr<ZCameraComponent> cameraComp = ZEngine::Game()->ActiveCamera()->FindComponent<ZCameraComponent>();
+  std::shared_ptr<ZCameraComponent> cameraComp = ZEngine::Game()->ActiveScene()->ActiveCamera()->FindComponent<ZCameraComponent>();
   glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
   glm::mat4 viewMatrix = cameraComp->ViewMatrix(0.5f);
 

@@ -32,6 +32,7 @@ ${SOURCE_DIR}/Scripting/ZScriptExports.cpp
 ${SOURCE_DIR}/Scripting/ZLuaScriptManager.cpp
 ${SOURCE_DIR}/Core/ZGame.cpp
 ${SOURCE_DIR}/Core/ZEngine.cpp
+${SOURCE_DIR}/Core/ZScene.cpp
 ${SOURCE_DIR}/Input/ZGLInput.cpp
 ${SOURCE_DIR}/Input/ZInput.cpp
 ${SOURCE_DIR}/ResourceCache/ResourceLoaders/ZWavResourceLoader.cpp
@@ -56,6 +57,7 @@ ${SOURCE_DIR}/GameObjects/ZGameObject.cpp
 ${SOURCE_DIR}/GameObjects/ZSkybox.cpp
 ${SOURCE_DIR}/GameObjects/ZParticleSystem.cpp
 ${SOURCE_DIR}/GameObjects/ZParticle.cpp
+${SOURCE_DIR}/GameObjects/ZSceneRoot.cpp
 ${SOURCE_DIR}/Windowing/ZGLDomainStrategy.cpp
 ${SOURCE_DIR}/Windowing/ZDomainStrategy.cpp
 ${SOURCE_DIR}/Windowing/ZDomain.cpp
@@ -112,6 +114,7 @@ ${HEADERS_DIR}/Components/ZScriptComponent.hpp
 ${HEADERS_DIR}/Core/ZCommon.hpp
 ${HEADERS_DIR}/Core/ZEngine.hpp
 ${HEADERS_DIR}/Core/ZGame.hpp
+${HEADERS_DIR}/Core/ZScene.hpp
 ${HEADERS_DIR}/EventAgent/ZEvent.hpp
 ${HEADERS_DIR}/EventAgent/ZEventAgent.hpp
 ${HEADERS_DIR}/EventAgent/ZScriptableEvent.hpp
@@ -131,6 +134,7 @@ ${HEADERS_DIR}/GameObjects/ZLight.hpp
 ${HEADERS_DIR}/GameObjects/ZParticle.hpp
 ${HEADERS_DIR}/GameObjects/ZParticleSystem.hpp
 ${HEADERS_DIR}/GameObjects/ZSkybox.hpp
+${HEADERS_DIR}/GameObjects/ZSceneRoot.hpp
 ${HEADERS_DIR}/Graphics/ZGraphics.hpp
 ${HEADERS_DIR}/Graphics/ZMaterial.hpp
 ${HEADERS_DIR}/Graphics/ZMesh.hpp

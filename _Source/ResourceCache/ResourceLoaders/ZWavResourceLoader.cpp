@@ -49,7 +49,6 @@ unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned in
 
 	fileEnd = length - 4;
 
-	bool copiedBuffer = false;
 	while (file < fileEnd) {
 		type = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
 		file += sizeof(unsigned long);
@@ -87,7 +86,7 @@ unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned in
 		}
 	}
 
-	return false;
+	return 0;
 }
 
 bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {

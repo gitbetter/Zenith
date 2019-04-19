@@ -9,7 +9,7 @@
 		ZFrustum.cpp
 
 		Created by Adrian Sanchez on 18/04/2019.
-		Copyright © 2019 Pervasive Sense. All rights reserved.
+		Copyright ï¿½ 2019 Pervasive Sense. All rights reserved.
 
 	This file is part of Zenith.
 
@@ -43,7 +43,7 @@ ZFrustum::ZFrustum(float fov, float ratio, float near, float far) {
 }
 
 void ZFrustum::Recalculate(glm::vec3 pos, glm::vec3 front, glm::vec3 up) {
-	glm::vec3 dir, nearCenter, farCenter, x, y, z;
+	glm::vec3 nearCenter, farCenter, x, y, z;
 
 	z = glm::normalize(pos - front);
 	x = glm::normalize(glm::cross(up, z));

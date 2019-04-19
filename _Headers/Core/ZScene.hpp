@@ -6,9 +6,9 @@
  /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
  \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
- ZGame.hpp
+ ZScene.hpp
  
- Created by Adrian Sanchez on 27/01/2019.
+ Created by Adrian Sanchez on 19/04/2019.
  Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -30,35 +30,43 @@
 #pragma once
 
 // Includes
-#include "ZScene.hpp"
+#include "ZCommon.hpp"
 #include <initializer_list>
 
 // Forward Declarations
+class ZLight;
+class ZSkybox;
 
 // Class and Data Structure Definitions
-class ZGame {
+class ZScene {
     
 private:
     
-    // TODO: Store this information in a scene manager class
-    unsigned int activeScene_ = 0;
-    std::vector<std::shared_ptr<ZScene>> scenes_;
-    
-    void CleanUp();
+    // TODO: Create a light manager class to handle the scene lights
+    std::shared_ptr<ZSkybox> skybox_ = nullptr;
+    std::shared_ptr<ZGameObject> root_ = nullptr;
+    std::shared_ptr<ZGameObject> activeCamera_ = nullptr;
+    ZLightMap gameLights_;
+    ZGameObjectMap gameObjects_;
     
 public:
     
-    ZGame();
-    ~ZGame() { };
+    void Initialize();
+    void Render(float frameMix);
     
-    void RunGameLoop();
+    std::shared_ptr<ZGameObject> Root() { return root_; }
+    std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
+    std::shared_ptr<ZGameObject> ActiveCamera() { return activeCamera_; }
+    ZGameObjectMap& GameObjects() { return gameObjects_; }
+    ZLightMap& GameLights() { return gameLights_; }
     
-    void AddScene(std::shared_ptr<ZScene> scene);
+    void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
+    void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
     
-    std::shared_ptr<ZScene> ActiveScene() { return scenes_[activeScene_]; }
-    void SetActiveScene(unsigned int index);
+    void SetActiveCamera(std::shared_ptr<ZGameObject> gameObject);
+    void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
+    void SetDefaultSkybox();
     
-    // TODO: Remove later when we figure out why some displays don't refresh on startup
-    void MacDisplayHack();
+    void HandleQuit(std::shared_ptr<ZEvent> event);
     
 };

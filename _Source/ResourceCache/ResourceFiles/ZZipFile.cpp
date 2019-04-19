@@ -76,9 +76,9 @@ void ZZipFile::PrintResources() const {
         zip_entry_openbyindex(zipFile_, i);
         {
             const char *name = zip_entry_name(zipFile_);
-            int isdir = zip_entry_isdir(zipFile_);
-            unsigned long long size = zip_entry_size(zipFile_);
-            unsigned int crc32 = zip_entry_crc32(zipFile_);
+//            int isdir = zip_entry_isdir(zipFile_);
+//            unsigned long long size = zip_entry_size(zipFile_);
+//            unsigned int crc32 = zip_entry_crc32(zipFile_);
             _Z(name, ZINFO);
         }
         zip_entry_close(zipFile_);
