@@ -65,10 +65,10 @@ public:
     virtual void Initialize() override { }
     virtual void Initialize(std::shared_ptr<ZOFNode> root);
     
-    virtual void PreRender() { /* TODO: Push transform matrix to stack */ }
+	virtual void PreRender();
     virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
     virtual void RenderChildren(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
-    virtual void PostRender() { /* TODO: Pop transform matrix from stack */ }
+	virtual void PostRender();
     
     void CalculateDerivedData();
     

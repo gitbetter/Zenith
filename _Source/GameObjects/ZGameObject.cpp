@@ -79,6 +79,11 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root) {
     CalculateDerivedData();
 }
 
+void ZGameObject::PreRender() {
+	glm::mat4 M = scene_->TopMatrix() * properties_.modelMatrix;
+	scene_->PushMatrix(M);
+}
+
 void ZGameObject::Render(float frameMix, RENDER_OP renderOp) {
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     if (graphicsComp != nullptr) {
@@ -88,6 +93,10 @@ void ZGameObject::Render(float frameMix, RENDER_OP renderOp) {
         graphicsComp->SetGameCamera(camera);
         graphicsComp->Render(frameMix, renderOp);
     }
+}
+
+void ZGameObject::PostRender() {
+	scene_->PopMatrix();
 }
 
 void ZGameObject::RenderChildren(float frameMix, RENDER_OP renderOp) {

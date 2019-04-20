@@ -60,8 +60,6 @@ void ZScene::Render(float frameMix) {
         }
         
         root_->RenderChildren(frameMix);
-    
-        //if (skybox_ != nullptr) skybox_->Render(frameMix);
         
         ZEngine::UI()->Draw();
         
@@ -91,6 +89,19 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
         }
         root_->AddChild(gameObject);
     }
+}
+
+glm::mat4 ZScene::TopMatrix() {
+	if (matrixStack_.empty()) return glm::mat4(1.f);
+	else return matrixStack_.back();
+}
+
+void ZScene::PushMatrix(glm::mat4 matrix) {
+	matrixStack_.push_back(matrix);
+}
+
+void ZScene::PopMatrix() {
+	if (!matrixStack_.empty()) matrixStack_.pop_back();
 }
 
 void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {

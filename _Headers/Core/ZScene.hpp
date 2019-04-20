@@ -46,6 +46,7 @@ private:
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
     std::shared_ptr<ZGameObject> root_ = nullptr;
     std::shared_ptr<ZGameObject> activeCamera_ = nullptr;
+	std::list<glm::mat4> matrixStack_;
     ZLightMap gameLights_;
     ZGameObjectMap gameObjects_;
     
@@ -62,6 +63,10 @@ public:
     
     void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
     void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
+
+	glm::mat4 TopMatrix();
+	void PushMatrix(glm::mat4 matrix);
+	void PopMatrix();
     
     void SetActiveCamera(std::shared_ptr<ZGameObject> gameObject);
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
