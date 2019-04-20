@@ -102,7 +102,7 @@ typedef unsigned long ZEventType;
 #define RENDER_OP_COLOR 0x01
 #define RENDER_OP_SHADOW 0x02
 
-enum class ZRenderPass {
+enum ZRenderPass {
     First, Static = First, Dynamic, Sky, Invisible, Last
 };
 

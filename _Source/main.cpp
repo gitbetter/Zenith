@@ -94,9 +94,9 @@ int main(int argc, const char * argv[]) {
     
     for (ZUIElementMap::iterator it = zofResult.uiElements.begin(); it != zofResult.uiElements.end(); it++) {
         if (std::dynamic_pointer_cast<ZUICursor>(it->second))
-        ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
+			ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
         else
-        ZEngine::UI()->AddElement(it->second);
+			ZEngine::UI()->AddElement(it->second);
     }
     
     // We can register delegate methods for specific UI events

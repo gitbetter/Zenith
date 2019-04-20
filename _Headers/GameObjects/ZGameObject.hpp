@@ -48,6 +48,7 @@ struct ZGameObjectProperties {
     glm::vec3 scale, previousScale;
     glm::quat orientation, previousOrientation;
     glm::mat4 modelMatrix;
+	std::string name;
 };
 
 class ZGameObject : public ZProcess {
@@ -58,6 +59,7 @@ class ZGameObject : public ZProcess {
 public:
     
     ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
+	ZGameObject(std::string name) : ZGameObject() { properties_.name = name; }
     virtual ~ZGameObject() { }
     
     virtual void Initialize() override { }
@@ -70,10 +72,12 @@ public:
     
     void CalculateDerivedData();
     
-    void AddChild(std::shared_ptr<ZGameObject> gameObject);
-    void RemoveChild(std::shared_ptr<ZGameObject> gameObject);
-    bool IsVisible();
+    virtual void AddChild(std::shared_ptr<ZGameObject> gameObject);
+    virtual void RemoveChild(std::shared_ptr<ZGameObject> gameObject);
+    virtual bool IsVisible();
     
+	std::string Name() const { return properties_.name; }
+	ZRenderPass RenderPass() const { return properties_.renderPass; }
     glm::vec3 Position() const { return glm::vec3(properties_.position); }
     glm::vec3 Scale() const { return properties_.scale; }
     glm::quat Orientation() const { return properties_.orientation; }
@@ -92,6 +96,8 @@ public:
     void SetOrientation(glm::quat quaternion);
     void SetOrientation(glm::vec3 euler);
     void SetModelMatrix(glm::mat4 modelMatrix);
+	void SetRenderPass(ZRenderPass renderPass) { properties_.renderPass = renderPass; }
+	void SetName(const std::string& name) { properties_.name = name; }
     
     template<class T>
     typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type

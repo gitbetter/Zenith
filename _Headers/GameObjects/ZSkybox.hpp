@@ -39,7 +39,7 @@
 // Class and Data Structure Definitions
 class ZSkybox : public ZGameObject {
     
-    public:
+public:
     
     ZSkybox() : ZGameObject(glm::vec3(0.f)) { }
     ~ZSkybox() { }
@@ -47,10 +47,11 @@ class ZSkybox : public ZGameObject {
     void Initialize() override { }
     void Initialize(std::shared_ptr<ZOFNode> root) override { }
     void Initialize(std::string hdrMap);
+	bool IsVisible() override { return true; }
     
     ZIBLTexture IBLTexture() const { return iblTexture_; }
     
-    protected:
+protected:
     
     ZIBLTexture iblTexture_;
     

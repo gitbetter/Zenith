@@ -40,7 +40,7 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation) {
     properties_.scale = glm::vec3(1.f, 1.f, 1.f);
     properties_.orientation = orientation;
     properties_.modelMatrix = glm::mat4(1.f);
-    properties_.renderPass = ZRenderPass::Static;
+    properties_.renderPass = ZRenderPass::First;
     id_ = "ZGO_" + ZEngine::IDSequence()->Next();
     CalculateDerivedData();
 }
@@ -115,7 +115,7 @@ void ZGameObject::CalculateDerivedData() {
 
 void ZGameObject::AddChild(std::shared_ptr<ZGameObject> gameObject) {
     if (std::find(children_.begin(), children_.end(), gameObject) == children_.end()) {
-        gameObject->scene_ = scene_;
+        if (!gameObject->scene_) gameObject->scene_ = scene_;
         children_.push_back(gameObject);
     }
 }

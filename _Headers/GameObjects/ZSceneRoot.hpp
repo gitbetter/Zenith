@@ -37,4 +37,12 @@
 // Class Definitions
 class ZSceneRoot : public ZGameObject {
     
+public:
+
+	ZSceneRoot();
+
+	void AddChild(std::shared_ptr<ZGameObject> gameObject) override;
+	void RenderChildren(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+	bool IsVisible() override { return true; }
+
 };

@@ -64,6 +64,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     if (props.find("type") != props.end() && props["type"]->HasValues()) {
         std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
         if (typeProp->value == "Static") mass = 0.f;
+		else object_->SetRenderPass(ZRenderPass::Dynamic);
     }
     
     if (props.find("damping") != props.end() && props["damping"]->HasValues()) {
@@ -110,14 +111,13 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     
     if (mass < 0) mass = 0.0;
     
+	if (size.size() < 3) scale = object_->Scale();
+	else scale = glm::vec3(size[0], size[1], size[2]);
+
     if (origin.size() < 3) pos = object_->Position();
     else pos = glm::vec3(origin[0], origin[1], origin[2]);
     
-    if (size.size() < 3) scale = object_->Scale();
-    else scale = glm::vec3(size[0], size[1], size[2]);
-    
     body_ = std::make_shared<ZBulletRigidBody>(collider, mass, pos, scale);
-    
     if (gravity) {
         glm::vec3 gravityForce(0.f, -30.f, 0.f);
         if (gravity) body_->SetGravity(gravityForce);
@@ -126,7 +126,6 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     body_->SetLinearDamping(damping);
     body_->SetAngularDamping(angularDamping);
     body_->SetRestitution(restitution);
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
     
     ZEngine::Physics()->AddRigidBody(body_);
 }

@@ -61,7 +61,7 @@ void ZScene::Render(float frameMix) {
         
         root_->RenderChildren(frameMix);
     
-        if (skybox_ != nullptr) skybox_->Render(frameMix);
+        //if (skybox_ != nullptr) skybox_->Render(frameMix);
         
         ZEngine::UI()->Draw();
         
@@ -99,10 +99,9 @@ void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
 }
 
 void ZScene::SetDefaultSkybox() {
-    std::shared_ptr<ZSkybox> skybox(new ZSkybox);
-    skybox->Initialize(ZEngine::DEFAULT_HDR_CUBEMAP);
-    skybox_ = skybox;
-    skybox_->scene_ = this;
+    skybox_ = std::shared_ptr<ZSkybox>(new ZSkybox);
+	skybox_->Initialize(ZEngine::DEFAULT_HDR_CUBEMAP);
+	AddGameObject(skybox_);
 }
 
 void ZScene::HandleQuit(std::shared_ptr<ZEvent> event) {

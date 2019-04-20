@@ -27,3 +27,44 @@
  */
 
 #include "ZSceneRoot.hpp"
+
+ZSceneRoot::ZSceneRoot() {
+	properties_.name = "Root";
+	
+	std::shared_ptr<ZGameObject> staticGroup = std::make_shared<ZGameObject>("StaticGroup");
+	staticGroup->SetRenderPass(ZRenderPass::Static);
+	children_.push_back(staticGroup);
+
+	std::shared_ptr<ZGameObject> dynamicGroup = std::make_shared<ZGameObject>("DynamicGroup");
+	staticGroup->SetRenderPass(ZRenderPass::Dynamic);
+	children_.push_back(dynamicGroup);
+
+	std::shared_ptr<ZGameObject> skyGroup = std::make_shared<ZGameObject>("SkyGroup");
+	staticGroup->SetRenderPass(ZRenderPass::Sky);
+	children_.push_back(skyGroup);
+
+	std::shared_ptr<ZGameObject> invisibleGroup = std::make_shared<ZGameObject>("InvisibleGroup");
+	staticGroup->SetRenderPass(ZRenderPass::Invisible);
+	children_.push_back(invisibleGroup);
+}
+
+void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject) {
+	ZRenderPass pass = gameObject->RenderPass();
+	if (pass >= children_.size() || !children_[pass]) {
+		_Z("The child being added has a non-extant render pass", ZERROR);
+		return;
+	}
+	children_[pass]->AddChild(gameObject);
+}
+
+void ZSceneRoot::RenderChildren(float frameMix, RENDER_OP renderOp) {
+	for (int pass = ZRenderPass::First; pass < ZRenderPass::Last; ++pass) {
+		switch (pass) {
+		case ZRenderPass::Static:
+		case ZRenderPass::Dynamic:
+		case ZRenderPass::Sky:
+			children_[pass]->RenderChildren(frameMix, renderOp);
+			break;
+		}
+	}
+}
