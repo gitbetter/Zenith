@@ -58,6 +58,7 @@ ${SOURCE_DIR}/GameObjects/ZSkybox.cpp
 ${SOURCE_DIR}/GameObjects/ZParticleSystem.cpp
 ${SOURCE_DIR}/GameObjects/ZParticle.cpp
 ${SOURCE_DIR}/GameObjects/ZSceneRoot.cpp
+${SOURCE_DIR}/GameObjects/ZTrigger.cpp
 ${SOURCE_DIR}/Windowing/ZGLDomainStrategy.cpp
 ${SOURCE_DIR}/Windowing/ZDomainStrategy.cpp
 ${SOURCE_DIR}/Windowing/ZDomain.cpp
@@ -135,6 +136,7 @@ ${HEADERS_DIR}/GameObjects/ZParticle.hpp
 ${HEADERS_DIR}/GameObjects/ZParticleSystem.hpp
 ${HEADERS_DIR}/GameObjects/ZSkybox.hpp
 ${HEADERS_DIR}/GameObjects/ZSceneRoot.hpp
+${HEADERS_DIR}/GameObjects/ZTrigger.hpp
 ${HEADERS_DIR}/Graphics/ZGraphics.hpp
 ${HEADERS_DIR}/Graphics/ZMaterial.hpp
 ${HEADERS_DIR}/Graphics/ZMesh.hpp

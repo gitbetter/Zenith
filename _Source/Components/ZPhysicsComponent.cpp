@@ -39,7 +39,6 @@ ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
     id_ = "ZCPhysics_" + ZEngine::IDSequence()->Next();
 }
 
-// TODO: These initalize functions can get pretty hectic. Maybe there's a better way...
 void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     ZComponent::Initialize();
     
@@ -50,9 +49,9 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     }
     
     btScalar mass = -1., damping = 1., angularDamping = 1., restitution = 0.;
-    std::string type = "";
+    std::string type = "", shape = "";
     bool gravity = false;
-    std::vector<float> size, origin;
+    std::vector<float> size, origin, offset;
     
     ZOFPropertyMap props = node->properties;
     
@@ -63,7 +62,8 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     
     if (props.find("type") != props.end() && props["type"]->HasValues()) {
         std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
-        if (typeProp->value == "Static") mass = 0.f;
+        type = typeProp->value;
+        if (type == "Static") mass = 0.f;
 		else object_->SetRenderPass(ZRenderPass::Dynamic);
     }
     
@@ -81,7 +81,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     
     if (props.find("collider") != props.end() && props["collider"]->HasValues()) {
         std::shared_ptr<ZOFString> colliderProp = props["collider"]->Value<ZOFString>(0);
-        type = colliderProp->value;
+        shape = colliderProp->value;
         
         if (props["collider"]->ValueCount() > 1) {
             std::shared_ptr<ZOFNumberList> scaleProp = props["collider"]->Value<ZOFNumberList>(1);
@@ -94,20 +94,18 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
         }
     }
     
+    if (props.find("colliderOffset") != props.end() && props["colliderOffset"]->HasValues()) {
+        std::shared_ptr<ZOFNumberList> offsetProp = props["colliderOffset"]->Value<ZOFNumberList>(0);
+        std::transform(offsetProp->value.begin(), offsetProp->value.end(), std::back_inserter(offset), [](float val) { return val; });
+    }
+    
     if (props.find("hasGravity") != props.end() && props["hasGravity"]->HasValues()) {
         std::shared_ptr<ZOFString> gravProp = props["hasGravity"]->Value<ZOFString>(0);
         gravity = gravProp->value == "Yes";
     }
     
-    glm::vec3 pos, scale;
-    
+    glm::vec3 pos, scale, offs;
     std::shared_ptr<ZCollider> collider;
-    if (!type.empty()) {
-        collider = ZEngine::PhysicsFactory()->CreateCollider(type, size);
-    } else {
-        _Z("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZWARNING);
-        collider = ZEngine::PhysicsFactory()->CreateCollider("Box", size);
-    }
     
     if (mass < 0) mass = 0.0;
     
@@ -117,15 +115,40 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     if (origin.size() < 3) pos = object_->Position();
     else pos = glm::vec3(origin[0], origin[1], origin[2]);
     
-    body_ = std::make_shared<ZBulletRigidBody>(collider, mass, pos, scale);
+    if (offset.size() < 3) offs = glm::vec3(0.f);
+    else offs = glm::vec3(offset[0], offset[1], offset[2]);
+    
+    Initialize(type, shape, mass, pos, scale);
+    
     if (gravity) {
         glm::vec3 gravityForce(0.f, -30.f, 0.f);
         if (gravity) body_->SetGravity(gravityForce);
     }
-    body_->SetGameObject(object_);
     body_->SetLinearDamping(damping);
     body_->SetAngularDamping(angularDamping);
     body_->SetRestitution(restitution);
+    body_->SetColliderOffset(offs);
+}
+
+void ZPhysicsComponent::Initialize(std::string bodyType, std::string colliderType, float mass, glm::vec3 position, glm::vec3 size) {
+    std::shared_ptr<ZCollider> collider;
+    if (!colliderType.empty()) {
+        collider = ZEngine::PhysicsFactory()->CreateCollider(colliderType, size);
+    } else {
+        _Z("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZWARNING);
+        collider = ZEngine::PhysicsFactory()->CreateCollider("Box", size);
+    }
+    
+    ZPhysicsBodyType type;
+    if (bodyType == "Dynamic") type = ZPhysicsBodyType::Dynamic;
+    else if (bodyType == "Static") type = ZPhysicsBodyType::Static;
+    else if (bodyType == "Kinematic") type = ZPhysicsBodyType::Kinematic;
+    else if (bodyType == "Trigger") type = ZPhysicsBodyType::Trigger;
+    else if (bodyType == "Character") type = ZPhysicsBodyType::Character;
+    else if (bodyType == "Particle") type = ZPhysicsBodyType::Particle;
+    
+    body_ = std::make_shared<ZBulletRigidBody>(type, collider, mass, position, size);
+    body_->SetGameObject(object_);
     
     ZEngine::Physics()->AddRigidBody(body_);
 }
@@ -137,6 +160,10 @@ void ZPhysicsComponent::Update() {
     if (body_->InverseMass() == 0.0) return;
     
     object_->SetModelMatrix(body_->TransformMatrix());
+}
+
+void ZPhysicsComponent::DisableCollisionResponse() {
+    if (body_) body_->DisableContactResponse();
 }
 
 void ZPhysicsComponent::AddForce(glm::vec3& force) {

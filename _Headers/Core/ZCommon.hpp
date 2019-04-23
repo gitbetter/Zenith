@@ -106,6 +106,10 @@ enum ZRenderPass {
     First, Static = First, Dynamic, Sky, Invisible, Last
 };
 
+enum class ZPhysicsBodyType {
+    Dynamic = 1, Static = 2, Kinematic = 4, Trigger = 8, Character = 16, Particle = 32, All = -1
+};
+
 enum class ZCameraType {
     Orthographic, Perspective
 };

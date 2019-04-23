@@ -1,15 +1,14 @@
 /*
-
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
- ZSkybox.hpp
+   ZTrigger.cpp
  
- Created by Adrian Sanchez on 02/03/2019.
- Copyright © 2019 Pervasive Sense. All rights reserved.
+   Created by Adrian Sanchez on 23/04/19.
+   Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
  
@@ -27,32 +26,15 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "ZTrigger.hpp"
+#include "ZPhysicsComponent.hpp"
 
-// Includes
-#include "ZCommon.hpp"
-#include "ZGameObject.hpp"
-
-// Forward Declarations
-// class SomeClass;
-
-// Class and Data Structure Definitions
-class ZSkybox : public ZGameObject {
+void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
+    ZGameObject::Initialize(root);
     
-public:
+    std::shared_ptr<ZPhysicsComponent> physicsComp(new ZPhysicsComponent);
+    physicsComp->Initialize("Trigger", "Box", 0.f, Position(), Scale());
+    physicsComp->DisableCollisionResponse();
     
-    ZSkybox() : ZGameObject(glm::vec3(0.f)) { }
-    ~ZSkybox() { }
-    
-    void Initialize() override { }
-    void Initialize(std::shared_ptr<ZOFNode> root) override { }
-    void Initialize(std::string hdrMap);
-	bool IsVisible() override { return true; }
-    
-    ZIBLTexture IBLTexture() const { return iblTexture_; }
-    
-protected:
-    
-    ZIBLTexture iblTexture_;
-    
-};
+    AddComponent(physicsComp);
+}

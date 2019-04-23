@@ -39,18 +39,18 @@
 // Class and Data Structure Definitions
 class ZPhysicsFactory {
 
-  using ZColliderCreator = std::shared_ptr<ZCollider> (ZPhysicsFactory::*)(std::vector<float> params);
+  using ZColliderCreator = std::shared_ptr<ZCollider> (ZPhysicsFactory::*)(glm::vec3 extents);
 
 public:
 
   ZPhysicsFactory();
   ~ZPhysicsFactory() { };
 
-	std::shared_ptr<ZCollider> CreateCollider(std::string type, std::vector<float> size);
+	std::shared_ptr<ZCollider> CreateCollider(std::string type, glm::vec3 size);
 
-	std::shared_ptr<ZCollider> CreateBoxCollider(std::vector<float> params);
-	std::shared_ptr<ZCollider> CreateSphereCollider(std::vector<float> params);
-	std::shared_ptr<ZCollider> CreateCapsuleCollider(std::vector<float> params);
+	std::shared_ptr<ZCollider> CreateBoxCollider(glm::vec3 extents);
+	std::shared_ptr<ZCollider> CreateSphereCollider(glm::vec3 extents);
+	std::shared_ptr<ZCollider> CreateCapsuleCollider(glm::vec3 extents);
 
 protected:
 
