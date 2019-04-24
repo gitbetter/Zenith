@@ -13,7 +13,7 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/_Source)
 
 set(SOURCES
 ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
-${SOURCE_DIR}/Utility/ZGLModelImporter.cpp
+${SOURCE_DIR}/Utility/ZModelImporter.cpp
 ${SOURCE_DIR}/Utility/ZIDSequence.cpp
 ${SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
 ${SOURCE_DIR}/Utility/stb_image.cpp
@@ -191,7 +191,7 @@ ${HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIText.hpp
 ${HEADERS_DIR}/Utility/stb_image.hpp
-${HEADERS_DIR}/Utility/ZGLModelImporter.hpp
+${HEADERS_DIR}/Utility/ZModelImporter.hpp
 ${HEADERS_DIR}/Utility/ZIDSequence.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFParser.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFTree.hpp
