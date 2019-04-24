@@ -1,15 +1,15 @@
 /*
  
- ______     ______     __   __     __     ______   __  __
+  ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
- /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
- \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
- ZCommon.hpp
+   ZCommon.hpp
  
- Created by Adrian Sanchez on 11/02/2019.
- Copyright © 2019 Pervasive Sense. All rights reserved.
+   Created by Adrian Sanchez on 11/02/2019.
+   Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
  
@@ -95,6 +95,8 @@ typedef std::vector<std::shared_ptr<ZGameObject>> ZGameObjectList;
 typedef std::vector<std::shared_ptr<ZComponent>> ZComponentList;
 typedef std::list<std::shared_ptr<ZProcess>> ZProcessList;
 typedef fastdelegate::FastDelegate1<std::shared_ptr<ZEvent>> ZEventDelegate;
+typedef std::pair<ZGameObject*, ZGameObject*> ZCollisionPair;
+typedef std::set<ZCollisionPair> ZCollisionPairs;
 
 typedef unsigned char RENDER_OP;
 typedef unsigned long ZEventType;

@@ -90,6 +90,8 @@ ${SOURCE_DIR}/Factories/ZPhysicsFactory.cpp
 ${SOURCE_DIR}/Factories/ZUIFactory.cpp
 ${SOURCE_DIR}/EventAgent/ZEventAgent.cpp
 ${SOURCE_DIR}/EventAgent/ZEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZCollisionEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZCollisionEndEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectLookEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectMoveEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZQuitEvent.cpp
@@ -119,6 +121,8 @@ ${HEADERS_DIR}/Core/ZScene.hpp
 ${HEADERS_DIR}/EventAgent/ZEvent.hpp
 ${HEADERS_DIR}/EventAgent/ZEventAgent.hpp
 ${HEADERS_DIR}/EventAgent/ZScriptableEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZCollisionEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZCollisionEndEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZFireEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZObjectDragEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZObjectLookEvent.hpp

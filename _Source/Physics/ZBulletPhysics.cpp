@@ -37,6 +37,8 @@
 #include "ZRaycastEvent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZBulletRigidBody.hpp"
+#include "ZCollisionEvent.hpp"
+#include "ZCollisionEndEvent.hpp"
 
 void ZBulletPhysics::Initialize() {
     ZPhysics::Initialize();
@@ -51,6 +53,7 @@ void ZBulletPhysics::Initialize() {
     debugDrawer_->Initialize();
     dynamicsWorld_->setDebugDrawer(debugDrawer_.get());
     dynamicsWorld_->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+    dynamicsWorld_->setWorldUserInfo(this);
     dynamicsWorld_->setInternalTickCallback(TickCallback);
     
     ZEventDelegate raycastDelegate = fastdelegate::MakeDelegate(this, &ZBulletPhysics::HandleRaycastEvent);
@@ -132,7 +135,47 @@ void ZBulletPhysics::DebugDraw() {
 }
 
 void ZBulletPhysics::TickCallback(btDynamicsWorld* world, btScalar timeStep) {
+    ZBulletPhysics* physics = static_cast<ZBulletPhysics*>(world->getWorldUserInfo());
+    assert(physics != nullptr);
     
+    ZCollisionPairs collisionPairs;
+    
+    btDispatcher* dispatcher = world->getDispatcher();
+    for (int idx = 0; idx < dispatcher->getNumManifolds(); idx++) {
+        btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(idx);
+        if (!manifold) continue;
+        
+        btRigidBody const* body1 = static_cast<btRigidBody const*>(manifold->getBody0());
+        btRigidBody const* body2 = static_cast<btRigidBody const*>(manifold->getBody1());
+        
+        bool swapped = body1 > body2;
+        
+        btRigidBody const* sortedBody1 = swapped ? body2 : body1;
+        btRigidBody const* sortedBody2 = swapped ? body1 : body2;
+        ZGameObject* body1GO = static_cast<ZGameObject*>(sortedBody1->getUserPointer());
+        ZGameObject* body2GO = static_cast<ZGameObject*>(sortedBody2->getUserPointer());
+        
+        ZCollisionPair pair = std::make_pair(body1GO, body2GO);
+        collisionPairs.insert(pair);
+        
+        if (physics->previousTickCollisionPairs_.find(pair) != physics->previousTickCollisionPairs_.end()) {
+            std::shared_ptr<ZCollisionEvent> collisionEvent(new ZCollisionEvent(pair));
+            ZEngine::EventAgent()->QueueEvent(collisionEvent);
+        }
+    }
+    
+    ZCollisionPairs removedCollisionPairs;
+    
+    std::set_difference(physics->previousTickCollisionPairs_.begin(), physics->previousTickCollisionPairs_.end(),
+                        collisionPairs.begin(), collisionPairs.end(),
+                        std::inserter(removedCollisionPairs, removedCollisionPairs.begin()));
+    
+    for (ZCollisionPairs::const_iterator it = removedCollisionPairs.begin(), end = removedCollisionPairs.end(); it != end; it++) {
+        std::shared_ptr<ZCollisionEndEvent> collisionEndEvent(new ZCollisionEndEvent(*it));
+        ZEngine::EventAgent()->QueueEvent(collisionEndEvent);
+    }
+    
+    physics->previousTickCollisionPairs_ = collisionPairs;
 }
 
 void ZBulletPhysics::CleanUp() { 

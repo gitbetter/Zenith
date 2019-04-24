@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-   ZPhysics.hpp
+   ZCollisionEvent.hpp
  
-   Created by Adrian Sanchez on 14/02/2019.
+   Created by Adrian Sanchez on 13/03/2019.
    Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -30,33 +30,26 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
-#include "ZProcess.hpp"
+#include "ZEvent.hpp"
 
 // Forward Declarations
-class ZRigidBody;
 
 // Class and Data Structure Definitions
-class ZPhysics : public ZProcess {
+class ZCollisionEvent : public ZBaseEvent {
+    
+private:
+    
+    ZCollisionPair collisionPair_;
     
 public:
     
-    virtual ~ZPhysics() { }
+    static const ZEventType Type;
     
-    virtual void Initialize() override;
+    explicit ZCollisionEvent(ZCollisionPair collisionPair) : collisionPair_(collisionPair) { }
     
-    virtual void Update() override;
-    
-    virtual void CleanUp() override;
-    
-    virtual void AddRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
-    
-    virtual ZRaycastHitResult Raycast(glm::vec3 start, glm::vec3 direction) = 0;
-    
-    virtual void DebugDraw() = 0;
-    
-protected:
-    
-    ZCollisionPairs previousTickCollisionPairs_;
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZCollisionEvent>(new ZCollisionEvent(collisionPair_)); }
+    std::string Name() const override { return "ZCollisionEvent"; }
     
 };
+
