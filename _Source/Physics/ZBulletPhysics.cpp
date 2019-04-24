@@ -53,8 +53,8 @@ void ZBulletPhysics::Initialize() {
     debugDrawer_->Initialize();
     dynamicsWorld_->setDebugDrawer(debugDrawer_.get());
     dynamicsWorld_->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-    dynamicsWorld_->setWorldUserInfo(this);
     dynamicsWorld_->setInternalTickCallback(TickCallback);
+    dynamicsWorld_->setWorldUserInfo(this);
     
     ZEventDelegate raycastDelegate = fastdelegate::MakeDelegate(this, &ZBulletPhysics::HandleRaycastEvent);
     ZEngine::EventAgent()->AddListener(raycastDelegate, ZRaycastEvent::Type);
@@ -137,6 +137,7 @@ void ZBulletPhysics::DebugDraw() {
 void ZBulletPhysics::TickCallback(btDynamicsWorld* world, btScalar timeStep) {
     ZBulletPhysics* physics = static_cast<ZBulletPhysics*>(world->getWorldUserInfo());
     assert(physics != nullptr);
+    if (physics == nullptr) return;
     
     ZCollisionPairs collisionPairs;
     
