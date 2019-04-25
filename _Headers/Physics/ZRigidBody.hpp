@@ -48,12 +48,16 @@ public:
     virtual void ApplyForce(glm::vec3& force) = 0;
     virtual void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) = 0;
     virtual void ApplyTorque(glm::vec3& torque) = 0;
+    virtual void DisableContactResponse() = 0;
     
     virtual void SetGravity(glm::vec3& gravity) = 0;
     virtual void SetLinearDamping(float damping) = 0;
     virtual void SetAngularDamping(float damping) = 0;
     virtual void SetRestitution(float restitution) = 0;
     
+    virtual ZPhysicsBodyType Type() const { return type_; }
+    
+    virtual void SetColliderOffset(glm::vec3 offset) { colliderOffset_ = offset; }
     virtual void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
 
     void* Get() { return ptr_; }
@@ -65,5 +69,7 @@ protected:
 
     void* ptr_ = nullptr;
     ZGameObject* gameObject_ = nullptr;
+    glm::vec3 colliderOffset_;
+    ZPhysicsBodyType type_;
 
 };

@@ -31,7 +31,7 @@
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZMesh3D.hpp"
-#include "ZGLModelImporter.hpp"
+#include "ZModelImporter.hpp"
 #include "ZCommon.hpp"
 
 ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) {
@@ -51,7 +51,7 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) {
 }
 
 ZModel::ZModel(std::string path) {
-  ZGLModelImporter importer;
+  ZModelImporter importer;
   importer.LoadModel(path, meshes_);
 	InitializeAABB();
 }

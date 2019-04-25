@@ -36,9 +36,6 @@ void ZDomain::Initialize() {
     domainStrategy_.reset(new ZGLDomainStrategy);
     domainStrategy_->Initialize();
     domainStrategy_->CreateWindow(windowWidth_, windowHeight_);
-
-    glm::vec2 fbSize = domainStrategy_->FramebufferSize();
-    resolutionX_ = fbSize.x; resolutionY_ = fbSize.y;
   }
 }
 

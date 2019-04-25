@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZGLModelImporter.hpp
+    ZModelImporter.hpp
 
     Created by Adrian Sanchez on 27/01/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -42,7 +42,7 @@
 struct ZTexture;
 
 // Class and Data Structure Definitions
-class ZGLModelImporter {
+class ZModelImporter {
 private:
 
   void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, ZMesh3DMap& outMeshes);

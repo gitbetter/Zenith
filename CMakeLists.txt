@@ -13,7 +13,7 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/_Source)
 
 set(SOURCES
 ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
-${SOURCE_DIR}/Utility/ZGLModelImporter.cpp
+${SOURCE_DIR}/Utility/ZModelImporter.cpp
 ${SOURCE_DIR}/Utility/ZIDSequence.cpp
 ${SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
 ${SOURCE_DIR}/Utility/stb_image.cpp
@@ -58,6 +58,7 @@ ${SOURCE_DIR}/GameObjects/ZSkybox.cpp
 ${SOURCE_DIR}/GameObjects/ZParticleSystem.cpp
 ${SOURCE_DIR}/GameObjects/ZParticle.cpp
 ${SOURCE_DIR}/GameObjects/ZSceneRoot.cpp
+${SOURCE_DIR}/GameObjects/ZTrigger.cpp
 ${SOURCE_DIR}/Windowing/ZGLDomainStrategy.cpp
 ${SOURCE_DIR}/Windowing/ZDomainStrategy.cpp
 ${SOURCE_DIR}/Windowing/ZDomain.cpp
@@ -89,6 +90,8 @@ ${SOURCE_DIR}/Factories/ZPhysicsFactory.cpp
 ${SOURCE_DIR}/Factories/ZUIFactory.cpp
 ${SOURCE_DIR}/EventAgent/ZEventAgent.cpp
 ${SOURCE_DIR}/EventAgent/ZEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZCollisionEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZCollisionEndEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectLookEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectMoveEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZQuitEvent.cpp
@@ -118,6 +121,8 @@ ${HEADERS_DIR}/Core/ZScene.hpp
 ${HEADERS_DIR}/EventAgent/ZEvent.hpp
 ${HEADERS_DIR}/EventAgent/ZEventAgent.hpp
 ${HEADERS_DIR}/EventAgent/ZScriptableEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZCollisionEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZCollisionEndEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZFireEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZObjectDragEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZObjectLookEvent.hpp
@@ -135,6 +140,7 @@ ${HEADERS_DIR}/GameObjects/ZParticle.hpp
 ${HEADERS_DIR}/GameObjects/ZParticleSystem.hpp
 ${HEADERS_DIR}/GameObjects/ZSkybox.hpp
 ${HEADERS_DIR}/GameObjects/ZSceneRoot.hpp
+${HEADERS_DIR}/GameObjects/ZTrigger.hpp
 ${HEADERS_DIR}/Graphics/ZGraphics.hpp
 ${HEADERS_DIR}/Graphics/ZMaterial.hpp
 ${HEADERS_DIR}/Graphics/ZMesh.hpp
@@ -185,7 +191,7 @@ ${HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIText.hpp
 ${HEADERS_DIR}/Utility/stb_image.hpp
-${HEADERS_DIR}/Utility/ZGLModelImporter.hpp
+${HEADERS_DIR}/Utility/ZModelImporter.hpp
 ${HEADERS_DIR}/Utility/ZIDSequence.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFParser.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFTree.hpp

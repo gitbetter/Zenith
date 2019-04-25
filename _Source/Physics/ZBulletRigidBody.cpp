@@ -30,7 +30,7 @@
 #include "ZBulletRigidBody.hpp"
 #include "btBulletDynamicsCommon.h"
 
-ZBulletRigidBody::ZBulletRigidBody(std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale) : ZBulletRigidBody() {
+ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale) : ZBulletRigidBody() {
     btCollisionShape* coll = static_cast<btCollisionShape*>(collider->Get());
     
     btTransform transform;
@@ -46,6 +46,7 @@ ZBulletRigidBody::ZBulletRigidBody(std::shared_ptr<ZCollider> collider, float ma
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, coll, localInertia);
     btRigidBody* bodyPtr = new btRigidBody(rbInfo);
     ptr_ = bodyPtr;
+    type_ = type;
 }
 
 void ZBulletRigidBody::Initialize() {
@@ -69,6 +70,7 @@ glm::mat4 ZBulletRigidBody::TransformMatrix() {
       body->getMotionState()->getWorldTransform(transform);
     }
     transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
+    modelMatrix = glm::translate(modelMatrix, colliderOffset_);
     return modelMatrix;
 }
 
@@ -86,6 +88,13 @@ glm::vec3 ZBulletRigidBody::AngularVelocity() {
     
     btVector3 vel = body->getAngularVelocity();
     return glm::vec3(vel.x(), vel.y(), vel.z());
+}
+
+void ZBulletRigidBody::DisableContactResponse() {
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
+    body->setCollisionFlags(body->getCollisionFlags() | btRigidBody::CF_NO_CONTACT_RESPONSE);
 }
 
 void ZBulletRigidBody::ApplyForce(glm::vec3& force) {

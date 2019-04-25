@@ -1,14 +1,13 @@
 /*
- 
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-   ZPhysics.hpp
+   ZTrigger.cpp
  
-   Created by Adrian Sanchez on 14/02/2019.
+   Created by Adrian Sanchez on 23/04/19.
    Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -27,36 +26,15 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "ZTrigger.hpp"
+#include "ZPhysicsComponent.hpp"
 
-// Includes
-#include "ZCommon.hpp"
-#include "ZProcess.hpp"
-
-// Forward Declarations
-class ZRigidBody;
-
-// Class and Data Structure Definitions
-class ZPhysics : public ZProcess {
+void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
+    ZGameObject::Initialize(root);
     
-public:
+    std::shared_ptr<ZPhysicsComponent> physicsComp(new ZPhysicsComponent);
+    physicsComp->Initialize("Trigger", "Box", 0.f, Position(), Scale());
+    physicsComp->DisableCollisionResponse();
     
-    virtual ~ZPhysics() { }
-    
-    virtual void Initialize() override;
-    
-    virtual void Update() override;
-    
-    virtual void CleanUp() override;
-    
-    virtual void AddRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
-    
-    virtual ZRaycastHitResult Raycast(glm::vec3 start, glm::vec3 direction) = 0;
-    
-    virtual void DebugDraw() = 0;
-    
-protected:
-    
-    ZCollisionPairs previousTickCollisionPairs_;
-    
-};
+    AddComponent(physicsComp);
+}

@@ -1,15 +1,15 @@
 /*
  
- ______     ______     __   __     __     ______   __  __
+  ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
- /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
- \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
- ZPhysicsComponent.hpp
+   ZTrigger.hpp
  
- Created by Adrian Sanchez on 14/02/2019.
- Copyright © 2019 Pervasive Sense. All rights reserved.
+   Created by Adrian Sanchez on 23/04/2019.
+   Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
  
@@ -31,35 +31,17 @@
 
 // Includes
 #include "ZCommon.hpp"
-#include "ZComponent.hpp"
+#include "ZGameObject.hpp"
 
 // Forward Declarations
-struct ZOFNode;
-class ZRigidBody;
+// class SomeClass;
 
 // Class and Data Structure Definitions
-class ZPhysicsComponent : public ZComponent {
+class ZTrigger : public ZGameObject {
     
 public:
     
-    ZPhysicsComponent();
-    ~ZPhysicsComponent() { }
+    ZTrigger() : ZGameObject(glm::vec3(0.f)) { }
     
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Initialize(std::string bodyType, std::string colliderType, float mass, glm::vec3 position, glm::vec3 scale);
-    
-    void Update() override;
-    
-    void DisableCollisionResponse();
-    void AddForce(glm::vec3& force);
-    void AddForceAtPoint(glm::vec3& force, glm::vec3& point);
-    void AddTorque(glm::vec3& torque);
-    bool HasFiniteMass();
-    
-    std::shared_ptr<ZRigidBody> RigidBody() { return body_; }
-    
-protected:
-    
-    std::shared_ptr<ZRigidBody> body_;
-    
 };
