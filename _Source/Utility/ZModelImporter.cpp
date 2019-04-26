@@ -169,17 +169,14 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
         
         mesh3D->bonesMap_[boneName] = boneIndex;
         aiMatrix4x4 offset = mesh->mBones[i]->mOffsetMatrix;
-        mesh3D->boneInfo_[boneIndex].boneOffset = glm::mat4(offset.a1, offset.a2, offset.a3, offset.a4,
-                                                            offset.b1, offset.b2, offset.b3, offset.b4,
-                                                            offset.c1, offset.c2, offset.c3, offset.c4,
-                                                            offset.d1, offset.d2, offset.d3, offset.d4);
+        mesh3D->boneInfo_[boneIndex].boneOffset = ASSIMP_TO_GLM_MAT4(offset);
         
         for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
             // TODO: vertexID might be duplicated if processing several meshes, so make sure
-            // to make this ID unique somehow
+            // to make it unique somehow
             unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
             float weight = mesh->mBones[i]->mWeights[j].mWeight;
-            // TODO: Add bone data
+            mesh3D->vertices_[vertexID].boneData.AddBoneData(boneIndex, weight);
         }
     }
     

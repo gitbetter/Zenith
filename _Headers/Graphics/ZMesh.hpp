@@ -36,6 +36,7 @@
 // Forward Declarations
 class ZShader;
 class aiScene;
+class aiNode;
 
 // Class and Data Structure Definitions
 class ZMesh : public ZProcess {
@@ -47,7 +48,9 @@ public:
     virtual void Render(ZShader* shader, ZMaterial* material) = 0;
     virtual ZMeshDrawStyle DrawStyle() const { return drawStyle_; };
     
-    virtual void SetAssimpScene(const aiScene* scene) { assimpScene_ = scene; }
+    void SetAssimpScene(const aiScene* scene) { assimpScene_ = scene; }
+    std::vector<glm::mat4> BoneTransform(float secondsTime);
+    void ReadNodeHierarchy(float animTime, const aiNode* node, const glm::mat4& parentTransform);
     
 protected:
     

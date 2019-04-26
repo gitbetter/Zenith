@@ -74,6 +74,11 @@ break;\
 }\
 }
 
+#define ASSIMP_TO_GLM_MAT4(assimpMat) glm::mat4(assimpMat.a1, assimpMat.a2, assimpMat.a3, assimpMat.a4,\
+                                                assimpMat.b1, assimpMat.b2, assimpMat.b3, assimpMat.b4,\
+                                                assimpMat.c1, assimpMat.c2, assimpMat.c3, assimpMat.c4,\
+                                                assimpMat.d1, assimpMat.d2, assimpMat.d3, assimpMat.d4)
+
 class ZGameObject;
 class ZComponent;
 class ZUIElement;
@@ -205,6 +210,8 @@ struct ZMaterialProperties {
 struct ZVertexBoneData {
     unsigned int ids[BONES_PER_VERTEX];
     float weights[BONES_PER_VERTEX];
+    
+    void AddBoneData(unsigned int boneID, float weight);
 };
 
 struct ZBoneInfo {
