@@ -59,7 +59,19 @@ std::vector<glm::mat4> ZMesh::BoneTransform(float secondsTime) {
 }
 
 void ZMesh::ReadNodeHierarchy(float animTime, const aiNode* node, const glm::mat4& parentTransform) {
-    std::string nodeName(node->mName.data);
     const aiAnimation* animation = assimpScene_->mAnimations[0];
     glm::mat4 nodeTransform = ASSIMP_TO_GLM_MAT4(node->mTransformation);
+    std::string nodeName(node->mName.data);
+    
+    const aiNodeAnim* nodeAnimation = nullptr;
+    for (unsigned int i = 0; i < animation->mNumChannels; i++) {
+        const aiNodeAnim* anim = animation->mChannels[i];
+        if (std::string(anim->mNodeName.data) == nodeName) {
+            nodeAnimation = anim;
+        }
+    }
+    
+    if (nodeAnimation) {
+        
+    }
 }
