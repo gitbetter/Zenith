@@ -99,6 +99,7 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
     std::vector<unsigned int> indices;
     std::shared_ptr<ZMaterial> material;
     
+    // Load basic vertex data
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         ZVertex3D vertex;
         
@@ -142,6 +143,7 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
         vertices.push_back(vertex);
     }
     
+    // Load mesh indices for each face
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
         aiFace face = mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; j++) {
@@ -149,7 +151,39 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
         }
     }
     
-    return std::make_shared<ZMesh3D>(vertices, indices);
+    std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(vertices, indices);
+    mesh3D->SetAssimpScene(scene);
+    
+    // Load mesh bone data
+    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+        unsigned int boneIndex = 0;
+        std::string boneName(mesh->mBones[i]->mName.data);
+        
+        if (mesh3D->bonesMap_.find(boneName) == mesh3D->bonesMap_.end()) {
+            boneIndex = mesh3D->bonesMap_.size();
+            ZBoneInfo boneInfo;
+            mesh3D->boneInfo_.push_back(boneInfo);
+        } else {
+            boneIndex = mesh3D->bonesMap_[boneName];
+        }
+        
+        mesh3D->bonesMap_[boneName] = boneIndex;
+        aiMatrix4x4 offset = mesh->mBones[i]->mOffsetMatrix;
+        mesh3D->boneInfo_[boneIndex].boneOffset = glm::mat4(offset.a1, offset.a2, offset.a3, offset.a4,
+                                                            offset.b1, offset.b2, offset.b3, offset.b4,
+                                                            offset.c1, offset.c2, offset.c3, offset.c4,
+                                                            offset.d1, offset.d2, offset.d3, offset.d4);
+        
+        for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+            // TODO: vertexID might be duplicated if processing several meshes, so make sure
+            // to make this ID unique somehow
+            unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+            float weight = mesh->mBones[i]->mWeights[j].mWeight;
+            // TODO: Add bone data
+        }
+    }
+    
+    return mesh3D;
 }
 
 /**
