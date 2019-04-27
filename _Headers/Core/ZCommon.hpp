@@ -74,6 +74,11 @@ break;\
 }\
 }
 
+#define ASSIMP_TO_GLM_MAT4(assimpMat) glm::mat4(assimpMat.a1, assimpMat.a2, assimpMat.a3, assimpMat.a4,\
+                                                assimpMat.b1, assimpMat.b2, assimpMat.b3, assimpMat.b4,\
+                                                assimpMat.c1, assimpMat.c2, assimpMat.c3, assimpMat.c4,\
+                                                assimpMat.d1, assimpMat.d2, assimpMat.d3, assimpMat.d4)
+
 class ZGameObject;
 class ZComponent;
 class ZUIElement;
@@ -100,6 +105,8 @@ typedef std::set<ZCollisionPair> ZCollisionPairs;
 
 typedef unsigned char RENDER_OP;
 typedef unsigned long ZEventType;
+
+#define BONES_PER_VERTEX 4
 
 #define RENDER_OP_COLOR 0x01
 #define RENDER_OP_SHADOW 0x02
@@ -200,12 +207,25 @@ struct ZMaterialProperties {
     };
 };
 
+struct ZVertexBoneData {
+    unsigned int ids[BONES_PER_VERTEX];
+    float weights[BONES_PER_VERTEX];
+    
+    void AddBoneData(unsigned int boneID, float weight);
+};
+
+struct ZBoneInfo {
+    glm::mat4 boneOffset;
+    glm::mat4 transformation;
+};
+
 struct ZVertex3D {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 uv;
     glm::vec3 tangent;
     glm::vec3 bitangent;
+    ZVertexBoneData boneData;
     
     ZVertex3D() { }
     ZVertex3D(glm::vec3 position, glm::vec3 normal = glm::vec3(0.f, 1.f, 0.f)) : position(position), normal(normal) { }

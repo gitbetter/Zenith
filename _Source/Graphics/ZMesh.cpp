@@ -28,3 +28,50 @@
 */
 
 #include "ZMesh.hpp"
+#include <assimp/scene.h>
+
+void ZVertexBoneData::AddBoneData(unsigned int bone, float weight) {
+    for (unsigned int i = 0; i < BONES_PER_VERTEX; i++) {
+        if (weights[i] == 0.f) {
+            ids[i] = bone;
+            weights[i] = weight;
+            return;
+        }
+    }
+}
+
+std::vector<glm::mat4> ZMesh::BoneTransform(float secondsTime) {
+    glm::mat4 identity(1.f);
+    std::vector<glm::mat4> transforms;
+    
+    // TODO: Parametrize animation index
+    float ticksPerSecond = assimpScene_->mAnimations[0]->mTicksPerSecond != 0 ? assimpScene_->mAnimations[0]->mTicksPerSecond : 25.f;
+    float timeInTicks = secondsTime * ticksPerSecond;
+    float animationTime = fmod(timeInTicks, assimpScene_->mAnimations[0]->mDuration);
+    
+    ReadNodeHierarchy(animationTime, assimpScene_->mRootNode, identity);
+    
+    for (unsigned int i = 0; i < boneInfo_.size(); i++) {
+        transforms.push_back(boneInfo_[i].transformation);
+    }
+    
+    return transforms;
+}
+
+void ZMesh::ReadNodeHierarchy(float animTime, const aiNode* node, const glm::mat4& parentTransform) {
+    const aiAnimation* animation = assimpScene_->mAnimations[0];
+    glm::mat4 nodeTransform = ASSIMP_TO_GLM_MAT4(node->mTransformation);
+    std::string nodeName(node->mName.data);
+    
+    const aiNodeAnim* nodeAnimation = nullptr;
+    for (unsigned int i = 0; i < animation->mNumChannels; i++) {
+        const aiNodeAnim* anim = animation->mChannels[i];
+        if (std::string(anim->mNodeName.data) == nodeName) {
+            nodeAnimation = anim;
+        }
+    }
+    
+    if (nodeAnimation) {
+        
+    }
+}
