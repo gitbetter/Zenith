@@ -72,6 +72,7 @@ public:
 
   void Use(ZMaterial* material);
   void Use(const ZLightMap& lights);
+  void Use(const ZBoneMap& bones);
 protected:
 
 

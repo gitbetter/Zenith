@@ -186,11 +186,11 @@ ZBufferData ZGLGraphicsStrategy::LoadIndexedVertexData(std::vector<ZVertex3D> ve
     glEnableVertexAttribArray(4);
     
     // Vertex bone id data
-    glVertexAttribIPointer(5, 4, GL_INT, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, boneData));
+    glVertexAttribIPointer(5, 4, GL_INT, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, boneIDs));
     glEnableVertexAttribArray(5);
     
     // Vertex bone weight data
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)(offsetof(ZVertex3D, boneData)+offsetof(ZVertexBoneData, weights)));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, boneWeights));
     glEnableVertexAttribArray(6);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -231,11 +231,11 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<ZVertex3D> vertices)
     glEnableVertexAttribArray(4);
     
     // Vertex bone id data
-    glVertexAttribIPointer(5, 4, GL_INT, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, boneData));
+    glVertexAttribIPointer(5, 4, GL_INT, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, boneIDs));
     glEnableVertexAttribArray(5);
     
     // Vertex bone weight data
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)(offsetof(ZVertex3D, boneData)+offsetof(ZVertexBoneData, weights)));
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*)offsetof(ZVertex3D, boneWeights));
     glEnableVertexAttribArray(6);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);

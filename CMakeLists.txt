@@ -18,7 +18,6 @@ ${SOURCE_DIR}/Utility/ZIDSequence.cpp
 ${SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
 ${SOURCE_DIR}/Utility/stb_image.cpp
 ${SOURCE_DIR}/UI/ZUIElement.cpp
-${SOURCE_DIR}/UI/ZMeshUI.cpp
 ${SOURCE_DIR}/UI/Elements/ZUICursor.cpp
 ${SOURCE_DIR}/UI/Elements/ZUICheckBox.cpp
 ${SOURCE_DIR}/UI/Elements/ZUIText.cpp
@@ -75,6 +74,7 @@ ${SOURCE_DIR}/Graphics/AbstractGeometry/ZFrustum.cpp
 ${SOURCE_DIR}/Graphics/AbstractGeometry/ZPlane.cpp
 ${SOURCE_DIR}/Graphics/ZMaterial.cpp
 ${SOURCE_DIR}/Graphics/ZMesh3D.cpp
+${SOURCE_DIR}/Graphics/ZMesh2D.cpp
 ${SOURCE_DIR}/Graphics/ZGraphics.cpp
 ${SOURCE_DIR}/Graphics/Strategies/ZGraphicsStrategy.cpp
 ${SOURCE_DIR}/Graphics/Strategies/ZGLGraphicsStrategy.cpp
@@ -104,7 +104,11 @@ ${SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${SOURCE_DIR}/Audio/ZAudio.cpp
 ${SOURCE_DIR}/Audio/ZALAudio.cpp
 ${SOURCE_DIR}/Audio/ZALAudioSource.cpp
+${SOURCE_DIR}/Animation/ZSkeleton.cpp
+${SOURCE_DIR}/Animation/ZAnimation.cpp
 ${SOURCE_DIR}/main.cpp
+${HEADERS_DIR}/Animation/ZAnimation.hpp
+${HEADERS_DIR}/Animation/ZSkeleton.hpp
 ${HEADERS_DIR}/Audio/ZAudioSource.hpp
 ${HEADERS_DIR}/Audio/ZAudio.hpp
 ${HEADERS_DIR}/Audio/ZALAudio.hpp
@@ -145,6 +149,7 @@ ${HEADERS_DIR}/Graphics/ZGraphics.hpp
 ${HEADERS_DIR}/Graphics/ZMaterial.hpp
 ${HEADERS_DIR}/Graphics/ZMesh.hpp
 ${HEADERS_DIR}/Graphics/ZMesh3D.hpp
+${HEADERS_DIR}/Graphics/ZMesh2D.hpp
 ${HEADERS_DIR}/Graphics/ZModel.hpp
 ${HEADERS_DIR}/Graphics/ZPhysicsDebug.hpp
 ${HEADERS_DIR}/Graphics/ZShader.hpp
@@ -180,7 +185,6 @@ ${HEADERS_DIR}/ResourceCache/ResourceLoaders/ZOggResourceLoader.hpp
 ${HEADERS_DIR}/Scripting/ZLuaScriptManager.hpp
 ${HEADERS_DIR}/Scripting/ZScriptExports.hpp
 ${HEADERS_DIR}/Scripting/ZScriptManager.hpp
-${HEADERS_DIR}/UI/ZMeshUI.hpp
 ${HEADERS_DIR}/UI/ZUI.hpp
 ${HEADERS_DIR}/UI/ZUIElement.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIButton.hpp
@@ -1058,6 +1062,7 @@ ${HEADERS_DIR}/_ThirdParty/openal
 ${HEADERS_DIR}/_ThirdParty/vorbis
 ${HEADERS_DIR}/_ThirdParty/zip
 ${HEADERS_DIR}/_ThirdParty/zlib
+${HEADERS_DIR}/Animation
 ${HEADERS_DIR}/Audio
 ${HEADERS_DIR}/Components
 ${HEADERS_DIR}/Core

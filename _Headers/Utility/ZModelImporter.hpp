@@ -40,6 +40,9 @@
 
 // Forward Declarations
 struct ZTexture;
+struct ZSkeleton;
+struct ZJoint;
+struct ZBone;
 
 // Class and Data Structure Definitions
 class ZModelImporter {
@@ -47,8 +50,14 @@ private:
 
   void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, ZMesh3DMap& outMeshes);
   std::shared_ptr<ZMesh3D> ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory);
+
+  std::vector<ZVertex3D> LoadVertexData(const aiMesh* mesh);
+  std::vector<unsigned int> LoadIndexData(const aiMesh* mesh);
+  std::shared_ptr<ZSkeleton> LoadSkeleton(const aiScene* scene);
+  std::shared_ptr<ZJoint> LoadSkeletonJoint(const aiNode* node);
+  ZBoneMap LoadBones(const aiMesh* mesh);
+  ZAnimationList LoadAnimations(const aiScene* scene);
   std::vector<ZTexture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory);
-  unsigned int TextureFromFile(std::string path, const std::string& directory);
 
 public:
 

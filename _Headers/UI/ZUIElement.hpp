@@ -30,11 +30,11 @@
 #pragma once
 
 // Includes
-#include "ZMeshUI.hpp"
+#include "ZMesh2D.hpp"
 #include "ZProcess.hpp"
 
 // Forward Declarations
-class ZMeshUI;
+class ZMesh2D;
 class ZShader;
 
 // Class and Data Structure Definitions
@@ -96,7 +96,7 @@ public:
     void RemoveParent();
     
     virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR);
-    virtual ZMeshUI ElementShape();
+    virtual ZMesh2D ElementShape();
     
     void RenderChildren();
     

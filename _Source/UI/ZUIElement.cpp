@@ -119,7 +119,7 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
 }
 
 void ZUIElement::Render(float frameMix, RENDER_OP renderOp) {
-  ZMeshUI mesh = ElementShape();
+  ZMesh2D mesh = ElementShape();
   shader_->Activate();
 
   ZEngine::Graphics()->Strategy()->BindTexture(texture_, 0);
@@ -276,8 +276,8 @@ bool ZUIElement::Contains(glm::vec3 point) {
       point.y >= Position().y - Size().y && point.y <= Position().y + Size().y;
 }
 
-ZMeshUI ZUIElement::ElementShape() { 
-  static ZMeshUI mesh;
+ZMesh2D ZUIElement::ElementShape() { 
+  static ZMesh2D mesh;
   if (mesh.Vertices().size() == 0) {
     std::vector<ZVertex2D> vertices = {
     ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f)),
@@ -285,7 +285,7 @@ ZMeshUI ZUIElement::ElementShape() {
     ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 0.f)),
     ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f))
     };
-    mesh = ZMeshUI(vertices);
+    mesh = ZMesh2D(vertices);
   }
   return mesh;
 };

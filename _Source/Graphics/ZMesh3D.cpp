@@ -31,6 +31,7 @@
 #include "ZEngine.hpp"
 #include "ZShader.hpp"
 #include "ZCommon.hpp"
+#include "ZSkeleton.hpp"
 
 ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle)
 : vertices_(vertices), indices_(indices) {
@@ -46,5 +47,15 @@ ZMesh3D::~ZMesh3D() {
 void ZMesh3D::Render(ZShader* shader, ZMaterial* material) {
   shader->Activate();
   shader->Use(material);
+  if (skeleton_) shader->Use(skeleton_->bones);
   ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
+}
+
+void ZMesh3D::SetSkeleton(std::shared_ptr<ZSkeleton> skeleton) {
+	ZMesh::SetSkeleton(skeleton);
+	for (ZBoneMap::iterator it = skeleton->bones.begin(); it != skeleton->bones.end(); it++) {
+		for (unsigned int i = 0; i < it->second->vertexIDs.size(); i++) {
+			vertices_[it->second->vertexIDs[i]].AddBoneData(it->second->index, it->second->weights[i]);
+		}
+	}
 }

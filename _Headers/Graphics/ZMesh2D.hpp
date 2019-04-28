@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZMeshUI.hpp
+    ZMesh2D.hpp
 
     Created by Adrian Sanchez on 06/02/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -37,14 +37,14 @@
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZMeshUI : ZMesh {
+class ZMesh2D : ZMesh {
 private:
 
 public:
 
-  ZMeshUI() { }
-  ZMeshUI(std::vector<ZVertex2D> vertices);
-  ~ZMeshUI() { }
+  ZMesh2D() { }
+  ZMesh2D(std::vector<ZVertex2D> vertices);
+  ~ZMesh2D() { }
 
   void Render(ZShader* shader, ZMaterial* material = nullptr) override;
 

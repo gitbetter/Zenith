@@ -78,6 +78,8 @@ break;\
                                                 assimpMat.b1, assimpMat.b2, assimpMat.b3, assimpMat.b4,\
                                                 assimpMat.c1, assimpMat.c2, assimpMat.c3, assimpMat.c4,\
                                                 assimpMat.d1, assimpMat.d2, assimpMat.d3, assimpMat.d4)
+#define ASSIMP_TO_GLM_VEC3(assimpVec) glm::vec3(assimpVec.x, assimpVec.y, assimpVec.z)
+#define ASSIMP_TO_GLM_QUAT(assimpQuat) glm::quat(assimpQuat.w, assimpQuat.x, assimpQuat.y, assimpQuat.z)
 
 class ZGameObject;
 class ZComponent;
@@ -88,6 +90,8 @@ class ZMaterial;
 class ZProcess;
 class ZEvent;
 class ZLight;
+struct ZAnimation;
+struct ZBone;
 
 typedef std::function<void()> ZEventCallback;
 typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
@@ -102,6 +106,8 @@ typedef std::list<std::shared_ptr<ZProcess>> ZProcessList;
 typedef fastdelegate::FastDelegate1<std::shared_ptr<ZEvent>> ZEventDelegate;
 typedef std::pair<ZGameObject*, ZGameObject*> ZCollisionPair;
 typedef std::set<ZCollisionPair> ZCollisionPairs;
+typedef std::vector<std::shared_ptr<ZAnimation>> ZAnimationList;
+typedef std::map<std::string, std::shared_ptr<ZBone>> ZBoneMap;
 
 typedef unsigned char RENDER_OP;
 typedef unsigned long ZEventType;
@@ -207,28 +213,19 @@ struct ZMaterialProperties {
     };
 };
 
-struct ZVertexBoneData {
-    unsigned int ids[BONES_PER_VERTEX];
-    float weights[BONES_PER_VERTEX];
-    
-    void AddBoneData(unsigned int boneID, float weight);
-};
-
-struct ZBoneInfo {
-    glm::mat4 boneOffset;
-    glm::mat4 transformation;
-};
-
 struct ZVertex3D {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 uv;
     glm::vec3 tangent;
     glm::vec3 bitangent;
-    ZVertexBoneData boneData;
+	unsigned int boneIDs[BONES_PER_VERTEX];
+	float boneWeights[BONES_PER_VERTEX];
     
     ZVertex3D() { }
     ZVertex3D(glm::vec3 position, glm::vec3 normal = glm::vec3(0.f, 1.f, 0.f)) : position(position), normal(normal) { }
+
+	void AddBoneData(unsigned int boneID, float weight);
 };
 
 struct ZVertex2D {

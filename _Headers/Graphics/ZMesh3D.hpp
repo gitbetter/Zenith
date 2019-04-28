@@ -32,7 +32,6 @@
 // Includes
 #include "ZMesh.hpp"
 #include "ZMaterial.hpp"
-#include <string>
 
 // Forward Declarations
 class ZShader;
@@ -47,6 +46,8 @@ private:
     
     std::vector<ZVertex3D> vertices_;
     std::vector<unsigned int> indices_;
+
+	void SetSkeleton(std::shared_ptr<ZSkeleton> skeleton) override;
     
 public:
     

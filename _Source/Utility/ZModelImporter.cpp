@@ -31,9 +31,10 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZModelImporter.hpp"
-#include "ZMaterial.hpp"
 #include "ZResource.hpp"
 #include "ZResourceCache.hpp"
+#include "ZSkeleton.hpp"
+#include "ZAnimation.hpp"
 #include <assimp/Importer.hpp>
 
 /**
@@ -95,92 +96,187 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string
  @return a ZMesh3D instance with all the relevant data
  */
 std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
-    std::vector<ZVertex3D> vertices;
-    std::vector<unsigned int> indices;
-    std::shared_ptr<ZMaterial> material;
-    
-    // Load basic vertex data
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-        ZVertex3D vertex;
-        
-        glm::vec3 position;
-        position.x = mesh->mVertices[i].x;
-        position.y = mesh->mVertices[i].y;
-        position.z = mesh->mVertices[i].z;
-        vertex.position = position;
-        
-        glm::vec3 normal;
-        normal.x = mesh->mNormals[i].x;
-        normal.y = mesh->mNormals[i].y;
-        normal.z = mesh->mNormals[i].z;
-        vertex.normal = normal;
-        
-        if (mesh->mTextureCoords[0]) {
-            glm::vec2 uv;
-            uv.x = mesh->mTextureCoords[0][i].x;
-            uv.y = mesh->mTextureCoords[0][i].y;
-            vertex.uv = uv;
-        } else {
-            vertex.uv = glm::vec2(0.0f, 0.0f);
-        }
-        
-        if (mesh->mTangents) {
-            glm::vec3 tangent;
-            tangent.x = mesh->mTangents[i].x;
-            tangent.y = mesh->mTangents[i].y;
-            tangent.z = mesh->mTangents[i].z;
-            vertex.tangent = tangent;
-        }
-        
-        if (mesh->mBitangents) {
-            glm::vec3 bitangent;
-            bitangent.x = mesh->mBitangents[i].x;
-            bitangent.y = mesh->mBitangents[i].y;
-            bitangent.z = mesh->mBitangents[i].z;
-            vertex.bitangent = bitangent;
-        }
-        
-        vertices.push_back(vertex);
-    }
-    
-    // Load mesh indices for each face
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-        aiFace face = mesh->mFaces[i];
-        for (unsigned int j = 0; j < face.mNumIndices; j++) {
-            indices.push_back(face.mIndices[j]);
-        }
-    }
+	std::vector<ZVertex3D> vertices = LoadVertexData(mesh);
+	std::vector<unsigned int> indices = LoadIndexData(mesh);
+	std::shared_ptr<ZSkeleton> skeleton = LoadSkeleton(scene);
+	skeleton->bones = LoadBones(mesh);
+	ZAnimationList animations = LoadAnimations(scene);
     
     std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(vertices, indices);
-    mesh3D->SetAssimpScene(scene);
-    
-    // Load mesh bone data
-    for (unsigned int i = 0; i < mesh->mNumBones; i++) {
-        unsigned int boneIndex = 0;
-        std::string boneName(mesh->mBones[i]->mName.data);
-        
-        if (mesh3D->bonesMap_.find(boneName) == mesh3D->bonesMap_.end()) {
-            boneIndex = mesh3D->bonesMap_.size();
-            ZBoneInfo boneInfo;
-            mesh3D->boneInfo_.push_back(boneInfo);
-        } else {
-            boneIndex = mesh3D->bonesMap_[boneName];
-        }
-        
-        mesh3D->bonesMap_[boneName] = boneIndex;
-        aiMatrix4x4 offset = mesh->mBones[i]->mOffsetMatrix;
-        mesh3D->boneInfo_[boneIndex].boneOffset = ASSIMP_TO_GLM_MAT4(offset);
-        
-        for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
-            // TODO: vertexID might be duplicated if processing several meshes, so make sure
-            // to make it unique somehow
-            unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
-            float weight = mesh->mBones[i]->mWeights[j].mWeight;
-            mesh3D->vertices_[vertexID].boneData.AddBoneData(boneIndex, weight);
-        }
-    }
+	mesh3D->SetSkeleton(skeleton);
+	mesh3D->SetAnimations(animations);
     
     return mesh3D;
+}
+
+/**
+ A helper function that loads all the vertex data for a specific aiMesh instance into a list
+ of ZVertex3D objects and returns it.
+
+ @param mesh the mesh from which the vertices are loaded.
+ @return a vector of ZVertex3D objects, one for each vertex in the mesh.
+ */
+std::vector<ZVertex3D> ZModelImporter::LoadVertexData(const aiMesh* mesh) {
+	std::vector<ZVertex3D> vertices;
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+		ZVertex3D vertex;
+
+		vertex.position = ASSIMP_TO_GLM_VEC3(mesh->mVertices[i]);
+		vertex.normal = ASSIMP_TO_GLM_VEC3(mesh->mNormals[i]);
+		vertex.uv = glm::vec2(0.0f, 0.0f);
+
+		if (mesh->mTextureCoords[0]) {
+			glm::vec2 uv;
+			uv.x = mesh->mTextureCoords[0][i].x;
+			uv.y = mesh->mTextureCoords[0][i].y;
+			vertex.uv = uv;
+		}
+
+		if (mesh->mTangents) {
+			vertex.tangent = ASSIMP_TO_GLM_VEC3(mesh->mTangents[i]);
+		}
+
+		if (mesh->mBitangents) {
+			vertex.bitangent = ASSIMP_TO_GLM_VEC3(mesh->mBitangents[i]);
+		}
+
+		vertices.push_back(vertex);
+	}
+	return vertices;
+}
+
+/**
+ A helper function that loads all the vertex index data for the faces of a specific aiMesh instance.
+
+ @param mesh the mesh from which the indices are loaded.
+ @return a vector of unsigned integers, which specify the indexes of each vertex for every face of the mesh.
+ */
+std::vector<unsigned int> ZModelImporter::LoadIndexData(const aiMesh* mesh) {
+	std::vector<unsigned int> indices;
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+		aiFace face = mesh->mFaces[i];
+		for (unsigned int j = 0; j < face.mNumIndices; j++) {
+			indices.push_back(face.mIndices[j]);
+		}
+	}
+	return indices;
+}
+
+/**
+ A helper function that creates a skeleton using a top level aiScene object.
+
+ @param scene the scene from which to look for nodes to create the skeleton with.
+ @return a skeleton that mirrors the hierarchy within the aiScene.
+ */
+std::shared_ptr<ZSkeleton> ZModelImporter::LoadSkeleton(const aiScene* scene) {
+	std::shared_ptr<ZSkeleton> skeleton = std::make_shared<ZSkeleton>();
+	skeleton->rootJoint = LoadSkeletonJoint(scene->mRootNode);
+	return skeleton;
+}
+
+/**
+ A recursive helper function that creates a joint and all child joints and links them accordingly.
+
+ @param node the node from which to create a skeletal joint object.
+ @return a ZJoint object.
+ */
+std::shared_ptr<ZJoint> ZModelImporter::LoadSkeletonJoint(const aiNode* node) {
+	std::shared_ptr<ZJoint> joint = std::make_shared<ZJoint>();
+	joint->name = std::string(node->mName.data);
+	joint->transform = ASSIMP_TO_GLM_MAT4(node->mTransformation);
+	
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		std::shared_ptr<ZJoint> childJoint = LoadSkeletonJoint(node->mChildren[i]);
+		joint->children.push_back(childJoint);
+		childJoint->parent = joint.get();
+	}
+
+	return joint;
+}
+
+/**
+ A helper function that creates a map of ZBone objects if they exist for a mesh.
+
+ @param mesh the mesh from which to look for bones.
+ @return a map of bone objects, where the key is the bone name.
+ */
+ZBoneMap ZModelImporter::LoadBones(const aiMesh* mesh) {
+	ZBoneMap bones;
+	for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+		unsigned int boneIndex = 0;
+		std::string boneName(mesh->mBones[i]->mName.data);
+
+		if (bones.find(boneName) == bones.end()) {
+			boneIndex = bones.size();
+			std::shared_ptr<ZBone> bone = std::make_shared<ZBone>();
+			bones[boneName] = bone;
+		} else {
+			boneIndex = bones[boneName]->index;
+		}
+
+		bones[boneName]->index = boneIndex;
+		bones[boneName]->offset = ASSIMP_TO_GLM_MAT4(mesh->mBones[i]->mOffsetMatrix);
+
+		for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+			// TODO: vertexID might be duplicated if processing several meshes, so make sure
+			// to make it unique somehow
+			unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+			float weight = mesh->mBones[i]->mWeights[j].mWeight;
+			bones[boneName]->vertexIDs.push_back(vertexID);
+			bones[boneName]->weights.push_back(weight);
+		}
+	}
+	return bones;
+}
+
+/**
+ A helper function that loads all of the animations for the mesh. The custom data structures reflect
+ the Assimp animation data structures so the translation is quite basic.
+
+ @param scene the scene from which to to look for animations.
+ @return a list of ZAnimation STL pointers.
+ */
+ZAnimationList ZModelImporter::LoadAnimations(const aiScene* scene) {
+	ZAnimationList animations;
+	for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+		aiAnimation* anim = scene->mAnimations[i];
+		std::shared_ptr<ZAnimation> animation = std::make_shared<ZAnimation>();
+		animation->name = std::string(anim->mName.data);
+		animation->ticksPerSecond = anim->mTicksPerSecond;
+		animation->duration = anim->mDuration;
+
+		for (unsigned int j = 0; j < anim->mNumChannels; j++) {
+			aiNodeAnim* nodeAnim = anim->mChannels[j];
+			std::shared_ptr<ZJointAnimation> jointAnimation = std::make_shared<ZJointAnimation>();
+			jointAnimation->jointName = std::string(nodeAnim->mNodeName.data);
+
+			for (unsigned int k = 0; k < nodeAnim->mNumScalingKeys; k++) {
+				ZAnimationKey<glm::vec3> scalingKey;
+				scalingKey.time = nodeAnim->mScalingKeys[i].mTime;
+				scalingKey.value = ASSIMP_TO_GLM_VEC3(nodeAnim->mScalingKeys[k].mValue);
+				jointAnimation->scalingKeys.push_back(scalingKey);
+			}
+
+			for (unsigned int k = 0; k < nodeAnim->mNumRotationKeys; k++) {
+				ZAnimationKey<glm::quat> rotationKey;
+				rotationKey.time = nodeAnim->mRotationKeys[i].mTime;
+				rotationKey.value = ASSIMP_TO_GLM_QUAT(nodeAnim->mRotationKeys[k].mValue);
+				jointAnimation->rotationKeys.push_back(rotationKey);
+			}
+
+			for (unsigned int k = 0; k < nodeAnim->mNumPositionKeys; k++) {
+				ZAnimationKey<glm::vec3> positionKey;
+				positionKey.time = nodeAnim->mRotationKeys[i].mTime;
+				positionKey.value = ASSIMP_TO_GLM_VEC3(nodeAnim->mRotationKeys[k].mValue);
+				jointAnimation->positionKeys.push_back(positionKey);
+			}
+
+			animation->channels.push_back(jointAnimation);
+		}
+
+		animations.push_back(animation);
+	}
+	return animations;
 }
 
 /**

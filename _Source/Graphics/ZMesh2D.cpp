@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZMeshUI.cpp
+    ZMesh2D.cpp
 
     Created by Adrian Sanchez on 06/02/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -28,16 +28,16 @@
 */
 
 #include "ZUI.hpp"
-#include "ZMeshUI.hpp"
+#include "ZMesh2D.hpp"
 #include "ZEngine.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZShader.hpp"
 
-ZMeshUI::ZMeshUI(std::vector<ZVertex2D> vertices) : vertices_(vertices) {
+ZMesh2D::ZMesh2D(std::vector<ZVertex2D> vertices) : vertices_(vertices) {
   bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices);
 }
 
-void ZMeshUI::Render(ZShader* shader, ZMaterial* material) {
+void ZMesh2D::Render(ZShader* shader, ZMaterial* material) {
   shader->Activate();
   ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_);
 }
