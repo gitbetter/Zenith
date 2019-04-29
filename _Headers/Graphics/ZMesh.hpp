@@ -34,6 +34,7 @@
 #include "ZProcess.hpp"
 
 // Forward Declarations
+class ZModel;
 class ZShader;
 struct ZSkeleton;
 struct ZJoint;
@@ -43,6 +44,8 @@ struct ZJointAnimation;
 // Class and Data Structure Definitions
 class ZMesh : public ZProcess {
     
+    friend class ZModel;
+    
 public:
     
     virtual ~ZMesh() { }
@@ -50,7 +53,7 @@ public:
     virtual void Render(ZShader* shader, ZMaterial* material) = 0;
     virtual ZMeshDrawStyle DrawStyle() const { return drawStyle_; };
 	std::shared_ptr<ZSkeleton> Skeleton() { return skeleton_; }
-	const ZAnimationMap& Animations() const { return animations_; }
+    ZAnimationMap& Animations() { return animations_; }
     
 	virtual void SetSkeleton(std::shared_ptr<ZSkeleton> skeleton);
 	virtual void SetAnimations(ZAnimationMap animations) { animations_ = animations; }
@@ -67,6 +70,7 @@ protected:
 
 	std::shared_ptr<ZSkeleton> skeleton_;
 	ZAnimationMap animations_;
+    ZModel* model_ = nullptr;
 
 	void CalculateTransformsInHierarchy(std::string animName, float animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
 	glm::vec3 CalculateInterpolatedScaling(float animationTime, std::shared_ptr<ZJointAnimation> jointAnim);

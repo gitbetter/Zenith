@@ -48,7 +48,7 @@ public:
 	void Update() override;
 
 	void Play(std::string animationName, bool looping = false);
-	void Pause();
+	void Pause() override;
 	void Stop();
 
 protected:

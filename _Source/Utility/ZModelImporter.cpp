@@ -43,7 +43,7 @@
  @param shaderPath the path to the model file.
  @param outMeshes the mesh vector to populate.
  */
-void ZModelImporter::LoadModel(std::string modelPath, ZMesh3DMap& outMeshes) {
+void ZModelImporter::LoadModel(std::string modelPath, ZMesh3DMap& outMeshes, ZBoneMap& outBoneMap, ZModel* model) {
     // Cache in the model data from the given file
     ZResource resource(modelPath);
     std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
@@ -61,6 +61,11 @@ void ZModelImporter::LoadModel(std::string modelPath, ZMesh3DMap& outMeshes) {
     // Start processing nodes
     std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
     ProcessNode(scene->mRootNode, scene, modelDirectory, outMeshes);
+    for (ZMesh3DMap::iterator it = outMeshes.begin(), end = outMeshes.end(); it != end; it++) {
+        it->second->model_ = model;
+        it->second->SetupVertexBoneData();
+    }
+    outBoneMap = currentBonesMap_;
 }
 
 /**
@@ -99,8 +104,9 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
 	std::vector<ZVertex3D> vertices = LoadVertexData(mesh);
 	std::vector<unsigned int> indices = LoadIndexData(mesh);
 	std::shared_ptr<ZSkeleton> skeleton = LoadSkeleton(scene);
-	skeleton->bones = LoadBones(mesh);
 	ZAnimationMap animations = LoadAnimations(scene);
+    
+    LoadBones(mesh);
     
     std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(vertices, indices);
 	mesh3D->SetSkeleton(skeleton);
@@ -200,33 +206,31 @@ std::shared_ptr<ZJoint> ZModelImporter::LoadSkeletonJoint(const aiNode* node) {
  @param mesh the mesh from which to look for bones.
  @return a map of bone objects, where the key is the bone name.
  */
-ZBoneMap ZModelImporter::LoadBones(const aiMesh* mesh) {
-	ZBoneMap bones;
+void ZModelImporter::LoadBones(const aiMesh* mesh) {
 	for (unsigned int i = 0; i < mesh->mNumBones; i++) {
 		unsigned int boneIndex = 0;
 		std::string boneName(mesh->mBones[i]->mName.data);
 
-		if (bones.find(boneName) == bones.end()) {
-			boneIndex = bones.size();
+		if (currentBonesMap_.find(boneName) == currentBonesMap_.end()) {
+			boneIndex = currentBonesMap_.size();
 			std::shared_ptr<ZBone> bone = std::make_shared<ZBone>();
-			bones[boneName] = bone;
+			currentBonesMap_[boneName] = bone;
 		} else {
-			boneIndex = bones[boneName]->index;
+			boneIndex = currentBonesMap_[boneName]->index;
 		}
 
-		bones[boneName]->index = boneIndex;
-		bones[boneName]->offset = ASSIMP_TO_GLM_MAT4(mesh->mBones[i]->mOffsetMatrix);
+		currentBonesMap_[boneName]->index = boneIndex;
+		currentBonesMap_[boneName]->offset = ASSIMP_TO_GLM_MAT4(mesh->mBones[i]->mOffsetMatrix);
 
 		for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
 			// TODO: vertexID might be duplicated if processing several meshes, so make sure
 			// to make it unique somehow
 			unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
 			float weight = mesh->mBones[i]->mWeights[j].mWeight;
-			bones[boneName]->vertexIDs.push_back(vertexID);
-			bones[boneName]->weights.push_back(weight);
+			currentBonesMap_[boneName]->vertexIDs.push_back(vertexID);
+			currentBonesMap_[boneName]->weights.push_back(weight);
 		}
 	}
-	return bones;
 }
 
 /**
@@ -242,6 +246,7 @@ ZAnimationMap ZModelImporter::LoadAnimations(const aiScene* scene) {
 		aiAnimation* anim = scene->mAnimations[i];
 		std::shared_ptr<ZAnimation> animation = std::make_shared<ZAnimation>();
 		animation->name = std::string(anim->mName.data);
+        if (animation->name.empty()) animation->name = "z_anim1";
 		animation->ticksPerSecond = anim->mTicksPerSecond;
 		animation->duration = anim->mDuration;
 

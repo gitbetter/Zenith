@@ -30,12 +30,13 @@
 #include "ZBulletRigidBody.hpp"
 #include "btBulletDynamicsCommon.h"
 
-ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale) : ZBulletRigidBody() {
+ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale, glm::quat rotation) : ZBulletRigidBody() {
     btCollisionShape* coll = static_cast<btCollisionShape*>(collider->Get());
     
     btTransform transform;
     transform.setIdentity();
-    transform.setOrigin(btVector3(origin[0], origin[1], origin[2]));
+    transform.setOrigin(btVector3(origin.x, origin.y, origin.z));
+    transform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
     
     coll->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
     

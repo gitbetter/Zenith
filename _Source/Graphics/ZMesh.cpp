@@ -28,6 +28,7 @@
 */
 
 #include "ZMesh.hpp"
+#include "ZModel.hpp"
 #include "ZAnimation.hpp"
 #include "ZSkeleton.hpp"
 
@@ -53,7 +54,7 @@ std::vector<glm::mat4> ZMesh::BoneTransform(std::string anim, float secondsTime)
 		CalculateTransformsInHierarchy(anim, animationTime, skeleton_->rootJoint, identity);
 	}
     
-	for (ZBoneMap::iterator it = skeleton_->bones.begin(), end = skeleton_->bones.end(); it != end; it++) {
+	for (ZBoneMap::iterator it = model_->Bones().begin(), end = model_->Bones().end(); it != end; it++) {
         transforms.push_back(it->second->transformation);
     }
     
@@ -84,8 +85,8 @@ void ZMesh::CalculateTransformsInHierarchy(std::string animName, float animTime,
 
 	glm::mat4 globalTransform = parentTransform * jointTransform;
 
-	if (skeleton_->bones.find(joint->name) != skeleton_->bones.end()) {
-		skeleton_->bones[joint->name]->transformation = globalInverseTransform_ * globalTransform * skeleton_->bones[joint->name]->offset;
+	if (model_->Bones().find(joint->name) != model_->Bones().end()) {
+		model_->Bones()[joint->name]->transformation = globalInverseTransform_ * globalTransform * model_->Bones()[joint->name]->offset;
 	}
 
 	for (unsigned int i = 0; i < joint->children.size(); i++) {

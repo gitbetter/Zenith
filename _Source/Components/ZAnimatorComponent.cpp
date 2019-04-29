@@ -28,6 +28,8 @@
 */
 
 #include "ZAnimatorComponent.hpp"
+#include "ZGameObject.hpp"
+#include "ZModel.hpp"
 #include "ZMesh.hpp"
 
 ZAnimatorComponent::ZAnimatorComponent() {
@@ -35,23 +37,59 @@ ZAnimatorComponent::ZAnimatorComponent() {
 }
 
 void ZAnimatorComponent::Initialize(std::shared_ptr<ZOFNode> root) {
-
+    // TODO: Load from zof tree as usual
 }
 
 void ZAnimatorComponent::Update() {
 	if (currentClip_.state == ZAnimationState::Playing || currentClip_.state == ZAnimationState::Looping) {
-		currentClip_.mesh->BoneTransform(currentClip_.name, currentClip_.currentTime);
+        currentClip_.currentTime += ZEngine::DeltaTime();
+        if (currentClip_.startTime + currentClip_.currentTime <= currentClip_.endTime) {
+            currentClip_.mesh->BoneTransform(currentClip_.name, currentClip_.currentTime);
+        } else if (currentClip_.state == ZAnimationState::Looping) {
+            double duration = currentClip_.endTime - currentClip_.startTime;
+            currentClip_.startTime = ZEngine::SecondsTime();
+            currentClip_.endTime = currentClip_.startTime + duration;
+            currentClip_.currentTime = 0.0;
+        } else {
+            currentClip_.state = ZAnimationState::Stopped;
+        }
 	}
 }
 
 void ZAnimatorComponent::Play(std::string animationName, bool looping) {
-
+    std::shared_ptr<ZGraphicsComponent> graphics = object_->FindComponent<ZGraphicsComponent>();
+    if(!graphics) {
+        _Z("Could not play animator animation. No graphics component exists for this game object.", ZERROR);
+        return;
+    }
+    
+    if (currentClip_.state == ZAnimationState::Paused && currentClip_.mesh != nullptr) {
+        currentClip_.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
+    } else {
+        const ZMesh3DMap meshes = graphics->Model()->Meshes();
+        for (ZMesh3DMap::const_iterator it = meshes.cbegin(), end = meshes.cend(); it != end; it++) {
+            if (it->second->Animations().find(animationName) != it->second->Animations().end()) {
+                currentClip_.mesh = it->second; break;
+            }
+        }
+        
+        if (currentClip_.mesh) {
+            std::shared_ptr<ZAnimation> animation = currentClip_.mesh->Animations()[animationName];
+            currentClip_.name = animationName;
+            currentClip_.currentTime = 0.0;
+            currentClip_.startTime = ZEngine::SecondsTime();
+            currentClip_.endTime = currentClip_.startTime + animation->duration;
+            currentClip_.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
+        }
+    }
 }
 
 void ZAnimatorComponent::Pause() {
-
+    if (currentClip_.state == ZAnimationState::Playing)
+        currentClip_.state = ZAnimationState::Paused;
 }
 
 void ZAnimatorComponent::Stop() {
-
+    if (currentClip_.state == ZAnimationState::Playing)
+        currentClip_.state = ZAnimationState::Stopped;
 }

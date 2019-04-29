@@ -33,7 +33,7 @@ void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
     ZGameObject::Initialize(root);
     
     std::shared_ptr<ZPhysicsComponent> physicsComp(new ZPhysicsComponent);
-    physicsComp->Initialize("Trigger", "Box", 0.f, Position(), Scale());
+    physicsComp->Initialize("Trigger", "Box", 0.f, Position(), Scale(), Orientation());
     physicsComp->DisableCollisionResponse();
     
     AddComponent(physicsComp);

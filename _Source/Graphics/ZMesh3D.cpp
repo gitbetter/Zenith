@@ -1,33 +1,34 @@
 /*
-
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+ 
+  ______     ______     __   __     __     ______   __  __
+ /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+ \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+ 
     ZMesh3D.cpp
-
+ 
     Created by Adrian Sanchez on 1/25/19.
     Copyright © 2019 Pervasive Sense. All rights reserved.
-
-  This file is part of Zenith.
-
-  Zenith is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  Zenith is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ 
+ This file is part of Zenith.
+ 
+ Zenith is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ Zenith is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include "ZMesh3D.hpp"
+#include "ZModel.hpp"
 #include "ZEngine.hpp"
 #include "ZShader.hpp"
 #include "ZCommon.hpp"
@@ -35,27 +36,29 @@
 
 ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle)
 : vertices_(vertices), indices_(indices) {
-  drawStyle_ = drawStyle;
-  bufferData_ = ZEngine::Graphics()->Strategy()->LoadIndexedVertexData(vertices, indices);
-  id_ = "ZMSH3D_" + ZEngine::IDSequence()->Next();
+    drawStyle_ = drawStyle;
+    bufferData_ = ZEngine::Graphics()->Strategy()->LoadIndexedVertexData(vertices, indices);
+    id_ = "ZMSH3D_" + ZEngine::IDSequence()->Next();
 }
 
 ZMesh3D::~ZMesh3D() {
-  vertices_.clear();
+    vertices_.clear();
 }
 
 void ZMesh3D::Render(ZShader* shader, ZMaterial* material) {
-  shader->Activate();
-  shader->Use(material);
-  if (skeleton_) shader->Use(skeleton_->bones);
-  ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
+    shader->Activate();
+    shader->Use(material);
+    shader->SetBool("rigged", skeleton_ != nullptr);
+    if (skeleton_) {
+        shader->Use(model_->Bones());
+    }
+    ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
 }
 
-void ZMesh3D::SetSkeleton(std::shared_ptr<ZSkeleton> skeleton) {
-	ZMesh::SetSkeleton(skeleton);
-	for (ZBoneMap::iterator it = skeleton->bones.begin(); it != skeleton->bones.end(); it++) {
-		for (unsigned int i = 0; i < it->second->vertexIDs.size(); i++) {
-			vertices_[it->second->vertexIDs[i]].AddBoneData(it->second->index, it->second->weights[i]);
-		}
-	}
+void ZMesh3D::SetupVertexBoneData() {
+    for (ZBoneMap::iterator it = model_->Bones().begin(); it != model_->Bones().end(); it++) {
+        for (unsigned int i = 0; i < it->second->vertexIDs.size(); i++) {
+            vertices_[it->second->vertexIDs[i]].AddBoneData(it->second->index, it->second->weights[i]);
+        }
+    }
 }

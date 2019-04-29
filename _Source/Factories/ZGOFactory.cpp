@@ -34,11 +34,13 @@
 #include "ZGraphicsComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZCameraComponent.hpp"
+#include "ZAnimatorComponent.hpp"
 
 ZGOFactory::ZGOFactory() {
     componentCreators_["GraphicsComponent"] = &ZGOFactory::CreateGraphicsComponent;
     componentCreators_["CameraComponent"] = &ZGOFactory::CreateCameraComponent;
     componentCreators_["PhysicsComponent"] = &ZGOFactory::CreatePhysicsComponent;
+    componentCreators_["AnimatorComponent"] = &ZGOFactory::CreateAnimatorComponent;
 }
 
 ZGameObjectMap ZGOFactory::Load(std::shared_ptr<ZOFTree> data) {
@@ -102,6 +104,12 @@ std::shared_ptr<ZComponent> ZGOFactory::CreateCameraComponent(std::shared_ptr<ZG
 
 std::shared_ptr<ZComponent> ZGOFactory::CreatePhysicsComponent(std::shared_ptr<ZGameObject> gameObject) {
     std::shared_ptr<ZPhysicsComponent> comp(new ZPhysicsComponent);
+    gameObject->AddComponent(comp);
+    return comp;
+}
+
+std::shared_ptr<ZComponent> ZGOFactory::CreateAnimatorComponent(std::shared_ptr<ZGameObject> gameObject) {
+    std::shared_ptr<ZAnimatorComponent> comp(new ZAnimatorComponent);
     gameObject->AddComponent(comp);
     return comp;
 }

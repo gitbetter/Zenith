@@ -60,6 +60,5 @@ struct ZBone {
 
 struct ZSkeleton {
 	std::shared_ptr<ZJoint> rootJoint;
-	ZBoneMap bones;
 };
 

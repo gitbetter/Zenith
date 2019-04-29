@@ -59,6 +59,7 @@ public:
     std::shared_ptr<ZComponent> CreateGraphicsComponent(std::shared_ptr<ZGameObject> gameObject);
     std::shared_ptr<ZComponent> CreateCameraComponent(std::shared_ptr<ZGameObject> gameObject);
     std::shared_ptr<ZComponent> CreatePhysicsComponent(std::shared_ptr<ZGameObject> gameObject);
+    std::shared_ptr<ZComponent> CreateAnimatorComponent(std::shared_ptr<ZGameObject> gameObject);
     
 protected:
     

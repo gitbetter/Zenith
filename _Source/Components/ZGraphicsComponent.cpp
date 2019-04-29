@@ -98,7 +98,8 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	if (props.find("model") != props.end() && props["model"]->HasValues()) {
 		std::shared_ptr<ZOFString> nameProp = props["model"]->Value<ZOFString>(0);
 		if (nameProp->value.find(".") != std::string::npos) {
-			model_ = std::shared_ptr<ZModel>(new ZModel(nameProp->value));
+			model_ = std::shared_ptr<ZModel>(new ZModel);
+            model_->Initialize(nameProp->value);
 		} else {
 			if (props["model"]->ValueCount() > 1) {
 				std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);

@@ -37,6 +37,7 @@
 
 #include "ZGraphics.hpp"
 #include "ZGraphicsComponent.hpp"
+#include "ZAnimatorComponent.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZLight.hpp"
@@ -64,7 +65,6 @@
 
 std::shared_ptr<ZGame> game;
 std::shared_ptr<ZScene> scene;
-std::shared_ptr<ZUIButton> button;
 
 void onObjectSelect(std::shared_ptr<ZEvent> event);
 void onObjectDrag(std::shared_ptr<ZEvent> event);
@@ -100,7 +100,6 @@ int main(int argc, const char * argv[]) {
     }
     
     // We can register delegate methods for specific UI events
-    button = ZEngine::UI()->FindElement<ZUIButton>("ZUI_01");
     ZEventDelegate pressDelegate(&onObjectSelect);
     ZEventDelegate dragDelegate(&onObjectDrag);
     ZEngine::EventAgent()->AddListener(pressDelegate, ZObjectSelectedEvent::Type);
@@ -137,35 +136,20 @@ int main(int argc, const char * argv[]) {
 
 void onObjectSelect(std::shared_ptr<ZEvent> event) {
     std::shared_ptr<ZObjectSelectedEvent> fireEvent = std::static_pointer_cast<ZObjectSelectedEvent>(event);
-    if (button != nullptr) {
-        if (button->ID() == fireEvent->ObjectID()) {
-            if (button->Selected()) {
-                button->Deselect();
-                button->SetColor(glm::vec4(0.141f, 0.145f, 0.165f, 1.f));
-                std::shared_ptr<ZUIText> text = button->Child<ZUIText>("ZUI_02");
-                text->SetColor(glm::vec4(1.f));
-            } else {
-                button->Select();
-                button->SetColor(glm::vec4(1.f));
-                std::shared_ptr<ZUIText> text = button->Child<ZUIText>("ZUI_02");
-                text->SetColor(glm::vec4(0.141f, 0.145f, 0.165f, 1.f));
-            }
-        }
-    } else {
-        if (scene->GameObjects().find(fireEvent->ObjectID()) != scene->GameObjects().end()) {
-            std::shared_ptr<ZGameObject> object = scene->GameObjects()[fireEvent->ObjectID()];
-            std::shared_ptr<ZPhysicsComponent> comp = object->FindComponent<ZPhysicsComponent>();
-            glm::vec3 force = scene->ActiveCamera()->Front() * 1000.f;
-            glm::vec3 position = glm::inverse(object->ModelMatrix()) * glm::vec4(fireEvent->Position(), 1.0);
-            comp->AddForceAtPoint(force, position);
+    if (scene->GameObjects().find(fireEvent->ObjectID()) != scene->GameObjects().end()) {
+        std::shared_ptr<ZGameObject> object = scene->GameObjects()[fireEvent->ObjectID()];
+        std::shared_ptr<ZPhysicsComponent> comp = object->FindComponent<ZPhysicsComponent>();
+        glm::vec3 force = scene->ActiveCamera()->Front() * 1000.f;
+        glm::vec3 position = glm::inverse(object->ModelMatrix()) * glm::vec4(fireEvent->Position(), 1.0);
+        comp->AddForceAtPoint(force, position);
+        
+        if (object->ID() == "ZGO_12") {
+            std::shared_ptr<ZAnimatorComponent> animator = object->FindComponent<ZAnimatorComponent>();
+            animator->Play("z_anim1", true);
         }
     }
 }
 
 void onObjectDrag(std::shared_ptr<ZEvent> event) {
     std::shared_ptr<ZObjectDragEvent> dragEvent = std::static_pointer_cast<ZObjectDragEvent>(event);
-    if (button != nullptr) {
-        button->Translate(glm::vec2(dragEvent->DeltaX() * 100.f * ZEngine::DeltaTime(),
-                                    -dragEvent->DeltaY() * 100.f * ZEngine::DeltaTime()));
-    }
 }

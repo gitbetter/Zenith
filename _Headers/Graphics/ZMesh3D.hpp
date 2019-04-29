@@ -46,13 +46,14 @@ private:
     
     std::vector<ZVertex3D> vertices_;
     std::vector<unsigned int> indices_;
-
-	void SetSkeleton(std::shared_ptr<ZSkeleton> skeleton) override;
     
 public:
     
     ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
     ~ZMesh3D();
     
+    void SetupVertexBoneData();
+    
     void Render(ZShader* shader, ZMaterial* material) override;
+    
 };
