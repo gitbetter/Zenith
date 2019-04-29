@@ -100,7 +100,7 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
 	std::vector<unsigned int> indices = LoadIndexData(mesh);
 	std::shared_ptr<ZSkeleton> skeleton = LoadSkeleton(scene);
 	skeleton->bones = LoadBones(mesh);
-	ZAnimationList animations = LoadAnimations(scene);
+	ZAnimationMap animations = LoadAnimations(scene);
     
     std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(vertices, indices);
 	mesh3D->SetSkeleton(skeleton);
@@ -236,8 +236,8 @@ ZBoneMap ZModelImporter::LoadBones(const aiMesh* mesh) {
  @param scene the scene from which to to look for animations.
  @return a list of ZAnimation STL pointers.
  */
-ZAnimationList ZModelImporter::LoadAnimations(const aiScene* scene) {
-	ZAnimationList animations;
+ZAnimationMap ZModelImporter::LoadAnimations(const aiScene* scene) {
+	ZAnimationMap animations;
 	for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 		aiAnimation* anim = scene->mAnimations[i];
 		std::shared_ptr<ZAnimation> animation = std::make_shared<ZAnimation>();
@@ -274,7 +274,7 @@ ZAnimationList ZModelImporter::LoadAnimations(const aiScene* scene) {
 			animation->channels.push_back(jointAnimation);
 		}
 
-		animations.push_back(animation);
+		animations[animation->name] = animation;
 	}
 	return animations;
 }

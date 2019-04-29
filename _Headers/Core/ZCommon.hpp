@@ -106,7 +106,7 @@ typedef std::list<std::shared_ptr<ZProcess>> ZProcessList;
 typedef fastdelegate::FastDelegate1<std::shared_ptr<ZEvent>> ZEventDelegate;
 typedef std::pair<ZGameObject*, ZGameObject*> ZCollisionPair;
 typedef std::set<ZCollisionPair> ZCollisionPairs;
-typedef std::vector<std::shared_ptr<ZAnimation>> ZAnimationList;
+typedef std::map<std::string, std::shared_ptr<ZAnimation>> ZAnimationMap;
 typedef std::map<std::string, std::shared_ptr<ZBone>> ZBoneMap;
 
 typedef unsigned char RENDER_OP;
@@ -167,6 +167,10 @@ enum class ZProcessState {
 
 enum class ZSoundType {
     Wav, Ogg, Unknown
+};
+
+enum class ZAnimationState {
+	Initialized, Playing, Looping, Paused, Stopped, Invalid
 };
 
 struct ZBufferData {

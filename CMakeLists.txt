@@ -51,6 +51,7 @@ ${SOURCE_DIR}/Components/ZScriptComponent.cpp
 ${SOURCE_DIR}/Components/ZComponent.cpp
 ${SOURCE_DIR}/Components/ZGraphicsComponent.cpp
 ${SOURCE_DIR}/Components/ZPhysicsComponent.cpp
+${SOURCE_DIR}/Components/ZAnimatorComponent.cpp
 ${SOURCE_DIR}/GameObjects/ZLight.cpp
 ${SOURCE_DIR}/GameObjects/ZGameObject.cpp
 ${SOURCE_DIR}/GameObjects/ZSkybox.cpp
@@ -118,6 +119,7 @@ ${HEADERS_DIR}/Components/ZComponent.hpp
 ${HEADERS_DIR}/Components/ZGraphicsComponent.hpp
 ${HEADERS_DIR}/Components/ZPhysicsComponent.hpp
 ${HEADERS_DIR}/Components/ZScriptComponent.hpp
+${HEADERS_DIR}/Components/ZAnimatorComponent.hpp
 ${HEADERS_DIR}/Core/ZCommon.hpp
 ${HEADERS_DIR}/Core/ZEngine.hpp
 ${HEADERS_DIR}/Core/ZGame.hpp

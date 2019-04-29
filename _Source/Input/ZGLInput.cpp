@@ -28,7 +28,6 @@
 */
 
 #include "ZEngine.hpp"
-#include "ZGraphics.hpp"
 #include "ZGLInput.hpp"
 #include "ZEventAgent.hpp"
 #include "ZObjectLookEvent.hpp"
@@ -36,7 +35,6 @@
 #include "ZObjectMoveEvent.hpp"
 #include "ZQuitEvent.hpp"
 #include "ZFireEvent.hpp"
-#include <cassert>
 
 void ZGLInput::Update() {
   GLFWwindow* windowHandle = glfwGetCurrentContext();

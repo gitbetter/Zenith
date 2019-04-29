@@ -30,7 +30,6 @@
 #include "ZMesh.hpp"
 #include "ZAnimation.hpp"
 #include "ZSkeleton.hpp"
-#include <assimp/scene.h>
 
 void ZVertex3D::AddBoneData(unsigned int bone, float weight) {
     for (unsigned int i = 0; i < BONES_PER_VERTEX; i++) {
@@ -42,16 +41,17 @@ void ZVertex3D::AddBoneData(unsigned int bone, float weight) {
     }
 }
 
-std::vector<glm::mat4> ZMesh::BoneTransform(float secondsTime) {
+std::vector<glm::mat4> ZMesh::BoneTransform(std::string anim, float secondsTime) {
     glm::mat4 identity(1.f);
     std::vector<glm::mat4> transforms;
     
-    // TODO: Parametrize animation index
-    float ticksPerSecond = animations_[0]->ticksPerSecond != 0 ? (float)animations_[0]->ticksPerSecond : 25.f;
-    float timeInTicks = secondsTime * ticksPerSecond;
-    float animationTime = fmod(timeInTicks, animations_[0]->duration);
-    
-	CalculateTransformsInHierarchy(animationTime, skeleton_->rootJoint, identity);
+	if (animations_.find(anim) != animations_.end()) {
+		float ticksPerSecond = animations_[anim]->ticksPerSecond != 0 ? (float)animations_[anim]->ticksPerSecond : 25.f;
+		float timeInTicks = secondsTime * ticksPerSecond;
+		float animationTime = fmod(timeInTicks, animations_[anim]->duration);
+
+		CalculateTransformsInHierarchy(anim, animationTime, skeleton_->rootJoint, identity);
+	}
     
 	for (ZBoneMap::iterator it = skeleton_->bones.begin(), end = skeleton_->bones.end(); it != end; it++) {
         transforms.push_back(it->second->transformation);
@@ -60,8 +60,8 @@ std::vector<glm::mat4> ZMesh::BoneTransform(float secondsTime) {
     return transforms;
 }
 
-void ZMesh::CalculateTransformsInHierarchy(float animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform) {
-    std::shared_ptr<ZAnimation> animation = animations_[0];
+void ZMesh::CalculateTransformsInHierarchy(std::string animName, float animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform) {
+    std::shared_ptr<ZAnimation> animation = animations_[animName];
 	glm::mat4 jointTransform = joint->transform;
     
     std::shared_ptr<ZJointAnimation> jointAnimation;
@@ -89,7 +89,7 @@ void ZMesh::CalculateTransformsInHierarchy(float animTime, const std::shared_ptr
 	}
 
 	for (unsigned int i = 0; i < joint->children.size(); i++) {
-		CalculateTransformsInHierarchy(animTime, joint->children[i], globalTransform);
+		CalculateTransformsInHierarchy(animName, animTime, joint->children[i], globalTransform);
 	}
 }
 

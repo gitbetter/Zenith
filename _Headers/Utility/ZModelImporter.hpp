@@ -56,7 +56,7 @@ private:
   std::shared_ptr<ZSkeleton> LoadSkeleton(const aiScene* scene);
   std::shared_ptr<ZJoint> LoadSkeletonJoint(const aiNode* node);
   ZBoneMap LoadBones(const aiMesh* mesh);
-  ZAnimationList LoadAnimations(const aiScene* scene);
+  ZAnimationMap LoadAnimations(const aiScene* scene);
   std::vector<ZTexture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory);
 
 public:

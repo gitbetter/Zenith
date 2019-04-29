@@ -40,10 +40,6 @@ struct ZJoint;
 struct ZAnimation;
 struct ZJointAnimation;
 
-class aiScene;
-class aiNode;
-class aiNodeAnim;
-
 // Class and Data Structure Definitions
 class ZMesh : public ZProcess {
     
@@ -54,13 +50,13 @@ public:
     virtual void Render(ZShader* shader, ZMaterial* material) = 0;
     virtual ZMeshDrawStyle DrawStyle() const { return drawStyle_; };
 	std::shared_ptr<ZSkeleton> Skeleton() { return skeleton_; }
-	const ZAnimationList& Animations() const { return animations_; }
+	const ZAnimationMap& Animations() const { return animations_; }
     
 	virtual void SetSkeleton(std::shared_ptr<ZSkeleton> skeleton);
-	virtual void SetAnimations(ZAnimationList animations) { animations_ = animations; }
+	virtual void SetAnimations(ZAnimationMap animations) { animations_ = animations; }
 	virtual void SetGlobalInverseTransform(glm::mat4 transform) { globalInverseTransform_ = transform; }
 
-    std::vector<glm::mat4> BoneTransform(float secondsTime);
+    std::vector<glm::mat4> BoneTransform(std::string anim, float secondsTime);
     
 protected:
     
@@ -70,9 +66,9 @@ protected:
 	glm::mat4 globalInverseTransform_;
 
 	std::shared_ptr<ZSkeleton> skeleton_;
-	ZAnimationList animations_;
+	ZAnimationMap animations_;
 
-	void CalculateTransformsInHierarchy(float animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
+	void CalculateTransformsInHierarchy(std::string animName, float animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
 	glm::vec3 CalculateInterpolatedScaling(float animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
 	glm::quat CalculateInterpolatedRotation(float animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
 	glm::vec3 CalculateInterpolatedPosition(float animationTime, std::shared_ptr<ZJointAnimation> jointAnim);

@@ -98,8 +98,7 @@ void ZUICursor::SetColor(glm::vec4 color) {
 
 void ZUICursor::HandleMouseMove(std::shared_ptr<ZEvent> event) {
   std::shared_ptr<ZObjectLookEvent> lookEvent = std::static_pointer_cast<ZObjectLookEvent>(event);
-  Translate(glm::vec2(0.f, -lookEvent->Pitch() * cursorSpeed_ * ZEngine::DeltaTime()));
-  Translate(glm::vec2(lookEvent->Yaw() * cursorSpeed_ * ZEngine::DeltaTime(), 0.f));
+  Translate(glm::vec2(lookEvent->Yaw() * cursorSpeed_ * ZEngine::DeltaTime(), -lookEvent->Pitch() * cursorSpeed_ * ZEngine::DeltaTime()));
 }
 
 void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
