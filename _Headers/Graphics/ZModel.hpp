@@ -44,7 +44,8 @@ class ZModel {
 private:
     
     ZMesh3DMap meshes_;
-    ZBoneMap bones_;
+    ZBoneMap bonesMap_;
+    ZBoneList bones_;
     ZAABBox boundingBox_;
     
     void CreateGround(glm::vec3 scale);
@@ -65,8 +66,9 @@ public:
     virtual void Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials);
     
     const ZMesh3DMap& Meshes() { return meshes_; }
-    ZBoneMap& Bones() { return bones_; }
     const ZAABBox& AABB() { return boundingBox_; }
+    ZBoneList& Bones() { return bones_; }
+    ZBoneMap& BonesMap() { return bonesMap_; }
     
     virtual void InitializeAABB();
     virtual void UpdateAABB(glm::mat4 transform);

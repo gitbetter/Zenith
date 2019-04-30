@@ -56,9 +56,11 @@ void ZMesh3D::Render(ZShader* shader, ZMaterial* material) {
 }
 
 void ZMesh3D::SetupVertexBoneData() {
-    for (ZBoneMap::iterator it = model_->Bones().begin(); it != model_->Bones().end(); it++) {
-        for (unsigned int i = 0; i < it->second->vertexIDs.size(); i++) {
-            vertices_[it->second->vertexIDs[i]].AddBoneData(it->second->index, it->second->weights[i]);
+    for (unsigned int i = 0, e = model_->Bones().size(); i < e; i++) {
+        std::shared_ptr<ZBone> bone = model_->Bones()[i];
+        for (unsigned int j = 0, k = bone->vertexIDs.size(); j < k; j++) {
+            if (bone->vertexIDs[j] < vertices_.size())
+                vertices_[bone->vertexIDs[j]].AddBoneData(i, bone->weights[j]);
         }
     }
 }

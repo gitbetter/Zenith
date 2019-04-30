@@ -61,10 +61,11 @@ private:
     
 public:
     
-    void LoadModel(std::string modelPath, ZMesh3DMap& outMeshes, ZBoneMap& outBoneMap, ZModel* model);
+    void LoadModel(std::string modelPath, ZMesh3DMap& outMeshes, ZBoneMap& outBoneMap, ZBoneList& outBoneList);
     
 protected:
     
     ZBoneMap currentBonesMap_;
+    ZBoneList currentBones_;
     
 };

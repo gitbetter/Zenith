@@ -46,7 +46,6 @@ struct ZJoint {
 };
 
 struct ZBone {
-	unsigned int index;
 	glm::mat4 offset;
 	glm::mat4 transformation;
 	std::vector<unsigned int> vertexIDs;

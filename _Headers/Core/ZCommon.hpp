@@ -107,7 +107,8 @@ typedef fastdelegate::FastDelegate1<std::shared_ptr<ZEvent>> ZEventDelegate;
 typedef std::pair<ZGameObject*, ZGameObject*> ZCollisionPair;
 typedef std::set<ZCollisionPair> ZCollisionPairs;
 typedef std::map<std::string, std::shared_ptr<ZAnimation>> ZAnimationMap;
-typedef std::map<std::string, std::shared_ptr<ZBone>> ZBoneMap;
+typedef std::map<std::string, unsigned int> ZBoneMap;
+typedef std::vector<std::shared_ptr<ZBone>> ZBoneList;
 
 typedef unsigned char RENDER_OP;
 typedef unsigned long ZEventType;
@@ -226,10 +227,24 @@ struct ZVertex3D {
 	unsigned int boneIDs[BONES_PER_VERTEX];
 	float boneWeights[BONES_PER_VERTEX];
     
-    ZVertex3D() { }
-    ZVertex3D(glm::vec3 position, glm::vec3 normal = glm::vec3(0.f, 1.f, 0.f)) : position(position), normal(normal) { }
+    ZVertex3D() {
+        for (unsigned int i = 0; i < BONES_PER_VERTEX; i++) boneWeights[i] = 0.f;
+    }
+    
+    ZVertex3D(glm::vec3 position, glm::vec3 normal = glm::vec3(0.f, 1.f, 0.f)) : ZVertex3D() {
+        this->position = position;
+        this->normal = normal;
+    }
 
-	void AddBoneData(unsigned int boneID, float weight);
+    void AddBoneData(unsigned int boneID, float weight) {
+        for (unsigned int i = 0; i < BONES_PER_VERTEX; i++) {
+            if (boneWeights[i] == 0.f) {
+                boneIDs[i] = boneID;
+                boneWeights[i] = weight;
+                return;
+            }
+        }
+    }
 };
 
 struct ZVertex2D {

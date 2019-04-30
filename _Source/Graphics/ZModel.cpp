@@ -52,7 +52,11 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) {
 
 void ZModel::Initialize(std::string path) {
     ZModelImporter importer;
-    importer.LoadModel(path, meshes_, bones_, this);
+    importer.LoadModel(path, meshes_, bonesMap_, bones_);
+    for (ZMesh3DMap::iterator it = meshes_.begin(), end = meshes_.end(); it != end; it++) {
+        it->second->model_ = this;
+        it->second->SetupVertexBoneData();
+    }
     InitializeAABB();
 }
 

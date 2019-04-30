@@ -278,9 +278,11 @@ void ZShader::Use(const ZLightMap& lights) {
 	}
 }
 
-void ZShader::Use(const ZBoneMap& bones) {
+void ZShader::Use(const ZBoneList& bones) {
 	Activate();
-	for (ZBoneMap::const_iterator it = bones.cbegin(), end = bones.cend(); it != end; it++) {
-		SetMat4("Bones[" + std::to_string(it->second->index) + "]", it->second->transformation);
+    std::shared_ptr<ZBone> bone;
+    for (unsigned int i = 0, j = bones.size(); i < j; i++) {
+        bone = bones[i];
+		SetMat4("Bones[" + std::to_string(i) + "]", bone->transformation);
 	}
 }
