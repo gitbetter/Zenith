@@ -61,8 +61,11 @@ void ZModelImporter::LoadModel(std::string modelPath, ZMesh3DMap& outMeshes, ZBo
     // Start processing nodes
     std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
     ProcessNode(scene->mRootNode, scene, modelDirectory, outMeshes);
-    outBoneMap = currentBonesMap_;
-    outBoneList = currentBones_;
+    outBoneMap = currentBonesMap_; outBoneList = currentBones_;
+    
+    // If we load another model with this ZModelImporter instance, we want to make sure there is no bone data
+    // from previous loads.
+    currentBonesMap_.clear(); currentBones_.clear();
 }
 
 /**
