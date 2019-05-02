@@ -52,7 +52,7 @@ struct ZBone {
 	std::vector<float> weights;
 
 	ZBone() {
-		offset = glm::mat4(0.f);
+		offset = glm::mat4(1.f);
 		transformation = glm::mat4(1.f);
 	}
 };

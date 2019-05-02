@@ -103,10 +103,10 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string
 std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
 	std::vector<ZVertex3D> vertices = LoadVertexData(mesh);
 	std::vector<unsigned int> indices = LoadIndexData(mesh);
+	// TODO: load bone vertex data by passing vertices to this call, instead of post-processing in the ZMesh3D instance
+	LoadBones(mesh);
 	std::shared_ptr<ZSkeleton> skeleton = LoadSkeleton(scene);
 	ZAnimationMap animations = LoadAnimations(scene);
-    
-    LoadBones(mesh);
     
     std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(vertices, indices);
 	mesh3D->SetSkeleton(skeleton);
