@@ -55,7 +55,7 @@ private:
     std::vector<unsigned int> LoadIndexData(const aiMesh* mesh);
     std::shared_ptr<ZSkeleton> LoadSkeleton(const aiScene* scene);
     std::shared_ptr<ZJoint> LoadSkeletonJoint(const aiNode* node);
-    void LoadBones(const aiMesh* mesh);
+    void LoadBones(const aiMesh* mesh, std::vector<ZVertex3D>& vertices);
     ZAnimationMap LoadAnimations(const aiScene* scene);
     std::vector<ZTexture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory);
     

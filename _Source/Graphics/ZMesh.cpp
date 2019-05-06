@@ -68,9 +68,13 @@ void ZMesh::CalculateTransformsInHierarchy(std::string animName, float animTime,
 		glm::quat rotation = CalculateInterpolatedRotation(animTime, jointAnimation);
 		glm::vec3 position = CalculateInterpolatedPosition(animTime, jointAnimation);
 
-		jointTransform = glm::mat4_cast(rotation);
-        jointTransform = glm::scale(jointTransform, scale);
-		jointTransform = glm::translate(jointTransform, position);
+        glm::mat4 rotationM(1.f), scalingM(1.f), translationM(1.f);
+        
+        rotationM = glm::mat4_cast(rotation);
+        scalingM = glm::scale(scalingM, scale);
+        translationM = glm::translate(translationM, position);
+
+        jointTransform = translationM * rotationM * scalingM;
     }
 
 	glm::mat4 globalTransform = parentTransform * jointTransform;
@@ -79,7 +83,7 @@ void ZMesh::CalculateTransformsInHierarchy(std::string animName, float animTime,
         unsigned int index = model_->BonesMap()[joint->name];
 		model_->Bones()[index]->transformation = globalInverseTransform_ * globalTransform * model_->Bones()[index]->offset;
 	}
-
+    
 	for (unsigned int i = 0; i < joint->children.size(); i++) {
 		CalculateTransformsInHierarchy(animName, animTime, joint->children[i], globalTransform);
 	}
@@ -131,7 +135,7 @@ glm::vec3 ZMesh::CalculateInterpolatedPosition(float animationTime, std::shared_
 	}
 
 	unsigned int positionIndex = 0;
-	for (unsigned int i = 0, j = jointAnim->rotationKeys.size() - 1; i < j; i++) {
+	for (unsigned int i = 0, j = jointAnim->positionKeys.size() - 1; i < j; i++) {
 		if (animationTime < (float)jointAnim->positionKeys[i + 1].time)
             positionIndex = i; break;
 	}

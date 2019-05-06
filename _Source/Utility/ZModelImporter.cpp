@@ -104,7 +104,7 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
 	std::vector<ZVertex3D> vertices = LoadVertexData(mesh);
 	std::vector<unsigned int> indices = LoadIndexData(mesh);
 	// TODO: load bone vertex data by passing vertices to this call, instead of post-processing in the ZMesh3D instance
-	LoadBones(mesh);
+	LoadBones(mesh, vertices);
 	std::shared_ptr<ZSkeleton> skeleton = LoadSkeleton(scene);
 	ZAnimationMap animations = LoadAnimations(scene);
     
@@ -206,7 +206,7 @@ std::shared_ptr<ZJoint> ZModelImporter::LoadSkeletonJoint(const aiNode* node) {
  @param mesh the mesh from which to look for bones.
  @return a map of bone objects, where the key is the bone name.
  */
-void ZModelImporter::LoadBones(const aiMesh* mesh) {
+void ZModelImporter::LoadBones(const aiMesh* mesh, std::vector<ZVertex3D>& vertices) {
 	for (unsigned int i = 0; i < mesh->mNumBones; i++) {
 		unsigned int boneIndex = 0;
 		std::string boneName(mesh->mBones[i]->mName.data);
@@ -224,12 +224,9 @@ void ZModelImporter::LoadBones(const aiMesh* mesh) {
         currentBones_[boneIndex]->transformation = glm::mat4(1.f);
 
 		for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
-			// TODO: vertexID might be duplicated if processing several meshes, so make sure
-			// to make it unique somehow
 			unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
 			float weight = mesh->mBones[i]->mWeights[j].mWeight;
-			currentBones_[boneIndex]->vertexIDs.push_back(vertexID);
-			currentBones_[boneIndex]->weights.push_back(weight);
+            vertices[vertexID].AddBoneData(boneIndex, weight);
 		}
 	}
 }
@@ -247,7 +244,7 @@ ZAnimationMap ZModelImporter::LoadAnimations(const aiScene* scene) {
 		aiAnimation* anim = scene->mAnimations[i];
 		std::shared_ptr<ZAnimation> animation = std::make_shared<ZAnimation>();
 		animation->name = std::string(anim->mName.data);
-        if (animation->name.empty()) animation->name = "z_anim1";
+        if (animation->name.empty()) animation->name = "z_anim" + std::to_string(i + 1);
 		animation->ticksPerSecond = anim->mTicksPerSecond;
 		animation->duration = anim->mDuration;
 
@@ -272,8 +269,8 @@ ZAnimationMap ZModelImporter::LoadAnimations(const aiScene* scene) {
 
 			for (unsigned int k = 0; k < nodeAnim->mNumPositionKeys; k++) {
 				ZAnimationKey<glm::vec3> positionKey;
-				positionKey.time = nodeAnim->mRotationKeys[k].mTime;
-				positionKey.value = ASSIMP_TO_GLM_VEC3(nodeAnim->mRotationKeys[k].mValue);
+				positionKey.time = nodeAnim->mPositionKeys[k].mTime;
+				positionKey.value = ASSIMP_TO_GLM_VEC3(nodeAnim->mPositionKeys[k].mValue);
 				jointAnimation->positionKeys.push_back(positionKey);
 			}
 

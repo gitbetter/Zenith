@@ -55,7 +55,6 @@ void ZModel::Initialize(std::string path) {
     importer.LoadModel(path, meshes_, bonesMap_, bones_);
     for (ZMesh3DMap::iterator it = meshes_.begin(), end = meshes_.end(); it != end; it++) {
         it->second->model_ = this;
-        it->second->SetupVertexBoneData();
     }
     InitializeAABB();
 }

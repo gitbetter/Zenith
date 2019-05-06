@@ -54,13 +54,3 @@ void ZMesh3D::Render(ZShader* shader, ZMaterial* material) {
     }
     ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
 }
-
-void ZMesh3D::SetupVertexBoneData() {
-    for (unsigned int i = 0, e = model_->Bones().size(); i < e; i++) {
-        std::shared_ptr<ZBone> bone = model_->Bones()[i];
-        for (unsigned int j = 0, k = bone->vertexIDs.size(); j < k; j++) {
-            if (bone->vertexIDs[j] < vertices_.size())
-                vertices_[bone->vertexIDs[j]].AddBoneData(i, bone->weights[j]);
-        }
-    }
-}
