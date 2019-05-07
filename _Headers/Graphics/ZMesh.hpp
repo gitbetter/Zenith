@@ -56,10 +56,10 @@ public:
     ZAnimationMap& Animations() { return animations_; }
     
 	virtual void SetSkeleton(std::shared_ptr<ZSkeleton> skeleton);
-	virtual void SetAnimations(ZAnimationMap animations) { animations_ = animations; }
-	virtual void SetGlobalInverseTransform(glm::mat4 transform) { globalInverseTransform_ = transform; }
+    virtual void SetAnimations(ZAnimationMap animations);
+    virtual void SetGlobalInverseTransform(glm::mat4 transform);
 
-    std::vector<glm::mat4> BoneTransform(std::string anim, float secondsTime);
+    void BoneTransform(std::string anim, float secondsTime);
     
 protected:
     

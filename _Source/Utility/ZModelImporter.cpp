@@ -103,7 +103,6 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string
 std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
 	std::vector<ZVertex3D> vertices = LoadVertexData(mesh);
 	std::vector<unsigned int> indices = LoadIndexData(mesh);
-	// TODO: load bone vertex data by passing vertices to this call, instead of post-processing in the ZMesh3D instance
 	LoadBones(mesh, vertices);
 	std::shared_ptr<ZSkeleton> skeleton = LoadSkeleton(scene);
 	ZAnimationMap animations = LoadAnimations(scene);
@@ -127,8 +126,8 @@ std::vector<ZVertex3D> ZModelImporter::LoadVertexData(const aiMesh* mesh) {
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		ZVertex3D vertex;
 
-		vertex.position = ASSIMP_TO_GLM_VEC3(mesh->mVertices[i]);
-		vertex.normal = ASSIMP_TO_GLM_VEC3(mesh->mNormals[i]);
+		vertex.position = AssimpToGLMVec3(mesh->mVertices[i]);
+		vertex.normal = AssimpToGLMVec3(mesh->mNormals[i]);
 		vertex.uv = glm::vec2(0.0f, 0.0f);
 
 		if (mesh->mTextureCoords[0]) {
@@ -139,11 +138,11 @@ std::vector<ZVertex3D> ZModelImporter::LoadVertexData(const aiMesh* mesh) {
 		}
 
 		if (mesh->mTangents) {
-			vertex.tangent = ASSIMP_TO_GLM_VEC3(mesh->mTangents[i]);
+			vertex.tangent = AssimpToGLMVec3(mesh->mTangents[i]);
 		}
 
 		if (mesh->mBitangents) {
-			vertex.bitangent = ASSIMP_TO_GLM_VEC3(mesh->mBitangents[i]);
+			vertex.bitangent = AssimpToGLMVec3(mesh->mBitangents[i]);
 		}
 
 		vertices.push_back(vertex);
@@ -189,7 +188,7 @@ std::shared_ptr<ZSkeleton> ZModelImporter::LoadSkeleton(const aiScene* scene) {
 std::shared_ptr<ZJoint> ZModelImporter::LoadSkeletonJoint(const aiNode* node) {
 	std::shared_ptr<ZJoint> joint = std::make_shared<ZJoint>();
 	joint->name = std::string(node->mName.data);
-	joint->transform = ASSIMP_TO_GLM_MAT4(node->mTransformation);
+	joint->transform = AssimpToGLMMat4(node->mTransformation);
 	
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 		std::shared_ptr<ZJoint> childJoint = LoadSkeletonJoint(node->mChildren[i]);
@@ -220,8 +219,7 @@ void ZModelImporter::LoadBones(const aiMesh* mesh, std::vector<ZVertex3D>& verti
 		}
 
 		currentBonesMap_[boneName] = boneIndex;
-		currentBones_[boneIndex]->offset = ASSIMP_TO_GLM_MAT4(mesh->mBones[i]->mOffsetMatrix);
-        currentBones_[boneIndex]->transformation = glm::mat4(1.f);
+		currentBones_[boneIndex]->offset = AssimpToGLMMat4(mesh->mBones[i]->mOffsetMatrix);
 
 		for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
 			unsigned int vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
@@ -256,21 +254,21 @@ ZAnimationMap ZModelImporter::LoadAnimations(const aiScene* scene) {
 			for (unsigned int k = 0; k < nodeAnim->mNumScalingKeys; k++) {
 				ZAnimationKey<glm::vec3> scalingKey;
 				scalingKey.time = nodeAnim->mScalingKeys[k].mTime;
-				scalingKey.value = ASSIMP_TO_GLM_VEC3(nodeAnim->mScalingKeys[k].mValue);
+				scalingKey.value = AssimpToGLMVec3(nodeAnim->mScalingKeys[k].mValue);
 				jointAnimation->scalingKeys.push_back(scalingKey);
 			}
 
 			for (unsigned int k = 0; k < nodeAnim->mNumRotationKeys; k++) {
 				ZAnimationKey<glm::quat> rotationKey;
 				rotationKey.time = nodeAnim->mRotationKeys[k].mTime;
-				rotationKey.value = ASSIMP_TO_GLM_QUAT(nodeAnim->mRotationKeys[k].mValue);
+				rotationKey.value = AssimpToGLMQuat(nodeAnim->mRotationKeys[k].mValue);
 				jointAnimation->rotationKeys.push_back(rotationKey);
 			}
 
 			for (unsigned int k = 0; k < nodeAnim->mNumPositionKeys; k++) {
 				ZAnimationKey<glm::vec3> positionKey;
 				positionKey.time = nodeAnim->mPositionKeys[k].mTime;
-				positionKey.value = ASSIMP_TO_GLM_VEC3(nodeAnim->mPositionKeys[k].mValue);
+				positionKey.value = AssimpToGLMVec3(nodeAnim->mPositionKeys[k].mValue);
 				jointAnimation->positionKeys.push_back(positionKey);
 			}
 
@@ -307,4 +305,23 @@ std::vector<ZTexture> ZModelImporter::LoadMaterialTextures(aiMaterial *mat, aiTe
         }
     }
     return textures;
+}
+
+/**
+ Helper functions to convert between Assimp and GLM data types
+ */
+
+glm::vec3 ZModelImporter::AssimpToGLMVec3(const aiVector3D& vec) {
+    return glm::vec3(vec.x, vec.y, vec.z);
+}
+
+glm::quat ZModelImporter::AssimpToGLMQuat(const aiQuaternion& quat) {
+    return glm::quat(quat.w, quat.x, quat.y, quat.z);
+}
+
+glm::mat4 ZModelImporter::AssimpToGLMMat4(const aiMatrix4x4& mat) {
+    return glm::mat4(mat.a1, mat.b1, mat.c1, mat.d1,
+                     mat.a2, mat.b2, mat.c2, mat.d2,
+                     mat.a3, mat.b3, mat.c3, mat.d3,
+                     mat.a4, mat.b4, mat.c4, mat.d4);
 }

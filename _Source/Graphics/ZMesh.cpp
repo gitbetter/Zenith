@@ -32,9 +32,8 @@
 #include "ZAnimation.hpp"
 #include "ZSkeleton.hpp"
 
-std::vector<glm::mat4> ZMesh::BoneTransform(std::string anim, float secondsTime) {
+void ZMesh::BoneTransform(std::string anim, float secondsTime) {
     glm::mat4 identity(1.f);
-    std::vector<glm::mat4> transforms;
     
 	if (animations_.find(anim) != animations_.end()) {
 		float ticksPerSecond = animations_[anim]->ticksPerSecond != 0 ? (float)animations_[anim]->ticksPerSecond : 25.f;
@@ -43,12 +42,6 @@ std::vector<glm::mat4> ZMesh::BoneTransform(std::string anim, float secondsTime)
 
 		CalculateTransformsInHierarchy(anim, animationTime, skeleton_->rootJoint, identity);
 	}
-    
-	for (ZBoneList::iterator it = model_->Bones().begin(), end = model_->Bones().end(); it != end; it++) {
-        transforms.push_back((*it)->transformation);
-    }
-    
-    return transforms;
 }
 
 void ZMesh::CalculateTransformsInHierarchy(std::string animName, float animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform) {
@@ -59,7 +52,7 @@ void ZMesh::CalculateTransformsInHierarchy(std::string animName, float animTime,
     for (unsigned int i = 0, j = animation->channels.size(); i < j; i++) {
 		std::shared_ptr<ZJointAnimation> anim = animation->channels[i];
         if (anim->jointName == joint->name) {
-            jointAnimation = anim;
+            jointAnimation = anim; break;
         }
     }
     
@@ -152,4 +145,12 @@ glm::vec3 ZMesh::CalculateInterpolatedPosition(float animationTime, std::shared_
 void ZMesh::SetSkeleton(std::shared_ptr<ZSkeleton> skeleton) { 
 	globalInverseTransform_ = glm::inverse(skeleton->rootJoint->transform);
 	skeleton_ = skeleton; 
+}
+
+void ZMesh::SetAnimations(ZAnimationMap animations) {
+    animations_ = animations;
+}
+
+void ZMesh::SetGlobalInverseTransform(glm::mat4 transform) {
+    globalInverseTransform_ = transform;
 }

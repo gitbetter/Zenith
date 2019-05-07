@@ -63,6 +63,10 @@ public:
     
     void LoadModel(std::string modelPath, ZMesh3DMap& outMeshes, ZBoneMap& outBoneMap, ZBoneList& outBoneList);
     
+    glm::vec3 AssimpToGLMVec3(const aiVector3D& vec);
+    glm::quat AssimpToGLMQuat(const aiQuaternion& quat);
+    glm::mat4 AssimpToGLMMat4(const aiMatrix4x4& mat);
+    
 protected:
     
     ZBoneMap currentBonesMap_;

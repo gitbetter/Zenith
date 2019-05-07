@@ -74,13 +74,6 @@ break;\
 }\
 }
 
-#define ASSIMP_TO_GLM_MAT4(assimpMat) glm::mat4(assimpMat[0][0], assimpMat[0][1], assimpMat[0][2], assimpMat[0][3],\
-                                                assimpMat[1][0], assimpMat[1][1], assimpMat[1][2], assimpMat[1][3],\
-                                                assimpMat[2][0], assimpMat[2][1], assimpMat[2][2], assimpMat[2][3],\
-                                                assimpMat[3][0], assimpMat[3][1], assimpMat[3][2], assimpMat[3][3])
-#define ASSIMP_TO_GLM_VEC3(assimpVec) glm::vec3(assimpVec.x, assimpVec.y, assimpVec.z)
-#define ASSIMP_TO_GLM_QUAT(assimpQuat) glm::quat(assimpQuat.w, assimpQuat.x, assimpQuat.y, assimpQuat.z)
-
 class ZGameObject;
 class ZComponent;
 class ZUIElement;
