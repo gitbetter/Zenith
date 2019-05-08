@@ -89,8 +89,9 @@ glm::vec3 ZMesh::CalculateInterpolatedScaling(float animationTime, std::shared_p
 
 	unsigned int scalingIndex = 0;
 	for (unsigned int i = 0, j = jointAnim->scalingKeys.size() - 1; i < j; i++) {
-		if (animationTime < (float)jointAnim->scalingKeys[i + 1].time)
+        if (animationTime < (float)jointAnim->scalingKeys[i + 1].time) {
             scalingIndex = i; break;
+        }
 	}
 	unsigned int nextScalingIndex = scalingIndex + 1;
 	float deltaTime = (float)(jointAnim->scalingKeys[nextScalingIndex].time - jointAnim->scalingKeys[scalingIndex].time);
@@ -108,9 +109,10 @@ glm::quat ZMesh::CalculateInterpolatedRotation(float animationTime, std::shared_
 	}
 
 	unsigned int rotationIndex = 0;
-	for (unsigned int i = 0, j = jointAnim->rotationKeys.size(); i < j; i++) {
-		if (animationTime < (float)jointAnim->rotationKeys[i + 1].time)
+	for (unsigned int i = 0, j = jointAnim->rotationKeys.size() - 1; i < j; i++) {
+        if (animationTime < (float)jointAnim->rotationKeys[i + 1].time) {
             rotationIndex = i; break;
+        }
 	}
 	unsigned int nextRotationIndex = rotationIndex + 1;
 	float deltaTime = (float)(jointAnim->rotationKeys[nextRotationIndex].time - jointAnim->rotationKeys[rotationIndex].time);
@@ -129,8 +131,9 @@ glm::vec3 ZMesh::CalculateInterpolatedPosition(float animationTime, std::shared_
 
 	unsigned int positionIndex = 0;
 	for (unsigned int i = 0, j = jointAnim->positionKeys.size() - 1; i < j; i++) {
-		if (animationTime < (float)jointAnim->positionKeys[i + 1].time)
+        if (animationTime < (float)jointAnim->positionKeys[i + 1].time) {
             positionIndex = i; break;
+        }
 	}
 	unsigned int nextPositionIndex = positionIndex + 1;
 	float deltaTime = (float)(jointAnim->positionKeys[nextPositionIndex].time - jointAnim->positionKeys[positionIndex].time);

@@ -145,7 +145,7 @@ void onObjectSelect(std::shared_ptr<ZEvent> event) {
         
         if (object->ID() == "ZGO_12") {
             std::shared_ptr<ZAnimatorComponent> animator = object->FindComponent<ZAnimatorComponent>();
-            if (animator) animator->Play("z_anim1", true);
+            if (animator) animator->Play("Wolf_Skeleton", true);
         }
     }
 }
