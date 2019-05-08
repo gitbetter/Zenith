@@ -57,7 +57,6 @@ public:
     
 	virtual void SetSkeleton(std::shared_ptr<ZSkeleton> skeleton);
     virtual void SetAnimations(ZAnimationMap animations);
-    virtual void SetGlobalInverseTransform(glm::mat4 transform);
 
     void BoneTransform(std::string anim, float secondsTime);
     

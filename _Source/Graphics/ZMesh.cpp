@@ -150,7 +150,3 @@ void ZMesh::SetSkeleton(std::shared_ptr<ZSkeleton> skeleton) {
 void ZMesh::SetAnimations(ZAnimationMap animations) {
     animations_ = animations;
 }
-
-void ZMesh::SetGlobalInverseTransform(glm::mat4 transform) {
-    globalInverseTransform_ = transform;
-}
