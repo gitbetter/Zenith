@@ -65,6 +65,7 @@ ${SOURCE_DIR}/Windowing/ZDomain.cpp
 ${SOURCE_DIR}/Process/ZProcessRunner.cpp
 ${SOURCE_DIR}/Process/ZProcess.cpp
 ${SOURCE_DIR}/Process/ZScriptableProcess.cpp
+${SOURCE_DIR}/Process/ZConcurrentProcess.cpp
 ${SOURCE_DIR}/Physics/ZPhysics.cpp
 ${SOURCE_DIR}/Physics/ZBulletPhysics.cpp
 ${SOURCE_DIR}/Physics/ZRigidBody.cpp
@@ -172,6 +173,7 @@ ${HEADERS_DIR}/Physics/ZPhysics.hpp
 ${HEADERS_DIR}/Process/ZProcess.hpp
 ${HEADERS_DIR}/Process/ZProcessRunner.hpp
 ${HEADERS_DIR}/Process/ZScriptableProcess.hpp
+${HEADERS_DIR}/Process/ZConcurrentProcess.hpp
 ${HEADERS_DIR}/ResourceCache/ZResource.hpp
 ${HEADERS_DIR}/ResourceCache/ZResourceCache.hpp
 ${HEADERS_DIR}/ResourceCache/ZResourceFile.hpp

@@ -112,11 +112,15 @@ void ZGameObject::RenderChildren(float frameMix, RENDER_OP renderOp) {
 }
 
 void ZGameObject::CalculateDerivedData() {
+    objectMutexes_.orientation.lock();
     properties_.orientation = glm::normalize(properties_.orientation);
+    objectMutexes_.orientation.unlock();
     
+    objectMutexes_.modelMatrix.unlock();
     properties_.modelMatrix = glm::mat4_cast(properties_.orientation);
     properties_.modelMatrix = glm::scale(properties_.modelMatrix, properties_.scale);
     properties_.modelMatrix = glm::translate(properties_.modelMatrix, glm::vec3(properties_.position));
+    objectMutexes_.modelMatrix.unlock();
     
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     if (graphicsComp) graphicsComp->Model()->UpdateAABB(properties_.modelMatrix);
@@ -145,38 +149,142 @@ bool ZGameObject::IsVisible() {
     return false;
 }
 
+glm::vec3 ZGameObject::Position() {
+    glm::vec3 pos;
+    objectMutexes_.position.lock();
+    pos = glm::vec3(properties_.position);
+    objectMutexes_.position.unlock();
+    return pos;
+    
+}
+
+glm::vec3 ZGameObject::Scale() {
+    glm::vec3 scale;
+    objectMutexes_.scale.lock();
+    scale = properties_.scale;
+    objectMutexes_.scale.unlock();
+    return scale;
+    
+}
+
+glm::quat ZGameObject::Orientation() {
+    glm::quat orn;
+    objectMutexes_.orientation.lock();
+    orn = properties_.orientation;
+    objectMutexes_.orientation.unlock();
+    return orn;
+    
+}
+
+glm::vec3 ZGameObject::Front() {
+    glm::vec3 front;
+    objectMutexes_.orientation.lock();
+    front = glm::conjugate(properties_.orientation) * glm::vec3(0.f, 0.f, -1.f);
+    objectMutexes_.orientation.unlock();
+    return front;
+    
+}
+
+glm::vec3 ZGameObject::Up() {
+    glm::vec3 up;
+    objectMutexes_.orientation.lock();
+    up = glm::conjugate(properties_.orientation) * glm::vec3(0.f, 1.f, 0.f);
+    objectMutexes_.orientation.unlock();
+    return up;
+}
+
+glm::vec3 ZGameObject::Right() {
+    glm::vec3 right;
+    objectMutexes_.orientation.lock();
+    right = glm::conjugate(properties_.orientation) * glm::vec3(-1.f, 0.f, 0.f);
+    objectMutexes_.orientation.unlock();
+    return right;
+    
+}
+
+glm::mat4 ZGameObject::ModelMatrix() {
+    glm::mat4 M;
+    objectMutexes_.modelMatrix.lock();
+    M = properties_.modelMatrix;
+    objectMutexes_.modelMatrix.unlock();
+    return M;
+    
+}
+
+glm::vec3 ZGameObject::PreviousPosition() {
+    glm::vec3 prev;
+    objectMutexes_.position.lock();
+    prev = glm::vec3(properties_.previousPosition);
+    objectMutexes_.position.unlock();
+    return prev;
+}
+
+glm::vec3 ZGameObject::PreviousFront() {
+    glm::vec3 prev;
+    objectMutexes_.orientation.lock();
+    prev = glm::conjugate(properties_.previousOrientation) * glm::vec3(0.f, 0.f, -1.f);
+    objectMutexes_.orientation.unlock();
+    return prev;
+}
+
+glm::vec3 ZGameObject::PreviousUp() {
+    glm::vec3 prev;
+    objectMutexes_.orientation.lock();
+    prev = glm::conjugate(properties_.previousOrientation) * glm::vec3(0.f, 1.f, 0.f);
+    objectMutexes_.orientation.unlock();
+    return prev;
+}
+
+glm::vec3 ZGameObject::PreviousRight() {
+    glm::vec3 prev;
+    objectMutexes_.orientation.lock();
+    prev = glm::conjugate(properties_.previousOrientation) * glm::vec3(-1.f, 0.f, 0.f);
+    objectMutexes_.orientation.unlock();
+    return prev;
+}
+
 void ZGameObject::SetPosition(glm::vec3 position) {
     // TODO: set the btRigidBody transform position in the
     // physics component, if there is one
+    objectMutexes_.position.lock();
     properties_.previousPosition = properties_.position;
     properties_.position = glm::vec4(position, 1.f);
+    objectMutexes_.position.unlock();
     CalculateDerivedData();
 }
 
 void ZGameObject::SetScale(glm::vec3 scale) {
     // TODO: set the btRigidBody local scaling in the
     // physics component, if there is one
+    objectMutexes_.scale.lock();
     properties_.previousScale = properties_.scale;
     properties_.scale = scale;
+    objectMutexes_.scale.unlock();
     CalculateDerivedData();
 }
 
 void ZGameObject::SetOrientation(glm::quat quaternion) {
     // TODO: set the btRigidBody transform orientation in the
     // physics component, if there is one
+    objectMutexes_.orientation.lock();
     properties_.previousOrientation = properties_.orientation;
     properties_.orientation = quaternion;
+    objectMutexes_.orientation.unlock();
     CalculateDerivedData();
 }
 
 void ZGameObject::SetOrientation(glm::vec3 euler) {
     // TODO: set the btRigidBody transform orientation in the
     // physics component, if there is one
+    objectMutexes_.orientation.lock();
     properties_.previousOrientation = properties_.orientation;
     properties_.orientation = glm::quat(euler);
+    objectMutexes_.orientation.unlock();
     CalculateDerivedData();
 }
 
 void ZGameObject::SetModelMatrix(glm::mat4 modelMatrix) {
+    objectMutexes_.modelMatrix.lock();
     properties_.modelMatrix = modelMatrix;
+    objectMutexes_.modelMatrix.unlock();
 }

@@ -76,20 +76,20 @@ public:
     virtual void RemoveChild(std::shared_ptr<ZGameObject> gameObject);
     virtual bool IsVisible();
     
+    ZScene* Scene() const { return scene_; }
 	std::string Name() const { return properties_.name; }
 	ZRenderPass RenderPass() const { return properties_.renderPass; }
-    glm::vec3 Position() const { return glm::vec3(properties_.position); }
-    glm::vec3 Scale() const { return properties_.scale; }
-    glm::quat Orientation() const { return properties_.orientation; }
-    glm::vec3 Front() const { return glm::conjugate(properties_.orientation) * glm::vec3(0.f, 0.f, -1.f); }
-    glm::vec3 Up() const { return glm::conjugate(properties_.orientation) * glm::vec3(0.f, 1.f, 0.f); }
-    glm::vec3 Right() const { return glm::conjugate(properties_.orientation) * glm::vec3(-1.f, 0.f, 0.f); }
-    glm::mat4 ModelMatrix() { return properties_.modelMatrix; }
-    glm::vec3 PreviousPosition() const { return glm::vec3(properties_.previousPosition); }
-    glm::vec3 PreviousFront() const { return glm::conjugate(properties_.previousOrientation) * glm::vec3(0.f, 0.f, -1.f); }
-    glm::vec3 PreviousUp() const { return glm::conjugate(properties_.previousOrientation) * glm::vec3(0.f, 1.f, 0.f); }
-    glm::vec3 PreviousRight() const { return glm::conjugate(properties_.previousOrientation) * glm::vec3(-1.f, 0.f, 0.f); }
-    ZScene* Scene() const { return scene_; }
+    glm::vec3 Position();
+    glm::vec3 Scale();
+    glm::quat Orientation();
+    glm::vec3 Front();
+    glm::vec3 Up();
+    glm::vec3 Right();
+    glm::mat4 ModelMatrix();
+    glm::vec3 PreviousPosition();
+    glm::vec3 PreviousFront();
+    glm::vec3 PreviousUp();
+    glm::vec3 PreviousRight();
     
     void SetPosition(glm::vec3 position);
     void SetScale(glm::vec3 scale);
@@ -139,5 +139,12 @@ protected:
     ZGameObjectList children_;
     ZGameObject* parent_;
     ZGameObjectProperties properties_;
+    
+    struct {
+        std::mutex position;
+        std::mutex orientation;
+        std::mutex scale;
+        std::mutex modelMatrix;
+    } objectMutexes_;
     
 };

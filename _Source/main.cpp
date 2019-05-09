@@ -83,7 +83,7 @@ int main(int argc, const char * argv[]) {
     
     // Now create a game scene, initialize it and add it to our game
     scene = std::make_shared<ZScene>();
-    scene->Initialize();
+    //scene->Initialize();
     game->AddScene(scene);
     
     // Parse the ZOF file and create the resources

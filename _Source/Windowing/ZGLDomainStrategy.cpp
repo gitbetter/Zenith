@@ -97,6 +97,16 @@ bool ZGLDomainStrategy::IsWindowClosing() {
   return glfwWindowShouldClose(glWindow);
 }
 
+void* ZGLDomainStrategy::Context() {
+    return glfwGetCurrentContext();
+}
+
+void ZGLDomainStrategy::SetContext(void* context) {
+    GLFWwindow* glWindow = static_cast<GLFWwindow*>(context);
+    if (glWindow) glfwMakeContextCurrent(glWindow);
+    else _Z("Could not cast the given context to a GLFWwindow", ZERROR);
+}
+
 void ZGLDomainStrategy::CleanUp() {
   GLFWwindow* glWindow = glfwGetCurrentContext();
   glfwDestroyWindow(glWindow);

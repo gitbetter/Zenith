@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZCommon.hpp"
+#include "ZConcurrentProcess.hpp"
 #include <initializer_list>
 
 // Forward Declarations
@@ -38,11 +39,12 @@ class ZLight;
 class ZSkybox;
 
 // Class and Data Structure Definitions
-class ZScene {
+class ZScene : public ZConcurrentProcess {
     
 private:
     
     // TODO: Create a light manager class to handle the scene lights
+    void* windowingContext_ = nullptr;
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
     std::shared_ptr<ZGameObject> root_ = nullptr;
     std::shared_ptr<ZGameObject> activeCamera_ = nullptr;
@@ -50,10 +52,16 @@ private:
     ZLightMap gameLights_;
     ZGameObjectMap gameObjects_;
     
+    void Render();
+    
 public:
     
-    void Initialize();
-    void Render(float frameMix);
+    ZScene();
+    ~ZScene() { }
+    
+    void Initialize() override;
+    void Update() override;
+    void Run() override;
     
     std::shared_ptr<ZGameObject> Root() { return root_; }
     std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
@@ -73,5 +81,11 @@ public:
     void SetDefaultSkybox();
     
     void HandleQuit(std::shared_ptr<ZEvent> event);
+    
+protected:
+    
+    struct {
+        std::mutex matrixStack;
+    } sceneMutexes_;
     
 };

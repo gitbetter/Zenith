@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZDomainStrategy.hpp
+    ZConcurrentProcess.hpp
  
-    Created by Adrian Sanchez on 07/02/2019.
+    Created by Adrian Sanchez on 05/09/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -24,39 +24,33 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
+ along with Zenith. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #pragma once
 
 // Includes
-#include <glm/glm.hpp>
+#include "ZProcess.hpp"
 
 // Forward Declarations
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZDomainStrategy {
+class ZConcurrentProcess : public ZProcess {
+    
 private:
+    
+    static void ThreadStarter(ZConcurrentProcess* process);
     
 public:
     
-    ZDomainStrategy() { }
-    virtual ~ZDomainStrategy() { }
+    ~ZConcurrentProcess() { processThread_.detach(); }
     
-    virtual void Initialize() = 0;
-    virtual void CreateWindow(int width, int heights) = 0;
-    virtual void PollEvents() = 0;
-    virtual void CaptureCursor() = 0;
-    virtual void ReleaseCursor() = 0;
-    virtual void Resize(int width, int height) = 0;
-    virtual glm::vec2 FramebufferSize() = 0;
-    virtual bool IsWindowClosing() = 0;
-    virtual void CloseWindow() = 0;
-    virtual void* Context() = 0;
-    virtual void SetContext(void* context) = 0;
-    virtual void CleanUp() = 0;
+    void Initialize() override;
+    virtual void Run() = 0;
     
 protected:
+    
+    std::thread processThread_;
     
 };

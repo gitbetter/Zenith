@@ -41,32 +41,53 @@
 #include "ZQuitEvent.hpp"
 #include "ZSceneRoot.hpp"
 
-void ZScene::Initialize() {
+ZScene::ZScene() {
     root_ = std::make_shared<ZSceneRoot>();
     root_->scene_ = this;
-    ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
-    ZEngine::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
 }
 
-void ZScene::Render(float frameMix) {
-    if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
-        ZEngine::Graphics()->Strategy()->ClearViewport();
-        
-        // TODO: Support more shadow casting lights!
-        if (gameLights_.size() > 0) {
-            ZEngine::Graphics()->SetupShadowPass(gameLights_.begin()->second);
-            root_->RenderChildren(frameMix, RENDER_OP_SHADOW);
-            ZEngine::Graphics()->FinishShadowPass();
-        }
-        
-        root_->RenderChildren(frameMix);
-        
-        ZEngine::UI()->Draw();
-        
-        ZEngine::Physics()->DebugDraw();
-        
-        ZEngine::Graphics()->Strategy()->SwapBuffers();
+void ZScene::Initialize() {
+    windowingContext_ = ZEngine::Domain()->Strategy()->Context();
+    ZEngine::Domain()->Strategy()->SetContext(nullptr);
+    
+    ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
+    ZEngine::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
+    ZConcurrentProcess::Initialize();
+}
+
+void ZScene::Update() {
+//    if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
+//        Render();
+//    }
+}
+
+void ZScene::Run() {
+    ZEngine::Domain()->Strategy()->SetContext(windowingContext_);
+    while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
+        Render();
     }
+}
+
+void ZScene::Render() {
+    ZEngine::Graphics()->Strategy()->ClearViewport();
+    
+    float frameMix = glm::clamp(ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
+                                0.f, 1.f);
+    
+    // TODO: Support more shadow casting lights!
+    if (gameLights_.size() > 0) {
+        ZEngine::Graphics()->SetupShadowPass(gameLights_.begin()->second);
+        root_->RenderChildren(frameMix, RENDER_OP_SHADOW);
+        ZEngine::Graphics()->FinishShadowPass();
+    }
+    
+    root_->RenderChildren(frameMix);
+    
+    ZEngine::UI()->Draw();
+    
+    ZEngine::Physics()->DebugDraw();
+    
+    ZEngine::Graphics()->Strategy()->SwapBuffers();
 }
 
 void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects) {
@@ -92,16 +113,24 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
 }
 
 glm::mat4 ZScene::TopMatrix() {
-	if (matrixStack_.empty()) return glm::mat4(1.f);
-	else return matrixStack_.back();
+    glm::mat4 M;
+    sceneMutexes_.matrixStack.lock();
+	if (matrixStack_.empty()) M = glm::mat4(1.f);
+	else M = matrixStack_.back();
+    sceneMutexes_.matrixStack.unlock();
+    return M;
 }
 
 void ZScene::PushMatrix(glm::mat4 matrix) {
+    sceneMutexes_.matrixStack.lock();
 	matrixStack_.push_back(matrix);
+    sceneMutexes_.matrixStack.unlock();
 }
 
 void ZScene::PopMatrix() {
+    sceneMutexes_.matrixStack.lock();
 	if (!matrixStack_.empty()) matrixStack_.pop_back();
+    sceneMutexes_.matrixStack.unlock();
 }
 
 void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {

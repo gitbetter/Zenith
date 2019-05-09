@@ -40,7 +40,7 @@ class ZUICursor : public ZUIElement {
 
 private:
 
-  float cursorSpeed_ = 20.f;
+  float cursorSpeed_ = 10.f;
 
   void HandleMouseMove(std::shared_ptr<ZEvent> event);
   void HandleMousePress(std::shared_ptr<ZEvent> event);

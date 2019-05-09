@@ -62,7 +62,7 @@ void ZBulletPhysics::Initialize() {
 
 void ZBulletPhysics::Update() {  
     ZPhysics::Update();
-    dynamicsWorld_->stepSimulation(ZEngine::UPDATE_STEP_SIZE, ZEngine::MAX_FIXED_UPDATE_ITERATIONS, ZEngine::UPDATE_STEP_SIZE);
+    dynamicsWorld_->stepSimulation(ZEngine::DeltaTime(), ZEngine::MAX_FIXED_UPDATE_ITERATIONS, ZEngine::UPDATE_STEP_SIZE);
 }
 
 void ZBulletPhysics::AddRigidBody(std::shared_ptr<ZRigidBody> body) {
