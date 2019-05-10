@@ -198,7 +198,6 @@ ${HEADERS_DIR}/UI/Elements/ZUIImage.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIText.hpp
-${HEADERS_DIR}/Utility/stb_image.hpp
 ${HEADERS_DIR}/Utility/ZModelImporter.hpp
 ${HEADERS_DIR}/Utility/ZIDSequence.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFParser.hpp
@@ -206,6 +205,7 @@ ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFTree.hpp
 ${HEADERS_DIR}/Windowing/ZDomain.hpp
 ${HEADERS_DIR}/Windowing/ZDomainStrategy.hpp
 ${HEADERS_DIR}/Windowing/ZGLDomainStrategy.hpp
+${HEADERS_DIR}/_ThirdParty/stb_image.hpp
 ${HEADERS_DIR}/_ThirdParty/ft2build.h
 ${HEADERS_DIR}/_ThirdParty/assimp/ai_assert.h
 ${HEADERS_DIR}/_ThirdParty/assimp/anim.h

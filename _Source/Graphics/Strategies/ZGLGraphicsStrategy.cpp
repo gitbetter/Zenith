@@ -325,7 +325,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
         return texture;
     }
     
-    if (flip) { stbi_set_flip_vertically_on_load(true); }
+    stbi_set_flip_vertically_on_load(flip);
     
     int width, height, nrComponents;
     if (hdr) {

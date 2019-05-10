@@ -81,10 +81,13 @@ int main(int argc, const char * argv[]) {
     // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
     ZEngine::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
     
+	// TODO: Move scene loading to a ZConcurrentProcess
     // Now create a game scene, initialize it and add it to our game
     scene = std::make_shared<ZScene>();
-    //scene->Initialize();
     game->AddScene(scene);
+
+	// Set a default skybox for our scene
+	scene->SetDefaultSkybox();
     
     // Parse the ZOF file and create the resources
     ZOFLoadResult zofResult = ZEngine::LoadZOF("Assets/basic_scene.zof");
@@ -104,12 +107,6 @@ int main(int argc, const char * argv[]) {
     ZEventDelegate dragDelegate(&onObjectDrag);
     ZEngine::EventAgent()->AddListener(pressDelegate, ZObjectSelectedEvent::Type);
     ZEngine::EventAgent()->AddListener(dragDelegate, ZObjectDragEvent::Type);
-    
-    // Now it's time to add a skybox. Easy, but note, this should be the last visible game object we add.
-    // The depth value of the skybox will always be 1.0, the max, so we must check it last to make sure it is
-    // culled properly.
-    // TODO: Maintain the skybox at the end of the game objects list internally
-    scene->SetDefaultSkybox();
     
     // Let's test the audio system by adding some background music to the scene.
     ZResource bgAmbient("Assets/Sounds/wind.ogg");
