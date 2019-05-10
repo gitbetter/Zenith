@@ -37,6 +37,9 @@
 
 // Forward Declarations
 class ZShader;
+struct ZSkeleton;
+struct ZJoint;
+struct ZJointAnimation;
 
 // Class Definitions
 class ZModel {
@@ -46,7 +49,11 @@ private:
     ZMesh3DMap meshes_;
     ZBoneMap bonesMap_;
     ZBoneList bones_;
+    ZAnimationMap animations_;
+    std::shared_ptr<ZSkeleton> skeleton_;
     ZAABBox boundingBox_;
+    
+    glm::mat4 globalInverseTransform_;
     
     void CreateGround(glm::vec3 scale);
     void CreateCube(glm::vec3 scale);
@@ -69,9 +76,14 @@ public:
     const ZAABBox& AABB() { return boundingBox_; }
     ZBoneList& Bones() { return bones_; }
     ZBoneMap& BonesMap() { return bonesMap_; }
+    ZAnimationMap& Animations() { return animations_; }
+    const std::shared_ptr<ZSkeleton> Skeleton() { return skeleton_; }
+    const glm::mat4 GlobalInverseTransform() { return globalInverseTransform_; }
     
     virtual void InitializeAABB();
     virtual void UpdateAABB(glm::mat4 transform);
+    
+    void BoneTransform(std::string anim, double secondsTime);
     
     static std::unique_ptr<ZModel> NewGroundPrimitive(glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f));
     static std::unique_ptr<ZModel> NewCubePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
@@ -80,4 +92,12 @@ public:
     static std::unique_ptr<ZModel> NewConePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, std::vector<std::string> faces = ZEngine::DEFAULT_SKYBOX_CUBEMAP);
     static std::unique_ptr<ZModel> NewSkybox(std::string equirectHDR, ZIBLTexture& generatedIBLTexture);
+    
+protected:
+    
+    void CalculateTransformsInHierarchy(std::string animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
+    glm::vec3 CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
+    glm::quat CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
+    glm::vec3 CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
+    
 };

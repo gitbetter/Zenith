@@ -33,8 +33,10 @@
 #include "ZMesh3D.hpp"
 #include "ZModelImporter.hpp"
 #include "ZCommon.hpp"
+#include "ZAnimation.hpp"
+#include "ZSkeleton.hpp"
 
-ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) {
+ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) : globalInverseTransform_(glm::mat4(1.f)) {
     switch (primitiveType) {
         case ZPrimitiveType::Plane:
             CreateGround(scale); break;
@@ -52,10 +54,8 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) {
 
 void ZModel::Initialize(std::string path) {
     ZModelImporter importer;
-    importer.LoadModel(path, meshes_, bonesMap_, bones_);
-    for (ZMesh3DMap::iterator it = meshes_.begin(), end = meshes_.end(); it != end; it++) {
-        it->second->model_ = this;
-    }
+    meshes_ = importer.LoadModel(path, bonesMap_, bones_, animations_, skeleton_);
+    if (skeleton_) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
     InitializeAABB();
 }
 
@@ -65,6 +65,12 @@ void ZModel::Render(ZShader* shader) {
 }
 
 void ZModel::Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials) {
+    shader->Activate();
+    shader->SetBool("rigged", skeleton_ != nullptr);
+    if (skeleton_) {
+        shader->Use(bones_);
+    }
+    
     ZMesh3DMap meshesLeft = meshes_;
     for (auto materialIt = materials.begin(); materialIt != materials.end(); materialIt++) {
         if (!(*materialIt)->MeshID().empty()) {
@@ -126,7 +132,6 @@ void ZModel::CreateGround(glm::vec3 scale) {
     };
     
     std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
-    mesh->model_ = this;
     meshes_[mesh->ID()] = mesh;
 }
 
@@ -208,7 +213,6 @@ void ZModel::CreateCube(glm::vec3 scale) {
     };
     
     std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
-    mesh->model_ = this;
     meshes_[mesh->ID()] = mesh;
 }
 
@@ -257,7 +261,6 @@ void ZModel::CreateSphere(glm::vec3 scale) {
     }
     
     std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, ZMeshDrawStyle::TriangleStrip);
-    mesh->model_ = this;
     meshes_[mesh->ID()] = mesh;
 }
 
@@ -303,3 +306,117 @@ std::unique_ptr<ZModel> ZModel::NewSkybox(std::string equirectHDR, ZIBLTexture& 
     
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }
+
+void ZModel::BoneTransform(std::string anim, double secondsTime) {
+    glm::mat4 identity(1.f);
+    
+    if (animations_.find(anim) != animations_.end()) {
+        double ticksPerSecond = animations_[anim]->ticksPerSecond != 0 ? animations_[anim]->ticksPerSecond : 25.0;
+        double timeInTicks = secondsTime * ticksPerSecond;
+        double animationTime = fmod(timeInTicks, animations_[anim]->duration);
+        
+        CalculateTransformsInHierarchy(anim, animationTime, skeleton_->rootJoint, identity);
+    }
+}
+
+void ZModel::CalculateTransformsInHierarchy(std::string animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform) {
+    std::shared_ptr<ZAnimation> animation = animations_[animName];
+    glm::mat4 jointTransform = joint->transform;
+    
+    std::shared_ptr<ZJointAnimation> jointAnimation;
+    for (unsigned int i = 0, j = animation->channels.size(); i < j; i++) {
+        std::shared_ptr<ZJointAnimation> anim = animation->channels[i];
+        if (anim->jointName == joint->name) {
+            jointAnimation = anim; break;
+        }
+    }
+    
+    if (jointAnimation) {
+        glm::vec3 scale = CalculateInterpolatedScaling(animTime, jointAnimation);
+        glm::quat rotation = CalculateInterpolatedRotation(animTime, jointAnimation);
+        glm::vec3 position = CalculateInterpolatedPosition(animTime, jointAnimation);
+        
+        glm::mat4 rotationM(1.f), scalingM(1.f), translationM(1.f);
+        
+        rotationM = glm::mat4_cast(rotation);
+        scalingM = glm::scale(scalingM, scale);
+        translationM = glm::translate(translationM, position);
+        
+        jointTransform = translationM * rotationM * scalingM;
+    }
+    
+    glm::mat4 globalTransform = parentTransform * jointTransform;
+    
+    if (bonesMap_.find(joint->name) != bonesMap_.end()) {
+        unsigned int index = bonesMap_[joint->name];
+        bones_[index]->transformation = globalInverseTransform_ * globalTransform * bones_[index]->offset;
+    }
+    
+    for (unsigned int i = 0; i < joint->children.size(); i++) {
+        CalculateTransformsInHierarchy(animName, animTime, joint->children[i], globalTransform);
+    }
+}
+
+glm::vec3 ZModel::CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim) {
+    if (jointAnim->scalingKeys.size() == 1) {
+        return jointAnim->scalingKeys[0].value;
+    }
+    
+    unsigned int scalingIndex = 0;
+    for (unsigned int i = 0, j = jointAnim->scalingKeys.size() - 1; i < j; i++) {
+        if (animationTime < jointAnim->scalingKeys[i + 1].time) {
+            scalingIndex = i; break;
+        }
+    }
+    unsigned int nextScalingIndex = scalingIndex + 1;
+    double deltaTime = jointAnim->scalingKeys[nextScalingIndex].time - jointAnim->scalingKeys[scalingIndex].time;
+    double factor = (animationTime - jointAnim->scalingKeys[scalingIndex].time) / deltaTime;
+    glm::vec3 start = jointAnim->scalingKeys[scalingIndex].value;
+    glm::vec3 end = jointAnim->scalingKeys[nextScalingIndex].value;
+    glm::vec3 delta = end - start;
+    
+    return start + (float)factor * delta;
+}
+
+glm::quat ZModel::CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim) {
+    if (jointAnim->rotationKeys.size() == 1) {
+        return jointAnim->rotationKeys[0].value;
+    }
+    
+    unsigned int rotationIndex = 0;
+    for (unsigned int i = 0, j = jointAnim->rotationKeys.size() - 1; i < j; i++) {
+        if (animationTime < jointAnim->rotationKeys[i + 1].time) {
+            rotationIndex = i; break;
+        }
+    }
+    unsigned int nextRotationIndex = rotationIndex + 1;
+    double deltaTime = jointAnim->rotationKeys[nextRotationIndex].time - jointAnim->rotationKeys[rotationIndex].time;
+    double factor = (animationTime - jointAnim->rotationKeys[rotationIndex].time) / deltaTime;
+    glm::quat start = jointAnim->rotationKeys[rotationIndex].value;
+    glm::quat end = jointAnim->rotationKeys[nextRotationIndex].value;
+    glm::quat out = glm::mix(start, end, (float)factor);
+    
+    return glm::normalize(out);
+}
+
+glm::vec3 ZModel::CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim) {
+    if (jointAnim->positionKeys.size() == 1) {
+        return jointAnim->positionKeys[0].value;
+    }
+    
+    unsigned int positionIndex = 0;
+    for (unsigned int i = 0, j = jointAnim->positionKeys.size() - 1; i < j; i++) {
+        if (animationTime < jointAnim->positionKeys[i + 1].time) {
+            positionIndex = i; break;
+        }
+    }
+    unsigned int nextPositionIndex = positionIndex + 1;
+    double deltaTime = jointAnim->positionKeys[nextPositionIndex].time - jointAnim->positionKeys[positionIndex].time;
+    double factor = (animationTime - jointAnim->positionKeys[positionIndex].time) / deltaTime;
+    glm::vec3 start = jointAnim->positionKeys[positionIndex].value;
+    glm::vec3 end = jointAnim->positionKeys[nextPositionIndex].value;
+    glm::vec3 delta = end - start;
+    
+    return start + (float)factor * delta;
+}
+

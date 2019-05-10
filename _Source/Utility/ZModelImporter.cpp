@@ -43,7 +43,9 @@
  @param shaderPath the path to the model file.
  @param outMeshes the mesh vector to populate.
  */
-void ZModelImporter::LoadModel(std::string modelPath, ZMesh3DMap& outMeshes, ZBoneMap& outBoneMap, ZBoneList& outBoneList) {
+ZMesh3DMap ZModelImporter::LoadModel(std::string modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton) {
+    ZMesh3DMap meshes;
+    
     // Cache in the model data from the given file
     ZResource resource(modelPath);
     std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
@@ -55,17 +57,23 @@ void ZModelImporter::LoadModel(std::string modelPath, ZMesh3DMap& outMeshes, ZBo
     // The file might have incomplete data or no nodes to traverse. Handle that.
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         _Z(std::string("ZModelImporter Error: ") + import.GetErrorString(), ZERROR);
-        return;
+        return meshes;
     }
     
     // Start processing nodes
     std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
-    ProcessNode(scene->mRootNode, scene, modelDirectory, outMeshes);
+    ProcessNode(scene->mRootNode, scene, modelDirectory, meshes);
+    
+    LoadSkeleton(scene); LoadAnimations(scene);
+    
     outBoneMap = currentBonesMap_; outBoneList = currentBones_;
+    outAnimationMap = currentAnimations_; outSkeleton = currentSkeleton_;
     
     // If we load another model with this ZModelImporter instance, we want to make sure there is no bone data
     // from previous loads.
-    currentBonesMap_.clear(); currentBones_.clear();
+    currentBonesMap_.clear(); currentBones_.clear(); currentAnimations_.clear(); currentSkeleton_.reset();
+    
+    return meshes;
 }
 
 /**
@@ -103,14 +111,11 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string
 std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory) {
 	std::vector<ZVertex3D> vertices = LoadVertexData(mesh);
 	std::vector<unsigned int> indices = LoadIndexData(mesh);
-	LoadBones(mesh, vertices);
-	std::shared_ptr<ZSkeleton> skeleton = LoadSkeleton(scene);
-	ZAnimationMap animations = LoadAnimations(scene);
+    
+    LoadBones(mesh, vertices);
     
     std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(vertices, indices);
-	mesh3D->SetSkeleton(skeleton);
-	mesh3D->SetAnimations(animations);
-    
+
     return mesh3D;
 }
 
@@ -173,10 +178,10 @@ std::vector<unsigned int> ZModelImporter::LoadIndexData(const aiMesh* mesh) {
  @param scene the scene from which to look for nodes to create the skeleton with.
  @return a skeleton that mirrors the hierarchy within the aiScene.
  */
-std::shared_ptr<ZSkeleton> ZModelImporter::LoadSkeleton(const aiScene* scene) {
+void ZModelImporter::LoadSkeleton(const aiScene* scene) {
 	std::shared_ptr<ZSkeleton> skeleton = std::make_shared<ZSkeleton>();
 	skeleton->rootJoint = LoadSkeletonJoint(scene->mRootNode);
-	return skeleton;
+    currentSkeleton_ = skeleton;
 }
 
 /**
@@ -236,7 +241,7 @@ void ZModelImporter::LoadBones(const aiMesh* mesh, std::vector<ZVertex3D>& verti
  @param scene the scene from which to to look for animations.
  @return a list of ZAnimation STL pointers.
  */
-ZAnimationMap ZModelImporter::LoadAnimations(const aiScene* scene) {
+void ZModelImporter::LoadAnimations(const aiScene* scene) {
 	ZAnimationMap animations;
 	for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 		aiAnimation* anim = scene->mAnimations[i];
@@ -277,7 +282,7 @@ ZAnimationMap ZModelImporter::LoadAnimations(const aiScene* scene) {
 
 		animations[animation->name] = animation;
 	}
-	return animations;
+    currentAnimations_ = animations;
 }
 
 /**

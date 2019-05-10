@@ -48,9 +48,5 @@ ZMesh3D::~ZMesh3D() {
 void ZMesh3D::Render(ZShader* shader, ZMaterial* material) {
     shader->Activate();
     shader->Use(material);
-    shader->SetBool("rigged", skeleton_ != nullptr);
-    if (skeleton_) {
-        shader->Use(model_->Bones());
-    }
     ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
 }

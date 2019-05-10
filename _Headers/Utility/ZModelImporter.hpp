@@ -53,15 +53,15 @@ private:
     
     std::vector<ZVertex3D> LoadVertexData(const aiMesh* mesh);
     std::vector<unsigned int> LoadIndexData(const aiMesh* mesh);
-    std::shared_ptr<ZSkeleton> LoadSkeleton(const aiScene* scene);
+    void LoadSkeleton(const aiScene* scene);
     std::shared_ptr<ZJoint> LoadSkeletonJoint(const aiNode* node);
     void LoadBones(const aiMesh* mesh, std::vector<ZVertex3D>& vertices);
-    ZAnimationMap LoadAnimations(const aiScene* scene);
+    void LoadAnimations(const aiScene* scene);
     std::vector<ZTexture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, std::string directory);
     
 public:
     
-    void LoadModel(std::string modelPath, ZMesh3DMap& outMeshes, ZBoneMap& outBoneMap, ZBoneList& outBoneList);
+    ZMesh3DMap LoadModel(std::string modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton);
     
     glm::vec3 AssimpToGLMVec3(const aiVector3D& vec);
     glm::quat AssimpToGLMQuat(const aiQuaternion& quat);
@@ -71,5 +71,7 @@ protected:
     
     ZBoneMap currentBonesMap_;
     ZBoneList currentBones_;
+    ZAnimationMap currentAnimations_;
+    std::shared_ptr<ZSkeleton> currentSkeleton_;
     
 };

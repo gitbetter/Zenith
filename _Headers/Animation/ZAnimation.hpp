@@ -32,7 +32,7 @@
 #include "ZCommon.hpp"
 
 // Forward Declarations
-class ZMesh;
+class ZModel;
 
 // Class and Data Structure Definitions
 template<class T>
@@ -60,7 +60,7 @@ struct ZAnimationClip {
 	double startTime;
 	double endTime;
 	double currentTime;
-	std::shared_ptr<ZMesh> mesh;
+	std::shared_ptr<ZModel> model;
 	ZAnimationState state;
 };
 
