@@ -47,23 +47,13 @@ ZScene::ZScene() {
 }
 
 void ZScene::Initialize() {
-    windowingContext_ = ZEngine::Domain()->Strategy()->Context();
-    ZEngine::Domain()->Strategy()->SetContext(nullptr);
-    
     ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
     ZEngine::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
-    ZConcurrentProcess::Initialize();
+    ZProcess::Initialize();
 }
 
 void ZScene::Update() {
-//    if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
-//        Render();
-//    }
-}
-
-void ZScene::Run() {
-    ZEngine::Domain()->Strategy()->SetContext(windowingContext_);
-    while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
+    if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
         Render();
     }
 }
@@ -71,7 +61,7 @@ void ZScene::Run() {
 void ZScene::Render() {
     ZEngine::Graphics()->Strategy()->ClearViewport();
     
-    float frameMix = glm::clamp(ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
+    float frameMix = glm::clamp((float)ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
                                 0.f, 1.f);
     
     // TODO: Support more shadow casting lights!

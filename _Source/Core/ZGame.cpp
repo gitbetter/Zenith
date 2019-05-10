@@ -45,16 +45,14 @@ void ZGame::RunGameLoop() {
     
     _Z("Zenith is about to loop...", ZINFO);
     
-    float previousTime = ZEngine::SecondsTime();
+    double previousTime = ZEngine::SecondsTime();
     
     while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
-        float currentTime = ZEngine::SecondsTime();
+		double currentTime = ZEngine::SecondsTime();
         ZEngine::SetDeltaTime(currentTime - previousTime);
         previousTime = currentTime;
         
         ZEngine::ProcessRunner()->UpdateProcesses();
-        
-        //scenes_[activeScene_]->Render();
         
         ZEngine::Domain()->Strategy()->PollEvents();
         

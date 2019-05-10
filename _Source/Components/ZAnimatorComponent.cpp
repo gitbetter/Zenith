@@ -42,12 +42,12 @@ void ZAnimatorComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 
 void ZAnimatorComponent::Update() {
 	if (currentClip_.state == ZAnimationState::Playing || currentClip_.state == ZAnimationState::Looping) {
-        currentClip_.currentTime += ZEngine::DeltaTime();
+        currentClip_.currentTime += (float)ZEngine::DeltaTime();
         if (currentClip_.startTime + currentClip_.currentTime <= currentClip_.endTime) {
             currentClip_.mesh->BoneTransform(currentClip_.name, currentClip_.currentTime);
         } else if (currentClip_.state == ZAnimationState::Looping) {
             double duration = currentClip_.endTime - currentClip_.startTime;
-            currentClip_.startTime = ZEngine::SecondsTime();
+            currentClip_.startTime = (float)ZEngine::SecondsTime();
             currentClip_.endTime = currentClip_.startTime + duration;
             currentClip_.currentTime = 0.0;
         } else {
@@ -77,7 +77,7 @@ void ZAnimatorComponent::Play(std::string animationName, bool looping) {
             std::shared_ptr<ZAnimation> animation = currentClip_.mesh->Animations()[animationName];
             currentClip_.name = animationName;
             currentClip_.currentTime = 0.0;
-            currentClip_.startTime = ZEngine::SecondsTime();
+            currentClip_.startTime = (float)ZEngine::SecondsTime();
             currentClip_.endTime = currentClip_.startTime + animation->duration;
             currentClip_.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
         }

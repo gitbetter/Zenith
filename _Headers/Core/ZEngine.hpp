@@ -79,7 +79,7 @@ private:
     static std::unique_ptr<ZPhysicsFactory> physicsFactory_;
     
     static std::unique_ptr<ZIDSequence> idGenerator_;
-    static float deltaTime_, lastDeltaTime_;
+    static double deltaTime_, lastDeltaTime_;
     
 public:
     
@@ -118,9 +118,9 @@ public:
     
     static ZIDSequence* IDSequence();
     
-    static float LastDeltaTime();
-    static float DeltaTime();
-    static float SecondsTime();
+    static double LastDeltaTime();
+    static double DeltaTime();
+    static double SecondsTime();
     
     static void Provide(std::shared_ptr<ZDomain> domain);
     static void Provide(std::shared_ptr<ZGraphics> graphics);
@@ -130,7 +130,7 @@ public:
     static void Provide(std::shared_ptr<ZAudio> audio);
     // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
     
-    static void SetDeltaTime(float deltaTime);
+    static void SetDeltaTime(double deltaTime);
     
     static ZOFLoadResult LoadZOF(std::string zofPath);
     

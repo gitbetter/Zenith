@@ -116,7 +116,7 @@ void ZGameObject::CalculateDerivedData() {
     properties_.orientation = glm::normalize(properties_.orientation);
     objectMutexes_.orientation.unlock();
     
-    objectMutexes_.modelMatrix.unlock();
+    objectMutexes_.modelMatrix.lock();
     properties_.modelMatrix = glm::mat4_cast(properties_.orientation);
     properties_.modelMatrix = glm::scale(properties_.modelMatrix, properties_.scale);
     properties_.modelMatrix = glm::translate(properties_.modelMatrix, glm::vec3(properties_.position));

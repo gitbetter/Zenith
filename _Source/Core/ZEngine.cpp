@@ -95,8 +95,8 @@ std::unique_ptr<ZUIFactory> ZEngine::uiFactory_ = nullptr;
 std::unique_ptr<ZPhysicsFactory> ZEngine::physicsFactory_ = nullptr;
 
 std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
-float ZEngine::deltaTime_ = 0.0f;
-float ZEngine::lastDeltaTime_ = 0.0f;
+double ZEngine::deltaTime_ = 0.0;
+double ZEngine::lastDeltaTime_ = 0.0;
 
 // TODO: Useful to have a config file to parse for more global state info such as window dimensions
 // and maximum resource cache size
@@ -241,17 +241,17 @@ ZIDSequence* ZEngine::IDSequence() {
     return idGenerator_.get();
 }
 
-float ZEngine::LastDeltaTime() {
+double ZEngine::LastDeltaTime() {
     return lastDeltaTime_;
 }
 
-float ZEngine::DeltaTime() {
+double ZEngine::DeltaTime() {
     return deltaTime_;
 }
 
-float ZEngine::SecondsTime() {
+double ZEngine::SecondsTime() {
     using namespace std::chrono;
-    return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0f;
+    return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0;
 }
 
 void ZEngine::Provide(std::shared_ptr<ZDomain> domain) {
@@ -286,7 +286,7 @@ void ZEngine::Provide(std::shared_ptr<ZAudio> audio) {
     audio_->Initialize();
 }
 
-void ZEngine::SetDeltaTime(float deltaTime) {
+void ZEngine::SetDeltaTime(double deltaTime) {
     lastDeltaTime_ = deltaTime_;
     deltaTime_ = deltaTime;
 }

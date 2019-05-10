@@ -151,7 +151,7 @@ void ZScriptableProcess::OnInitialize() {
 void ZScriptableProcess::OnUpdate() {
   ZProcess::OnUpdate();
 
-  time_ += ZEngine::DeltaTime();
+  time_ += (float)ZEngine::DeltaTime();
   if (time_ > frequency_ / 1000.f) {
     scriptUpdate_(*this);
     time_ = 0;
