@@ -49,7 +49,7 @@ public:
     ~ZGLDomainStrategy() { }
     
     void Initialize() override;
-    void CreateWindow(int width, int height) override;
+	void* CreateWindow(int width, int height, bool visible = true, void* sharedContext = nullptr) override;
     void PollEvents() override;
     void CaptureCursor() override;
     void ReleaseCursor() override;
@@ -57,8 +57,9 @@ public:
     glm::vec2 FramebufferSize() override;
     void CloseWindow() override;
     bool IsWindowClosing() override;
-    virtual void* Context() override;
-    virtual void SetContext(void* context) override;
+    void* Context() override;
+    void SetContext(void* context) override;
+	void DestroyContext(void* context) override;
     void CleanUp() override;
     
 protected:

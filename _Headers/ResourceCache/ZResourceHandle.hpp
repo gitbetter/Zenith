@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
-    ZResourceHandle.hpp
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    Created by Adrian Sanchez on 09/03/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZResourceHandle.hpp
+
+	Created by Adrian Sanchez on 09/03/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -39,28 +39,28 @@ class ZResourceExtraData;
 // Class and Data Structure Definitions
 class ZResourceHandle {
 
-  friend class ZResourceCache;
+	friend class ZResourceCache;
 
 private:
 
 public:
 
-    ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache);
-    virtual ~ZResourceHandle();
+	ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache);
+	virtual ~ZResourceHandle();
 
-    unsigned int Size() const { return size_; }
-    const void* Buffer() const { return buffer_; }
-    void* FluidBuffer() { return buffer_; }
-    std::shared_ptr<ZResourceExtraData> ExtraData() { return extraData_; }
+	unsigned int Size() const { return size_; }
+	const void* Buffer() const { return buffer_; }
+	void* FluidBuffer() { return buffer_; }
+	std::shared_ptr<ZResourceExtraData> ExtraData() { return extraData_; }
 
-		void SetExtra(std::shared_ptr<ZResourceExtraData> extra) { extraData_ = extra; }
+	void SetExtra(std::shared_ptr<ZResourceExtraData> extra) { extraData_ = extra; }
 
 protected:
 
-  ZResource resource_;
-  void* buffer_ = nullptr;
-  unsigned int size_;
-  ZResourceCache* resourceCache_ = nullptr;
-  std::shared_ptr<ZResourceExtraData> extraData_;
+	ZResource resource_;
+	void* buffer_ = nullptr;
+	unsigned int size_;
+	ZResourceCache* resourceCache_ = nullptr;
+	std::shared_ptr<ZResourceExtraData> extraData_;
 
 };

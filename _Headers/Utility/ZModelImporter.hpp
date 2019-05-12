@@ -46,6 +46,7 @@ struct ZBone;
 
 // Class and Data Structure Definitions
 class ZModelImporter {
+
 private:
     
     void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, ZMesh3DMap& outMeshes);
@@ -53,7 +54,8 @@ private:
     
     std::vector<ZVertex3D> LoadVertexData(const aiMesh* mesh);
     std::vector<unsigned int> LoadIndexData(const aiMesh* mesh);
-    void LoadSkeleton(const aiScene* scene);
+    void LoadSkeleton(const aiScene* scene); 
+	aiNode* FindSkeletonRoot(aiNode* rootNode);
     std::shared_ptr<ZJoint> LoadSkeletonJoint(const aiNode* node);
     void LoadBones(const aiMesh* mesh, std::vector<ZVertex3D>& vertices);
     void LoadAnimations(const aiScene* scene);

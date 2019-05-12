@@ -46,7 +46,9 @@ public:
   ZGraphicsFactory();
   ~ZGraphicsFactory() { }
 
+  void CreateShadersAsync(std::shared_ptr<ZOFTree> data);
   ZShaderMap CreateShaders(std::shared_ptr<ZOFTree> data);
+  void CreateTexturesAsync(std::shared_ptr<ZOFTree> data);
   ZTextureMap CreateTextures(std::shared_ptr<ZOFTree> data);
 
   std::unique_ptr<ZModel> CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));

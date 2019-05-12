@@ -32,7 +32,6 @@
 // Includes
 #include "ZCommon.hpp"
 #include "ZGameObject.hpp"
-#include <initializer_list>
 
 // Forward Declarations
 class ZParticle;

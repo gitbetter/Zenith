@@ -106,7 +106,6 @@ public:
         if (foundComponent == nullptr) {
             component->object_ = this;
             components_.push_back(component);
-            ZEngine::ProcessRunner()->AttachProcess(component);
         }
     }
     

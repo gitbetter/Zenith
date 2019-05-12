@@ -44,7 +44,8 @@ private:
     
 public:
     
-    ~ZConcurrentProcess() { processThread_.detach(); }
+	ZConcurrentProcess() : ZProcess() { }
+    ~ZConcurrentProcess() { if (processThread_.joinable()) processThread_.join(); }
     
     void Initialize() override;
     virtual void Run() = 0;

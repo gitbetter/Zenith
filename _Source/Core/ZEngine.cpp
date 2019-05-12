@@ -33,6 +33,7 @@
 #include "ZDomain.hpp"
 #include "ZGLInput.hpp"
 #include "ZUI.hpp"
+#include "ZUICursor.hpp"
 #include "ZBulletPhysics.hpp"
 #include "ZALAudio.hpp"
 #include "ZIDSequence.hpp"
@@ -291,15 +292,13 @@ void ZEngine::SetDeltaTime(double deltaTime) {
     deltaTime_ = deltaTime;
 }
 
-ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
-    ZOFLoadResult results;
-    
+std::shared_ptr<ZOFTree> ZEngine::LoadZOF(std::string zofPath) {
     ZResource zofResource(zofPath);
     std::shared_ptr<ZResourceHandle> handle = resourceCache_->GetHandle(&zofResource);
     
     if (!handle) {
         _Z("Could not find zof file at " + zofPath, ZERROR);
-        return results;
+		return std::shared_ptr<ZOFTree>();
     }
     
     // TODO: ZOFTree should have append functionality so that different
@@ -307,15 +306,44 @@ ZOFLoadResult ZEngine::LoadZOF(std::string zofPath) {
     ZOFParser parser;
     std::shared_ptr<ZOFTree> objectTree = parser.Parse(std::string((char*)handle->Buffer()));
     
-    // TODO: The more systems are populated this way, the more of a hamper we place on
-    // load times. Refactor this so the object tree is only traversed once.
-    if (scriptManager_ != nullptr) scriptManager_->Load(objectTree);
-    if (graphics_ != nullptr) graphics_->Load(objectTree);
-    
-    results.gameObjects = gameObjectFactory_->Load(objectTree);
-    results.uiElements = uiFactory_->Load(objectTree);
-    
-    return results;
+	return objectTree;
+}
+
+std::shared_ptr<ZScene> ZEngine::LoadScene(std::initializer_list<std::string> zofPaths) {
+	std::shared_ptr<ZScene> scene = std::make_shared<ZScene>();
+
+	// Parse each ZOF file and create the resources
+	for (std::string path : zofPaths) {
+		std::shared_ptr<ZOFTree> objectTree = LoadZOF(path);
+
+		// TODO: The more systems are populated this way, the more of a hamper we place on
+		// load times. Refactor this so the object tree is only traversed once.
+		if (scriptManager_ != nullptr) scriptManager_->Load(objectTree);
+		if (graphics_ != nullptr) graphics_->Load(objectTree); // Slow
+
+		ZOFLoadResult zofResults;
+		zofResults.gameObjects = gameObjectFactory_->Load(objectTree); // Slow
+		zofResults.uiElements = uiFactory_->Load(objectTree);
+
+		for (ZGameObjectMap::iterator it = zofResults.gameObjects.begin(); it != zofResults.gameObjects.end(); it++) {
+			scene->AddGameObject(it->second);
+		}
+
+		for (ZUIElementMap::iterator it = zofResults.uiElements.begin(); it != zofResults.uiElements.end(); it++) {
+			if (std::dynamic_pointer_cast<ZUICursor>(it->second))
+				ui_->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
+			else
+				ui_->AddElement(it->second);
+		}
+	}
+
+	// Set a default skybox for our scene
+	// TODO: Only set this if no skybox is set after loading the scene descriptions
+	scene->SetDefaultSkybox(); // Slow
+
+	currentGame_->AddScene(scene);
+
+	return scene;
 }
 
 void ZEngine::CleanUp() {

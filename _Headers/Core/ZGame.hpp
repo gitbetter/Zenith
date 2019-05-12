@@ -31,7 +31,6 @@
 
 // Includes
 #include "ZScene.hpp"
-#include <initializer_list>
 
 // Forward Declarations
 
@@ -44,7 +43,7 @@ private:
     unsigned int activeScene_ = 0;
     std::vector<std::shared_ptr<ZScene>> scenes_;
     
-    void CleanUp();
+    void CleanUp() { }
     
 public:
     

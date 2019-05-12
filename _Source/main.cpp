@@ -30,41 +30,21 @@
 #include "ZEngine.hpp"
 #include "ZGame.hpp"
 #include "ZScene.hpp"
-#include "ZDomain.hpp"
-#include "ZGLInput.hpp"
-
-#include "ZCameraComponent.hpp"
-
-#include "ZGraphics.hpp"
-#include "ZGraphicsComponent.hpp"
-#include "ZAnimatorComponent.hpp"
-#include "ZModel.hpp"
-#include "ZShader.hpp"
-#include "ZLight.hpp"
-
 #include "ZUI.hpp"
-#include "ZUIButton.hpp"
-#include "ZUIImage.hpp"
-#include "ZUIText.hpp"
-#include "ZUICursor.hpp"
-
-#include "ZPhysics.hpp"
+#include "ZGameObject.hpp"
+#include "ZAnimatorComponent.hpp"
 #include "ZPhysicsComponent.hpp"
-
 #include "ZAudio.hpp"
 #include "ZAudioSource.hpp"
-
 #include "ZEventAgent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZObjectDragEvent.hpp"
-
 #include "ZResource.hpp"
 #include "ZResourceCache.hpp"
-
-#include "ZOFParser.hpp"
+#include "ZProcessRunner.hpp"
+#include "ZDomain.hpp"
 
 std::shared_ptr<ZGame> game;
-std::shared_ptr<ZScene> scene;
 
 void onObjectSelect(std::shared_ptr<ZEvent> event);
 void onObjectDrag(std::shared_ptr<ZEvent> event);
@@ -81,26 +61,8 @@ int main(int argc, const char * argv[]) {
     // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
     ZEngine::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
     
-	// TODO: Move scene loading to a ZConcurrentProcess
-    // Now create a game scene, initialize it and add it to our game
-    scene = std::make_shared<ZScene>();
-    game->AddScene(scene);
-
-	// Set a default skybox for our scene
-	scene->SetDefaultSkybox();
-    
-    // Parse the ZOF file and create the resources
-    ZOFLoadResult zofResult = ZEngine::LoadZOF("Assets/basic_scene.zof");
-    for (ZGameObjectMap::iterator it = zofResult.gameObjects.begin(); it != zofResult.gameObjects.end(); it++) {
-        scene->AddGameObject(it->second);
-    }
-    
-    for (ZUIElementMap::iterator it = zofResult.uiElements.begin(); it != zofResult.uiElements.end(); it++) {
-        if (std::dynamic_pointer_cast<ZUICursor>(it->second))
-			ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
-        else
-			ZEngine::UI()->AddElement(it->second);
-    }
+	// Load our scene using description files
+	ZEngine::LoadScene({ "Assets/basic_scene.zof" });
     
     // We can register delegate methods for specific UI events
     ZEventDelegate pressDelegate(&onObjectSelect);
@@ -133,10 +95,10 @@ int main(int argc, const char * argv[]) {
 
 void onObjectSelect(std::shared_ptr<ZEvent> event) {
     std::shared_ptr<ZObjectSelectedEvent> fireEvent = std::static_pointer_cast<ZObjectSelectedEvent>(event);
-    if (scene->GameObjects().find(fireEvent->ObjectID()) != scene->GameObjects().end()) {
-        std::shared_ptr<ZGameObject> object = scene->GameObjects()[fireEvent->ObjectID()];
+    if (game->ActiveScene()->GameObjects().find(fireEvent->ObjectID()) != game->ActiveScene()->GameObjects().end()) {
+        std::shared_ptr<ZGameObject> object = game->ActiveScene()->GameObjects()[fireEvent->ObjectID()];
         std::shared_ptr<ZPhysicsComponent> comp = object->FindComponent<ZPhysicsComponent>();
-        glm::vec3 force = scene->ActiveCamera()->Front() * 1000.f;
+        glm::vec3 force = game->ActiveScene()->ActiveCamera()->Front() * 1000.f;
         glm::vec3 position = glm::inverse(object->ModelMatrix()) * glm::vec4(fireEvent->Position(), 1.0);
         comp->AddForceAtPoint(force, position);
         

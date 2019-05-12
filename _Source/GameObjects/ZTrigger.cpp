@@ -37,4 +37,5 @@ void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
     physicsComp->DisableCollisionResponse();
     
     AddComponent(physicsComp);
+	ZEngine::ProcessRunner()->AttachProcess(physicsComp);
 }

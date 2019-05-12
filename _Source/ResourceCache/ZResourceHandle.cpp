@@ -37,5 +37,4 @@ ZResourceHandle::ZResourceHandle(ZResource& resource, void* buffer, unsigned int
 
 ZResourceHandle::~ZResourceHandle() {
   delete[] (char*)buffer_;
-  resourceCache_->FreeMemory(size_);
 }

@@ -35,7 +35,10 @@ void ZDomain::Initialize() {
   if (domainStrategy_ == nullptr) {
     domainStrategy_.reset(new ZGLDomainStrategy);
     domainStrategy_->Initialize();
-    domainStrategy_->CreateWindow(windowWidth_, windowHeight_);
+    mainContext_ = domainStrategy_->CreateWindow(windowWidth_, windowHeight_);
+
+	glm::vec2 frameBufferSize = domainStrategy_->FramebufferSize();
+	resolutionX_ = frameBufferSize.x; resolutionY_ = frameBufferSize.y;
   }
 }
 

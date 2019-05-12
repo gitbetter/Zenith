@@ -45,7 +45,7 @@ public:
     virtual ~ZDomainStrategy() { }
     
     virtual void Initialize() = 0;
-    virtual void CreateWindow(int width, int heights) = 0;
+    virtual void* CreateWindow(int width, int height, bool visible = true, void* sharedContext = nullptr) = 0;
     virtual void PollEvents() = 0;
     virtual void CaptureCursor() = 0;
     virtual void ReleaseCursor() = 0;
@@ -55,6 +55,7 @@ public:
     virtual void CloseWindow() = 0;
     virtual void* Context() = 0;
     virtual void SetContext(void* context) = 0;
+	virtual void DestroyContext(void* context) = 0;
     virtual void CleanUp() = 0;
     
 protected:

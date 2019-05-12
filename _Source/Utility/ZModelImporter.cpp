@@ -180,8 +180,28 @@ std::vector<unsigned int> ZModelImporter::LoadIndexData(const aiMesh* mesh) {
  */
 void ZModelImporter::LoadSkeleton(const aiScene* scene) {
 	std::shared_ptr<ZSkeleton> skeleton = std::make_shared<ZSkeleton>();
-	skeleton->rootJoint = LoadSkeletonJoint(scene->mRootNode);
+	aiNode* rootNode = FindSkeletonRoot(scene->mRootNode);
+	if (rootNode) skeleton->rootJoint = LoadSkeletonJoint(rootNode);
     currentSkeleton_ = skeleton;
+}
+
+
+/**
+ A helper function that recursively traverses aiNode children to find the root of a skeleton (i.e. any node that contains 'root' in it's name).
+
+ @param rootNode the node whose children will be traversed.
+ @return an aiNode pointer if the root was found, and nullptr otherwise.
+ */
+aiNode* ZModelImporter::FindSkeletonRoot(aiNode* node) {
+	aiNode* root = nullptr;
+	if (std::string(node->mName.data).find("root") != std::string::npos) {
+		root = node;
+	} else {
+		for (unsigned int i = 0; i < node->mNumChildren; i++) {
+			if ((root = FindSkeletonRoot(node->mChildren[i])) != nullptr) break;
+		}
+	}
+	return root;
 }
 
 /**

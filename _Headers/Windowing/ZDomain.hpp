@@ -48,13 +48,14 @@ public:
     
     unsigned int WindowWidth() const { return windowWidth_; }
     unsigned int WindowHeight() const { return windowHeight_; }
-    unsigned int ResolutionX() const { return domainStrategy_->FramebufferSize().x; }
-    unsigned int ResolutionY() const { return domainStrategy_->FramebufferSize().y; }
+    unsigned int ResolutionX() const { return resolutionX_; }
+    unsigned int ResolutionY() const { return resolutionY_; }
     float ResolutionXRatio() const { return (float)ResolutionX() / ZEngine::DEFAULT_X_RESOLUTION; }
     float ResolutionYRatio() const { return (float)ResolutionY() / ZEngine::DEFAULT_Y_RESOLUTION; }
     float Aspect() const { return (float)ResolutionX() / (float)ResolutionY(); }
     
     ZDomainStrategy* Strategy() { return domainStrategy_.get(); }
+	void* MainContext() { return mainContext_; }
     
     void ResizeWindow(int width, int height);
     
@@ -64,5 +65,7 @@ protected:
     
     std::unique_ptr<ZDomainStrategy> domainStrategy_;
     unsigned int windowWidth_, windowHeight_;
-    
+	unsigned int resolutionX_, resolutionY_;
+	void* mainContext_;
+
 };

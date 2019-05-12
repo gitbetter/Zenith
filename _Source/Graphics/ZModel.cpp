@@ -322,7 +322,12 @@ void ZModel::BoneTransform(std::string anim, double secondsTime) {
 void ZModel::CalculateTransformsInHierarchy(std::string animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform) {
     std::shared_ptr<ZAnimation> animation = animations_[animName];
     glm::mat4 jointTransform = joint->transform;
-    
+
+	if (joint->name.find("root") != std::string::npos) {
+		jointTransform = glm::rotate(jointTransform, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+		jointTransform = glm::translate(jointTransform, glm::vec3(0.f, -0.337f, -0.175f));
+	}
+
     std::shared_ptr<ZJointAnimation> jointAnimation;
     for (unsigned int i = 0, j = animation->channels.size(); i < j; i++) {
         std::shared_ptr<ZJointAnimation> anim = animation->channels[i];
@@ -343,7 +348,7 @@ void ZModel::CalculateTransformsInHierarchy(std::string animName, double animTim
         translationM = glm::translate(translationM, position);
         
         jointTransform = translationM * rotationM * scalingM;
-    }
+	}
     
     glm::mat4 globalTransform = parentTransform * jointTransform;
     

@@ -57,7 +57,6 @@ public:
     void Load(std::shared_ptr<ZOFTree> root);
     
     void SetupShadowPass(std::shared_ptr<ZLight> light);
-    void Draw(const ZGameObjectMap& gameObjects, const ZLightMap& gameLights, float frameMix = 1.0);
     void FinishShadowPass();
     
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }

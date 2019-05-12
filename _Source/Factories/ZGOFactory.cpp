@@ -70,6 +70,7 @@ std::shared_ptr<ZGameObject> ZGOFactory::CreateGameObject(std::shared_ptr<ZOFNod
         if (componentCreators_.find(compIt->first) != componentCreators_.end()) {
             std::shared_ptr<ZComponent> comp = (this->*componentCreators_[compIt->first])(gameObject);
             comp->Initialize(componentNode);
+			ZEngine::ProcessRunner()->AttachProcess(comp);
         } else {
             _Z("Component " + compIt->first + " is not available for creation", ZWARNING);
         }
@@ -92,24 +93,24 @@ std::shared_ptr<ZTrigger> ZGOFactory::CreateTrigger(std::shared_ptr<ZOFNode> dat
 
 std::shared_ptr<ZComponent> ZGOFactory::CreateGraphicsComponent(std::shared_ptr<ZGameObject> gameObject) {
     std::shared_ptr<ZGraphicsComponent> comp(new ZGraphicsComponent);
-    gameObject->AddComponent(comp);
+	gameObject->AddComponent(comp);
     return comp;
 }
 
 std::shared_ptr<ZComponent> ZGOFactory::CreateCameraComponent(std::shared_ptr<ZGameObject> gameObject) {
     std::shared_ptr<ZCameraComponent> comp(new ZCameraComponent);
-    gameObject->AddComponent(comp);
+	gameObject->AddComponent(comp);
     return comp;
 }
 
 std::shared_ptr<ZComponent> ZGOFactory::CreatePhysicsComponent(std::shared_ptr<ZGameObject> gameObject) {
     std::shared_ptr<ZPhysicsComponent> comp(new ZPhysicsComponent);
-    gameObject->AddComponent(comp);
+	gameObject->AddComponent(comp);
     return comp;
 }
 
 std::shared_ptr<ZComponent> ZGOFactory::CreateAnimatorComponent(std::shared_ptr<ZGameObject> gameObject) {
     std::shared_ptr<ZAnimatorComponent> comp(new ZAnimatorComponent);
-    gameObject->AddComponent(comp);
+	gameObject->AddComponent(comp);
     return comp;
 }

@@ -39,6 +39,10 @@ ZGraphicsFactory::ZGraphicsFactory() {
   modelCreators_["Cone"] = &ZModel::NewConePrimitive;
 }
 
+void ZGraphicsFactory::CreateShadersAsync(std::shared_ptr<ZOFTree> data) {
+
+}
+
 ZShaderMap ZGraphicsFactory::CreateShaders(std::shared_ptr<ZOFTree> data) {
   ZShaderMap shaders;
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
@@ -62,6 +66,10 @@ ZShaderMap ZGraphicsFactory::CreateShaders(std::shared_ptr<ZOFTree> data) {
     }
   }
   return shaders;
+}
+
+void ZGraphicsFactory::CreateTexturesAsync(std::shared_ptr<ZOFTree> data) {
+
 }
 
 ZTextureMap ZGraphicsFactory::CreateTextures(std::shared_ptr<ZOFTree> data) {

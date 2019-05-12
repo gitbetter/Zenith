@@ -44,6 +44,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/norm.hpp>
 #include <iostream>
+#include <initializer_list>
 #include <vector>
 #include <string>
 #include <map>
@@ -163,6 +164,10 @@ enum class ZProcessState {
 
 enum class ZSoundType {
     Wav, Ogg, Unknown
+};
+
+enum class ZResourceType {
+	ZOF, Model, Shader, Texture, Sound, Script
 };
 
 enum class ZAnimationState {

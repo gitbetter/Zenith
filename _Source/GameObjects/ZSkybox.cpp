@@ -45,5 +45,6 @@ void ZSkybox::Initialize(std::string hdrMap) {
   skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
 
   AddComponent(skyboxGraphicsComponent);
+  ZEngine::ProcessRunner()->AttachProcess(skyboxGraphicsComponent);
   properties_.renderPass = ZRenderPass::Sky;
 }

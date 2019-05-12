@@ -13,9 +13,9 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/_Source)
 
 set(SOURCES
 ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
-${SOURCE_DIR}/Utility/ZModelImporter.cpp
 ${SOURCE_DIR}/Utility/ZIDSequence.cpp
 ${SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
+${SOURCE_DIR}/Utility/ZModelImporter.cpp
 ${SOURCE_DIR}/Utility/stb_image.cpp
 ${SOURCE_DIR}/UI/ZUIElement.cpp
 ${SOURCE_DIR}/UI/Elements/ZUICursor.cpp
@@ -101,6 +101,7 @@ ${SOURCE_DIR}/EventAgent/Events/ZRaycastEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZFireEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectSelectedEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectDragEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZResourceLoadedEvent.cpp
 ${SOURCE_DIR}/EventAgent/ZScriptableEvent.cpp
 ${SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${SOURCE_DIR}/Audio/ZAudio.cpp
@@ -135,6 +136,7 @@ ${HEADERS_DIR}/EventAgent/Events/ZObjectDragEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZObjectLookEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZObjectMoveEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZObjectSelectedEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZResourceLoadedEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZQuitEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZRaycastEvent.hpp
 ${HEADERS_DIR}/Factories/ZGOFactory.hpp
@@ -198,10 +200,10 @@ ${HEADERS_DIR}/UI/Elements/ZUIImage.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${HEADERS_DIR}/UI/Elements/ZUIText.hpp
-${HEADERS_DIR}/Utility/ZModelImporter.hpp
 ${HEADERS_DIR}/Utility/ZIDSequence.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFParser.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFTree.hpp
+${HEADERS_DIR}/Utility/ZModelImporter.hpp
 ${HEADERS_DIR}/Windowing/ZDomain.hpp
 ${HEADERS_DIR}/Windowing/ZDomainStrategy.hpp
 ${HEADERS_DIR}/Windowing/ZGLDomainStrategy.hpp

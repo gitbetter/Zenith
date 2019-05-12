@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
-    ZPhysicsDebug.cpp
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    Created by Adrian Sanchez on 26/02/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZPhysicsDebug.cpp
+
+	Created by Adrian Sanchez on 26/02/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -35,27 +35,29 @@
 #include "ZGame.hpp"
 
 void ZPhysicsDebug::Initialize() {
-  shader_ = std::unique_ptr<ZShader>(new ZShader);
-  shader_->Initialize("Assets/Shaders/Vertex/debug.vert", "Assets/Shaders/Pixel/debug.frag");
+	shader_ = std::unique_ptr<ZShader>(new ZShader);
+	shader_->Initialize("Assets/Shaders/Vertex/debug.vert", "Assets/Shaders/Pixel/debug.frag");
 }
 
 void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
-  std::shared_ptr<ZCameraComponent> cameraComp = ZEngine::Game()->ActiveScene()->ActiveCamera()->FindComponent<ZCameraComponent>();
-  glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
-  glm::mat4 viewMatrix = cameraComp->ViewMatrix(0.5f);
+	if (!ZEngine::Game()->ActiveScene()->ActiveCamera()) return;
 
-  shader_->Activate();
+	std::shared_ptr<ZCameraComponent> cameraComp = ZEngine::Game()->ActiveScene()->ActiveCamera()->FindComponent<ZCameraComponent>();
+	glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
+	glm::mat4 viewMatrix = cameraComp->ViewMatrix(0.5f);
 
-  shader_->SetMat4("P", projectionMatrix);
-  shader_->SetMat4("V", viewMatrix);
-  shader_->SetVec4("color", glm::vec4(color.x(), color.y(), color.z(), 1.f));
+	shader_->Activate();
 
-  std::vector<ZVertex3D> vertices({
-    ZVertex3D(glm::vec3(from.x(), from.y(), from.z())),
-    ZVertex3D(glm::vec3(to.x(), to.y(), to.z()))
-  });
+	shader_->SetMat4("P", projectionMatrix);
+	shader_->SetMat4("V", viewMatrix);
+	shader_->SetVec4("color", glm::vec4(color.x(), color.y(), color.z(), 1.f));
 
-  ZBufferData bufferData = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices);
-  ZEngine::Graphics()->Strategy()->DrawLines(bufferData, vertices);
-  ZEngine::Graphics()->Strategy()->DeleteBufferData(bufferData);
+	std::vector<ZVertex3D> vertices({
+	  ZVertex3D(glm::vec3(from.x(), from.y(), from.z())),
+	  ZVertex3D(glm::vec3(to.x(), to.y(), to.z()))
+		});
+
+	ZBufferData bufferData = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices);
+	ZEngine::Graphics()->Strategy()->DrawLines(bufferData, vertices);
+	ZEngine::Graphics()->Strategy()->DeleteBufferData(bufferData);
 }

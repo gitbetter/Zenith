@@ -111,7 +111,6 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     
     glm::vec3 pos, scale, offs;
     glm::quat rot;
-    std::shared_ptr<ZCollider> collider;
     
     if (mass < 0) mass = 0.0;
     

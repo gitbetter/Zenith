@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
-    ZGLGraphics.cpp
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    Created by Adrian Sanchez on 27/01/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZGLGraphics.cpp
+
+	Created by Adrian Sanchez on 27/01/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -38,99 +38,90 @@
 #include "ZLight.hpp"
 
 void ZGraphics::Initialize() {
-  // TODO: Switch the strategies here based on implementation details
-  if (graphicsStrategy_ == nullptr) {
-    graphicsStrategy_ = new ZGLGraphicsStrategy();
-    graphicsStrategy_->Initialize();
-    depthMap_ = graphicsStrategy_->LoadDepthTexture();
-    depthFramebuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
-    shadowShader_ = std::shared_ptr<ZShader>(new ZShader);
-    shadowShader_->Initialize("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
-  }
+	// TODO: Switch the strategies here based on implementation details
+	if (graphicsStrategy_ == nullptr) {
+		graphicsStrategy_ = new ZGLGraphicsStrategy();
+		graphicsStrategy_->Initialize();
+		depthMap_ = graphicsStrategy_->LoadDepthTexture();
+		depthFramebuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
+		shadowShader_ = std::shared_ptr<ZShader>(new ZShader);
+		shadowShader_->Initialize("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
+	}
 }
 
 void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
-  ZShaderMap shaders = ZEngine::GraphicsFactory()->CreateShaders(root);
-  for (ZShaderMap::iterator it = shaders.begin(); it != shaders.end(); it++) {
-    AddShader(it->first, it->second);
-  }
+	// TODO:
+	// ZEngine::GraphicsFactory()->LoadShadersAsync(root);
+	// ZEngine::GraphicsFactory()->LoadTexturesAsync(root);
+	//
+	// ZEventDelegate loadedResourceDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleResourceLoaded);
+	// ZEngine::EventAgent()->AddListener(loadedShaderDelegate, ZResourceLoadedEvent::Type);
+	ZShaderMap shaders = ZEngine::GraphicsFactory()->CreateShaders(root);
+	for (ZShaderMap::iterator it = shaders.begin(); it != shaders.end(); it++) {
+		AddShader(it->first, it->second);
+	}
 
-  ZTextureMap textures = ZEngine::GraphicsFactory()->CreateTextures(root);
-  for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++) {
-    AddTexture(it->first, it->second);
-  }
+	ZTextureMap textures = ZEngine::GraphicsFactory()->CreateTextures(root);
+	for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++) {
+		AddTexture(it->first, it->second);
+	}
 }
 
 void ZGraphics::SetupShadowPass(std::shared_ptr<ZLight> light) {
-    graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
-    
-    shadowShader_->Activate();
-    // TODO: For now we support one light source for shadows, but this should change
-    // so that multiple light space matrices are supported for multiple light sources
-    // that can cast shadows, possibly using deferred rendering
-    // TODO: Do something about these magic numbers!
-    glm::mat4 lightP = glm::ortho(-25.f, 25.f, -25.f, 25.f, 0.01f, 100.f);
-    glm::mat4 lightV = glm::lookAt(light->type == ZLightType::Directional ?
-                                   light->direction :
-                                   light->Position(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
-    glm::mat4 lightSpaceMatrix = lightP * lightV;
-    currentLightSpaceMatrix_ = lightSpaceMatrix;
-}
+	graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
 
-void ZGraphics::Draw(const ZGameObjectMap& gameObjects, const ZLightMap& gameLights, float frameMix) {
-  if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
-    graphicsStrategy_->ClearViewport();
-
-    // TODO: Support more shadow casting lights!
-    if (gameLights.size() > 0) {
-        SetupShadowPass(gameLights.begin()->second);
-        Render(gameObjects, frameMix, RENDER_OP_SHADOW);
-        FinishShadowPass();
-    }
-
-    Render(gameObjects, frameMix);
-  }
+	shadowShader_->Activate();
+	// TODO: For now we support one light source for shadows, but this should change
+	// so that multiple light space matrices are supported for multiple light sources
+	// that can cast shadows, possibly using deferred rendering
+	// TODO: Do something about these magic numbers!
+	glm::mat4 lightP = glm::ortho(-25.f, 25.f, -25.f, 25.f, 0.01f, 100.f);
+	glm::mat4 lightV = glm::lookAt(light->type == ZLightType::Directional ?
+		light->direction :
+		light->Position(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+	glm::mat4 lightSpaceMatrix = lightP * lightV;
+	currentLightSpaceMatrix_ = lightSpaceMatrix;
 }
 
 void ZGraphics::FinishShadowPass() {
-    graphicsStrategy_->UnbindDepthMapBuffer();
+	graphicsStrategy_->UnbindDepthMapBuffer();
 }
 
 void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp) {
-  for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
+	for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
 		if (it->second->IsVisible())
 			it->second->Render(frameMix, renderOp);
-  }
+	}
 }
 
 void ZGraphics::AddShader(std::string id, std::shared_ptr<ZShader> shader) {
-  if (shader != nullptr) loadedShaders_[id] = shader;
+	if (shader != nullptr) loadedShaders_[id] = shader;
 }
 
 void ZGraphics::AddTexture(std::string id, ZTexture texture) {
-  loadedTextures_[id] = texture;
+	loadedTextures_[id] = texture;
 }
 
 void ZGraphics::ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3) {
-  glm::vec3 deltaPos1 = v2.position - v1.position;
-  glm::vec3 deltaPos2 = v3.position - v1.position;
-  glm::vec2 deltaUV1 = v2.uv - v1.uv;
-  glm::vec2 deltaUV2 = v3.uv - v1.uv;
+	glm::vec3 deltaPos1 = v2.position - v1.position;
+	glm::vec3 deltaPos2 = v3.position - v1.position;
+	glm::vec2 deltaUV1 = v2.uv - v1.uv;
+	glm::vec2 deltaUV2 = v3.uv - v1.uv;
 
-  float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-  glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
-  glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
+	float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+	glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+	glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
 
-  v1.tangent = tangent; v2.tangent = tangent; v3.tangent = tangent;
-  v1.bitangent = bitangent; v2.bitangent = bitangent; v3.bitangent = bitangent;
+	v1.tangent = tangent; v2.tangent = tangent; v3.tangent = tangent;
+	v1.bitangent = bitangent; v2.bitangent = bitangent; v3.bitangent = bitangent;
 }
 
 void ZGraphics::CleanUp() {
-  if (graphicsStrategy_ != nullptr) {
-    graphicsStrategy_ = nullptr;
-  }
+	if (graphicsStrategy_ != nullptr) {
+		graphicsStrategy_ = nullptr;
+	}
 
-  if (shadowShader_ != nullptr) {
-    shadowShader_ = nullptr;
-  }
+	if (shadowShader_ != nullptr) {
+		shadowShader_ = nullptr;
+	}
 }

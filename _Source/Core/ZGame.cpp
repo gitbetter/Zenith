@@ -38,11 +38,6 @@ using namespace std;
 ZGame::ZGame() : activeScene_(0) { }
 
 void ZGame::RunGameLoop() {
-    if (scenes_.size() == 0) {
-        _Z("Cannot kick off the game loop without any scenes present!", ZERROR);
-        return;
-    }
-    
     _Z("Zenith is about to loop...", ZINFO);
     
     double previousTime = ZEngine::SecondsTime();

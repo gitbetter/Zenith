@@ -39,6 +39,7 @@
 #include "ZCommon.hpp"
 
 // Forward Declarations
+class ZScene;
 class ZGraphics;
 class ZInput;
 class ZDomain;
@@ -132,7 +133,8 @@ public:
     
     static void SetDeltaTime(double deltaTime);
     
-    static ZOFLoadResult LoadZOF(std::string zofPath);
+    static std::shared_ptr<ZOFTree> LoadZOF(std::string zofPath);
+	static std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
     
     static void CleanUp();
     
