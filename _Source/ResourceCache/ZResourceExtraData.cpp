@@ -28,14 +28,5 @@
 */
 
 #include "ZResourceExtraData.hpp"
-#include "ZImageImporter.hpp"
 
 ZSoundResourceExtraData::ZSoundResourceExtraData() : soundType_(ZSoundType::Unknown), lengthMilli_(0) { }
-
-ZShaderResourceExtraData::ZShaderResourceExtraData() : type_(ZShaderType::Other) { }
-
-ZTextureResourceExtraData::ZTextureResourceExtraData() : hdr_(false), flipped_(true), width_(0), height_(0), channels_(0) { }
-ZTextureResourceExtraData::~ZTextureResourceExtraData() { 
-	if (fData_) ZImageImporter::FreeImageData(fData_);
-	else if (ucData_) ZImageImporter::FreeImageData(fData_);
-}

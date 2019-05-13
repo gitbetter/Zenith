@@ -44,15 +44,15 @@ void ZGraphics::Initialize() {
 		graphicsStrategy_->Initialize();
 		depthMap_ = graphicsStrategy_->LoadDepthTexture();
 		depthFramebuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
-		shadowShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag"));
-		shadowShader_->Initialize();
+		shadowShader_ = std::shared_ptr<ZShader>(new ZShader);
+		shadowShader_->Initialize("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
 	}
 }
 
 void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
 	// TODO:
-	// ZEngine::GraphicsFactory()->CreateShadersAsync(root);
-	// ZEngine::GraphicsFactory()->CreateTexturesAsync(root);
+	// ZEngine::GraphicsFactory()->LoadShadersAsync(root);
+	// ZEngine::GraphicsFactory()->LoadTexturesAsync(root);
 	//
 	// ZEventDelegate loadedResourceDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleResourceLoaded);
 	// ZEngine::EventAgent()->AddListener(loadedShaderDelegate, ZResourceLoadedEvent::Type);
@@ -65,11 +65,6 @@ void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
 	for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++) {
 		AddTexture(it->first, it->second);
 	}
-}
-
-void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root) {
-	ZEngine::GraphicsFactory()->CreateShadersAsync(root);
-	ZEngine::GraphicsFactory()->CreateTexturesAsync(root);
 }
 
 void ZGraphics::SetupShadowPass(std::shared_ptr<ZLight> light) {

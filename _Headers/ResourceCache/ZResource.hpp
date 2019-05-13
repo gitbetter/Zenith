@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+   ______     ______     __   __     __     ______   __  __    
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
+                                                          
+    ZResource.hpp
 
-	ZResource.hpp
-
-	Created by Adrian Sanchez on 08/03/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 08/03/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -39,10 +39,9 @@ class ZResource {
 
 public:
 
-	ZResourceType type;
-	std::string name;
+  std::string name;
 
-	ZResource(const std::string& name, ZResourceType type);
-	~ZResource() {}
+  ZResource(const std::string& name);
+  ~ZResource() { }
 
 };

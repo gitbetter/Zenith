@@ -71,7 +71,7 @@ int main(int argc, const char * argv[]) {
     ZEngine::EventAgent()->AddListener(dragDelegate, ZObjectDragEvent::Type);
     
     // Let's test the audio system by adding some background music to the scene.
-    ZResource bgAmbient("Assets/Sounds/wind.ogg", ZResourceType::Sound);
+    ZResource bgAmbient("Assets/Sounds/wind.ogg");
     auto ambientHandle = ZEngine::ResourceCache()->GetHandle(&bgAmbient);
     if (ambientHandle) {
         auto audioSource = ZEngine::Audio()->NewAudioSource(ambientHandle);

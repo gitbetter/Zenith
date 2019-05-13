@@ -133,7 +133,7 @@ public:
     
     static void SetDeltaTime(double deltaTime);
     
-    static void LoadZOF(std::string zofPath);
+    static std::shared_ptr<ZOFTree> LoadZOF(std::string zofPath);
 	static std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
     
     static void CleanUp();

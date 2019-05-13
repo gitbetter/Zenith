@@ -55,7 +55,6 @@ public:
     
     void Initialize();
     void Load(std::shared_ptr<ZOFTree> root);
-	void LoadAsync(std::shared_ptr<ZOFTree> root);
     
     void SetupShadowPass(std::shared_ptr<ZLight> light);
     void FinishShadowPass();

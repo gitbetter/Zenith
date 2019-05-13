@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+   ______     ______     __   __     __     ______   __  __    
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
+                                                          
+    ZResource.cpp
 
-	ZResource.cpp
-
-	Created by Adrian Sanchez on 08/03/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 08/03/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -29,11 +29,10 @@
 
 #include "ZResource.hpp"
 
-ZResource::ZResource(const std::string& name, ZResourceType type) {
-	this->type = type;
+ZResource::ZResource(const std::string& name) {
 #ifdef DEV_BUILD
 	this->name = "../" + name;
 #else
-	this->name = name;
+  this->name = name;
 #endif
 }

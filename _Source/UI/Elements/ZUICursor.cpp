@@ -103,7 +103,7 @@ void ZUICursor::HandleMouseMove(std::shared_ptr<ZEvent> event) {
 
 void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
 	// Play a clicky sound effect
-	ZResource bgMusic("Assets/Sounds/click.ogg", ZResourceType::Sound);
+	ZResource bgMusic("Assets/Sounds/click.ogg");
 	auto musicHandle = ZEngine::ResourceCache()->GetHandle(&bgMusic);
 	if (musicHandle) {
 		auto audioSource = ZEngine::Audio()->NewAudioSource(musicHandle);

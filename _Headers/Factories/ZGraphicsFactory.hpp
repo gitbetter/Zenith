@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+   ______     ______     __   __     __     ______   __  __    
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
+                                                          
+    ZGraphicsFactory.hpp
 
-	ZGraphicsFactory.hpp
-
-	Created by Adrian Sanchez on 19/02/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 19/02/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -35,32 +35,25 @@
 
 // Forward Declarations
 class ZModel;
-class ZShader;
 
 // Class and Data Structure Definitions
 class ZGraphicsFactory {
-
-	typedef std::unique_ptr<ZModel>(*ZModelCreator)(glm::vec3);
+  typedef std::unique_ptr<ZModel> (*ZModelCreator)(glm::vec3);
+private:
 
 public:
 
-	ZGraphicsFactory();
-	~ZGraphicsFactory() {}
+  ZGraphicsFactory();
+  ~ZGraphicsFactory() { }
 
-	void CreateShadersAsync(std::shared_ptr<ZOFTree> data);
-	ZShaderMap CreateShaders(std::shared_ptr<ZOFTree> data);
-	void CreateTexturesAsync(std::shared_ptr<ZOFTree> data);
-	ZTextureMap CreateTextures(std::shared_ptr<ZOFTree> data);
+  void CreateShadersAsync(std::shared_ptr<ZOFTree> data);
+  ZShaderMap CreateShaders(std::shared_ptr<ZOFTree> data);
+  void CreateTexturesAsync(std::shared_ptr<ZOFTree> data);
+  ZTextureMap CreateTextures(std::shared_ptr<ZOFTree> data);
 
-	std::unique_ptr<ZModel> CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
+  std::unique_ptr<ZModel> CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
 
 protected:
 
-	std::map<std::string, ZModelCreator> modelCreators_;
-	std::map<std::string, std::string> pendingTextures_;
-	std::map<std::shared_ptr<ZShader>, std::string> pendingShaders_;
-
-	void HandleShaderReady(std::shared_ptr<ZEvent> event);
-	void HandleTextureReady(std::shared_ptr<ZEvent> event);
-
+  std::map<std::string, ZModelCreator> modelCreators_;
 };

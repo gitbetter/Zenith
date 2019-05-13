@@ -29,7 +29,6 @@
 
 #include "ZResourceCache.hpp"
 #include "ZDefaultResourceLoader.hpp"
-#include "ZResourceLoadTask.hpp"
 
 ZResourceCache::ZResourceCache(const unsigned int sizeInMb) {
 	cacheSize_ = sizeInMb * 1024 * 1024;
@@ -82,11 +81,6 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::GetHandle(ZResource* resource) 
 	if (!handle) handle = Load(resource);
 	else Update(handle);
 	return handle;
-}
-
-void ZResourceCache::RequestHandle(ZResource& resource) {
-	std::shared_ptr<ZResourceLoadTask> loadTask = std::make_shared<ZResourceLoadTask>(resource);
-	loadTask->Start();
 }
 
 int ZResourceCache::Preload(const std::string pattern, void(*progressCallback)(int, bool &)) {

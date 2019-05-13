@@ -48,12 +48,11 @@ public:
 	ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache);
 	virtual ~ZResourceHandle();
 
-	ZResource& Resource() { return resource_; }
 	unsigned int Size() const { return size_; }
 	const void* Buffer() const { return buffer_; }
 	void* FluidBuffer() { return buffer_; }
 	std::shared_ptr<ZResourceExtraData> ExtraData() { return extraData_; }
-	
+
 	void SetExtra(std::shared_ptr<ZResourceExtraData> extra) { extraData_ = extra; }
 
 protected:
