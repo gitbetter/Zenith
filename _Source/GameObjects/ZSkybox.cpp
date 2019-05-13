@@ -69,7 +69,9 @@ void ZSkybox::InitializeAsync(const std::string& hdrMap) {
 void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
 	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
 	if (textureReadyEvent->Texture().path == hdrPath_) {
-		Initialize(textureReadyEvent->Texture(), textureReadyEvent->BufferData());
+        ZTexture texture = textureReadyEvent->Texture();
+        ZBufferData bufferData = textureReadyEvent->BufferData();
+		Initialize(texture, bufferData);
 		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
 		ZEngine::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
 	}
