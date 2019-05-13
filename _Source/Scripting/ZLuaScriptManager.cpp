@@ -32,16 +32,13 @@
 #include "ZEngine.hpp"
 #include "ZResourceCache.hpp"
 
-bool ZLuaScriptManager::Initialize() {
+void ZLuaScriptManager::Initialize() {
 	lua_.open_libraries(sol::lib::base, sol::lib::package);
 	lua_.set_function("executeFile", &ZLuaScriptManager::ExecuteFile, (*this));
 	lua_.set_function("executeString", &ZLuaScriptManager::ExecuteString, (*this));
-
-	return true;
 }
 
-bool ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
-	bool found = false;
+void ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
 	for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++) {
 		if (it->first.find("ZSCR") == 0) {
 
@@ -53,11 +50,26 @@ bool ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
 				std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
 				ZResource scriptResource(prop->value, ZResourceType::Script);
 				ZEngine::ResourceCache()->GetHandle(&scriptResource);
-				found = true;
 			}
 		}
 	}
-	return found;
+}
+
+void ZLuaScriptManager::LoadAsync(std::shared_ptr<ZOFTree> zof) {
+    for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++) {
+        if (it->first.find("ZSCR") == 0) {
+            
+            std::shared_ptr<ZOFObjectNode> scriptNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
+            
+            ZOFPropertyMap props = scriptNode->properties;
+            
+            if (props.find("path") != props.end() && props["path"]->HasValues()) {
+                std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
+                ZResource scriptResource(prop->value, ZResourceType::Script);
+                ZEngine::ResourceCache()->RequestHandle(scriptResource);
+            }
+        }
+    }
 }
 
 void ZLuaScriptManager::ExecuteFile(const std::string& resource) {

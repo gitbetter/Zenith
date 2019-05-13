@@ -38,7 +38,7 @@ bool ZEventAgent::AddListener(const ZEventDelegate& eventDelegate, const ZEventT
 	EventListenerList& listeners = eventListeners_[activeListeners_][type];
 	for (auto it = listeners.begin(); it != listeners.end(); it++) {
 		if (eventDelegate == (*it)) {
-			_Z("Attempted to register the same delegate twice", ZERROR);
+			_Z("Attempted to register the same delegate twice", ZWARNING);
 			return false;
 		}
 	}

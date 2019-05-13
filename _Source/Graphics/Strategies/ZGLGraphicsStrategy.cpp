@@ -45,6 +45,11 @@
 #include "ZResourceLoadedEvent.hpp"
 #include "ZTextureReadyEvent.hpp"
 
+ZGLGraphicsStrategy::~ZGLGraphicsStrategy() {
+    ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZGLGraphicsStrategy::HandleTextureLoaded);
+    ZEngine::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+}
+
 void ZGLGraphicsStrategy::Initialize() {
     drawingStylesMap_[ZMeshDrawStyle::Point] = GL_POINT;
     drawingStylesMap_[ZMeshDrawStyle::Line] = GL_LINES;
@@ -58,6 +63,9 @@ void ZGLGraphicsStrategy::Initialize() {
     EnableStencilTesting();
     EnableSeamlessCubemap();
     EnableMSAA();
+    
+    ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZGLGraphicsStrategy::HandleTextureLoaded);
+    ZEngine::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
 }
 
 void ZGLGraphicsStrategy::ClearViewport() {
@@ -323,11 +331,8 @@ void ZGLGraphicsStrategy::LoadTextureAsync(std::string path, const std::string &
 	else if (hdr) type = ZResourceType::HDRTexture;
 	else type = ZResourceType::Texture;
 
-	ZResource modelResource(filename, type);
-	ZEngine::ResourceCache()->RequestHandle(modelResource);
-
-	ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZGLGraphicsStrategy::HandleTextureLoaded);
-	ZEngine::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+	ZResource textureResource(filename, type);
+	ZEngine::ResourceCache()->RequestHandle(textureResource);
 }
 
 ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &directory, bool hdr, bool flip) {
@@ -342,7 +347,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
     glBindTexture(GL_TEXTURE_2D, texture.id);
     
     if (!handle) {
-        _Z("Failed to load texture at " + handle->Resource().name, ZERROR);
+        _Z("Failed to load texture", ZERROR);
         return texture;
     }
     
@@ -530,7 +535,7 @@ void ZGLGraphicsStrategy::UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D
 }
 
 void ZGLGraphicsStrategy::EquirectToCubemapAsync(std::string equirectHDRPath) {
-	LoadTextureAsync(equirectHDRPath, "", true, true, true);
+	LoadTextureAsync(equirectHDRPath, "", true, false, true);
 }
 
 ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) {
@@ -720,8 +725,8 @@ void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
 	if (!loaded->Handle()) return;
 
 	ZResource resource = loaded->Handle()->Resource();
-	if (resource.type != ZResourceType::Texture ||
-		resource.type != ZResourceType::HDRTexture ||
+	if (resource.type != ZResourceType::Texture &&
+		resource.type != ZResourceType::HDRTexture &&
 		resource.type != ZResourceType::HDREquirectangularMap)
 		return;
 
@@ -738,9 +743,6 @@ void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
 		textureReadyEvent = std::make_shared<ZTextureReadyEvent>(texture);
 	}
 	ZEngine::EventAgent()->QueueEvent(textureReadyEvent);
-
-	ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZGLGraphicsStrategy::HandleTextureLoaded);
-	ZEngine::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
 }
 
 void ZGLGraphicsStrategy::GLFWErrorCallback(int id, const char* description) {

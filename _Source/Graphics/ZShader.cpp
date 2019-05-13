@@ -37,6 +37,7 @@
 #include "ZResourceLoadedEvent.hpp"
 #include "ZEventAgent.hpp"
 #include "ZResourceExtraData.hpp"
+#include "ZShaderReadyEvent.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -334,30 +335,33 @@ void ZShader::HandleShaderCodeLoaded(std::shared_ptr<ZEvent> event) {
 
 	switch (loaded->Handle()->Resource().type) {
 	case ZResourceType::VertexShader:
-		if (loaded->Handle()->Resource().name == vertexShaderPath_) {
-			loadedShadersMask_ |= 1 << 1;
+		if (loaded->Handle()->Resource().name == vertexShaderPath_ && (loadedShadersMask_ & 1) == 0) {
+            loadedShadersMask_ |= 1;
 			vertexShaderCode_ = extraData->Code();
 		}
 		break;
 	case ZResourceType::PixelShader:
-		if (loaded->Handle()->Resource().name == pixelShaderPath_) {
-			loadedShadersMask_ |= 1 << 2;
+		if (loaded->Handle()->Resource().name == pixelShaderPath_ && (loadedShadersMask_ & (1 << 1)) == 0) {
+			loadedShadersMask_ |= 1 << 1;
 			pixelShaderCode_ = extraData->Code();
 		}
 		break;
 	case ZResourceType::GeometryShader:
-		if (loaded->Handle()->Resource().name == geometryShaderPath_) {
-			loadedShadersMask_ |= 1 << 3;
+		if (loaded->Handle()->Resource().name == geometryShaderPath_ && (loadedShadersMask_ & (1 << 2)) == 0) {
+			loadedShadersMask_ |= 1 << 2;
 			geometryShaderCode_ = extraData->Code();
 		}
 		break;
 	default: break;
 	}
 
-	if (loadedShadersMask_ == 7) {
+	if (loadedShadersMask_ == 3 || loadedShadersMask_ == 7) {
 		ZEventDelegate shaderCodeLoadDelegate = fastdelegate::MakeDelegate(this, &ZShader::HandleShaderCodeLoaded);
 		ZEngine::EventAgent()->RemoveListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
 
 		Compile();
+        
+        std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
+        ZEngine::EventAgent()->QueueEvent(shaderReadyEvent);
 	}
 }

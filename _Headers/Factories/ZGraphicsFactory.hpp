@@ -45,7 +45,7 @@ class ZGraphicsFactory {
 public:
 
 	ZGraphicsFactory();
-	~ZGraphicsFactory() {}
+    ~ZGraphicsFactory();
 
 	void CreateShadersAsync(std::shared_ptr<ZOFTree> data);
 	ZShaderMap CreateShaders(std::shared_ptr<ZOFTree> data);

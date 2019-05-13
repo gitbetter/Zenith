@@ -72,6 +72,7 @@ void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
         ZTexture texture = textureReadyEvent->Texture();
         ZBufferData bufferData = textureReadyEvent->BufferData();
 		Initialize(texture, bufferData);
+        
 		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
 		ZEngine::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
 	}

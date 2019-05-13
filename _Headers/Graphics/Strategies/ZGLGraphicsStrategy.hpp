@@ -47,7 +47,7 @@ private:
 public:
 
 	ZGLGraphicsStrategy() {}
-	~ZGLGraphicsStrategy() {}
+    ~ZGLGraphicsStrategy();
 
 	void Initialize() override;
 	void ClearViewport() override;
@@ -70,8 +70,8 @@ public:
 	void BindFramebuffer(ZBufferData frameBuffer) override;
 	void UnbindFramebuffer() override;
 	ZTexture LoadDefaultTexture() override;
-	void LoadTextureAsync(std::string path, const std::string &directory, bool hdr = false, bool flip = false, bool equirect = false) override;
-	ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) override;
+	void LoadTextureAsync(std::string path, const std::string &directory, bool hdr = false, bool flip = true, bool equirect = false) override;
+	ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = true) override;
 	ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flip = false) override;
 	ZTexture LoadEmptyLUT() override;
 	ZTexture LoadDepthTexture() override;

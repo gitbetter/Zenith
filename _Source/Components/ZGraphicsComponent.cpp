@@ -50,11 +50,7 @@ ZGraphicsComponent::~ZGraphicsComponent() {
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader) {
 	model_ = model;
-
-	if (shader != nullptr) {
-		shaders_.push_back(shader);
-		++activeShaderIndex_;
-	}
+	if (shader != nullptr) currentShader_ = shader;
 }
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
@@ -88,9 +84,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	if (props.find("shaders") != props.end() && props["shaders"]->HasValues()) {
 		std::shared_ptr<ZOFStringList> shadersProp = props["shaders"]->Value<ZOFStringList>(0);
 		for (std::string id : shadersProp->value) {
-			if (ZEngine::Graphics()->Shaders().find(id) != ZEngine::Graphics()->Shaders().end()) {
-				shaders_.push_back(ZEngine::Graphics()->Shaders()[id]);
-			}
+            shaders_.push_back(id);
 		}
 	}
 
@@ -133,31 +127,43 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 	ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
 	std::shared_ptr<ZShader> shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
+    if (shader) {
+        shader->Activate();
+        shader->Use(gameLights_);
 
-	shader->Activate();
-	shader->Use(gameLights_);
+        ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
+        if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
 
-	ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
-	if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
+        shader->SetMat4("P", projectionMatrix);
+        shader->SetMat4("V", viewMatrix);
+        shader->SetMat4("M", modelMatrix);
+        shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
+        shader->SetVec3("viewPosition", gameCamera_->Position());
 
-	shader->SetMat4("P", projectionMatrix);
-	shader->SetMat4("V", viewMatrix);
-	shader->SetMat4("M", modelMatrix);
-	shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
-	shader->SetVec3("viewPosition", gameCamera_->Position());
+        if (object_->Scene()->Skybox() != nullptr) {
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 2);
+            shader->SetInt("irradianceMap", 2);
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 3);
+            shader->SetInt("prefilterMap", 3);
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 4);
+            shader->SetInt("brdfLUT", 4);
+        }
 
-	if (object_->Scene()->Skybox() != nullptr) {
-		ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 2);
-		shader->SetInt("irradianceMap", 2);
-		ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 3);
-		shader->SetInt("prefilterMap", 3);
-		ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 4);
-		shader->SetInt("brdfLUT", 4);
-	}
-
-	model_->Render(shader.get(), materials_);
+        model_->Render(shader.get(), materials_);
+    }
 
 	DrawOutlineIfEnabled(modelMatrix, viewMatrix, projectionMatrix);
+}
+
+std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader() {
+    if (currentShader_) return currentShader_;
+    if (shaders_.empty()) return nullptr;
+    
+    if (ZEngine::Graphics()->Shaders().find(shaders_[activeShaderIndex_]) != ZEngine::Graphics()->Shaders().end()) {
+        currentShader_ = ZEngine::Graphics()->Shaders()[shaders_[activeShaderIndex_]];
+        return currentShader_;
+    }
+    return nullptr;
 }
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {

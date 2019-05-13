@@ -62,6 +62,7 @@ void ZModel::Initialize(std::string path) {
 
     ZModelImporter importer;
     meshes_ = importer.LoadModel(path, bonesMap_, bones_, animations_, skeleton_);
+    for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) it->second->Initialize();
     if (skeleton_) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
     InitializeAABB();
 }
@@ -149,6 +150,7 @@ void ZModel::CreateGround(glm::vec3 scale) {
     };
     
     std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
+    mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }
 
@@ -230,6 +232,7 @@ void ZModel::CreateCube(glm::vec3 scale) {
     };
     
     std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
+    mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }
 
@@ -278,6 +281,7 @@ void ZModel::CreateSphere(glm::vec3 scale) {
     }
     
     std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, ZMeshDrawStyle::TriangleStrip);
+    mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }
 
@@ -451,6 +455,8 @@ void ZModel::HandleModelLoaded(std::shared_ptr<ZEvent> event) {
 		bones_ = extraData->Bones();
 		animations_ = extraData->Animations();
 		skeleton_ = extraData->Skeleton();
+        
+        for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) it->second->Initialize();
 
 		ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);
 		ZEngine::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);

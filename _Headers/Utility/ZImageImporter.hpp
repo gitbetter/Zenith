@@ -9,7 +9,7 @@
 	ZImageImporter.hpp
 
 	Created by Adrian Sanchez on 12/05/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+	Copyright ï¿½ 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
 
@@ -38,6 +38,10 @@ class ZResourceHandle;
 
 // Class and Data Structure Definitions
 class ZImageImporter {
+    
+private:
+    
+    static std::mutex importerMutex_;
 
 public:
 

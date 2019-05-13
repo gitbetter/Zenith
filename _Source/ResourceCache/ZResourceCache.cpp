@@ -37,27 +37,22 @@ ZResourceCache::ZResourceCache(const unsigned int sizeInMb) {
 }
 
 ZResourceCache::~ZResourceCache() {
-	std::lock_guard<std::mutex>(mutexes_.lru);
-	std::lock_guard<std::mutex>(mutexes_.resourceFiles);
+    while (!lru_.empty()) FreeOneResource();
+    lru_.clear();
 
-	while (!lru_.empty()) FreeOneResource();
-	for (ResourceFileMap::iterator it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
-		it->second->Close();
-	}
-	resourceFiles_.clear();
-	lru_.clear();
+    for (ResourceFileMap::iterator it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
+        it->second->Close();
+    }
+    resourceFiles_.clear();
 }
 
 bool ZResourceCache::Initialize() {
 	bool success = false;
-	{
-		std::lock_guard<std::mutex>(mutexes_.resourceFiles);
-		for (ResourceFileMap::iterator it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
-			if (it->second->Open()) {
-				success = true;
-			}
-		}
-	}
+    for (ResourceFileMap::iterator it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
+        if (it->second->Open()) {
+            success = true;
+        }
+    }
 
 	if (success)
 		RegisterLoader(std::shared_ptr<ZResourceLoader>(new ZDefaultResourceLoader));
@@ -66,18 +61,18 @@ bool ZResourceCache::Initialize() {
 }
 
 void ZResourceCache::RegisterLoader(std::shared_ptr<ZResourceLoader> loader) {
-	std::lock_guard<std::mutex>(mutexes_.resourceLoaders);
-	if (loader) resourceLoaders_.push_front(loader);
+    if (loader) {
+        resourceLoaders_.push_front(loader);
+    }
 }
 
 void ZResourceCache::RegisterResourceFile(std::shared_ptr<ZResourceFile> file) {
-	std::lock_guard<std::mutex>(mutexes_.resourceFiles);
 	if (resourceFiles_.find(file->Name()) != resourceFiles_.end()) return;
 	resourceFiles_[file->Name()] = file;
 }
 
 std::shared_ptr<ZResourceHandle> ZResourceCache::GetHandle(ZResource* resource) {
-	std::lock_guard<std::mutex>(mutexes_.all);
+	std::lock_guard<std::mutex> lock(mutexes_.all);
 	std::shared_ptr<ZResourceHandle> handle(Find(resource));
 	if (!handle) handle = Load(resource);
 	else Update(handle);
@@ -96,19 +91,16 @@ int ZResourceCache::Preload(const std::string pattern, void(*progressCallback)(i
 }
 
 void ZResourceCache::Flush() {
-	std::lock_guard<std::mutex>(mutexes_.lru);
 	lru_.clear();
 }
 
 std::shared_ptr<ZResourceHandle> ZResourceCache::Find(ZResource* resource) {
-	std::lock_guard<std::mutex>(mutexes_.resources);
 	if (resources_.find(resource->name) != resources_.end())
 		return resources_[resource->name];
 	return std::shared_ptr<ZResourceHandle>();
 }
 
 const void ZResourceCache::Update(std::shared_ptr<ZResourceHandle> handle) {
-	std::lock_guard<std::mutex>(mutexes_.lru);
 	ResourceHandleList::iterator it;
 	for (it = lru_.begin(); it != lru_.end(); it++) {
 		if ((*it) == handle) break;
@@ -124,15 +116,12 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
 	std::shared_ptr<ZResourceLoader> loader;
 	std::shared_ptr<ZResourceHandle> handle;
 
-	{
-		std::lock_guard<std::mutex>(mutexes_.resourceLoaders);
-		for (ResourceLoaderList::iterator it = resourceLoaders_.begin(); it != resourceLoaders_.end(); it++) {
-			std::shared_ptr<ZResourceLoader> testLoader = *it;
-			if (MatchPattern(testLoader->Pattern(), resource->name)) {
-				loader = testLoader; break;
-			}
-		}
-	}
+    for (ResourceLoaderList::iterator it = resourceLoaders_.begin(); it != resourceLoaders_.end(); it++) {
+        std::shared_ptr<ZResourceLoader> testLoader = *it;
+        if (MatchPattern(testLoader->Pattern(), resource->name)) {
+            loader = testLoader; break;
+        }
+    }
 
 	if (!loader) {
 		_Z("Default resource loader not found!", ZERROR);
@@ -144,13 +133,10 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
 	unsigned int rawSize = 1;
 	ResourceFileMap::iterator it;
 
-	{
-		std::lock_guard<std::mutex>(mutexes_.resourceFiles);
-		for (it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
-			rawSize += it->second->RawResourceSize(*resource);
-			if (rawSize != 0) break;
-		}
-	}
+    for (it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
+        rawSize += it->second->RawResourceSize(*resource);
+        if (rawSize != 0) break;
+    }
 
 	char* rawBuffer = loader->UseRawFile() ? Allocate(rawSize) : new char[rawSize];
 
@@ -184,9 +170,6 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
 	}
 
 	if (handle) {
-		std::lock_guard<std::mutex>(mutexes_.lru);
-		std::lock_guard<std::mutex>(mutexes_.resources);
-
 		lru_.push_front(handle);
 		resources_[resource->name] = handle;
 	}
@@ -195,7 +178,6 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
 }
 
 void ZResourceCache::Free(std::shared_ptr<ZResourceHandle> handle) {
-	std::lock_guard<std::mutex>(mutexes_.lru);
 	lru_.remove(handle);
 	FreeMemory(handle->Size());
 }
@@ -217,9 +199,6 @@ bool ZResourceCache::MakeRoom(unsigned int size) {
 }
 
 char* ZResourceCache::Allocate(unsigned int size) {
-	std::lock_guard<std::mutex>(mutexes_.allocated);
-	std::lock_guard<std::mutex>(mutexes_.lru);
-
 	if (!MakeRoom(size)) return nullptr;
 
 	char* mem = new char[size];
@@ -234,15 +213,14 @@ void ZResourceCache::FreeOneResource() {
 
 	std::shared_ptr<ZResourceHandle> handle = *removed;
 
-	std::lock_guard<std::mutex>(mutexes_.resources);
 	lru_.pop_back();
-	resources_.erase(handle->resource_.name);
+    
+    resources_.erase(handle->resource_.name);
 
 	FreeMemory(handle->Size());
 	handle->resourceCache_ = nullptr;
 }
 
 void ZResourceCache::FreeMemory(unsigned int size) {
-	std::lock_guard<std::mutex>(mutexes_.allocated);
 	allocated_ -= size;
 }

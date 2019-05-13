@@ -40,6 +40,20 @@ ZGraphicsFactory::ZGraphicsFactory() {
 	modelCreators_["Sphere"] = &ZModel::NewSpherePrimitive;
 	modelCreators_["Cylinder"] = &ZModel::NewCylinderPrimitive;
 	modelCreators_["Cone"] = &ZModel::NewConePrimitive;
+    
+    ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphicsFactory::HandleShaderReady);
+    ZEngine::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+    
+    ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphicsFactory::HandleTextureReady);
+    ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+}
+
+ZGraphicsFactory::~ZGraphicsFactory() {
+    ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphicsFactory::HandleShaderReady);
+    ZEngine::EventAgent()->RemoveListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+    
+    ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphicsFactory::HandleTextureReady);
+    ZEngine::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
 }
 
 void ZGraphicsFactory::CreateShadersAsync(std::shared_ptr<ZOFTree> data) {
@@ -62,9 +76,6 @@ void ZGraphicsFactory::CreateShadersAsync(std::shared_ptr<ZOFTree> data) {
 			pendingShaders_[shader] = it->first;
 		}
 	}
-
-	ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphicsFactory::HandleShaderReady);
-	ZEngine::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
 
 	for (auto it = pendingShaders_.begin(); it != pendingShaders_.end(); it++) {
 		it->first->InitializeAsync();
@@ -111,9 +122,6 @@ void ZGraphicsFactory::CreateTexturesAsync(std::shared_ptr<ZOFTree> data) {
 			}
 		}
 	}
-
-	ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphicsFactory::HandleTextureReady);
-	ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
 
 	for (auto it = pendingTextures_.begin(); it != pendingTextures_.end(); it++) {
 		ZEngine::Graphics()->Strategy()->LoadTextureAsync(it->first, "");

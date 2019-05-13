@@ -33,6 +33,7 @@
 #include "ZEngine.hpp"
 #include "ZCommon.hpp"
 #include "ZTextureReadyEvent.hpp"
+#include "ZEventAgent.hpp"
 
 ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
 	SetImage(path);
@@ -53,6 +54,10 @@ void ZUIImage::Render(float frameMix, RENDER_OP renderOp) {
 void ZUIImage::SetImage(std::string path) {
 	if (!path.empty()) {
 		path_ = path;
+        
+        ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
+        ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+        
 		ZEngine::Graphics()->Strategy()->LoadTextureAsync(path, "");
 	}
 }
@@ -62,5 +67,8 @@ void ZUIImage::HandleTextureReady(std::shared_ptr<ZEvent> event) {
 	if (textureReadyEvent->Texture().path == path_) {
 		texture_ = textureReadyEvent->Texture();
 		texture_.type = "image";
+        
+        ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
+        ZEngine::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
 	}
 }

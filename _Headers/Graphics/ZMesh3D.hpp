@@ -52,6 +52,8 @@ public:
     ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
     ~ZMesh3D();
     
+    void Initialize() override;
+    
     void Render(ZShader* shader, ZMaterial* material) override;
     
 };

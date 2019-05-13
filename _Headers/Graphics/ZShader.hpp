@@ -37,7 +37,7 @@
 class ZMaterial;
 
 // Class and Data Structure Definitions
-class ZShader {
+class ZShader : public std::enable_shared_from_this<ZShader> {
 
 private:
 

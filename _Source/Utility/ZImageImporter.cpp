@@ -9,7 +9,7 @@
 	ZImageImporter.cpp
 
 	Created by Adrian Sanchez on 12/05/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+	Copyright ï¿½ 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
 
@@ -32,6 +32,8 @@
 #include "ZResourceCache.hpp"
 #include "ZResourceExtraData.hpp"
 
+std::mutex ZImageImporter::importerMutex_;
+
 std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::string path, bool hdr, bool flipped) {
 	ZResource resource(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
 	std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
@@ -40,11 +42,13 @@ std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::string path, boo
 
 std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::shared_ptr<ZResourceHandle> handle, bool hdr, bool flipped) {
 	if (!handle) return nullptr;
+    
+    std::shared_ptr<ZTextureResourceExtraData> extraData = std::make_shared<ZTextureResourceExtraData>();
+    handle->SetExtra(extraData);
 
+    std::lock_guard<std::mutex> importerLock(importerMutex_);
 	stbi_set_flip_vertically_on_load(flipped);
 
-	std::shared_ptr<ZTextureResourceExtraData> extraData = std::make_shared<ZTextureResourceExtraData>();
-	handle->SetExtra(extraData);
 	if (handle->Resource().type == ZResourceType::HDRTexture) {
 		extraData->fData_ = stbi_loadf_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 0);
 	} else {

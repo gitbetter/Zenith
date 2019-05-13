@@ -69,8 +69,8 @@ public:
 	virtual void BindFramebuffer(ZBufferData frameBuffer) = 0;
 	virtual void UnbindFramebuffer() = 0;
 	virtual ZTexture LoadDefaultTexture() = 0;
-	virtual void LoadTextureAsync(std::string path, const std::string &directory, bool hdr = false, bool flip = false, bool equirect = false) = 0;
-	virtual ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) = 0;
+	virtual void LoadTextureAsync(std::string path, const std::string &directory, bool hdr = false, bool flip = true, bool equirect = false) = 0;
+	virtual ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = true) = 0;
 	virtual ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flip = false) = 0;
 	virtual ZTexture LoadEmptyLUT() = 0;
 	virtual ZTexture LoadDepthTexture() = 0;

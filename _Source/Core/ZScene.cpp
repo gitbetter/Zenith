@@ -78,8 +78,8 @@ void ZScene::Initialize() {
 void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
 	// TODO: The more systems are populated this way, the more of a hamper we place on
 	// load times. Refactor this so the object tree is only traversed once.
-	ZEngine::ScriptManager()->Load(objectTree);
-	ZEngine::Graphics()->Load(objectTree);
+	ZEngine::ScriptManager()->LoadAsync(objectTree);
+	ZEngine::Graphics()->LoadAsync(objectTree);
 
 	ZOFLoadResult zofResults;
 	zofResults.gameObjects = ZEngine::GameObjectFactory()->Load(objectTree);
@@ -175,7 +175,7 @@ void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
 
 void ZScene::SetDefaultSkybox() {
     skybox_ = std::shared_ptr<ZSkybox>(new ZSkybox);
-	skybox_->Initialize(ZEngine::DEFAULT_HDR_CUBEMAP);
+	skybox_->InitializeAsync(ZEngine::DEFAULT_HDR_CUBEMAP);
 	AddGameObject(skybox_);
 }
 
