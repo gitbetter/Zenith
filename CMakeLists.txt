@@ -16,6 +16,7 @@ ${HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
 ${SOURCE_DIR}/Utility/ZIDSequence.cpp
 ${SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
 ${SOURCE_DIR}/Utility/ZModelImporter.cpp
+${SOURCE_DIR}/Utility/ZImageImporter.cpp
 ${SOURCE_DIR}/Utility/stb_image.cpp
 ${SOURCE_DIR}/UI/ZUIElement.cpp
 ${SOURCE_DIR}/UI/Elements/ZUICursor.cpp
@@ -43,6 +44,7 @@ ${SOURCE_DIR}/ResourceCache/ZResourceCache.cpp
 ${SOURCE_DIR}/ResourceCache/ResourceFiles/ZZipFile.cpp
 ${SOURCE_DIR}/ResourceCache/ResourceFiles/ZDevResourceFile.cpp
 ${SOURCE_DIR}/ResourceCache/ZResourceExtraData.cpp
+${SOURCE_DIR}/ResourceCache/ZResourceLoadTask.cpp
 ${SOURCE_DIR}/ResourceCache/ZResourceLoader.cpp
 ${SOURCE_DIR}/ResourceCache/ZResource.cpp
 ${SOURCE_DIR}/ResourceCache/ZResourceFile.cpp
@@ -102,6 +104,12 @@ ${SOURCE_DIR}/EventAgent/Events/ZFireEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectSelectedEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectDragEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZResourceLoadedEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZModelReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZScriptReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZShaderReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZSoundReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZTextureReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZZOFReadyEvent.cpp
 ${SOURCE_DIR}/EventAgent/ZScriptableEvent.cpp
 ${SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${SOURCE_DIR}/Audio/ZAudio.cpp
@@ -139,6 +147,12 @@ ${HEADERS_DIR}/EventAgent/Events/ZObjectSelectedEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZResourceLoadedEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZQuitEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZRaycastEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZModelReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZScriptReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZShaderReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZSoundReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZTextureReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZZOFReadyEvent.hpp
 ${HEADERS_DIR}/Factories/ZGOFactory.hpp
 ${HEADERS_DIR}/Factories/ZGraphicsFactory.hpp
 ${HEADERS_DIR}/Factories/ZPhysicsFactory.hpp
@@ -181,6 +195,7 @@ ${HEADERS_DIR}/ResourceCache/ZResourceCache.hpp
 ${HEADERS_DIR}/ResourceCache/ZResourceFile.hpp
 ${HEADERS_DIR}/ResourceCache/ZResourceHandle.hpp
 ${HEADERS_DIR}/ResourceCache/ZResourceLoader.hpp
+${HEADERS_DIR}/ResourceCache/ZResourceLoadTask.hpp
 ${HEADERS_DIR}/ResourceCache/ZResourceExtraData.hpp
 ${HEADERS_DIR}/ResourceCache/ResourceFiles/ZZipFile.hpp
 ${HEADERS_DIR}/ResourceCache/ResourceFiles/ZDevResourceFile.hpp
@@ -204,6 +219,7 @@ ${HEADERS_DIR}/Utility/ZIDSequence.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFParser.hpp
 ${HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFTree.hpp
 ${HEADERS_DIR}/Utility/ZModelImporter.hpp
+${HEADERS_DIR}/Utility/ZImageImporter.hpp
 ${HEADERS_DIR}/Windowing/ZDomain.hpp
 ${HEADERS_DIR}/Windowing/ZDomainStrategy.hpp
 ${HEADERS_DIR}/Windowing/ZGLDomainStrategy.hpp

@@ -6,10 +6,10 @@
 	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
 	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZResource.cpp
+	ZShaderReadyEvent.cpp
 
-	Created by Adrian Sanchez on 08/03/2019.
-	Copyright Â© 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 12/05/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,13 +27,6 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZResource.hpp"
+#include "ZShaderReadyEvent.hpp"
 
-ZResource::ZResource(const std::string& name, ZResourceType type) {
-	this->type = type;
-#ifdef DEV_BUILD
-	this->name = "../" + name;
-#else
-	this->name = name;
-#endif
-}
+const ZEventType ZShaderReadyEvent::Type(0xb7c88580);

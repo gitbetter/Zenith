@@ -30,6 +30,7 @@
 #include "ZScene.hpp"
 #include "ZLight.hpp"
 #include "ZEngine.hpp"
+#include "ZLuaScriptManager.hpp"
 #include "ZGraphics.hpp"
 #include "ZGameObject.hpp"
 #include "ZSkybox.hpp"
@@ -37,19 +38,63 @@
 #include "ZDomain.hpp"
 #include "ZPhysics.hpp"
 #include "ZUI.hpp"
+#include "ZUICursor.hpp"
 #include "ZEventAgent.hpp"
 #include "ZQuitEvent.hpp"
 #include "ZSceneRoot.hpp"
+#include "ZResourceHandle.hpp"
+#include "ZResourceLoadedEvent.hpp"
+#include "ZResourceExtraData.hpp"
+#include "ZGOFactory.hpp"
+#include "ZUIFactory.hpp"
 
 ZScene::ZScene() {
     root_ = std::make_shared<ZSceneRoot>();
     root_->scene_ = this;
 }
 
+ZScene::ZScene(std::initializer_list<std::string> zofPaths) : ZScene() {
+	// Make sure scene description paths are cached before 
+	// loading them asynchronously
+	for (std::string path : zofPaths) {
+		pendingSceneDefinitions_[path] = true;
+	}
+}
+
 void ZScene::Initialize() {
-    ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
-    ZEngine::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
+	ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
+	ZEngine::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
+
+	ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
+	ZEngine::EventAgent()->AddListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
+
+	for (auto it = pendingSceneDefinitions_.begin(); it != pendingSceneDefinitions_.end(); it++) {
+		ZEngine::LoadZOF(it->first);
+	}
+
     ZProcess::Initialize();
+}
+
+void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
+	// TODO: The more systems are populated this way, the more of a hamper we place on
+	// load times. Refactor this so the object tree is only traversed once.
+	ZEngine::ScriptManager()->Load(objectTree);
+	ZEngine::Graphics()->Load(objectTree);
+
+	ZOFLoadResult zofResults;
+	zofResults.gameObjects = ZEngine::GameObjectFactory()->Load(objectTree);
+	zofResults.uiElements = ZEngine::UIFactory()->Load(objectTree);
+
+	for (ZGameObjectMap::iterator it = zofResults.gameObjects.begin(); it != zofResults.gameObjects.end(); it++) {
+		AddGameObject(it->second);
+	}
+
+	for (ZUIElementMap::iterator it = zofResults.uiElements.begin(); it != zofResults.uiElements.end(); it++) {
+		if (std::dynamic_pointer_cast<ZUICursor>(it->second))
+			ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
+		else
+			ZEngine::UI()->AddElement(it->second);
+	}
 }
 
 void ZScene::Update() {
@@ -136,4 +181,20 @@ void ZScene::SetDefaultSkybox() {
 
 void ZScene::HandleQuit(std::shared_ptr<ZEvent> event) {
     ZEngine::Domain()->Strategy()->ReleaseCursor();
+}
+
+void ZScene::HandleZOFReady(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	if (!loaded->Handle()) return;
+
+	if (pendingSceneDefinitions_.find(loaded->Handle()->Resource().name) != pendingSceneDefinitions_.end()) {
+		std::shared_ptr<ZZOFResourceExtraData> extraData = std::dynamic_pointer_cast<ZZOFResourceExtraData>(loaded->Handle()->ExtraData());
+		LoadSceneData(extraData->ObjectTree());
+		pendingSceneDefinitions_.erase(loaded->Handle()->Resource().name);
+	}
+
+	if (pendingSceneDefinitions_.empty()) {
+		ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
+		ZEngine::EventAgent()->RemoveListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
+	}
 }

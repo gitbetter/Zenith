@@ -42,6 +42,7 @@ class ZScene : public ZProcess {
     
 private:
     
+	std::map<std::string, bool> pendingSceneDefinitions_;
     // TODO: Create a light manager class to handle the scene lights
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
     std::shared_ptr<ZGameObject> root_ = nullptr;
@@ -51,15 +52,19 @@ private:
     ZGameObjectMap gameObjects_;
     
     void Render();
+	void LoadSceneData(std::shared_ptr<ZOFTree> objectTree);
+
+	void HandleZOFReady(std::shared_ptr<ZEvent> event);
     
 public:
     
-    ZScene();
+	ZScene();
+	ZScene(std::initializer_list<std::string> zofPaths);
     ~ZScene() { }
     
     void Initialize() override;
     void Update() override;
-    
+
     std::shared_ptr<ZGameObject> Root() { return root_; }
     std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
     std::shared_ptr<ZGameObject> ActiveCamera() { return activeCamera_; }

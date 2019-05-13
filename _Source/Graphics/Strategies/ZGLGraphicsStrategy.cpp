@@ -39,6 +39,11 @@
 #include "ZCommon.hpp"
 #include "ZResourceCache.hpp"
 #include "ZResource.hpp"
+#include "ZImageImporter.hpp"
+#include "ZResourceExtraData.hpp"
+#include "ZEventAgent.hpp"
+#include "ZResourceLoadedEvent.hpp"
+#include "ZTextureReadyEvent.hpp"
 
 void ZGLGraphicsStrategy::Initialize() {
     drawingStylesMap_[ZMeshDrawStyle::Point] = GL_POINT;
@@ -311,40 +316,52 @@ ZTexture ZGLGraphicsStrategy::LoadDefaultTexture() {
     return texture;
 }
 
+void ZGLGraphicsStrategy::LoadTextureAsync(std::string path, const std::string &directory, bool hdr, bool flip, bool equirect) {
+	std::string filename = (!directory.empty() ? directory + '/' : "") + path;
+	ZResourceType type = ZResourceType::Other;
+	if (hdr && equirect) type = ZResourceType::HDREquirectangularMap;
+	else if (hdr) type = ZResourceType::HDRTexture;
+	else type = ZResourceType::Texture;
+
+	ZResource modelResource(filename, type);
+	ZEngine::ResourceCache()->RequestHandle(modelResource);
+
+	ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZGLGraphicsStrategy::HandleTextureLoaded);
+	ZEngine::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+}
+
 ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &directory, bool hdr, bool flip) {
+	std::string filename = (!directory.empty() ? directory + '/' : "") + path;
+	std::shared_ptr<ZResourceHandle> handle = ZImageImporter::LoadImage(filename, hdr, flip);
+	return LoadTexture(handle, hdr, flip);
+}
+
+ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr, bool flip) {
     ZTexture texture;
     glGenTextures(1, &texture.id);
     glBindTexture(GL_TEXTURE_2D, texture.id);
     
-    std::string filename = (!directory.empty() ? directory + '/' : "") + path;
-    ZResource resource(filename);
-    std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
-    
     if (!handle) {
-        _Z("Failed to load texture at " + filename, ZERROR);
+        _Z("Failed to load texture at " + handle->Resource().name, ZERROR);
         return texture;
     }
     
-    stbi_set_flip_vertically_on_load(flip);
-    
-    int width, height, nrComponents;
+	std::shared_ptr<ZTextureResourceExtraData> textureData = std::dynamic_pointer_cast<ZTextureResourceExtraData>(handle->ExtraData());
+
     if (hdr) {
-        float *data = stbi_loadf_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &width, &height, &nrComponents, 0);
-        if (data) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
+        if (textureData->FloatData()) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, textureData->Width(), textureData->Height(), 0, GL_RGB, GL_FLOAT, textureData->FloatData());
             
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         } else {
-            _Z("ZGLGraphicsStrategy Error: Failed to load HDR texture at " + path, ZERROR);
+            _Z("ZGLGraphicsStrategy Error: Failed to load HDR texture at " + handle->Resource().name, ZERROR);
         }
-        stbi_image_free(data);
     } else {
-        unsigned char *data = stbi_load_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &width, &height, &nrComponents, 4);
-        if (data) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        if (textureData->FloatData()) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData->Width(), textureData->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData->FloatData());
             glGenerateMipmap(GL_TEXTURE_2D);
             
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -352,11 +369,11 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &d
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         } else {
-            _Z("ZGLGraphicsStrategy Error: Failed to load texture at " + path, ZERROR);
+            _Z("ZGLGraphicsStrategy Error: Failed to load texture at " + handle->Resource().name, ZERROR);
         }
-        stbi_image_free(data);
     }
     
+	texture.path = handle->Resource().name;
     return texture;
 }
 
@@ -382,7 +399,7 @@ ZTexture ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
     
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {
-        ZResource resource(faces[i]);
+        ZResource resource(faces[i], ZResourceType::Texture);
         std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
         
         if (!handle) {
@@ -512,10 +529,18 @@ void ZGLGraphicsStrategy::UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D
     glBindVertexArray(0);
 }
 
+void ZGLGraphicsStrategy::EquirectToCubemapAsync(std::string equirectHDRPath) {
+	LoadTextureAsync(equirectHDRPath, "", true, true, true);
+}
+
 ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) {
-    bufferData = LoadCubeMapBuffer();
-    ZTexture cubeMap = LoadEmptyCubeMap();
-    ZTexture hdrTexture = LoadTexture(equirectHDRPath, "", true, true);
+	ZTexture hdrTexture = LoadTexture(equirectHDRPath, "", true, true);
+	return EquirectToCubemap(hdrTexture, bufferData);
+}
+
+ZTexture ZGLGraphicsStrategy::EquirectToCubemap(ZTexture& hdrTexture, ZBufferData& bufferData) {
+	bufferData = LoadCubeMapBuffer();
+	ZTexture cubeMap = LoadEmptyCubeMap();
     
     glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.f, 0.1f, 100.0f);
     glm::mat4 captureViews[] = {
@@ -528,8 +553,8 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBu
     };
     
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader equirectToCubemapShader;
-    equirectToCubemapShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/equirect_to_cube.frag");
+    ZShader equirectToCubemapShader("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/equirect_to_cube.frag");
+    equirectToCubemapShader.Initialize();
     equirectToCubemapShader.Activate();
     equirectToCubemapShader.SetInt("equirectangularMap", 1);
     equirectToCubemapShader.SetMat4("P", captureProjection);
@@ -568,8 +593,8 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
     };
     
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader irradianceShader;
-    irradianceShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/irradiance.frag");
+    ZShader irradianceShader("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/irradiance.frag");
+    irradianceShader.Initialize();
     irradianceShader.Activate();
     irradianceShader.SetInt("environmentMap", 1);
     irradianceShader.SetMat4("P", captureProjection);
@@ -606,8 +631,8 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
     };
     
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader prefilterShader;
-    prefilterShader.Initialize("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/prefilter_convolution.frag");
+    ZShader prefilterShader("Assets/Shaders/Vertex/basic.vert", "Assets/Shaders/Pixel/prefilter_convolution.frag");
+    prefilterShader.Initialize();
     prefilterShader.Activate();
     prefilterShader.SetInt("environmentMap", 1);
     prefilterShader.SetMat4("P", captureProjection);
@@ -648,8 +673,8 @@ ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData) {
         ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
     };
     ZBufferData quadBufferData = LoadVertexData(quadVertices);
-    ZShader brdfLUTShader;
-    brdfLUTShader.Initialize("Assets/Shaders/Vertex/brdf_lut.vert", "Assets/Shaders/Pixel/brdf_lut.frag");
+    ZShader brdfLUTShader("Assets/Shaders/Vertex/brdf_lut.vert", "Assets/Shaders/Pixel/brdf_lut.frag");
+    brdfLUTShader.Initialize();
     brdfLUTShader.Activate();
     
     glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
@@ -688,6 +713,25 @@ void ZGLGraphicsStrategy::DrawLines(ZBufferData bufferData, std::vector<ZVertex3
     glDrawArrays(GL_LINES, 0, 2);
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
+}
+
+void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	if (!loaded->Handle()) return;
+
+	std::shared_ptr<ZTextureResourceExtraData> textureData = std::dynamic_pointer_cast<ZTextureResourceExtraData>(loaded->Handle()->ExtraData());
+
+	ZTexture texture = LoadTexture(loaded->Handle(), textureData->IsHDR(), textureData->IsFlipped());
+
+	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent;
+	if (loaded->Handle()->Resource().type == ZResourceType::HDREquirectangularMap) {
+		ZBufferData bufferData;
+		texture = EquirectToCubemap(texture, bufferData);
+		std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::make_shared<ZTextureReadyEvent>(texture, bufferData);
+	} else {
+		std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::make_shared<ZTextureReadyEvent>(texture);
+	}
+	ZEngine::EventAgent()->QueueEvent(textureReadyEvent);
 }
 
 void ZGLGraphicsStrategy::GLFWErrorCallback(int id, const char* description) {

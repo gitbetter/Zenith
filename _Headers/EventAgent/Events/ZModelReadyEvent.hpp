@@ -6,10 +6,10 @@
 	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
 	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZResource.cpp
+	ZModelReadyEvent.hpp
 
-	Created by Adrian Sanchez on 08/03/2019.
-	Copyright Â© 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 12/05/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,13 +27,33 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZResource.hpp"
+#pragma once
 
-ZResource::ZResource(const std::string& name, ZResourceType type) {
-	this->type = type;
-#ifdef DEV_BUILD
-	this->name = "../" + name;
-#else
-	this->name = name;
-#endif
-}
+// Includes
+#include "ZEvent.hpp"
+
+// Forward Declarations
+class ZModel;
+
+// Class and Data Structure Definitions
+class ZModelReadyEvent : public ZBaseEvent {
+
+private:
+	
+	std::shared_ptr<ZModel> model_;
+
+public:
+
+	static const ZEventType Type;
+
+	explicit ZModelReadyEvent(std::shared_ptr<ZModel> model) : model_(model) {}
+	explicit ZModelReadyEvent(std::istringstream& in) {}
+
+	const ZEventType& EventType() const override { return Type; };
+	std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZModelReadyEvent>(new ZModelReadyEvent(model_)); }
+	void Serialize(std::ostringstream& out) const override {}
+	std::string Name() const override { return "ZModelReadyEvent"; }
+
+	std::shared_ptr<ZModel> Model() { return model_; }
+
+};

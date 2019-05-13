@@ -51,7 +51,7 @@ bool ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
 
 			if (props.find("path") != props.end() && props["path"]->HasValues()) {
 				std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
-				ZResource scriptResource(prop->value);
+				ZResource scriptResource(prop->value, ZResourceType::Script);
 				ZEngine::ResourceCache()->GetHandle(&scriptResource);
 				found = true;
 			}

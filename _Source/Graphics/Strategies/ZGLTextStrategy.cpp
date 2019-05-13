@@ -36,7 +36,7 @@
 #include "ZResourceCache.hpp"
 
 void ZGLTextStrategy::LoadFont(std::string fontPath, unsigned int fontSize) {
-  ZResource resource(fontPath);
+  ZResource resource(fontPath, ZResourceType::Font);
   std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
 
 	if (handle == nullptr) return;

@@ -154,7 +154,7 @@ enum class ZPrimitiveType {
     Plane, Cube, Sphere, Cylinder, Cone
 };
 
-enum class ZShaderTypes {
+enum class ZShaderType {
     Vertex, Pixel, Tesselation, Geometry, Other
 };
 
@@ -167,7 +167,9 @@ enum class ZSoundType {
 };
 
 enum class ZResourceType {
-	ZOF, Model, Shader, Texture, Sound, Script
+	ZOF, Model, VertexShader, PixelShader, TesselationShader, 
+	GeometryShader, Texture, HDRTexture, HDREquirectangularMap,
+	Sound, Script, Font, Other
 };
 
 enum class ZAnimationState {

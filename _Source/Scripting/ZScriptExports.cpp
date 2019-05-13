@@ -38,7 +38,7 @@
 #include "ZEventAgent.hpp"
 
 bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scriptResource) {
-  ZResource resource(scriptResource);
+  ZResource resource(scriptResource, ZResourceType::Script);
   std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
   return handle != nullptr;
 }

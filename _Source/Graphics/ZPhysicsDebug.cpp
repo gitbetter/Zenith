@@ -35,8 +35,8 @@
 #include "ZGame.hpp"
 
 void ZPhysicsDebug::Initialize() {
-	shader_ = std::unique_ptr<ZShader>(new ZShader);
-	shader_->Initialize("Assets/Shaders/Vertex/debug.vert", "Assets/Shaders/Pixel/debug.frag");
+	shader_ = std::unique_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/debug.vert", "Assets/Shaders/Pixel/debug.frag"));
+	shader_->Initialize();
 }
 
 void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {

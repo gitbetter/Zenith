@@ -35,6 +35,11 @@
 #include "ZCommon.hpp"
 #include "ZAnimation.hpp"
 #include "ZSkeleton.hpp"
+#include "ZResourceCache.hpp"
+#include "ZEventAgent.hpp"
+#include "ZResourceLoadedEvent.hpp"
+#include "ZResourceExtraData.hpp"
+#include "ZModelReadyEvent.hpp"
 
 ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) : globalInverseTransform_(glm::mat4(1.f)) {
     switch (primitiveType) {
@@ -53,10 +58,22 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) : globalInverseTra
 }
 
 void ZModel::Initialize(std::string path) {
+	modelPath_ = path;
+
     ZModelImporter importer;
     meshes_ = importer.LoadModel(path, bonesMap_, bones_, animations_, skeleton_);
     if (skeleton_) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
     InitializeAABB();
+}
+
+void ZModel::InitializeAsync(std::string path) {
+	modelPath_ = path;
+
+	ZResource modelResource(path, ZResourceType::Model);
+	ZEngine::ResourceCache()->RequestHandle(modelResource);
+
+	ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);
+	ZEngine::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
 }
 
 void ZModel::Render(ZShader* shader) {
@@ -291,18 +308,15 @@ void ZModel::CreateCone(glm::vec3 scale) {
  */
 std::unique_ptr<ZModel> ZModel::NewSkybox(ZIBLTexture& generatedIBLTexture, std::vector<std::string> faces) {
     generatedIBLTexture.cubeMap = ZEngine::Graphics()->Strategy()->LoadCubeMap(faces);
-    
+ 
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }
 
-std::unique_ptr<ZModel> ZModel::NewSkybox(std::string equirectHDR, ZIBLTexture& generatedIBLTexture) {
-    ZBufferData cubemapBuffer;
-    ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(equirectHDR, cubemapBuffer);
-    
+std::unique_ptr<ZModel> ZModel::NewSkybox(ZTexture& cubeMap, ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture) {
     generatedIBLTexture.cubeMap = cubeMap;
-    generatedIBLTexture.irradiance = ZEngine::Graphics()->Strategy()->IrradianceMapFromCubeMap(cubemapBuffer, cubeMap);
-    generatedIBLTexture.prefiltered = ZEngine::Graphics()->Strategy()->PrefilterCubeMap(cubemapBuffer, cubeMap);
-    generatedIBLTexture.brdfLUT = ZEngine::Graphics()->Strategy()->BRDFLUT(cubemapBuffer);
+    generatedIBLTexture.irradiance = ZEngine::Graphics()->Strategy()->IrradianceMapFromCubeMap(bufferData, cubeMap);
+    generatedIBLTexture.prefiltered = ZEngine::Graphics()->Strategy()->PrefilterCubeMap(bufferData, cubeMap);
+    generatedIBLTexture.brdfLUT = ZEngine::Graphics()->Strategy()->BRDFLUT(bufferData);
     
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }
@@ -423,5 +437,26 @@ glm::vec3 ZModel::CalculateInterpolatedPosition(double animationTime, std::share
     glm::vec3 delta = end - start;
     
     return start + (float)factor * delta;
+}
+
+void ZModel::HandleModelLoaded(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	if (!loaded->Handle()) return;
+
+	std::shared_ptr<ZModelResourceExtraData> extraData = std::dynamic_pointer_cast<ZModelResourceExtraData>(loaded->Handle()->ExtraData());
+
+	if (loaded->Handle()->Resource().name == modelPath_) {
+		meshes_ = extraData->Meshes();
+		bonesMap_ = extraData->BoneMap();
+		bones_ = extraData->Bones();
+		animations_ = extraData->Animations();
+		skeleton_ = extraData->Skeleton();
+
+		ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);
+		ZEngine::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+
+		std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(shared_from_this());
+		ZEngine::EventAgent()->QueueEvent(modelReadyEvent);
+	}
 }
 

@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
-    ZSkybox.cpp
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    Created by Adrian Sanchez on 02/03/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZSkybox.cpp
+
+	Created by Adrian Sanchez on 02/03/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -30,21 +30,47 @@
 #include "ZSkybox.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
+#include "ZEventAgent.hpp"
 #include "ZGraphicsComponent.hpp"
+#include "ZTextureReadyEvent.hpp"
 
-void ZSkybox::Initialize(std::string hdrMap) {
-  std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(hdrMap, iblTexture_);
+void ZSkybox::Initialize(const std::string& hdrMap) {
+	hdrPath_ = hdrMap;
+	ZBufferData cubemapBuffer;
+	ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(hdrMap, cubemapBuffer);
+	Initialize(cubeMap, cubemapBuffer);
+}
 
-  std::shared_ptr<ZShader> skyboxShader(new ZShader);
-  skyboxShader->Initialize("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag");
+void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
+	ZBufferData cubemapBuffer;
+	std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, cubemapBuffer, iblTexture_);
 
-  std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
-  skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
+	std::shared_ptr<ZShader> skyboxShader(new ZShader("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag"));
+	skyboxShader->Initialize();
 
-  std::vector<ZTexture> textures = { iblTexture_.cubeMap };
-  skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
+	std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
+	skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
-  AddComponent(skyboxGraphicsComponent);
-  ZEngine::ProcessRunner()->AttachProcess(skyboxGraphicsComponent);
-  properties_.renderPass = ZRenderPass::Sky;
+	std::vector<ZTexture> textures = { iblTexture_.cubeMap };
+	skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
+
+	AddComponent(skyboxGraphicsComponent);
+	ZEngine::ProcessRunner()->AttachProcess(skyboxGraphicsComponent);
+	properties_.renderPass = ZRenderPass::Sky;
+}
+
+void ZSkybox::InitializeAsync(const std::string& hdrMap) {
+	ZEngine::Graphics()->Strategy()->EquirectToCubemapAsync(hdrMap);
+
+	ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
+	ZEngine::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+}
+
+void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+	if (textureReadyEvent->Texture().path == hdrPath_) {
+		Initialize(textureReadyEvent->Texture(), textureReadyEvent->BufferData());
+		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
+		ZEngine::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+	}
 }

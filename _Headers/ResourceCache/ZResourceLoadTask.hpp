@@ -6,10 +6,10 @@
 	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
 	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZResource.cpp
+	ZResourceLoadTask.hpp
 
-	Created by Adrian Sanchez on 08/03/2019.
-	Copyright Â© 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 12/05/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,13 +27,31 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZResource.hpp"
+#pragma once
 
-ZResource::ZResource(const std::string& name, ZResourceType type) {
-	this->type = type;
-#ifdef DEV_BUILD
-	this->name = "../" + name;
-#else
-	this->name = name;
-#endif
-}
+// Includes
+#include "ZConcurrentProcess.hpp"
+#include "ZResourceCache.hpp"
+
+// Forward Declarations
+//class SomeClass;
+
+// Class and Data Structure Definitions
+class ZResourceLoadTask : public ZConcurrentProcess, public std::enable_shared_from_this<ZResourceLoadTask> {
+
+private:
+
+	ZResource resource_;
+
+public:
+
+	ZResourceLoadTask(ZResource& resource) : ZConcurrentProcess(), resource_(resource) { }
+	~ZResourceLoadTask() { }
+
+	void Start();
+
+protected:
+
+	void Run() override;
+
+};

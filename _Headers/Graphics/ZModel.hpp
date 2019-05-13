@@ -40,12 +40,14 @@ class ZShader;
 struct ZSkeleton;
 struct ZJoint;
 struct ZJointAnimation;
+class ZEvent;
 
 // Class Definitions
-class ZModel {
+class ZModel : public std::enable_shared_from_this<ZModel> {
     
 private:
     
+	std::string modelPath_;
     ZMesh3DMap meshes_;
     ZBoneMap bonesMap_;
     ZBoneList bones_;
@@ -68,6 +70,7 @@ public:
     virtual ~ZModel() { }
     
     void Initialize(std::string path);
+	void InitializeAsync(std::string path);
     
     virtual void Render(ZShader* shader);
     virtual void Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials);
@@ -91,7 +94,7 @@ public:
     static std::unique_ptr<ZModel> NewCylinderPrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewConePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, std::vector<std::string> faces = ZEngine::DEFAULT_SKYBOX_CUBEMAP);
-    static std::unique_ptr<ZModel> NewSkybox(std::string equirectHDR, ZIBLTexture& generatedIBLTexture);
+    static std::unique_ptr<ZModel> NewSkybox(ZTexture& cubeMap, ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture);
     
 protected:
     
@@ -99,5 +102,7 @@ protected:
     glm::vec3 CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
     glm::quat CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
     glm::vec3 CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
+
+	void HandleModelLoaded(std::shared_ptr<ZEvent> event);
     
 };

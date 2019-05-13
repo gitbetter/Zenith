@@ -44,36 +44,41 @@
  @param outMeshes the mesh vector to populate.
  */
 ZMesh3DMap ZModelImporter::LoadModel(std::string modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton) {
-    ZMesh3DMap meshes;
-    
+	std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
+
     // Cache in the model data from the given file
-    ZResource resource(modelPath);
+    ZResource resource(modelPath, ZResourceType::Model);
     std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
     
-    // TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
-    Assimp::Importer import;
-    const aiScene* scene = import.ReadFileFromMemory((const void*)handle->Buffer(), (size_t)handle->Size(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
-    
-    // The file might have incomplete data or no nodes to traverse. Handle that.
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        _Z(std::string("ZModelImporter Error: ") + import.GetErrorString(), ZERROR);
-        return meshes;
-    }
-    
-    // Start processing nodes
-    std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
-    ProcessNode(scene->mRootNode, scene, modelDirectory, meshes);
-    
-    LoadSkeleton(scene); LoadAnimations(scene);
-    
-    outBoneMap = currentBonesMap_; outBoneList = currentBones_;
-    outAnimationMap = currentAnimations_; outSkeleton = currentSkeleton_;
-    
-    // If we load another model with this ZModelImporter instance, we want to make sure there is no bone data
-    // from previous loads.
-    currentBonesMap_.clear(); currentBones_.clear(); currentAnimations_.clear(); currentSkeleton_.reset();
-    
-    return meshes;
+	return LoadModel(handle, outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
+}
+
+ZMesh3DMap ZModelImporter::LoadModel(std::shared_ptr<ZResourceHandle> modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, std::string modelDirectory) {
+	ZMesh3DMap meshes;
+
+	// TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
+	Assimp::Importer import;
+	const aiScene* scene = import.ReadFileFromMemory((const void*)modelHandle->Buffer(), (size_t)modelHandle->Size(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
+	// The file might have incomplete data or no nodes to traverse. Handle that.
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+		_Z(std::string("ZModelImporter Error: ") + import.GetErrorString(), ZERROR);
+		return meshes;
+	}
+
+	// Start processing nodes
+	ProcessNode(scene->mRootNode, scene, modelDirectory, meshes);
+
+	LoadSkeleton(scene); LoadAnimations(scene);
+
+	outBoneMap = currentBonesMap_; outBoneList = currentBones_;
+	outAnimationMap = currentAnimations_; outSkeleton = currentSkeleton_;
+
+	// If we load another model with this ZModelImporter instance, we want to make sure there is no bone data
+	// from previous loads.
+	currentBonesMap_.clear(); currentBones_.clear(); currentAnimations_.clear(); currentSkeleton_.reset();
+
+	return meshes;
 }
 
 /**

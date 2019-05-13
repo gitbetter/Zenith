@@ -64,6 +64,7 @@ private:
 public:
     
     ZMesh3DMap LoadModel(std::string modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton);
+	ZMesh3DMap LoadModel(std::shared_ptr<ZResourceHandle> modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, std::string modelDirectory = "");
     
     glm::vec3 AssimpToGLMVec3(const aiVector3D& vec);
     glm::quat AssimpToGLMQuat(const aiQuaternion& quat);

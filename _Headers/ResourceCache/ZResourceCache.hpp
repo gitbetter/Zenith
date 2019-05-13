@@ -65,6 +65,7 @@ public:
 	void RegisterLoader(std::shared_ptr<ZResourceLoader> loader);
 	void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
 	std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);
+	void RequestHandle(ZResource& resource);
 	int Preload(const std::string pattern, void(*progressCallback)(int, bool &));
 	void Flush();
 	void FreeMemory(unsigned int size);

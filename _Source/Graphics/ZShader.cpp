@@ -34,6 +34,9 @@
 #include "ZResource.hpp"
 #include "ZResourceCache.hpp"
 #include "ZSkeleton.hpp"
+#include "ZResourceLoadedEvent.hpp"
+#include "ZEventAgent.hpp"
+#include "ZResourceExtraData.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -43,16 +46,38 @@
 // TODO: Make ZShader an interface, and rework this specific implementation as ZGLShader
 // which derives from the ZShader interface
 
-void ZShader::Initialize(const std::string& vShaderPath, const std::string& pShaderPath, const std::string& gShaderPath) {
+void ZShader::Initialize() {
 	// Get the shader sources
-	std::string vShaderCode = GetShaderCode(vShaderPath);
-	std::string pShaderCode = GetShaderCode(pShaderPath);
-	std::string gShaderCode = GetShaderCode(gShaderPath);
+	vertexShaderCode_ = GetShaderCode(vertexShaderPath_, ZShaderType::Vertex);
+	pixelShaderCode_ = GetShaderCode(pixelShaderPath_, ZShaderType::Pixel);
+	geometryShaderCode_ = GetShaderCode(geometryShaderPath_, ZShaderType::Geometry);
 
+	// Compile the shader from the sources
+	Compile();
+}
+
+void ZShader::InitializeAsync() {
+	// Get the shader sources
+	GetShaderCode(vertexShaderPath_, ZShaderType::Vertex, true);
+	GetShaderCode(pixelShaderPath_, ZShaderType::Pixel, true);
+	GetShaderCode(geometryShaderPath_, ZShaderType::Geometry, true);
+
+	ZEventDelegate shaderCodeLoadDelegate = fastdelegate::MakeDelegate(this, &ZShader::HandleShaderCodeLoaded);
+	ZEngine::EventAgent()->AddListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
+}
+
+/**
+	Compiles the shader using the individual shader sources.
+
+	@param vertexShaderCode the vertex shader code as a string.
+	@param pixelShaderCode the pixel shader code as a string.
+	@param geometryShaderCode the geometry shader code as a string.
+*/
+void ZShader::Compile() {
 	// Compile the shaders
-	int vShader = CompileShader(vShaderCode, ZShaderTypes::Vertex);
-	int pShader = CompileShader(pShaderCode, ZShaderTypes::Pixel);
-	int gShader = CompileShader(gShaderCode, ZShaderTypes::Geometry);
+	int vShader = CompileShader(vertexShaderCode_, ZShaderType::Vertex);
+	int pShader = CompileShader(pixelShaderCode_, ZShaderType::Pixel);
+	int gShader = CompileShader(geometryShaderCode_, ZShaderType::Geometry);
 
 	// Create the shader program and link the shaders
 	id_ = CreateProgram(vShader, pShader, gShader);
@@ -69,13 +94,27 @@ void ZShader::Initialize(const std::string& vShaderPath, const std::string& pSha
 	@param shaderPath the path to the shader file.
 	@return a string containing the shader source code.
 */
-std::string ZShader::GetShaderCode(const std::string& shaderPath) {
+std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType shaderType, bool async) {
 	std::string shaderCode;
+	ZResourceType type = ZResourceType::Other;
+
+	switch (shaderType) {
+	case ZShaderType::Vertex: type = ZResourceType::VertexShader; break;
+	case ZShaderType::Pixel: type = ZResourceType::PixelShader; break;
+	case ZShaderType::Tesselation: type = ZResourceType::TesselationShader; break;
+	case ZShaderType::Geometry: type = ZResourceType::GeometryShader; break;
+	default: break;
+	}
+
 	if (!shaderPath.empty()) {
-		ZResource shaderResource(shaderPath);
-		std::shared_ptr<ZResourceHandle> shaderHandle = ZEngine::ResourceCache()->GetHandle(&shaderResource);
-		if (shaderHandle) {
-			shaderCode = std::string((char*)shaderHandle->Buffer());
+		ZResource shaderResource(shaderPath, type);
+		if (async) {
+			ZEngine::ResourceCache()->RequestHandle(shaderResource);
+		} else {
+			std::shared_ptr<ZResourceHandle> shaderHandle = ZEngine::ResourceCache()->GetHandle(&shaderResource);
+			if (shaderHandle) {
+				shaderCode = std::string((char*)shaderHandle->Buffer());
+			}
 		}
 	}
 	return shaderCode;
@@ -85,20 +124,20 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath) {
 	Compiles the shader using the provided shader code and outputs the shader ID.
 
 	@param shaderCode the shader code to compile.
-	@param shaderType the shader type, itself of type ZShaderTypes.
+	@param shaderType the shader type, itself of type ZShaderType.
 	@return the unsigned integer id of the newly created shader, or -1 if the shader could not be compiled.
 */
-int ZShader::CompileShader(const std::string& shaderCode, ZShaderTypes shaderType) {
+int ZShader::CompileShader(const std::string& shaderCode, ZShaderType shaderType) {
 	if (!shaderCode.empty()) {
 		int shader;
 		switch (shaderType) {
-		case ZShaderTypes::Vertex:
+		case ZShaderType::Vertex:
 			shader = glCreateShader(GL_VERTEX_SHADER);
 			break;
-		case ZShaderTypes::Pixel:
+		case ZShaderType::Pixel:
 			shader = glCreateShader(GL_FRAGMENT_SHADER);
 			break;
-		case ZShaderTypes::Geometry:
+		case ZShaderType::Geometry:
 			shader = glCreateShader(GL_GEOMETRY_SHADER);
 			break;
 		default: return -1; // The shader is not supported, so return immediately
@@ -126,7 +165,7 @@ unsigned int ZShader::CreateProgram(int vShader, int pShader, int gShader) {
 	if (pShader != -1) glAttachShader(programId, pShader);
 	if (gShader != -1) glAttachShader(programId, gShader);
 	glLinkProgram(programId);
-	CheckCompileErrors(programId, ZShaderTypes::Other, "Program");
+	CheckCompileErrors(programId, ZShaderType::Other, "Program");
 	return programId;
 }
 
@@ -138,9 +177,9 @@ unsigned int ZShader::CreateProgram(int vShader, int pShader, int gShader) {
 	@param compilationUnit the compilation unit id to check against.
 	@param shaderType the type of the compilation unit.
 */
-void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderTypes shaderType, const std::string& shaderSource) {
+void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderType shaderType, const std::string& shaderSource) {
 	GLint success; GLchar infoLog[1024];
-	bool isShader = shaderType < ZShaderTypes::Other;
+	bool isShader = shaderType < ZShaderType::Other;
 
 	if (isShader) { glGetShaderiv(compilationUnit, GL_COMPILE_STATUS, &success); } else { glGetProgramiv(compilationUnit, GL_LINK_STATUS, &success); }
 
@@ -284,5 +323,41 @@ void ZShader::Use(const ZBoneList& bones) {
     for (unsigned int i = 0, j = bones.size(); i < j; i++) {
         bone = bones[i];
 		SetMat4("Bones[" + std::to_string(i) + "]", bone->transformation);
+	}
+}
+
+void ZShader::HandleShaderCodeLoaded(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	if (!loaded->Handle()) return;
+
+	std::shared_ptr<ZShaderResourceExtraData> extraData = std::dynamic_pointer_cast<ZShaderResourceExtraData>(loaded->Handle()->ExtraData());
+
+	switch (loaded->Handle()->Resource().type) {
+	case ZResourceType::VertexShader:
+		if (loaded->Handle()->Resource().name == vertexShaderPath_) {
+			loadedShadersMask_ |= 1 << 1;
+			vertexShaderCode_ = extraData->Code();
+		}
+		break;
+	case ZResourceType::PixelShader:
+		if (loaded->Handle()->Resource().name == pixelShaderPath_) {
+			loadedShadersMask_ |= 1 << 2;
+			pixelShaderCode_ = extraData->Code();
+		}
+		break;
+	case ZResourceType::GeometryShader:
+		if (loaded->Handle()->Resource().name == geometryShaderPath_) {
+			loadedShadersMask_ |= 1 << 3;
+			geometryShaderCode_ = extraData->Code();
+		}
+		break;
+	default: break;
+	}
+
+	if (loadedShadersMask_ == 7) {
+		ZEventDelegate shaderCodeLoadDelegate = fastdelegate::MakeDelegate(this, &ZShader::HandleShaderCodeLoaded);
+		ZEngine::EventAgent()->RemoveListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
+
+		Compile();
 	}
 }

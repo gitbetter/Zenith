@@ -98,7 +98,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 		std::shared_ptr<ZOFString> nameProp = props["model"]->Value<ZOFString>(0);
 		if (nameProp->value.find(".") != std::string::npos) {
 			model_ = std::shared_ptr<ZModel>(new ZModel);
-            model_->Initialize(nameProp->value);
+            model_->InitializeAsync(nameProp->value);
 		} else {
 			if (props["model"]->ValueCount() > 1) {
 				std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);
@@ -162,8 +162,8 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
 	if (highlightShader_ == nullptr) {
-		highlightShader_ = std::shared_ptr<ZShader>(new ZShader);
-		highlightShader_->Initialize("Assets/Shaders/Vertex/blinnphong.vert", "Assets/Shaders/Pixel/outline.frag");
+		highlightShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/blinnphong.vert", "Assets/Shaders/Pixel/outline.frag"));
+		highlightShader_->Initialize();
 	}
 	highlightColor_ = color;
 }

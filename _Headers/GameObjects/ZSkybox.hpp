@@ -38,6 +38,10 @@
 
 // Class and Data Structure Definitions
 class ZSkybox : public ZGameObject {
+
+private:
+
+	std::string hdrPath_;
     
 public:
     
@@ -46,7 +50,9 @@ public:
     
     void Initialize() override { }
     void Initialize(std::shared_ptr<ZOFNode> root) override { }
-    void Initialize(std::string hdrMap);
+    void Initialize(const std::string& hdrMap);
+	void Initialize(ZTexture& cubeMap, ZBufferData& bufferData);
+	void InitializeAsync(const std::string& hdrMap);
 	bool IsVisible() override { return true; }
     
     ZIBLTexture IBLTexture() const { return iblTexture_; }
@@ -54,5 +60,7 @@ public:
 protected:
     
     ZIBLTexture iblTexture_;
+
+	void HandleCubemapReady(std::shared_ptr<ZEvent> event);
     
 };
