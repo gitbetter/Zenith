@@ -31,9 +31,5 @@
 
 ZResource::ZResource(const std::string& name, ZResourceType type) {
 	this->type = type;
-#ifdef DEV_BUILD
-	this->name = "../" + name;
-#else
 	this->name = name;
-#endif
 }

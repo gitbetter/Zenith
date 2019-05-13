@@ -50,12 +50,6 @@ void ZGraphics::Initialize() {
 }
 
 void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
-	// TODO:
-	// ZEngine::GraphicsFactory()->CreateShadersAsync(root);
-	// ZEngine::GraphicsFactory()->CreateTexturesAsync(root);
-	//
-	// ZEventDelegate loadedResourceDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleResourceLoaded);
-	// ZEngine::EventAgent()->AddListener(loadedShaderDelegate, ZResourceLoadedEvent::Type);
 	ZShaderMap shaders = ZEngine::GraphicsFactory()->CreateShaders(root);
 	for (ZShaderMap::iterator it = shaders.begin(); it != shaders.end(); it++) {
 		AddShader(it->first, it->second);

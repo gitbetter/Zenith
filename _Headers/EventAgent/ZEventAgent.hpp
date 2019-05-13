@@ -40,8 +40,11 @@
 
 // Class and Data Structure Definitions
 const unsigned int NUM_EVENT_QUEUES = 2;
+const unsigned int NUM_LISTENER_QUEUES = 2;
+
 
 class ZScriptableEventAgent {
+
   typedef std::set<ZScriptableEventDelegate*> ScriptEventListeners;
 
   private:
@@ -66,14 +69,14 @@ private:
 
   std::unique_ptr<ZScriptableEventAgent> scriptableEventAgent_;
 
-  EventListenerMap eventListeners_;
+  EventListenerMap eventListeners_[NUM_LISTENER_QUEUES];
   EventQueue eventQueues_[NUM_EVENT_QUEUES];
-  int activeQueue_;
+  int activeQueue_, activeListeners_;
   float updateTimeoutMax_;
 
 public:
 
-    ZEventAgent() : activeQueue_(0), updateTimeoutMax_(ZEngine::UPDATE_STEP_SIZE * 2.f) { }
+    ZEventAgent() : activeQueue_(0), activeListeners_(0), updateTimeoutMax_(ZEngine::UPDATE_STEP_SIZE * 2.f) { }
     ~ZEventAgent() { }
 
     void Initialize() override;

@@ -719,19 +719,28 @@ void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
 	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
 	if (!loaded->Handle()) return;
 
+	ZResource resource = loaded->Handle()->Resource();
+	if (resource.type != ZResourceType::Texture ||
+		resource.type != ZResourceType::HDRTexture ||
+		resource.type != ZResourceType::HDREquirectangularMap)
+		return;
+
 	std::shared_ptr<ZTextureResourceExtraData> textureData = std::dynamic_pointer_cast<ZTextureResourceExtraData>(loaded->Handle()->ExtraData());
 
 	ZTexture texture = LoadTexture(loaded->Handle(), textureData->IsHDR(), textureData->IsFlipped());
 
 	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent;
-	if (loaded->Handle()->Resource().type == ZResourceType::HDREquirectangularMap) {
+	if (resource.type == ZResourceType::HDREquirectangularMap) {
 		ZBufferData bufferData;
 		texture = EquirectToCubemap(texture, bufferData);
-		std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::make_shared<ZTextureReadyEvent>(texture, bufferData);
+		textureReadyEvent = std::make_shared<ZTextureReadyEvent>(texture, bufferData);
 	} else {
-		std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::make_shared<ZTextureReadyEvent>(texture);
+		textureReadyEvent = std::make_shared<ZTextureReadyEvent>(texture);
 	}
 	ZEngine::EventAgent()->QueueEvent(textureReadyEvent);
+
+	ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZGLGraphicsStrategy::HandleTextureLoaded);
+	ZEngine::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
 }
 
 void ZGLGraphicsStrategy::GLFWErrorCallback(int id, const char* description) {
