@@ -265,15 +265,10 @@ void ZShader::Use(ZMaterial* material) {
 
 	// We start the external texture indices at 4 due to the depth, shadow and PBR irradiance maps, which are set internally
 	// and should not be overriden
-    unsigned int i = 0;
-    for (auto it = material->Textures().begin(); it != material->Textures().end(); it++) {
-        if (ZEngine::Graphics()->Textures().find(it->first) != ZEngine::Graphics()->Textures().end()) {
-            ZTexture texture = ZEngine::Graphics()->Textures()[it->first];
-            texture.type = it->second;
-            SetInt(texture.type, i + 4);
-            ZEngine::Graphics()->Strategy()->BindTexture(texture, i + 4);
-        }
-        ++i;
+    for (unsigned int i = 0, j = material->Textures().size(); i < j; i++) {
+        ZTexture texture = material->Textures()[i];
+        SetInt(texture.type, i + 4);
+        ZEngine::Graphics()->Strategy()->BindTexture(texture, i + 4);
 	}
 }
 

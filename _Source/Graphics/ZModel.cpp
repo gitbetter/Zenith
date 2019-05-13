@@ -457,6 +457,8 @@ void ZModel::HandleModelLoaded(std::shared_ptr<ZEvent> event) {
 		skeleton_ = extraData->Skeleton();
         
         for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) it->second->Initialize();
+        if (skeleton_) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
+        InitializeAABB();
 
 		ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);
 		ZEngine::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);

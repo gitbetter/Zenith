@@ -42,8 +42,7 @@ void ZSkybox::Initialize(const std::string& hdrMap) {
 }
 
 void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
-	ZBufferData cubemapBuffer;
-	std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, cubemapBuffer, iblTexture_);
+	std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 
 	std::shared_ptr<ZShader> skyboxShader(new ZShader("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag"));
 	skyboxShader->Initialize();
@@ -51,10 +50,7 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 	std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
 	skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
-    std::string cubemapTextureID = "ZTEX_" + std::to_string(iblTexture_.cubeMap.id);
-    ZEngine::Graphics()->AddTexture(cubemapTextureID, iblTexture_.cubeMap);
-    std::map<std::string, std::string> textures;
-    textures[cubemapTextureID] = "cubemap";
+    std::vector<ZTexture> textures = { iblTexture_.cubeMap };
 	skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
 
 	AddComponent(skyboxGraphicsComponent);

@@ -30,9 +30,11 @@
 #include "ZMaterial.hpp"
 #include "ZEngine.hpp"
 #include "ZGraphics.hpp"
+#include "ZEventAgent.hpp"
+#include "ZTextureReadyEvent.hpp"
 
 void ZMaterial::Initialize(std::shared_ptr<ZOFTree> root) {
-    ZTextureTypeMap textures;
+    std::vector<ZTexture> textures;
     ZMaterialProperties materialProperties;
     bool isPBR = false, hasDisplacement = false;
     
@@ -51,7 +53,13 @@ void ZMaterial::Initialize(std::shared_ptr<ZOFTree> root) {
         // If a field is string based there may be textures associated with that field, otherwise
         // the material field is simple and programmatic.
         if (std::shared_ptr<ZOFString> strProp = it->second->Value<ZOFString>(0)) {
-            textures[strProp->value] = it->second->id;
+            if (ZEngine::Graphics()->Textures().find(strProp->value) != ZEngine::Graphics()->Textures().end()) {
+                ZTexture texture = ZEngine::Graphics()->Textures()[strProp->value];
+                texture.type = it->second->id;
+                textures.push_back(texture);
+            } else {
+                pendingTextures_[strProp->value] = it->second->id;
+            }
         } else if (std::shared_ptr<ZOFNumber> numProp = it->second->Value<ZOFNumber>(0)) {
             SetMaterialProperty(it->second->id, numProp->value, materialProperties);
         } else if (std::shared_ptr<ZOFNumberList> numListProp = it->second->Value<ZOFNumberList>(0)) {
@@ -64,6 +72,9 @@ void ZMaterial::Initialize(std::shared_ptr<ZOFTree> root) {
     
     if (!textures.empty()) textures_ = textures;
     else properties_ = materialProperties;
+    
+    ZEventDelegate textureReadyEvent = fastdelegate::MakeDelegate(this, &ZMaterial::HandleTextureReady);
+    ZEngine::EventAgent()->AddListener(textureReadyEvent, ZTextureReadyEvent::Type);
 }
 
 std::unique_ptr<ZMaterial> ZMaterial::DefaultMaterialSimple() {
@@ -112,5 +123,24 @@ void ZMaterial::SetMaterialProperty(std::string property, float value, ZMaterial
 void ZMaterial::SetMaterialProperty(std::string property, glm::vec4 value, ZMaterialProperties& materialProperties) {
     if (property == "albedo") {
         materialProperties.albedo = value;
+    }
+}
+
+void ZMaterial::HandleTextureReady(std::shared_ptr<ZEvent> event) {
+    auto it = pendingTextures_.begin();
+    while (it != pendingTextures_.end()) {
+        if (ZEngine::Graphics()->Textures().find(it->first) != ZEngine::Graphics()->Textures().end()) {
+            ZTexture texture = ZEngine::Graphics()->Textures()[it->first];
+            texture.type = it->second;
+            textures_.push_back(texture);
+            pendingTextures_.erase(it++);
+        } else {
+            ++it;
+        }
+    }
+    
+    if (pendingTextures_.empty()) {
+        ZEventDelegate textureReadyEvent = fastdelegate::MakeDelegate(this, &ZMaterial::HandleTextureReady);
+        ZEngine::EventAgent()->RemoveListener(textureReadyEvent, ZTextureReadyEvent::Type);
     }
 }
