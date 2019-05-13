@@ -51,7 +51,10 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 	std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
 	skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
-	std::vector<ZTexture> textures = { iblTexture_.cubeMap };
+    std::string cubemapTextureID = "ZTEX_" + std::to_string(iblTexture_.cubeMap.id);
+    ZEngine::Graphics()->AddTexture(cubemapTextureID, iblTexture_.cubeMap);
+    std::map<std::string, std::string> textures;
+    textures[cubemapTextureID] = "cubemap";
 	skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
 
 	AddComponent(skyboxGraphicsComponent);

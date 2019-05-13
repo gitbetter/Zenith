@@ -38,10 +38,12 @@
 // Class and Data Structure Definitions
 class ZMaterial {
     
+    typedef std::map<std::string, std::string> ZTextureTypeMap;
+    
 private:
     
     ZMaterialProperties properties_;
-    std::vector<ZTexture> textures_;
+    ZTextureTypeMap textures_;
     std::string meshId_;
     int index_;
     bool isPBR_ = false, hasDisplacement_ = false;
@@ -53,7 +55,7 @@ public:
     
     ZMaterial(int index = 0) { index_ = index; }
     ZMaterial(ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
-    ZMaterial(std::vector<ZTexture> textures) : ZMaterial(0) { textures_ = textures; }
+    ZMaterial(ZTextureTypeMap textures) : ZMaterial(0) { textures_ = textures; }
     
     void Initialize(std::shared_ptr<ZOFTree> root);
     
@@ -69,8 +71,8 @@ public:
     void SetAlpha(float alpha) { properties_.alpha = alpha; }
     float Alpha(float alpha) const { return properties_.alpha; }
     
-    void AddTexture(ZTexture texture) { textures_.push_back(texture); }
-    const std::vector<ZTexture>& Textures() const { return textures_; }
+    void AddTexture(std::string texture, std::string type) { textures_[texture] = type; }
+    const ZTextureTypeMap& Textures() const { return textures_; }
     
     int Index() const { return index_; }
     bool IsPBR() const { return isPBR_; }
