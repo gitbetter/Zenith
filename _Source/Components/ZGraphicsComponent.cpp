@@ -90,9 +90,8 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 
 	if (props.find("model") != props.end() && props["model"]->HasValues()) {
 		std::shared_ptr<ZOFString> nameProp = props["model"]->Value<ZOFString>(0);
-		if (nameProp->value.find(".") != std::string::npos) {
-			modelObject_ = std::shared_ptr<ZModel>(new ZModel);
-            modelObject_->InitializeAsync(nameProp->value);
+		if (nameProp->value.find("ZMOD") != std::string::npos) {
+            model_ = nameProp->value;
 		} else {
 			if (props["model"]->ValueCount() > 1) {
 				std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);
@@ -169,11 +168,10 @@ std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader() {
 std::shared_ptr<ZModel> ZGraphicsComponent::Model() {
 	if (modelObject_) return modelObject_;
 
-	// TODO:
-	//if (ZEngine::Graphics()->Models().find(model_) != ZEngine::Graphics()->Models().end()) {
-	//	modelObject_ = ZEngine::Graphics()->Models()[model_];
-	//	return modelObject_;
-	//}
+    if (ZEngine::Graphics()->Models().find(model_) != ZEngine::Graphics()->Models().end()) {
+        modelObject_ = ZEngine::Graphics()->Models()[model_];
+        return modelObject_;
+    }
 	return nullptr;
 }
 

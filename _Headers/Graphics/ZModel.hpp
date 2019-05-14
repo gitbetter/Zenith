@@ -66,15 +66,16 @@ private:
 public:
     
     ZModel(ZPrimitiveType primitiveType, glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f));
-    ZModel() { }
+    ZModel(std::string path = "") : modelPath_(path) { }
     virtual ~ZModel() { }
     
-    void Initialize(std::string path);
-	void InitializeAsync(std::string path);
+    void Initialize();
+	void InitializeAsync();
     
     virtual void Render(ZShader* shader);
     virtual void Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials);
     
+    const std::string& Path() { return modelPath_; }
     const ZMesh3DMap& Meshes() { return meshes_; }
     const ZAABBox& AABB() { return boundingBox_; }
     ZBoneList& Bones() { return bones_; }

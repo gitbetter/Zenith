@@ -54,23 +54,21 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) : globalInverseTra
         case ZPrimitiveType::Cone:
             CreateCone(scale); break;
     }
+    Initialize();
+}
+
+void ZModel::Initialize() {
+    if (!modelPath_.empty()) {
+        ZModelImporter importer;
+        meshes_ = importer.LoadModel(modelPath_, bonesMap_, bones_, animations_, skeleton_);
+        for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) it->second->Initialize();
+        if (skeleton_) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
+    }
     InitializeAABB();
 }
 
-void ZModel::Initialize(std::string path) {
-	modelPath_ = path;
-
-    ZModelImporter importer;
-    meshes_ = importer.LoadModel(path, bonesMap_, bones_, animations_, skeleton_);
-    for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) it->second->Initialize();
-    if (skeleton_) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
-    InitializeAABB();
-}
-
-void ZModel::InitializeAsync(std::string path) {
-	modelPath_ = path;
-
-	ZResource modelResource(path, ZResourceType::Model);
+void ZModel::InitializeAsync() {
+	ZResource modelResource(modelPath_, ZResourceType::Model);
 	ZEngine::ResourceCache()->RequestHandle(modelResource);
 
 	ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);

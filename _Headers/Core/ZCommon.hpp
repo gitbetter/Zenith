@@ -80,6 +80,7 @@ break;\
 class ZGameObject;
 class ZComponent;
 class ZUIElement;
+class ZModel;
 class ZShader;
 class ZMesh3D;
 class ZMaterial;
@@ -94,6 +95,7 @@ typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
 typedef std::map<std::string, std::shared_ptr<ZLight>> ZLightMap;
 typedef std::map<std::string, std::shared_ptr<ZUIElement>> ZUIElementMap;
 typedef std::map<std::string, std::shared_ptr<ZShader>> ZShaderMap;
+typedef std::map<std::string, std::shared_ptr<ZModel>> ZModelMap;
 typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;
 typedef std::map<std::string, std::shared_ptr<ZMaterial>> ZMaterialMap;
 typedef std::vector<std::shared_ptr<ZGameObject>> ZGameObjectList;

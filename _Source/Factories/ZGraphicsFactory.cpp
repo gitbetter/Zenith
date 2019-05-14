@@ -134,10 +134,53 @@ void ZGraphicsFactory::CreateTextures(std::shared_ptr<ZOFTree> data, ZTextureMap
     outTextureMap = textures;
 }
 
-// TODO: Some repeated code across these functions. Refactor it.
-void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTextureTypeMap& outPendingTextures, ZShaderIDMap& outPendingShaders) {
+void ZGraphicsFactory::CreateModelsAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingModels) {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
-        if (it->first.find("ZTEX") == 0) {
+        if (it->first.find("ZMOD") == 0) {
+            std::string path;
+            std::shared_ptr<ZOFObjectNode> textureNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
+            if (textureNode->properties.find("path") != textureNode->properties.end()) {
+                std::shared_ptr<ZOFString> pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
+                path = pathStr->value;
+            }
+            
+            if (!path.empty()) {
+                std::shared_ptr<ZModel> model(new ZModel(path));
+                outPendingModels[model] = it->first;
+            }
+        }
+    }
+
+    for (auto it = outPendingModels.begin(); it != outPendingModels.end(); it++) {
+        it->first->InitializeAsync();
+    }
+}
+
+void ZGraphicsFactory::CreateModels(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap) {
+    ZModelMap models;
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
+        if (it->first.find("ZMOD") == 0) {
+            std::string path;
+            std::shared_ptr<ZOFObjectNode> textureNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
+            if (textureNode->properties.find("path") != textureNode->properties.end()) {
+                std::shared_ptr<ZOFString> pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
+                path = pathStr->value;
+            }
+            
+            if (!path.empty()) {
+                std::shared_ptr<ZModel> model(new ZModel(path));
+                model->Initialize();
+                models[it->first] = model;
+            }
+        }
+    }
+    outModelMap = models;
+}
+
+// TODO: Some repeated code across these functions. Refactor it.
+void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTextureTypeMap& outPendingTextures, ZShaderIDMap& outPendingShaders, ZModelIDMap& outPendingModels) {
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
+        if (it->first.find("ZTEX") == 0 || it->first.find("ZMOD") == 0) {
             std::shared_ptr<ZOFObjectNode> textureNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
             
             std::string path;
@@ -147,7 +190,12 @@ void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTexture
             }
             
             if (!path.empty()) {
-                outPendingTextures[path] = it->first;
+                if (it->first.find("ZTEX") == 0) {
+                    outPendingTextures[path] = it->first;
+                } else if (it->first.find("ZMOD") == 0) {
+                    std::shared_ptr<ZModel> model(new ZModel(path));
+                    outPendingModels[model] = it->first;
+                }
             }
         } else if (it->first.find("ZSH") == 0) {
             std::shared_ptr<ZOFObjectNode> shaderNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
@@ -174,12 +222,16 @@ void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTexture
     for (auto it = outPendingShaders.begin(); it != outPendingShaders.end(); it++) {
         it->first->InitializeAsync();
     }
+    
+    for (auto it = outPendingModels.begin(); it != outPendingModels.end(); it++) {
+        it->first->InitializeAsync();
+    }
 }
 
-void ZGraphicsFactory::CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap, ZShaderMap& outShaderMap) {
-    ZTextureMap textures; ZShaderMap shaders;
+void ZGraphicsFactory::CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap, ZShaderMap& outShaderMap, ZModelMap& outModelMap) {
+    ZTextureMap textures; ZShaderMap shaders; ZModelMap models;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
-        if (it->first.find("ZTEX") == 0) {
+        if (it->first.find("ZTEX") == 0 || it->first.find("ZMOD") == 0) {
             std::string path;
             std::shared_ptr<ZOFObjectNode> textureNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
             if (textureNode->properties.find("path") != textureNode->properties.end()) {
@@ -188,8 +240,14 @@ void ZGraphicsFactory::CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& 
             }
             
             if (!path.empty()) {
-                ZTexture texture = ZEngine::Graphics()->Strategy()->LoadTexture(path, "");
-                textures[it->first] = texture;
+                if (it->first.find("ZTEX") == 0) {
+                    ZTexture texture = ZEngine::Graphics()->Strategy()->LoadTexture(path, "");
+                    textures[it->first] = texture;
+                } else if (it->first.find("ZMOD") == 0) {
+                    std::shared_ptr<ZModel> model(new ZModel(path));
+                    model->Initialize();
+                    outModelMap[it->first] = model;
+                }
             }
         } else if (it->first.find("ZSH") == 0) {
             std::string vertexPath = "", pixelPath = "", geometryPath = "";
@@ -210,7 +268,7 @@ void ZGraphicsFactory::CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& 
             shaders[it->first] = shader;
         }
     }
-    outTextureMap = textures; outShaderMap = shaders;
+    outTextureMap = textures; outShaderMap = shaders; outModelMap = models;
 }
 
 std::unique_ptr<ZModel> ZGraphicsFactory::CreateModel(std::string type, glm::vec3 scale) {

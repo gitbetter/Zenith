@@ -42,6 +42,7 @@ class ZGraphicsFactory {
 
 	typedef std::unique_ptr<ZModel>(*ZModelCreator)(glm::vec3);
     typedef std::map<std::shared_ptr<ZShader>, std::string> ZShaderIDMap;
+    typedef std::map<std::shared_ptr<ZModel>, std::string> ZModelIDMap;
     typedef std::map<std::string, std::string> ZTextureTypeMap;
 
 public:
@@ -53,19 +54,16 @@ public:
 	void CreateShaders(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap);
 	void CreateTexturesAsync(std::shared_ptr<ZOFTree> data, ZTextureTypeMap& outPendingTextures);
     void CreateTextures(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);
+    void CreateModelsAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingModels);
+    void CreateModels(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap);
     
-    void CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap, ZShaderMap& outShaderMap);
-    void CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTextureTypeMap& outPendingTextures, ZShaderIDMap& outPendingShaders);
+    void CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap, ZShaderMap& outShaderMap, ZModelMap& outModelMap);
+    void CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTextureTypeMap& outPendingTextures, ZShaderIDMap& outPendingShaders, ZModelIDMap& outPendingModels);
 
 	std::unique_ptr<ZModel> CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
 
 protected:
 
 	std::map<std::string, ZModelCreator> modelCreators_;
-	std::map<std::string, std::string> pendingTextures_;
-	std::map<std::shared_ptr<ZShader>, std::string> pendingShaders_;
-
-	void HandleShaderReady(std::shared_ptr<ZEvent> event);
-	void HandleTextureReady(std::shared_ptr<ZEvent> event);
 
 };
