@@ -49,8 +49,8 @@ ZGraphicsComponent::~ZGraphicsComponent() {
 }
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader) {
-	model_ = model;
-	if (shader != nullptr) currentShader_ = shader;
+	modelObject_ = model;
+	if (shader != nullptr) currentShaderObject_ = shader;
 }
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
@@ -91,14 +91,14 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	if (props.find("model") != props.end() && props["model"]->HasValues()) {
 		std::shared_ptr<ZOFString> nameProp = props["model"]->Value<ZOFString>(0);
 		if (nameProp->value.find(".") != std::string::npos) {
-			model_ = std::shared_ptr<ZModel>(new ZModel);
-            model_->InitializeAsync(nameProp->value);
+			modelObject_ = std::shared_ptr<ZModel>(new ZModel);
+            modelObject_->InitializeAsync(nameProp->value);
 		} else {
 			if (props["model"]->ValueCount() > 1) {
 				std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);
-				model_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
+				modelObject_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
 			} else {
-				model_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value);
+				modelObject_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value);
 			}
 		}
 	}
@@ -149,21 +149,32 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
             shader->SetInt("brdfLUT", 4);
         }
 
-        model_->Render(shader.get(), materials_);
+        modelObject_->Render(shader.get(), materials_);
     }
 
 	DrawOutlineIfEnabled(modelMatrix, viewMatrix, projectionMatrix);
 }
 
 std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader() {
-    if (currentShader_) return currentShader_;
+    if (currentShaderObject_) return currentShaderObject_;
     if (shaders_.empty()) return nullptr;
     
     if (ZEngine::Graphics()->Shaders().find(shaders_[activeShaderIndex_]) != ZEngine::Graphics()->Shaders().end()) {
-        currentShader_ = ZEngine::Graphics()->Shaders()[shaders_[activeShaderIndex_]];
-        return currentShader_;
+		currentShaderObject_ = ZEngine::Graphics()->Shaders()[shaders_[activeShaderIndex_]];
+        return currentShaderObject_;
     }
     return nullptr;
+}
+
+std::shared_ptr<ZModel> ZGraphicsComponent::Model() {
+	if (modelObject_) return modelObject_;
+
+	// TODO:
+	//if (ZEngine::Graphics()->Models().find(model_) != ZEngine::Graphics()->Models().end()) {
+	//	modelObject_ = ZEngine::Graphics()->Models()[model_];
+	//	return modelObject_;
+	//}
+	return nullptr;
 }
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
@@ -192,7 +203,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view,
 	highlightShader_->SetMat4("M", highlightModelMatrix);
 	highlightShader_->SetVec4("color", highlightColor_);
 
-	model_->Render(highlightShader_.get(), materials_);
+	modelObject_->Render(highlightShader_.get(), materials_);
 
 	ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 }
