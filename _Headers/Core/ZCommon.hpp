@@ -218,6 +218,12 @@ struct ZMaterialProperties {
             float ao;
         };
     };
+
+	ZMaterialProperties() {
+		albedo = glm::vec4(1.f, 1.f, 1.f, 1.f);
+		alpha = 1.f; emission = 0.f; diffuse = 0.f;
+		ambient = 0.f; specular = 0.f; shininess = 0.f;
+	}
 };
 
 struct ZVertex3D {

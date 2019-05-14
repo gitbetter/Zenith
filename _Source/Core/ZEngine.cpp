@@ -301,10 +301,6 @@ std::shared_ptr<ZScene> ZEngine::LoadScene(std::initializer_list<std::string> zo
 	std::shared_ptr<ZScene> scene = std::make_shared<ZScene>(zofPaths);
 	scene->Initialize();
 
-	// Set a default skybox for our scene
-	// TODO: Only set this if no skybox is set after loading the scene descriptions
-	scene->SetDefaultSkybox();
-
 	currentGame_->AddScene(scene);
 
 	return scene;

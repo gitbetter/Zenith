@@ -95,6 +95,10 @@ void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
 		else
 			ZEngine::UI()->AddElement(it->second);
 	}
+
+	// Set a default skybox for our scene
+	// TODO: Only set this if no skybox is set after loading the scene descriptions
+	SetDefaultSkybox();
 }
 
 void ZScene::Update() {
