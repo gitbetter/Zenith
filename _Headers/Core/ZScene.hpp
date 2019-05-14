@@ -38,11 +38,13 @@ class ZLight;
 class ZSkybox;
 
 // Class and Data Structure Definitions
-class ZScene : public ZProcess {
+class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene> {
     
 private:
     
 	std::map<std::string, bool> pendingSceneDefinitions_;
+    std::map<std::string, bool> pendingSceneObjects_;
+    
     // TODO: Create a light manager class to handle the scene lights
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
     std::shared_ptr<ZGameObject> root_ = nullptr;
@@ -53,6 +55,7 @@ private:
     
     void Render();
 	void LoadSceneData(std::shared_ptr<ZOFTree> objectTree);
+    void ParsePendingSceneObjects(std::shared_ptr<ZOFTree> objectTree);
 
 	void HandleZOFReady(std::shared_ptr<ZEvent> event);
     

@@ -34,11 +34,40 @@
 #include "ZGraphicsComponent.hpp"
 #include "ZTextureReadyEvent.hpp"
 
-void ZSkybox::Initialize(const std::string& hdrMap) {
-	hdrPath_ = hdrMap;
+ZSkybox::ZSkybox(std::string hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr) {
+    properties_.renderPass = ZRenderPass::Sky;
+}
+
+void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root) {
+    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
+    
+    if(node == nullptr) {
+        _Z("Could not initalize ZSkybox", ZERROR);
+        return;
+    }
+    
+    id_ = node->id;
+    
+    ZOFPropertyMap props = node->properties;
+    
+    if (props.find("hdr") != props.end() && props["hdr"]->HasValues()) {
+        std::shared_ptr<ZOFString> hdrProp = props["hdr"]->Value<ZOFString>(0);
+        hdrPath_ = hdrProp->value;
+        InitializeAsync();
+    }
+}
+
+void ZSkybox::Initialize() {
 	ZBufferData cubemapBuffer;
-	ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(hdrMap, cubemapBuffer);
+	ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(hdrPath_, cubemapBuffer);
 	Initialize(cubeMap, cubemapBuffer);
+}
+
+void ZSkybox::InitializeAsync() {
+    ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
+    ZEngine::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+    
+    ZEngine::Graphics()->Strategy()->EquirectToCubemapAsync(hdrPath_);
 }
 
 void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
@@ -54,15 +83,6 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 	skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
 
 	AddComponent(skyboxGraphicsComponent);
-	ZEngine::ProcessRunner()->AttachProcess(skyboxGraphicsComponent);
-	properties_.renderPass = ZRenderPass::Sky;
-}
-
-void ZSkybox::InitializeAsync(const std::string& hdrMap) {
-	ZEngine::Graphics()->Strategy()->EquirectToCubemapAsync(hdrMap);
-
-	ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
-	ZEngine::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
 }
 
 void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
@@ -74,5 +94,9 @@ void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
         
 		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
 		ZEngine::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+        
+        // TODO: Queue ZSkyboxReadyEvent
+        // std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(shared_from_this());
+        // ZEngine::EventAgent()->QueueEvent(skyboxReadyEvent);
 	}
 }

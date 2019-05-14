@@ -43,16 +43,16 @@ private:
 
 	std::string hdrPath_;
     
+    void Initialize(ZTexture& cubeMap, ZBufferData& bufferData);
+    
 public:
     
-    ZSkybox() : ZGameObject(glm::vec3(0.f)) { }
+    ZSkybox(std::string hdr = "");
     ~ZSkybox() { }
     
-    void Initialize() override { }
-    void Initialize(std::shared_ptr<ZOFNode> root) override { }
-    void Initialize(const std::string& hdrMap);
-	void Initialize(ZTexture& cubeMap, ZBufferData& bufferData);
-	void InitializeAsync(const std::string& hdrMap);
+    void Initialize() override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
+	void InitializeAsync();
     
 	bool IsVisible() override { return true; }
     

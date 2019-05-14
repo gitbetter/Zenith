@@ -546,6 +546,7 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBu
 ZTexture ZGLGraphicsStrategy::EquirectToCubemap(ZTexture& hdrTexture, ZBufferData& bufferData) {
 	bufferData = LoadCubeMapBuffer();
 	ZTexture cubeMap = LoadEmptyCubeMap();
+    cubeMap.path = hdrTexture.path;
     
     glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.f, 0.1f, 100.0f);
     glm::mat4 captureViews[] = {

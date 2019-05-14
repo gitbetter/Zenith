@@ -36,15 +36,15 @@ ZSceneRoot::ZSceneRoot() {
 	children_.push_back(staticGroup);
 
 	std::shared_ptr<ZGameObject> dynamicGroup = std::make_shared<ZGameObject>("DynamicGroup");
-	staticGroup->SetRenderPass(ZRenderPass::Dynamic);
+	dynamicGroup->SetRenderPass(ZRenderPass::Dynamic);
 	children_.push_back(dynamicGroup);
 
 	std::shared_ptr<ZGameObject> skyGroup = std::make_shared<ZGameObject>("SkyGroup");
-	staticGroup->SetRenderPass(ZRenderPass::Sky);
+	skyGroup->SetRenderPass(ZRenderPass::Sky);
 	children_.push_back(skyGroup);
 
 	std::shared_ptr<ZGameObject> invisibleGroup = std::make_shared<ZGameObject>("InvisibleGroup");
-	staticGroup->SetRenderPass(ZRenderPass::Invisible);
+	invisibleGroup->SetRenderPass(ZRenderPass::Invisible);
 	children_.push_back(invisibleGroup);
 }
 
@@ -58,13 +58,14 @@ void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject) {
 }
 
 void ZSceneRoot::RenderChildren(float frameMix, RENDER_OP renderOp) {
-	for (int pass = ZRenderPass::First; pass < ZRenderPass::Last; ++pass) {
+	for (int pass = ZRenderPass::First; pass < ZRenderPass::Last; pass++) {
 		switch (pass) {
 		case ZRenderPass::Static:
 		case ZRenderPass::Dynamic:
 		case ZRenderPass::Sky:
 			children_[pass]->RenderChildren(frameMix, renderOp);
 			break;
+        default: break;
 		}
 	}
 }

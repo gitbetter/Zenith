@@ -54,8 +54,8 @@ ZScene::ZScene() {
 }
 
 ZScene::ZScene(std::initializer_list<std::string> zofPaths) : ZScene() {
-	// Make sure scene description paths are cached before 
-	// loading them asynchronously
+	// Make sure scene description paths are cached before loading them asynchronously.
+    // This allows us to check if one of our zof files was loaded when receiving events
 	for (std::string path : zofPaths) {
 		pendingSceneDefinitions_[path] = true;
 	}
@@ -76,6 +76,8 @@ void ZScene::Initialize() {
 }
 
 void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
+    ParsePendingSceneObjects(objectTree);
+    
 	// TODO: The more systems are populated this way, the more of a hamper we place on
 	// load times. Refactor this so the object tree is only traversed once.
 	ZEngine::ScriptManager()->LoadAsync(objectTree);
@@ -95,10 +97,21 @@ void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
 		else
 			ZEngine::UI()->AddElement(it->second);
 	}
+}
 
-	// Set a default skybox for our scene
-	// TODO: Only set this if no skybox is set after loading the scene descriptions
-	SetDefaultSkybox();
+void ZScene::ParsePendingSceneObjects(std::shared_ptr<ZOFTree> objectTree) {
+    bool hasSkybox = false;
+    for (ZOFChildMap::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++) {
+        if (it->first.find("ZTEX") == 0 || it->first.find("ZMOD") == 0 ||
+            it->first.find("ZSH") == 0 || it->first.find("ZSCR") == 0 ||
+            it->first.find("ZSKY") == 0) {
+            pendingSceneObjects_[it->first] = true;
+            if (it->first.find("ZSKY") == 0)
+                hasSkybox = true;
+        }
+    }
+    
+    if (!hasSkybox) SetDefaultSkybox();
 }
 
 void ZScene::Update() {
@@ -144,6 +157,8 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
         
         if (std::dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
             gameLights_.insert({gameObject->ID(), std::dynamic_pointer_cast<ZLight>(gameObject)});
+        } else if (std::dynamic_pointer_cast<ZSkybox>(gameObject) != nullptr) {
+            skybox_ = std::dynamic_pointer_cast<ZSkybox>(gameObject);
         } else {
             gameObjects_.insert({gameObject->ID(), gameObject});
         }
@@ -178,8 +193,8 @@ void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
 }
 
 void ZScene::SetDefaultSkybox() {
-    skybox_ = std::shared_ptr<ZSkybox>(new ZSkybox);
-	skybox_->InitializeAsync(ZEngine::DEFAULT_HDR_CUBEMAP);
+    skybox_ = std::shared_ptr<ZSkybox>(new ZSkybox(ZEngine::DEFAULT_HDR_CUBEMAP));
+	skybox_->InitializeAsync();
 	AddGameObject(skybox_);
 }
 

@@ -134,9 +134,9 @@ void ZMaterial::HandleTextureReady(std::shared_ptr<ZEvent> event) {
             texture.type = it->second;
             textures_.push_back(texture);
             pendingTextures_.erase(it++);
-        } else {
-            ++it;
+            break;
         }
+        ++it;
     }
     
     if (pendingTextures_.empty()) {
