@@ -37,7 +37,7 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZSkybox : public ZGameObject {
+class ZSkybox : public ZGameObject, public std::enable_shared_from_this<ZSkybox> {
 
 private:
 

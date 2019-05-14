@@ -110,6 +110,7 @@ ${SOURCE_DIR}/EventAgent/Events/ZShaderReadyEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZSoundReadyEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZTextureReadyEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZZOFReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZSkyboxReadyEvent.cpp
 ${SOURCE_DIR}/EventAgent/ZScriptableEvent.cpp
 ${SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${SOURCE_DIR}/Audio/ZAudio.cpp
@@ -153,6 +154,7 @@ ${HEADERS_DIR}/EventAgent/Events/ZShaderReadyEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZSoundReadyEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZTextureReadyEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZZOFReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZSkyboxReadyEvent.hpp
 ${HEADERS_DIR}/Factories/ZGOFactory.hpp
 ${HEADERS_DIR}/Factories/ZGraphicsFactory.hpp
 ${HEADERS_DIR}/Factories/ZPhysicsFactory.hpp

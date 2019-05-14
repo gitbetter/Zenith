@@ -33,6 +33,7 @@
 #include "ZEventAgent.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZTextureReadyEvent.hpp"
+#include "ZSkyboxReadyEvent.hpp"
 
 ZSkybox::ZSkybox(std::string hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr) {
     properties_.renderPass = ZRenderPass::Sky;
@@ -95,8 +96,7 @@ void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
 		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
 		ZEngine::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
         
-        // TODO: Queue ZSkyboxReadyEvent
-        // std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(shared_from_this());
-        // ZEngine::EventAgent()->QueueEvent(skyboxReadyEvent);
+        std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(shared_from_this());
+        ZEngine::EventAgent()->QueueEvent(skyboxReadyEvent);
 	}
 }
