@@ -41,16 +41,21 @@ class ZShader;
 class ZGraphicsFactory {
 
 	typedef std::unique_ptr<ZModel>(*ZModelCreator)(glm::vec3);
+    typedef std::map<std::shared_ptr<ZShader>, std::string> ZShaderIDMap;
+    typedef std::map<std::string, std::string> ZTextureTypeMap;
 
 public:
 
 	ZGraphicsFactory();
-    ~ZGraphicsFactory();
+    ~ZGraphicsFactory() { }
 
-	void CreateShadersAsync(std::shared_ptr<ZOFTree> data);
-	ZShaderMap CreateShaders(std::shared_ptr<ZOFTree> data);
-	void CreateTexturesAsync(std::shared_ptr<ZOFTree> data);
-	ZTextureMap CreateTextures(std::shared_ptr<ZOFTree> data);
+	void CreateShadersAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendingShaders);
+	void CreateShaders(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap);
+	void CreateTexturesAsync(std::shared_ptr<ZOFTree> data, ZTextureTypeMap& outPendingTextures);
+    void CreateTextures(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);
+    
+    void CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap, ZShaderMap& outShaderMap);
+    void CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTextureTypeMap& outPendingTextures, ZShaderIDMap& outPendingShaders);
 
 	std::unique_ptr<ZModel> CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
 

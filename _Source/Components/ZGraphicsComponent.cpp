@@ -115,7 +115,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 }
 
 void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
-	if (gameCamera_ == nullptr) return;
+	if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
 
 	std::shared_ptr<ZCameraComponent> cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
 

@@ -53,6 +53,7 @@ public:
     void Initialize(const std::string& hdrMap);
 	void Initialize(ZTexture& cubeMap, ZBufferData& bufferData);
 	void InitializeAsync(const std::string& hdrMap);
+    
 	bool IsVisible() override { return true; }
     
     ZIBLTexture IBLTexture() const { return iblTexture_; }

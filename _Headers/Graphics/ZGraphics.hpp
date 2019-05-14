@@ -46,6 +46,9 @@ class ZGraphics {
     
 private:
     
+    std::map<std::string, std::string> pendingTextures_;
+    std::map<std::shared_ptr<ZShader>, std::string> pendingShaders_;
+    
     void Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
     
 public:
@@ -75,6 +78,9 @@ public:
     static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
     
     void CleanUp();
+    
+    void HandleShaderReady(std::shared_ptr<ZEvent> event);
+    void HandleTextureReady(std::shared_ptr<ZEvent> event);
     
 protected:
     
