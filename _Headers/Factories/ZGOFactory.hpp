@@ -36,6 +36,7 @@
 class ZGameObject;
 class ZLight;
 class ZTrigger;
+class ZSkybox;
 class ZComponent;
 
 // Class and Data Structure Definitions
@@ -55,6 +56,7 @@ public:
     std::shared_ptr<ZGameObject> CreateGameObject(std::shared_ptr<ZOFNode> data);
     std::shared_ptr<ZLight> CreateLight(std::shared_ptr<ZOFNode> data);
     std::shared_ptr<ZTrigger> CreateTrigger(std::shared_ptr<ZOFNode> data);
+    std::shared_ptr<ZSkybox> CreateSkybox(std::shared_ptr<ZOFNode> data);
     
     std::shared_ptr<ZComponent> CreateGraphicsComponent(std::shared_ptr<ZGameObject> gameObject);
     std::shared_ptr<ZComponent> CreateCameraComponent(std::shared_ptr<ZGameObject> gameObject);

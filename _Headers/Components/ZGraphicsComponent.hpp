@@ -16,6 +16,7 @@
 // Forward Declarations
 class ZModel;
 class ZGameObject;
+class ZShader;
 struct ZOFNode;
 
 // Class and Data Structure Definitions
@@ -28,6 +29,8 @@ private:
     unsigned int activeShaderIndex_ = -1;
     ZLightMap gameLights_;
     std::shared_ptr<ZGameObject> gameCamera_;
+	std::vector<std::string> shaders_;
+	std::string model_;
     
     void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
     
@@ -42,8 +45,8 @@ public:
     
     void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
     
-    std::shared_ptr<ZShader> ActiveShader() const { return shaders_[activeShaderIndex_]; }
-    std::shared_ptr<ZModel> Model() const { return model_; }
+    std::shared_ptr<ZShader> ActiveShader();
+	std::shared_ptr<ZModel> Model();
     
     void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
     void ClearOutline();
@@ -55,8 +58,8 @@ public:
     
 protected:
     
-    std::shared_ptr<ZModel> model_ = nullptr;
-    std::vector<std::shared_ptr<ZShader>> shaders_;
+    std::shared_ptr<ZModel> modelObject_ = nullptr;
+    std::shared_ptr<ZShader> currentShaderObject_;
     std::vector<std::shared_ptr<ZMaterial>> materials_;
     std::shared_ptr<ZShader> highlightShader_ = nullptr;
     glm::vec4 highlightColor_{0.f};

@@ -34,6 +34,10 @@
 #include "ZResource.hpp"
 #include "ZResourceCache.hpp"
 #include "ZSkeleton.hpp"
+#include "ZResourceLoadedEvent.hpp"
+#include "ZEventAgent.hpp"
+#include "ZResourceExtraData.hpp"
+#include "ZShaderReadyEvent.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -225,9 +229,10 @@ void ZShader::Use(ZMaterial* material) {
 
 	// We start the external texture indices at 4 due to the depth, shadow and PBR irradiance maps, which are set internally
 	// and should not be overriden
-	for (unsigned int i = 0; i < material->Textures().size(); i++) {
-		SetInt(material->Textures()[i].type, i + 4);
-		ZEngine::Graphics()->Strategy()->BindTexture(material->Textures()[i], i + 4);
+    for (unsigned int i = 0, j = material->Textures().size(); i < j; i++) {
+        ZTexture texture = material->Textures()[i];
+        SetInt(texture.type, i + 4);
+        ZEngine::Graphics()->Strategy()->BindTexture(texture, i + 4);
 	}
 }
 
@@ -284,5 +289,44 @@ void ZShader::Use(const ZBoneList& bones) {
     for (unsigned int i = 0, j = bones.size(); i < j; i++) {
         bone = bones[i];
 		SetMat4("Bones[" + std::to_string(i) + "]", bone->transformation);
+	}
+}
+
+void ZShader::HandleShaderCodeLoaded(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	if (!loaded->Handle()) return;
+
+	std::shared_ptr<ZShaderResourceExtraData> extraData = std::dynamic_pointer_cast<ZShaderResourceExtraData>(loaded->Handle()->ExtraData());
+
+	switch (loaded->Handle()->Resource().type) {
+	case ZResourceType::VertexShader:
+		if (loaded->Handle()->Resource().name == vertexShaderPath_ && (loadedShadersMask_ & 1) == 0) {
+            loadedShadersMask_ |= 1;
+			vertexShaderCode_ = extraData->Code();
+		}
+		break;
+	case ZResourceType::PixelShader:
+		if (loaded->Handle()->Resource().name == pixelShaderPath_ && (loadedShadersMask_ & (1 << 1)) == 0) {
+			loadedShadersMask_ |= 1 << 1;
+			pixelShaderCode_ = extraData->Code();
+		}
+		break;
+	case ZResourceType::GeometryShader:
+		if (loaded->Handle()->Resource().name == geometryShaderPath_ && (loadedShadersMask_ & (1 << 2)) == 0) {
+			loadedShadersMask_ |= 1 << 2;
+			geometryShaderCode_ = extraData->Code();
+		}
+		break;
+	default: break;
+	}
+
+	if (loadedShadersMask_ == 3 || loadedShadersMask_ == 7) {
+		ZEventDelegate shaderCodeLoadDelegate = fastdelegate::MakeDelegate(this, &ZShader::HandleShaderCodeLoaded);
+		ZEngine::EventAgent()->RemoveListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
+
+		Compile();
+
+        std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
+        ZEngine::EventAgent()->QueueEvent(shaderReadyEvent);
 	}
 }

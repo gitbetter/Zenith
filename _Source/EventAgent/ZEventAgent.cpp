@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
-    ZEventAgent.cpp
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    Created by Adrian Sanchez on 12/03/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZEventAgent.cpp
+
+	Created by Adrian Sanchez on 12/03/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -30,153 +30,161 @@
 #include "ZEventAgent.hpp"
 
 void ZEventAgent::Initialize() {
-  ZProcess::Initialize();
-  scriptableEventAgent_.reset(new ZScriptableEventAgent);
+	ZProcess::Initialize();
+	scriptableEventAgent_.reset(new ZScriptableEventAgent);
 }
 
 bool ZEventAgent::AddListener(const ZEventDelegate& eventDelegate, const ZEventType& type) {
-  EventListenerList& listeners = eventListeners_[type];
-  for (auto it = listeners.begin(); it != listeners.end(); it++) {
-    if (eventDelegate == (*it)) {
-      _Z("Attempted to register the same delegate twice", ZERROR);
-      return false;
-    }
-  }
+	EventListenerList& listeners = eventListeners_[activeListeners_][type];
+	for (auto it = listeners.begin(); it != listeners.end(); it++) {
+		if (eventDelegate == (*it)) {
+			_Z("Attempted to register the same delegate twice", ZWARNING);
+			return false;
+		}
+	}
 
-  listeners.push_back(eventDelegate);
-  return true;
+	listeners.push_back(eventDelegate);
+	return true;
 }
 
 bool ZEventAgent::RemoveListener(const ZEventDelegate& eventDelegate, const ZEventType& type) {
-  bool success = false;
+	bool success = false;
 
-  auto findIt = eventListeners_.find(type);
-  if (findIt != eventListeners_.end()) {
-    EventListenerList& listeners = findIt->second;
-    for (auto it = listeners.begin(); it != listeners.end(); it++) {
-      if ((*it) == eventDelegate) {
-        listeners.erase(it);
-        success = true;
-        break;
-      }
-    }
-  }
+	auto findIt = eventListeners_[activeListeners_].find(type);
+	if (findIt != eventListeners_[activeListeners_].end()) {
+		EventListenerList& listeners = findIt->second;
+		for (auto it = listeners.begin(); it != listeners.end(); it++) {
+			if ((*it) == eventDelegate) {
+				listeners.erase(it);
+				success = true;
+				break;
+			}
+		}
+	}
 
-  return success;
+	return success;
 }
 
 bool ZEventAgent::TriggerEvent(const std::shared_ptr<ZEvent>& event) {
-  bool processed = false;
+	bool processed = false;
 
-  auto findIt = eventListeners_.find(event->EventType());
-  if (findIt != eventListeners_.end()) {
-    const EventListenerList& listeners = findIt->second;
-    for (auto it = listeners.begin(); it != listeners.end(); it++) {
-      ZEventDelegate delegate = (*it);
-      event->SetTimeStamp(ZEngine::SecondsTime());
-      delegate(event);
-      processed = true;
-    }
-  }
+	auto findIt = eventListeners_[activeListeners_].find(event->EventType());
+	if (findIt != eventListeners_[activeListeners_].end()) {
+		const EventListenerList& listeners = findIt->second;
+		for (auto it = listeners.begin(); it != listeners.end(); it++) {
+			ZEventDelegate delegate = (*it);
+			event->SetTimeStamp(ZEngine::SecondsTime());
+			delegate(event);
+			processed = true;
+		}
+	}
 
-  return processed;
+	return processed;
 }
 
 bool ZEventAgent::QueueEvent(const std::shared_ptr<ZEvent>& event) {
-  assert(activeQueue_ >= 0 && activeQueue_ < NUM_EVENT_QUEUES);
-  auto findIt = eventListeners_.find(event->EventType());
-  if (findIt != eventListeners_.end()) {
-    eventQueues_[activeQueue_].push_back(event);
-    return true;
-  }
-  return false;
+	assert(activeQueue_ >= 0 && activeQueue_ < NUM_EVENT_QUEUES);
+	auto findIt = eventListeners_[activeListeners_].find(event->EventType());
+	if (findIt != eventListeners_[activeListeners_].end()) {
+		eventQueues_[activeQueue_].push_back(event);
+		return true;
+	}
+	return false;
 }
 
 bool ZEventAgent::AbortEvent(const ZEventType& eventType, bool allOfType) {
-  assert(activeQueue_ >= 0 && activeQueue_ < NUM_EVENT_QUEUES);
+	assert(activeQueue_ >= 0 && activeQueue_ < NUM_EVENT_QUEUES);
 
-  bool success = false;
-  auto findIt = eventListeners_.find(eventType);
-  if (findIt != eventListeners_.end()) {
-    EventQueue eventQueue = eventQueues_[activeQueue_];
-    auto it = eventQueue.begin();
-    while (it != eventQueue.end()) {
-      auto thisIt = it;
-      ++it;
-      if ((*thisIt)->EventType() == eventType) {
-        eventQueue.erase(thisIt);
-        success = true;
-        if (!allOfType) break;
-      }
-    }
-  }
+	bool success = false;
+	auto findIt = eventListeners_[activeListeners_].find(eventType);
+	if (findIt != eventListeners_[activeListeners_].end()) {
+		EventQueue eventQueue = eventQueues_[activeQueue_];
+		auto it = eventQueue.begin();
+		while (it != eventQueue.end()) {
+			auto thisIt = it;
+			++it;
+			if ((*thisIt)->EventType() == eventType) {
+				eventQueue.erase(thisIt);
+				success = true;
+				if (!allOfType) break;
+			}
+		}
+	}
 
-  return success;
+	return success;
 }
 
 void ZEventAgent::Update() {
-  float floatMax = std::numeric_limits<float>::max();
-  float currentTime = ZEngine::SecondsTime();
-  float maxTime = ((updateTimeoutMax_ == floatMax) ? floatMax : currentTime + updateTimeoutMax_);
+	float floatMax = std::numeric_limits<float>::max();
+	float currentTime = ZEngine::SecondsTime();
+	float maxTime = ((updateTimeoutMax_ == floatMax) ? floatMax : currentTime + updateTimeoutMax_);
 
-  int queueToProcess = activeQueue_;
-  activeQueue_ = (activeQueue_ + 1) % NUM_EVENT_QUEUES;
-  eventQueues_[activeQueue_].clear();
+	int queueToProcess = activeQueue_;
+	int listenersToProcess = activeListeners_;
+	activeQueue_ = (activeQueue_ + 1) % NUM_EVENT_QUEUES;
+	activeListeners_ = (activeListeners_ + 1) % NUM_LISTENER_QUEUES;
 
-  while (!eventQueues_[queueToProcess].empty()) {
-    std::shared_ptr<ZEvent> event = eventQueues_[queueToProcess].front();
-    eventQueues_[queueToProcess].pop_front();
-    const ZEventType& eventType = event->EventType();
+	eventQueues_[activeQueue_].clear();
+	eventListeners_[activeListeners_] = eventListeners_[listenersToProcess];
 
-    auto findIt = eventListeners_.find(eventType);
-    if (findIt != eventListeners_.end()) {
-      const EventListenerList& listeners = findIt->second;
-      for (auto it = listeners.begin(); it != listeners.end(); it++) {
-        event->SetTimeStamp(ZEngine::SecondsTime());
-        (*it)(event);
-      }
-    }
+	while (!eventQueues_[queueToProcess].empty()) {
+		std::shared_ptr<ZEvent> event = eventQueues_[queueToProcess].front();
+		eventQueues_[queueToProcess].pop_front();
+		const ZEventType& eventType = event->EventType();
 
-    currentTime = ZEngine::SecondsTime();
-    if (updateTimeoutMax_ != floatMax && currentTime >= maxTime) {
-      _Z("ZEventAgent processing timeout", ZWARNING);
-      break;
-    }
-  }
+		auto findIt = eventListeners_[listenersToProcess].find(eventType);
+		if (findIt != eventListeners_[listenersToProcess].end()) {
+			const EventListenerList& listeners = findIt->second;
+			for (auto it = listeners.begin(); it != listeners.end(); it++) {
+				event->SetTimeStamp(ZEngine::SecondsTime());
+				(*it)(event);
+			}
+		}
 
-  bool queueFlushed = eventQueues_[queueToProcess].empty();
-  if (!queueFlushed) {
-    while (!eventQueues_[queueToProcess].empty()) {
-      std::shared_ptr<ZEvent> event = eventQueues_[queueToProcess].back();
-      eventQueues_[queueToProcess].pop_back();
-      eventQueues_[activeQueue_].push_front(event);
-    }
-  }
+		currentTime = ZEngine::SecondsTime();
+		if (updateTimeoutMax_ != floatMax && currentTime >= maxTime) {
+			_Z("ZEventAgent processing timeout", ZWARNING);
+			break;
+		}
+	}
 
-  ZProcess::Update();
+	bool queueFlushed = eventQueues_[queueToProcess].empty();
+	if (!queueFlushed) {
+		while (!eventQueues_[queueToProcess].empty()) {
+			std::shared_ptr<ZEvent> event = eventQueues_[queueToProcess].back();
+			eventQueues_[queueToProcess].pop_back();
+			eventQueues_[activeQueue_].push_front(event);
+		}
+	}
+
+	eventListeners_[listenersToProcess] = eventListeners_[activeListeners_];
+
+	ZProcess::Update();
 }
 
 void ZEventAgent::CleanUp() {
-  eventListeners_.clear();
-  scriptableEventAgent_.reset();
+	for (int i = 0; i < NUM_LISTENER_QUEUES; i++) {
+		eventListeners_[i].clear();
+	}
+	scriptableEventAgent_.reset();
 }
 
 ZScriptableEventAgent::~ZScriptableEventAgent() {
-  for (auto it = listeners_.begin(); it != listeners_.end(); it++) {
-    ZScriptableEventDelegate* listener = (*it);
-    delete listener;
-  }
-  listeners_.clear();
+	for (auto it = listeners_.begin(); it != listeners_.end(); it++) {
+		ZScriptableEventDelegate* listener = (*it);
+		delete listener;
+	}
+	listeners_.clear();
 }
 
 void ZScriptableEventAgent::AddListener(ZScriptableEventDelegate* listener) {
-  listeners_.insert(listener);
+	listeners_.insert(listener);
 }
 
 void ZScriptableEventAgent::DestroyListener(ZScriptableEventDelegate* listener) {
-  ScriptEventListeners::iterator foundIt = listeners_.find(listener);
-  if (foundIt != listeners_.end()) {
-    listeners_.erase(foundIt);
-    delete listener;
-  }
+	ScriptEventListeners::iterator foundIt = listeners_.find(listener);
+	if (foundIt != listeners_.end()) {
+		listeners_.erase(foundIt);
+		delete listener;
+	}
 }

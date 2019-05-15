@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIImage.cpp
 
     Created by Adrian Sanchez on 06/02/2019.
@@ -32,6 +32,8 @@
 #include "ZShader.hpp"
 #include "ZEngine.hpp"
 #include "ZCommon.hpp"
+#include "ZTextureReadyEvent.hpp"
+#include "ZEventAgent.hpp"
 
 ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
   SetImage(path);
@@ -50,8 +52,23 @@ void ZUIImage::Render(float frameMix, RENDER_OP renderOp) {
 }
 
 void ZUIImage::SetImage(std::string path) {
-  if (!path.empty()) {
-    texture_ = ZEngine::Graphics()->Strategy()->LoadTexture(path, "");
-    texture_.type = "image";
-  }
+	if (!path.empty()) {
+		path_ = path;
+
+        ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
+        ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+
+		ZEngine::Graphics()->Strategy()->LoadTextureAsync(path, "");
+	}
+}
+
+void ZUIImage::HandleTextureReady(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+	if (textureReadyEvent->Texture().path == path_) {
+		texture_ = textureReadyEvent->Texture();
+		texture_.type = "image";
+
+        ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
+        ZEngine::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+	}
 }

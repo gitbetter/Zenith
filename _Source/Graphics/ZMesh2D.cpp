@@ -33,8 +33,8 @@
 #include "ZGraphicsStrategy.hpp"
 #include "ZShader.hpp"
 
-ZMesh2D::ZMesh2D(std::vector<ZVertex2D> vertices) : vertices_(vertices) {
-  bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices);
+void ZMesh2D::Initialize() {
+    bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices_);
 }
 
 void ZMesh2D::Render(ZShader* shader, ZMaterial* material) {

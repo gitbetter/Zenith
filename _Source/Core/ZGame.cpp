@@ -58,11 +58,13 @@ void ZGame::RunGameLoop() {
 void ZGame::AddScene(std::shared_ptr<ZScene> scene) {
     activeScene_ = scenes_.size();
     scenes_.push_back(scene);
-    ZEngine::ProcessRunner()->AttachProcess(scene);
+	ZEngine::ProcessRunner()->AttachProcess(scene);
 }
 
 void ZGame::SetActiveScene(unsigned int index) {
-    if (index < 0 || index >= scenes_.size()) return;
+    if (index < 0 || index >= scenes_.size() || index == activeScene_) return;
+	if (!scenes_.empty() && scenes_[activeScene_]->IsAlive())
+		scenes_[activeScene_]->Abort();
     activeScene_ = index;
 }
 

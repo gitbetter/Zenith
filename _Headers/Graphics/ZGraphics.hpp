@@ -38,6 +38,7 @@ class ZWindow;
 class ZShader;
 class ZGraphicsStrategy;
 class ZLight;
+class ZModel;
 
 // Class and Data Structure Definitions
 typedef std::map<std::string, ZTexture> ZTextureMap;
@@ -45,6 +46,10 @@ typedef std::map<std::string, ZTexture> ZTextureMap;
 class ZGraphics {
     
 private:
+    
+    std::map<std::string, std::string> pendingTextures_;
+    std::map<std::shared_ptr<ZShader>, std::string> pendingShaders_;
+    std::map<std::shared_ptr<ZModel>, std::string> pendingModels_;
     
     void Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
     
@@ -65,15 +70,21 @@ public:
     std::shared_ptr<ZShader> ShadowShader() { return shadowShader_; }
     ZTextureMap& Textures() { return loadedTextures_; }
     ZShaderMap& Shaders() { return loadedShaders_; }
+    ZModelMap& Models() { return loadedModels_; }
     
     void SetStrategy(ZGraphicsStrategy* strategy) { graphicsStrategy_ = strategy; }
     
     void AddShader(std::string id, std::shared_ptr<ZShader> shader);
     void AddTexture(std::string id, ZTexture texture);
+    void AddModel(std::string id, std::shared_ptr<ZModel> model);
     
     static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
     
     void CleanUp();
+    
+    void HandleShaderReady(std::shared_ptr<ZEvent> event);
+    void HandleTextureReady(std::shared_ptr<ZEvent> event);
+    void HandleModelReady(std::shared_ptr<ZEvent> event);
     
 protected:
     
@@ -84,4 +95,5 @@ protected:
     glm::mat4 currentLightSpaceMatrix_;
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;
+    ZModelMap loadedModels_;
 };

@@ -29,8 +29,12 @@
 
 // TODO: Conditional include based on graphics implementation
 #include "ZGLGraphicsStrategy.hpp"
+#include "ZTextureReadyEvent.hpp"
+#include "ZShaderReadyEvent.hpp"
+#include "ZModelReadyEvent.hpp"
 #include "ZGraphicsFactory.hpp"
 #include "ZDomainStrategy.hpp"
+#include "ZEventAgent.hpp"
 #include "ZGameObject.hpp"
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
@@ -47,24 +51,37 @@ void ZGraphics::Initialize() {
 		shadowShader_ = std::shared_ptr<ZShader>(new ZShader);
 		shadowShader_->Initialize("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag");
 	}
+
+    ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleShaderReady);
+    ZEngine::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+
+    ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleTextureReady);
+    ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+
+    ZEventDelegate modelReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleModelReady);
+    ZEngine::EventAgent()->AddListener(modelReadyDelegate, ZModelReadyEvent::Type);
 }
 
 void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
-	// TODO:
-	// ZEngine::GraphicsFactory()->LoadShadersAsync(root);
-	// ZEngine::GraphicsFactory()->LoadTexturesAsync(root);
-	//
-	// ZEventDelegate loadedResourceDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleResourceLoaded);
-	// ZEngine::EventAgent()->AddListener(loadedShaderDelegate, ZResourceLoadedEvent::Type);
-	ZShaderMap shaders = ZEngine::GraphicsFactory()->CreateShaders(root);
+    ZShaderMap shaders; ZTextureMap textures; ZModelMap models;
+
+    ZEngine::GraphicsFactory()->CreateAssets(root, textures, shaders, models);
+
+    for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++) {
+        AddTexture(it->first, it->second);
+    }
+
 	for (ZShaderMap::iterator it = shaders.begin(); it != shaders.end(); it++) {
 		AddShader(it->first, it->second);
 	}
 
-	ZTextureMap textures = ZEngine::GraphicsFactory()->CreateTextures(root);
-	for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++) {
-		AddTexture(it->first, it->second);
-	}
+    for (ZModelMap::iterator it = models.begin(); it != models.end(); it++) {
+        AddModel(it->first, it->second);
+    }
+}
+
+void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root) {
+    ZEngine::GraphicsFactory()->CreateAssetsAsync(root, pendingTextures_, pendingShaders_, pendingModels_);
 }
 
 void ZGraphics::SetupShadowPass(std::shared_ptr<ZLight> light) {
@@ -102,6 +119,10 @@ void ZGraphics::AddTexture(std::string id, ZTexture texture) {
 	loadedTextures_[id] = texture;
 }
 
+void ZGraphics::AddModel(std::string id, std::shared_ptr<ZModel> model) {
+    loadedModels_[id] = model;
+}
+
 void ZGraphics::ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3) {
 	glm::vec3 deltaPos1 = v2.position - v1.position;
 	glm::vec3 deltaPos2 = v3.position - v1.position;
@@ -124,4 +145,40 @@ void ZGraphics::CleanUp() {
 	if (shadowShader_ != nullptr) {
 		shadowShader_ = nullptr;
 	}
+
+    ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleShaderReady);
+    ZEngine::EventAgent()->RemoveListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+
+    ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleTextureReady);
+    ZEngine::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+
+    ZEventDelegate modelReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleModelReady);
+    ZEngine::EventAgent()->RemoveListener(modelReadyDelegate, ZModelReadyEvent::Type);
+}
+
+void ZGraphics::HandleShaderReady(std::shared_ptr<ZEvent> event) {
+    std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::dynamic_pointer_cast<ZShaderReadyEvent>(event);
+    if (pendingShaders_.find(shaderReadyEvent->Shader()) != pendingShaders_.end()) {
+        std::shared_ptr<ZShader> shader = shaderReadyEvent->Shader();
+        AddShader(pendingShaders_[shader], shader);
+        pendingShaders_.erase(shader);
+    }
+}
+
+void ZGraphics::HandleTextureReady(std::shared_ptr<ZEvent> event) {
+    std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+    if (pendingTextures_.find(textureReadyEvent->Texture().path) != pendingTextures_.end()) {
+        ZTexture texture = textureReadyEvent->Texture();
+        AddTexture(pendingTextures_[texture.path], texture);
+        pendingTextures_.erase(texture.path);
+    }
+}
+
+void ZGraphics::HandleModelReady(std::shared_ptr<ZEvent> event) {
+    std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::dynamic_pointer_cast<ZModelReadyEvent>(event);
+    if (pendingModels_.find(modelReadyEvent->Model()) != pendingModels_.end()) {
+        std::shared_ptr<ZModel> model = modelReadyEvent->Model();
+        AddModel(pendingModels_[model], model);
+        pendingModels_.erase(model);
+    }
 }

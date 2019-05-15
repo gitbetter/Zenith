@@ -6,10 +6,10 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
- ZSkybox.hpp
+	ZImageImporter.hpp
 
- Created by Adrian Sanchez on 02/03/2019.
- Copyright © 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 12/05/2019.
+	Copyright � 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
 
@@ -31,35 +31,22 @@
 
 // Includes
 #include "ZCommon.hpp"
-#include "ZGameObject.hpp"
+#include "stb_image.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZResourceHandle;
 
 // Class and Data Structure Definitions
-class ZSkybox : public ZGameObject, public std::enable_shared_from_this<ZSkybox> {
-
+class ZImageImporter {
+    
 private:
-
-	std::string hdrPath_;
-
-    void Initialize(ZTexture& cubeMap, ZBufferData& bufferData);
+    
+    static std::mutex importerMutex_;
 
 public:
 
-    ZSkybox(std::string hdr = "");
-    ~ZSkybox() { }
-
-    void Initialize() override;
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
-	void InitializeAsync();
-
-	bool IsVisible() override { return true; }
-
-    ZIBLTexture IBLTexture() const { return iblTexture_; }
-
-protected:
-
-    ZIBLTexture iblTexture_;
+	static std::shared_ptr<ZResourceHandle> LoadImage(std::string path, bool hdr = false, bool flipped = true);
+	static std::shared_ptr<ZResourceHandle> LoadImage(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flipped = true);
+	static void FreeImageData(void* data);
 
 };

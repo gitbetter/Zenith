@@ -42,6 +42,7 @@ private:
     
     ZMaterialProperties properties_;
     std::vector<ZTexture> textures_;
+    std::map<std::string, std::string> pendingTextures_;
     std::string meshId_;
     int index_;
     bool isPBR_ = false, hasDisplacement_ = false;
@@ -69,7 +70,7 @@ public:
     void SetAlpha(float alpha) { properties_.alpha = alpha; }
     float Alpha(float alpha) const { return properties_.alpha; }
     
-    void AddTexture(ZTexture texture) { textures_.push_back(texture); }
+    void AddTexture(ZTexture& texture) { textures_.push_back(texture); }
     const std::vector<ZTexture>& Textures() const { return textures_; }
     
     int Index() const { return index_; }
@@ -79,5 +80,7 @@ public:
     void SetPBR(bool pbr = true) { isPBR_ = pbr; }
     
 protected:
+    
+    void HandleTextureReady(std::shared_ptr<ZEvent> event);
     
 };

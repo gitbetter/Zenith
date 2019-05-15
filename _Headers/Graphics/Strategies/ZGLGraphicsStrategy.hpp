@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZGLGraphicsStrategy.hpp
 
     Created by Adrian Sanchez on 07/02/2019.
@@ -45,56 +45,61 @@ private:
 
 public:
 
-  ZGLGraphicsStrategy() { }
-  ~ZGLGraphicsStrategy() { }
+	ZGLGraphicsStrategy() {}
+    ~ZGLGraphicsStrategy();
 
-  void Initialize() override;
-  void ClearViewport() override;
-  void SwapBuffers() override;
-  void EnableStencilTesting() override;
-  void EnableDepthTesting() override;
-  void DisableDepthTesting() override;
-  void EnableStencilBuffer() override;
-  void DisableStencilBuffer() override;
-  void EnableAlphaBlending() override;
-  void DisableAlphaBlending() override;
-  void EnableFaceCulling() override;
-  void DisableFaceCulling() override;
-  void EnableSeamlessCubemap() override;
-  void DisableSeamlessCubemap() override;
-  void EnableMSAA() override;
-  void DisableMSAA() override;
+	void Initialize() override;
+	void ClearViewport() override;
+	void SwapBuffers() override;
+	void EnableStencilTesting() override;
+	void EnableDepthTesting() override;
+	void DisableDepthTesting() override;
+	void EnableStencilBuffer() override;
+	void DisableStencilBuffer() override;
+	void EnableAlphaBlending() override;
+	void DisableAlphaBlending() override;
+	void EnableFaceCulling() override;
+	void DisableFaceCulling() override;
+	void EnableSeamlessCubemap() override;
+	void DisableSeamlessCubemap() override;
+	void EnableMSAA() override;
+	void DisableMSAA() override;
 	void CullFrontFaces() override;
 	void CullBackFaces() override;
-  void BindFramebuffer(ZBufferData frameBuffer) override;
-  void UnbindFramebuffer() override;
-  ZTexture LoadDefaultTexture() override;
-  ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) override;
-  ZTexture LoadEmptyLUT() override;
-  ZTexture LoadDepthTexture() override;
-  void BindTexture(ZTexture texture, unsigned int index) override;
-  ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) override;
-  ZBufferData LoadCubeMapBuffer() override;
-  void BindDepthMapBuffer(ZBufferData frameBuffer) override;
-  void UnbindDepthMapBuffer() override;
-  void BindCubeMapBuffer(ZBufferData cubemapBuffer) override;
-  ZTexture LoadCubeMap(std::vector<std::string> faces) override;
-  ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) override;
-  ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
-  ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) override;
-  ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) override;
-  ZBufferData LoadEmptyVertexData2D(unsigned int size) override;
-  void DeleteBufferData(ZBufferData bufferData) override;
-  void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) override;
+	void BindFramebuffer(ZBufferData frameBuffer) override;
+	void UnbindFramebuffer() override;
+	ZTexture LoadDefaultTexture() override;
+	void LoadTextureAsync(std::string path, const std::string &directory, bool hdr = false, bool flip = true, bool equirect = false) override;
+	ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = true) override;
+	ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flip = false) override;
+	ZTexture LoadEmptyLUT() override;
+	ZTexture LoadDepthTexture() override;
+	void BindTexture(ZTexture texture, unsigned int index) override;
+	ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) override;
+	ZBufferData LoadCubeMapBuffer() override;
+	void BindDepthMapBuffer(ZBufferData frameBuffer) override;
+	void UnbindDepthMapBuffer() override;
+	void BindCubeMapBuffer(ZBufferData cubemapBuffer) override;
+	ZTexture LoadCubeMap(std::vector<std::string> faces) override;
+	ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) override;
+	ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
+	ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) override;
+	ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) override;
+	ZBufferData LoadEmptyVertexData2D(unsigned int size) override;
+	void DeleteBufferData(ZBufferData bufferData) override;
+	void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) override;
 
-  ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) override;
-  ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
-  ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
-  ZTexture BRDFLUT(ZBufferData cubemapBufferData) override;
+	void EquirectToCubemapAsync(std::string equirectHDRPath) override;
+	ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) override;
+	ZTexture EquirectToCubemap(ZTexture& hdrTexture, ZBufferData& bufferData) override;
 
-  void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
-  void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) override;
-  void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) override;
+	ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
+	ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
+	ZTexture BRDFLUT(ZBufferData cubemapBufferData) override;
+
+	void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
+	void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) override;
+	void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) override;
 
 protected:
 

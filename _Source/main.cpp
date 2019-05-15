@@ -39,15 +39,18 @@
 #include "ZEventAgent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZObjectDragEvent.hpp"
+#include "ZSceneReadyEvent.hpp"
 #include "ZResource.hpp"
 #include "ZResourceCache.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZDomain.hpp"
 
 std::shared_ptr<ZGame> game;
+std::shared_ptr<ZScene> scene;
 
 void onObjectSelect(std::shared_ptr<ZEvent> event);
 void onObjectDrag(std::shared_ptr<ZEvent> event);
+void onSceneLoad(std::shared_ptr<ZEvent> event);
 
 // TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
@@ -62,13 +65,15 @@ int main(int argc, const char * argv[]) {
     ZEngine::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
     
 	// Load our scene using description files
-	ZEngine::LoadScene({ "Assets/basic_scene.zof" });
+	scene = ZEngine::LoadScene({ "Assets/basic_scene.zof" });
     
     // We can register delegate methods for specific UI events
     ZEventDelegate pressDelegate(&onObjectSelect);
     ZEventDelegate dragDelegate(&onObjectDrag);
+	ZEventDelegate sceneReadyDelegate(&onSceneLoad);
     ZEngine::EventAgent()->AddListener(pressDelegate, ZObjectSelectedEvent::Type);
     ZEngine::EventAgent()->AddListener(dragDelegate, ZObjectDragEvent::Type);
+	ZEngine::EventAgent()->AddListener(sceneReadyDelegate, ZSceneReadyEvent::Type);
     
     // Let's test the audio system by adding some background music to the scene.
     ZResource bgAmbient("Assets/Sounds/wind.ogg");
@@ -111,4 +116,10 @@ void onObjectSelect(std::shared_ptr<ZEvent> event) {
 
 void onObjectDrag(std::shared_ptr<ZEvent> event) {
     std::shared_ptr<ZObjectDragEvent> dragEvent = std::static_pointer_cast<ZObjectDragEvent>(event);
+}
+
+void onSceneLoad(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::dynamic_pointer_cast<ZSceneReadyEvent>(event);
+	sceneReadyEvent->Scene()->Start();
+	_Z("Scene '" + sceneReadyEvent->Scene()->Name() + "' loaded", ZINFO);
 }

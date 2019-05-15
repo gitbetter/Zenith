@@ -143,7 +143,7 @@ bool ZGameObject::IsVisible() {
     std::shared_ptr<ZGameObject> camera = scene_->ActiveCamera();
     std::shared_ptr<ZCameraComponent> cameraComp = camera->FindComponent<ZCameraComponent>();
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
-    if (cameraComp && graphicsComp) {
+    if (cameraComp && graphicsComp && graphicsComp->Model()) {
         return cameraComp->Frustum().Contains(graphicsComp->Model()->AABB());
     }
     return false;

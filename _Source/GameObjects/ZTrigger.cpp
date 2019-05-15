@@ -29,6 +29,10 @@
 #include "ZTrigger.hpp"
 #include "ZPhysicsComponent.hpp"
 
+ZTrigger::ZTrigger() : ZGameObject(glm::vec3(0.f)) {
+    properties_.renderPass = ZRenderPass::Invisible;
+}
+
 void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
     ZGameObject::Initialize(root);
     

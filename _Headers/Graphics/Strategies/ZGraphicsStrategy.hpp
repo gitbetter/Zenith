@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZGraphicsStrategy.hpp
 
     Created by Adrian Sanchez on 06/02/2019.
@@ -65,34 +65,36 @@ public:
   virtual void DisableMSAA() = 0;
 	virtual void CullFrontFaces() = 0;
 	virtual void CullBackFaces() = 0;
-  virtual void BindFramebuffer(ZBufferData frameBuffer) = 0;
-  virtual void UnbindFramebuffer() = 0;
-  virtual ZTexture LoadDefaultTexture() = 0;
-  virtual ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = false) = 0;
-  virtual ZTexture LoadEmptyLUT() = 0;
-  virtual ZTexture LoadDepthTexture() = 0;
-  virtual void BindTexture(ZTexture texture, unsigned int index) = 0;
-  virtual ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) = 0;
-  virtual ZBufferData LoadCubeMapBuffer() = 0;
-  virtual void BindDepthMapBuffer(ZBufferData frameBuffer) = 0;
-  virtual void UnbindDepthMapBuffer() = 0;
-  virtual void BindCubeMapBuffer(ZBufferData cubemapBuffer) = 0;
-  virtual ZTexture LoadCubeMap(std::vector<std::string> faces) = 0;
-  virtual ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) = 0;
-  virtual ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
-  virtual ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) = 0;
-  virtual ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) = 0;
-  virtual ZBufferData LoadEmptyVertexData2D(unsigned int size) = 0;
-  virtual void DeleteBufferData(ZBufferData bufferData) = 0;
-  virtual void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) = 0;
-  virtual ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) = 0;
-  virtual ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
-  virtual ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
-  virtual ZTexture BRDFLUT(ZBufferData cubemapBufferData) = 0;
-  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
-  virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
-  virtual void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) = 0;
-
-protected:
+	virtual void BindFramebuffer(ZBufferData frameBuffer) = 0;
+	virtual void UnbindFramebuffer() = 0;
+	virtual ZTexture LoadDefaultTexture() = 0;
+	virtual void LoadTextureAsync(std::string path, const std::string &directory, bool hdr = false, bool flip = true, bool equirect = false) = 0;
+	virtual ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = true) = 0;
+	virtual ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flip = false) = 0;
+	virtual ZTexture LoadEmptyLUT() = 0;
+	virtual ZTexture LoadDepthTexture() = 0;
+	virtual void BindTexture(ZTexture texture, unsigned int index) = 0;
+	virtual ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) = 0;
+	virtual ZBufferData LoadCubeMapBuffer() = 0;
+	virtual void BindDepthMapBuffer(ZBufferData frameBuffer) = 0;
+	virtual void UnbindDepthMapBuffer() = 0;
+	virtual void BindCubeMapBuffer(ZBufferData cubemapBuffer) = 0;
+	virtual ZTexture LoadCubeMap(std::vector<std::string> faces) = 0;
+	virtual ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) = 0;
+	virtual ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
+	virtual ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) = 0;
+	virtual ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) = 0;
+	virtual ZBufferData LoadEmptyVertexData2D(unsigned int size) = 0;
+	virtual void DeleteBufferData(ZBufferData bufferData) = 0;
+	virtual void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) = 0;
+	virtual void EquirectToCubemapAsync(std::string equirectHDRPath) = 0;
+	virtual ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) = 0;
+	virtual ZTexture EquirectToCubemap(ZTexture& hdrTexture, ZBufferData& bufferData) = 0;
+	virtual ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
+	virtual ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
+	virtual ZTexture BRDFLUT(ZBufferData cubemapBufferData) = 0;
+	virtual void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
+	virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
+	virtual void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) = 0;
 
 };

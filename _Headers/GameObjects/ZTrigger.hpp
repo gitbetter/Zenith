@@ -41,7 +41,7 @@ class ZTrigger : public ZGameObject {
     
 public:
     
-    ZTrigger() : ZGameObject(glm::vec3(0.f)) { }
+    ZTrigger();
     
     void Initialize(std::shared_ptr<ZOFNode> root) override;
 };

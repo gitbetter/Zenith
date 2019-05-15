@@ -44,6 +44,7 @@ public:
     virtual ~ZMesh() { }
     
     virtual void Render(ZShader* shader, ZMaterial* material) = 0;
+    virtual void Initialize() = 0;
     virtual ZMeshDrawStyle DrawStyle() const { return drawStyle_; };
     
 protected:

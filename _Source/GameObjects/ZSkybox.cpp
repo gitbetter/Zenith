@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZSkybox.cpp
 
     Created by Adrian Sanchez on 02/03/2019.
@@ -31,9 +31,47 @@
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZGraphicsComponent.hpp"
+#include "ZTextureReadyEvent.hpp"
+#include "ZSkyboxReadyEvent.hpp"
 
-void ZSkybox::Initialize(std::string hdrMap) {
-  std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(hdrMap, iblTexture_);
+ZSkybox::ZSkybox(std::string hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr) {
+    properties_.renderPass = ZRenderPass::Sky;
+}
+
+void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root) {
+    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
+
+    if(node == nullptr) {
+        _Z("Could not initalize ZSkybox", ZERROR);
+        return;
+    }
+
+    id_ = node->id;
+
+    ZOFPropertyMap props = node->properties;
+
+    if (props.find("hdr") != props.end() && props["hdr"]->HasValues()) {
+        std::shared_ptr<ZOFString> hdrProp = props["hdr"]->Value<ZOFString>(0);
+        hdrPath_ = hdrProp->value;
+        InitializeAsync();
+    }
+}
+
+void ZSkybox::Initialize() {
+	ZBufferData cubemapBuffer;
+	ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(hdrPath_, cubemapBuffer);
+	Initialize(cubeMap, cubemapBuffer);
+}
+
+void ZSkybox::InitializeAsync() {
+    ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
+    ZEngine::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+
+    ZEngine::Graphics()->Strategy()->EquirectToCubemapAsync(hdrPath_);
+}
+
+void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
+	std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 
   std::shared_ptr<ZShader> skyboxShader(new ZShader);
   skyboxShader->Initialize("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag");
@@ -41,10 +79,23 @@ void ZSkybox::Initialize(std::string hdrMap) {
   std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
   skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
-  std::vector<ZTexture> textures = { iblTexture_.cubeMap };
-  skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
+    std::vector<ZTexture> textures = { iblTexture_.cubeMap };
+	skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
 
-  AddComponent(skyboxGraphicsComponent);
-  ZEngine::ProcessRunner()->AttachProcess(skyboxGraphicsComponent);
-  properties_.renderPass = ZRenderPass::Sky;
+	AddComponent(skyboxGraphicsComponent);
+}
+
+void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+	if (textureReadyEvent->Texture().path == hdrPath_) {
+        ZTexture texture = textureReadyEvent->Texture();
+        ZBufferData bufferData = textureReadyEvent->BufferData();
+		Initialize(texture, bufferData);
+
+		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
+		ZEngine::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+
+        std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(shared_from_this());
+        ZEngine::EventAgent()->QueueEvent(skyboxReadyEvent);
+	}
 }

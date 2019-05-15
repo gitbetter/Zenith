@@ -102,6 +102,14 @@ ${SOURCE_DIR}/EventAgent/Events/ZFireEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectSelectedEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZObjectDragEvent.cpp
 ${SOURCE_DIR}/EventAgent/Events/ZResourceLoadedEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZModelReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZScriptReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZShaderReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZSoundReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZTextureReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZZOFReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZSkyboxReadyEvent.cpp
+${SOURCE_DIR}/EventAgent/Events/ZSceneReadyEvent.cpp
 ${SOURCE_DIR}/EventAgent/ZScriptableEvent.cpp
 ${SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${SOURCE_DIR}/Audio/ZAudio.cpp
@@ -139,6 +147,14 @@ ${HEADERS_DIR}/EventAgent/Events/ZObjectSelectedEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZResourceLoadedEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZQuitEvent.hpp
 ${HEADERS_DIR}/EventAgent/Events/ZRaycastEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZModelReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZScriptReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZShaderReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZSoundReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZTextureReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZZOFReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZSkyboxReadyEvent.hpp
+${HEADERS_DIR}/EventAgent/Events/ZSceneReadyEvent.hpp
 ${HEADERS_DIR}/Factories/ZGOFactory.hpp
 ${HEADERS_DIR}/Factories/ZGraphicsFactory.hpp
 ${HEADERS_DIR}/Factories/ZPhysicsFactory.hpp
@@ -492,7 +508,7 @@ ${HEADERS_DIR}/_ThirdParty/cppfs/AbstractFileSystem.h
 ${HEADERS_DIR}/_ThirdParty/cppfs/AbstractFileWatcherBackend.h
 ${HEADERS_DIR}/_ThirdParty/cppfs/Change.h
 ${HEADERS_DIR}/_ThirdParty/cppfs/cppfs_api.h
-${HEADERS_DIR}/_ThirdParty/cppfs/cppfs-version.h	
+${HEADERS_DIR}/_ThirdParty/cppfs/cppfs-version.h
 ${HEADERS_DIR}/_ThirdParty/cppfs/cppfs.h
 ${HEADERS_DIR}/_ThirdParty/cppfs/Diff.h
 ${HEADERS_DIR}/_ThirdParty/cppfs/FileEventHandler.h
@@ -1035,7 +1051,7 @@ endif(DEVELOPMENT)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC 
+target_include_directories(${PROJECT_NAME} PUBLIC
 ${HEADERS_DIR}
 ${HEADERS_DIR}/_ThirdParty
 ${HEADERS_DIR}/_ThirdParty/assimp
@@ -1107,7 +1123,7 @@ if (NOT DEVELOPMENT)
   endforeach()
 endif()
 
-if (APPLE) 
+if (APPLE)
   find_library(GLEW_LIB NAMES GLEW GLEWd HINTS "${DARWIN_LIB_DIR}")
   find_library(GLFW_LIB NAMES glfw HINTS "${DARWIN_LIB_DIR}")
   find_library(BZ2_LIB NAMES bz2 HINTS "${DARWIN_LIB_DIR}")
@@ -1126,23 +1142,23 @@ if (APPLE)
   find_library(VORBISFILE_LIB NAMES vorbisfile HINTS "${DARWIN_LIB_DIR}")
   find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
 
-  target_link_libraries(${PROJECT_NAME} 
-  "-framework Cocoa" 
-  "-framework OpenGL" 
-  "-framework IOKit" 
-  "-framework CoreVideo" 
+  target_link_libraries(${PROJECT_NAME}
+  "-framework Cocoa"
+  "-framework OpenGL"
+  "-framework IOKit"
+  "-framework CoreVideo"
   "-framework CoreFoundation"
   ${GLEW_LIB}
   ${GLFW_LIB}
   ${CPPFS_LIB}
   ${BZ2_LIB}
   ${ZLIB_LIB}
-  ${FREETYPE_LIB} 
-  ${ZIP_LIB} 
+  ${FREETYPE_LIB}
+  ${ZIP_LIB}
   ${LUA_LIB}
-  ${ASSIMP_LIB} 
-  ${LINEARMATH_BULLET_LIB} 
-  ${BULLETCOLLISION_BULLET_LIB} 
+  ${ASSIMP_LIB}
+  ${LINEARMATH_BULLET_LIB}
+  ${BULLETCOLLISION_BULLET_LIB}
   ${BULLETDYNAMICS_BULLET_LIB}
   ${OGG_LIB}
   ${VORBIS_LIB}
@@ -1158,7 +1174,7 @@ if (APPLE)
 	  set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets")
 	      add_custom_command(
 	      TARGET ${PROJECT_NAME} POST_BUILD
-	      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
+	      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination}
 	      DEPENDS ${destination}
 	      COMMENT "symbolically link Assets folder from ${source} => ${destination}"
 	  )
@@ -1184,20 +1200,20 @@ elseif (WIN32)
   find_library(VORBISFILE_LIB NAMES vorbisfile_static libvorbisfile_static HINTS "${WINDOWS_LIB_DIR}")
   find_library(OPENAL_LIB NAMES OpenAL32 HINTS "${WINDOWS_LIB_DIR}")
 
-  target_link_libraries(${PROJECT_NAME} 
-  ${OPENGL_LIBRARY} 
-  gdi32 
+  target_link_libraries(${PROJECT_NAME}
+  ${OPENGL_LIBRARY}
+  gdi32
   ${GLEW_LIB}
   ${GLFW_LIB}
   ${CPPFS_LIB}
   ${BZ2_LIB}
   ${ZLIB_LIB}
-  ${FREETYPE_LIB} 
-  ${ZIP_LIB} 
+  ${FREETYPE_LIB}
+  ${ZIP_LIB}
   ${LUA_LIB}
-  ${ASSIMP_LIB} 
-  ${LINEARMATH_BULLET_LIB} 
-  ${BULLETCOLLISION_BULLET_LIB} 
+  ${ASSIMP_LIB}
+  ${LINEARMATH_BULLET_LIB}
+  ${BULLETCOLLISION_BULLET_LIB}
   ${BULLETDYNAMICS_BULLET_LIB}
   ${OGG_LIB}
   ${VORBIS_LIB}
@@ -1210,7 +1226,7 @@ elseif (WIN32)
 
 endif (APPLE)
 
-foreach(FILE ${SOURCES}) 
+foreach(FILE ${SOURCES})
 	get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)
 	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
 	string(REPLACE "/" "\\" GROUP "${GROUP}")
