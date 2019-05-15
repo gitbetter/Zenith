@@ -491,10 +491,10 @@ ZBufferData ZGLGraphicsStrategy::LoadCubeMapBuffer() {
 }
 
 ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
-    ZTexture depthMap;
-    depthMap.type = "depth";
-    glGenTextures(1, &depthMap.id);
-    glBindTexture(GL_TEXTURE_2D, depthMap.id);
+    ZTexture depthTexture;
+    depthTexture.type = "depth";
+    glGenTextures(1, &depthTexture.id);
+    glBindTexture(GL_TEXTURE_2D, depthTexture.id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -505,7 +505,7 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     
     glBindTexture(GL_TEXTURE_2D, 0);
-    return depthMap;
+    return depthTexture;
 }
 
 void ZGLGraphicsStrategy::BindDepthMapBuffer(ZBufferData frameBuffer) {

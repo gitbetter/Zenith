@@ -46,10 +46,10 @@ void ZGraphics::Initialize() {
 	if (graphicsStrategy_ == nullptr) {
 		graphicsStrategy_ = new ZGLGraphicsStrategy();
 		graphicsStrategy_->Initialize();
-		shadowMap_ = graphicsStrategy_->LoadDepthTexture();
-        depthMap_ = graphicsStrategy_->LoadDepthTexture();
-		shadowFrameBuffer_ = graphicsStrategy_->LoadDepthMapBuffer(shadowMap_);
-        depthFrameBuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
+		shadowBuffer_ = graphicsStrategy_->LoadDepthTexture();
+        depthBuffer_ = graphicsStrategy_->LoadDepthTexture();
+		shadowFrameBuffer_ = graphicsStrategy_->LoadDepthMapBuffer(shadowBuffer_);
+        depthFrameBuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthBuffer_);
 		shadowShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/depth.frag"));
         depthShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/depth.vert", "Assets/Shaders/Pixel/depth.frag"));
 		shadowShader_->Initialize();

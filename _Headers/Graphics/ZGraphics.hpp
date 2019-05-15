@@ -68,8 +68,8 @@ public:
     
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
     glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
-    ZTexture ShadowMap() { return shadowMap_; }
-    ZTexture DepthMap() { return depthMap_; }
+    ZTexture ShadowBuffer() { return shadowBuffer_; }
+    ZTexture DepthBuffer() { return depthBuffer_; }
     std::shared_ptr<ZShader> ShadowShader() { return shadowShader_; }
     std::shared_ptr<ZShader> DepthShader() { return depthShader_; }
     ZTextureMap& Textures() { return loadedTextures_; }
@@ -96,7 +96,7 @@ protected:
     std::shared_ptr<ZShader> shadowShader_ = nullptr;
     std::shared_ptr<ZShader> depthShader_ = nullptr;
     ZBufferData shadowFrameBuffer_, depthFrameBuffer_;
-    ZTexture shadowMap_, depthMap_;
+    ZTexture shadowBuffer_, depthBuffer_;
     glm::mat4 currentLightSpaceMatrix_;
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;
