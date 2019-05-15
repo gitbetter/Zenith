@@ -46,10 +46,14 @@ void ZGraphics::Initialize() {
 	if (graphicsStrategy_ == nullptr) {
 		graphicsStrategy_ = new ZGLGraphicsStrategy();
 		graphicsStrategy_->Initialize();
-		depthMap_ = graphicsStrategy_->LoadDepthTexture();
-		depthFramebuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
-		shadowShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/shadow.frag"));
+		shadowMap_ = graphicsStrategy_->LoadDepthTexture();
+        depthMap_ = graphicsStrategy_->LoadDepthTexture();
+		shadowFrameBuffer_ = graphicsStrategy_->LoadDepthMapBuffer(shadowMap_);
+        depthFrameBuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthMap_);
+		shadowShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/depth.frag"));
+        depthShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/depth.vert", "Assets/Shaders/Pixel/depth.frag"));
 		shadowShader_->Initialize();
+        depthShader_->Initialize();
 	}
     
     ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleShaderReady);
@@ -84,8 +88,8 @@ void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root) {
     ZEngine::GraphicsFactory()->CreateAssetsAsync(root, pendingTextures_, pendingShaders_, pendingModels_);
 }
 
-void ZGraphics::SetupShadowPass(std::shared_ptr<ZLight> light) {
-	graphicsStrategy_->BindDepthMapBuffer(depthFramebuffer_);
+void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light) {
+	graphicsStrategy_->BindDepthMapBuffer(shadowFrameBuffer_);
 
 	shadowShader_->Activate();
 	// TODO: For now we support one light source for shadows, but this should change
@@ -100,7 +104,11 @@ void ZGraphics::SetupShadowPass(std::shared_ptr<ZLight> light) {
 	currentLightSpaceMatrix_ = lightSpaceMatrix;
 }
 
-void ZGraphics::FinishShadowPass() {
+void ZGraphics::SetupDepthPass() {
+    graphicsStrategy_->BindDepthMapBuffer(depthFrameBuffer_);
+}
+
+void ZGraphics::FinishDepthPass() {
 	graphicsStrategy_->UnbindDepthMapBuffer();
 }
 

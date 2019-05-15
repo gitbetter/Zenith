@@ -62,13 +62,16 @@ public:
     void Load(std::shared_ptr<ZOFTree> root);
 	void LoadAsync(std::shared_ptr<ZOFTree> root);
     
-    void SetupShadowPass(std::shared_ptr<ZLight> light);
-    void FinishShadowPass();
+    void SetupShadowDepthPass(std::shared_ptr<ZLight> light);
+    void SetupDepthPass();
+    void FinishDepthPass();
     
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
     glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
+    ZTexture ShadowMap() { return shadowMap_; }
     ZTexture DepthMap() { return depthMap_; }
     std::shared_ptr<ZShader> ShadowShader() { return shadowShader_; }
+    std::shared_ptr<ZShader> DepthShader() { return depthShader_; }
     ZTextureMap& Textures() { return loadedTextures_; }
     ZShaderMap& Shaders() { return loadedShaders_; }
     ZModelMap& Models() { return loadedModels_; }
@@ -89,10 +92,11 @@ public:
     
 protected:
     
-    std::shared_ptr<ZShader> shadowShader_ = nullptr;
     ZGraphicsStrategy* graphicsStrategy_ = nullptr;
-    ZBufferData depthFramebuffer_;
-    ZTexture depthMap_;
+    std::shared_ptr<ZShader> shadowShader_ = nullptr;
+    std::shared_ptr<ZShader> depthShader_ = nullptr;
+    ZBufferData shadowFrameBuffer_, depthFrameBuffer_;
+    ZTexture shadowMap_, depthMap_;
     glm::mat4 currentLightSpaceMatrix_;
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;

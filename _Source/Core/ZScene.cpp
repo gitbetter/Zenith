@@ -153,13 +153,18 @@ void ZScene::Render() {
     float frameMix = glm::clamp((float)ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
                                 0.f, 1.f);
     
+    // Render pass #1
+    root_->RenderChildren(frameMix, RENDER_OP_DEPTH);
+    
+    // Render pass #2
     // TODO: Support more shadow casting lights!
     if (gameLights_.size() > 0) {
-        ZEngine::Graphics()->SetupShadowPass(gameLights_.begin()->second);
+        ZEngine::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
         root_->RenderChildren(frameMix, RENDER_OP_SHADOW);
-        ZEngine::Graphics()->FinishShadowPass();
+        ZEngine::Graphics()->FinishDepthPass();
     }
     
+    // Render pass #3
     root_->RenderChildren(frameMix);
     
     ZEngine::UI()->Draw();

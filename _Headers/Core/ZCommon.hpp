@@ -114,7 +114,8 @@ typedef unsigned long ZEventType;
 #define BONES_PER_VERTEX 4
 
 #define RENDER_OP_COLOR 0x01
-#define RENDER_OP_SHADOW 0x02
+#define RENDER_OP_DEPTH 0x02
+#define RENDER_OP_SHADOW 0x04
 
 enum ZRenderPass {
     First, Static = First, Dynamic, Sky, Invisible, Last

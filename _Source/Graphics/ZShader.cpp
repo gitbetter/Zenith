@@ -267,8 +267,8 @@ void ZShader::Use(ZMaterial* material) {
 	// and should not be overriden
     for (unsigned int i = 0, j = material->Textures().size(); i < j; i++) {
         ZTexture texture = material->Textures()[i];
-        SetInt(texture.type, i + 4);
-        ZEngine::Graphics()->Strategy()->BindTexture(texture, i + 4);
+        SetInt(texture.type, i + 6);
+        ZEngine::Graphics()->Strategy()->BindTexture(texture, i + 6);
 	}
 }
 

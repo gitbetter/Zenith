@@ -125,13 +125,25 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 	// Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
 	ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
-	std::shared_ptr<ZShader> shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
+    std::shared_ptr<ZShader> shader;
+    if (renderOp == RENDER_OP_SHADOW) {
+        shader = ZEngine::Graphics()->ShadowShader();
+    } else if (renderOp == RENDER_OP_DEPTH) {
+        shader = ZEngine::Graphics()->DepthShader();
+    } else {
+        shader = ActiveShader();
+    }
+    
     if (shader) {
         shader->Activate();
         shader->Use(gameLights_);
 
         ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
-        if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
+        ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->ShadowMap(), 1);
+        if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) {
+            shader->SetInt("depthMap", 0);
+            shader->SetInt("shadowMap", 1);
+        }
 
         shader->SetMat4("P", projectionMatrix);
         shader->SetMat4("V", viewMatrix);
@@ -140,12 +152,12 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
         shader->SetVec3("viewPosition", gameCamera_->Position());
 
         if (object_->Scene()->Skybox() != nullptr) {
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 2);
-            shader->SetInt("irradianceMap", 2);
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 3);
-            shader->SetInt("prefilterMap", 3);
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 4);
-            shader->SetInt("brdfLUT", 4);
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 3);
+            shader->SetInt("irradianceMap", 3);
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 4);
+            shader->SetInt("prefilterMap", 4);
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 5);
+            shader->SetInt("brdfLUT", 5);
         }
 
         modelObject_->Render(shader.get(), materials_);
