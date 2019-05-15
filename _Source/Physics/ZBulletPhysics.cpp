@@ -60,7 +60,7 @@ void ZBulletPhysics::Initialize() {
     ZEngine::EventAgent()->AddListener(raycastDelegate, ZRaycastEvent::Type);
 }
 
-void ZBulletPhysics::Update() {  
+void ZBulletPhysics::Update() {
     ZPhysics::Update();
     dynamicsWorld_->stepSimulation(ZEngine::DeltaTime(), ZEngine::MAX_FIXED_UPDATE_ITERATIONS, ZEngine::UPDATE_STEP_SIZE);
 }

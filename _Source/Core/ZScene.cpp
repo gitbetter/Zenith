@@ -47,8 +47,13 @@
 #include "ZResourceExtraData.hpp"
 #include "ZGOFactory.hpp"
 #include "ZUIFactory.hpp"
+#include "ZTextureReadyEvent.hpp"
+#include "ZShaderReadyEvent.hpp"
+#include "ZModelReadyEvent.hpp"
+#include "ZSkyboxReadyEvent.hpp"
+#include "ZSceneReadyEvent.hpp"
 
-ZScene::ZScene() {
+ZScene::ZScene() : loadedResourceCount_(0) {
     root_ = std::make_shared<ZSceneRoot>();
     root_->scene_ = this;
 }
@@ -68,6 +73,18 @@ void ZScene::Initialize() {
 	ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
 	ZEngine::EventAgent()->AddListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
 
+	ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleTextureReady);
+	ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+
+	ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleShaderReady);
+	ZEngine::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+
+	ZEventDelegate modelReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleModelReady);
+	ZEngine::EventAgent()->AddListener(modelReadyDelegate, ZModelReadyEvent::Type);
+
+	ZEventDelegate skyboxReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleSkyboxReady);
+	ZEngine::EventAgent()->AddListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
+
 	for (auto it = pendingSceneDefinitions_.begin(); it != pendingSceneDefinitions_.end(); it++) {
 		ZEngine::LoadZOF(it->first);
 	}
@@ -75,8 +92,12 @@ void ZScene::Initialize() {
     ZProcess::Initialize();
 }
 
+void ZScene::Start() {
+	
+}
+
 void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
-    ParsePendingSceneObjects(objectTree);
+	ParseSceneMetadata(objectTree);
     
 	// TODO: The more systems are populated this way, the more of a hamper we place on
 	// load times. Refactor this so the object tree is only traversed once.
@@ -99,17 +120,23 @@ void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
 	}
 }
 
-void ZScene::ParsePendingSceneObjects(std::shared_ptr<ZOFTree> objectTree) {
+void ZScene::ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree) {
     bool hasSkybox = false;
     for (ZOFChildMap::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++) {
-        if (it->first.find("ZTEX") == 0 || it->first.find("ZMOD") == 0 ||
-            it->first.find("ZSH") == 0 || it->first.find("ZSCR") == 0 ||
-            it->first.find("ZSKY") == 0) {
-            pendingSceneObjects_[it->first] = true;
+		if (it->first.find("ZSCENE") == 0) {
+			std::shared_ptr<ZOFObjectNode> sceneDataNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
+			if (sceneDataNode->properties.find("name") != sceneDataNode->properties.end()) {
+				name_ = sceneDataNode->properties["name"]->Value<ZOFString>(0)->value;
+			}
+		} else if (it->first.find("ZTEX") == 0 || it->first.find("ZMOD") == 0 || it->first.find("ZSH") == 0 || 
+				   /*it->first.find("ZSCR") == 0 ||*/ it->first.find("ZSKY") == 0) {
+            pendingSceneObjects_.push_back(it->first);
             if (it->first.find("ZSKY") == 0)
                 hasSkybox = true;
         }
     }
+
+	loadedResourceCount_ = pendingSceneObjects_.size();
     
     if (!hasSkybox) SetDefaultSkybox();
 }
@@ -198,6 +225,32 @@ void ZScene::SetDefaultSkybox() {
 	AddGameObject(skybox_);
 }
 
+void ZScene::UnregisterLoadDelegates() {
+	ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
+	ZEngine::EventAgent()->RemoveListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
+
+	ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleTextureReady);
+	ZEngine::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+
+	ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleShaderReady);
+	ZEngine::EventAgent()->RemoveListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+
+	ZEventDelegate modelReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleModelReady);
+	ZEngine::EventAgent()->RemoveListener(modelReadyDelegate, ZModelReadyEvent::Type);
+
+	ZEventDelegate skyboxReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleSkyboxReady);
+	ZEngine::EventAgent()->RemoveListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
+}
+
+void ZScene::CleanUp() {
+	ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
+	ZEngine::EventAgent()->RemoveListener(quitDelegate, ZQuitEvent::Type);
+
+	UnregisterLoadDelegates();
+
+	skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;
+}
+
 void ZScene::HandleQuit(std::shared_ptr<ZEvent> event) {
     ZEngine::Domain()->Strategy()->ReleaseCursor();
 }
@@ -215,5 +268,55 @@ void ZScene::HandleZOFReady(std::shared_ptr<ZEvent> event) {
 	if (pendingSceneDefinitions_.empty()) {
 		ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
 		ZEngine::EventAgent()->RemoveListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
+	}
+}
+
+void ZScene::HandleTextureReady(std::shared_ptr<ZEvent> event) {
+	CheckPendingObject("ZTEX", event);
+}
+
+void ZScene::HandleShaderReady(std::shared_ptr<ZEvent> event) {
+	CheckPendingObject("ZSH", event);
+}
+
+void ZScene::HandleSkyboxReady(std::shared_ptr<ZEvent> event) {
+	CheckPendingObject("ZSKY", event);
+}
+
+void ZScene::HandleModelReady(std::shared_ptr<ZEvent> event) {
+	CheckPendingObject("ZMOD", event);
+}
+
+void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event) {
+	std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
+
+	for (auto it = pendingSceneObjects_.begin(); it != pendingSceneObjects_.end(); it++) {
+		if (!(*it).find(type) == 0) continue;
+
+		if (type == "ZTEX" && ZEngine::Graphics()->Textures().find(*it) != ZEngine::Graphics()->Textures().end()) {
+			pendingSceneObjects_.erase(it);
+			break;
+		} else if (type == "ZSH" && ZEngine::Graphics()->Shaders().find(*it) != ZEngine::Graphics()->Shaders().end()) {
+			pendingSceneObjects_.erase(it);
+			break;
+		} else if (type == "ZMOD" && ZEngine::Graphics()->Models().find(*it) != ZEngine::Graphics()->Models().end()) {
+			pendingSceneObjects_.erase(it);
+			break;
+		} else if (type == "ZSCR" && ZEngine::ScriptManager()->Scripts().find(*it) != ZEngine::ScriptManager()->Scripts().end()) {
+			pendingSceneObjects_.erase(it);
+			break;
+		} else if (type == "ZSKY") {
+			std::shared_ptr<ZSkyboxReadyEvent> ready = std::dynamic_pointer_cast<ZSkyboxReadyEvent>(event);
+			if (ready->Skybox() == skybox_) {
+				pendingSceneObjects_.erase(it);
+				break;
+			}
+		}
+	}
+
+	if (pendingSceneObjects_.empty()) {
+		UnregisterLoadDelegates();
+		std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::make_shared<ZSceneReadyEvent>(shared_from_this());
+		ZEngine::EventAgent()->QueueEvent(sceneReadyEvent);
 	}
 }

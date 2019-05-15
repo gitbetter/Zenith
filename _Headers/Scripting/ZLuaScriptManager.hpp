@@ -39,11 +39,14 @@
 
 // Class and Data Structure Definitions
 class ZLuaScriptManager : public ZScriptManager {
+
+	typedef std::map<std::string, bool> ZScriptMap;
     
 private:
     
     sol::state lua_;
     std::string lastError_;
+	ZScriptMap scripts_;
     
 public:
     
@@ -54,6 +57,7 @@ public:
     ~ZLuaScriptManager() { }
     
     sol::state& LuaState() { return lua_; }
+	ZScriptMap& Scripts() { return scripts_; }
     
     virtual void Initialize() override;
     virtual void Load(std::shared_ptr<ZOFTree> zof) override;

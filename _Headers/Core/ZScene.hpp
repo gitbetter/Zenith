@@ -43,7 +43,8 @@ class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene> {
 private:
     
 	std::map<std::string, bool> pendingSceneDefinitions_;
-    std::map<std::string, bool> pendingSceneObjects_;
+    std::vector<std::string> pendingSceneObjects_;
+	unsigned int loadedResourceCount_;
     
     // TODO: Create a light manager class to handle the scene lights
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
@@ -52,12 +53,20 @@ private:
 	std::list<glm::mat4> matrixStack_;
     ZLightMap gameLights_;
     ZGameObjectMap gameObjects_;
-    
+	std::string name_;
+   
     void Render();
 	void LoadSceneData(std::shared_ptr<ZOFTree> objectTree);
-    void ParsePendingSceneObjects(std::shared_ptr<ZOFTree> objectTree);
+    void ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree);
+	void UnregisterLoadDelegates();
 
 	void HandleZOFReady(std::shared_ptr<ZEvent> event);
+	void HandleTextureReady(std::shared_ptr<ZEvent> event);
+	void HandleShaderReady(std::shared_ptr<ZEvent> event);
+	void HandleModelReady(std::shared_ptr<ZEvent> event);
+	void HandleSkyboxReady(std::shared_ptr<ZEvent> event);
+
+	void CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event);
     
 public:
     
@@ -66,6 +75,7 @@ public:
     ~ZScene() { }
     
     void Initialize() override;
+	void Start();
     void Update() override;
 
     std::shared_ptr<ZGameObject> Root() { return root_; }
@@ -73,6 +83,7 @@ public:
     std::shared_ptr<ZGameObject> ActiveCamera() { return activeCamera_; }
     ZGameObjectMap& GameObjects() { return gameObjects_; }
     ZLightMap& GameLights() { return gameLights_; }
+	std::string& Name() { return name_; }
     
     void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
     void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
@@ -84,6 +95,8 @@ public:
     void SetActiveCamera(std::shared_ptr<ZGameObject> gameObject);
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
     void SetDefaultSkybox();
+
+	void CleanUp() override;
     
     void HandleQuit(std::shared_ptr<ZEvent> event);
     
@@ -91,6 +104,7 @@ protected:
     
     struct {
         std::mutex matrixStack;
+		std::mutex pendingObjects;
     } sceneMutexes_;
     
 };

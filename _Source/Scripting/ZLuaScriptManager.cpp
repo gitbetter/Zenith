@@ -50,6 +50,7 @@ void ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
 				std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
 				ZResource scriptResource(prop->value, ZResourceType::Script);
 				ZEngine::ResourceCache()->GetHandle(&scriptResource);
+				scripts_[it->first] = true;
 			}
 		}
 	}
@@ -67,6 +68,10 @@ void ZLuaScriptManager::LoadAsync(std::shared_ptr<ZOFTree> zof) {
                 std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
                 ZResource scriptResource(prop->value, ZResourceType::Script);
                 ZEngine::ResourceCache()->RequestHandle(scriptResource);
+				// TODO: Create a ZScriptReadyEvent that we can catch in order to cache the script properly.
+				// Might also want to refactor the scripts into separate ZScript objects where we can store extra
+				// data.
+				scripts_[it->first] = true;
             }
         }
     }

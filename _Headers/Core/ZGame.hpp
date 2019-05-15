@@ -54,7 +54,7 @@ public:
     
     void AddScene(std::shared_ptr<ZScene> scene);
     
-    std::shared_ptr<ZScene> ActiveScene() { return scenes_[activeScene_]; }
+    std::shared_ptr<ZScene> ActiveScene() { return !(scenes_.empty()) ? scenes_[activeScene_] : nullptr; }
     void SetActiveScene(unsigned int index);
     
     // TODO: Remove later when we figure out why some displays don't refresh on startup
