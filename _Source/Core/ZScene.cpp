@@ -153,6 +153,9 @@ void ZScene::Render() {
 
 	UpdateViewProjectionMatrices();
 
+	// TODO: Possible performance penalty here. Color and depth information might be better computed in 
+	// a single render pass using multiple render targets.
+
 	// Render pass #1: Shadow
 	// TODO: Support more shadow casting lights!
 	if (gameLights_.size() > 0) {
