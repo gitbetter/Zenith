@@ -95,7 +95,8 @@ void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root) {
 }
 
 void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light) {
-	graphicsStrategy_->BindFramebuffer(shadowFrameBuffer_);
+	ZEngine::Graphics()->Strategy()->ClearViewport();
+	graphicsStrategy_->BindFramebuffer(shadowFrameBuffer_, true);
 	graphicsStrategy_->ClearDepth();
 
 	shadowShader_->Activate();
@@ -112,18 +113,21 @@ void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light) {
 }
 
 void ZGraphics::SetupDepthPass() {
-    graphicsStrategy_->BindFramebuffer(depthFrameBuffer_);
+    graphicsStrategy_->BindFramebuffer(depthFrameBuffer_, true);
+	ZEngine::Graphics()->Strategy()->ClearViewport();
 	graphicsStrategy_->ClearDepth();
 }
 
 void ZGraphics::SetupColorPass() {
 	graphicsStrategy_->BindFramebuffer(colorFrameBuffer_);
+	ZEngine::Graphics()->Strategy()->ClearViewport();
 }
 
 void ZGraphics::PostProcessingPass() {
+	ZEngine::Graphics()->Strategy()->ClearViewport();
 	graphicsStrategy_->DisableDepthTesting();
-	postShader_->Activate();
 	graphicsStrategy_->BindTexture(colorBuffer_, 0);
+	postShader_->Activate();
 	postShader_->SetInt("colorSampler", 0);
 	renderQuad_->Render(postShader_.get());
 	graphicsStrategy_->EnableDepthTesting();

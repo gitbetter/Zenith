@@ -67,7 +67,7 @@ public:
 	virtual void CullFrontFaces() = 0;
 	virtual void CullBackFaces() = 0;
 	virtual void ClearDepth() = 0;
-	virtual void BindFramebuffer(ZBufferData frameBuffer) = 0;
+	virtual void BindFramebuffer(ZBufferData frameBuffer, bool depth = false) = 0;
 	virtual void UnbindFramebuffer() = 0;
 	virtual ZTexture LoadDefaultTexture() = 0;
 	virtual void LoadTextureAsync(std::string path, const std::string &directory, bool hdr = false, bool flip = true, bool equirect = false) = 0;

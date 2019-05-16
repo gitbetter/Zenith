@@ -148,8 +148,6 @@ void ZScene::Update() {
 }
 
 void ZScene::Render() {
-    ZEngine::Graphics()->Strategy()->ClearViewport();
-    
     float frameMix = glm::clamp((float)ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
                                 0.f, 1.f);
     
@@ -167,13 +165,15 @@ void ZScene::Render() {
     }
     
     // Render pass #3: Color
-	// ZEngine::Graphics()->SetupColorPass();
+	ZEngine::Graphics()->SetupColorPass();
     root_->RenderChildren(frameMix, ZRenderOp::Color);
-	// ZEngine::Graphics()->FinishRenderPass();
+	ZEngine::Graphics()->FinishRenderPass();
 
 	// Render pass #4: Post-Processing
-	// ZEngine::Graphics()->PostProcessingPass();
+	ZEngine::Graphics()->PostProcessingPass();
     
+	// TODO: Draw as part of the main rendering loop with
+	// the rest of the game objects
     ZEngine::UI()->Draw();
     
     ZEngine::Physics()->DebugDraw();

@@ -45,10 +45,10 @@ void ZMesh2D::Render(ZShader* shader, ZMaterial* material) {
 
 std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad() {
 	std::vector<ZVertex2D> vertices = {
-	ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f)),
-	ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 1.f)),
-	ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 0.f)),
-	ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f))
+		ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f)),
+		ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 1.f)),
+		ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 0.f)),
+		ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f))
 	};
 	std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(vertices);
 	mesh->Initialize();

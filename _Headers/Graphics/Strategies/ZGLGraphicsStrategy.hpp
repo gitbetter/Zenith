@@ -68,7 +68,7 @@ public:
 	void CullFrontFaces() override;
 	void CullBackFaces() override; 
 	void ClearDepth() override;
-	void BindFramebuffer(ZBufferData frameBuffer) override;
+	void BindFramebuffer(ZBufferData frameBuffer, bool depth = false)  override;
 	void UnbindFramebuffer() override;
 	ZTexture LoadDefaultTexture() override;
 	void LoadTextureAsync(std::string path, const std::string &directory, bool hdr = false, bool flip = true, bool equirect = false) override;
