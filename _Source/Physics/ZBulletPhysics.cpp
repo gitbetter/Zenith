@@ -83,7 +83,7 @@ void ZBulletPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
         if (camera) {
             std::shared_ptr<ZCameraComponent> cameraComp = camera->FindComponent<ZCameraComponent>();
             glm::mat4 InverseProjection = glm::inverse(cameraComp->ProjectionMatrix());
-            glm::mat4 InverseView = glm::inverse(cameraComp->ViewMatrix(1.f));
+            glm::mat4 InverseView = glm::inverse(cameraComp->ViewMatrix());
             
             glm::vec4 rayStart(raycastEvent->Origin().x * 2.f - 1.f, -raycastEvent->Origin().y * 2.f + 1.f, -1.f, 1.f);
             glm::vec4 rayEnd(raycastEvent->Origin().x * 2.f - 1.f, -raycastEvent->Origin().y * 2.f + 1.f, 0.f, 1.f);

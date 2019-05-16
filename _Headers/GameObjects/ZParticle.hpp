@@ -53,7 +53,7 @@ public:
 	void Initialize() override;
 
 	void Update() override;
-	void Render(float frameMix, ZRenderOp renderOp = ZRenderOp::Color) override;
+	void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
 	float Age() { return age_; }
 	bool Active() { return active_; }

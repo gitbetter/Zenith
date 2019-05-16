@@ -54,7 +54,7 @@ public:
   bool Checked() const { return checked_; }
   void SetChecked(bool checked = true) { checked_ = checked; }
 
-  void Render(float frameMix = 1.f, ZRenderOp renderOp = ZRenderOp::Color) override;
+  void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
   
 protected:
 

@@ -63,7 +63,7 @@ void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 }
 
-void ZUICheckBox::Render(float frameMix, ZRenderOp renderOp) {
+void ZUICheckBox::Render(ZRenderOp renderOp) {
   ZUIElement::Render();
   RenderChildren();
 }

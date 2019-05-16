@@ -41,7 +41,7 @@ void ZUIButton::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
 }
 
-void ZUIButton::Render(float frameMix, ZRenderOp renderOp) {
+void ZUIButton::Render(ZRenderOp renderOp) {
   ZUIElement::Render();  
   RenderChildren();
 }

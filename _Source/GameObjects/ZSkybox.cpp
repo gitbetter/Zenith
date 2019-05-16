@@ -86,9 +86,9 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 	AddComponent(skyboxGraphicsComponent);
 }
 
-void ZSkybox::Render(float frameMix, ZRenderOp renderOp) {
+void ZSkybox::Render(ZRenderOp renderOp) {
 	if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) {
-		ZGameObject::Render(frameMix, renderOp);
+		ZGameObject::Render(renderOp);
 	}
 }
 

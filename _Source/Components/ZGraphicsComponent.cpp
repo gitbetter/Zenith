@@ -113,14 +113,14 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	if (materials_.empty()) materials_.push_back(ZMaterial::DefaultMaterialPBR());
 }
 
-void ZGraphicsComponent::Render(float frameMix, ZRenderOp renderOp) {
+void ZGraphicsComponent::Render(ZRenderOp renderOp) {
 	if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
 
 	std::shared_ptr<ZCameraComponent> cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
 
 	glm::mat4 modelMatrix = object_->Scene()->TopMatrix();
 	glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
-	glm::mat4 viewMatrix = cameraComp->ViewMatrix(frameMix);
+	glm::mat4 viewMatrix = cameraComp->ViewMatrix();
 
 	// Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
 	ZEngine::Graphics()->Strategy()->EnableStencilBuffer();

@@ -44,7 +44,7 @@ void ZUIImage::Initialize(std::shared_ptr<ZOFNode> root) {
 	ZUIElement::Initialize(root);
 }
 
-void ZUIImage::Render(float frameMix, ZRenderOp renderOp) {
+void ZUIImage::Render(ZRenderOp renderOp) {
 	ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
 	ZUIElement::Render();
 	ZEngine::Graphics()->Strategy()->DisableAlphaBlending();

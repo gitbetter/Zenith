@@ -71,7 +71,7 @@ void ZUICursor::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 }
 
-void ZUICursor::Render(float frameMix, ZRenderOp renderOp) {
+void ZUICursor::Render(ZRenderOp renderOp) {
   ZUIElement::Render();
   RenderChildren();
 }

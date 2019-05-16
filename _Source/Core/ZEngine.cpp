@@ -98,6 +98,7 @@ std::unique_ptr<ZPhysicsFactory> ZEngine::physicsFactory_ = nullptr;
 std::unique_ptr<ZIDSequence> ZEngine::idGenerator_(new ZIDSequence);
 double ZEngine::deltaTime_ = 0.0;
 double ZEngine::lastDeltaTime_ = 0.0;
+float ZEngine::frameMix_ = 0.f;
 
 // TODO: Useful to have a config file to parse for more global state info such as window dimensions
 // and maximum resource cache size
@@ -255,6 +256,10 @@ double ZEngine::SecondsTime() {
     return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() / 1000.0;
 }
 
+float ZEngine::FrameMix() {
+	return frameMix_;
+}
+
 void ZEngine::Provide(std::shared_ptr<ZDomain> domain) {
     domain_ = domain;
     domain_->Initialize();
@@ -290,6 +295,11 @@ void ZEngine::Provide(std::shared_ptr<ZAudio> audio) {
 void ZEngine::SetDeltaTime(double deltaTime) {
     lastDeltaTime_ = deltaTime_;
     deltaTime_ = deltaTime;
+	SetFrameMix((float)deltaTime_ - (UPDATE_STEP_SIZE * (float)MAX_FIXED_UPDATE_ITERATIONS));
+}
+
+void ZEngine::SetFrameMix(float frameMix) {
+	frameMix_ = glm::clamp(frameMix, 0.f, 1.f);
 }
 
 void ZEngine::LoadZOF(std::string zofPath) {

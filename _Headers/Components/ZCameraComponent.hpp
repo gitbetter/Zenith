@@ -80,7 +80,7 @@ public:
   float FarField() const { return farClippingPlane_; }
 	ZFrustum& Frustum() { return frustum_; }
   glm::mat4 ProjectionMatrix();
-  glm::mat4 ViewMatrix(float frameMix);
+  glm::mat4 ViewMatrix();
 
 protected:
 

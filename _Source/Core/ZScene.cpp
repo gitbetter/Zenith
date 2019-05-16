@@ -148,9 +148,6 @@ void ZScene::Update() {
 }
 
 void ZScene::Render() {
-    float frameMix = glm::clamp((float)ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
-                                0.f, 1.f);
-
 	UpdateViewProjectionMatrices();
 
 	// TODO: Possible performance penalty here. Color and depth information might be better computed in 
@@ -160,18 +157,18 @@ void ZScene::Render() {
 	// TODO: Support more shadow casting lights!
 	if (gameLights_.size() > 0) {
 		ZEngine::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
-		root_->RenderChildren(frameMix, ZRenderOp::Shadow);
+		root_->RenderChildren(ZRenderOp::Shadow);
 		ZEngine::Graphics()->FinishRenderPass();
 	}
     
     // Render pass #2: Depth
 	ZEngine::Graphics()->SetupDepthPass();
-    root_->RenderChildren(frameMix, ZRenderOp::Depth);
+    root_->RenderChildren(ZRenderOp::Depth);
 	ZEngine::Graphics()->FinishRenderPass();
     
     // Render pass #3: Color
 	ZEngine::Graphics()->SetupColorPass();
-    root_->RenderChildren(frameMix, ZRenderOp::Color);
+    root_->RenderChildren(ZRenderOp::Color);
 	ZEngine::Graphics()->FinishRenderPass();
 
 	// Render pass #4: Post-Processing
@@ -191,7 +188,7 @@ void ZScene::UpdateViewProjectionMatrices() {
 	if (activeCamera_) {
 		std::shared_ptr<ZCameraComponent> cameraComp = activeCamera_->FindComponent<ZCameraComponent>();
 		glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
-		glm::mat4 viewMatrix = cameraComp->ViewMatrix(1.f);
+		glm::mat4 viewMatrix = cameraComp->ViewMatrix();
 		viewProjection_ = projectionMatrix * viewMatrix;
 	} else {
 		viewProjection_ = glm::mat4(1.f);

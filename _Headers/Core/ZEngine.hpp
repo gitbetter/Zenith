@@ -81,6 +81,7 @@ private:
     
     static std::unique_ptr<ZIDSequence> idGenerator_;
     static double deltaTime_, lastDeltaTime_;
+	static float frameMix_;
     
 public:
     
@@ -122,6 +123,7 @@ public:
     static double LastDeltaTime();
     static double DeltaTime();
     static double SecondsTime();
+	static float FrameMix();
     
     static void Provide(std::shared_ptr<ZDomain> domain);
     static void Provide(std::shared_ptr<ZGraphics> graphics);
@@ -132,6 +134,7 @@ public:
     // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
     
     static void SetDeltaTime(double deltaTime);
+	static void SetFrameMix(float frameMix);
     
     static void LoadZOF(std::string zofPath);
 	static std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);

@@ -118,7 +118,7 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
     }
 }
 
-void ZUIElement::Render(float frameMix, ZRenderOp renderOp) {
+void ZUIElement::Render(ZRenderOp renderOp) {
     std::shared_ptr<ZMesh2D> mesh = ElementShape();
     shader_->Activate();
     

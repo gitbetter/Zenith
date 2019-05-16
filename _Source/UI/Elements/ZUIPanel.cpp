@@ -37,7 +37,7 @@ void ZUIPanel::Initialize(std::shared_ptr<ZOFNode> root) {
   texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
-void ZUIPanel::Render(float frameMix, ZRenderOp renderOp) {
+void ZUIPanel::Render(ZRenderOp renderOp) {
   ZUIElement::Render();
   RenderChildren();
 }
