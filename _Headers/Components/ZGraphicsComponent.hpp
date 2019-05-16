@@ -32,7 +32,7 @@ private:
 	std::vector<std::string> shaders_;
 	std::string model_;
     
-    void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
+    void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewProjection);
     
 public:
     

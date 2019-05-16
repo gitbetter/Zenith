@@ -40,6 +40,7 @@ class ZGraphicsStrategy;
 class ZLight;
 class ZModel;
 class ZMesh2D;
+class ZScene;
 
 // Class and Data Structure Definitions
 typedef std::map<std::string, ZTexture> ZTextureMap;
@@ -51,8 +52,6 @@ private:
     std::map<std::string, std::string> pendingTextures_;
     std::map<std::shared_ptr<ZShader>, std::string> pendingShaders_;
     std::map<std::shared_ptr<ZModel>, std::string> pendingModels_;
-    
-    void Render(const ZGameObjectMap& gameObjects, float frameMix, ZRenderOp renderOp = ZRenderOp::Color);
     
 public:
     
@@ -66,7 +65,7 @@ public:
     void SetupShadowDepthPass(std::shared_ptr<ZLight> light);
     void SetupDepthPass();
 	void SetupColorPass();
-	void PostProcessingPass();
+	void PostProcessingPass(ZScene* scene);
     void FinishRenderPass();
     
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }

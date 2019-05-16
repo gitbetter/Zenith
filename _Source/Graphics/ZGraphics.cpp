@@ -40,6 +40,7 @@
 #include "ZDomain.hpp"
 #include "ZShader.hpp"
 #include "ZMesh2D.hpp"
+#include "ZScene.hpp"
 #include "ZLight.hpp"
 
 void ZGraphics::Initialize() {
@@ -123,25 +124,27 @@ void ZGraphics::SetupColorPass() {
 	ZEngine::Graphics()->Strategy()->ClearViewport();
 }
 
-void ZGraphics::PostProcessingPass() {
+void ZGraphics::PostProcessingPass(ZScene* scene) {
 	ZEngine::Graphics()->Strategy()->ClearViewport();
 	graphicsStrategy_->DisableDepthTesting();
-	graphicsStrategy_->BindTexture(colorBuffer_, 0);
+
 	postShader_->Activate();
+	postShader_->SetMat4("previousViewProjection", scene->PreviousViewProjection());
+	postShader_->SetMat4("inverseViewProjection", glm::inverse(scene->ViewProjection()));
+
+	graphicsStrategy_->BindTexture(colorBuffer_, 0);
 	postShader_->SetInt("colorSampler", 0);
+
+	graphicsStrategy_->BindTexture(depthBuffer_, 1);
+	postShader_->SetInt("depthTexture", 1);
+
 	renderQuad_->Render(postShader_.get());
+
 	graphicsStrategy_->EnableDepthTesting();
 }
 
 void ZGraphics::FinishRenderPass() {
 	graphicsStrategy_->UnbindFramebuffer();
-}
-
-void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, ZRenderOp renderOp) {
-	for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
-		if (it->second->IsVisible())
-			it->second->Render(frameMix, renderOp);
-	}
 }
 
 void ZGraphics::AddShader(std::string id, std::shared_ptr<ZShader> shader) {

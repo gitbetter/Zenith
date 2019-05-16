@@ -87,8 +87,9 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 }
 
 void ZSkybox::Render(float frameMix, ZRenderOp renderOp) {
-	if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) 
+	if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) {
 		ZGameObject::Render(frameMix, renderOp);
+	}
 }
 
 void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
