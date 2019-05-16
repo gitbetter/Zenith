@@ -66,7 +66,8 @@ public:
 	void EnableMSAA() override;
 	void DisableMSAA() override;
 	void CullFrontFaces() override;
-	void CullBackFaces() override;
+	void CullBackFaces() override; 
+	void ClearDepth() override;
 	void BindFramebuffer(ZBufferData frameBuffer) override;
 	void UnbindFramebuffer() override;
 	ZTexture LoadDefaultTexture() override;
@@ -74,13 +75,12 @@ public:
 	ZTexture LoadTexture(std::string path, const std::string &directory, bool hdr = false, bool flip = true) override;
 	ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flip = false) override;
 	ZTexture LoadEmptyLUT() override;
+	ZTexture LoadColorTexture() override;
 	ZTexture LoadDepthTexture() override;
 	void BindTexture(ZTexture texture, unsigned int index) override;
+	ZBufferData LoadColorBuffer(ZTexture colorTexture) override;
 	ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) override;
 	ZBufferData LoadCubeMapBuffer() override;
-	void BindDepthMapBuffer(ZBufferData frameBuffer) override;
-	void UnbindDepthMapBuffer() override;
-	void BindCubeMapBuffer(ZBufferData cubemapBuffer) override;
 	ZTexture LoadCubeMap(std::vector<std::string> faces) override;
 	ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) override;
 	ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;

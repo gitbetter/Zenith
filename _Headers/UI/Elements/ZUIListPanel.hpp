@@ -52,7 +52,7 @@ public:
   float ItemHeight() const { return itemHeight_; }
   void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
 
-  void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR) override;
+  void Render(float frameMix = 1.f, ZRenderOp renderOp = ZRenderOp::Color) override;
 
   void AddChild(std::shared_ptr<ZUIElement> element) override;
 

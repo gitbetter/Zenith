@@ -39,6 +39,7 @@ class ZShader;
 class ZGraphicsStrategy;
 class ZLight;
 class ZModel;
+class ZMesh2D;
 
 // Class and Data Structure Definitions
 typedef std::map<std::string, ZTexture> ZTextureMap;
@@ -51,7 +52,7 @@ private:
     std::map<std::shared_ptr<ZShader>, std::string> pendingShaders_;
     std::map<std::shared_ptr<ZModel>, std::string> pendingModels_;
     
-    void Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
+    void Render(const ZGameObjectMap& gameObjects, float frameMix, ZRenderOp renderOp = ZRenderOp::Color);
     
 public:
     
@@ -64,7 +65,9 @@ public:
     
     void SetupShadowDepthPass(std::shared_ptr<ZLight> light);
     void SetupDepthPass();
-    void FinishDepthPass();
+	void SetupColorPass();
+	void PostProcessingPass();
+    void FinishRenderPass();
     
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
     glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
@@ -95,8 +98,10 @@ protected:
     ZGraphicsStrategy* graphicsStrategy_ = nullptr;
     std::shared_ptr<ZShader> shadowShader_ = nullptr;
     std::shared_ptr<ZShader> depthShader_ = nullptr;
-    ZBufferData shadowFrameBuffer_, depthFrameBuffer_;
-    ZTexture shadowBuffer_, depthBuffer_;
+	std::shared_ptr<ZShader> postShader_ = nullptr;
+	std::shared_ptr<ZMesh2D> renderQuad_ = nullptr;
+    ZBufferData shadowFrameBuffer_, depthFrameBuffer_, colorFrameBuffer_;
+    ZTexture shadowBuffer_, depthBuffer_, colorBuffer_;
     glm::mat4 currentLightSpaceMatrix_;
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;

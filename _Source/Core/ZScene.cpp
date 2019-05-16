@@ -153,19 +153,26 @@ void ZScene::Render() {
     float frameMix = glm::clamp((float)ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
                                 0.f, 1.f);
     
-    // Render pass #1
-    root_->RenderChildren(frameMix, RENDER_OP_DEPTH);
+    // Render pass #1: Depth
+	ZEngine::Graphics()->SetupDepthPass();
+    root_->RenderChildren(frameMix, ZRenderOp::Depth);
+	ZEngine::Graphics()->FinishRenderPass();
     
-    // Render pass #2
+    // Render pass #2: Shadow
     // TODO: Support more shadow casting lights!
     if (gameLights_.size() > 0) {
         ZEngine::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
-        root_->RenderChildren(frameMix, RENDER_OP_SHADOW);
-        ZEngine::Graphics()->FinishDepthPass();
+        root_->RenderChildren(frameMix, ZRenderOp::Shadow);
+        ZEngine::Graphics()->FinishRenderPass();
     }
     
-    // Render pass #3
-    root_->RenderChildren(frameMix);
+    // Render pass #3: Color
+	//ZEngine::Graphics()->SetupColorPass();
+    root_->RenderChildren(frameMix, ZRenderOp::Color);
+	//ZEngine::Graphics()->FinishRenderPass();
+
+	// Render pass #4: Post-Processing
+	// ZEngine::Graphics()->PostProcessingPass();
     
     ZEngine::UI()->Draw();
     

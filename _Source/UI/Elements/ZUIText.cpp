@@ -71,7 +71,7 @@ void ZUIText::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 }
 
-void ZUIText::Render(float frameMix, RENDER_OP renderOp) {
+void ZUIText::Render(float frameMix, ZRenderOp renderOp) {
   ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
   float x = Position().x,

@@ -95,8 +95,8 @@ public:
     void SetParent(ZUIElement* parent) { parent_ = parent; }
     void RemoveParent();
     
-    virtual void Render(float frameMix = 1.f, RENDER_OP renderOp = RENDER_OP_COLOR);
-    virtual ZMesh2D ElementShape();
+    virtual void Render(float frameMix = 1.f, ZRenderOp renderOp = ZRenderOp::Color);
+    virtual std::shared_ptr<ZMesh2D> ElementShape();
     
     void RenderChildren();
     

@@ -39,6 +39,7 @@
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
 #include "ZShader.hpp"
+#include "ZMesh2D.hpp"
 #include "ZLight.hpp"
 
 void ZGraphics::Initialize() {
@@ -48,12 +49,17 @@ void ZGraphics::Initialize() {
 		graphicsStrategy_->Initialize();
 		shadowBuffer_ = graphicsStrategy_->LoadDepthTexture();
         depthBuffer_ = graphicsStrategy_->LoadDepthTexture();
+		colorBuffer_ = graphicsStrategy_->LoadColorTexture();
 		shadowFrameBuffer_ = graphicsStrategy_->LoadDepthMapBuffer(shadowBuffer_);
         depthFrameBuffer_ = graphicsStrategy_->LoadDepthMapBuffer(depthBuffer_);
+		colorFrameBuffer_ = graphicsStrategy_->LoadColorBuffer(colorBuffer_);
 		shadowShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/depth.frag"));
         depthShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/depth.vert", "Assets/Shaders/Pixel/depth.frag"));
+		postShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/postprocess.vert", "Assets/Shaders/Pixel/postprocess.frag"));
 		shadowShader_->Initialize();
         depthShader_->Initialize();
+		postShader_->Initialize();
+		renderQuad_ = ZMesh2D::NewQuad();
 	}
     
     ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleShaderReady);
@@ -89,7 +95,8 @@ void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root) {
 }
 
 void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light) {
-	graphicsStrategy_->BindDepthMapBuffer(shadowFrameBuffer_);
+	graphicsStrategy_->BindFramebuffer(shadowFrameBuffer_);
+	graphicsStrategy_->ClearDepth();
 
 	shadowShader_->Activate();
 	// TODO: For now we support one light source for shadows, but this should change
@@ -105,14 +112,26 @@ void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light) {
 }
 
 void ZGraphics::SetupDepthPass() {
-    graphicsStrategy_->BindDepthMapBuffer(depthFrameBuffer_);
+    graphicsStrategy_->BindFramebuffer(depthFrameBuffer_);
+	graphicsStrategy_->ClearDepth();
 }
 
-void ZGraphics::FinishDepthPass() {
-	graphicsStrategy_->UnbindDepthMapBuffer();
+void ZGraphics::SetupColorPass() {
+	graphicsStrategy_->BindFramebuffer(colorFrameBuffer_);
 }
 
-void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp) {
+void ZGraphics::PostProcessingPass() {
+	postShader_->Activate();
+	graphicsStrategy_->BindTexture(colorBuffer_, 0);
+	postShader_->SetInt("colorSampler", 0);
+	renderQuad_->Render(postShader_.get());
+}
+
+void ZGraphics::FinishRenderPass() {
+	graphicsStrategy_->UnbindFramebuffer();
+}
+
+void ZGraphics::Render(const ZGameObjectMap& gameObjects, float frameMix, ZRenderOp renderOp) {
 	for (auto it = gameObjects.begin(); it != gameObjects.end(); it++) {
 		if (it->second->IsVisible())
 			it->second->Render(frameMix, renderOp);

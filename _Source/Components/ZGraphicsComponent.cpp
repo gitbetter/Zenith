@@ -113,7 +113,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	if (materials_.empty()) materials_.push_back(ZMaterial::DefaultMaterialPBR());
 }
 
-void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
+void ZGraphicsComponent::Render(float frameMix, ZRenderOp renderOp) {
 	if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
 
 	std::shared_ptr<ZCameraComponent> cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
@@ -126,9 +126,9 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 	ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
     std::shared_ptr<ZShader> shader;
-    if (renderOp == RENDER_OP_SHADOW) {
+    if (renderOp == ZRenderOp::Shadow) {
         shader = ZEngine::Graphics()->ShadowShader();
-    } else if (renderOp == RENDER_OP_DEPTH) {
+    } else if (renderOp == ZRenderOp::Depth) {
         shader = ZEngine::Graphics()->DepthShader();
     } else {
         shader = ActiveShader();
@@ -140,7 +140,7 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 
         ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthBuffer(), 0);
         ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->ShadowBuffer(), 1);
-        if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) {
+        if (renderOp == ZRenderOp::Color) {
             shader->SetInt("depthTexture", 0);
             shader->SetInt("shadowTexture", 1);
         }

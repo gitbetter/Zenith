@@ -118,8 +118,8 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
     }
 }
 
-void ZUIElement::Render(float frameMix, RENDER_OP renderOp) {
-    ZMesh2D mesh = ElementShape();
+void ZUIElement::Render(float frameMix, ZRenderOp renderOp) {
+    std::shared_ptr<ZMesh2D> mesh = ElementShape();
     shader_->Activate();
     
     ZEngine::Graphics()->Strategy()->BindTexture(texture_, 0);
@@ -140,7 +140,7 @@ void ZUIElement::Render(float frameMix, RENDER_OP renderOp) {
         shader_->SetFloat("aspectRatio", aspect);
     }
     
-    mesh.Render(shader_.get());
+    mesh->Render(shader_.get());
 }
 
 void ZUIElement::RenderChildren() {
@@ -276,18 +276,8 @@ bool ZUIElement::Contains(glm::vec3 point) {
     point.y >= Position().y - Size().y && point.y <= Position().y + Size().y;
 }
 
-ZMesh2D ZUIElement::ElementShape() { 
-    static ZMesh2D mesh;
-    if (mesh.Vertices().size() == 0) {
-        std::vector<ZVertex2D> vertices = {
-            ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f)),
-            ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 1.f)),
-            ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 0.f)),
-            ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f))
-        };
-        mesh = ZMesh2D(vertices);
-        mesh.Initialize();
-    }
+std::shared_ptr<ZMesh2D> ZUIElement::ElementShape() {
+	static std::shared_ptr<ZMesh2D> mesh = ZMesh2D::NewQuad();
     return mesh;
 };
 

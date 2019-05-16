@@ -71,7 +71,7 @@ void ZUICursor::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 }
 
-void ZUICursor::Render(float frameMix, RENDER_OP renderOp) {
+void ZUICursor::Render(float frameMix, ZRenderOp renderOp) {
   ZUIElement::Render();
   RenderChildren();
 }
@@ -94,6 +94,11 @@ void ZUICursor::SetColor(glm::vec4 color) {
       uiImage->SetColor(color);
     }
   }
+}
+
+std::shared_ptr<ZMesh2D> ZUICursor::ElementShape() {
+	static std::shared_ptr<ZMesh2D> mesh = std::shared_ptr<ZMesh2D>(new ZMesh2D);
+	return mesh;
 }
 
 void ZUICursor::HandleMouseMove(std::shared_ptr<ZEvent> event) {
