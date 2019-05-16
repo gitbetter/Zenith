@@ -113,7 +113,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	if (materials_.empty()) materials_.push_back(ZMaterial::DefaultMaterialPBR());
 }
 
-void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
+void ZGraphicsComponent::Render(float frameMix, ZRenderOp renderOp) {
 	if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
 
 	std::shared_ptr<ZCameraComponent> cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
@@ -125,33 +125,46 @@ void ZGraphicsComponent::Render(float frameMix, RENDER_OP renderOp) {
 	// Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
 	ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
 
-	std::shared_ptr<ZShader> shader = (renderOp & RENDER_OP_SHADOW) == RENDER_OP_SHADOW ? ZEngine::Graphics()->ShadowShader() : ActiveShader();
+    std::shared_ptr<ZShader> shader;
+    if (renderOp == ZRenderOp::Shadow) {
+        shader = ZEngine::Graphics()->ShadowShader();
+    } else if (renderOp == ZRenderOp::Depth) {
+        shader = ZEngine::Graphics()->DepthShader();
+    } else {
+        shader = ActiveShader();
+    }
+    
     if (shader) {
         shader->Activate();
         shader->Use(gameLights_);
 
-        ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthMap(), 0);
-        if (renderOp & (RENDER_OP_COLOR == RENDER_OP_COLOR)) shader->SetInt("shadowMap", 0);
+        ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthBuffer(), 0);
+        ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->ShadowBuffer(), 1);
+        if (renderOp == ZRenderOp::Color) {
+            shader->SetInt("depthTexture", 0);
+            shader->SetInt("shadowTexture", 1);
+        }
 
-        shader->SetMat4("P", projectionMatrix);
-        shader->SetMat4("V", viewMatrix);
+		shader->SetMat4("P", projectionMatrix);
+		shader->SetMat4("V", viewMatrix);
         shader->SetMat4("M", modelMatrix);
+		shader->SetMat4("ViewProjection", object_->Scene()->ViewProjection());
         shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
         shader->SetVec3("viewPosition", gameCamera_->Position());
 
         if (object_->Scene()->Skybox() != nullptr) {
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 2);
-            shader->SetInt("irradianceMap", 2);
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 3);
-            shader->SetInt("prefilterMap", 3);
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 4);
-            shader->SetInt("brdfLUT", 4);
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 3);
+            shader->SetInt("irradianceMap", 3);
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 4);
+            shader->SetInt("prefilterMap", 4);
+            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 5);
+            shader->SetInt("brdfLUT", 5);
         }
 
         modelObject_->Render(shader.get(), materials_);
     }
 
-	DrawOutlineIfEnabled(modelMatrix, viewMatrix, projectionMatrix);
+	DrawOutlineIfEnabled(modelMatrix, object_->Scene()->ViewProjection());
 }
 
 std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader() {
@@ -187,7 +200,7 @@ void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material) {
 	materials_.push_back(material);
 }
 
-void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection) {
+void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewProjection) {
 	if (highlightShader_ == nullptr) return;
 
 	ZEngine::Graphics()->Strategy()->DisableStencilBuffer();
@@ -196,8 +209,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view,
 
 	glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.07f, 1.07f, 1.07f));
 
-	highlightShader_->SetMat4("P", projection);
-	highlightShader_->SetMat4("V", view);
+	highlightShader_->SetMat4("ViewProjection", viewProjection);
 	highlightShader_->SetMat4("M", highlightModelMatrix);
 	highlightShader_->SetVec4("color", highlightColor_);
 

@@ -41,10 +41,16 @@ class ZSkybox;
 class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene> {
     
 private:
+
+	struct {
+		std::mutex matrixStack;
+		std::mutex pendingObjects;
+	} sceneMutexes_;
     
 	std::map<std::string, bool> pendingSceneDefinitions_;
     std::vector<std::string> pendingSceneObjects_;
 	unsigned int loadedResourceCount_;
+
     
     // TODO: Create a light manager class to handle the scene lights
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
@@ -53,11 +59,13 @@ private:
 	std::list<glm::mat4> matrixStack_;
     ZLightMap gameLights_;
     ZGameObjectMap gameObjects_;
+	glm::mat4 viewProjection_, previousViewProjection_;
 	std::string name_;
    
     void Render();
 	void LoadSceneData(std::shared_ptr<ZOFTree> objectTree);
     void ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree);
+	void UpdateViewProjectionMatrices();
 	void UnregisterLoadDelegates();
 
 	void HandleZOFReady(std::shared_ptr<ZEvent> event);
@@ -84,6 +92,8 @@ public:
     ZGameObjectMap& GameObjects() { return gameObjects_; }
     ZLightMap& GameLights() { return gameLights_; }
 	std::string& Name() { return name_; }
+	glm::mat4& ViewProjection() { return viewProjection_; }
+	glm::mat4& PreviousViewProjection() { return previousViewProjection_; }
     
     void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
     void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
@@ -99,12 +109,5 @@ public:
 	void CleanUp() override;
     
     void HandleQuit(std::shared_ptr<ZEvent> event);
-    
-protected:
-    
-    struct {
-        std::mutex matrixStack;
-		std::mutex pendingObjects;
-    } sceneMutexes_;
-    
+
 };

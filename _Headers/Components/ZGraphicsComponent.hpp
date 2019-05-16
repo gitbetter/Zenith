@@ -32,7 +32,7 @@ private:
 	std::vector<std::string> shaders_;
 	std::string model_;
     
-    void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& view, glm::mat4& projection);
+    void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewProjection);
     
 public:
     
@@ -43,7 +43,7 @@ public:
     void Initialize(std::shared_ptr<ZOFNode> root) override;
     void Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader);
     
-    void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
+    void Render(float frameMix, ZRenderOp renderOp = ZRenderOp::Color);
     
     std::shared_ptr<ZShader> ActiveShader();
 	std::shared_ptr<ZModel> Model();

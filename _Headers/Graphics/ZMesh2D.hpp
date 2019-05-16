@@ -51,6 +51,8 @@ public:
     void Render(ZShader* shader, ZMaterial* material = nullptr) override;
     
     std::vector<ZVertex2D> Vertices() const { return vertices_; }
+
+	static std::shared_ptr<ZMesh2D> NewQuad();
     
 protected:
     

@@ -39,6 +39,8 @@ class ZShader;
 class ZGraphicsStrategy;
 class ZLight;
 class ZModel;
+class ZMesh2D;
+class ZScene;
 
 // Class and Data Structure Definitions
 typedef std::map<std::string, ZTexture> ZTextureMap;
@@ -51,8 +53,6 @@ private:
     std::map<std::shared_ptr<ZShader>, std::string> pendingShaders_;
     std::map<std::shared_ptr<ZModel>, std::string> pendingModels_;
     
-    void Render(const ZGameObjectMap& gameObjects, float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
-    
 public:
     
     ZGraphics() { }
@@ -62,13 +62,18 @@ public:
     void Load(std::shared_ptr<ZOFTree> root);
 	void LoadAsync(std::shared_ptr<ZOFTree> root);
     
-    void SetupShadowPass(std::shared_ptr<ZLight> light);
-    void FinishShadowPass();
+    void SetupShadowDepthPass(std::shared_ptr<ZLight> light);
+    void SetupDepthPass();
+	void SetupColorPass();
+	void PostProcessingPass(ZScene* scene);
+    void FinishRenderPass();
     
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
     glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
-    ZTexture DepthMap() { return depthMap_; }
+    ZTexture ShadowBuffer() { return shadowBuffer_; }
+    ZTexture DepthBuffer() { return depthBuffer_; }
     std::shared_ptr<ZShader> ShadowShader() { return shadowShader_; }
+    std::shared_ptr<ZShader> DepthShader() { return depthShader_; }
     ZTextureMap& Textures() { return loadedTextures_; }
     ZShaderMap& Shaders() { return loadedShaders_; }
     ZModelMap& Models() { return loadedModels_; }
@@ -89,10 +94,13 @@ public:
     
 protected:
     
-    std::shared_ptr<ZShader> shadowShader_ = nullptr;
     ZGraphicsStrategy* graphicsStrategy_ = nullptr;
-    ZBufferData depthFramebuffer_;
-    ZTexture depthMap_;
+    std::shared_ptr<ZShader> shadowShader_ = nullptr;
+    std::shared_ptr<ZShader> depthShader_ = nullptr;
+	std::shared_ptr<ZShader> postShader_ = nullptr;
+	std::shared_ptr<ZMesh2D> renderQuad_ = nullptr;
+    ZBufferData shadowFrameBuffer_, depthFrameBuffer_, colorFrameBuffer_;
+    ZTexture shadowBuffer_, depthBuffer_, colorBuffer_;
     glm::mat4 currentLightSpaceMatrix_;
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;

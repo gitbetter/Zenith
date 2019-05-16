@@ -50,7 +50,7 @@ void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 }
 
-void ZUIListPanel::Render(float frameMix, RENDER_OP renderOp) {
+void ZUIListPanel::Render(float frameMix, ZRenderOp renderOp) {
   ZUIElement::Render();
   RenderChildren();
 }

@@ -148,25 +148,51 @@ void ZScene::Update() {
 }
 
 void ZScene::Render() {
-    ZEngine::Graphics()->Strategy()->ClearViewport();
-    
     float frameMix = glm::clamp((float)ZEngine::DeltaTime() - (ZEngine::UPDATE_STEP_SIZE * (float)ZEngine::MAX_FIXED_UPDATE_ITERATIONS),
                                 0.f, 1.f);
+
+	UpdateViewProjectionMatrices();
     
+    // Render pass #1: Depth
+	ZEngine::Graphics()->SetupDepthPass();
+    root_->RenderChildren(frameMix, ZRenderOp::Depth);
+	ZEngine::Graphics()->FinishRenderPass();
+    
+    // Render pass #2: Shadow
     // TODO: Support more shadow casting lights!
     if (gameLights_.size() > 0) {
-        ZEngine::Graphics()->SetupShadowPass(gameLights_.begin()->second);
-        root_->RenderChildren(frameMix, RENDER_OP_SHADOW);
-        ZEngine::Graphics()->FinishShadowPass();
+        ZEngine::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
+        root_->RenderChildren(frameMix, ZRenderOp::Shadow);
+        ZEngine::Graphics()->FinishRenderPass();
     }
     
-    root_->RenderChildren(frameMix);
+    // Render pass #3: Color
+	ZEngine::Graphics()->SetupColorPass();
+    root_->RenderChildren(frameMix, ZRenderOp::Color);
+	ZEngine::Graphics()->FinishRenderPass();
+
+	// Render pass #4: Post-Processing
+	ZEngine::Graphics()->PostProcessingPass(this);
     
+	// TODO: Draw UI as part of the main rendering loop with
+	// the rest of the game objects
     ZEngine::UI()->Draw();
     
-    ZEngine::Physics()->DebugDraw();
+    //ZEngine::Physics()->DebugDraw();
     
     ZEngine::Graphics()->Strategy()->SwapBuffers();
+}
+
+void ZScene::UpdateViewProjectionMatrices() {
+	previousViewProjection_ = viewProjection_;
+	if (activeCamera_) {
+		std::shared_ptr<ZCameraComponent> cameraComp = activeCamera_->FindComponent<ZCameraComponent>();
+		glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
+		glm::mat4 viewMatrix = cameraComp->ViewMatrix(1.f);
+		viewProjection_ = projectionMatrix * viewMatrix;
+	} else {
+		viewProjection_ = glm::mat4(1.f);
+	}
 }
 
 void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects) {

@@ -66,8 +66,8 @@ public:
     virtual void Initialize(std::shared_ptr<ZOFNode> root);
     
 	virtual void PreRender();
-    virtual void Render(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
-    virtual void RenderChildren(float frameMix, RENDER_OP renderOp = RENDER_OP_COLOR);
+    virtual void Render(float frameMix, ZRenderOp renderOp = ZRenderOp::Color);
+    virtual void RenderChildren(float frameMix, ZRenderOp renderOp = ZRenderOp::Color);
 	virtual void PostRender();
     
     void CalculateDerivedData();

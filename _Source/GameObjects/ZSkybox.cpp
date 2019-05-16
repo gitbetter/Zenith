@@ -86,6 +86,12 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 	AddComponent(skyboxGraphicsComponent);
 }
 
+void ZSkybox::Render(float frameMix, ZRenderOp renderOp) {
+	if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) {
+		ZGameObject::Render(frameMix, renderOp);
+	}
+}
+
 void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
 	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
 	if (textureReadyEvent->Texture().path == hdrPath_) {

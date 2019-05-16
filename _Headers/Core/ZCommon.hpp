@@ -108,16 +108,16 @@ typedef std::map<std::string, std::shared_ptr<ZAnimation>> ZAnimationMap;
 typedef std::map<std::string, unsigned int> ZBoneMap;
 typedef std::vector<std::shared_ptr<ZBone>> ZBoneList;
 
-typedef unsigned char RENDER_OP;
 typedef unsigned long ZEventType;
 
 #define BONES_PER_VERTEX 4
 
-#define RENDER_OP_COLOR 0x01
-#define RENDER_OP_SHADOW 0x02
-
 enum ZRenderPass {
-    First, Static = First, Dynamic, Sky, Invisible, Last
+    First, Sky = First, Static, Dynamic, Invisible, Last
+};
+
+enum ZRenderOp {
+	Depth, Shadow, Color, Post
 };
 
 enum class ZPhysicsBodyType {

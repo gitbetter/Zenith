@@ -40,7 +40,7 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation) {
     properties_.scale = glm::vec3(1.f, 1.f, 1.f);
     properties_.orientation = orientation;
     properties_.modelMatrix = glm::mat4(1.f);
-    properties_.renderPass = ZRenderPass::First;
+    properties_.renderPass = ZRenderPass::Static;
     id_ = "ZGO_" + ZEngine::IDSequence()->Next();
     CalculateDerivedData();
 }
@@ -84,9 +84,9 @@ void ZGameObject::PreRender() {
 	scene_->PushMatrix(M);
 }
 
-void ZGameObject::Render(float frameMix, RENDER_OP renderOp) {
+void ZGameObject::Render(float frameMix, ZRenderOp renderOp) {
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
-    if (graphicsComp != nullptr) {
+    if (graphicsComp) {
         std::shared_ptr<ZGameObject> camera = scene_->ActiveCamera();
         const ZLightMap& gameLights = scene_->GameLights();
         graphicsComp->SetGameLights(gameLights);
@@ -99,7 +99,7 @@ void ZGameObject::PostRender() {
 	scene_->PopMatrix();
 }
 
-void ZGameObject::RenderChildren(float frameMix, RENDER_OP renderOp) {
+void ZGameObject::RenderChildren(float frameMix, ZRenderOp renderOp) {
     ZGameObjectList::iterator it = children_.begin(), end = children_.end();
     for (; it != end; it++) {
         (*it)->PreRender();
