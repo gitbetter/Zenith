@@ -474,7 +474,7 @@ ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture) {
 	color.type = ZBufferDataType::FrameBuffer;
 	glGenFramebuffers(1, &color.fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, color.fbo);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture.id, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture.id, 0);
 	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, drawBuffers);
 
@@ -517,13 +517,17 @@ ZBufferData ZGLGraphicsStrategy::LoadCubeMapBuffer() {
 
 ZTexture ZGLGraphicsStrategy::LoadColorTexture() {
 	ZTexture texture;
+	texture.type = "color";
 	glGenTextures(1, &texture.id);
 	glBindTexture(GL_TEXTURE_2D, texture.id);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+	glBindTexture(GL_TEXTURE_2D, 0);
 	return texture;
 }
 
@@ -532,7 +536,7 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
     depthTexture.type = "depth";
     glGenTextures(1, &depthTexture.id);
     glBindTexture(GL_TEXTURE_2D, depthTexture.id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     

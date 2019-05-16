@@ -121,10 +121,12 @@ void ZGraphics::SetupColorPass() {
 }
 
 void ZGraphics::PostProcessingPass() {
+	graphicsStrategy_->DisableDepthTesting();
 	postShader_->Activate();
 	graphicsStrategy_->BindTexture(colorBuffer_, 0);
 	postShader_->SetInt("colorSampler", 0);
 	renderQuad_->Render(postShader_.get());
+	graphicsStrategy_->EnableDepthTesting();
 }
 
 void ZGraphics::FinishRenderPass() {

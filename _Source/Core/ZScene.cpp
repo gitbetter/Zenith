@@ -167,9 +167,9 @@ void ZScene::Render() {
     }
     
     // Render pass #3: Color
-	//ZEngine::Graphics()->SetupColorPass();
+	// ZEngine::Graphics()->SetupColorPass();
     root_->RenderChildren(frameMix, ZRenderOp::Color);
-	//ZEngine::Graphics()->FinishRenderPass();
+	// ZEngine::Graphics()->FinishRenderPass();
 
 	// Render pass #4: Post-Processing
 	// ZEngine::Graphics()->PostProcessingPass();

@@ -171,7 +171,9 @@ glm::mat4 ZCameraComponent::ProjectionMatrix() {
 }
 
 glm::mat4 ZCameraComponent::ViewMatrix(float frameMix) {
-  glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
-  glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
-  return glm::lookAt(object_->Position(), object_->Position() + interpolatedFront, interpolatedUp);
+  // TODO: Interpolation only useful when using forward rendering techniques?
+  //glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
+  //glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
+  //return glm::lookAt(object_->Position(), object_->Position() + interpolatedFront, interpolatedUp);
+  return glm::lookAt(object_->Position(), object_->Position() + object_->Front(), object_->Up());
 }

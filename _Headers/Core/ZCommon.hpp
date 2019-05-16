@@ -113,7 +113,7 @@ typedef unsigned long ZEventType;
 #define BONES_PER_VERTEX 4
 
 enum ZRenderPass {
-    First, Static = First, Dynamic, Sky, Invisible, Last
+    First, Sky = First, Static, Dynamic, Invisible, Last
 };
 
 enum ZRenderOp {
