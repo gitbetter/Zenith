@@ -165,6 +165,13 @@ void ZGLGraphicsStrategy::UnbindFramebuffer() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void ZGLGraphicsStrategy::BlitFramebuffer(ZBufferData source, ZBufferData destination) {
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.fbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destination.fbo);
+	glBlitFramebuffer(0, 0, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), 0, 0, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void ZGLGraphicsStrategy::BindTexture(ZTexture texture, unsigned int index) {
     glActiveTexture(GL_TEXTURE0 + index);
     if (texture.type == "cubemap" || texture.type == "irradiance" || texture.type == "prefilter") {
@@ -473,19 +480,26 @@ ZTexture ZGLGraphicsStrategy::LoadEmptyCubeMap(ZCubemapTextureType type) {
     return cubemap;
 }
 
-ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture) {
+ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool multisample) {
 	ZBufferData color;
 	color.type = ZBufferDataType::FrameBuffer;
 	glGenFramebuffers(1, &color.fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, color.fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture.id, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, colorTexture.id, 0);
 
 	GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, drawBuffers);
 
 	glGenRenderbuffers(1, &color.rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, color.rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
+	
+	if (multisample) {
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
+	} else {
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
+	}
+
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, color.rbo);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
@@ -525,19 +539,26 @@ ZBufferData ZGLGraphicsStrategy::LoadCubeMapBuffer() {
     return capture;
 }
 
-ZTexture ZGLGraphicsStrategy::LoadColorTexture() {
+ZTexture ZGLGraphicsStrategy::LoadColorTexture(bool multisample) {
 	ZTexture texture;
 	texture.type = "color";
+	GLenum target = multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+
 	glGenTextures(1, &texture.id);
-	glBindTexture(GL_TEXTURE_2D, texture.id);
+	glBindTexture(target, texture.id);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if (multisample) {
+		glTexImage2DMultisample(target, 4, GL_RGB, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), GL_TRUE);
+	} else {
+		glTexImage2D(target, 0, GL_RGB, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	}
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(target, 0);
+
 	return texture;
 }
 

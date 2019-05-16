@@ -99,8 +99,8 @@ protected:
     std::shared_ptr<ZShader> depthShader_ = nullptr;
 	std::shared_ptr<ZShader> postShader_ = nullptr;
 	std::shared_ptr<ZMesh2D> renderQuad_ = nullptr;
-    ZBufferData shadowFrameBuffer_, depthFrameBuffer_, colorFrameBuffer_;
-    ZTexture shadowBuffer_, depthBuffer_, colorBuffer_;
+    ZBufferData shadowFrameBuffer_, depthFrameBuffer_, colorFrameBufferMultisampled_, colorFrameBuffer_;
+    ZTexture shadowBuffer_, depthBuffer_, colorBufferMultisampled_, colorBuffer_;
     glm::mat4 currentLightSpaceMatrix_;
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;
