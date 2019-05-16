@@ -152,19 +152,19 @@ void ZScene::Render() {
                                 0.f, 1.f);
 
 	UpdateViewProjectionMatrices();
+
+	// Render pass #1: Shadow
+	// TODO: Support more shadow casting lights!
+	if (gameLights_.size() > 0) {
+		ZEngine::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
+		root_->RenderChildren(frameMix, ZRenderOp::Shadow);
+		ZEngine::Graphics()->FinishRenderPass();
+	}
     
-    // Render pass #1: Depth
+    // Render pass #2: Depth
 	ZEngine::Graphics()->SetupDepthPass();
     root_->RenderChildren(frameMix, ZRenderOp::Depth);
 	ZEngine::Graphics()->FinishRenderPass();
-    
-    // Render pass #2: Shadow
-    // TODO: Support more shadow casting lights!
-    if (gameLights_.size() > 0) {
-        ZEngine::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
-        root_->RenderChildren(frameMix, ZRenderOp::Shadow);
-        ZEngine::Graphics()->FinishRenderPass();
-    }
     
     // Render pass #3: Color
 	ZEngine::Graphics()->SetupColorPass();
