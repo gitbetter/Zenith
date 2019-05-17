@@ -143,7 +143,7 @@ void ZScene::ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree) {
 }
 
 void ZScene::Update() {
-    if (!zenith::Game()->Running()) {
+    if (zenith::Game()->Running()) {
         Render();
     }
 }

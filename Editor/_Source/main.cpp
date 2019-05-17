@@ -28,9 +28,33 @@
  */
 
 #include "ZEditor.hpp"
-#include "ZCommon.hpp"
+#include "ZEngine.hpp"
+#include "ZGame.hpp"
+#include "ZScene.hpp"
+#include "ZUI.hpp"
 
+
+// TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
-    std::cout << "Hello there" << std::endl;
+    // Create a new game instance
+    std::shared_ptr<ZGame> game = std::make_shared<ZGame>();
+    
+    // Initialize the engine before anything else
+    zenith::Initialize(game, 1260, 800);
+    
+    // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
+    // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
+    zenith::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
+    
+    // Load our scene using description files
+    zenith::LoadScene({ "Assets/basic_scene.zof" });
+    
+    // Create the game and start the main game loop. Nothing beyond this point will execute
+    // for the duration of the game.
+    game->RunGameLoop();
+    
+    // Make sure to clean up all resources after we're done
+    zenith::CleanUp();
+    
     return 0;
 }
