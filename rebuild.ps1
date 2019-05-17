@@ -1,5 +1,6 @@
 param(
     [switch]$development=$false
+    [switch]$demo=$false
 )
 
 if (Test-Path _Bin -PathType Container) {
@@ -7,10 +8,17 @@ if (Test-Path _Bin -PathType Container) {
 }
 
 mkdir _Bin; cd _Bin; 
+
+$exec = 'cmake -G "Visual Studio 15 2017 Win64"'
+
 if ($development) {
-    cmake -G "Visual Studio 15 2017 Win64" -DDEVELOPMENT=ON ..;
-} else {
-    cmake -G "Visual Studio 15 2017 Win64" ..;
+    $exec = "$exec -DDEVELOPMENT=ON"
 }
+
+if ($demo) {
+    $exec = $exec -DDEMO=ON"
+}
+
+Invoke-Expression $exec
 
 explorer .; cd ..;
