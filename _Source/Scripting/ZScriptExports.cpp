@@ -39,13 +39,13 @@
 
 bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scriptResource) {
   ZResource resource(scriptResource, ZResourceType::Script);
-  std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
+  std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
   return handle != nullptr;
 }
 
 void ZInternalScriptExports::AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess) {
   if (scriptProcess) {
-    ZEngine::ProcessRunner()->AttachProcess(scriptProcess);
+    zenith::ProcessRunner()->AttachProcess(scriptProcess);
   } else {
     _Z("Could not find 'process' object in script to attach", ZERROR);
   }
@@ -54,7 +54,7 @@ void ZInternalScriptExports::AttachScriptProcess(std::shared_ptr<ZScriptableProc
 bool ZInternalScriptExports::QueueEvent(ZEventType eventType, sol::table eventData) {
   std::shared_ptr<ZScriptableEvent> event(BuildEvent(eventType, eventData));
   if (event) {
-    return ZEngine::EventAgent()->QueueEvent(event);
+    return zenith::EventAgent()->QueueEvent(event);
   }
   return false;
 }
@@ -62,7 +62,7 @@ bool ZInternalScriptExports::QueueEvent(ZEventType eventType, sol::table eventDa
 bool ZInternalScriptExports::TriggerEvent(ZEventType eventType, sol::table eventData) {
   std::shared_ptr<ZScriptableEvent> event(BuildEvent(eventType, eventData));
   if (event) {
-    return ZEngine::EventAgent()->TriggerEvent(event);
+    return zenith::EventAgent()->TriggerEvent(event);
   }
   return false;
 }
@@ -77,8 +77,8 @@ std::shared_ptr<ZScriptableEvent> ZInternalScriptExports::BuildEvent(ZEventType 
 unsigned long ZInternalScriptExports::RegisterEventListener(ZEventType eventType, sol::function callback) {
   if (callback.valid()) {
     ZScriptableEventDelegate* listener = new ZScriptableEventDelegate(eventType, callback);
-    ZEngine::EventAgent()->Scriptable()->AddListener(listener);
-    ZEngine::EventAgent()->AddListener(listener->Delegate(), eventType);
+    zenith::EventAgent()->Scriptable()->AddListener(listener);
+    zenith::EventAgent()->AddListener(listener->Delegate(), eventType);
     unsigned long handle = reinterpret_cast<unsigned long>(listener);
     return handle;
   }
@@ -96,7 +96,7 @@ void ZInternalScriptExports::Log(sol::object obj) {
 }
 
 void ZScriptExports::Register() {
-  sol::state& lua = ZEngine::ScriptManager()->LuaState();
+  sol::state& lua = zenith::ScriptManager()->LuaState();
   lua["LoadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
   lua["AttachProcess"] = ZInternalScriptExports::AttachScriptProcess;
   lua["QueueEvent"] = ZInternalScriptExports::QueueEvent;

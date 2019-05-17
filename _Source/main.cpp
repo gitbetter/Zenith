@@ -58,28 +58,28 @@ int main(int argc, const char * argv[]) {
     game = std::make_shared<ZGame>();
     
     // Initialize the engine before anything else
-    ZEngine::Initialize(game, 1260, 800);
+    zenith::Initialize(game, 1260, 800);
     
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
     // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
-    ZEngine::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
+    zenith::UI()->RegisterFont("Assets/Fonts/earth_orbiter/earthorbiter.ttf");
     
 	// Load our scene using description files
-	scene = ZEngine::LoadScene({ "Assets/basic_scene.zof" });
+	scene = zenith::LoadScene({ "Assets/basic_scene.zof" });
     
     // We can register delegate methods for specific UI events
     ZEventDelegate pressDelegate(&onObjectSelect);
     ZEventDelegate dragDelegate(&onObjectDrag);
 	ZEventDelegate sceneReadyDelegate(&onSceneLoad);
-    ZEngine::EventAgent()->AddListener(pressDelegate, ZObjectSelectedEvent::Type);
-    ZEngine::EventAgent()->AddListener(dragDelegate, ZObjectDragEvent::Type);
-	ZEngine::EventAgent()->AddListener(sceneReadyDelegate, ZSceneReadyEvent::Type);
+    zenith::EventAgent()->AddListener(pressDelegate, ZObjectSelectedEvent::Type);
+    zenith::EventAgent()->AddListener(dragDelegate, ZObjectDragEvent::Type);
+	zenith::EventAgent()->AddListener(sceneReadyDelegate, ZSceneReadyEvent::Type);
     
     // Let's test the audio system by adding some background music to the scene.
     ZResource bgAmbient("Assets/Sounds/wind.ogg", ZResourceType::Sound);
-    auto ambientHandle = ZEngine::ResourceCache()->GetHandle(&bgAmbient);
+    auto ambientHandle = zenith::ResourceCache()->GetHandle(&bgAmbient);
     if (ambientHandle) {
-        auto audioSource = ZEngine::Audio()->NewAudioSource(ambientHandle);
+        auto audioSource = zenith::Audio()->NewAudioSource(ambientHandle);
         audioSource->Play(35, true);
     }
     
@@ -89,11 +89,11 @@ int main(int argc, const char * argv[]) {
     
     // We make sure to deregister delegates before objects are destroyed to avoid
     // dangling pointers in the FastDelegate implementation
-    ZEngine::EventAgent()->RemoveListener(pressDelegate, ZObjectSelectedEvent::Type);
-    ZEngine::EventAgent()->RemoveListener(dragDelegate, ZObjectDragEvent::Type);
+    zenith::EventAgent()->RemoveListener(pressDelegate, ZObjectSelectedEvent::Type);
+    zenith::EventAgent()->RemoveListener(dragDelegate, ZObjectDragEvent::Type);
     
     // Make sure to clean up all resources after we're done
-    ZEngine::CleanUp();
+    zenith::CleanUp();
     
     return 0;
 }

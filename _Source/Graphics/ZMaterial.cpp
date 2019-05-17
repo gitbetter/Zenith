@@ -53,8 +53,8 @@ void ZMaterial::Initialize(std::shared_ptr<ZOFTree> root) {
         // If a field is string based there may be textures associated with that field, otherwise
         // the material field is simple and programmatic.
         if (std::shared_ptr<ZOFString> strProp = it->second->Value<ZOFString>(0)) {
-            if (ZEngine::Graphics()->Textures().find(strProp->value) != ZEngine::Graphics()->Textures().end()) {
-                ZTexture texture = ZEngine::Graphics()->Textures()[strProp->value];
+            if (zenith::Graphics()->Textures().find(strProp->value) != zenith::Graphics()->Textures().end()) {
+                ZTexture texture = zenith::Graphics()->Textures()[strProp->value];
                 texture.type = it->second->id;
                 textures.push_back(texture);
             } else {
@@ -74,7 +74,7 @@ void ZMaterial::Initialize(std::shared_ptr<ZOFTree> root) {
     else properties_ = materialProperties;
     
     ZEventDelegate textureReadyEvent = fastdelegate::MakeDelegate(this, &ZMaterial::HandleTextureReady);
-    ZEngine::EventAgent()->AddListener(textureReadyEvent, ZTextureReadyEvent::Type);
+    zenith::EventAgent()->AddListener(textureReadyEvent, ZTextureReadyEvent::Type);
 }
 
 std::unique_ptr<ZMaterial> ZMaterial::DefaultMaterialSimple() {
@@ -129,8 +129,8 @@ void ZMaterial::SetMaterialProperty(std::string property, glm::vec4 value, ZMate
 void ZMaterial::HandleTextureReady(std::shared_ptr<ZEvent> event) {
     auto it = pendingTextures_.begin();
     while (it != pendingTextures_.end()) {
-        if (ZEngine::Graphics()->Textures().find(it->first) != ZEngine::Graphics()->Textures().end()) {
-            ZTexture texture = ZEngine::Graphics()->Textures()[it->first];
+        if (zenith::Graphics()->Textures().find(it->first) != zenith::Graphics()->Textures().end()) {
+            ZTexture texture = zenith::Graphics()->Textures()[it->first];
             texture.type = it->second;
             textures_.push_back(texture);
             pendingTextures_.erase(it++);
@@ -141,6 +141,6 @@ void ZMaterial::HandleTextureReady(std::shared_ptr<ZEvent> event) {
     
     if (pendingTextures_.empty()) {
         ZEventDelegate textureReadyEvent = fastdelegate::MakeDelegate(this, &ZMaterial::HandleTextureReady);
-        ZEngine::EventAgent()->RemoveListener(textureReadyEvent, ZTextureReadyEvent::Type);
+        zenith::EventAgent()->RemoveListener(textureReadyEvent, ZTextureReadyEvent::Type);
     }
 }

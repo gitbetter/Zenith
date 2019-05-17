@@ -57,87 +57,70 @@ class ZGame;
 class ZEventAgent;
 class ZLuaScriptManager;
 
-// Class Definitions
-class ZEngine {
-private:
+// Definitions
+namespace zenith {
     
-    static std::shared_ptr<ZGame> currentGame_;
-    static std::shared_ptr<ZDomain> domain_;
-    static std::shared_ptr<ZGraphics> graphics_;
-    static std::shared_ptr<ZInput> input_;
-    static std::shared_ptr<ZUI> ui_;
-    static std::shared_ptr<ZPhysics> physics_;
-    static std::shared_ptr<ZAudio> audio_;
+    const float DEFAULT_X_RESOLUTION = 2560.f;
+    const float DEFAULT_Y_RESOLUTION = 1600.f;
+    const float UPDATE_STEP_SIZE = 0.017f;
+    const int MAX_FIXED_UPDATE_ITERATIONS = 50;
+    const unsigned int SHADOW_MAP_SIZE = 4096;
+    const unsigned int CUBE_MAP_SIZE = 2048;
+    const unsigned int IRRADIANCE_MAP_SIZE = 32;
+    const unsigned int PREFILTER_MAP_SIZE = 128;
+    const unsigned int LUT_SIZE = 512;
+    const glm::vec4 WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);
+    const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP{
+        "Assets/Skyboxes/Default/right.png",
+        "Assets/Skyboxes/Default/left.png",
+        "Assets/Skyboxes/Default/up.png",
+        "Assets/Skyboxes/Default/down.png",
+        "Assets/Skyboxes/Default/front.png",
+        "Assets/Skyboxes/Default/back.png",
+    };
+    const std::string DEFAULT_HDR_CUBEMAP = "Assets/Skyboxes/DefaultHDR/sky.hdr";
     
-    static std::unique_ptr<ZProcessRunner> processRunner_;
-    static std::shared_ptr<ZEventAgent> eventAgent_;
-    static std::unique_ptr<ZResourceCache> resourceCache_;
-    static std::unique_ptr<ZLuaScriptManager> scriptManager_;
+    extern void Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight);
     
-    static std::unique_ptr<ZGOFactory> gameObjectFactory_;
-    static std::unique_ptr<ZGraphicsFactory> graphicsFactory_;
-    static std::unique_ptr<ZUIFactory> uiFactory_;
-    static std::unique_ptr<ZPhysicsFactory> physicsFactory_;
+    extern std::shared_ptr<ZGame> Game();
+    extern ZDomain* Domain();
+    extern ZGraphics* Graphics();
+    extern ZInput* Input();
+    extern ZUI* UI();
+    extern ZPhysics* Physics();
+    extern ZAudio* Audio();
     
-    static std::unique_ptr<ZIDSequence> idGenerator_;
-    static double deltaTime_, lastDeltaTime_;
+    extern ZProcessRunner* ProcessRunner();
+    extern ZEventAgent* EventAgent();
+    extern ZResourceCache* ResourceCache();
+    extern ZLuaScriptManager* ScriptManager();
     
-public:
+    extern ZGOFactory* GameObjectFactory();
+    extern ZGraphicsFactory* GraphicsFactory();
+    extern ZUIFactory* UIFactory();
+    extern ZPhysicsFactory* PhysicsFactory();
     
-    static const float DEFAULT_X_RESOLUTION;
-    static const float DEFAULT_Y_RESOLUTION;
-    static const float UPDATE_STEP_SIZE;
-    static const int MAX_FIXED_UPDATE_ITERATIONS;
-    static const unsigned int SHADOW_MAP_SIZE;
-    static const unsigned int CUBE_MAP_SIZE;
-    static const unsigned int IRRADIANCE_MAP_SIZE;
-    static const unsigned int PREFILTER_MAP_SIZE;
-    static const unsigned int LUT_SIZE;
-    static const glm::vec4 WORLD_UP;
-    static const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP;
-    static const std::string DEFAULT_HDR_CUBEMAP;
+    extern ZIDSequence* IDSequence();
     
-    static void Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight);
+    extern double LastDeltaTime();
+    extern double DeltaTime();
+    extern double SecondsTime();
+	extern float FrameMix();
     
-    static std::shared_ptr<ZGame> Game();
-    static ZDomain* Domain();
-    static ZGraphics* Graphics();
-    static ZInput* Input();
-    static ZUI* UI();
-    static ZPhysics* Physics();
-    static ZAudio* Audio();
-    
-    static ZProcessRunner* ProcessRunner();
-    static ZEventAgent* EventAgent();
-    static ZResourceCache* ResourceCache();
-    static ZLuaScriptManager* ScriptManager();
-    
-    static ZGOFactory* GameObjectFactory();
-    static ZGraphicsFactory* GraphicsFactory();
-    static ZUIFactory* UIFactory();
-    static ZPhysicsFactory* PhysicsFactory();
-    
-    static ZIDSequence* IDSequence();
-    
-    static double LastDeltaTime();
-    static double DeltaTime();
-    static double SecondsTime();
-    
-    static void Provide(std::shared_ptr<ZDomain> domain);
-    static void Provide(std::shared_ptr<ZGraphics> graphics);
-    static void Provide(std::shared_ptr<ZInput> input);
-    static void Provide(std::shared_ptr<ZUI> ui);
-    static void Provide(std::shared_ptr<ZPhysics> physics);
-    static void Provide(std::shared_ptr<ZAudio> audio);
+    extern void Provide(std::shared_ptr<ZDomain> domain);
+    extern void Provide(std::shared_ptr<ZGraphics> graphics);
+    extern void Provide(std::shared_ptr<ZInput> input);
+    extern void Provide(std::shared_ptr<ZUI> ui);
+    extern void Provide(std::shared_ptr<ZPhysics> physics);
+    extern void Provide(std::shared_ptr<ZAudio> audio);
     // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
     
-    static void SetDeltaTime(double deltaTime);
+    extern void SetDeltaTime(double deltaTime);
+	extern void SetFrameMix(float frameMix);
     
-    static void LoadZOF(std::string zofPath);
-	static std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
+    extern void LoadZOF(std::string zofPath);
+	extern std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
     
-    static void CleanUp();
-    
-protected:
+    extern void CleanUp();
     
 };

@@ -40,19 +40,19 @@ void ZGLInput::Update() {
   GLFWwindow* windowHandle = glfwGetCurrentContext();
   if (glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS) {
     std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, 1.f));
-    ZEngine::EventAgent()->TriggerEvent(moveEvent);
+    zenith::EventAgent()->TriggerEvent(moveEvent);
   }
   if (glfwGetKey(windowHandle, GLFW_KEY_A) == GLFW_PRESS) {
     std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(-1.f, 0.f, 0.f));
-    ZEngine::EventAgent()->TriggerEvent(moveEvent);
+    zenith::EventAgent()->TriggerEvent(moveEvent);
   }
   if (glfwGetKey(windowHandle, GLFW_KEY_S) == GLFW_PRESS) {
     std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, -1.f));
-    ZEngine::EventAgent()->TriggerEvent(moveEvent);
+    zenith::EventAgent()->TriggerEvent(moveEvent);
   }
   if (glfwGetKey(windowHandle, GLFW_KEY_D) == GLFW_PRESS) {
     std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(1.f, 0.f, 0.f));
-    ZEngine::EventAgent()->TriggerEvent(moveEvent);
+    zenith::EventAgent()->TriggerEvent(moveEvent);
   }
   if (glfwGetKey(windowHandle, GLFW_KEY_SPACE) == GLFW_PRESS)
   ;
@@ -60,7 +60,7 @@ void ZGLInput::Update() {
   ;
   if (glfwGetKey(windowHandle, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     std::shared_ptr<ZQuitEvent> quitEvent(new ZQuitEvent);
-    ZEngine::EventAgent()->TriggerEvent(quitEvent);
+    zenith::EventAgent()->TriggerEvent(quitEvent);
   }
 
   double yaw, pitch;
@@ -73,24 +73,24 @@ void ZGLInput::Update() {
   if (yaw != lastYaw_) {
     if (mousePress_[GLFW_MOUSE_BUTTON_LEFT]) {
       std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(yaw - lastYaw_, 0.f, 0.f));
-      ZEngine::EventAgent()->TriggerEvent(dragEvent);
+      zenith::EventAgent()->TriggerEvent(dragEvent);
     }
     std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(yaw - lastYaw_, 0.f));
-    ZEngine::EventAgent()->TriggerEvent(lookEvent);
+    zenith::EventAgent()->TriggerEvent(lookEvent);
   }
   if (pitch != lastPitch_) {
     if (mousePress_[GLFW_MOUSE_BUTTON_LEFT]) {
       std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(0.f, lastPitch_ - pitch, 0.f));
-      ZEngine::EventAgent()->TriggerEvent(dragEvent);
+      zenith::EventAgent()->TriggerEvent(dragEvent);
     }
     std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(0.f, lastPitch_ - pitch));
-    ZEngine::EventAgent()->TriggerEvent(lookEvent);
+    zenith::EventAgent()->TriggerEvent(lookEvent);
   }
   lastYaw_ = yaw; lastPitch_ = pitch;
 
   if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !mousePress_[GLFW_MOUSE_BUTTON_LEFT]) {
     std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent(yaw, pitch, 0.f));
-    ZEngine::EventAgent()->TriggerEvent(fireEvent);
+    zenith::EventAgent()->TriggerEvent(fireEvent);
     mousePress_[GLFW_MOUSE_BUTTON_LEFT] = true;
   } else if (glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
     mousePress_[GLFW_MOUSE_BUTTON_LEFT] = false;

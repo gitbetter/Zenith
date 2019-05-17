@@ -37,7 +37,7 @@
 ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle)
 : vertices_(vertices), indices_(indices) {
     drawStyle_ = drawStyle;
-    id_ = "ZMSH3D_" + ZEngine::IDSequence()->Next();
+    id_ = "ZMSH3D_" + zenith::IDSequence()->Next();
 }
 
 ZMesh3D::~ZMesh3D() {
@@ -45,11 +45,11 @@ ZMesh3D::~ZMesh3D() {
 }
 
 void ZMesh3D::Initialize() {
-    bufferData_ = ZEngine::Graphics()->Strategy()->LoadIndexedVertexData(vertices_, indices_);
+    bufferData_ = zenith::Graphics()->Strategy()->LoadIndexedVertexData(vertices_, indices_);
 }
 
 void ZMesh3D::Render(ZShader* shader, ZMaterial* material) {
     shader->Activate();
     shader->Use(material);
-    ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
+    zenith::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
 }

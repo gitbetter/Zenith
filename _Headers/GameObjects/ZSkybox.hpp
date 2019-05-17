@@ -54,7 +54,7 @@ public:
     void Initialize(std::shared_ptr<ZOFNode> root) override;
 	void InitializeAsync();
 
-	void Render(float frameMix, ZRenderOp renderOp = ZRenderOp::Color) override;
+	void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
     
 	bool IsVisible() override { return true; }
     

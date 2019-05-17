@@ -33,6 +33,6 @@
 
 bool ZScriptResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
   if (rawSize <= 0) return false;
-  ZEngine::ScriptManager()->ExecuteString(rawBuffer);
+  zenith::ScriptManager()->ExecuteString(rawBuffer);
   return true;
 }

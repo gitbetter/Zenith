@@ -55,8 +55,8 @@ void ZUICursor::Initialize(std::shared_ptr<ZOFNode> root) {
 
   ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZUICursor::HandleMouseMove);
   ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICursor::HandleMousePress);
-  ZEngine::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
-  ZEngine::EventAgent()->AddListener(fireDelegate, ZFireEvent::Type);
+  zenith::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
+  zenith::EventAgent()->AddListener(fireDelegate, ZFireEvent::Type);
 
   std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
@@ -71,7 +71,7 @@ void ZUICursor::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 }
 
-void ZUICursor::Render(float frameMix, ZRenderOp renderOp) {
+void ZUICursor::Render(ZRenderOp renderOp) {
   ZUIElement::Render();
   RenderChildren();
 }
@@ -109,14 +109,14 @@ void ZUICursor::HandleMouseMove(std::shared_ptr<ZEvent> event) {
 void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
 	// Play a clicky sound effect
 	ZResource bgMusic("Assets/Sounds/click.ogg", ZResourceType::Sound);
-	auto musicHandle = ZEngine::ResourceCache()->GetHandle(&bgMusic);
+	auto musicHandle = zenith::ResourceCache()->GetHandle(&bgMusic);
 	if (musicHandle) {
-		auto audioSource = ZEngine::Audio()->NewAudioSource(musicHandle);
+		auto audioSource = zenith::Audio()->NewAudioSource(musicHandle);
 		audioSource->Play(65, false);
 	}
 
   // Create a ZUISelectedEvent to handle UI element selection
-  ZUIElementMap elements = ZEngine::UI()->Elements();
+  ZUIElementMap elements = zenith::UI()->Elements();
   bool uiSelected = false;
   for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++) {
     uiSelected = it->second->TrySelect(Position());
@@ -126,8 +126,8 @@ void ZUICursor::HandleMousePress(std::shared_ptr<ZEvent> event) {
   if (uiSelected) return;
 
   // Create a ZRaycastEvent to handle ray casting if no UI elements were selected
-  std::shared_ptr<ZRaycastEvent> raycastEvent(new ZRaycastEvent(glm::vec3(Position().x / (float)ZEngine::Domain()->ResolutionX(), 
-                                                                          Position().y / (float)ZEngine::Domain()->ResolutionY(), 
+  std::shared_ptr<ZRaycastEvent> raycastEvent(new ZRaycastEvent(glm::vec3(Position().x / (float)zenith::Domain()->ResolutionX(), 
+                                                                          Position().y / (float)zenith::Domain()->ResolutionY(), 
                                                                           0.f)));
-  ZEngine::EventAgent()->QueueEvent(raycastEvent);
+  zenith::EventAgent()->QueueEvent(raycastEvent);
 }

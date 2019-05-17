@@ -50,8 +50,8 @@ public:
     unsigned int WindowHeight() const { return windowHeight_; }
     unsigned int ResolutionX() const { return resolutionX_; }
     unsigned int ResolutionY() const { return resolutionY_; }
-    float ResolutionXRatio() const { return (float)ResolutionX() / ZEngine::DEFAULT_X_RESOLUTION; }
-    float ResolutionYRatio() const { return (float)ResolutionY() / ZEngine::DEFAULT_Y_RESOLUTION; }
+    float ResolutionXRatio() const { return (float)ResolutionX() / zenith::DEFAULT_X_RESOLUTION; }
+    float ResolutionYRatio() const { return (float)ResolutionY() / zenith::DEFAULT_Y_RESOLUTION; }
     float Aspect() const { return (float)ResolutionX() / (float)ResolutionY(); }
     
     ZDomainStrategy* Strategy() { return domainStrategy_.get(); }

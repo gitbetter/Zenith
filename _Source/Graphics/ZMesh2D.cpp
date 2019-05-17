@@ -34,13 +34,13 @@
 #include "ZShader.hpp"
 
 void ZMesh2D::Initialize() {
-    bufferData_ = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices_);
+    bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(vertices_);
 }
 
 void ZMesh2D::Render(ZShader* shader, ZMaterial* material) {
   shader->Activate();
   if (material) shader->Use(material);
-  ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices_);
+  zenith::Graphics()->Strategy()->Draw(bufferData_, vertices_);
 }
 
 std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad() {

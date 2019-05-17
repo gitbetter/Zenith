@@ -42,7 +42,7 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
   text_ = text;
   fontScale_ = fontSize;
   enabled_ = false;
-  bufferData_ = ZEngine::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
+  bufferData_ = zenith::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
 }
 
 void ZUIText::Initialize(std::shared_ptr<ZOFNode> root) {
@@ -71,15 +71,15 @@ void ZUIText::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 }
 
-void ZUIText::Render(float frameMix, ZRenderOp renderOp) {
-  ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
+void ZUIText::Render(ZRenderOp renderOp) {
+  zenith::Graphics()->Strategy()->EnableAlphaBlending();
       // TODO: Add text alignment property that calculates these value accordingly
   float x = Position().x,
         y = Position().y,
-        xRatio = ZEngine::Domain()->ResolutionXRatio(),
-        yRatio = ZEngine::Domain()->ResolutionYRatio();
+        xRatio = zenith::Domain()->ResolutionXRatio(),
+        yRatio = zenith::Domain()->ResolutionYRatio();
   for (auto c = text_.begin(); c != text_.end(); c++) {
-    ZCharacter character = ZEngine::UI()->TextStrategy()->Character(font_, *c);
+    ZCharacter character = zenith::UI()->TextStrategy()->Character(font_, *c);
     texture_ = character.texture;
 
     float xpos = x + character.bearing.x * fontScale_;
@@ -96,11 +96,11 @@ void ZUIText::Render(float frameMix, ZRenderOp renderOp) {
 
     ZUIElement::Render();
 
-    ZEngine::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertices);
-    ZEngine::Graphics()->Strategy()->Draw(bufferData_, vertices);
+    zenith::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertices);
+    zenith::Graphics()->Strategy()->Draw(bufferData_, vertices);
 
     x += (character.advance >> 6) * fontScale_ * xRatio;
   }
-  ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
+  zenith::Graphics()->Strategy()->DisableAlphaBlending();
   RenderChildren();
 }

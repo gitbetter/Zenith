@@ -45,9 +45,9 @@ void ZParticle::Initialize() {
 
 void ZParticle::Update() {
   ZGameObject::Update();
-  age_ -= ZEngine::UPDATE_STEP_SIZE;
+  age_ -= zenith::UPDATE_STEP_SIZE;
 }
 
-void ZParticle::Render(float frameMix, ZRenderOp renderOp) {
+void ZParticle::Render(ZRenderOp renderOp) {
   // TODO: Render a particle as a quad that rotates with the camera
 }

@@ -94,7 +94,7 @@ public:
     static std::unique_ptr<ZModel> NewSpherePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewCylinderPrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewConePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, std::vector<std::string> faces = ZEngine::DEFAULT_SKYBOX_CUBEMAP);
+    static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, std::vector<std::string> faces = zenith::DEFAULT_SKYBOX_CUBEMAP);
     static std::unique_ptr<ZModel> NewSkybox(ZTexture& cubeMap, ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture);
     
 protected:

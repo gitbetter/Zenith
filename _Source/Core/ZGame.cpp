@@ -40,16 +40,16 @@ ZGame::ZGame() : activeScene_(0) { }
 void ZGame::RunGameLoop() {
     _Z("Zenith is about to loop...", ZINFO);
     
-    double previousTime = ZEngine::SecondsTime();
+    double previousTime = zenith::SecondsTime();
     
-    while (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
-		double currentTime = ZEngine::SecondsTime();
-        ZEngine::SetDeltaTime(currentTime - previousTime);
+    while (!zenith::Domain()->Strategy()->IsWindowClosing()) {
+		double currentTime = zenith::SecondsTime();
+        zenith::SetDeltaTime(currentTime - previousTime);
         previousTime = currentTime;
         
-        ZEngine::ProcessRunner()->UpdateProcesses();
+        zenith::ProcessRunner()->UpdateProcesses();
         
-        ZEngine::Domain()->Strategy()->PollEvents();
+        zenith::Domain()->Strategy()->PollEvents();
         
         MacDisplayHack();
     }
@@ -58,7 +58,7 @@ void ZGame::RunGameLoop() {
 void ZGame::AddScene(std::shared_ptr<ZScene> scene) {
     activeScene_ = scenes_.size();
     scenes_.push_back(scene);
-	ZEngine::ProcessRunner()->AttachProcess(scene);
+	zenith::ProcessRunner()->AttachProcess(scene);
 }
 
 void ZGame::SetActiveScene(unsigned int index) {
@@ -73,9 +73,9 @@ void ZGame::MacDisplayHack() {
 #ifdef __APPLE__
     static bool moved = false;
     if (!moved) {
-        ZEngine::Domain()->ResizeWindow(
-                                        ZEngine::Domain()->WindowWidth() - 1,
-                                        ZEngine::Domain()->WindowHeight() - 1
+        zenith::Domain()->ResizeWindow(
+                                        zenith::Domain()->WindowWidth() - 1,
+                                        zenith::Domain()->WindowHeight() - 1
                                         );
         moved = true;
     }

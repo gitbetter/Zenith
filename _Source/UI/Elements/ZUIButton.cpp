@@ -34,14 +34,14 @@
 #include "ZUI.hpp"
 
 ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
-   texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
+   texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
 void ZUIButton::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
 }
 
-void ZUIButton::Render(float frameMix, ZRenderOp renderOp) {
+void ZUIButton::Render(ZRenderOp renderOp) {
   ZUIElement::Render();  
   RenderChildren();
 }

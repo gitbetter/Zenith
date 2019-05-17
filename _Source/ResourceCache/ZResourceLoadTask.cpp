@@ -38,7 +38,7 @@
 #include "ZImageImporter.hpp"
 
 void ZResourceLoadTask::Run() {
-	std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource_);
+	std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource_);
 
 	if (!handle) {
 		_Z("Could not find resource at path " + resource_.name, ZERROR);
@@ -101,10 +101,10 @@ void ZResourceLoadTask::Run() {
 	}
 
 	std::shared_ptr<ZResourceLoadedEvent> loadedEvent = std::make_shared<ZResourceLoadedEvent>(handle);
-	ZEngine::EventAgent()->QueueEvent(loadedEvent);
+	zenith::EventAgent()->QueueEvent(loadedEvent);
 }
 
 void ZResourceLoadTask::Start() {
 	std::shared_ptr<ZResourceLoadTask> thisPtr = shared_from_this();
-	ZEngine::ProcessRunner()->AttachProcess(thisPtr);
+	zenith::ProcessRunner()->AttachProcess(thisPtr);
 }

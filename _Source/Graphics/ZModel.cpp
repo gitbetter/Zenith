@@ -69,10 +69,10 @@ void ZModel::Initialize() {
 
 void ZModel::InitializeAsync() {
 	ZResource modelResource(modelPath_, ZResourceType::Model);
-	ZEngine::ResourceCache()->RequestHandle(modelResource);
+	zenith::ResourceCache()->RequestHandle(modelResource);
 
 	ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);
-	ZEngine::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+	zenith::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
 }
 
 void ZModel::Render(ZShader* shader) {
@@ -314,16 +314,16 @@ void ZModel::CreateCone(glm::vec3 scale) {
  *  Skybox Creation
  */
 std::unique_ptr<ZModel> ZModel::NewSkybox(ZIBLTexture& generatedIBLTexture, std::vector<std::string> faces) {
-    generatedIBLTexture.cubeMap = ZEngine::Graphics()->Strategy()->LoadCubeMap(faces);
+    generatedIBLTexture.cubeMap = zenith::Graphics()->Strategy()->LoadCubeMap(faces);
  
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }
 
 std::unique_ptr<ZModel> ZModel::NewSkybox(ZTexture& cubeMap, ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture) {
     generatedIBLTexture.cubeMap = cubeMap;
-    generatedIBLTexture.irradiance = ZEngine::Graphics()->Strategy()->IrradianceMapFromCubeMap(bufferData, cubeMap);
-    generatedIBLTexture.prefiltered = ZEngine::Graphics()->Strategy()->PrefilterCubeMap(bufferData, cubeMap);
-    generatedIBLTexture.brdfLUT = ZEngine::Graphics()->Strategy()->BRDFLUT(bufferData);
+    generatedIBLTexture.irradiance = zenith::Graphics()->Strategy()->IrradianceMapFromCubeMap(bufferData, cubeMap);
+    generatedIBLTexture.prefiltered = zenith::Graphics()->Strategy()->PrefilterCubeMap(bufferData, cubeMap);
+    generatedIBLTexture.brdfLUT = zenith::Graphics()->Strategy()->BRDFLUT(bufferData);
     
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }
@@ -464,10 +464,10 @@ void ZModel::HandleModelLoaded(std::shared_ptr<ZEvent> event) {
         InitializeAABB();
 
 		ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);
-		ZEngine::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+		zenith::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
 
 		std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(shared_from_this());
-		ZEngine::EventAgent()->QueueEvent(modelReadyEvent);
+		zenith::EventAgent()->QueueEvent(modelReadyEvent);
 	}
 }
 

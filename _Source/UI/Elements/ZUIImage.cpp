@@ -44,10 +44,10 @@ void ZUIImage::Initialize(std::shared_ptr<ZOFNode> root) {
 	ZUIElement::Initialize(root);
 }
 
-void ZUIImage::Render(float frameMix, ZRenderOp renderOp) {
-	ZEngine::Graphics()->Strategy()->EnableAlphaBlending();
+void ZUIImage::Render(ZRenderOp renderOp) {
+	zenith::Graphics()->Strategy()->EnableAlphaBlending();
 	ZUIElement::Render();
-	ZEngine::Graphics()->Strategy()->DisableAlphaBlending();
+	zenith::Graphics()->Strategy()->DisableAlphaBlending();
 	RenderChildren();
 }
 
@@ -56,9 +56,9 @@ void ZUIImage::SetImage(std::string path) {
 		path_ = path;
         
         ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
-        ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+        zenith::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
         
-		ZEngine::Graphics()->Strategy()->LoadTextureAsync(path, "");
+		zenith::Graphics()->Strategy()->LoadTextureAsync(path, "");
 	}
 }
 
@@ -69,6 +69,6 @@ void ZUIImage::HandleTextureReady(std::shared_ptr<ZEvent> event) {
 		texture_.type = "image";
         
         ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
-        ZEngine::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+        zenith::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
 	}
 }

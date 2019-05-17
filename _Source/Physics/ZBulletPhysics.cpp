@@ -57,12 +57,12 @@ void ZBulletPhysics::Initialize() {
     dynamicsWorld_->setWorldUserInfo(this);
     
     ZEventDelegate raycastDelegate = fastdelegate::MakeDelegate(this, &ZBulletPhysics::HandleRaycastEvent);
-    ZEngine::EventAgent()->AddListener(raycastDelegate, ZRaycastEvent::Type);
+    zenith::EventAgent()->AddListener(raycastDelegate, ZRaycastEvent::Type);
 }
 
 void ZBulletPhysics::Update() {
     ZPhysics::Update();
-    dynamicsWorld_->stepSimulation(ZEngine::DeltaTime(), ZEngine::MAX_FIXED_UPDATE_ITERATIONS, ZEngine::UPDATE_STEP_SIZE);
+    dynamicsWorld_->stepSimulation(zenith::DeltaTime(), zenith::MAX_FIXED_UPDATE_ITERATIONS, zenith::UPDATE_STEP_SIZE);
 }
 
 void ZBulletPhysics::AddRigidBody(std::shared_ptr<ZRigidBody> body) {
@@ -79,11 +79,11 @@ void ZBulletPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
     std::shared_ptr<ZRaycastEvent> raycastEvent = std::dynamic_pointer_cast<ZRaycastEvent>(event);
     
     if (raycastEvent->Origin().z == 0.f) { // Handle screen to world raycasting (i.e. mouse picking)
-        std::shared_ptr<ZGameObject> camera = ZEngine::Game()->ActiveScene()->ActiveCamera();
+        std::shared_ptr<ZGameObject> camera = zenith::Game()->ActiveScene()->ActiveCamera();
         if (camera) {
             std::shared_ptr<ZCameraComponent> cameraComp = camera->FindComponent<ZCameraComponent>();
             glm::mat4 InverseProjection = glm::inverse(cameraComp->ProjectionMatrix());
-            glm::mat4 InverseView = glm::inverse(cameraComp->ViewMatrix(1.f));
+            glm::mat4 InverseView = glm::inverse(cameraComp->ViewMatrix());
             
             glm::vec4 rayStart(raycastEvent->Origin().x * 2.f - 1.f, -raycastEvent->Origin().y * 2.f + 1.f, -1.f, 1.f);
             glm::vec4 rayEnd(raycastEvent->Origin().x * 2.f - 1.f, -raycastEvent->Origin().y * 2.f + 1.f, 0.f, 1.f);
@@ -98,7 +98,7 @@ void ZBulletPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
             ZRaycastHitResult hitResult = Raycast(rayStartWorld, rayDir);
             if (hitResult.hasHit) {
                 std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(hitResult.objectHit->ID(), hitResult.hitPosition));
-                ZEngine::EventAgent()->TriggerEvent(objectSelectEvent);
+                zenith::EventAgent()->TriggerEvent(objectSelectEvent);
             }
         }
     } else { // Handle general 3D raycasting
@@ -161,7 +161,7 @@ void ZBulletPhysics::TickCallback(btDynamicsWorld* world, btScalar timeStep) {
         
         if (physics->previousTickCollisionPairs_.find(pair) != physics->previousTickCollisionPairs_.end()) {
             std::shared_ptr<ZCollisionEvent> collisionEvent(new ZCollisionEvent(pair));
-            ZEngine::EventAgent()->QueueEvent(collisionEvent);
+            zenith::EventAgent()->QueueEvent(collisionEvent);
         }
     }
     
@@ -173,7 +173,7 @@ void ZBulletPhysics::TickCallback(btDynamicsWorld* world, btScalar timeStep) {
     
     for (ZCollisionPairs::const_iterator it = removedCollisionPairs.begin(), end = removedCollisionPairs.end(); it != end; it++) {
         std::shared_ptr<ZCollisionEndEvent> collisionEndEvent(new ZCollisionEndEvent(*it));
-        ZEngine::EventAgent()->QueueEvent(collisionEndEvent);
+        zenith::EventAgent()->QueueEvent(collisionEndEvent);
     }
     
     physics->previousTickCollisionPairs_ = collisionPairs;

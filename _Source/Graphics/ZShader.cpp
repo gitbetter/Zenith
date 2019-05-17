@@ -64,7 +64,7 @@ void ZShader::InitializeAsync() {
 	GetShaderCode(geometryShaderPath_, ZShaderType::Geometry, true);
 
 	ZEventDelegate shaderCodeLoadDelegate = fastdelegate::MakeDelegate(this, &ZShader::HandleShaderCodeLoaded);
-	ZEngine::EventAgent()->AddListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
+	zenith::EventAgent()->AddListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
 }
 
 /**
@@ -110,9 +110,9 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
 	if (!shaderPath.empty()) {
 		ZResource shaderResource(shaderPath, type);
 		if (async) {
-			ZEngine::ResourceCache()->RequestHandle(shaderResource);
+			zenith::ResourceCache()->RequestHandle(shaderResource);
 		} else {
-			std::shared_ptr<ZResourceHandle> shaderHandle = ZEngine::ResourceCache()->GetHandle(&shaderResource);
+			std::shared_ptr<ZResourceHandle> shaderHandle = zenith::ResourceCache()->GetHandle(&shaderResource);
 			if (shaderHandle) {
 				shaderCode = std::string((char*)shaderHandle->Buffer());
 			}
@@ -268,7 +268,7 @@ void ZShader::Use(ZMaterial* material) {
     for (unsigned int i = 0, j = material->Textures().size(); i < j; i++) {
         ZTexture texture = material->Textures()[i];
         SetInt(texture.type, i + 6);
-        ZEngine::Graphics()->Strategy()->BindTexture(texture, i + 6);
+        zenith::Graphics()->Strategy()->BindTexture(texture, i + 6);
 	}
 }
 
@@ -358,11 +358,11 @@ void ZShader::HandleShaderCodeLoaded(std::shared_ptr<ZEvent> event) {
 
 	if (loadedShadersMask_ == 3 || loadedShadersMask_ == 7) {
 		ZEventDelegate shaderCodeLoadDelegate = fastdelegate::MakeDelegate(this, &ZShader::HandleShaderCodeLoaded);
-		ZEngine::EventAgent()->RemoveListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
+		zenith::EventAgent()->RemoveListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
 
 		Compile();
         
         std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
-        ZEngine::EventAgent()->QueueEvent(shaderReadyEvent);
+        zenith::EventAgent()->QueueEvent(shaderReadyEvent);
 	}
 }

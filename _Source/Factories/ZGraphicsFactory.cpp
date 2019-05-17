@@ -110,7 +110,7 @@ void ZGraphicsFactory::CreateTexturesAsync(std::shared_ptr<ZOFTree> data, std::m
 	}
 
 	for (auto it = outPendingTextures.begin(); it != outPendingTextures.end(); it++) {
-		ZEngine::Graphics()->Strategy()->LoadTextureAsync(it->first, "");
+		zenith::Graphics()->Strategy()->LoadTextureAsync(it->first, "");
 	}
 }
 
@@ -126,7 +126,7 @@ void ZGraphicsFactory::CreateTextures(std::shared_ptr<ZOFTree> data, ZTextureMap
 			}
 
 			if (!path.empty()) {
-				ZTexture texture = ZEngine::Graphics()->Strategy()->LoadTexture(path, "");
+				ZTexture texture = zenith::Graphics()->Strategy()->LoadTexture(path, "");
 				textures[it->first] = texture;
 			}
 		}
@@ -216,7 +216,7 @@ void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTexture
     }
     
     for (auto it = outPendingTextures.begin(); it != outPendingTextures.end(); it++) {
-        ZEngine::Graphics()->Strategy()->LoadTextureAsync(it->first, "");
+        zenith::Graphics()->Strategy()->LoadTextureAsync(it->first, "");
     }
     
     for (auto it = outPendingShaders.begin(); it != outPendingShaders.end(); it++) {
@@ -241,7 +241,7 @@ void ZGraphicsFactory::CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& 
             
             if (!path.empty()) {
                 if (it->first.find("ZTEX") == 0) {
-                    ZTexture texture = ZEngine::Graphics()->Strategy()->LoadTexture(path, "");
+                    ZTexture texture = zenith::Graphics()->Strategy()->LoadTexture(path, "");
                     textures[it->first] = texture;
                 } else if (it->first.find("ZMOD") == 0) {
                     std::shared_ptr<ZModel> model(new ZModel(path));

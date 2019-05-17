@@ -42,7 +42,7 @@ public:
 	ZSceneRoot();
 
 	void AddChild(std::shared_ptr<ZGameObject> gameObject) override;
-	void RenderChildren(float frameMix, ZRenderOp renderOp = ZRenderOp::Color) override;
+	void RenderChildren(ZRenderOp renderOp = ZRenderOp::Color) override;
 	bool IsVisible() override { return true; }
 
 };

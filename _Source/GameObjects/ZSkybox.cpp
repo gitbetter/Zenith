@@ -60,15 +60,15 @@ void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root) {
 
 void ZSkybox::Initialize() {
 	ZBufferData cubemapBuffer;
-	ZTexture cubeMap = ZEngine::Graphics()->Strategy()->EquirectToCubemap(hdrPath_, cubemapBuffer);
+	ZTexture cubeMap = zenith::Graphics()->Strategy()->EquirectToCubemap(hdrPath_, cubemapBuffer);
 	Initialize(cubeMap, cubemapBuffer);
 }
 
 void ZSkybox::InitializeAsync() {
     ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
-    ZEngine::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+    zenith::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
     
-    ZEngine::Graphics()->Strategy()->EquirectToCubemapAsync(hdrPath_);
+    zenith::Graphics()->Strategy()->EquirectToCubemapAsync(hdrPath_);
 }
 
 void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
@@ -86,9 +86,9 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 	AddComponent(skyboxGraphicsComponent);
 }
 
-void ZSkybox::Render(float frameMix, ZRenderOp renderOp) {
+void ZSkybox::Render(ZRenderOp renderOp) {
 	if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) {
-		ZGameObject::Render(frameMix, renderOp);
+		ZGameObject::Render(renderOp);
 	}
 }
 
@@ -100,9 +100,9 @@ void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
 		Initialize(texture, bufferData);
         
 		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
-		ZEngine::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+		zenith::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
         
         std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(shared_from_this());
-        ZEngine::EventAgent()->QueueEvent(skyboxReadyEvent);
+        zenith::EventAgent()->QueueEvent(skyboxReadyEvent);
 	}
 }

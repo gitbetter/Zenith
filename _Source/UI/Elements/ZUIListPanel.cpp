@@ -34,7 +34,7 @@
 
 void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
-  texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
+  texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 
    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
@@ -50,7 +50,7 @@ void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root) {
   }
 }
 
-void ZUIListPanel::Render(float frameMix, ZRenderOp renderOp) {
+void ZUIListPanel::Render(ZRenderOp renderOp) {
   ZUIElement::Render();
   RenderChildren();
 }

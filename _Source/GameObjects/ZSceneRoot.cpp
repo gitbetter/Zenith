@@ -57,13 +57,13 @@ void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject) {
 	children_[pass]->AddChild(gameObject);
 }
 
-void ZSceneRoot::RenderChildren(float frameMix, ZRenderOp renderOp) {
+void ZSceneRoot::RenderChildren(ZRenderOp renderOp) {
 	for (int pass = ZRenderPass::First; pass < ZRenderPass::Last; pass++) {
 		switch (pass) {
 		case ZRenderPass::Static:
 		case ZRenderPass::Dynamic:
 		case ZRenderPass::Sky:
-			children_[pass]->RenderChildren(frameMix, renderOp);
+			children_[pass]->RenderChildren(renderOp);
 			break;
         default: break;
 		}

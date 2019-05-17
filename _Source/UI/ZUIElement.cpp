@@ -40,11 +40,11 @@
 #include <glm/gtx/matrix_interpolation.hpp>
 
 ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6) {
-    translationBounds_ = glm::vec4(0.f, (float)ZEngine::Domain()->ResolutionX(), 0.f, (float)ZEngine::Domain()->ResolutionY());
+    translationBounds_ = glm::vec4(0.f, (float)zenith::Domain()->ResolutionX(), 0.f, (float)zenith::Domain()->ResolutionY());
     SetPosition(position); SetSize(scale);
     enabled_ = true;
     hidden_ = false;
-    id_ = "ZUI_" + ZEngine::IDSequence()->Next();
+    id_ = "ZUI_" + zenith::IDSequence()->Next();
 }
 
 void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
@@ -64,15 +64,15 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
     
     if (props.find("scale") != props.end() && props["scale"]->HasValues()) {
         std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-        float x = scaleProp->value[0] < 0 ? glm::min(ZEngine::Domain()->WindowWidth(), ZEngine::Domain()->ResolutionX()) : scaleProp->value[0] * ZEngine::Domain()->ResolutionXRatio();
-        float y = scaleProp->value[1] < 0 ? glm::min(ZEngine::Domain()->WindowHeight(), ZEngine::Domain()->ResolutionY()) : scaleProp->value[1] * ZEngine::Domain()->ResolutionYRatio();
+        float x = scaleProp->value[0] < 0 ? glm::min(zenith::Domain()->WindowWidth(), zenith::Domain()->ResolutionX()) : scaleProp->value[0] * zenith::Domain()->ResolutionXRatio();
+        float y = scaleProp->value[1] < 0 ? glm::min(zenith::Domain()->WindowHeight(), zenith::Domain()->ResolutionY()) : scaleProp->value[1] * zenith::Domain()->ResolutionYRatio();
         size = glm::vec2(x, y);
     }
     
     if (props.find("position") != props.end() && props["position"]->HasValues()) {
         std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
-        float x = posProp->value[0] * ZEngine::Domain()->ResolutionXRatio();
-        float y = posProp->value[1] * ZEngine::Domain()->ResolutionYRatio();
+        float x = posProp->value[0] * zenith::Domain()->ResolutionXRatio();
+        float y = posProp->value[1] * zenith::Domain()->ResolutionYRatio();
         position = glm::vec2(x + size.x, y + size.y);
     }
     
@@ -103,8 +103,8 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
     
     if (props.find("texture") != props.end() && props["texture"]->HasValues()) {
         std::shared_ptr<ZOFString> texProp = props["texture"]->Value<ZOFString>(0);
-        if (ZEngine::Graphics()->Textures().find(texProp->value) != ZEngine::Graphics()->Textures().end())
-            texture_ = ZEngine::Graphics()->Textures()[texProp->value];
+        if (zenith::Graphics()->Textures().find(texProp->value) != zenith::Graphics()->Textures().end())
+            texture_ = zenith::Graphics()->Textures()[texProp->value];
     }
     
     if (props.find("borderWidth") != props.end() && props["borderWidth"]->HasValues()) {
@@ -118,14 +118,14 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
     }
 }
 
-void ZUIElement::Render(float frameMix, ZRenderOp renderOp) {
+void ZUIElement::Render(ZRenderOp renderOp) {
     std::shared_ptr<ZMesh2D> mesh = ElementShape();
     shader_->Activate();
     
-    ZEngine::Graphics()->Strategy()->BindTexture(texture_, 0);
+    zenith::Graphics()->Strategy()->BindTexture(texture_, 0);
     shader_->SetInt(texture_.type + "0", 0);
     
-    glm::mat4 ortho = glm::ortho(0.f, (float)ZEngine::Domain()->ResolutionX(), (float)ZEngine::Domain()->ResolutionY(), 0.f);
+    glm::mat4 ortho = glm::ortho(0.f, (float)zenith::Domain()->ResolutionX(), (float)zenith::Domain()->ResolutionY(), 0.f);
     shader_->SetMat4("M", modelMatrix_);
     shader_->SetMat4("P", ortho);
     shader_->SetVec4("color", color_);
@@ -160,8 +160,8 @@ void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element) {
     element->SetSize(elementSize);
     element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
     
-    if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(ZEngine::UI()->TextShader());
-    else element->SetShader(ZEngine::UI()->UIShader());
+    if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(zenith::UI()->TextShader());
+    else element->SetShader(zenith::UI()->UIShader());
     
     element->SetParent(this);
     
@@ -263,7 +263,7 @@ bool ZUIElement::TrySelect(glm::vec3 position) {
         
         if (!selectedChild) {
             std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(id_, position));
-            ZEngine::EventAgent()->QueueEvent(objectSelectEvent);
+            zenith::EventAgent()->QueueEvent(objectSelectEvent);
         }
         
         selected = true;
