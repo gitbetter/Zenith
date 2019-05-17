@@ -28,3 +28,11 @@
  */
 
 #include "ZEditor.hpp"
+
+void ZEditor::Initialize() {
+    
+}
+
+void ZEditor::Update() {
+    
+}

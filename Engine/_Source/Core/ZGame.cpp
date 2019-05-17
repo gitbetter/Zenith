@@ -42,7 +42,7 @@ void ZGame::RunGameLoop() {
     
     double previousTime = zenith::SecondsTime();
     
-    while (!zenith::Domain()->Strategy()->IsWindowClosing()) {
+    while (Running()) {
 		double currentTime = zenith::SecondsTime();
         zenith::SetDeltaTime(currentTime - previousTime);
         previousTime = currentTime;
@@ -53,6 +53,10 @@ void ZGame::RunGameLoop() {
         
         MacDisplayHack();
     }
+}
+
+bool ZGame::Running() {
+    return !zenith::Domain()->Strategy()->IsWindowClosing();
 }
 
 void ZGame::AddScene(std::shared_ptr<ZScene> scene) {

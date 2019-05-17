@@ -51,7 +51,7 @@ public:
     ~ZGame() { };
     
     void RunGameLoop();
-    
+    bool Running();
     void AddScene(std::shared_ptr<ZScene> scene);
     
     std::shared_ptr<ZScene> ActiveScene() { return !(scenes_.empty()) ? scenes_[activeScene_] : nullptr; }

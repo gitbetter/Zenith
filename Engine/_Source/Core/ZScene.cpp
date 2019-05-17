@@ -28,6 +28,7 @@
  */
 
 #include "ZScene.hpp"
+#include "ZGame.hpp"
 #include "ZLight.hpp"
 #include "ZEngine.hpp"
 #include "ZLuaScriptManager.hpp"
@@ -142,7 +143,7 @@ void ZScene::ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree) {
 }
 
 void ZScene::Update() {
-    if (!zenith::Domain()->Strategy()->IsWindowClosing()) {
+    if (!zenith::Game()->Running()) {
         Render();
     }
 }

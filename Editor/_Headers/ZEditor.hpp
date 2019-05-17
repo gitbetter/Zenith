@@ -30,10 +30,17 @@
 #pragma once
 
 // Includes
+#include "ZProcess.hpp"
 
 // Forward Declarations
 
 // Definitions
-class ZEditor {
+class ZEditor : public ZProcess {
+    
+public:
+    
+    void Initialize() override;
+    void Update() override;
+    void CleanUp() override { };
     
 };
