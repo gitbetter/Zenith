@@ -34,7 +34,7 @@
 
 void ZUIPanel::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
-  texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
+  texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
 void ZUIPanel::Render(ZRenderOp renderOp) {

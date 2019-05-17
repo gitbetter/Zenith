@@ -38,7 +38,7 @@
 #include "ZObjectSelectedEvent.hpp"
 
 ZUICheckBox::ZUICheckBox(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
-   texture_ = ZEngine::Graphics()->Strategy()->LoadDefaultTexture();
+   texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
 void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root) {
@@ -48,7 +48,7 @@ void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root) {
   AddChild(checkImage_);
 
   ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICheckBox::HandleMousePress);
-  ZEngine::EventAgent()->AddListener(fireDelegate, ZObjectSelectedEvent::Type);
+  zenith::EventAgent()->AddListener(fireDelegate, ZObjectSelectedEvent::Type);
 
   std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {

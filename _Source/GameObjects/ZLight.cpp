@@ -38,7 +38,7 @@ std::map<std::string, ZLightType> ZLight::lightTypesMap = {
 
 ZLight::ZLight(ZLightType lightType) : ZGameObject(glm::vec3(1.f)) { 
     type = lightType; enabled = true;
-    id_ = "ZLT_" + ZEngine::IDSequence()->Next();
+    id_ = "ZLT_" + zenith::IDSequence()->Next();
 }
 
 void ZLight::Initialize(std::shared_ptr<ZOFNode> root) {

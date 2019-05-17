@@ -47,7 +47,7 @@
 
 ZGLGraphicsStrategy::~ZGLGraphicsStrategy() {
     ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZGLGraphicsStrategy::HandleTextureLoaded);
-    ZEngine::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+    zenith::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
 }
 
 void ZGLGraphicsStrategy::Initialize() {
@@ -65,7 +65,7 @@ void ZGLGraphicsStrategy::Initialize() {
     EnableMSAA();
     
     ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZGLGraphicsStrategy::HandleTextureLoaded);
-    ZEngine::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+    zenith::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
 }
 
 void ZGLGraphicsStrategy::ClearViewport() {
@@ -152,23 +152,23 @@ void ZGLGraphicsStrategy::ClearDepth() {
 
 void ZGLGraphicsStrategy::BindFramebuffer(ZBufferData frameBuffer, bool depth) {
 	if (depth) {
-		glViewport(0, 0, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE);
+		glViewport(0, 0, zenith::SHADOW_MAP_SIZE, zenith::SHADOW_MAP_SIZE);
 	} else {
-		glViewport(0, 0, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
+		glViewport(0, 0, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
 	}
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo);
 }
 
 void ZGLGraphicsStrategy::UnbindFramebuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
+	glViewport(0, 0, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void ZGLGraphicsStrategy::BlitFramebuffer(ZBufferData source, ZBufferData destination) {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, source.fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destination.fbo);
-	glBlitFramebuffer(0, 0, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), 0, 0, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebuffer(0, 0, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY(), 0, 0, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -351,7 +351,7 @@ void ZGLGraphicsStrategy::LoadTextureAsync(std::string path, const std::string &
 	else type = ZResourceType::Texture;
 
 	ZResource textureResource(filename, type);
-	ZEngine::ResourceCache()->RequestHandle(textureResource);
+	zenith::ResourceCache()->RequestHandle(textureResource);
 }
 
 ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string &directory, bool hdr, bool flip) {
@@ -407,7 +407,7 @@ ZTexture ZGLGraphicsStrategy::LoadEmptyLUT() {
     glGenTextures(1, &lut.id);
     glBindTexture(GL_TEXTURE_2D, lut.id);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, ZEngine::LUT_SIZE, ZEngine::LUT_SIZE, 0, GL_RG, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, zenith::LUT_SIZE, zenith::LUT_SIZE, 0, GL_RG, GL_FLOAT, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -424,7 +424,7 @@ ZTexture ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {
         ZResource resource(faces[i], ZResourceType::Texture);
-        std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
+        std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
         
         if (!handle) {
             _Z("Failed to load texture at " + faces[i], ZERROR); continue;
@@ -453,11 +453,11 @@ ZTexture ZGLGraphicsStrategy::LoadEmptyCubeMap(ZCubemapTextureType type) {
     glGenTextures(1, &cubemap.id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
     
-    unsigned int size = ZEngine::CUBE_MAP_SIZE;
+    unsigned int size = zenith::CUBE_MAP_SIZE;
     if (type == ZCubemapTextureType::Irradiance) {
-        size = ZEngine::IRRADIANCE_MAP_SIZE;
+        size = zenith::IRRADIANCE_MAP_SIZE;
     } else if (type == ZCubemapTextureType::Prefilter) {
-        size = ZEngine::PREFILTER_MAP_SIZE;
+        size = zenith::PREFILTER_MAP_SIZE;
     }
     for (unsigned int i = 0; i < 6; i++) {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
@@ -495,9 +495,9 @@ ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool mul
 	glBindRenderbuffer(GL_RENDERBUFFER, color.rbo);
 	
 	if (multisample) {
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
 	} else {
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY());
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
 	}
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, color.rbo);
@@ -534,7 +534,7 @@ ZBufferData ZGLGraphicsStrategy::LoadCubeMapBuffer() {
     
     glBindFramebuffer(GL_FRAMEBUFFER, capture.fbo);
     glBindRenderbuffer(GL_RENDERBUFFER, capture.rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ZEngine::CUBE_MAP_SIZE, ZEngine::CUBE_MAP_SIZE);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, zenith::CUBE_MAP_SIZE, zenith::CUBE_MAP_SIZE);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, capture.rbo);
     return capture;
 }
@@ -548,9 +548,9 @@ ZTexture ZGLGraphicsStrategy::LoadColorTexture(bool multisample) {
 	glBindTexture(target, texture.id);
 
 	if (multisample) {
-		glTexImage2DMultisample(target, 4, GL_RGB, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), GL_TRUE);
+		glTexImage2DMultisample(target, 4, GL_RGB, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY(), GL_TRUE);
 	} else {
-		glTexImage2D(target, 0, GL_RGB, ZEngine::Domain()->ResolutionX(), ZEngine::Domain()->ResolutionY(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(target, 0, GL_RGB, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	}
 
 	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -567,7 +567,7 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture() {
     depthTexture.type = "depth";
     glGenTextures(1, &depthTexture.id);
     glBindTexture(GL_TEXTURE_2D, depthTexture.id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ZEngine::SHADOW_MAP_SIZE, ZEngine::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, zenith::SHADOW_MAP_SIZE, zenith::SHADOW_MAP_SIZE, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     
@@ -621,7 +621,7 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(ZTexture& hdrTexture, ZBufferDat
     
     BindTexture(hdrTexture, 1);
     glBindFramebuffer(GL_FRAMEBUFFER, bufferData.fbo);
-    glViewport(0, 0, ZEngine::CUBE_MAP_SIZE, ZEngine::CUBE_MAP_SIZE);
+    glViewport(0, 0, zenith::CUBE_MAP_SIZE, zenith::CUBE_MAP_SIZE);
     for (unsigned int i = 0; i < 6; i++) {
         equirectToCubemapShader.SetMat4("V", captureViews[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeMap.id, 0);
@@ -662,8 +662,8 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
     BindTexture(cubemapTexture, 1);
     glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
     glBindRenderbuffer(GL_RENDERBUFFER, cubemapBufferData.rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ZEngine::IRRADIANCE_MAP_SIZE, ZEngine::IRRADIANCE_MAP_SIZE);
-    glViewport(0, 0, ZEngine::IRRADIANCE_MAP_SIZE, ZEngine::IRRADIANCE_MAP_SIZE);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, zenith::IRRADIANCE_MAP_SIZE, zenith::IRRADIANCE_MAP_SIZE);
+    glViewport(0, 0, zenith::IRRADIANCE_MAP_SIZE, zenith::IRRADIANCE_MAP_SIZE);
     for (unsigned int i = 0; i < 6; i++) {
         irradianceShader.SetMat4("V", captureViews[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap.id, 0);
@@ -696,14 +696,14 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
     prefilterShader.Activate();
     prefilterShader.SetInt("environmentMap", 1);
     prefilterShader.SetMat4("P", captureProjection);
-    prefilterShader.SetFloat("resolution", ZEngine::PREFILTER_MAP_SIZE);
+    prefilterShader.SetFloat("resolution", zenith::PREFILTER_MAP_SIZE);
     
     BindTexture(cubemapTexture, 1);
     glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
     
     unsigned int maxMipLevels = 6;
     for (unsigned int mip = 0; mip < maxMipLevels; ++mip) {
-        unsigned int mipSize = ZEngine::PREFILTER_MAP_SIZE * std::pow(0.5, mip);
+        unsigned int mipSize = zenith::PREFILTER_MAP_SIZE * std::pow(0.5, mip);
         glBindRenderbuffer(GL_RENDERBUFFER, cubemapBufferData.rbo);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipSize, mipSize);
         
@@ -739,10 +739,10 @@ ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData) {
     
     glBindFramebuffer(GL_FRAMEBUFFER, cubemapBufferData.fbo);
     glBindRenderbuffer(GL_RENDERBUFFER, cubemapBufferData.rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, ZEngine::LUT_SIZE, ZEngine::LUT_SIZE);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, zenith::LUT_SIZE, zenith::LUT_SIZE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUT.id, 0);
     
-    glViewport(0, 0, ZEngine::LUT_SIZE, ZEngine::LUT_SIZE);
+    glViewport(0, 0, zenith::LUT_SIZE, zenith::LUT_SIZE);
     
     ClearViewport();
     
@@ -797,7 +797,7 @@ void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
 	} else {
 		textureReadyEvent = std::make_shared<ZTextureReadyEvent>(texture);
 	}
-	ZEngine::EventAgent()->QueueEvent(textureReadyEvent);
+	zenith::EventAgent()->QueueEvent(textureReadyEvent);
 }
 
 void ZGLGraphicsStrategy::GLFWErrorCallback(int id, const char* description) {

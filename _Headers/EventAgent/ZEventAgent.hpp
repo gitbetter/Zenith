@@ -76,7 +76,7 @@ private:
 
 public:
 
-    ZEventAgent() : activeQueue_(0), activeListeners_(0), updateTimeoutMax_(ZEngine::UPDATE_STEP_SIZE * 2.f) { }
+    ZEventAgent() : activeQueue_(0), activeListeners_(0), updateTimeoutMax_(zenith::UPDATE_STEP_SIZE * 2.f) { }
     ~ZEventAgent() { }
 
     void Initialize() override;

@@ -40,7 +40,7 @@
 
 ZGraphicsComponent::ZGraphicsComponent() : ZComponent() {
 	highlightColor_ = glm::vec4(0.f);
-	id_ = "ZCGraphics_" + ZEngine::IDSequence()->Next();
+	id_ = "ZCGraphics_" + zenith::IDSequence()->Next();
 }
 
 ZGraphicsComponent::~ZGraphicsComponent() {
@@ -76,8 +76,8 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 
 	if (props.find("highlightShader") != props.end() && props["highlightShader"]->HasValues()) {
 		std::shared_ptr<ZOFString> hShaderProp = props["highlightShader"]->Value<ZOFString>(0);
-		if (ZEngine::Graphics()->Shaders().find(hShaderProp->value) != ZEngine::Graphics()->Shaders().end()) {
-			highlightShader_ = ZEngine::Graphics()->Shaders()[hShaderProp->value];
+		if (zenith::Graphics()->Shaders().find(hShaderProp->value) != zenith::Graphics()->Shaders().end()) {
+			highlightShader_ = zenith::Graphics()->Shaders()[hShaderProp->value];
 		}
 	}
 
@@ -95,9 +95,9 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 		} else {
 			if (props["model"]->ValueCount() > 1) {
 				std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);
-				modelObject_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
+				modelObject_ = zenith::GraphicsFactory()->CreateModel(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
 			} else {
-				modelObject_ = ZEngine::GraphicsFactory()->CreateModel(nameProp->value);
+				modelObject_ = zenith::GraphicsFactory()->CreateModel(nameProp->value);
 			}
 		}
 	}
@@ -123,13 +123,13 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp) {
 	glm::mat4 viewMatrix = cameraComp->ViewMatrix();
 
 	// Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
-	ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
+	zenith::Graphics()->Strategy()->EnableStencilBuffer();
 
     std::shared_ptr<ZShader> shader;
     if (renderOp == ZRenderOp::Shadow) {
-        shader = ZEngine::Graphics()->ShadowShader();
+        shader = zenith::Graphics()->ShadowShader();
     } else if (renderOp == ZRenderOp::Depth) {
-        shader = ZEngine::Graphics()->DepthShader();
+        shader = zenith::Graphics()->DepthShader();
     } else {
         shader = ActiveShader();
     }
@@ -138,8 +138,8 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp) {
         shader->Activate();
         shader->Use(gameLights_);
 
-        ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->DepthBuffer(), 0);
-        ZEngine::Graphics()->Strategy()->BindTexture(ZEngine::Graphics()->ShadowBuffer(), 1);
+        zenith::Graphics()->Strategy()->BindTexture(zenith::Graphics()->DepthBuffer(), 0);
+        zenith::Graphics()->Strategy()->BindTexture(zenith::Graphics()->ShadowBuffer(), 1);
         if (renderOp == ZRenderOp::Color) {
             shader->SetInt("depthTexture", 0);
             shader->SetInt("shadowTexture", 1);
@@ -149,15 +149,15 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp) {
 		shader->SetMat4("V", viewMatrix);
         shader->SetMat4("M", modelMatrix);
 		shader->SetMat4("ViewProjection", object_->Scene()->ViewProjection());
-        shader->SetMat4("P_lightSpace", ZEngine::Graphics()->LightSpaceMatrix());
+        shader->SetMat4("P_lightSpace", zenith::Graphics()->LightSpaceMatrix());
         shader->SetVec3("viewPosition", gameCamera_->Position());
 
         if (object_->Scene()->Skybox() != nullptr) {
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 3);
+            zenith::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 3);
             shader->SetInt("irradianceMap", 3);
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 4);
+            zenith::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 4);
             shader->SetInt("prefilterMap", 4);
-            ZEngine::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 5);
+            zenith::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 5);
             shader->SetInt("brdfLUT", 5);
         }
 
@@ -171,8 +171,8 @@ std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader() {
     if (currentShaderObject_) return currentShaderObject_;
     if (shaders_.empty()) return nullptr;
     
-    if (ZEngine::Graphics()->Shaders().find(shaders_[activeShaderIndex_]) != ZEngine::Graphics()->Shaders().end()) {
-		currentShaderObject_ = ZEngine::Graphics()->Shaders()[shaders_[activeShaderIndex_]];
+    if (zenith::Graphics()->Shaders().find(shaders_[activeShaderIndex_]) != zenith::Graphics()->Shaders().end()) {
+		currentShaderObject_ = zenith::Graphics()->Shaders()[shaders_[activeShaderIndex_]];
         return currentShaderObject_;
     }
     return nullptr;
@@ -181,8 +181,8 @@ std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader() {
 std::shared_ptr<ZModel> ZGraphicsComponent::Model() {
 	if (modelObject_) return modelObject_;
 
-    if (ZEngine::Graphics()->Models().find(model_) != ZEngine::Graphics()->Models().end()) {
-        modelObject_ = ZEngine::Graphics()->Models()[model_];
+    if (zenith::Graphics()->Models().find(model_) != zenith::Graphics()->Models().end()) {
+        modelObject_ = zenith::Graphics()->Models()[model_];
         return modelObject_;
     }
 	return nullptr;
@@ -203,7 +203,7 @@ void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material) {
 void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewProjection) {
 	if (highlightShader_ == nullptr) return;
 
-	ZEngine::Graphics()->Strategy()->DisableStencilBuffer();
+	zenith::Graphics()->Strategy()->DisableStencilBuffer();
 
 	highlightShader_->Activate();
 
@@ -215,7 +215,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewP
 
 	modelObject_->Render(highlightShader_.get(), materials_);
 
-	ZEngine::Graphics()->Strategy()->EnableStencilBuffer();
+	zenith::Graphics()->Strategy()->EnableStencilBuffer();
 }
 
 void ZGraphicsComponent::ClearOutline() {

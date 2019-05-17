@@ -45,7 +45,7 @@ void ZParticle::Initialize() {
 
 void ZParticle::Update() {
   ZGameObject::Update();
-  age_ -= ZEngine::UPDATE_STEP_SIZE;
+  age_ -= zenith::UPDATE_STEP_SIZE;
 }
 
 void ZParticle::Render(ZRenderOp renderOp) {

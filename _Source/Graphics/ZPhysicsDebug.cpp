@@ -40,9 +40,9 @@ void ZPhysicsDebug::Initialize() {
 }
 
 void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
-	if (!ZEngine::Game()->ActiveScene()) return;
+	if (!zenith::Game()->ActiveScene()) return;
 
-	glm::mat4 VPMatrix = ZEngine::Game()->ActiveScene()->ViewProjection();
+	glm::mat4 VPMatrix = zenith::Game()->ActiveScene()->ViewProjection();
 
 	shader_->Activate();
 	shader_->SetMat4("ViewProjection", VPMatrix);
@@ -53,7 +53,7 @@ void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const b
 	  ZVertex3D(glm::vec3(to.x(), to.y(), to.z()))
 		});
 
-	ZBufferData bufferData = ZEngine::Graphics()->Strategy()->LoadVertexData(vertices);
-	ZEngine::Graphics()->Strategy()->DrawLines(bufferData, vertices);
-	ZEngine::Graphics()->Strategy()->DeleteBufferData(bufferData);
+	ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(vertices);
+	zenith::Graphics()->Strategy()->DrawLines(bufferData, vertices);
+	zenith::Graphics()->Strategy()->DeleteBufferData(bufferData);
 }

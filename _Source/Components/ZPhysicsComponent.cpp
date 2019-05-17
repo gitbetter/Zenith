@@ -36,7 +36,7 @@
 #include "ZBulletRigidBody.hpp"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
-    id_ = "ZCPhysics_" + ZEngine::IDSequence()->Next();
+    id_ = "ZCPhysics_" + zenith::IDSequence()->Next();
 }
 
 void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
@@ -141,10 +141,10 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 void ZPhysicsComponent::Initialize(std::string bodyType, std::string colliderType, float mass, glm::vec3 position, glm::vec3 size, glm::quat rotation) {
     std::shared_ptr<ZCollider> collider;
     if (!colliderType.empty()) {
-        collider = ZEngine::PhysicsFactory()->CreateCollider(colliderType, size);
+        collider = zenith::PhysicsFactory()->CreateCollider(colliderType, size);
     } else {
         _Z("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZWARNING);
-        collider = ZEngine::PhysicsFactory()->CreateCollider("Box", size);
+        collider = zenith::PhysicsFactory()->CreateCollider("Box", size);
     }
     
     ZPhysicsBodyType type;
@@ -158,7 +158,7 @@ void ZPhysicsComponent::Initialize(std::string bodyType, std::string colliderTyp
     body_ = std::make_shared<ZBulletRigidBody>(type, collider, mass, position, size, rotation);
     body_->SetGameObject(object_);
     
-    ZEngine::Physics()->AddRigidBody(body_);
+    zenith::Physics()->AddRigidBody(body_);
 }
 
 void ZPhysicsComponent::Update() {

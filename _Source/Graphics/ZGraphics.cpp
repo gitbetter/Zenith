@@ -66,19 +66,19 @@ void ZGraphics::Initialize() {
 	}
     
     ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleShaderReady);
-    ZEngine::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+    zenith::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
     
     ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleTextureReady);
-    ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+    zenith::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
     
     ZEventDelegate modelReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleModelReady);
-    ZEngine::EventAgent()->AddListener(modelReadyDelegate, ZModelReadyEvent::Type);
+    zenith::EventAgent()->AddListener(modelReadyDelegate, ZModelReadyEvent::Type);
 }
 
 void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
     ZShaderMap shaders; ZTextureMap textures; ZModelMap models;
     
-    ZEngine::GraphicsFactory()->CreateAssets(root, textures, shaders, models);
+    zenith::GraphicsFactory()->CreateAssets(root, textures, shaders, models);
     
     for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++) {
         AddTexture(it->first, it->second);
@@ -94,11 +94,11 @@ void ZGraphics::Load(std::shared_ptr<ZOFTree> root) {
 }
 
 void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root) {
-    ZEngine::GraphicsFactory()->CreateAssetsAsync(root, pendingTextures_, pendingShaders_, pendingModels_);
+    zenith::GraphicsFactory()->CreateAssetsAsync(root, pendingTextures_, pendingShaders_, pendingModels_);
 }
 
 void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light) {
-	ZEngine::Graphics()->Strategy()->ClearViewport();
+	zenith::Graphics()->Strategy()->ClearViewport();
 	graphicsStrategy_->BindFramebuffer(shadowFrameBuffer_, true);
 	graphicsStrategy_->ClearDepth();
 
@@ -117,19 +117,19 @@ void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light) {
 
 void ZGraphics::SetupDepthPass() {
     graphicsStrategy_->BindFramebuffer(depthFrameBuffer_, true);
-	ZEngine::Graphics()->Strategy()->ClearViewport();
+	zenith::Graphics()->Strategy()->ClearViewport();
 	graphicsStrategy_->ClearDepth();
 }
 
 void ZGraphics::SetupColorPass() {
 	graphicsStrategy_->BindFramebuffer(colorFrameBufferMultisampled_);
-	ZEngine::Graphics()->Strategy()->ClearViewport();
+	zenith::Graphics()->Strategy()->ClearViewport();
 }
 
 void ZGraphics::PostProcessingPass(ZScene* scene) {
 	graphicsStrategy_->BlitFramebuffer(colorFrameBufferMultisampled_, colorFrameBuffer_);
 
-	ZEngine::Graphics()->Strategy()->ClearViewport();
+	zenith::Graphics()->Strategy()->ClearViewport();
 	graphicsStrategy_->DisableDepthTesting();
 
 	postShader_->Activate();
@@ -187,13 +187,13 @@ void ZGraphics::CleanUp() {
 	}
     
     ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleShaderReady);
-    ZEngine::EventAgent()->RemoveListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+    zenith::EventAgent()->RemoveListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
     
     ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleTextureReady);
-    ZEngine::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+    zenith::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
     
     ZEventDelegate modelReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleModelReady);
-    ZEngine::EventAgent()->RemoveListener(modelReadyDelegate, ZModelReadyEvent::Type);
+    zenith::EventAgent()->RemoveListener(modelReadyDelegate, ZModelReadyEvent::Type);
 }
 
 void ZGraphics::HandleShaderReady(std::shared_ptr<ZEvent> event) {

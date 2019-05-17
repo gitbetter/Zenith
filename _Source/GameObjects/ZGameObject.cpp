@@ -41,7 +41,7 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation) {
     properties_.orientation = orientation;
     properties_.modelMatrix = glm::mat4(1.f);
     properties_.renderPass = ZRenderPass::Static;
-    id_ = "ZGO_" + ZEngine::IDSequence()->Next();
+    id_ = "ZGO_" + zenith::IDSequence()->Next();
     CalculateDerivedData();
 }
 

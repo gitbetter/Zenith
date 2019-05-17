@@ -73,7 +73,7 @@ bool ZEventAgent::TriggerEvent(const std::shared_ptr<ZEvent>& event) {
 		const EventListenerList& listeners = findIt->second;
 		for (auto it = listeners.begin(); it != listeners.end(); it++) {
 			ZEventDelegate delegate = (*it);
-			event->SetTimeStamp(ZEngine::SecondsTime());
+			event->SetTimeStamp(zenith::SecondsTime());
 			delegate(event);
 			processed = true;
 		}
@@ -116,7 +116,7 @@ bool ZEventAgent::AbortEvent(const ZEventType& eventType, bool allOfType) {
 
 void ZEventAgent::Update() {
 	float floatMax = std::numeric_limits<float>::max();
-	float currentTime = ZEngine::SecondsTime();
+	float currentTime = zenith::SecondsTime();
 	float maxTime = ((updateTimeoutMax_ == floatMax) ? floatMax : currentTime + updateTimeoutMax_);
 
 	int queueToProcess = activeQueue_;
@@ -136,12 +136,12 @@ void ZEventAgent::Update() {
 		if (findIt != eventListeners_[listenersToProcess].end()) {
 			const EventListenerList& listeners = findIt->second;
 			for (auto it = listeners.begin(); it != listeners.end(); it++) {
-				event->SetTimeStamp(ZEngine::SecondsTime());
+				event->SetTimeStamp(zenith::SecondsTime());
 				(*it)(event);
 			}
 		}
 
-		currentTime = ZEngine::SecondsTime();
+		currentTime = zenith::SecondsTime();
 		if (updateTimeoutMax_ != floatMax && currentTime >= maxTime) {
 			_Z("ZEventAgent processing timeout", ZWARNING);
 			break;

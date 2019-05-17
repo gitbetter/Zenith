@@ -48,7 +48,7 @@ ZMesh3DMap ZModelImporter::LoadModel(std::string modelPath, ZBoneMap& outBoneMap
 
     // Cache in the model data from the given file
     ZResource resource(modelPath, ZResourceType::Model);
-    std::shared_ptr<ZResourceHandle> handle = ZEngine::ResourceCache()->GetHandle(&resource);
+    std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
     
 	return LoadModel(handle, outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
 }
@@ -325,10 +325,10 @@ std::vector<ZTexture> ZModelImporter::LoadMaterialTextures(aiMaterial *mat, aiTe
         aiString str;
         mat->GetTexture(type, i, &str);
         std::string textureName = std::string(str.C_Str());
-        if (ZEngine::Graphics()->Textures().find(textureName) != ZEngine::Graphics()->Textures().end()) {
-            textures.push_back(ZEngine::Graphics()->Textures()[textureName]);
+        if (zenith::Graphics()->Textures().find(textureName) != zenith::Graphics()->Textures().end()) {
+            textures.push_back(zenith::Graphics()->Textures()[textureName]);
         } else {
-            ZTexture texture = ZEngine::Graphics()->Strategy()->LoadTexture(textureName, directory);
+            ZTexture texture = zenith::Graphics()->Strategy()->LoadTexture(textureName, directory);
             texture.type = typeName;
             texture.path = textureName;
             textures.push_back(texture);

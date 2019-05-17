@@ -44,8 +44,8 @@ ZCameraComponent::ZCameraComponent(ZCameraType type, glm::vec3 position) : ZComp
 	yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
 	pitchVelocity_ = glm::vec3(0.f);
 	yawVelocity_ = glm::vec3(0.f);
-	frustum_ = ZFrustum(zoom_, ZEngine::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
-	id_ = "ZCCamera_" + ZEngine::IDSequence()->Next();
+	frustum_ = ZFrustum(zoom_, zenith::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
+	id_ = "ZCCamera_" + zenith::IDSequence()->Next();
 }
 
 void ZCameraComponent::Update() {
@@ -54,10 +54,10 @@ void ZCameraComponent::Update() {
 
 void ZCameraComponent::UpdateCameraOrientation() {
 	if (movementStyle_ == ZCameraMovementStyle::Follow) {
-		pitchVelocity_ *= glm::pow(cameraDamping_, (float)ZEngine::DeltaTime());
-		yawVelocity_ *= glm::pow(cameraDamping_, (float)ZEngine::DeltaTime());
-		pitch_ = glm::quat(pitchVelocity_ * (float)ZEngine::DeltaTime());
-		yaw_ = glm::quat(yawVelocity_ * (float)ZEngine::DeltaTime());
+		pitchVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());
+		yawVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());
+		pitch_ = glm::quat(pitchVelocity_ * (float)zenith::DeltaTime());
+		yaw_ = glm::quat(yawVelocity_ * (float)zenith::DeltaTime());
 		object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
 	}
 }
@@ -120,18 +120,18 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 		cameraDamping_ = prop->value;
 	}
 
-	frustum_ = ZFrustum(zoom_, ZEngine::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
+	frustum_ = ZFrustum(zoom_, zenith::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
 
 	ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
 	ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
-	ZEngine::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);
-	ZEngine::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
+	zenith::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);
+	zenith::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
 }
 
 void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event) {
 	std::shared_ptr<ZObjectMoveEvent> moveEvent = std::static_pointer_cast<ZObjectMoveEvent>(event);
 
-	float velocity = movementSpeed_ * (float)ZEngine::DeltaTime();
+	float velocity = movementSpeed_ * (float)zenith::DeltaTime();
 	object_->SetPosition(object_->Position() + object_->Right() * moveEvent->X() * -velocity);
 	object_->SetPosition(object_->Position() + object_->Front() * moveEvent->Z() * velocity);
 
@@ -154,7 +154,7 @@ void ZCameraComponent::HandleLook(std::shared_ptr<ZEvent> event) {
 }
 
 glm::mat4 ZCameraComponent::ProjectionMatrix() {
-	const ZDomain* domain = ZEngine::Domain();
+	const ZDomain* domain = zenith::Domain();
 	glm::mat4 projectionMatrix;
 	if (cameraType_ == ZCameraType::Orthographic) {
 		float left = -(float)domain->ResolutionX() / (zoom_ * 2);
@@ -172,7 +172,7 @@ glm::mat4 ZCameraComponent::ProjectionMatrix() {
 
 glm::mat4 ZCameraComponent::ViewMatrix() {
 	// TODO: Interpolation only useful when using forward rendering techniques?
-	float frameMix = ZEngine::FrameMix();
+	float frameMix = zenith::FrameMix();
 	glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
 	glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
 	return glm::lookAt(object_->Position(), object_->Position() + interpolatedFront, interpolatedUp);

@@ -68,25 +68,25 @@ ZScene::ZScene(std::initializer_list<std::string> zofPaths) : ZScene() {
 
 void ZScene::Initialize() {
 	ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
-	ZEngine::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
+	zenith::EventAgent()->AddListener(quitDelegate, ZQuitEvent::Type);
 
 	ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
-	ZEngine::EventAgent()->AddListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
+	zenith::EventAgent()->AddListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
 
 	ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleTextureReady);
-	ZEngine::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+	zenith::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
 
 	ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleShaderReady);
-	ZEngine::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+	zenith::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
 
 	ZEventDelegate modelReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleModelReady);
-	ZEngine::EventAgent()->AddListener(modelReadyDelegate, ZModelReadyEvent::Type);
+	zenith::EventAgent()->AddListener(modelReadyDelegate, ZModelReadyEvent::Type);
 
 	ZEventDelegate skyboxReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleSkyboxReady);
-	ZEngine::EventAgent()->AddListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
+	zenith::EventAgent()->AddListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
 
 	for (auto it = pendingSceneDefinitions_.begin(); it != pendingSceneDefinitions_.end(); it++) {
-		ZEngine::LoadZOF(it->first);
+		zenith::LoadZOF(it->first);
 	}
 
     ZProcess::Initialize();
@@ -101,12 +101,12 @@ void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
     
 	// TODO: The more systems are populated this way, the more of a hamper we place on
 	// load times. Refactor this so the object tree is only traversed once.
-	ZEngine::ScriptManager()->LoadAsync(objectTree);
-	ZEngine::Graphics()->LoadAsync(objectTree);
+	zenith::ScriptManager()->LoadAsync(objectTree);
+	zenith::Graphics()->LoadAsync(objectTree);
 
 	ZOFLoadResult zofResults;
-	zofResults.gameObjects = ZEngine::GameObjectFactory()->Load(objectTree);
-	zofResults.uiElements = ZEngine::UIFactory()->Load(objectTree);
+	zofResults.gameObjects = zenith::GameObjectFactory()->Load(objectTree);
+	zofResults.uiElements = zenith::UIFactory()->Load(objectTree);
 
 	for (ZGameObjectMap::iterator it = zofResults.gameObjects.begin(); it != zofResults.gameObjects.end(); it++) {
 		AddGameObject(it->second);
@@ -114,9 +114,9 @@ void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
 
 	for (ZUIElementMap::iterator it = zofResults.uiElements.begin(); it != zofResults.uiElements.end(); it++) {
 		if (std::dynamic_pointer_cast<ZUICursor>(it->second))
-			ZEngine::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
+			zenith::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
 		else
-			ZEngine::UI()->AddElement(it->second);
+			zenith::UI()->AddElement(it->second);
 	}
 }
 
@@ -142,7 +142,7 @@ void ZScene::ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree) {
 }
 
 void ZScene::Update() {
-    if (!ZEngine::Domain()->Strategy()->IsWindowClosing()) {
+    if (!zenith::Domain()->Strategy()->IsWindowClosing()) {
         Render();
     }
 }
@@ -156,31 +156,31 @@ void ZScene::Render() {
 	// Render pass #1: Shadow
 	// TODO: Support more shadow casting lights!
 	if (gameLights_.size() > 0) {
-		ZEngine::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
+		zenith::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
 		root_->RenderChildren(ZRenderOp::Shadow);
-		ZEngine::Graphics()->FinishRenderPass();
+		zenith::Graphics()->FinishRenderPass();
 	}
     
     // Render pass #2: Depth
-	ZEngine::Graphics()->SetupDepthPass();
+	zenith::Graphics()->SetupDepthPass();
     root_->RenderChildren(ZRenderOp::Depth);
-	ZEngine::Graphics()->FinishRenderPass();
+	zenith::Graphics()->FinishRenderPass();
     
     // Render pass #3: Color
-	ZEngine::Graphics()->SetupColorPass();
+	zenith::Graphics()->SetupColorPass();
     root_->RenderChildren(ZRenderOp::Color);
-	ZEngine::Graphics()->FinishRenderPass();
+	zenith::Graphics()->FinishRenderPass();
 
 	// Render pass #4: Post-Processing
-	ZEngine::Graphics()->PostProcessingPass(this);
+	zenith::Graphics()->PostProcessingPass(this);
     
 	// TODO: Draw UI as part of the main rendering loop with
 	// the rest of the game objects
-    ZEngine::UI()->Draw();
+    zenith::UI()->Draw();
     
-    //ZEngine::Physics()->DebugDraw();
+    //zenith::Physics()->DebugDraw();
     
-    ZEngine::Graphics()->Strategy()->SwapBuffers();
+    zenith::Graphics()->Strategy()->SwapBuffers();
 }
 
 void ZScene::UpdateViewProjectionMatrices() {
@@ -246,31 +246,31 @@ void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
 }
 
 void ZScene::SetDefaultSkybox() {
-    skybox_ = std::shared_ptr<ZSkybox>(new ZSkybox(ZEngine::DEFAULT_HDR_CUBEMAP));
+    skybox_ = std::shared_ptr<ZSkybox>(new ZSkybox(zenith::DEFAULT_HDR_CUBEMAP));
 	skybox_->InitializeAsync();
 	AddGameObject(skybox_);
 }
 
 void ZScene::UnregisterLoadDelegates() {
 	ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
-	ZEngine::EventAgent()->RemoveListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
+	zenith::EventAgent()->RemoveListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
 
 	ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleTextureReady);
-	ZEngine::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+	zenith::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
 
 	ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleShaderReady);
-	ZEngine::EventAgent()->RemoveListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
+	zenith::EventAgent()->RemoveListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
 
 	ZEventDelegate modelReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleModelReady);
-	ZEngine::EventAgent()->RemoveListener(modelReadyDelegate, ZModelReadyEvent::Type);
+	zenith::EventAgent()->RemoveListener(modelReadyDelegate, ZModelReadyEvent::Type);
 
 	ZEventDelegate skyboxReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleSkyboxReady);
-	ZEngine::EventAgent()->RemoveListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
+	zenith::EventAgent()->RemoveListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
 }
 
 void ZScene::CleanUp() {
 	ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
-	ZEngine::EventAgent()->RemoveListener(quitDelegate, ZQuitEvent::Type);
+	zenith::EventAgent()->RemoveListener(quitDelegate, ZQuitEvent::Type);
 
 	UnregisterLoadDelegates();
 
@@ -278,7 +278,7 @@ void ZScene::CleanUp() {
 }
 
 void ZScene::HandleQuit(std::shared_ptr<ZEvent> event) {
-    ZEngine::Domain()->Strategy()->ReleaseCursor();
+    zenith::Domain()->Strategy()->ReleaseCursor();
 }
 
 void ZScene::HandleZOFReady(std::shared_ptr<ZEvent> event) {
@@ -293,7 +293,7 @@ void ZScene::HandleZOFReady(std::shared_ptr<ZEvent> event) {
 
 	if (pendingSceneDefinitions_.empty()) {
 		ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
-		ZEngine::EventAgent()->RemoveListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
+		zenith::EventAgent()->RemoveListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
 	}
 }
 
@@ -317,18 +317,18 @@ void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event
 	std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
 
 	for (auto it = pendingSceneObjects_.begin(); it != pendingSceneObjects_.end(); it++) {
-		if (!(*it).find(type) == 0) continue;
+		if ((*it).find(type) != 0) continue;
 
-		if (type == "ZTEX" && ZEngine::Graphics()->Textures().find(*it) != ZEngine::Graphics()->Textures().end()) {
+		if (type == "ZTEX" && zenith::Graphics()->Textures().find(*it) != zenith::Graphics()->Textures().end()) {
 			pendingSceneObjects_.erase(it);
 			break;
-		} else if (type == "ZSH" && ZEngine::Graphics()->Shaders().find(*it) != ZEngine::Graphics()->Shaders().end()) {
+		} else if (type == "ZSH" && zenith::Graphics()->Shaders().find(*it) != zenith::Graphics()->Shaders().end()) {
 			pendingSceneObjects_.erase(it);
 			break;
-		} else if (type == "ZMOD" && ZEngine::Graphics()->Models().find(*it) != ZEngine::Graphics()->Models().end()) {
+		} else if (type == "ZMOD" && zenith::Graphics()->Models().find(*it) != zenith::Graphics()->Models().end()) {
 			pendingSceneObjects_.erase(it);
 			break;
-		} else if (type == "ZSCR" && ZEngine::ScriptManager()->Scripts().find(*it) != ZEngine::ScriptManager()->Scripts().end()) {
+		} else if (type == "ZSCR" && zenith::ScriptManager()->Scripts().find(*it) != zenith::ScriptManager()->Scripts().end()) {
 			pendingSceneObjects_.erase(it);
 			break;
 		} else if (type == "ZSKY") {
@@ -343,6 +343,6 @@ void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event
 	if (pendingSceneObjects_.empty()) {
 		UnregisterLoadDelegates();
 		std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::make_shared<ZSceneReadyEvent>(shared_from_this());
-		ZEngine::EventAgent()->QueueEvent(sceneReadyEvent);
+		zenith::EventAgent()->QueueEvent(sceneReadyEvent);
 	}
 }

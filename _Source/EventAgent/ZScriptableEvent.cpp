@@ -47,7 +47,7 @@ bool ZScriptableEvent::SetEventData(sol::table data) {
 }
 
 void ZScriptableEvent::RegisterEventTypeWithScript(const std::string& key, ZEventType type) {
-  sol::state& lua = ZEngine::ScriptManager()->LuaState();
+  sol::state& lua = zenith::ScriptManager()->LuaState();
   sol::table eventTypeTable = lua["ZEventType"];
   if (!eventTypeTable.valid())
     eventTypeTable = lua.create_named_table("ZEventType");
