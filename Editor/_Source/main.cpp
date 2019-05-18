@@ -32,15 +32,17 @@
 #include "ZGame.hpp"
 #include "ZScene.hpp"
 #include "ZUI.hpp"
+#include "ZProcessRunner.hpp"
 
 
 // TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
     // Create a new game instance
     std::shared_ptr<ZGame> game = std::make_shared<ZGame>();
+	std::shared_ptr<ZEditor> editor = std::make_shared<ZEditor>();
     
     // Initialize the engine before anything else
-    zenith::Initialize(game, 1260, 800);
+    zenith::Initialize(game, 1920, 1080);
     
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
     // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
@@ -48,6 +50,10 @@ int main(int argc, const char * argv[]) {
     
     // Load our scene using description files
     zenith::LoadScene({ "Assets/basic_scene.zof" });
+
+	// Add our editor instance to the process runner so that it can
+	// receive update ticks
+	zenith::ProcessRunner()->AttachProcess(editor, ZPriority::Low);
     
     // Create the game and start the main game loop. Nothing beyond this point will execute
     // for the duration of the game.

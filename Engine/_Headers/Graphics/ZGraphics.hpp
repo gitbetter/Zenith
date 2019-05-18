@@ -72,6 +72,7 @@ public:
     glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
     ZTexture ShadowBuffer() { return shadowBuffer_; }
     ZTexture DepthBuffer() { return depthBuffer_; }
+	ZTexture SceneBuffer() { return colorBuffer_; }
     std::shared_ptr<ZShader> ShadowShader() { return shadowShader_; }
     std::shared_ptr<ZShader> DepthShader() { return depthShader_; }
     ZTextureMap& Textures() { return loadedTextures_; }

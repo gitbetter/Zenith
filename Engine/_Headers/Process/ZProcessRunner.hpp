@@ -46,14 +46,15 @@ public:
 
   ~ZProcessRunner();
 
-  unsigned int UpdateProcesses();
-  void AttachProcess(std::shared_ptr<ZProcess> process);
+  void UpdateTick();
+  void UpdateProcesses(ZPriority priority);
+  void AttachProcess(std::shared_ptr<ZProcess> process, ZPriority priority = ZPriority::FirstPriority);
   void AbortAllProcesses(bool immediate);
 
-  unsigned int ProcessCount() const { return processList_.size(); }
+  unsigned int ProcessCount(ZPriority priority) const { assert(priority >= ZPriority::FirstPriority && priority < ZPriority::LastPriority); return processList_[priority].size(); }
 
 protected:
 
-  ZProcessList processList_;
+  ZProcessList processList_[ZPriority::LastPriority];
 
 };

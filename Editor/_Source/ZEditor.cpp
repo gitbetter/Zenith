@@ -27,12 +27,54 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "ZEditor.hpp"
+#include "ZEngine.hpp"
+#include "ZGame.hpp"
+#include "ZDomain.hpp"
+#include "ZGraphics.hpp"
+#include "ZGraphicsStrategy.hpp"
 
 void ZEditor::Initialize() {
-    
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+	// TODO: Look in at this function to see how we may create custom styles
+	ImGui::StyleColorsDark();
+	
+	ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)zenith::Domain()->Strategy()->Context(), true);
+	ImGui_ImplOpenGL3_Init("#version 400");
+
+	ZProcess::Initialize();
 }
 
 void ZEditor::Update() {
-    
+	bool showDemo = true;
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::ShowDemoWindow(&showDemo);
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	ZProcess::Update();
+}
+
+void ZEditor::Abort() {
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
+	ZProcess::Abort();
 }

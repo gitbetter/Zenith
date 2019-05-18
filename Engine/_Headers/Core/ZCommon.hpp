@@ -112,6 +112,10 @@ typedef unsigned long ZEventType;
 
 #define BONES_PER_VERTEX 4
 
+enum ZPriority {
+	FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority
+};
+
 enum ZRenderPass {
     First, Sky = First, Static, Dynamic, Invisible, Last
 };

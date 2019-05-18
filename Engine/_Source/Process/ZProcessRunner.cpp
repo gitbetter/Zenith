@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
-    ZProcessRunner.cpp
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    Created by Adrian Sanchez on 23/03/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZProcessRunner.cpp
+
+	Created by Adrian Sanchez on 23/03/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -31,74 +31,81 @@
 #include "ZProcess.hpp"
 
 ZProcessRunner::~ZProcessRunner() {
-  AbortAllProcesses(true);
-  ClearProcesses();
+	AbortAllProcesses(true);
+	ClearProcesses();
 }
 
-unsigned int ZProcessRunner::UpdateProcesses() {
-  unsigned short int successCount = 0, failCount = 0;
+void ZProcessRunner::UpdateTick() {
+	for (int priority = ZPriority::FirstPriority; priority < ZPriority::LastPriority; priority++) {
+		UpdateProcesses((ZPriority)priority);
+	}
+}
 
-  ZProcessList::iterator it = processList_.begin();
-  while (it != processList_.end()) {
-    std::shared_ptr<ZProcess> process = *it;
+void ZProcessRunner::UpdateProcesses(ZPriority priority) {
+	unsigned short int successCount = 0, failCount = 0;
 
-    ZProcessList::iterator thisIt = it;
-    ++it;
+	ZProcessList::iterator it = processList_[priority].begin();
+	while (it != processList_[priority].end()) {
+		std::shared_ptr<ZProcess> process = *it;
 
-    if (process->State() == ZProcessState::Uninitialized) {
-      process->Initialize();
-    }
+		ZProcessList::iterator thisIt = it;
+		++it;
 
-    if (process->State() == ZProcessState::Running) {
-      process->Update();
-    }
+		if (process->State() == ZProcessState::Uninitialized) {
+			process->Initialize();
+		}
 
-    if (process->IsDead()) {
-      switch (process->State()) {
-        case ZProcessState::Finished: 
-        {
-          std::shared_ptr<ZProcess> child = process->RemoveChild();
-          if (child) {
-            child->SetState(ZProcessState::Uninitialized);       
-            if (child) AttachProcess(child);
-          }
-          else ++successCount;
-          break;
-        }
-        case ZProcessState::Failed:
-        case ZProcessState::Aborted:
-        { 
-          ++failCount; 
-          break; 
-        }
-        default: break;
-      }
+		if (process->State() == ZProcessState::Running) {
+			process->Update();
+		}
 
-      processList_.erase(thisIt);
-    }
-  }
+		if (process->IsDead()) {
+			switch (process->State()) {
+			case ZProcessState::Finished:
+			{
+				std::shared_ptr<ZProcess> child = process->RemoveChild();
+				if (child) {
+					child->SetState(ZProcessState::Uninitialized);
+					if (child) AttachProcess(child);
+				} else ++successCount;
+				break;
+			}
+			case ZProcessState::Failed:
+			case ZProcessState::Aborted:
+			{
+				++failCount;
+				break;
+			}
+			default: break;
+			}
 
-  return ((successCount << 16 | failCount));
+			processList_[priority].erase(thisIt);
+		}
+	}
 }
 
 void ZProcessRunner::ClearProcesses() {
-  processList_.clear();
+	for (int priority = ZPriority::FirstPriority; priority < ZPriority::LastPriority; priority++) {
+		processList_[priority].clear();
+	}
 }
 
-void ZProcessRunner::AttachProcess(std::shared_ptr<ZProcess> process) {
-  processList_.push_back(process);
+void ZProcessRunner::AttachProcess(std::shared_ptr<ZProcess> process, ZPriority priority) {
+	processList_[priority].push_back(process);
 }
 
 void ZProcessRunner::AbortAllProcesses(bool immediate) {
-  ZProcessList::iterator it = processList_.begin();
-  while (it != processList_.end()) {
-    ZProcessList::iterator temp = it;
-    ++it;
+	for (int priority = ZPriority::FirstPriority; priority < ZPriority::LastPriority; priority++) {
+		ZProcessList::iterator it = processList_[priority].begin();
+		while (it != processList_[priority].end()) {
+			ZProcessList::iterator temp = it;
+			++it;
 
-    std::shared_ptr<ZProcess> process = *temp;
-    if (process->IsAlive()) {
-      if (immediate) process->Abort();
-      processList_.erase(temp);
-    }
-  }
+			std::shared_ptr<ZProcess> process = *temp;
+			if (process->IsAlive()) {
+				if (immediate) process->Abort();
+				processList_[priority].erase(temp);
+			}
+		}
+	}
 }

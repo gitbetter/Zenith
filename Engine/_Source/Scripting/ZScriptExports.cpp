@@ -45,7 +45,7 @@ bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scr
 
 void ZInternalScriptExports::AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess) {
   if (scriptProcess) {
-    zenith::ProcessRunner()->AttachProcess(scriptProcess);
+    zenith::ProcessRunner()->AttachProcess(scriptProcess, ZPriority::Low);
   } else {
     _Z("Could not find 'process' object in script to attach", ZERROR);
   }

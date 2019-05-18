@@ -180,8 +180,6 @@ void ZScene::Render() {
     zenith::UI()->Draw();
     
     //zenith::Physics()->DebugDraw();
-    
-    zenith::Graphics()->Strategy()->SwapBuffers();
 }
 
 void ZScene::UpdateViewProjectionMatrices() {

@@ -41,6 +41,7 @@ public:
     
     void Initialize() override;
     void Update() override;
+	void Abort() override;
     void CleanUp() override { };
     
 };

@@ -30,6 +30,8 @@
 #include "ZGame.hpp"
 #include "ZEngine.hpp"
 #include "ZDomain.hpp"
+#include "ZGraphics.hpp"
+#include "ZGraphicsStrategy.hpp"
 #include "ZProcessRunner.hpp"
 
 #include <chrono>
@@ -47,7 +49,9 @@ void ZGame::RunGameLoop() {
         zenith::SetDeltaTime(currentTime - previousTime);
         previousTime = currentTime;
         
-        zenith::ProcessRunner()->UpdateProcesses();
+        zenith::ProcessRunner()->UpdateTick();
+
+		zenith::Graphics()->Strategy()->SwapBuffers();
         
         zenith::Domain()->Strategy()->PollEvents();
         
