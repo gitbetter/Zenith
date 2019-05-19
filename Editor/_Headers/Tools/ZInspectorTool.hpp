@@ -41,6 +41,8 @@ public:
 
 	ZInspectorTool() : ZEditorTool("Inspector") {}
 
+	void Begin() override;
 	void Update() override;
+	void End() override;
 
 };

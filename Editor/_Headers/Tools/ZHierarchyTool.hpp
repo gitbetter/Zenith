@@ -41,6 +41,8 @@ public:
 
 	ZHierarchyTool() : ZEditorTool("Hierarchy") { }
 
+	void Begin() override;
 	void Update() override;
+	void End() override;
 	
 };

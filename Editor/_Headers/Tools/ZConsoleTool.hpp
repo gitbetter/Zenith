@@ -41,6 +41,8 @@ public:
 
 	ZConsoleTool() : ZEditorTool("Console") {}
 
+	void Begin() override;
 	void Update() override;
+	void End() override;
 
 };

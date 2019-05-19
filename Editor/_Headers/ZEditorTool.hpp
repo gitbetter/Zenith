@@ -39,13 +39,16 @@ class ZEditorTool {
 
 public:
 
-	ZEditorTool(std::string name) : name_(name) { }
+	ZEditorTool(std::string name) : name_(name), visible_(true) { }
 	virtual ~ZEditorTool() { }
 
+	virtual void Begin() = 0;
 	virtual void Update() = 0;
+	virtual void End() = 0;
 	
 protected:
 
 	std::string name_;
+	bool visible_;
 
 };

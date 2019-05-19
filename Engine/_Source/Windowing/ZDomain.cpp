@@ -49,6 +49,10 @@ void ZDomain::ResizeWindow(int width, int height) {
   windowWidth_ = width; windowHeight_ = height;
 }
 
+void ZDomain::SetResolution(unsigned int x, unsigned int y) {
+	resolutionX_ = x; resolutionY_ = y;
+}
+
 void ZDomain::CleanUp() {
   if (domainStrategy_ != nullptr) {
     domainStrategy_->CleanUp();

@@ -34,8 +34,14 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-void ZProjectTool::Update() {
+void ZProjectTool::Begin() {
 	ImGui::Begin(name_.c_str());
+}
 
+void ZProjectTool::Update() {
+
+}
+
+void ZProjectTool::End() {
 	ImGui::End();
 }

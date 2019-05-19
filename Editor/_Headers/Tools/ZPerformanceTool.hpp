@@ -41,6 +41,8 @@ public:
 
 	ZPerformanceTool() : ZEditorTool("Performance") {}
 
+	void Begin() override;
 	void Update() override;
+	void End() override;
 
 };

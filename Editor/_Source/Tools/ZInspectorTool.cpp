@@ -34,8 +34,14 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-void ZInspectorTool::Update() {
+void ZInspectorTool::Begin() {
 	ImGui::Begin(name_.c_str());
+}
 
+void ZInspectorTool::Update() {
+
+}
+
+void ZInspectorTool::End() {
 	ImGui::End();
 }

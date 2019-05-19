@@ -34,8 +34,14 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-void ZHierarchyTool::Update() {
+void ZHierarchyTool::Begin() {
 	ImGui::Begin(name_.c_str());
+}
 
+void ZHierarchyTool::Update() {
+
+}
+
+void ZHierarchyTool::End() {
 	ImGui::End();
 }

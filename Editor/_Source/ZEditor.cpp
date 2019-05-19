@@ -52,7 +52,7 @@ void ZEditor::Initialize() {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	ImGui::StyleColorsDark();
@@ -82,7 +82,9 @@ void ZEditor::Update() {
 	BeginFrame();
 	
 	for (std::shared_ptr<ZEditorTool> tool : tools_) {
+		tool->Begin();
 		tool->Update();
+		tool->End();
 	}
 
 	EndFrame();
@@ -151,7 +153,7 @@ void ZEditor::DockspaceBegin() {
 		ImGuiID dock_main_id = dockspaceID;
 		ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.2f, nullptr, &dock_main_id);
 		ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.2f, nullptr, &dock_main_id);
-		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.3f, nullptr, &dock_main_id);
+		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.2f, nullptr, &dock_main_id);
 		const ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
 
 		ImGui::DockBuilderDockWindow("Hierarchy", dock_right_id);

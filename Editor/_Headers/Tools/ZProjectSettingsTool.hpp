@@ -41,6 +41,8 @@ public:
 
 	ZProjectSettingsTool() : ZEditorTool("Project Settings") {}
 
+	void Begin() override;
 	void Update() override;
+	void End() override;
 
 };

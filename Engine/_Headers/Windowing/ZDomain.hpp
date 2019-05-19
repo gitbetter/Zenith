@@ -58,6 +58,7 @@ public:
 	void* MainContext() { return mainContext_; }
     
     void ResizeWindow(int width, int height);
+	void SetResolution(unsigned int x, unsigned int y);
     
     void CleanUp();
     

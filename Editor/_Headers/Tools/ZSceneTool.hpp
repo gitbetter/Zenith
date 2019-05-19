@@ -37,10 +37,16 @@
 // Definitions
 class ZSceneTool : public ZEditorTool {
 
+private:
+
+	void UpdateViewportResolution(unsigned int& outWidth, unsigned int& outHeight);
+
 public:
 
 	ZSceneTool() : ZEditorTool("Scene") {}
 
+	void Begin() override;
 	void Update() override;
+	void End() override;
 
 };

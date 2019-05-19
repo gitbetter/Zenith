@@ -41,6 +41,8 @@ public:
 
 	ZPreviewTool() : ZEditorTool("Preview") {}
 
+	void Begin() override;
 	void Update() override;
+	void End() override;
 
 };

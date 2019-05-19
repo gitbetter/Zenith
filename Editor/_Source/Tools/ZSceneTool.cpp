@@ -30,17 +30,38 @@
 #include "ZSceneTool.hpp"
 #include "ZEngine.hpp"
 #include "ZGraphics.hpp"
+#include "ZDomain.hpp"
 
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-void ZSceneTool::Update() {
+void ZSceneTool::Begin() {
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin(name_.c_str());
+	ImGui::Begin(name_.c_str(), &visible_, flags);
+}
+
+void ZSceneTool::Update() {
 	ImGui::PopStyleVar();
-	ImVec2 windowSize = ImGui::GetWindowSize();
-	ImGui::Image((ImTextureID)zenith::Graphics()->SceneBuffer().id, windowSize, ImVec2(0, 1), ImVec2(1, 0));
+	unsigned int width, height;
+	UpdateViewportResolution(width, height);
+	ImGui::Image((ImTextureID)zenith::Graphics()->SceneBuffer().id, ImVec2(width, height), ImVec2(0, 1), ImVec2(1, 0));
+}
+
+void ZSceneTool::End() {
 	ImGui::End();
+}
+
+void ZSceneTool::UpdateViewportResolution(unsigned int& outWidth, unsigned int& outHeight) {
+	unsigned int width = ImGui::GetWindowSize().x;
+	unsigned int height = (float)width / zenith::Domain()->Aspect();
+
+	width -= (width % 2 != 0) ? 1 : 0;
+	height -= (height % 2 != 0) ? 1 : 0;
+
+	ImGui::SetCursorPosY((ImGui::GetWindowSize().y - height) * 0.5f);
+
+	outWidth = width; outHeight = height;
 }
