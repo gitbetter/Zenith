@@ -3,12 +3,12 @@
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZEditor.hpp
+    ZEditorTool.cpp
  
-    Created by Adrian Sanchez on 17/05/19.
+    Created by Adrian Sanchez on 18/05/19.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -30,33 +30,22 @@
 #pragma once
 
 // Includes
-#include "ZProcess.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
-class ZEditorTool;
 
 // Definitions
-class ZEditor : public ZProcess {
+class ZEditorTool {
 
-private:
-
-	bool editorOpen_;
-	std::vector<std::shared_ptr<ZEditorTool>> tools_;
-	
-	void SetupInitialTools();
-    
 public:
-    
-    void Initialize() override;
-    void Update() override;
-	void Abort() override;
-    void CleanUp() override { };
-    
+
+	ZEditorTool(std::string name) : name_(name) { }
+	virtual ~ZEditorTool() { }
+
+	virtual void Update() = 0;
+	
 protected:
 
-	void BeginFrame();
-	void DockspaceBegin();
-	void DockspaceEnd();
-	void EndFrame();
+	std::string name_;
 
 };

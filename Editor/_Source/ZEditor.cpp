@@ -31,6 +31,7 @@
 #include <GLFW/glfw3.h>
 
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
@@ -41,32 +42,50 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
+#include "ZSceneTool.hpp"
+#include "ZProjectTool.hpp"
+#include "ZConsoleTool.hpp"
+#include "ZInspectorTool.hpp"
+#include "ZHierarchyTool.hpp"
+
 void ZEditor::Initialize() {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-	// TODO: Look in at this function to see how we may create custom styles
 	ImGui::StyleColorsDark();
 	
 	ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)zenith::Domain()->Strategy()->Context(), true);
 	ImGui_ImplOpenGL3_Init("#version 400");
 
+	SetupInitialTools();
+
 	ZProcess::Initialize();
 }
 
+void ZEditor::SetupInitialTools() {
+	std::shared_ptr<ZSceneTool> sceneTool = std::make_shared<ZSceneTool>();
+	tools_.push_back(sceneTool);
+	std::shared_ptr<ZProjectTool> projectTool = std::make_shared<ZProjectTool>();
+	tools_.push_back(projectTool);
+	std::shared_ptr<ZConsoleTool> consoleTool = std::make_shared<ZConsoleTool>();
+	tools_.push_back(consoleTool);
+	std::shared_ptr<ZInspectorTool> inspectorTool = std::make_shared<ZInspectorTool>();
+	tools_.push_back(inspectorTool);
+	std::shared_ptr<ZHierarchyTool> hierarchyTool = std::make_shared<ZHierarchyTool>();
+	tools_.push_back(hierarchyTool);
+}
+
 void ZEditor::Update() {
-	bool showDemo = true;
+	BeginFrame();
+	
+	for (std::shared_ptr<ZEditorTool> tool : tools_) {
+		tool->Update();
+	}
 
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-
-	ImGui::ShowDemoWindow(&showDemo);
-
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	EndFrame();
 
 	ZProcess::Update();
 }
@@ -77,4 +96,74 @@ void ZEditor::Abort() {
 	ImGui::DestroyContext();
 
 	ZProcess::Abort();
+}
+
+void ZEditor::BeginFrame() {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	DockspaceBegin();
+}
+
+void ZEditor::EndFrame() {
+	DockspaceEnd();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+		GLFWwindow* backup_current_context = static_cast<GLFWwindow*>(zenith::Domain()->Strategy()->Context());
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		zenith::Domain()->Strategy()->SetContext(backup_current_context);
+	}
+}
+
+void ZEditor::DockspaceBegin() {
+	ImGuiWindowFlags windowFlags =
+		ImGuiWindowFlags_MenuBar |
+		ImGuiWindowFlags_NoDocking |
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("Zenith Editor", &editorOpen_, windowFlags);
+
+	ImGui::PopStyleVar(3);
+
+	ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
+	ImGuiID dockspaceID = ImGui::GetID(ID().c_str());
+	if (!ImGui::DockBuilderGetNode(dockspaceID)) {
+		ImGui::DockBuilderRemoveNode(dockspaceID);
+		ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_None);
+
+		ImGuiID dock_main_id = dockspaceID;
+		ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.2f, nullptr, &dock_main_id);
+		ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.2f, nullptr, &dock_main_id);
+		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.3f, nullptr, &dock_main_id);
+		const ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
+
+		ImGui::DockBuilderDockWindow("Hierarchy", dock_right_id);
+		ImGui::DockBuilderDockWindow("Inspector", dock_left_id);
+		ImGui::DockBuilderDockWindow("Console", dock_down_id);
+		ImGui::DockBuilderDockWindow("Project", dock_down_right_id);
+		ImGui::DockBuilderDockWindow("Scene", dock_main_id);
+		ImGui::DockBuilderFinish(dock_main_id);
+	}
+	ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspaceFlags);
+}
+
+void ZEditor::DockspaceEnd() {
+	ImGui::End();
 }

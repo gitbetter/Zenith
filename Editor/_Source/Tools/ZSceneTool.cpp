@@ -3,12 +3,12 @@
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZEditor.hpp
+    ZSceneTool.cpp
  
-    Created by Adrian Sanchez on 17/05/19.
+    Created by Adrian Sanchez on 18/05/19.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -27,36 +27,20 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "ZSceneTool.hpp"
+#include "ZEngine.hpp"
+#include "ZGraphics.hpp"
 
-// Includes
-#include "ZProcess.hpp"
+#include "imgui.h"
+#include "imgui_internal.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
-// Forward Declarations
-class ZEditorTool;
-
-// Definitions
-class ZEditor : public ZProcess {
-
-private:
-
-	bool editorOpen_;
-	std::vector<std::shared_ptr<ZEditorTool>> tools_;
-	
-	void SetupInitialTools();
-    
-public:
-    
-    void Initialize() override;
-    void Update() override;
-	void Abort() override;
-    void CleanUp() override { };
-    
-protected:
-
-	void BeginFrame();
-	void DockspaceBegin();
-	void DockspaceEnd();
-	void EndFrame();
-
-};
+void ZSceneTool::Update() {
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin(name_.c_str());
+	ImGui::PopStyleVar();
+	ImVec2 windowSize = ImGui::GetWindowSize();
+	ImGui::Image((ImTextureID)zenith::Graphics()->SceneBuffer().id, windowSize, ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::End();
+}

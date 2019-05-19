@@ -173,7 +173,9 @@ void ZScene::Render() {
 	zenith::Graphics()->FinishRenderPass();
 
 	// Render pass #4: Post-Processing
-	zenith::Graphics()->PostProcessingPass(this);
+	zenith::Graphics()->SetupPostProcessingPass();
+	zenith::Graphics()->PostProcessing(this);
+	zenith::Graphics()->FinishRenderPass();
     
 	// TODO: Draw UI as part of the main rendering loop with
 	// the rest of the game objects
