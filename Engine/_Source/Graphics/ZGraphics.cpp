@@ -42,6 +42,7 @@
 #include "ZMesh2D.hpp"
 #include "ZScene.hpp"
 #include "ZLight.hpp"
+#include "ZUI.hpp"
 
 void ZGraphics::Initialize() {
 	// TODO: Switch the strategies here based on implementation details
@@ -161,6 +162,8 @@ void ZGraphics::PostProcessing(ZScene* scene) {
 	renderQuad_->Render(postShader_.get());
 
 	graphicsStrategy_->EnableDepthTesting();
+
+	zenith::UI()->Draw();
 }
 
 void ZGraphics::FinishRenderPass() {

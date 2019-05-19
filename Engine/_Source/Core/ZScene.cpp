@@ -177,10 +177,6 @@ void ZScene::Render() {
 	zenith::Graphics()->PostProcessing(this);
 	zenith::Graphics()->FinishRenderPass();
     
-	// TODO: Draw UI as part of the main rendering loop with
-	// the rest of the game objects
-    zenith::UI()->Draw();
-    
     //zenith::Physics()->DebugDraw();
 }
 
