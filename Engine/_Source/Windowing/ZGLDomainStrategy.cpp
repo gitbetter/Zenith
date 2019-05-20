@@ -66,7 +66,10 @@ void* ZGLDomainStrategy::CreateWindow(int width, int height, bool visible, void*
 		glewInit();
 
 		glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
+
+#ifndef EDITOR
 		CaptureCursor();
+#endif
 	}
 	return window;
 }

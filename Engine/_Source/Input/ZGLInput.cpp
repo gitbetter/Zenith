@@ -80,7 +80,7 @@ void ZGLInput::Update() {
   }
   if (pitch != lastPitch_) {
     if (mousePress_[GLFW_MOUSE_BUTTON_LEFT]) {
-      std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(0.f, lastPitch_ - pitch, 0.f));
+      std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(0.f, lastPitch_ - pitch, 0.f)); 
       zenith::EventAgent()->TriggerEvent(dragEvent);
     }
     std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(0.f, lastPitch_ - pitch));
