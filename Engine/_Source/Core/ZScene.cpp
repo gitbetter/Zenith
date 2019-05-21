@@ -40,6 +40,8 @@
 #include "ZPhysics.hpp"
 #include "ZUI.hpp"
 #include "ZUICursor.hpp"
+#include "ZUIText.hpp"
+#include "ZUIElement.hpp"
 #include "ZEventAgent.hpp"
 #include "ZQuitEvent.hpp"
 #include "ZSceneRoot.hpp"
@@ -115,9 +117,9 @@ void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
 
 	for (ZUIElementMap::iterator it = zofResults.uiElements.begin(); it != zofResults.uiElements.end(); it++) {
 		if (std::dynamic_pointer_cast<ZUICursor>(it->second))
-			zenith::UI()->SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
+			SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
 		else
-			zenith::UI()->AddElement(it->second);
+			AddUIElement(it->second);
 	}
 }
 
@@ -180,6 +182,15 @@ void ZScene::Render() {
     //zenith::Physics()->DebugDraw();
 }
 
+void ZScene::RenderUI() {
+    for (ZUIElementMap::iterator it = uiElements_.begin(); it != uiElements_.end(); it++) {
+        // Only render the top level elements that are not hidden. The children will
+        // be rendered within the respective parent elements.
+        if (!it->second->Hidden() && !it->second->Parent()) it->second->Render();
+    }
+    if (cursor_ != nullptr) cursor_->Render();
+}
+
 void ZScene::UpdateViewProjectionMatrices() {
 	previousViewProjection_ = viewProjection_;
 	if (activeCamera_) {
@@ -216,6 +227,21 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
     }
 }
 
+void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element) {
+    if (element != nullptr) {
+        element->scene_ = this;
+        if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(zenith::UI()->TextShader());
+        else element->SetShader(zenith::UI()->UIShader());
+        uiElements_[element->ID()] = element;
+    }
+}
+
+void ZScene::AddUIElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements) {
+    for (std::shared_ptr<ZUIElement> element : elements) {
+        AddUIElement(element);
+    }
+}
+
 glm::mat4 ZScene::TopMatrix() {
     glm::mat4 M;
     sceneMutexes_.matrixStack.lock();
@@ -235,6 +261,11 @@ void ZScene::PopMatrix() {
     sceneMutexes_.matrixStack.lock();
 	if (!matrixStack_.empty()) matrixStack_.pop_back();
     sceneMutexes_.matrixStack.unlock();
+}
+
+void ZScene::SetCursor(std::shared_ptr<ZUICursor> cursor) {
+    cursor_ = cursor;
+    cursor_->SetShader(zenith::UI()->UIShader());
 }
 
 void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
@@ -263,15 +294,6 @@ void ZScene::UnregisterLoadDelegates() {
 
 	ZEventDelegate skyboxReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleSkyboxReady);
 	zenith::EventAgent()->RemoveListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
-}
-
-void ZScene::CleanUp() {
-	ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
-	zenith::EventAgent()->RemoveListener(quitDelegate, ZQuitEvent::Type);
-
-	UnregisterLoadDelegates();
-
-	skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;
 }
 
 void ZScene::HandleQuit(std::shared_ptr<ZEvent> event) {
@@ -342,4 +364,27 @@ void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event
 		std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::make_shared<ZSceneReadyEvent>(shared_from_this());
 		zenith::EventAgent()->QueueEvent(sceneReadyEvent);
 	}
+}
+
+void ZScene::CleanUp() {
+    ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
+    zenith::EventAgent()->RemoveListener(quitDelegate, ZQuitEvent::Type);
+    
+    UnregisterLoadDelegates();
+    
+    for (ZGameObjectMap::iterator it = gameObjects_.begin(); it != gameObjects_.end(); it++) {
+        it->second->CleanUp();
+    }
+    gameObjects_.clear();
+    
+    if (cursor_ != nullptr) {
+        cursor_->CleanUp(); cursor_.reset();
+    }
+    
+    for (ZUIElementMap::iterator it = uiElements_.begin(); it != uiElements_.end(); it++) {
+        it->second->CleanUp();
+    }
+    uiElements_.clear();
+    
+    skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;
 }

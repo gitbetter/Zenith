@@ -53,48 +53,11 @@ void ZUI::Initialize() {
   }
 }
 
-void ZUI::Draw() {
-  for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
-    // Only render the top level elements that are not hidden. The children will
-    // be rendered within the respective parent elements.
-    if (!it->second->Hidden() && !it->second->Parent()) it->second->Render();
-  }
-  if (cursor_ != nullptr) cursor_->Render();
-}
-
-void ZUI::SetCursor(std::shared_ptr<ZUICursor> cursor) {
-  cursor_ = cursor;
-  cursor_->SetShader(uiShader_);
-}
-
-void ZUI::AddElement(std::shared_ptr<ZUIElement> element) {
-  if (element != nullptr) {
-    if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(textShader_);
-    else element->SetShader(uiShader_);
-    elements_[element->ID()] = element;
-  }
-}
-
-void ZUI::AddElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements) {
-  for (std::shared_ptr<ZUIElement> element : elements) {
-    AddElement(element);
-  }
-}
-
 void ZUI::RegisterFont(std::string fontPath) {
   if (textStrategy_ != nullptr) textStrategy_->LoadFont(fontPath, 64);
 }
 
 void ZUI::CleanUp() {
-  if (cursor_ != nullptr) {
-    cursor_->CleanUp(); cursor_.reset();
-  }
-
-  for (ZUIElementMap::iterator it = elements_.begin(); it != elements_.end(); it++) {
-    it->second->CleanUp();
-  }
-  elements_.clear();
-
   if (textShader_ != nullptr) {
     textShader_.reset();
   }

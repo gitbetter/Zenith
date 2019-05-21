@@ -36,9 +36,13 @@
 // Forward Declarations
 class ZLight;
 class ZSkybox;
+class ZUIElement;
+class ZUICursor;
 
 // Class and Data Structure Definitions
 class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene> {
+    
+    friend class ZGraphics;
     
 private:
 
@@ -59,10 +63,13 @@ private:
 	std::list<glm::mat4> matrixStack_;
     ZLightMap gameLights_;
     ZGameObjectMap gameObjects_;
+    ZUIElementMap uiElements_;
+    std::shared_ptr<ZUICursor> cursor_;
 	glm::mat4 viewProjection_, previousViewProjection_;
 	std::string name_;
    
     void Render();
+    void RenderUI();
 	void LoadSceneData(std::shared_ptr<ZOFTree> objectTree);
     void ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree);
 	void UpdateViewProjectionMatrices();
@@ -90,6 +97,8 @@ public:
     std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
     std::shared_ptr<ZGameObject> ActiveCamera() { return activeCamera_; }
     ZGameObjectMap& GameObjects() { return gameObjects_; }
+    ZUIElementMap& UIElements() { return uiElements_; }
+    std::shared_ptr<ZUICursor> Cursor() { return cursor_; }
     ZLightMap& GameLights() { return gameLights_; }
 	std::string& Name() { return name_; }
 	glm::mat4& ViewProjection() { return viewProjection_; }
@@ -97,11 +106,15 @@ public:
     
     void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
     void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
+    
+    void AddUIElement(std::shared_ptr<ZUIElement> element);
+    void AddUIElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements);
 
 	glm::mat4 TopMatrix();
 	void PushMatrix(glm::mat4 matrix);
 	void PopMatrix();
     
+    void SetCursor(std::shared_ptr<ZUICursor> cursor);
     void SetActiveCamera(std::shared_ptr<ZGameObject> gameObject);
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
     void SetDefaultSkybox();
@@ -109,5 +122,4 @@ public:
 	void CleanUp() override;
     
     void HandleQuit(std::shared_ptr<ZEvent> event);
-
 };

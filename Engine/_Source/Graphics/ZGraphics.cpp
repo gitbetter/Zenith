@@ -163,7 +163,7 @@ void ZGraphics::PostProcessing(ZScene* scene) {
 
 	graphicsStrategy_->EnableDepthTesting();
 
-	zenith::UI()->Draw();
+    scene->RenderUI();
 }
 
 void ZGraphics::FinishRenderPass() {

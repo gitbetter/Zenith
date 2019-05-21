@@ -117,7 +117,7 @@ enum ZPriority {
 };
 
 enum ZRenderPass {
-    First, Sky = First, Static, Dynamic, Invisible, Last
+    First, Sky = First, Static, Dynamic, Invisible, UI, Last
 };
 
 enum ZRenderOp {

@@ -1,15 +1,15 @@
 /*
  
- ______     ______     __   __     __     ______   __  __
+  ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
- /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
- \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
- ZUIElement.hpp
+    ZUIElement.hpp
  
- Created by Adrian Sanchez on 06/02/2019.
- Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 06/02/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
  
@@ -34,6 +34,7 @@
 #include "ZProcess.hpp"
 
 // Forward Declarations
+class ZScene;
 class ZMesh2D;
 class ZShader;
 
@@ -45,6 +46,8 @@ struct ZUIBorder {
 };
 
 class ZUIElement : public ZProcess {
+    
+    friend class ZScene;
     
 private:
     
@@ -131,5 +134,6 @@ protected:
     std::shared_ptr<ZShader> shader_;
     ZTexture texture_;
     ZUIBorder border_;
+    ZScene* scene_;
     
 };
