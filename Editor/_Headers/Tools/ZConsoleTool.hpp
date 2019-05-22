@@ -31,15 +31,23 @@
 
 // Includes
 #include "ZEditorTool.hpp"
+#include "ZLogger.hpp"
 
 // Forward Declarations
 
 // Definitions
 class ZConsoleTool : public ZEditorTool {
+    
+private:
+    
+    bool autoScroll_, scrollToBottom_;
+    ImGuiTextFilter filter_;
+    
+    void StyledLogEntry(ZLogEntry entry);
 
 public:
 
-	ZConsoleTool() : ZEditorTool("Console") {}
+	ZConsoleTool() : ZEditorTool("Console"), autoScroll_(true), scrollToBottom_(false) {}
 
 	void Begin() override;
 	void Update() override;

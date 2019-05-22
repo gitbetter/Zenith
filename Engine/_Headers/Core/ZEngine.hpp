@@ -124,7 +124,6 @@ namespace zenith {
 	extern std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
     
     extern void Log(std::string text, unsigned int severity);
-    extern void Log(const char* text, unsigned int severity);
     
     extern void CleanUp();
     

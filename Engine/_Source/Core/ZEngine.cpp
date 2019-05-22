@@ -306,11 +306,9 @@ namespace zenith {
     }
     
     void Log(std::string text, unsigned int severity) {
-        Log(text.c_str(), severity);
-    }
-    
-    void Log(const char* text, unsigned int severity) {
-        ZLogEntry entry(text, severity);
+        ZLogEntry entry;
+        entry.severity = severity;
+        entry.text = text;
         logger_->AddEntry(entry);
         
 #ifdef DEV_BUILD

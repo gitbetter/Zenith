@@ -29,11 +29,6 @@
 
 #include "ZHierarchyTool.hpp"
 
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 void ZHierarchyTool::Begin() {
 	ImGui::Begin(name_.c_str());
 }

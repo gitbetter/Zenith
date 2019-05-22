@@ -29,17 +29,62 @@
 
 #include "ZConsoleTool.hpp"
 
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 void ZConsoleTool::Begin() {
 	ImGui::Begin(name_.c_str());
 }
 
 void ZConsoleTool::Update() {
+    if (ImGui::BeginPopup("Options")) {
+        ImGui::Checkbox("Auto-Scroll", &autoScroll_);
+        ImGui::EndPopup();
+    }
+    
+    if (ImGui::Button("Options"))
+        ImGui::OpenPopup("Options");
+    ImGui::SameLine();
+    bool clear = ImGui::Button("Clear");
+    ImGui::SameLine();
+    bool copy = ImGui::Button("Copy");
+    ImGui::SameLine();
+    filter_.Draw("Filter", -100.f);
+    
+    ImGui::Separator();
+    ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+    
+    if (clear) zenith::Logger()->Clear();
+    if (copy) ImGui::LogToClipboard();
+    
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+    if (filter_.IsActive()) {
+        for (ZLogEntry entry : zenith::Logger()->Buffer()) {
+            if (filter_.PassFilter(entry.text.c_str()))
+                StyledLogEntry(entry);
+        }
+    } else {
+        for (ZLogEntry entry : zenith::Logger()->Buffer())
+            StyledLogEntry(entry);
+    }
+    ImGui::PopStyleVar();
+    
+    if (autoScroll_)
+        ImGui::SetScrollHereY(1.f);
+    
+    ImGui::EndChild();
+}
 
+void ZConsoleTool::StyledLogEntry(ZLogEntry entry) {
+    switch (entry.severity) {
+        case ZINFO:
+            ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", entry.text.c_str());
+            break;
+        case ZWARNING:
+            ImGui::TextColored(ImVec4(1.0, 0.85, 0.137, 1), "%s", entry.text.c_str());
+            break;
+        case ZERROR:
+            ImGui::TextColored(ImVec4(0.655, 0.161, 0.18, 1), "%s", entry.text.c_str());
+            break;
+        default: break;
+    }
 }
 
 void ZConsoleTool::End() {

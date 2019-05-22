@@ -38,14 +38,10 @@
 // Class and Data Structure Definitions
 struct ZLogEntry {
     unsigned int severity;
-    const char* text;
+    std::string text;
     
-    ZLogEntry(const char* text, unsigned int severity) {
-        this->text = text;
-        this->severity = severity;
-    }
-    
-    ZLogEntry(std::string text, unsigned int severity) : ZLogEntry(text.c_str(), severity) { }
+    ZLogEntry() : severity(0), text("") { }
+    ZLogEntry(std::string text, unsigned int severity) : severity(severity), text(text) { }
 };
 
 class ZLogger {
