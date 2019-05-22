@@ -27,12 +27,10 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZEngine.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZMesh3D.hpp"
 #include "ZModelImporter.hpp"
-#include "ZCommon.hpp"
 #include "ZAnimation.hpp"
 #include "ZSkeleton.hpp"
 #include "ZResourceCache.hpp"

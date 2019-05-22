@@ -27,13 +27,11 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZEngine.hpp"
 #include "ZUIElement.hpp"
 #include "ZShader.hpp"
 #include "ZUIText.hpp"
 #include "ZDomain.hpp"
 #include "ZUI.hpp"
-#include "ZCommon.hpp"
 #include "ZEventAgent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include <glm/gtc/matrix_transform.hpp>

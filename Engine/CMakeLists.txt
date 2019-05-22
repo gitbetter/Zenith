@@ -5,6 +5,7 @@ set(ENGINE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/Engine/_Source)
 
 set(ENGINE_SOURCES
 ${ENGINE_HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
+${ENGINE_SOURCE_DIR}/Utility/ZLogger.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZIDSequence.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZModelImporter.cpp
@@ -208,6 +209,7 @@ ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIImage.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIText.hpp
+${ENGINE_HEADERS_DIR}/Utility/ZLogger.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZIDSequence.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFParser.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFTree.hpp

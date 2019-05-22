@@ -28,7 +28,6 @@
 */
 
 #include "ZScriptableProcess.hpp"
-#include "ZEngine.hpp"
 #include "ZLuaScriptManager.hpp"
 
 const std::string ZScriptableProcess::SCRIPT_PROCESS_NAME = "ZScriptableProcess";

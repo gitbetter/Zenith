@@ -29,7 +29,6 @@
 
 #include "ZScriptExports.hpp"
 #include "ZResource.hpp"
-#include "ZEngine.hpp"
 #include "ZLuaScriptManager.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZScriptableProcess.hpp"

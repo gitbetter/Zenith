@@ -28,11 +28,8 @@
 */
 
 #include "ZUICheckBox.hpp"
-#include "ZEngine.hpp"
 #include "ZEventAgent.hpp"
 #include "ZShader.hpp"
-#include "ZEngine.hpp"
-#include "ZCommon.hpp"
 #include "ZUIImage.hpp"
 #include "ZUI.hpp"
 #include "ZObjectSelectedEvent.hpp"

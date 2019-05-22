@@ -28,8 +28,6 @@
 */
 
 #include "ZShader.hpp"
-#include "ZEngine.hpp"
-#include "ZCommon.hpp"
 #include "ZMaterial.hpp"
 #include "ZResource.hpp"
 #include "ZResourceCache.hpp"

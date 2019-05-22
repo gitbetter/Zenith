@@ -28,7 +28,6 @@
  */
 
 #include "ZPhysicsComponent.hpp"
-#include "ZEngine.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsFactory.hpp"
 #include "ZPhysics.hpp"

@@ -30,13 +30,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "ZEngine.hpp"
 #include "ZGLGraphicsStrategy.hpp"
 #include "ZDomain.hpp"
 #include "ZDomainStrategy.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
-#include "ZCommon.hpp"
 #include "ZResourceCache.hpp"
 #include "ZResource.hpp"
 #include "ZImageImporter.hpp"

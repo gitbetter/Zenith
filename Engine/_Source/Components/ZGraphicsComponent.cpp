@@ -29,7 +29,6 @@
 
 #include "ZGraphicsComponent.hpp"
 #include "ZGraphicsFactory.hpp"
-#include "ZEngine.hpp"
 #include "ZDomain.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZModel.hpp"

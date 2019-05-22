@@ -27,7 +27,6 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZEngine.hpp"
 #include "ZGLInput.hpp"
 #include "ZEventAgent.hpp"
 #include "ZObjectLookEvent.hpp"

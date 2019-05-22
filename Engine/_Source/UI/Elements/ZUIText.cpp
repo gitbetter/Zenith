@@ -32,7 +32,6 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZTextStrategy.hpp"
-#include "ZEngine.hpp"
 #include "ZShader.hpp"
 #include "ZDomain.hpp"
 

@@ -9,7 +9,7 @@
 		ZFrustum.hpp
 
 		Created by Adrian Sanchez on 18/04/2019.
-		Copyright © 2019 Pervasive Sense. All rights reserved.
+		Copyright ï¿½ 2019 Pervasive Sense. All rights reserved.
 
 	This file is part of Zenith.
 
@@ -30,7 +30,6 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
 #include "ZPlane.hpp"
 #include "ZAABBox.hpp"
 

@@ -30,7 +30,6 @@
 #include "ZScene.hpp"
 #include "ZGame.hpp"
 #include "ZLight.hpp"
-#include "ZEngine.hpp"
 #include "ZLuaScriptManager.hpp"
 #include "ZGraphics.hpp"
 #include "ZGameObject.hpp"

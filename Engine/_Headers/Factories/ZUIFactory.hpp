@@ -30,7 +30,6 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
 #include "ZUIElement.hpp"
 
 // Forward Declarations

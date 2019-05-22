@@ -29,9 +29,7 @@
 
 #include "ZMesh3D.hpp"
 #include "ZModel.hpp"
-#include "ZEngine.hpp"
 #include "ZShader.hpp"
-#include "ZCommon.hpp"
 #include "ZSkeleton.hpp"
 
 ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle)

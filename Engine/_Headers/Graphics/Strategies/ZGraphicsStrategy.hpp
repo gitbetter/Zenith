@@ -30,7 +30,6 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
 #include "ZMaterial.hpp"
 #include "stb_image.hpp"
 

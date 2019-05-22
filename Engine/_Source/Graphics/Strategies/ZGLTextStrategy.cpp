@@ -31,7 +31,6 @@
 #include <GLFW/glfw3.h>
 
 #include "ZGLTextStrategy.hpp"
-#include "ZEngine.hpp"
 #include "ZResource.hpp"
 #include "ZResourceCache.hpp"
 

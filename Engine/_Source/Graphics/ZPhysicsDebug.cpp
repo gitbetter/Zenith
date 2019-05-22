@@ -28,7 +28,6 @@
 */
 
 #include "ZPhysicsDebug.hpp"
-#include "ZEngine.hpp"
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZCameraComponent.hpp"

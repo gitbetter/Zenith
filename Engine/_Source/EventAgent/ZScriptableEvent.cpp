@@ -29,7 +29,6 @@
 
 #include "ZScriptableEvent.hpp"
 #include "ZLuaScriptManager.hpp"
-#include "ZEngine.hpp"
 
 ZScriptableEvent::CreationFunctions ZScriptableEvent::creationFunctions_;
 

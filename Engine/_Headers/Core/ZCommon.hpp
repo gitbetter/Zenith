@@ -64,17 +64,7 @@
 #include "FastDelegate.h"
 
 #define _Z(message, severity) { \
-switch(severity) {\
-case ZINFO:\
-std::cout << "\033[1;97m" << "[Info]: " << __FILE__ << ":" << __LINE__ << ": " << message << "\033[0m" << std::endl;\
-break;\
-case ZWARNING:\
-std::cout << "\033[1;33m" << "[Warning]: " << __FILE__ << ":" << __LINE__ << ": " << message << "\033[0m" << std::endl;\
-break;\
-case ZERROR:\
-std::cout << "\033[1;91m" << "[Error]: " << __FILE__ << ":" << __LINE__ << ": " << message << "\033[0m" << std::endl;\
-break;\
-}\
+if (zenith::Logger()) zenith::Log(message, severity);\
 }
 
 class ZGameObject;

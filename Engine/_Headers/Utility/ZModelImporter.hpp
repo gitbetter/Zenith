@@ -32,7 +32,6 @@
 // Includes
 #include "ZModel.hpp"
 #include "ZMesh3D.hpp"
-#include "ZCommon.hpp"
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

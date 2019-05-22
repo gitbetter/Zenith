@@ -27,7 +27,6 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZEngine.hpp"
 #include "ZGame.hpp"
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
@@ -51,6 +50,7 @@
 #include "ZScriptExports.hpp"
 #include "ZLuaScriptManager.hpp"
 #include "ZScriptableProcess.hpp"
+#include "ZLogger.hpp"
 
 #ifdef DEV_BUILD
 #include "ZDevResourceFile.hpp"
@@ -79,7 +79,9 @@ namespace zenith {
         std::unique_ptr<ZUIFactory> uiFactory_ = nullptr;
         std::unique_ptr<ZPhysicsFactory> physicsFactory_ = nullptr;
         
+        std::unique_ptr<ZLogger> logger_(new ZLogger);
         std::unique_ptr<ZIDSequence> idGenerator_(new ZIDSequence);
+        
         double deltaTime_ = 0.0;
         double lastDeltaTime_ = 0.0;
         float frameMix_ = 0.f;
@@ -223,6 +225,10 @@ namespace zenith {
     ZPhysicsFactory* PhysicsFactory() {
         return physicsFactory_.get();
     }
+    
+    ZLogger* Logger() {
+        return logger_.get();
+    }
 
     ZIDSequence* IDSequence() {
         return idGenerator_.get();
@@ -297,6 +303,29 @@ namespace zenith {
         scene->Initialize();
         currentGame_->AddScene(scene);
         return scene;
+    }
+    
+    void Log(std::string text, unsigned int severity) {
+        Log(text.c_str(), severity);
+    }
+    
+    void Log(const char* text, unsigned int severity) {
+        ZLogEntry entry(text, severity);
+        logger_->AddEntry(entry);
+        
+#ifdef DEV_BUILD
+        switch(severity) {
+            case ZINFO:
+                std::cout << "\033[1;97m" << "[Info]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
+                break;
+            case ZWARNING:
+                std::cout << "\033[1;33m" << "[Warning]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
+                break;
+            case ZERROR:
+                std::cout << "\033[1;91m" << "[Error]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
+                break;
+        }
+#endif
     }
 
     void CleanUp() {

@@ -28,7 +28,6 @@
  */
 
 #include "ZMaterial.hpp"
-#include "ZEngine.hpp"
 #include "ZGraphics.hpp"
 #include "ZEventAgent.hpp"
 #include "ZTextureReadyEvent.hpp"

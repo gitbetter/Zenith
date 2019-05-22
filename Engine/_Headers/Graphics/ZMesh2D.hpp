@@ -31,7 +31,6 @@
 
 // Includes
 #include "ZMesh.hpp"
-#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZShader;

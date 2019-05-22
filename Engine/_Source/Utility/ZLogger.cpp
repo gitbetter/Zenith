@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZTextStrategy.hpp
+    ZLogger.cpp
 
-    Created by Adrian Sanchez on 11/02/2019.
+    Created by Adrian Sanchez on 22/05/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,31 +27,9 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZLogger.hpp"
 
-// Includes
-#include "ZEngine.hpp"
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-// Class and Data Structure Definitions
-
-class ZTextStrategy {
-private:
-
-public:
-
-  ZTextStrategy() { }
-  virtual ~ZTextStrategy() { }
-
-  virtual void Initialize();
-  virtual void LoadFont(std::string fontPath, unsigned int fontSize = 24) = 0;
-  virtual void SetFontSize(std::string font, unsigned int size);
-
-  ZCharacter Character(std::string font, unsigned char c);
-
-protected:
-
-  FT_Library ft_;
-  std::map<std::string, ZFont> loadedFonts_;
-};
+void ZLogger::AddEntry(ZLogEntry entry) {
+    if (entry.severity > 2) entry.severity = 0;
+    logBuffer_.push_back(entry);
+}

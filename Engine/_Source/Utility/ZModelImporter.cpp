@@ -27,7 +27,6 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZEngine.hpp"
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 #include "ZModelImporter.hpp"

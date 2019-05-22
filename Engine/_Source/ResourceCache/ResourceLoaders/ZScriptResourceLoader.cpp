@@ -28,7 +28,6 @@
 */
 
 #include "ZScriptResourceLoader.hpp"
-#include "ZEngine.hpp"
 #include "ZLuaScriptManager.hpp"
 
 bool ZScriptResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {

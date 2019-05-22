@@ -29,7 +29,6 @@
 
 #include "ZLuaScriptManager.hpp"
 #include "ZResource.hpp"
-#include "ZEngine.hpp"
 #include "ZResourceCache.hpp"
 
 void ZLuaScriptManager::Initialize() {

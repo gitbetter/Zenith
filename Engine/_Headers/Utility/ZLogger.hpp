@@ -1,15 +1,15 @@
 /*
-
+ 
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
- ZSkybox.hpp
+    ZLogger.hpp
  
- Created by Adrian Sanchez on 02/03/2019.
- Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 22/05/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
  
@@ -30,39 +30,38 @@
 #pragma once
 
 // Includes
-#include "ZGameObject.hpp"
+#include "ZEngine.hpp"
 
 // Forward Declarations
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZSkybox : public ZGameObject, public std::enable_shared_from_this<ZSkybox> {
-
-private:
-
-	std::string hdrPath_;
+struct ZLogEntry {
+    unsigned int severity;
+    const char* text;
     
-    void Initialize(ZTexture& cubeMap, ZBufferData& bufferData);
+    ZLogEntry(const char* text, unsigned int severity) {
+        this->text = text;
+        this->severity = severity;
+    }
+    
+    ZLogEntry(std::string text, unsigned int severity) : ZLogEntry(text.c_str(), severity) { }
+};
+
+class ZLogger {
+    
+private:
+    
+    std::vector<ZLogEntry> logBuffer_;
     
 public:
     
-    ZSkybox(std::string hdr = "");
-    ~ZSkybox() { }
+    ZLogger() { }
+    ~ZLogger() { }
     
-    void Initialize() override;
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
-	void InitializeAsync();
-
-	void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    const std::vector<ZLogEntry>& Buffer() const { return logBuffer_; }
     
-	bool IsVisible() override { return true; }
-    
-    ZIBLTexture IBLTexture() const { return iblTexture_; }
-    
-protected:
-    
-    ZIBLTexture iblTexture_;
-
-	void HandleCubemapReady(std::shared_ptr<ZEvent> event);
+    void AddEntry(ZLogEntry entry);
+    void Clear() { logBuffer_.clear(); }
     
 };

@@ -30,8 +30,6 @@
 #include "ZUI.hpp"
 #include "ZUIImage.hpp"
 #include "ZShader.hpp"
-#include "ZEngine.hpp"
-#include "ZCommon.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZEventAgent.hpp"
 

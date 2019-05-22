@@ -28,7 +28,6 @@
 */
 
 #include "ZCameraComponent.hpp"
-#include "ZCommon.hpp"
 #include "ZDomain.hpp"
 #include "ZGameObject.hpp"
 #include "ZEventAgent.hpp"

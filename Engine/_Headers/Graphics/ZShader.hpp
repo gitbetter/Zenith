@@ -30,7 +30,6 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
 #include "ZLight.hpp"
 
 // Forward Declarations

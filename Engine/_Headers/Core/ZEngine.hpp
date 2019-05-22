@@ -56,6 +56,7 @@ class ZPhysicsFactory;
 class ZGame;
 class ZEventAgent;
 class ZLuaScriptManager;
+class ZLogger;
 
 // Definitions
 namespace zenith {
@@ -100,6 +101,7 @@ namespace zenith {
     extern ZUIFactory* UIFactory();
     extern ZPhysicsFactory* PhysicsFactory();
     
+    extern ZLogger* Logger();
     extern ZIDSequence* IDSequence();
     
     extern double LastDeltaTime();
@@ -120,6 +122,9 @@ namespace zenith {
     
     extern void LoadZOF(std::string zofPath);
 	extern std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
+    
+    extern void Log(std::string text, unsigned int severity);
+    extern void Log(const char* text, unsigned int severity);
     
     extern void CleanUp();
     

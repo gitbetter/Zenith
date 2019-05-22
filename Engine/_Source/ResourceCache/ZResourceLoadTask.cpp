@@ -28,7 +28,6 @@
 */
 
 #include "ZResourceLoadTask.hpp"
-#include "ZEngine.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZEventAgent.hpp"
 #include "ZResourceLoadedEvent.hpp"

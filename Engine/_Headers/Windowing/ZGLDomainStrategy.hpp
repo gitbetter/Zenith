@@ -30,6 +30,7 @@
 #pragma once
 
 // Includes
+#include "ZEngine.hpp"
 #include "ZDomainStrategy.hpp"
 
 // Forward Declarations

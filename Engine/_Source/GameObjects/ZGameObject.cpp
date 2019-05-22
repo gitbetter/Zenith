@@ -27,7 +27,6 @@
  */
 
 #include "ZGameObject.hpp"
-#include "ZEngine.hpp"
 #include "ZGame.hpp"
 #include "ZModel.hpp"
 #include "ZCameraComponent.hpp"

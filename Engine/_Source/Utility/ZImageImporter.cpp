@@ -28,7 +28,6 @@
  */
 
 #include "ZImageImporter.hpp"
-#include "ZEngine.hpp"
 #include "ZResourceCache.hpp"
 #include "ZResourceExtraData.hpp"
 

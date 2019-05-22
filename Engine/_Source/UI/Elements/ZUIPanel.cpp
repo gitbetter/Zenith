@@ -28,7 +28,6 @@
 */
 
 #include "ZUIPanel.hpp"
-#include "ZEngine.hpp"
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 

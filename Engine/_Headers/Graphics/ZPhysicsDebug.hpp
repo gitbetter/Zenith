@@ -31,7 +31,6 @@
 
 // Includes
 #include "btBulletDynamicsCommon.h"
-#include "ZCommon.hpp"
 #include "ZShader.hpp"
 
 // Forward Declarations
