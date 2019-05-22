@@ -29,7 +29,6 @@
 
 #include "ZUI.hpp"
 #include "ZShader.hpp"
-#include "ZUICursor.hpp"
 #include "ZEngine.hpp"
 #include "ZInput.hpp"
 #include "ZUIText.hpp"

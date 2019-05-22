@@ -37,7 +37,6 @@
 class ZLight;
 class ZSkybox;
 class ZUIElement;
-class ZUICursor;
 
 // Class and Data Structure Definitions
 class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene> {
@@ -64,7 +63,6 @@ private:
     ZLightMap gameLights_;
     ZGameObjectMap gameObjects_;
     ZUIElementMap uiElements_;
-    std::shared_ptr<ZUICursor> cursor_;
 	glm::mat4 viewProjection_, previousViewProjection_;
 	std::string name_;
    
@@ -98,7 +96,6 @@ public:
     std::shared_ptr<ZGameObject> ActiveCamera() { return activeCamera_; }
     ZGameObjectMap& GameObjects() { return gameObjects_; }
     ZUIElementMap& UIElements() { return uiElements_; }
-    std::shared_ptr<ZUICursor> Cursor() { return cursor_; }
     ZLightMap& GameLights() { return gameLights_; }
 	std::string& Name() { return name_; }
 	glm::mat4& ViewProjection() { return viewProjection_; }
@@ -114,7 +111,6 @@ public:
 	void PushMatrix(glm::mat4 matrix);
 	void PopMatrix();
     
-    void SetCursor(std::shared_ptr<ZUICursor> cursor);
     void SetActiveCamera(std::shared_ptr<ZGameObject> gameObject);
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
     void SetDefaultSkybox();

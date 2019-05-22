@@ -52,7 +52,7 @@ void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root) {
 
   std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
-    _Z("Could not initalize ZUICursor", ZERROR); return;
+    _Z("Could not initalize ZUICheckbox", ZERROR); return;
   }
 
   ZOFPropertyMap props = node->properties;

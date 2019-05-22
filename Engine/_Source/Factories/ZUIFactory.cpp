@@ -32,7 +32,6 @@
 #include "ZUIImage.hpp"
 #include "ZUIPanel.hpp"
 #include "ZUIText.hpp"
-#include "ZUICursor.hpp"
 #include "ZUICheckBox.hpp"
 #include "ZUIListPanel.hpp"
 
@@ -41,7 +40,6 @@ ZUIFactory::ZUIFactory() {
   elementCreators_["Image"] = &ZUIFactory::CreateUIImage;
   elementCreators_["Panel"] = &ZUIFactory::CreateUIPanel;
   elementCreators_["Text"] = &ZUIFactory::CreateUIText;
-  elementCreators_["Cursor"] = &ZUIFactory::CreateUICursor;
   elementCreators_["Checkbox"] = &ZUIFactory::CreateUICheckbox;
   elementCreators_["ListPanel"] = &ZUIFactory::CreateUIListPanel;
 }
@@ -100,12 +98,6 @@ std::shared_ptr<ZUIElement> ZUIFactory::CreateUIText(std::shared_ptr<ZOFNode> ro
   std::shared_ptr<ZUIText> text = std::make_shared<ZUIText>();
   text->Initialize(root);
   return text;
-}
-
-std::shared_ptr<ZUIElement> ZUIFactory::CreateUICursor(std::shared_ptr<ZOFNode> root) {
-  std::shared_ptr<ZUICursor> cursor = std::make_shared<ZUICursor>();
-  cursor->Initialize(root);
-  return cursor;
 }
 
 std::shared_ptr<ZUIElement> ZUIFactory::CreateUICheckbox(std::shared_ptr<ZOFNode> root) {

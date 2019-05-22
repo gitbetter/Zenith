@@ -11,7 +11,6 @@ ${ENGINE_SOURCE_DIR}/Utility/ZModelImporter.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZImageImporter.cpp
 ${ENGINE_SOURCE_DIR}/Utility/stb_image.cpp
 ${ENGINE_SOURCE_DIR}/UI/ZUIElement.cpp
-${ENGINE_SOURCE_DIR}/UI/Elements/ZUICursor.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUICheckBox.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIText.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIListPanel.cpp
@@ -205,7 +204,6 @@ ${ENGINE_HEADERS_DIR}/UI/ZUI.hpp
 ${ENGINE_HEADERS_DIR}/UI/ZUIElement.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIButton.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUICheckBox.hpp
-${ENGINE_HEADERS_DIR}/UI/Elements/ZUICursor.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIImage.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIPanel.hpp

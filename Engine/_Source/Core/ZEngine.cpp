@@ -33,7 +33,6 @@
 #include "ZDomain.hpp"
 #include "ZGLInput.hpp"
 #include "ZUI.hpp"
-#include "ZUICursor.hpp"
 #include "ZBulletPhysics.hpp"
 #include "ZALAudio.hpp"
 #include "ZIDSequence.hpp"

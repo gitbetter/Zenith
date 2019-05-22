@@ -39,7 +39,6 @@
 #include "ZDomain.hpp"
 #include "ZPhysics.hpp"
 #include "ZUI.hpp"
-#include "ZUICursor.hpp"
 #include "ZUIText.hpp"
 #include "ZUIElement.hpp"
 #include "ZEventAgent.hpp"
@@ -116,10 +115,7 @@ void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {
 	}
 
 	for (ZUIElementMap::iterator it = zofResults.uiElements.begin(); it != zofResults.uiElements.end(); it++) {
-		if (std::dynamic_pointer_cast<ZUICursor>(it->second))
-			SetCursor(std::dynamic_pointer_cast<ZUICursor>(it->second));
-		else
-			AddUIElement(it->second);
+		AddUIElement(it->second);
 	}
 }
 
@@ -188,7 +184,6 @@ void ZScene::RenderUI() {
         // be rendered within the respective parent elements.
         if (!it->second->Hidden() && !it->second->Parent()) it->second->Render();
     }
-    if (cursor_ != nullptr) cursor_->Render();
 }
 
 void ZScene::UpdateViewProjectionMatrices() {
@@ -261,11 +256,6 @@ void ZScene::PopMatrix() {
     sceneMutexes_.matrixStack.lock();
 	if (!matrixStack_.empty()) matrixStack_.pop_back();
     sceneMutexes_.matrixStack.unlock();
-}
-
-void ZScene::SetCursor(std::shared_ptr<ZUICursor> cursor) {
-    cursor_ = cursor;
-    cursor_->SetShader(zenith::UI()->UIShader());
 }
 
 void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
@@ -376,10 +366,6 @@ void ZScene::CleanUp() {
         it->second->CleanUp();
     }
     gameObjects_.clear();
-    
-    if (cursor_ != nullptr) {
-        cursor_->CleanUp(); cursor_.reset();
-    }
     
     for (ZUIElementMap::iterator it = uiElements_.begin(); it != uiElements_.end(); it++) {
         it->second->CleanUp();
