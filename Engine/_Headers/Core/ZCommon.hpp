@@ -67,6 +67,139 @@
 if (zenith::Logger()) zenith::Log(message, severity);\
 }
 
+#define BONES_PER_VERTEX 4
+
+#define ZKEY_UNKNOWN            -1
+#define ZKEY_SPACE              32
+#define ZKEY_APOSTROPHE         39
+#define ZKEY_COMMA              44
+#define ZKEY_MINUS              45
+#define ZKEY_PERIOD             46
+#define ZKEY_SLASH              47
+#define ZKEY_0                  48
+#define ZKEY_1                  49
+#define ZKEY_2                  50
+#define ZKEY_3                  51
+#define ZKEY_4                  52
+#define ZKEY_5                  53
+#define ZKEY_6                  54
+#define ZKEY_7                  55
+#define ZKEY_8                  56
+#define ZKEY_9                  57
+#define ZKEY_SEMICOLON          59
+#define ZKEY_EQUAL              61
+#define ZKEY_A                  65
+#define ZKEY_B                  66
+#define ZKEY_C                  67
+#define ZKEY_D                  68
+#define ZKEY_E                  69
+#define ZKEY_F                  70
+#define ZKEY_G                  71
+#define ZKEY_H                  72
+#define ZKEY_I                  73
+#define ZKEY_J                  74
+#define ZKEY_K                  75
+#define ZKEY_L                  76
+#define ZKEY_M                  77
+#define ZKEY_N                  78
+#define ZKEY_O                  79
+#define ZKEY_P                  80
+#define ZKEY_Q                  81
+#define ZKEY_R                  82
+#define ZKEY_S                  83
+#define ZKEY_T                  84
+#define ZKEY_U                  85
+#define ZKEY_V                  86
+#define ZKEY_W                  87
+#define ZKEY_X                  88
+#define ZKEY_Y                  89
+#define ZKEY_Z                  90
+#define ZKEY_LEFT_BRACKET       91
+#define ZKEY_BACKSLASH          92
+#define ZKEY_RIGHT_BRACKET      93
+#define ZKEY_GRAVE_ACCENT       96
+#define ZKEY_ESCAPE             256
+#define ZKEY_ENTER              257
+#define ZKEY_TAB                258
+#define ZKEY_BACKSPACE          259
+#define ZKEY_INSERT             260
+#define ZKEY_DELETE             261
+#define ZKEY_RIGHT              262
+#define ZKEY_LEFT               263
+#define ZKEY_DOWN               264
+#define ZKEY_UP                 265
+#define ZKEY_PAGE_UP            266
+#define ZKEY_PAGE_DOWN          267
+#define ZKEY_HOME               268
+#define ZKEY_END                269
+#define ZKEY_CAPS_LOCK          280
+#define ZKEY_SCROLL_LOCK        281
+#define ZKEY_NUM_LOCK           282
+#define ZKEY_PRINT_SCREEN       283
+#define ZKEY_PAUSE              284
+#define ZKEY_F1                 290
+#define ZKEY_F2                 291
+#define ZKEY_F3                 292
+#define ZKEY_F4                 293
+#define ZKEY_F5                 294
+#define ZKEY_F6                 295
+#define ZKEY_F7                 296
+#define ZKEY_F8                 297
+#define ZKEY_F9                 298
+#define ZKEY_F10                299
+#define ZKEY_F11                300
+#define ZKEY_F12                301
+#define ZKEY_F13                302
+#define ZKEY_F14                303
+#define ZKEY_F15                304
+#define ZKEY_F16                305
+#define ZKEY_F17                306
+#define ZKEY_F18                307
+#define ZKEY_F19                308
+#define ZKEY_F20                309
+#define ZKEY_F21                310
+#define ZKEY_F22                311
+#define ZKEY_F23                312
+#define ZKEY_F24                313
+#define ZKEY_F25                314
+#define ZKEY_KP_0               320
+#define ZKEY_KP_1               321
+#define ZKEY_KP_2               322
+#define ZKEY_KP_3               323
+#define ZKEY_KP_4               324
+#define ZKEY_KP_5               325
+#define ZKEY_KP_6               326
+#define ZKEY_KP_7               327
+#define ZKEY_KP_8               328
+#define ZKEY_KP_9               329
+#define ZKEY_KP_DECIMAL         330
+#define ZKEY_KP_DIVIDE          331
+#define ZKEY_KP_MULTIPLY        332
+#define ZKEY_KP_SUBTRACT        333
+#define ZKEY_KP_ADD             334
+#define ZKEY_KP_ENTER           335
+#define ZKEY_KP_EQUAL           336
+#define ZKEY_LEFT_SHIFT         340
+#define ZKEY_LEFT_CONTROL       341
+#define ZKEY_LEFT_ALT           342
+#define ZKEY_LEFT_SUPER         343
+#define ZKEY_RIGHT_SHIFT        344
+#define ZKEY_RIGHT_CONTROL      345
+#define ZKEY_RIGHT_ALT          346
+#define ZKEY_RIGHT_SUPER        347
+#define ZKEY_MENU               348
+#define ZKEY_LAST               ZKEY_MENU
+
+#define ZMOUSE_LEFT      0
+#define ZMOUSE_RIGHT     1
+#define ZMOUSE_MIDDLE    2
+#define ZMOUSE_4         3
+#define ZMOUSE_5         4
+#define ZMOUSE_6         5
+#define ZMOUSE_7         6
+#define ZMOUSE_8         7
+#define ZMOUSE_LAST      ZMOUSE_8
+
 class ZGameObject;
 class ZComponent;
 class ZUIElement;
@@ -99,8 +232,6 @@ typedef std::map<std::string, unsigned int> ZBoneMap;
 typedef std::vector<std::shared_ptr<ZBone>> ZBoneList;
 
 typedef unsigned long ZEventType;
-
-#define BONES_PER_VERTEX 4
 
 enum ZPriority {
 	FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority

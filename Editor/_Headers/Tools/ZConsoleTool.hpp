@@ -40,14 +40,14 @@ class ZConsoleTool : public ZEditorTool {
     
 private:
     
-    bool autoScroll_, scrollToBottom_;
+    bool autoScroll_;
     ImGuiTextFilter filter_;
     
     void StyledLogEntry(ZLogEntry entry);
 
 public:
 
-	ZConsoleTool() : ZEditorTool("Console"), autoScroll_(true), scrollToBottom_(false) {}
+	ZConsoleTool() : ZEditorTool("Console"), autoScroll_(false) {}
 
 	void Begin() override;
 	void Update() override;

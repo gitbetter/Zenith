@@ -38,6 +38,7 @@
 #include "ZEditor.hpp"
 #include "ZGame.hpp"
 #include "ZDomain.hpp"
+#include "ZInput.hpp"
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 

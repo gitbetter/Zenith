@@ -38,8 +38,6 @@ class ZObject;
 // Class and Data Structure Definitions
 class ZInput : public ZProcess {
     
-private:
-    
 public:
     
     virtual ~ZInput() { }
@@ -48,6 +46,12 @@ public:
     virtual void GetCursorPosition(double& x, double& y) = 0;
     virtual void SetCursorPosition(double& x, double& y) = 0;
     
+    virtual bool Key(unsigned int key) { return key < ZKEY_LAST+1 && key >= 0 && keyPress_[key]; }
+    virtual bool Mouse(unsigned int mouse) { return mouse < ZMOUSE_LAST+1 && mouse >= 0 && mousePress_[mouse]; }
+    
 protected:
+    
+    bool keyPress_[ZKEY_LAST+1] = { false };
+    bool mousePress_[ZMOUSE_LAST+1] = { false };
     
 };

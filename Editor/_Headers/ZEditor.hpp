@@ -40,12 +40,14 @@ class ZEditor : public ZProcess {
 
 private:
 
-	bool editorOpen_;
+    bool editorOpen_;
 	std::vector<std::shared_ptr<ZEditorTool>> tools_;
 	
 	void SetupInitialTools();
     
 public:
+    
+    ZEditor() : ZProcess(), editorOpen_(true) { }
     
     void Initialize() override;
     void Update() override;
@@ -54,7 +56,7 @@ public:
     
 protected:
 
-	void BeginFrame();
+    void BeginFrame();
 	void DockspaceBegin();
 	void DockspaceEnd();
 	void EndFrame();

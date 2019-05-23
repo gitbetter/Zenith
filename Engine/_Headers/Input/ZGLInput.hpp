@@ -42,13 +42,15 @@ class ZGLInput : public ZInput {
     
 private:
     
+    unsigned int keyMap_[ZKEY_LAST+1];
+    unsigned int mouseMap_[ZMOUSE_LAST+1];
+    
     double lastPitch_, lastYaw_;
     bool firstLook_ = true;
-    bool keyPress_[GLFW_KEY_LAST] = { false };
-    bool mousePress_[GLFW_MOUSE_BUTTON_8] = { false };
     
 public:
     
+    void Initialize() override;
     void Update() override;
     void GetCursorPosition(double& x, double& y) override;
     void SetCursorPosition(double& x, double& y) override;
