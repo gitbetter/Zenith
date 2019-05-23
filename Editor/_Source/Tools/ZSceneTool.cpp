@@ -30,8 +30,25 @@
 #include "ZSceneTool.hpp"
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
+#include "ZGameObject.hpp"
+#include "ZCameraComponent.hpp"
+#include "ZGame.hpp"
+#include "ZProcessRunner.hpp"
+#include "ZInput.hpp"
+
+ZSceneTool::ZSceneTool() : ZEditorTool("Scene") {
+    editorCamera_ = std::make_shared<ZGameObject>(glm::vec3(0.f, 15.f, 50.f));
+    std::shared_ptr<ZCameraComponent> cameraComp = std::make_shared<ZCameraComponent>(ZCameraType::Perspective);
+    editorCamera_->AddComponent(cameraComp);
+    zenith::ProcessRunner()->AttachProcess(cameraComp);
+    
+    zenith::Game()->ActiveScene()->AddGameObject(editorCamera_);
+}
 
 void ZSceneTool::Begin() {
+    if (zenith::Game()->ActiveScene()->ActiveCamera() != editorCamera_)
+        zenith::Game()->ActiveScene()->SetActiveCamera(editorCamera_);
+    
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::Begin(name_.c_str(), &visible_, flags);
@@ -39,9 +56,26 @@ void ZSceneTool::Begin() {
 
 void ZSceneTool::Update() {
 	ImGui::PopStyleVar();
+    
+    auto cameraComp = editorCamera_->FindComponent<ZCameraComponent>();
+    if (!ImGui::IsWindowFocused()) {
+        cameraComp->DisableLook();
+        cameraComp->DisableMovement();
+    } else {
+        cameraComp->EnableMovement();
+        if (zenith::Input()->Mouse(ZMOUSE_RIGHT)) {
+            cameraComp->EnableLook();
+            zenith::Domain()->Strategy()->CaptureCursor();
+        } else {
+            cameraComp->DisableLook();
+            zenith::Domain()->Strategy()->ReleaseCursor();
+        }
+    }
+    
 	unsigned int width, height;
 	UpdateViewportResolution(width, height);
-	ImGui::Image((ImTextureID)zenith::Graphics()->SceneBuffer().id, ImVec2(width, height), ImVec2(0, 1), ImVec2(1, 0));
+    // TODO: Switch to SceneBuffer() when in play mode
+	ImGui::Image((ImTextureID)zenith::Graphics()->ColorBuffer().id, ImVec2(width, height), ImVec2(0, 1), ImVec2(1, 0));
 }
 
 void ZSceneTool::End() {

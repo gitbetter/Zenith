@@ -33,17 +33,20 @@
 #include "ZEditorTool.hpp"
 
 // Forward Declarations
+class ZGameObject;
 
 // Definitions
 class ZSceneTool : public ZEditorTool {
 
 private:
+    
+    std::shared_ptr<ZGameObject> editorCamera_;
 
 	void UpdateViewportResolution(unsigned int& outWidth, unsigned int& outHeight);
 
 public:
 
-	ZSceneTool() : ZEditorTool("Scene") {}
+    ZSceneTool();
 
 	void Begin() override;
 	void Update() override;

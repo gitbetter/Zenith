@@ -171,35 +171,35 @@ void ZGLInput::Initialize() {
 void ZGLInput::Update() {
     GLFWwindow* windowHandle = glfwGetCurrentContext();
 
-    keyPress_[keyMap_[ZKEY_W]] = glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS;
-    keyPress_[keyMap_[ZKEY_A]] = glfwGetKey(windowHandle, GLFW_KEY_A) == GLFW_PRESS;
-    keyPress_[keyMap_[ZKEY_S]] = glfwGetKey(windowHandle, GLFW_KEY_S) == GLFW_PRESS;
-    keyPress_[keyMap_[ZKEY_D]] = glfwGetKey(windowHandle, ZKEY_D) == GLFW_PRESS;
-    keyPress_[keyMap_[GLFW_KEY_SPACE]] = glfwGetKey(windowHandle, GLFW_KEY_SPACE) == GLFW_PRESS;
-    keyPress_[keyMap_[GLFW_KEY_TAB]] = glfwGetKey(windowHandle, GLFW_KEY_TAB) == GLFW_PRESS;
-    keyPress_[keyMap_[GLFW_KEY_ESCAPE]] = glfwGetKey(windowHandle, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+    keyPress_[ZKEY_W] = glfwGetKey(windowHandle, keyMap_[ZKEY_W]) == GLFW_PRESS;
+    keyPress_[ZKEY_A] = glfwGetKey(windowHandle, keyMap_[ZKEY_A]) == GLFW_PRESS;
+    keyPress_[ZKEY_S] = glfwGetKey(windowHandle, keyMap_[ZKEY_S]) == GLFW_PRESS;
+    keyPress_[ZKEY_D] = glfwGetKey(windowHandle, keyMap_[ZKEY_D]) == GLFW_PRESS;
+    keyPress_[ZKEY_SPACE] = glfwGetKey(windowHandle, keyMap_[ZKEY_SPACE]) == GLFW_PRESS;
+    keyPress_[ZKEY_TAB] = glfwGetKey(windowHandle, keyMap_[ZKEY_TAB]) == GLFW_PRESS;
+    keyPress_[ZKEY_ESCAPE] = glfwGetKey(windowHandle, keyMap_[ZKEY_ESCAPE]) == GLFW_PRESS;
     
-    mousePress_[mouseMap_[ZMOUSE_LEFT]] = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-    mousePress_[mouseMap_[ZMOUSE_RIGHT]] = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE;
-    mousePress_[mouseMap_[ZMOUSE_MIDDLE]] = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_RELEASE;
+    mousePress_[ZMOUSE_LEFT] = glfwGetMouseButton(windowHandle, mouseMap_[ZMOUSE_LEFT]) == GLFW_PRESS;
+    mousePress_[ZMOUSE_RIGHT] = glfwGetMouseButton(windowHandle, mouseMap_[ZMOUSE_RIGHT]) == GLFW_PRESS;
+    mousePress_[ZMOUSE_MIDDLE] = glfwGetMouseButton(windowHandle, mouseMap_[ZMOUSE_MIDDLE]) == GLFW_PRESS;
     
-    if (keyPress_[keyMap_[ZKEY_W]]) {
+    if (keyPress_[ZKEY_W]) {
         std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, 1.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
-    if (keyPress_[keyMap_[ZKEY_A]]) {
+    if (keyPress_[ZKEY_A]) {
         std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(-1.f, 0.f, 0.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
-    if (keyPress_[keyMap_[ZKEY_S]]) {
+    if (keyPress_[ZKEY_S]) {
         std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, -1.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
-    if (keyPress_[keyMap_[ZKEY_D]]) {
+    if (keyPress_[ZKEY_D]) {
         std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(1.f, 0.f, 0.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
-    if (keyPress_[keyMap_[GLFW_KEY_ESCAPE]]) {
+    if (keyPress_[GLFW_KEY_ESCAPE]) {
         std::shared_ptr<ZQuitEvent> quitEvent(new ZQuitEvent);
         zenith::EventAgent()->TriggerEvent(quitEvent);
     }
@@ -215,7 +215,7 @@ void ZGLInput::Update() {
     double deltaYaw = yaw - lastYaw_;
     double deltaPitch = lastPitch_ - pitch;
     
-    if (mousePress_[mouseMap_[ZMOUSE_LEFT]]) {
+    if (mousePress_[ZMOUSE_LEFT]) {
         if (deltaYaw != 0.0 || deltaPitch != 0.0) {
             std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(deltaYaw, deltaPitch, 0.f));
             zenith::EventAgent()->TriggerEvent(dragEvent);

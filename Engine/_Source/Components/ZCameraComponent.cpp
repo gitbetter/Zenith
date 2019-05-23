@@ -35,7 +35,7 @@
 #include "ZObjectLookEvent.hpp"
 #include "ZOFTree.hpp"
 
-ZCameraComponent::ZCameraComponent(ZCameraType type, glm::vec3 position) : ZComponent() {
+ZCameraComponent::ZCameraComponent(ZCameraType type) : ZComponent() {
 	cameraType_ = type;
 	zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
 	movementStyle_ = ZCameraMovementStyle::Normal;
@@ -61,10 +61,19 @@ void ZCameraComponent::UpdateCameraOrientation() {
 	}
 }
 
+void ZCameraComponent::Initialize() {
+    frustum_ = ZFrustum(zoom_, zenith::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
+    
+    ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
+    ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
+    zenith::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);
+    zenith::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
+    
+    ZComponent::Initialize();
+}
+
 // TODO: Initialize functions should come in two flavors
 void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
-	ZComponent::Initialize();
-
 	std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
 	if (node == nullptr) {
 		_Z("Could not initalize ZCameraComponent", ZERROR);
@@ -119,15 +128,12 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 		cameraDamping_ = prop->value;
 	}
 
-	frustum_ = ZFrustum(zoom_, zenith::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
-
-	ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
-	ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
-	zenith::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);
-	zenith::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
+    Initialize();
 }
 
 void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event) {
+    if (!movementEnabled_) return;
+    
 	std::shared_ptr<ZObjectMoveEvent> moveEvent = std::static_pointer_cast<ZObjectMoveEvent>(event);
 
 	float velocity = movementSpeed_ * (float)zenith::DeltaTime();
@@ -140,6 +146,8 @@ void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event) {
 }
 
 void ZCameraComponent::HandleLook(std::shared_ptr<ZEvent> event) {
+    if (!lookEnabled_) return;
+    
 	std::shared_ptr<ZObjectLookEvent> lookEvent = std::static_pointer_cast<ZObjectLookEvent>(event);
 
 	if (movementStyle_ == ZCameraMovementStyle::Follow) {
