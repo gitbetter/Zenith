@@ -34,6 +34,7 @@
 #include "ZModelReadyEvent.hpp"
 #include "ZGraphicsFactory.hpp"
 #include "ZDomainStrategy.hpp"
+#include "ZGraphicsDebug.hpp"
 #include "ZEventAgent.hpp"
 #include "ZGameObject.hpp"
 #include "ZGraphics.hpp"
@@ -47,15 +48,19 @@
 void ZGraphics::Initialize() {
 	// TODO: Switch the strategies here based on implementation details
 	if (graphicsStrategy_ == nullptr) {
-		graphicsStrategy_ = new ZGLGraphicsStrategy();
+        graphicsStrategy_ = std::make_shared<ZGLGraphicsStrategy>();
 		graphicsStrategy_->Initialize();
 
 		InitializeBuffers();
-
 		InitializeShaders();
 
 		renderQuad_ = ZMesh2D::NewQuad();
 	}
+    
+    if (debugDrawer_ == nullptr) {
+        debugDrawer_ = std::make_shared<ZGraphicsDebug>();
+        debugDrawer_->Initialize();
+    }
     
     ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleShaderReady);
     zenith::EventAgent()->AddListener(shaderReadyDelegate, ZShaderReadyEvent::Type);
@@ -171,7 +176,7 @@ void ZGraphics::FinishRenderPass() {
 }
 
 void ZGraphics::AddShader(std::string id, std::shared_ptr<ZShader> shader) {
-	if (shader != nullptr) loadedShaders_[id] = shader;
+	if (shader) loadedShaders_[id] = shader;
 }
 
 void ZGraphics::AddTexture(std::string id, ZTexture texture) {
@@ -197,13 +202,9 @@ void ZGraphics::ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D&
 }
 
 void ZGraphics::CleanUp() {
-	if (graphicsStrategy_ != nullptr) {
-		graphicsStrategy_ = nullptr;
-	}
-
-	if (shadowShader_ != nullptr) {
-		shadowShader_ = nullptr;
-	}
+    if (graphicsStrategy_) graphicsStrategy_.reset();
+    if (shadowShader_) shadowShader_.reset();
+    if (debugDrawer_) debugDrawer_.reset();
     
     ZEventDelegate shaderReadyDelegate = fastdelegate::MakeDelegate(this, &ZGraphics::HandleShaderReady);
     zenith::EventAgent()->RemoveListener(shaderReadyDelegate, ZShaderReadyEvent::Type);

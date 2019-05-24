@@ -37,6 +37,7 @@ class ZGameObject;
 class ZWindow;
 class ZShader;
 class ZGraphicsStrategy;
+class ZGraphicsDebug;
 class ZLight;
 class ZModel;
 class ZMesh2D;
@@ -72,7 +73,7 @@ public:
 	void PostProcessing(ZScene* scene);
     void FinishRenderPass();
     
-    ZGraphicsStrategy* Strategy() { return graphicsStrategy_; }
+    ZGraphicsStrategy* Strategy() { return graphicsStrategy_.get(); }
     glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
     ZTexture ShadowBuffer() { return shadowBuffer_; }
     ZTexture DepthBuffer() { return depthBuffer_; }
@@ -83,8 +84,6 @@ public:
     ZTextureMap& Textures() { return loadedTextures_; }
     ZShaderMap& Shaders() { return loadedShaders_; }
     ZModelMap& Models() { return loadedModels_; }
-    
-    void SetStrategy(ZGraphicsStrategy* strategy) { graphicsStrategy_ = strategy; }
     
     void AddShader(std::string id, std::shared_ptr<ZShader> shader);
     void AddTexture(std::string id, ZTexture texture);
@@ -100,7 +99,8 @@ public:
     
 protected:
     
-    ZGraphicsStrategy* graphicsStrategy_ = nullptr;
+    std::shared_ptr<ZGraphicsStrategy> graphicsStrategy_ = nullptr;
+    std::shared_ptr<ZGraphicsDebug> debugDrawer_ = nullptr;
     std::shared_ptr<ZShader> shadowShader_ = nullptr;
     std::shared_ptr<ZShader> depthShader_ = nullptr;
 	std::shared_ptr<ZShader> postShader_ = nullptr;

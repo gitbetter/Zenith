@@ -6,9 +6,9 @@
 	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
 	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZPhysicsDebug.cpp
+	ZGraphicsDebug.cpp
 
-	Created by Adrian Sanchez on 26/02/2019.
+	Created by Adrian Sanchez on 24/05/2019.
 	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,29 +27,26 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZPhysicsDebug.hpp"
-#include "ZGraphics.hpp"
-#include "ZGraphicsStrategy.hpp"
-#include "ZCameraComponent.hpp"
+#include "ZGraphicsDebug.hpp"
+#include "ZShader.hpp"
 #include "ZGame.hpp"
 
-void ZPhysicsDebug::Initialize() {
+void ZGraphicsDebug::Initialize() {
 	shader_ = std::unique_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/debug.vert", "Assets/Shaders/Pixel/debug.frag"));
 	shader_->Initialize();
 }
 
-void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
+void ZGraphicsDebug::DrawLine(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color) {
 	if (!zenith::Game()->ActiveScene()) return;
 
 	glm::mat4 VPMatrix = zenith::Game()->ActiveScene()->ViewProjection();
 
 	shader_->Activate();
 	shader_->SetMat4("ViewProjection", VPMatrix);
-	shader_->SetVec4("color", glm::vec4(color.x(), color.y(), color.z(), 1.f));
+	shader_->SetVec4("color", color);
 
 	std::vector<ZVertex3D> vertices({
-	  ZVertex3D(glm::vec3(from.x(), from.y(), from.z())),
-	  ZVertex3D(glm::vec3(to.x(), to.y(), to.z()))
+	  ZVertex3D(from), ZVertex3D(to)
     });
 
 	ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(vertices);

@@ -9,7 +9,7 @@
 		ZPlane.cpp
 
 		Created by Adrian Sanchez on 18/04/2019.
-		Copyright © 2019 Pervasive Sense. All rights reserved.
+		Copyright ï¿½ 2019 Pervasive Sense. All rights reserved.
 
 	This file is part of Zenith.
 
@@ -31,4 +31,14 @@
 
 float ZPlane::Distance(glm::vec3 point) {
 	return glm::length(glm::dot(point, glm::normalize(normal)) - center);
+}
+
+glm::vec3 ZPlane::Intersection(ZPlane a, ZPlane b) {
+    float f = -glm::dot(normal, glm::cross(a.normal, b.normal));
+    
+    glm::vec3 v1(center * glm::cross(a.normal, b.normal));
+    glm::vec3 v2(a.center * glm::cross(b.normal, normal));
+    glm::vec3 v3(b.center * glm::cross(normal, a.normal));
+    
+    return (v1 + v2 + v3) / f;
 }

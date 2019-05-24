@@ -79,6 +79,7 @@ ${ENGINE_SOURCE_DIR}/Graphics/Strategies/ZTextStrategy.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZShader.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZMesh.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZPhysicsDebug.cpp
+${ENGINE_SOURCE_DIR}/Graphics/ZGraphicsDebug.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZModel.cpp
 ${ENGINE_SOURCE_DIR}/Factories/ZGOFactory.cpp
 ${ENGINE_SOURCE_DIR}/Factories/ZGraphicsFactory.cpp
@@ -165,6 +166,7 @@ ${ENGINE_HEADERS_DIR}/Graphics/ZMesh.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZMesh3D.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZMesh2D.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZModel.hpp
+${ENGINE_HEADERS_DIR}/Graphics/ZGraphicsDebug.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZPhysicsDebug.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZShader.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/AbstractGeometry/ZAABBox.hpp
