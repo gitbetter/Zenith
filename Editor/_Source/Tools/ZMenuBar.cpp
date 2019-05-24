@@ -3,12 +3,12 @@
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZEditor.hpp
+    ZMenuBar.cpp
  
-    Created by Adrian Sanchez on 17/05/19.
+    Created by Adrian Sanchez on 23/05/19.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -27,40 +27,29 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "ZMenuBar.hpp"
 
-// Includes
-#include "ZProcess.hpp"
+void ZMenuBar::Begin() {
+	ImGui::BeginMainMenuBar();
+}
 
-// Forward Declarations
-class ZEditorTool;
-class ZMenuBar;
+void ZMenuBar::Update() {
+	if (ImGui::BeginMenu("File")) {
+		if (ImGui::BeginMenu("New")) {
+			ImGui::MenuItem("Project");
+			ImGui::MenuItem("Scene");
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
+	}
+	if (ImGui::BeginMenu("Scene")) {
+		ImGui::EndMenu();
+	}
+	if (ImGui::BeginMenu("Edit")) {
+		ImGui::EndMenu();
+	}
+}
 
-// Definitions
-class ZEditor : public ZProcess {
-
-private:
-
-    bool editorOpen_;
-	std::shared_ptr<ZMenuBar> menuBar_;
-	std::vector<std::shared_ptr<ZEditorTool>> tools_;
-	
-	void SetupInitialTools();
-    
-public:
-    
-    ZEditor() : ZProcess(), editorOpen_(true) { }
-    
-    void Initialize() override;
-    void Update() override;
-	void Abort() override;
-    void CleanUp() override { };
-    
-protected:
-
-    void BeginFrame();
-	void DockspaceBegin();
-	void DockspaceEnd();
-	void EndFrame();
-
-};
+void ZMenuBar::End() {
+	ImGui::EndMainMenuBar();
+}

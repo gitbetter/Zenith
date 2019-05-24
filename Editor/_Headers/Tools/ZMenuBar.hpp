@@ -3,12 +3,12 @@
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZEditor.hpp
+    ZMenuBar.hpp
  
-    Created by Adrian Sanchez on 17/05/19.
+    Created by Adrian Sanchez on 23/05/19.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -30,37 +30,19 @@
 #pragma once
 
 // Includes
-#include "ZProcess.hpp"
+#include "ZEditorTool.hpp"
 
 // Forward Declarations
-class ZEditorTool;
-class ZMenuBar;
 
 // Definitions
-class ZEditor : public ZProcess {
+class ZMenuBar : public ZEditorTool {
 
-private:
-
-    bool editorOpen_;
-	std::shared_ptr<ZMenuBar> menuBar_;
-	std::vector<std::shared_ptr<ZEditorTool>> tools_;
-	
-	void SetupInitialTools();
-    
 public:
-    
-    ZEditor() : ZProcess(), editorOpen_(true) { }
-    
-    void Initialize() override;
-    void Update() override;
-	void Abort() override;
-    void CleanUp() override { };
-    
-protected:
 
-    void BeginFrame();
-	void DockspaceBegin();
-	void DockspaceEnd();
-	void EndFrame();
+    ZMenuBar() : ZEditorTool("MenuBar") { }
+
+	void Begin() override;
+	void Update() override;
+	void End() override;
 
 };

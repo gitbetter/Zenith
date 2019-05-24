@@ -42,6 +42,7 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
+#include "ZMenuBar.hpp"
 #include "ZSceneTool.hpp"
 #include "ZProjectTool.hpp"
 #include "ZConsoleTool.hpp"
@@ -60,6 +61,7 @@ void ZEditor::Initialize() {
 	ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)zenith::Domain()->Strategy()->Context(), true);
 	ImGui_ImplOpenGL3_Init("#version 400");
 
+	menuBar_ = std::make_shared<ZMenuBar>();
 	SetupInitialTools();
 
 	ZProcess::Initialize();
@@ -80,12 +82,18 @@ void ZEditor::SetupInitialTools() {
 
 void ZEditor::Update() {
 	BeginFrame();
-	
+
+	menuBar_->Begin();
+	menuBar_->Update();
+	menuBar_->End();
+
+	DockspaceBegin();
 	for (std::shared_ptr<ZEditorTool> tool : tools_) {
 		tool->Begin();
 		tool->Update();
 		tool->End();
 	}
+	DockspaceEnd();
 
 	EndFrame();
 
@@ -104,13 +112,9 @@ void ZEditor::BeginFrame() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
-	DockspaceBegin();
 }
 
 void ZEditor::EndFrame() {
-	DockspaceEnd();
-
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
