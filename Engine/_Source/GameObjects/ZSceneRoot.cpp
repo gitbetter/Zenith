@@ -27,6 +27,7 @@
  */
 
 #include "ZSceneRoot.hpp"
+#include "ZPhysics.hpp"
 
 ZSceneRoot::ZSceneRoot() {
 	properties_.name = "Root";
@@ -73,4 +74,5 @@ void ZSceneRoot::RenderChildren(ZRenderOp renderOp) {
         default: break;
 		}
 	}
+    zenith::Physics()->DebugDraw();
 }

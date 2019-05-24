@@ -36,7 +36,6 @@
 #include "ZSkybox.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZDomain.hpp"
-#include "ZPhysics.hpp"
 #include "ZUI.hpp"
 #include "ZUIText.hpp"
 #include "ZUIElement.hpp"
@@ -173,8 +172,6 @@ void ZScene::Render() {
 	zenith::Graphics()->SetupPostProcessingPass();
 	zenith::Graphics()->PostProcessing(this);
 	zenith::Graphics()->FinishRenderPass();
-    
-    //zenith::Physics()->DebugDraw();
 }
 
 void ZScene::RenderUI() {
