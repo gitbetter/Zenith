@@ -38,11 +38,12 @@
 // Class and Data Structure Definitions
 class ZFrustum {
 
-	enum { TOP, BOTTOM, LEFT, RIGHT, NEAR, FAR, NUMPLANES };
-
 public:
 
+	enum { TOP, BOTTOM, LEFT, RIGHT, NEAR, FAR, NUMPLANES };
+
 	ZPlane planes[NUMPLANES];
+	glm::vec3 corners[8];
 	float near, far, ratio, fov, tang;
 	float nearWidth, nearHeight, farWidth, farHeight;
 
@@ -53,6 +54,7 @@ public:
 	bool Contains(glm::vec3 point);
 	bool Contains(glm::vec3 center, float radius);
 	bool Contains(const ZAABBox& box);
+	bool Contains(const ZFrustum& frustum);
 
 };
 

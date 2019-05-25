@@ -74,6 +74,7 @@ public:
     void FinishRenderPass();
     
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_.get(); }
+	ZGraphicsDebug* DebugDrawer() { return debugDrawer_.get(); }
     glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
     ZTexture ShadowBuffer() { return shadowBuffer_; }
     ZTexture DepthBuffer() { return depthBuffer_; }

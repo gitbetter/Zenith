@@ -71,14 +71,15 @@ public:
     void Initialize(std::shared_ptr<ZOFNode> root) override;
     
     void Update() override;
+	void Render();
     
     void UpdateCameraOrientation();
     
-    void EnableMovement() { movementEnabled_ = true; }
-    void DisableMovement() { movementEnabled_ = false; }
+    void EnableUserMovement() { movementEnabled_ = true; }
+    void DisableUserMovement() { movementEnabled_ = false; }
     
-    void EnableLook() { lookEnabled_ = true; }
-    void DisableLook() { lookEnabled_ = false; }
+    void EnableUserLook() { lookEnabled_ = true; }
+    void DisableUserLook() { lookEnabled_ = false; }
     
     void SetType(ZCameraType type) { cameraType_ = type; }
     void SetSpeed(float speed) { movementSpeed_ = speed; }

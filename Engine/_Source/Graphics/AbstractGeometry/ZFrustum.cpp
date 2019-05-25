@@ -40,6 +40,8 @@ ZFrustum::ZFrustum(float fov, float ratio, float near, float far) {
 	nearWidth = nearHeight * ratio;
 	farHeight = far * tang;
 	farWidth = farHeight * ratio;
+
+	Recalculate(glm::vec3(0.f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f));
 }
 
 void ZFrustum::Recalculate(glm::vec3 pos, glm::vec3 front, glm::vec3 up) {
@@ -52,25 +54,21 @@ void ZFrustum::Recalculate(glm::vec3 pos, glm::vec3 front, glm::vec3 up) {
 	nearCenter = pos - z * near;
 	farCenter = pos - z * far;
 
-	planes[NEAR] = ZPlane(-z, nearCenter);
-	planes[FAR] = ZPlane(z, farCenter);
+	corners[0] = nearCenter + y * nearHeight - x * nearWidth; // Near Top Left
+	corners[1] = nearCenter + y * nearHeight + x * nearWidth; // Near Top Right
+	corners[2] = nearCenter - y * nearHeight + x * nearWidth; // Near Bottom Right
+	corners[3] = nearCenter - y * nearHeight - x * nearWidth; // Near Bottom Left
+	corners[4] = farCenter + y * farHeight - x * farWidth;	  // Far Top Left
+	corners[5] = farCenter + y * farHeight + x * farWidth;	  // Far Top Right
+	corners[6] = farCenter - y * farHeight + x * farWidth;	  // Far Bottom Right
+	corners[7] = farCenter - y * farHeight - x * farWidth;	  // Far Bottom Left
 
-	glm::vec3 point, normal;
-	point = nearCenter + y * nearHeight;
-	normal = glm::cross(glm::normalize(point - pos), x);
-	planes[TOP] = ZPlane(normal, point);
-
-	point = nearCenter - y * nearHeight;
-	normal = glm::cross(x, glm::normalize(point - pos));
-	planes[BOTTOM] = ZPlane(normal, point);
-
-	point = nearCenter - x * nearWidth;
-	normal = glm::cross(glm::normalize(point - pos), y);
-	planes[LEFT] = ZPlane(normal, point);
-
-	point = nearCenter + x * nearWidth;
-	normal = glm::cross(y, glm::normalize(point - pos));
-	planes[RIGHT] = ZPlane(normal, point);
+	planes[NEAR] = ZPlane(corners[0], corners[0], corners[2]);
+	planes[FAR] = ZPlane(corners[5], corners[4], corners[7]);
+	planes[TOP] = ZPlane(corners[1], corners[0], corners[4]);
+	planes[BOTTOM] = ZPlane(corners[3], corners[2], corners[6]);
+	planes[LEFT] = ZPlane(corners[0], corners[3], corners[7]);
+	planes[RIGHT] = ZPlane(corners[2], corners[1], corners[6]);
 }
 
 bool ZFrustum::Contains(glm::vec3 point) {
@@ -99,5 +97,10 @@ bool ZFrustum::Contains(const ZAABBox& box) {
 			return false;
 		}
 	}
+	return true;
+}
+
+bool ZFrustum::Contains(const ZFrustum& frustum) {
+	// TODO:
 	return true;
 }

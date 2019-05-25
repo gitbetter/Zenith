@@ -35,9 +35,9 @@
 #include "ZIDSequence.hpp"
 
 ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation) {
-    properties_.position = glm::vec4(position, 1.f);
-    properties_.scale = glm::vec3(1.f, 1.f, 1.f);
-    properties_.orientation = orientation;
+    properties_.previousPosition = properties_.position = glm::vec4(position, 1.f);
+    properties_.previousScale = properties_.scale = glm::vec3(1.f, 1.f, 1.f);
+    properties_.previousOrientation = properties_.orientation = orientation;
     properties_.modelMatrix = glm::mat4(1.f);
     properties_.renderPass = ZRenderPass::Static;
     id_ = "ZGO_" + zenith::IDSequence()->Next();
@@ -86,8 +86,9 @@ void ZGameObject::PreRender() {
 void ZGameObject::Render(ZRenderOp renderOp) {
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
-    if (cameraComp) {
-        // TODO: Debug draw camera if it is not the active camera and we are in the editor
+	if (cameraComp) {
+		if (scene_->ActiveCamera().get() != this)
+			cameraComp->Render();
     } else if (graphicsComp) {
         std::shared_ptr<ZGameObject> camera = scene_->ActiveCamera();
         const ZLightMap& gameLights = scene_->GameLights();
@@ -143,10 +144,13 @@ void ZGameObject::RemoveChild(std::shared_ptr<ZGameObject> gameObject) {
 
 bool ZGameObject::IsVisible() {
     std::shared_ptr<ZGameObject> camera = scene_->ActiveCamera();
-    std::shared_ptr<ZCameraComponent> cameraComp = camera->FindComponent<ZCameraComponent>();
+    std::shared_ptr<ZCameraComponent> activeCameraComp = camera->FindComponent<ZCameraComponent>();
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
-    if (cameraComp && graphicsComp && graphicsComp->Model()) {
-        return cameraComp->Frustum().Contains(graphicsComp->Model()->AABB());
+	std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
+	if (cameraComp) {
+		return activeCameraComp->Frustum().Contains(cameraComp->Frustum());
+	} else if (activeCameraComp && graphicsComp && graphicsComp->Model()) {
+        return activeCameraComp->Frustum().Contains(graphicsComp->Model()->AABB());
     }
     return false;
 }

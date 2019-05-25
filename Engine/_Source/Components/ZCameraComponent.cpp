@@ -28,6 +28,7 @@
 */
 
 #include "ZCameraComponent.hpp"
+#include "ZGraphicsDebug.hpp"
 #include "ZDomain.hpp"
 #include "ZGameObject.hpp"
 #include "ZEventAgent.hpp"
@@ -44,32 +45,21 @@ ZCameraComponent::ZCameraComponent(ZCameraType type) : ZComponent() {
 	pitchVelocity_ = glm::vec3(0.f);
 	yawVelocity_ = glm::vec3(0.f);
 	frustum_ = ZFrustum(zoom_, zenith::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
-	id_ = "ZCCamera_" + zenith::IDSequence()->Next();
-}
-
-void ZCameraComponent::Update() {
-	UpdateCameraOrientation();
-}
-
-void ZCameraComponent::UpdateCameraOrientation() {
-	if (movementStyle_ == ZCameraMovementStyle::Follow) {
-		pitchVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());
-		yawVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());
-		pitch_ = glm::quat(pitchVelocity_ * (float)zenith::DeltaTime());
-		yaw_ = glm::quat(yawVelocity_ * (float)zenith::DeltaTime());
-		object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
-	}
+	id_ = "ZCamera_" + zenith::IDSequence()->Next();
 }
 
 void ZCameraComponent::Initialize() {
-    frustum_ = ZFrustum(zoom_, zenith::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
-    
-    ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
-    ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
-    zenith::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);
-    zenith::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
-    
-    ZComponent::Initialize();
+	frustum_ = ZFrustum(zoom_, zenith::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
+
+	ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
+	ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
+	zenith::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);
+	zenith::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
+
+	DisableUserMovement();
+	DisableUserLook();
+
+	ZComponent::Initialize();
 }
 
 // TODO: Initialize functions should come in two flavors
@@ -128,7 +118,27 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 		cameraDamping_ = prop->value;
 	}
 
-    Initialize();
+	Initialize();
+}
+
+void ZCameraComponent::Update() {
+	UpdateCameraOrientation();
+	frustum_.Recalculate(object_->Position(), object_->Front(), object_->Up());
+}
+
+void ZCameraComponent::Render() {
+	glm::vec4 drawColor(1.f, 1.f, 1.f, 1.f);
+	zenith::Graphics()->DebugDrawer()->Draw(frustum_, drawColor);
+}
+
+void ZCameraComponent::UpdateCameraOrientation() {
+	if (movementStyle_ == ZCameraMovementStyle::Follow) {
+		pitchVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());
+		yawVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());
+		pitch_ = glm::quat(pitchVelocity_ * (float)zenith::DeltaTime());
+		yaw_ = glm::quat(yawVelocity_ * (float)zenith::DeltaTime());
+		object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
+	}
 }
 
 void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event) {

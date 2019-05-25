@@ -36,6 +36,27 @@ void ZGraphicsDebug::Initialize() {
 	shader_->Initialize();
 }
 
+void ZGraphicsDebug::Draw(ZFrustum& frustum, const glm::vec4& color) {
+	std::vector<std::pair<glm::vec3, glm::vec3>> linePoints = {
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[0]), glm::vec3(frustum.corners[1])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[1]), glm::vec3(frustum.corners[2])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[2]), glm::vec3(frustum.corners[3])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[3]), glm::vec3(frustum.corners[0])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[4]), glm::vec3(frustum.corners[5])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[5]), glm::vec3(frustum.corners[6])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[6]), glm::vec3(frustum.corners[7])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[7]), glm::vec3(frustum.corners[4])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[0]), glm::vec3(frustum.corners[4])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[1]), glm::vec3(frustum.corners[5])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[2]), glm::vec3(frustum.corners[6])),
+		std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[3]), glm::vec3(frustum.corners[7]))
+	};
+
+	for (std::pair<glm::vec3, glm::vec3> points : linePoints) {
+		DrawLine(points.first, points.second, color);
+	}
+}
+
 void ZGraphicsDebug::DrawLine(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color) {
 	if (!zenith::Game()->ActiveScene()) return;
 

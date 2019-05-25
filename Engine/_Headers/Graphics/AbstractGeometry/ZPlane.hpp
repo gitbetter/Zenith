@@ -44,6 +44,7 @@ public:
 
 	ZPlane() { }
 	ZPlane(glm::vec3 c, glm::vec3 n) : center(c), normal(n) { }
+	ZPlane(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 
 	float Distance(glm::vec3 point);
     glm::vec3 Intersection(ZPlane a, ZPlane b);

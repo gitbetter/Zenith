@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZEngine.hpp"
+#include "ZFrustum.hpp"
 
 // Forward Declarations
 class ZShader;
@@ -45,6 +46,8 @@ private:
 public:
     
     void Initialize();
+
+	void Draw(ZFrustum& frustum, const glm::vec4& color);
     
 protected:
     

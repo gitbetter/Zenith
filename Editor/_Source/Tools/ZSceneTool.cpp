@@ -59,15 +59,15 @@ void ZSceneTool::Update() {
     
     auto cameraComp = editorCamera_->FindComponent<ZCameraComponent>();
     if (!ImGui::IsWindowFocused()) {
-        cameraComp->DisableLook();
-        cameraComp->DisableMovement();
+        cameraComp->DisableUserLook();
+        cameraComp->DisableUserMovement();
     } else {
-        cameraComp->EnableMovement();
+        cameraComp->EnableUserMovement();
         if (zenith::Input()->Mouse(ZMOUSE_RIGHT)) {
-            cameraComp->EnableLook();
+            cameraComp->EnableUserLook();
             zenith::Domain()->Strategy()->CaptureCursor();
         } else {
-            cameraComp->DisableLook();
+            cameraComp->DisableUserLook();
             zenith::Domain()->Strategy()->ReleaseCursor();
         }
     }

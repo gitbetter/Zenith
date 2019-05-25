@@ -29,6 +29,12 @@
 
 #include "ZPlane.hpp"
 
+ZPlane::ZPlane(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
+	glm::vec3 e2 = p2 - p1, e1 = p3 - p1;
+	normal = glm::normalize(glm::cross(e2, e1));
+	center = normal * glm::dot(p1, normal);
+}
+
 float ZPlane::Distance(glm::vec3 point) {
 	return glm::length(glm::dot(point, glm::normalize(normal)) - center);
 }
