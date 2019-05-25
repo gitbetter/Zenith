@@ -38,12 +38,8 @@ ${EDITOR_SOURCES_DIR}/Tools/ZProjectSettingsTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZProjectTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZSceneTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZMenuBar.cpp
+${EDITOR_SOURCES_DIR}/main.cpp
 )
-
-if(NOT DEMO)
-	add_compile_definitions(EDITOR)
-	list(APPEND ENGINE_SOURCES ${EDITOR_SOURCES_DIR}/main.cpp)
-endif()
 
 SET(EDITOR_INCLUDES
 ${EDITOR_HEADERS_DIR}

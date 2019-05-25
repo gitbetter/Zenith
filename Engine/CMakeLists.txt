@@ -1037,10 +1037,6 @@ ${ENGINE_HEADERS_DIR}/_ThirdParty/zlib/zconf.h
 ${ENGINE_HEADERS_DIR}/_ThirdParty/zlib/zlib.h
 )
 
-if(DEMO)
-	list(APPEND ENGINE_SOURCES ${ENGINE_SOURCE_DIR}/demo.cpp)
-endif(DEMO)
-
 SET(ENGINE_INCLUDES
 ${ENGINE_HEADERS_DIR}
 ${ENGINE_HEADERS_DIR}/_ThirdParty

@@ -49,7 +49,7 @@ void ZSceneTool::Begin() {
     if (zenith::Game()->ActiveScene()->ActiveCamera() != editorCamera_)
         zenith::Game()->ActiveScene()->SetActiveCamera(editorCamera_);
     
-	ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::Begin(name_.c_str(), &visible_, flags);
 }

@@ -1,6 +1,5 @@
 param(
-    [switch]$development=$false,
-    [switch]$demo=$false
+    [switch]$development=$false
 )
 
 if (Test-Path _Bin -PathType Container) {
@@ -13,10 +12,6 @@ $exec = 'cmake -G "Visual Studio 15 2017 Win64"'
 
 if ($development) {
     $exec = "$exec -DDEVELOPMENT=ON"
-}
-
-if ($demo) {
-    $exec = "$exec -DDEMO=ON"
 }
 
 $exec = "$exec ..;"

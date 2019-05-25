@@ -147,7 +147,9 @@ void ZGraphics::SetupColorPass() {
 
 void ZGraphics::SetupPostProcessingPass() {
 	graphicsStrategy_->BlitFramebuffer(colorFrameBufferMultisampled_, colorFrameBuffer_);
+#ifdef EDITOR
 	graphicsStrategy_->BindFramebuffer(postFrameBuffer_);
+#endif
 	zenith::Graphics()->Strategy()->ClearViewport();
 }
 

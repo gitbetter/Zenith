@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD 14)
 project(Zenith VERSION 1.0.0.0 LANGUAGES CXX)
 
 option(DEVELOPMENT "Generate a development build" OFF)
-option(DEMO "Compiles the application using a demo directly linked to the engine, instead of the editor" OFF)
 
 set(PROJECT_NAME Zenith)
 
