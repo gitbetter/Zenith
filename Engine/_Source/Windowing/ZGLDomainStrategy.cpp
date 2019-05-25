@@ -45,6 +45,7 @@ void* ZGLDomainStrategy::CreateWindow(int width, int height, bool visible, void*
 #endif
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_VISIBLE, visible ? GL_TRUE : GL_FALSE);
+	glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
 
 	GLFWwindow* window;
 	if (sharedContext == nullptr) {
