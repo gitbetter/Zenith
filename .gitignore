@@ -24,7 +24,7 @@
 
 # Workspaces
 *.code-workspace
-*.DS_Store
+.DS_Store
 **/.DS_Store
 
 # Visual Studio files

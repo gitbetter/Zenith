@@ -11,21 +11,17 @@ while test $# -gt 0; do
 	esac
 done
 
+if [ $"dev" = true ]; then
+	flags="--development"
+fi
+
+if [ $"xcode" = true]; then
+	flags=" $flags --xcode"
+fi
+
 if [ ! -d _Bin/ ] || [ ! -f _Bin/Makefile ]; then
-  if [ "$dev" = true ]; then
-	if [ "$xcode" = true ]; then
-		sh rebuild.sh --development --xcode
-	else
-		sh rebuild.sh --development
-	fi
-  else 
-	if [ "$xcode" = true ]; then
-		sh rebuild.sh --xcode
-	else
-		sh rebuild.sh
-	fi
-  fi
-elif [ "$xcode" = false]; then
+	sh rebuild.sh $flags
+elif [ "$xcode" = false ]; then
 	cd _Bin/; make; cd ..;
 fi
 

@@ -17,19 +17,16 @@ fi
 
 cd _Bin; rm -rf *; 
 
-if [ "$dev" = true ]; then 
-	if [ "$xcode" = true ]; then
-		cmake -G Xcode -DDEVELOPMENT=ON ..; 
-	else
-  		cmake -DDEVELOPMENT=ON ..; 
-	fi	
-else
-	if [ "$xcode" = true ]; then
-		cmake -G Xcode ..; 
-	else
-  		cmake ..; 
-	fi	
+if [ "$xcode" = true ]; then
+	flags="-G Xcode"
 fi
+
+if [ "$dev" = true ]; then
+	flags=" $flags -DDEVELOPMENT=ON"
+fi
+
+cmake $flags ..;
+
 
 if [ "$xcode" = false ]; then
 	make
