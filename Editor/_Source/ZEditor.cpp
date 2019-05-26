@@ -43,6 +43,7 @@
 #include "ZGraphicsStrategy.hpp"
 
 #include "ZMenuBar.hpp"
+#include "ZActionBar.hpp"
 #include "ZSceneTool.hpp"
 #include "ZProjectTool.hpp"
 #include "ZConsoleTool.hpp"
@@ -68,6 +69,8 @@ void ZEditor::Initialize() {
 }
 
 void ZEditor::SetupInitialTools() {
+	std::shared_ptr<ZActionBar> actionBar = std::make_shared<ZActionBar>();
+	tools_.push_back(actionBar);
 	std::shared_ptr<ZSceneTool> sceneTool = std::make_shared<ZSceneTool>();
 	tools_.push_back(sceneTool);
 	std::shared_ptr<ZProjectTool> projectTool = std::make_shared<ZProjectTool>();
@@ -155,16 +158,22 @@ void ZEditor::DockspaceBegin() {
 		ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_None);
 
 		ImGuiID dock_main_id = dockspaceID;
+		ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Up, 0.05f, nullptr, &dock_main_id);
 		ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Right, 0.2f, nullptr, &dock_main_id);
 		ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Left, 0.2f, nullptr, &dock_main_id);
 		ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dock_main_id, ImGuiDir_Down, 0.2f, nullptr, &dock_main_id);
-		const ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
+		ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
 
+		ImGui::DockBuilderDockWindow("Actions", dock_up_id);
 		ImGui::DockBuilderDockWindow("Hierarchy", dock_right_id);
 		ImGui::DockBuilderDockWindow("Inspector", dock_left_id);
 		ImGui::DockBuilderDockWindow("Console", dock_down_id);
 		ImGui::DockBuilderDockWindow("Project", dock_down_right_id);
 		ImGui::DockBuilderDockWindow("Scene", dock_main_id);
+
+		ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_up_id);
+		node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
+
 		ImGui::DockBuilderFinish(dock_main_id);
 	}
 	ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspaceFlags);
