@@ -52,7 +52,7 @@ void ZUI::Initialize() {
 }
 
 void ZUI::RegisterFont(std::string fontPath) {
-  if (textStrategy_ != nullptr) textStrategy_->LoadFont(fontPath, 64);
+  if (textStrategy_ != nullptr) textStrategy_->LoadFontAsync(fontPath, 64);
 }
 
 void ZUI::CleanUp() {

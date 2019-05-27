@@ -28,14 +28,25 @@
  */
 
 #include "ZActionBar.hpp"
+#include "ZDomain.hpp"
 
 void ZActionBar::Begin() {
-	ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
-	ImGui::Begin(name_.c_str(), nullptr, flags);
+	ImGui::Begin(name_.c_str());
 }
 
 void ZActionBar::Update() {
+	if (ImGui::Button("Translate")) {}
+	ImGui::SameLine();
+	if (ImGui::Button("Rotate")) {}
+	ImGui::SameLine();
+	if (ImGui::Button("Scale")) {}
 
+	ImGui::SetCursorPos(ImVec2(zenith::Domain()->ResolutionX() / 2.f, ImGui::GetWindowHeight() * 0.2f));
+	if (ImGui::Button("Play")) { }
+	ImGui::SameLine();
+	if (ImGui::Button("Pause")) { }
+	ImGui::SameLine();
+	if (ImGui::Button("Stop")) { }
 }
 
 void ZActionBar::End() {

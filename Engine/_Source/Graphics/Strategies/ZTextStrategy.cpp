@@ -43,7 +43,7 @@ void ZTextStrategy::SetFontSize(std::string font, unsigned int fontSize) {
 
 ZCharacter ZTextStrategy::Character(std::string font, unsigned char c) {
   if (loadedFonts_.find(font) == loadedFonts_.end()) {
-    _Z("Could not get a character for that font. It seems it hasn't been loaded.", ZWARNING);
+    _Z("The font " + font + " has not been loaded.", ZWARNING);
     return ZCharacter();
   }
   ZFont loadedFont = loadedFonts_[font];

@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
-    ZGLTextStrategyStrategy.hpp
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    Created by Adrian Sanchez on 11/02/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZGLTextStrategyStrategy.hpp
+
+	Created by Adrian Sanchez on 11/02/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -33,19 +33,26 @@
 #include "ZTextStrategy.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZEvent;
 
 // Class and Data Structure Definitions
 class ZGLTextStrategy : public ZTextStrategy {
+
 private:
+
+	std::map<std::string, unsigned int> pendingFonts_;
+
+	void HandleFontLoaded(std::shared_ptr<ZEvent> event);
 
 public:
 
-  ZGLTextStrategy() { }
-  ~ZGLTextStrategy() { }
+	ZGLTextStrategy() {}
+	~ZGLTextStrategy() {}
 
-  void LoadFont(std::string fontPath, unsigned int fontSize) override;
-protected:
+	void Initialize() override;
 
+	void LoadFont(std::string fontPath, unsigned int fontSize) override;
+	void LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize) override;
+	void LoadFontAsync(std::string fontPath, unsigned int fontSize) override;
 
 };

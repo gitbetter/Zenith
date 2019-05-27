@@ -34,10 +34,12 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+// Forward Declarations
+class ZResourceHandle;
+
 // Class and Data Structure Definitions
 
 class ZTextStrategy {
-private:
 
 public:
 
@@ -46,6 +48,8 @@ public:
 
   virtual void Initialize();
   virtual void LoadFont(std::string fontPath, unsigned int fontSize = 24) = 0;
+  virtual void LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize = 24) = 0;
+  virtual void LoadFontAsync(std::string fontPath, unsigned int fontSize = 24) = 0;
   virtual void SetFontSize(std::string font, unsigned int size);
 
   ZCharacter Character(std::string font, unsigned char c);
@@ -54,4 +58,5 @@ protected:
 
   FT_Library ft_;
   std::map<std::string, ZFont> loadedFonts_;
+
 };

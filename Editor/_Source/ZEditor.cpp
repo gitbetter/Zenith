@@ -65,6 +65,9 @@ void ZEditor::Initialize() {
 	menuBar_ = std::make_shared<ZMenuBar>();
 	SetupInitialTools();
 
+	// TODO: Load necessary editor assets and settings
+	// zenith::LoadZOF("Editor/engine_conf.zof")
+
 	ZProcess::Initialize();
 }
 
@@ -172,7 +175,7 @@ void ZEditor::DockspaceBegin() {
 		ImGui::DockBuilderDockWindow("Scene", dock_main_id);
 
 		ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_up_id);
-		node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
+		node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize | ImGuiDockNodeFlags_AutoHideTabBar;
 
 		ImGui::DockBuilderFinish(dock_main_id);
 	}
