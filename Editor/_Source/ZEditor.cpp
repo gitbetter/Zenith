@@ -248,7 +248,7 @@ void ZEditor::DockspaceBegin() {
 		ImGui::DockBuilderDockWindow("Scene", dock_main_id);
 
 		ImGuiDockNode* node = ImGui::DockBuilderGetNode(dock_up_id);
-		node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize | ImGuiDockNodeFlags_AutoHideTabBar;
+		node->LocalFlags |= (ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize);
 
 		ImGui::DockBuilderFinish(dock_main_id);
 	}
