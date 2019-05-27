@@ -30,6 +30,7 @@
 #include "ZLogger.hpp"
 
 void ZLogger::AddEntry(ZLogEntry entry) {
+	std::lock_guard<std::mutex> lockBuffer(loggerMutexes_.buffer);
     if (entry.severity > 2) entry.severity = 0;
     logBuffer_.push_back(entry);
 }

@@ -70,7 +70,7 @@ void ZResourceLoadTask::Run() {
 			ZOFParser parser;
 			std::shared_ptr<ZZOFResourceExtraData> extraData = std::make_shared<ZZOFResourceExtraData>();
 			handle->SetExtra(extraData);
-			extraData->objectTree_ = parser.Parse(std::string((char*)handle->Buffer()));
+			extraData->objectTree_ = parser.Parse(std::string((const char*)handle->Buffer()));
 		}
 		break;
 	}

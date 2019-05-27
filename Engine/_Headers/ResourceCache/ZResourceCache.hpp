@@ -61,7 +61,7 @@ public:
 	ZResourceCache(const unsigned int sizeInMb);
 	~ZResourceCache();
 
-	bool Initialize();
+	void Initialize();
 	void RegisterLoader(std::shared_ptr<ZResourceLoader> loader);
 	void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
 	std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);

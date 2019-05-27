@@ -29,24 +29,32 @@
 
 #include "ZActionBar.hpp"
 #include "ZDomain.hpp"
+#include "IconsFontAwesome5.h"
 
 void ZActionBar::Begin() {
 	ImGui::Begin(name_.c_str());
 }
 
 void ZActionBar::Update() {
-	if (ImGui::Button("Translate")) {}
+	ImGui::SetCursorPos(ImVec2(15.f, ImGui::GetWindowHeight() * 0.2f));
+	if (ImGui::Button(ICON_FA_ARROWS_ALT, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Translate");
 	ImGui::SameLine();
-	if (ImGui::Button("Rotate")) {}
+	if (ImGui::Button(ICON_FA_SYNC, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Rotate");
 	ImGui::SameLine();
-	if (ImGui::Button("Scale")) {}
+	if (ImGui::Button(ICON_FA_EXPAND, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Scale");
 
-	ImGui::SetCursorPos(ImVec2(zenith::Domain()->ResolutionX() / 2.f, ImGui::GetWindowHeight() * 0.2f));
-	if (ImGui::Button("Play")) { }
+	ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2.f, ImGui::GetWindowHeight() * 0.2f));
+	if (ImGui::Button(ICON_FA_PLAY, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Play");
 	ImGui::SameLine();
-	if (ImGui::Button("Pause")) { }
+	if (ImGui::Button(ICON_FA_PAUSE, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Pause");
 	ImGui::SameLine();
-	if (ImGui::Button("Stop")) { }
+	if (ImGui::Button(ICON_FA_STOP, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Stop");
 }
 
 void ZActionBar::End() {

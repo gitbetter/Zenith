@@ -46,18 +46,8 @@ ZResourceCache::~ZResourceCache() {
     resourceFiles_.clear();
 }
 
-bool ZResourceCache::Initialize() {
-	bool success = false;
-    for (ResourceFileMap::iterator it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
-        if (it->second->Open()) {
-            success = true;
-        }
-    }
-
-	if (success)
-		RegisterLoader(std::shared_ptr<ZResourceLoader>(new ZDefaultResourceLoader));
-
-	return success;
+void ZResourceCache::Initialize() {
+	RegisterLoader(std::shared_ptr<ZResourceLoader>(new ZDefaultResourceLoader));
 }
 
 void ZResourceCache::RegisterLoader(std::shared_ptr<ZResourceLoader> loader) {
@@ -68,7 +58,9 @@ void ZResourceCache::RegisterLoader(std::shared_ptr<ZResourceLoader> loader) {
 
 void ZResourceCache::RegisterResourceFile(std::shared_ptr<ZResourceFile> file) {
 	if (resourceFiles_.find(file->Name()) != resourceFiles_.end()) return;
-	resourceFiles_[file->Name()] = file;
+	if (file->Open()) {
+		resourceFiles_[file->Name()] = file;
+	}
 }
 
 std::shared_ptr<ZResourceHandle> ZResourceCache::GetHandle(ZResource* resource) {
@@ -135,7 +127,7 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
 
     for (it = resourceFiles_.begin(); it != resourceFiles_.end(); it++) {
         rawSize += it->second->RawResourceSize(*resource);
-        if (rawSize != 0) break;
+        if (rawSize > 1) break;
     }
 
 	char* rawBuffer = loader->UseRawFile() ? Allocate(rawSize) : new char[rawSize];

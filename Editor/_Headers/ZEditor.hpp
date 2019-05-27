@@ -35,17 +35,36 @@
 // Forward Declarations
 class ZEditorTool;
 class ZMenuBar;
+class ZEvent;
+class ZResourceHandle;
+struct ImFont;
 
 // Definitions
+const std::string EDITOR_CONFIG_PATH = "Editor/_Assets/conf.zof";
+const std::string FA_PATH = "../Editor/_Assets/Fonts/FontAwesome5_Regular_400.otf";
+const std::string FA_SOLID_PATH = "../Editor/_Assets/Fonts/FontAwesome5_Solid_900.otf";
+
+struct ZEditorConfig {
+	std::string mainFontPath;
+	float mainFontSize;
+};
+
 class ZEditor : public ZProcess {
 
 private:
 
+	ZEditorConfig config_;
+
     bool editorOpen_;
+	ImFont* editorFont_ = nullptr;
 	std::shared_ptr<ZMenuBar> menuBar_;
 	std::vector<std::shared_ptr<ZEditorTool>> tools_;
 	
 	void SetupInitialTools();
+	void SetupFontIcons();
+	void ConfigSetup(std::shared_ptr<ZOFTree> objectTree);
+	void ConfigSetup(ZEditorConfig config);
+	void HandleResourceLoaded(std::shared_ptr<ZEvent> event);
     
 public:
     
@@ -55,6 +74,9 @@ public:
     void Update() override;
 	void Abort() override;
     void CleanUp() override { };
+
+	void SetEditorFont(std::string fontPath);
+	void SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle);
     
 protected:
 

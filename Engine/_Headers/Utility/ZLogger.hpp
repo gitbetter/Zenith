@@ -48,6 +48,10 @@ class ZLogger {
     
 private:
     
+	struct {
+		std::mutex buffer;
+	} loggerMutexes_;
+
     std::vector<ZLogEntry> logBuffer_;
     
 public:

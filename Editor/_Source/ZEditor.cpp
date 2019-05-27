@@ -35,12 +35,19 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "IconsFontAwesome5.h"
+
 #include "ZEditor.hpp"
 #include "ZGame.hpp"
 #include "ZDomain.hpp"
 #include "ZInput.hpp"
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
+#include "ZEventAgent.hpp"
+#include "ZResourceCache.hpp"
+#include "ZResourceHandle.hpp"
+#include "ZResourceLoadedEvent.hpp"
+#include "ZResourceExtraData.hpp"
 
 #include "ZMenuBar.hpp"
 #include "ZActionBar.hpp"
@@ -50,6 +57,8 @@
 #include "ZInspectorTool.hpp"
 #include "ZHierarchyTool.hpp"
 
+#include "ZDevResourceFile.hpp"
+
 void ZEditor::Initialize() {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -57,21 +66,81 @@ void ZEditor::Initialize() {
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
+	io.Fonts->AddFontDefault();
+
 	ImGui::StyleColorsDark();
 	
 	ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)zenith::Domain()->Strategy()->Context(), true);
 	ImGui_ImplOpenGL3_Init("#version 400");
 
-	menuBar_ = std::make_shared<ZMenuBar>();
 	SetupInitialTools();
 
-	// TODO: Load necessary editor assets and settings
-	// zenith::LoadZOF("Editor/engine_conf.zof")
+	zenith::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../Editor/_Assets")));
+
+	zenith::LoadZOF(EDITOR_CONFIG_PATH);
+
+	ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZEditor::HandleResourceLoaded);
+	zenith::EventAgent()->AddListener(resourceLoadedDelegate, ZResourceLoadedEvent::Type);
 
 	ZProcess::Initialize();
 }
 
+void ZEditor::ConfigSetup(std::shared_ptr<ZOFTree> objectTree) {
+	ZEditorConfig config;
+	if (objectTree->children.find("CONFIG") != objectTree->children.end()) {
+		std::shared_ptr<ZOFObjectNode> configDataNode = std::dynamic_pointer_cast<ZOFObjectNode>(objectTree->children["CONFIG"]);
+		if (configDataNode->properties.find("font") != configDataNode->properties.end()) {
+			config.mainFontPath = configDataNode->properties["font"]->Value<ZOFString>(0)->value;
+			config.mainFontSize = configDataNode->properties["font"]->Value<ZOFNumber>(1)->value;
+		}
+	}
+	ConfigSetup(config);
+}
+
+void ZEditor::ConfigSetup(ZEditorConfig config) {
+	config_ = config;
+
+	if (!config_.mainFontPath.empty()) {
+		ZResource fontResource(config_.mainFontPath, ZResourceType::Font);
+		zenith::ResourceCache()->RequestHandle(fontResource);
+	}
+}
+
+void ZEditor::SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle) {
+	ImGuiIO& io = ImGui::GetIO();
+	ImFontConfig fontConfig;
+	fontConfig.FontDataOwnedByAtlas = false;
+	editorFont_ = io.Fonts->AddFontFromMemoryTTF((void*)handle->Buffer(), handle->Size(), config_.mainFontSize, &fontConfig);
+
+	SetupFontIcons();
+
+	io.Fonts->Build();
+	ImGui_ImplOpenGL3_CreateFontsTexture();
+}
+
+void ZEditor::SetEditorFont(std::string fontPath) {
+	ImGuiIO& io = ImGui::GetIO();
+	editorFont_ = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), config_.mainFontSize);
+
+	SetupFontIcons();
+
+	io.Fonts->Build();
+	ImGui_ImplOpenGL3_CreateFontsTexture();
+}
+
+void ZEditor::SetupFontIcons() {
+	ImGuiIO& io = ImGui::GetIO();
+	ImFontConfig fontConfig;
+	fontConfig.MergeMode = true;
+	fontConfig.GlyphMinAdvanceX = 13.0f;
+	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+	io.Fonts->AddFontFromFileTTF(FA_PATH.c_str(), config_.mainFontSize, &fontConfig, icon_ranges);
+	io.Fonts->AddFontFromFileTTF(FA_SOLID_PATH.c_str(), config_.mainFontSize, &fontConfig, icon_ranges);
+}
+
 void ZEditor::SetupInitialTools() {
+	menuBar_ = std::make_shared<ZMenuBar>();
+
 	std::shared_ptr<ZActionBar> actionBar = std::make_shared<ZActionBar>();
 	tools_.push_back(actionBar);
 	std::shared_ptr<ZSceneTool> sceneTool = std::make_shared<ZSceneTool>();
@@ -118,9 +187,13 @@ void ZEditor::BeginFrame() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
+	if (editorFont_) ImGui::PushFont(editorFont_);
 }
 
 void ZEditor::EndFrame() {
+	if (editorFont_) ImGui::PopFont();
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -184,4 +257,16 @@ void ZEditor::DockspaceBegin() {
 
 void ZEditor::DockspaceEnd() {
 	ImGui::End();
+}
+
+void ZEditor::HandleResourceLoaded(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZResourceLoadedEvent> loadedEvent = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	ZResource& resource = loadedEvent->Handle()->Resource();
+
+	if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_CONFIG_PATH) {
+		std::shared_ptr<ZZOFResourceExtraData> zofData = std::dynamic_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
+		ConfigSetup(zofData->ObjectTree());
+	} else if (resource.type == ZResourceType::Font && resource.name == config_.mainFontPath) {
+		SetEditorFontFromMemory(loadedEvent->Handle());
+	}
 }

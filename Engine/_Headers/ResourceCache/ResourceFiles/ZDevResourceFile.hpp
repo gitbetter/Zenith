@@ -48,6 +48,7 @@ public:
 
 	ZDevResourceFile(const std::string& filePath) : fileName_(filePath) {}
 	~ZDevResourceFile() {}
+
 	bool Open() override;
 	const std::string& Name() const override { return fileName_; }
 	unsigned int RawResourceSize(ZResource& resource) override;

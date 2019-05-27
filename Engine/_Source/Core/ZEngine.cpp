@@ -98,12 +98,12 @@ namespace zenith {
         
         /* ========= Resource Cache System ============ */
         resourceCache_.reset(new ZResourceCache(100));
+		resourceCache_->Initialize();
     #ifdef DEV_BUILD
         resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../Assets")));
     #else
         resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile("Assets.zip")));
     #endif
-        resourceCache_->Initialize();
         resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
         resourceCache_->RegisterLoader(std::shared_ptr<ZWavResourceLoader>(new ZWavResourceLoader));
         resourceCache_->RegisterLoader(std::shared_ptr<ZOggResourceLoader>(new ZOggResourceLoader));
