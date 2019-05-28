@@ -43,19 +43,19 @@ private:
     unsigned int activeScene_ = 0;
     std::vector<std::shared_ptr<ZScene>> scenes_;
     
-    void CleanUp() { }
-    
 public:
     
     ZGame();
     ~ZGame() { };
     
-    void RunGameLoop();
-    bool Running();
-    void AddScene(std::shared_ptr<ZScene> scene);
+    void CleanUp() { }
     
     std::shared_ptr<ZScene> ActiveScene() { return !(scenes_.empty()) ? scenes_[activeScene_] : nullptr; }
     void SetActiveScene(unsigned int index);
+    
+    void RunGameLoop();
+    bool Running();
+    void AddScene(std::shared_ptr<ZScene> scene);
     
     // TODO: Remove later when we figure out why some displays don't refresh on startup
     void MacDisplayHack();

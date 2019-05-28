@@ -80,6 +80,21 @@ if (APPLE)
   ${VORBISFILE_LIB}
   ${OPENAL_LIB})
 
+  add_custom_command(
+  	TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Editor"
+    COMMENT "create directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Editor"
+  )
+
+  SET(source "${CMAKE_SOURCE_DIR}/Editor/_Assets")
+  SET(destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Editor/_Assets")
+  add_custom_command(
+      TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
+      DEPENDS ${destination}
+      COMMENT "symbolically link editor assets folder from ${source} => ${destination}"
+  )
+
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${DARWIN_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
   )

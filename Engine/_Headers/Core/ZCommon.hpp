@@ -245,6 +245,10 @@ enum ZRenderOp {
 	Depth, Shadow, Color, Post
 };
 
+enum class ZPlayState {
+    Playing, Paused, NotStarted
+};
+
 enum class ZPhysicsBodyType {
     Dynamic = 1, Static = 2, Kinematic = 4, Trigger = 8, Character = 16, Particle = 32, All = -1
 };

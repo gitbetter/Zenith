@@ -63,6 +63,7 @@ private:
     ZGameObjectMap gameObjects_;
     ZUIElementMap uiElements_;
 	glm::mat4 viewProjection_, previousViewProjection_;
+    ZPlayState playState_;
 	std::string name_;
    
     void Render();
@@ -87,8 +88,11 @@ public:
     ~ZScene() { }
     
     void Initialize() override;
-	void Start();
     void Update() override;
+    
+    void Play() { playState_ = ZPlayState::Playing; }
+    void Pause() { playState_ = ZPlayState::Paused; }
+    void Stop() { playState_ = ZPlayState::NotStarted; }
 
     std::shared_ptr<ZGameObject> Root() { return root_; }
     std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
@@ -99,6 +103,7 @@ public:
 	std::string& Name() { return name_; }
 	glm::mat4& ViewProjection() { return viewProjection_; }
 	glm::mat4& PreviousViewProjection() { return previousViewProjection_; }
+    ZPlayState& PlayState() { return playState_; }
     
     void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
     void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);

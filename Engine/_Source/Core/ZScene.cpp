@@ -53,7 +53,7 @@
 #include "ZSkyboxReadyEvent.hpp"
 #include "ZSceneReadyEvent.hpp"
 
-ZScene::ZScene() : loadedResourceCount_(0) {
+ZScene::ZScene() : loadedResourceCount_(0), playState_(ZPlayState::NotStarted) {
     root_ = std::make_shared<ZSceneRoot>();
     root_->scene_ = this;
 }
@@ -90,10 +90,6 @@ void ZScene::Initialize() {
 	}
 
     ZProcess::Initialize();
-}
-
-void ZScene::Start() {
-	
 }
 
 void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree) {

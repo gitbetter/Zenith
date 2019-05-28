@@ -29,6 +29,7 @@
 
 #include "ZActionBar.hpp"
 #include "ZDomain.hpp"
+#include "ZGame.hpp"
 #include "IconsFontAwesome5.h"
 
 void ZActionBar::Begin() {
@@ -47,13 +48,19 @@ void ZActionBar::Update() {
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Scale");
 
 	ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2.f, ImGui::GetWindowHeight() * 0.2f));
-	if (ImGui::Button(ICON_FA_PLAY, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::Button(ICON_FA_PLAY, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) {
+        zenith::Game()->ActiveScene()->Play();
+    }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Play");
 	ImGui::SameLine();
-	if (ImGui::Button(ICON_FA_PAUSE, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::Button(ICON_FA_PAUSE, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) {
+        zenith::Game()->ActiveScene()->Pause();
+    }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Pause");
 	ImGui::SameLine();
-	if (ImGui::Button(ICON_FA_STOP, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) { }
+	if (ImGui::Button(ICON_FA_STOP, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) {
+        zenith::Game()->ActiveScene()->Stop();
+    }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Stop");
 }
 
