@@ -30,6 +30,8 @@
 #include "ZSceneTool.hpp"
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
+#include "ZGame.hpp"
+#include "ZScene.hpp"
 #include "ZGameObject.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZGame.hpp"
@@ -74,8 +76,11 @@ void ZSceneTool::Update() {
     
 	unsigned int width, height;
 	UpdateViewportResolution(width, height);
-    // TODO: Switch to SceneBuffer() when in play mode
-	ImGui::Image((ImTextureID)zenith::Graphics()->ColorBuffer().id, ImVec2(width, height), ImVec2(0, 1), ImVec2(1, 0));
+    if (zenith::Game()->ActiveScene()->PlayState() == ZPlayState::Playing) {
+        ImGui::Image((ImTextureID)zenith::Graphics()->SceneBuffer().id, ImVec2(width, height), ImVec2(0, 1), ImVec2(1, 0));
+    } else {
+        ImGui::Image((ImTextureID)zenith::Graphics()->ColorBuffer().id, ImVec2(width, height), ImVec2(0, 1), ImVec2(1, 0));
+    }
 }
 
 void ZSceneTool::End() {
