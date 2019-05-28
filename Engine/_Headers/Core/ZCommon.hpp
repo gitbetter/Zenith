@@ -426,3 +426,7 @@ struct ZRaycastHitResult {
     glm::vec3 hitPosition;
     bool hasHit;
 };
+
+struct ZEngineOptions {
+    
+};

@@ -81,6 +81,7 @@ namespace zenith {
         
         std::unique_ptr<ZLogger> logger_(new ZLogger);
         std::unique_ptr<ZIDSequence> idGenerator_(new ZIDSequence);
+        std::unique_ptr<ZEngineOptions> options_(new ZEngineOptions);
         
         double deltaTime_ = 0.0;
         double lastDeltaTime_ = 0.0;
@@ -233,6 +234,10 @@ namespace zenith {
     ZIDSequence* IDSequence() {
         return idGenerator_.get();
     }
+    
+    ZEngineOptions* Options() {
+        return options_.get();
+    }
 
     double LastDeltaTime() {
         return lastDeltaTime_;
@@ -329,6 +334,9 @@ namespace zenith {
     void CleanUp() {
         processRunner_->AbortAllProcesses(true);
         
+        options_.reset();
+        idGenerator_.reset();
+        logger_.reset();
         audio_->CleanUp(); audio_.reset();
         physics_->CleanUp(); physics_.reset();
         ui_->CleanUp(); ui_.reset();
