@@ -28,7 +28,9 @@
  */
 
 #include "ZHierarchyTool.hpp"
+#include "ZEditor.hpp"
 #include "ZGame.hpp"
+#include "ZInput.hpp"
 #include "ZScene.hpp"
 #include "ZGameObject.hpp"
 
@@ -44,13 +46,20 @@ void ZHierarchyTool::Update() {
 }
 
 void ZHierarchyTool::DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject) {
+    bool selected = editor_->SelectedObjects().find(gameObject->ID()) != editor_->SelectedObjects().end();
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-    if (ImGui::TreeNodeEx(gameObject->ID().c_str(), ImGuiTreeNodeFlags_FramePadding, "%s", gameObject->ID().c_str())) {
+    if (ImGui::TreeNodeEx(gameObject->ID().c_str(), ImGuiTreeNodeFlags_FramePadding | (selected ? ImGuiTreeNodeFlags_Selected : 0), "%s", gameObject->ID().c_str())) {
         for (ZGameObjectList::const_iterator it = gameObject->Children().cbegin(), end = gameObject->Children().cend(); it != end; it++)
             DrawGameObjectNode(*it);
         ImGui::TreePop();
     }
     ImGui::PopStyleVar();
+    if (ImGui::IsItemClicked()) {
+        if (!zenith::Input()->Key(ZKEY_LEFT_CONTROL) && !zenith::Input()->Key(ZKEY_RIGHT_CONTROL)) {
+            editor_->SelectedObjects().clear();
+        }
+        editor_->SelectedObjects()[gameObject->ID()] = gameObject;
+    }
     if (ImGui::BeginDragDropSource()) {
         ImGui::SetDragDropPayload("ZGameObject", gameObject.get(), sizeof(ZGameObject));
         ImGui::Text("%s", gameObject->ID().c_str());

@@ -55,6 +55,7 @@ class ZEditor : public ZProcess {
 private:
 
 	ZEditorConfig config_;
+    ZGameObjectMap selectedObjects_;
 
     bool editorOpen_;
 	ImFont* editorFont_ = nullptr;
@@ -80,6 +81,7 @@ public:
     void CleanUp() override { };
     
     ZEditorConfig& Config() { return config_; }
+    ZGameObjectMap& SelectedObjects() { return selectedObjects_; }
 
 	void SetEditorFont(std::string fontPath);
 	void SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle);

@@ -178,6 +178,8 @@ void ZGLInput::Update() {
     keyPress_[ZKEY_SPACE] = glfwGetKey(windowHandle, keyMap_[ZKEY_SPACE]) == GLFW_PRESS;
     keyPress_[ZKEY_TAB] = glfwGetKey(windowHandle, keyMap_[ZKEY_TAB]) == GLFW_PRESS;
     keyPress_[ZKEY_ESCAPE] = glfwGetKey(windowHandle, keyMap_[ZKEY_ESCAPE]) == GLFW_PRESS;
+    keyPress_[ZKEY_LEFT_CONTROL] = glfwGetKey(windowHandle, keyMap_[ZKEY_LEFT_CONTROL]) == GLFW_PRESS;
+    keyPress_[ZKEY_RIGHT_CONTROL] = glfwGetKey(windowHandle, keyMap_[ZKEY_RIGHT_CONTROL]) == GLFW_PRESS;
     
     mousePress_[ZMOUSE_LEFT] = glfwGetMouseButton(windowHandle, mouseMap_[ZMOUSE_LEFT]) == GLFW_PRESS;
     mousePress_[ZMOUSE_RIGHT] = glfwGetMouseButton(windowHandle, mouseMap_[ZMOUSE_RIGHT]) == GLFW_PRESS;
