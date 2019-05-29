@@ -36,6 +36,8 @@
 
 // Definitions
 class ZProjectSettingsTool : public ZEditorTool {
+    
+    friend class ZEditor;
 
 public:
 

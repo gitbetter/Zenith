@@ -28,6 +28,7 @@
  */
 
 #include "ZConsoleTool.hpp"
+#include "ZEditor.hpp"
 
 void ZConsoleTool::Begin() {
 	ImGui::Begin(name_.c_str());
@@ -75,13 +76,25 @@ void ZConsoleTool::Update() {
 void ZConsoleTool::StyledLogEntry(ZLogEntry entry) {
     switch (entry.severity) {
         case ZINFO:
-            ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", entry.text.c_str());
+            if (editor_->Config().theme == "Light") {
+                ImGui::TextColored(ImVec4(0.15, 0.15, 0.15, 1), "%s", entry.text.c_str());
+            } else {
+                ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", entry.text.c_str());
+            }
             break;
         case ZWARNING:
-            ImGui::TextColored(ImVec4(1.0, 0.85, 0.137, 1), "%s", entry.text.c_str());
+            if (editor_->Config().theme == "Light") {
+                ImGui::TextColored(ImVec4(0.38, 0.43, 0.04, 1), "%s", entry.text.c_str());
+            } else {
+                ImGui::TextColored(ImVec4(1.0, 0.85, 0.137, 1), "%s", entry.text.c_str());
+            }
             break;
         case ZERROR:
-            ImGui::TextColored(ImVec4(0.655, 0.161, 0.18, 1), "%s", entry.text.c_str());
+            if (editor_->Config().theme == "Light") {
+                ImGui::TextColored(ImVec4(0.43, 0.13, 0.13, 1), "%s", entry.text.c_str());
+            } else {
+                ImGui::TextColored(ImVec4(0.655, 0.161, 0.18, 1), "%s", entry.text.c_str());
+            }
             break;
         default: break;
     }

@@ -37,9 +37,11 @@ class ZGameObject;
 
 // Definitions
 class ZSceneTool : public ZEditorTool {
+    
+    friend class ZEditor;
 
 private:
-    
+
     std::shared_ptr<ZGameObject> editorCamera_;
 
 	void UpdateViewportResolution(unsigned int& outWidth, unsigned int& outHeight);

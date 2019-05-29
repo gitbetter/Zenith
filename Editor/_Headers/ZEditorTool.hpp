@@ -38,6 +38,7 @@
 #include "imgui_impl_opengl3.h"
 
 // Forward Declarations
+class ZEditor;
 
 // Definitions
 class ZEditorTool {
@@ -53,6 +54,7 @@ public:
 	
 protected:
 
+    ZEditor* editor_;
 	std::string name_;
 	bool visible_;
 

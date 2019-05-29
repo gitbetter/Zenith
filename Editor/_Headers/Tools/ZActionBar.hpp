@@ -36,6 +36,8 @@
 
 // Definitions
 class ZActionBar : public ZEditorTool {
+    
+    friend class ZEditor;
 
 public:
 

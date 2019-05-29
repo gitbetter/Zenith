@@ -38,6 +38,8 @@
 // Definitions
 class ZConsoleTool : public ZEditorTool {
     
+    friend class ZEditor;
+    
 private:
     
     bool autoScroll_;

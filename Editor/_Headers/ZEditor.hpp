@@ -47,6 +47,7 @@ const std::string FA_SOLID_PATH = "../Editor/_Assets/Fonts/FontAwesome5_Solid_90
 struct ZEditorConfig {
 	std::string mainFontPath;
 	float mainFontSize;
+    std::string theme;
 };
 
 class ZEditor : public ZProcess {
@@ -77,6 +78,8 @@ public:
     void Update() override;
 	void Abort() override;
     void CleanUp() override { };
+    
+    ZEditorConfig& Config() { return config_; }
 
 	void SetEditorFont(std::string fontPath);
 	void SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle);

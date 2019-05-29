@@ -36,6 +36,8 @@
 
 // Definitions
 class ZHierarchyTool : public ZEditorTool {
+    
+    friend class ZEditor;
 
 public:
 
