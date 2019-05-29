@@ -39,9 +39,11 @@ void ZHierarchyTool::Begin() {
 void ZHierarchyTool::Update() {
     ZGameObjectMap& gameObjects = zenith::Game()->ActiveScene()->GameObjects();
     for (ZGameObjectMap::iterator it = gameObjects.begin(), end = gameObjects.end(); it != end; it++) {
-        if (ImGui::TreeNode(it->second->ID().c_str(), "%s", it->second->Name().c_str())) {
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
+        if (ImGui::TreeNodeEx(it->second->ID().c_str(), ImGuiTreeNodeFlags_FramePadding, "%s", it->second->Name().c_str())) {
             ImGui::TreePop();
         }
+        ImGui::PopStyleVar();
     }
 }
 
