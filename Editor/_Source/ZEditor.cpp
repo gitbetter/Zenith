@@ -199,7 +199,7 @@ void ZEditor::Update() {
 		tool->End();
 	}
 	DockspaceEnd();
-
+    
 	EndFrame();
 
 	ZProcess::Update();

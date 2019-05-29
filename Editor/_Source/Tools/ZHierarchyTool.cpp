@@ -28,13 +28,21 @@
  */
 
 #include "ZHierarchyTool.hpp"
+#include "ZGame.hpp"
+#include "ZScene.hpp"
+#include "ZGameObject.hpp"
 
 void ZHierarchyTool::Begin() {
 	ImGui::Begin(name_.c_str());
 }
 
 void ZHierarchyTool::Update() {
-
+    ZGameObjectMap& gameObjects = zenith::Game()->ActiveScene()->GameObjects();
+    for (ZGameObjectMap::iterator it = gameObjects.begin(), end = gameObjects.end(); it != end; it++) {
+        if (ImGui::TreeNode(it->second->ID().c_str(), "%s", it->second->Name().c_str())) {
+            ImGui::TreePop();
+        }
+    }
 }
 
 void ZHierarchyTool::End() {

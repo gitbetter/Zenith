@@ -60,9 +60,11 @@ private:
     std::shared_ptr<ZGameObject> activeCamera_ = nullptr;
 	std::shared_ptr<ZGameObject> primaryCamera_ = nullptr;
 	std::list<glm::mat4> matrixStack_;
+    
     ZLightMap gameLights_;
     ZGameObjectMap gameObjects_;
     ZUIElementMap uiElements_;
+    
 	glm::mat4 viewProjection_, previousViewProjection_;
     ZPlayState playState_;
 	std::string name_;
@@ -92,7 +94,7 @@ public:
     void Update() override;
     
 	void Play();
-	void Pause();
+	void Pause() override;
 	void Stop();
 
     std::shared_ptr<ZGameObject> Root() { return root_; }
