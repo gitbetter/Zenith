@@ -60,10 +60,13 @@ private:
 	std::shared_ptr<ZMenuBar> menuBar_;
 	std::vector<std::shared_ptr<ZEditorTool>> tools_;
 	
+	void SetupImGui();
 	void SetupInitialTools();
-	void SetupFontIcons();
-	void ConfigSetup(std::shared_ptr<ZOFTree> objectTree);
-	void ConfigSetup(ZEditorConfig config);
+	void SetupEngine();
+	void Configure(std::shared_ptr<ZOFTree> objectTree);
+	void Configure(ZEditorConfig config);
+
+	void MergeFontIcons();
 	void HandleResourceLoaded(std::shared_ptr<ZEvent> event);
     
 public:

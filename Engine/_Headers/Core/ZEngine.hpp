@@ -103,7 +103,7 @@ namespace zenith {
     
     extern ZLogger* Logger();
     extern ZIDSequence* IDSequence();
-    extern ZEngineOptions* Options();
+    extern ZEngineOptions& Options();
     
     extern double LastDeltaTime();
     extern double DeltaTime();

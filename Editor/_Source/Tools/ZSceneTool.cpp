@@ -48,8 +48,14 @@ ZSceneTool::ZSceneTool() : ZEditorTool("Scene") {
 }
 
 void ZSceneTool::Begin() {
-    if (zenith::Game()->ActiveScene()->ActiveCamera() != editorCamera_)
-        zenith::Game()->ActiveScene()->SetActiveCamera(editorCamera_);
+	// TODO: Set the active camera internally within zenith::Game()->ActiveScene()->Play()
+	if (zenith::Game()->ActiveScene()->PlayState() == ZPlayState::Playing) {
+		if (zenith::Game()->ActiveScene()->PrimaryCamera()) {
+			zenith::Game()->ActiveScene()->SetActiveCamera(zenith::Game()->ActiveScene()->PrimaryCamera());
+		}
+	} else if (zenith::Game()->ActiveScene()->ActiveCamera() != editorCamera_) {
+		zenith::Game()->ActiveScene()->SetActiveCamera(editorCamera_);
+	} 
     
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -59,7 +65,7 @@ void ZSceneTool::Begin() {
 void ZSceneTool::Update() {
 	ImGui::PopStyleVar();
     
-    auto cameraComp = editorCamera_->FindComponent<ZCameraComponent>();
+    auto cameraComp = zenith::Game()->ActiveScene()->ActiveCamera()->FindComponent<ZCameraComponent>();
     if (!ImGui::IsWindowFocused()) {
         cameraComp->DisableUserLook();
         cameraComp->DisableUserMovement();

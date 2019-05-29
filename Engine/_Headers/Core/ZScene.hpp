@@ -58,6 +58,7 @@ private:
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
     std::shared_ptr<ZGameObject> root_ = nullptr;
     std::shared_ptr<ZGameObject> activeCamera_ = nullptr;
+	std::shared_ptr<ZGameObject> primaryCamera_ = nullptr;
 	std::list<glm::mat4> matrixStack_;
     ZLightMap gameLights_;
     ZGameObjectMap gameObjects_;
@@ -90,13 +91,14 @@ public:
     void Initialize() override;
     void Update() override;
     
-    void Play() { playState_ = ZPlayState::Playing; }
-    void Pause() { playState_ = ZPlayState::Paused; }
-    void Stop() { playState_ = ZPlayState::NotStarted; }
+	void Play();
+	void Pause();
+	void Stop();
 
     std::shared_ptr<ZGameObject> Root() { return root_; }
     std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
     std::shared_ptr<ZGameObject> ActiveCamera() { return activeCamera_; }
+	std::shared_ptr<ZGameObject> PrimaryCamera() { return primaryCamera_; }
     ZGameObjectMap& GameObjects() { return gameObjects_; }
     ZUIElementMap& UIElements() { return uiElements_; }
     ZLightMap& GameLights() { return gameLights_; }
@@ -115,6 +117,7 @@ public:
 	void PushMatrix(glm::mat4 matrix);
 	void PopMatrix();
     
+	void SetPrimaryCamera(std::shared_ptr<ZGameObject> gameObject);
     void SetActiveCamera(std::shared_ptr<ZGameObject> gameObject);
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
     void SetDefaultSkybox();

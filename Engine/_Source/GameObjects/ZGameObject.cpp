@@ -86,9 +86,8 @@ void ZGameObject::PreRender() {
 void ZGameObject::Render(ZRenderOp renderOp) {
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
-	if (cameraComp) {
-		if (scene_->ActiveCamera().get() != this)
-			cameraComp->Render();
+	if (zenith::Options().drawCameraDebug && cameraComp && scene_->ActiveCamera().get() != this) {
+		cameraComp->Render();
     } else if (graphicsComp) {
         std::shared_ptr<ZGameObject> camera = scene_->ActiveCamera();
         const ZLightMap& gameLights = scene_->GameLights();

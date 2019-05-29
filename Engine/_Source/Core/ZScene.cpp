@@ -35,6 +35,7 @@
 #include "ZGameObject.hpp"
 #include "ZSkybox.hpp"
 #include "ZCameraComponent.hpp"
+#include "ZPhysics.hpp"
 #include "ZDomain.hpp"
 #include "ZUI.hpp"
 #include "ZUIText.hpp"
@@ -178,6 +179,21 @@ void ZScene::RenderUI() {
     }
 }
 
+void ZScene::Play() {
+	playState_ = ZPlayState::Playing;
+	zenith::Physics()->Resume();
+}
+
+void ZScene::Pause() {
+	playState_ = ZPlayState::Paused;
+	zenith::Physics()->Pause();
+}
+
+void ZScene::Stop() {
+	playState_ = ZPlayState::NotStarted;
+	zenith::Physics()->Pause();
+}
+
 void ZScene::UpdateViewProjectionMatrices() {
 	previousViewProjection_ = viewProjection_;
 	if (activeCamera_) {
@@ -200,7 +216,7 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
     if (gameObject != nullptr) {
         gameObject->scene_ = this;
         if (gameObject->FindComponent<ZCameraComponent>() != nullptr) {
-            activeCamera_ = gameObject;
+            activeCamera_ = primaryCamera_ = gameObject;
         }
         
         if (std::dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
@@ -250,9 +266,14 @@ void ZScene::PopMatrix() {
     sceneMutexes_.matrixStack.unlock();
 }
 
+void ZScene::SetPrimaryCamera(std::shared_ptr<ZGameObject> gameObject) {
+	if (gameObject && gameObject->FindComponent<ZCameraComponent>())
+		primaryCamera_ = gameObject;
+}
+
 void ZScene::SetActiveCamera(std::shared_ptr<ZGameObject> gameObject) {
     if (gameObject && gameObject->FindComponent<ZCameraComponent>())
-    activeCamera_ = gameObject;
+		activeCamera_ = gameObject;
 }
 
 void ZScene::SetDefaultSkybox() {

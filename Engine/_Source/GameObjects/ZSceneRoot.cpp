@@ -74,5 +74,7 @@ void ZSceneRoot::RenderChildren(ZRenderOp renderOp) {
         default: break;
 		}
 	}
-    zenith::Physics()->DebugDraw();
+
+	if (zenith::Options().drawPhysicsDebug)
+		zenith::Physics()->DebugDraw();
 }

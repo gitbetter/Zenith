@@ -39,6 +39,7 @@
 
 #include "ZEditor.hpp"
 #include "ZGame.hpp"
+#include "ZPhysics.hpp"
 #include "ZDomain.hpp"
 #include "ZInput.hpp"
 #include "ZGraphics.hpp"
@@ -64,6 +65,17 @@ namespace ImGui {
 }
 
 void ZEditor::Initialize() {
+	SetupImGui();
+	SetupInitialTools();
+	SetupEngine();
+
+	ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZEditor::HandleResourceLoaded);
+	zenith::EventAgent()->AddListener(resourceLoadedDelegate, ZResourceLoadedEvent::Type);
+
+	ZProcess::Initialize();
+}
+
+void ZEditor::SetupImGui() {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -72,74 +84,10 @@ void ZEditor::Initialize() {
 
 	io.Fonts->AddFontDefault();
 
-    ImGui::StyleColorsDark();
-	
+	ImGui::StyleColorsDark();
+
 	ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)zenith::Domain()->Strategy()->Context(), true);
 	ImGui_ImplOpenGL3_Init("#version 400");
-
-	SetupInitialTools();
-
-	zenith::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../Editor/_Assets")));
-
-	zenith::LoadZOF(EDITOR_CONFIG_PATH);
-
-	ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZEditor::HandleResourceLoaded);
-	zenith::EventAgent()->AddListener(resourceLoadedDelegate, ZResourceLoadedEvent::Type);
-
-	ZProcess::Initialize();
-}
-
-void ZEditor::ConfigSetup(std::shared_ptr<ZOFTree> objectTree) {
-	ZEditorConfig config;
-	if (objectTree->children.find("CONFIG") != objectTree->children.end()) {
-		std::shared_ptr<ZOFObjectNode> configDataNode = std::dynamic_pointer_cast<ZOFObjectNode>(objectTree->children["CONFIG"]);
-		if (configDataNode->properties.find("font") != configDataNode->properties.end()) {
-			config.mainFontPath = configDataNode->properties["font"]->Value<ZOFString>(0)->value;
-			config.mainFontSize = configDataNode->properties["font"]->Value<ZOFNumber>(1)->value;
-		}
-	}
-	ConfigSetup(config);
-}
-
-void ZEditor::ConfigSetup(ZEditorConfig config) {
-	config_ = config;
-
-	if (!config_.mainFontPath.empty()) {
-		ZResource fontResource(config_.mainFontPath, ZResourceType::Font);
-		zenith::ResourceCache()->RequestHandle(fontResource);
-	}
-}
-
-void ZEditor::SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle) {
-	ImGuiIO& io = ImGui::GetIO();
-	ImFontConfig fontConfig;
-	fontConfig.FontDataOwnedByAtlas = false;
-	editorFont_ = io.Fonts->AddFontFromMemoryTTF((void*)handle->Buffer(), handle->Size(), config_.mainFontSize, &fontConfig);
-
-	SetupFontIcons();
-
-	io.Fonts->Build();
-	ImGui_ImplOpenGL3_CreateFontsTexture();
-}
-
-void ZEditor::SetEditorFont(std::string fontPath) {
-	ImGuiIO& io = ImGui::GetIO();
-	editorFont_ = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), config_.mainFontSize);
-
-	SetupFontIcons();
-
-	io.Fonts->Build();
-	ImGui_ImplOpenGL3_CreateFontsTexture();
-}
-
-void ZEditor::SetupFontIcons() {
-	ImGuiIO& io = ImGui::GetIO();
-	ImFontConfig fontConfig;
-	fontConfig.MergeMode = true;
-	fontConfig.GlyphMinAdvanceX = 13.0f;
-	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
-	io.Fonts->AddFontFromFileTTF(FA_PATH.c_str(), config_.mainFontSize, &fontConfig, icon_ranges);
-	io.Fonts->AddFontFromFileTTF(FA_SOLID_PATH.c_str(), config_.mainFontSize, &fontConfig, icon_ranges);
 }
 
 void ZEditor::SetupInitialTools() {
@@ -157,6 +105,70 @@ void ZEditor::SetupInitialTools() {
 	tools_.push_back(inspectorTool);
 	std::shared_ptr<ZHierarchyTool> hierarchyTool = std::make_shared<ZHierarchyTool>();
 	tools_.push_back(hierarchyTool);
+}
+
+void ZEditor::SetupEngine() {
+	zenith::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../Editor/_Assets")));
+
+	zenith::LoadZOF(EDITOR_CONFIG_PATH);
+
+	zenith::Physics()->Pause();
+
+	zenith::Options().drawCameraDebug = true;
+	zenith::Options().drawPhysicsDebug = true;
+}
+
+void ZEditor::Configure(std::shared_ptr<ZOFTree> objectTree) {
+	ZEditorConfig config;
+	if (objectTree->children.find("CONFIG") != objectTree->children.end()) {
+		std::shared_ptr<ZOFObjectNode> configDataNode = std::dynamic_pointer_cast<ZOFObjectNode>(objectTree->children["CONFIG"]);
+		if (configDataNode->properties.find("font") != configDataNode->properties.end()) {
+			config.mainFontPath = configDataNode->properties["font"]->Value<ZOFString>(0)->value;
+			config.mainFontSize = configDataNode->properties["font"]->Value<ZOFNumber>(1)->value;
+		}
+	}
+	Configure(config);
+}
+
+void ZEditor::Configure(ZEditorConfig config) {
+	config_ = config;
+
+	if (!config_.mainFontPath.empty()) {
+		ZResource fontResource(config_.mainFontPath, ZResourceType::Font);
+		zenith::ResourceCache()->RequestHandle(fontResource);
+	}
+}
+
+void ZEditor::SetEditorFont(std::string fontPath) {
+	ImGuiIO& io = ImGui::GetIO();
+	editorFont_ = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), config_.mainFontSize);
+
+	MergeFontIcons();
+
+	io.Fonts->Build();
+	ImGui_ImplOpenGL3_CreateFontsTexture();
+}
+
+void ZEditor::SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle) {
+	ImGuiIO& io = ImGui::GetIO();
+	ImFontConfig fontConfig;
+	fontConfig.FontDataOwnedByAtlas = false;
+	editorFont_ = io.Fonts->AddFontFromMemoryTTF((void*)handle->Buffer(), handle->Size(), config_.mainFontSize, &fontConfig);
+
+	MergeFontIcons();
+
+	io.Fonts->Build();
+	ImGui_ImplOpenGL3_CreateFontsTexture();
+}
+
+void ZEditor::MergeFontIcons() {
+	ImGuiIO& io = ImGui::GetIO();
+	ImFontConfig fontConfig;
+	fontConfig.MergeMode = true;
+	fontConfig.GlyphMinAdvanceX = 13.0f;
+	static const ImWchar icon_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+	io.Fonts->AddFontFromFileTTF(FA_PATH.c_str(), config_.mainFontSize, &fontConfig, icon_ranges);
+	io.Fonts->AddFontFromFileTTF(FA_SOLID_PATH.c_str(), config_.mainFontSize, &fontConfig, icon_ranges);
 }
 
 void ZEditor::Update() {
@@ -269,13 +281,12 @@ void ZEditor::HandleResourceLoaded(std::shared_ptr<ZEvent> event) {
 
 	if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_CONFIG_PATH) {
 		std::shared_ptr<ZZOFResourceExtraData> zofData = std::dynamic_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
-		ConfigSetup(zofData->ObjectTree());
+		Configure(zofData->ObjectTree());
 	} else if (resource.type == ZResourceType::Font && resource.name == config_.mainFontPath) {
 		SetEditorFontFromMemory(loadedEvent->Handle());
 	}
 }
 
-// generic miniDart theme
 void ImGui::StyleColorsLightGreen(ImGuiStyle* dst)
 {
     ImGuiStyle* style = dst ? dst : &ImGui::GetStyle();
@@ -286,11 +297,8 @@ void ImGui::StyleColorsLightGreen(ImGuiStyle* dst)
     style->GrabRounding      = 2.0f;             // Radius of grabs corners rounding. Set to 0.0f to have rectangular slider grabs.
     style->AntiAliasedLines  = true;
     style->AntiAliasedFill   = true;
-    style->WindowRounding    = 2;
     style->ChildRounding     = 2;
     style->ScrollbarSize     = 16;
-    style->ScrollbarRounding = 3;
-    style->GrabRounding      = 2;
     style->ItemSpacing.x     = 10;
     style->ItemSpacing.y     = 4;
     style->IndentSpacing     = 22;
@@ -302,7 +310,6 @@ void ImGui::StyleColorsLightGreen(ImGuiStyle* dst)
     colors[ImGuiCol_Text]                   = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
     colors[ImGuiCol_WindowBg]              = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-    //colors[ImGuiCol_ChildWindowBg]         = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
     colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
     colors[ImGuiCol_PopupBg]                = ImVec4(0.93f, 0.93f, 0.93f, 0.98f);
     colors[ImGuiCol_Border]                = ImVec4(0.71f, 0.71f, 0.71f, 0.08f);
