@@ -65,6 +65,14 @@ void ZHierarchyTool::DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject)
         ImGui::Text("%s", gameObject->ID().c_str());
         ImGui::EndDragDropSource();
     }
+    ImGui::PushID(gameObject->ID().c_str());
+    if(ImGui::BeginPopupContextItem()) {
+        // TODO: Polish this up
+        static char buf[128] = "";
+        ImGui::InputText("Rename", buf, 128);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
 }
 
 void ZHierarchyTool::End() {
