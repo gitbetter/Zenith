@@ -38,6 +38,10 @@
 class ZHierarchyTool : public ZEditorTool {
     
     friend class ZEditor;
+    
+private:
+    
+    void DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject);
 
 public:
 

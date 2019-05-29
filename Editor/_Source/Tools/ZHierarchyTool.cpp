@@ -39,11 +39,22 @@ void ZHierarchyTool::Begin() {
 void ZHierarchyTool::Update() {
     ZGameObjectMap& gameObjects = zenith::Game()->ActiveScene()->GameObjects();
     for (ZGameObjectMap::iterator it = gameObjects.begin(), end = gameObjects.end(); it != end; it++) {
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-        if (ImGui::TreeNodeEx(it->second->ID().c_str(), ImGuiTreeNodeFlags_FramePadding, "%s", it->second->Name().c_str())) {
-            ImGui::TreePop();
-        }
-        ImGui::PopStyleVar();
+        DrawGameObjectNode(it->second);
+    }
+}
+
+void ZHierarchyTool::DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject) {
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
+    if (ImGui::TreeNodeEx(gameObject->ID().c_str(), ImGuiTreeNodeFlags_FramePadding, "%s", gameObject->ID().c_str())) {
+        for (ZGameObjectList::const_iterator it = gameObject->Children().cbegin(), end = gameObject->Children().cend(); it != end; it++)
+            DrawGameObjectNode(*it);
+        ImGui::TreePop();
+    }
+    ImGui::PopStyleVar();
+    if (ImGui::BeginDragDropSource()) {
+        ImGui::SetDragDropPayload("ZGameObject", gameObject.get(), sizeof(ZGameObject));
+        ImGui::Text("%s", gameObject->ID().c_str());
+        ImGui::EndDragDropSource();
     }
 }
 

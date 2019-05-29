@@ -78,6 +78,7 @@ public:
     ZScene* Scene() const { return scene_; }
 	std::string Name() const { return properties_.name; }
 	ZRenderPass RenderPass() const { return properties_.renderPass; }
+    ZGameObjectList& Children() { return children_; }
     glm::vec3 Position();
     glm::vec3 Scale();
     glm::quat Orientation();
