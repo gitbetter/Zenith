@@ -28,6 +28,7 @@
  */
 
 #include "ZSceneTool.hpp"
+#include "ZEditor.hpp"
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
 #include "ZGame.hpp"
@@ -38,23 +39,14 @@
 #include "ZProcessRunner.hpp"
 #include "ZInput.hpp"
 
-ZSceneTool::ZSceneTool() : ZEditorTool("Scene") {
-    editorCamera_ = std::make_shared<ZGameObject>(glm::vec3(0.f, 15.f, 50.f));
-    std::shared_ptr<ZCameraComponent> cameraComp = std::make_shared<ZCameraComponent>(ZCameraType::Perspective);
-    editorCamera_->AddComponent(cameraComp);
-    zenith::ProcessRunner()->AttachProcess(cameraComp);
-    
-    zenith::Game()->ActiveScene()->AddGameObject(editorCamera_);
-}
-
 void ZSceneTool::Begin() {
 	// TODO: Set the active camera internally within zenith::Game()->ActiveScene()->Play()
 	if (zenith::Game()->ActiveScene()->PlayState() == ZPlayState::Playing) {
 		if (zenith::Game()->ActiveScene()->PrimaryCamera()) {
 			zenith::Game()->ActiveScene()->SetActiveCamera(zenith::Game()->ActiveScene()->PrimaryCamera());
 		}
-	} else if (zenith::Game()->ActiveScene()->ActiveCamera() != editorCamera_) {
-		zenith::Game()->ActiveScene()->SetActiveCamera(editorCamera_);
+	} else if (zenith::Game()->ActiveScene()->ActiveCamera() != editor_->EditorCamera()) {
+		zenith::Game()->ActiveScene()->SetActiveCamera(editor_->EditorCamera());
 	} 
     
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration;

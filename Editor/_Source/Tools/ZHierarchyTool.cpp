@@ -41,6 +41,7 @@ void ZHierarchyTool::Begin() {
 void ZHierarchyTool::Update() {
     ZGameObjectMap& gameObjects = zenith::Game()->ActiveScene()->GameObjects();
     for (ZGameObjectMap::iterator it = gameObjects.begin(), end = gameObjects.end(); it != end; it++) {
+		if (it->second == editor_->EditorCamera()) continue;
         DrawGameObjectNode(it->second);
     }
 }

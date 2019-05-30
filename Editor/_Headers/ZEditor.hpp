@@ -56,6 +56,7 @@ private:
 
 	ZEditorConfig config_;
     ZGameObjectMap selectedObjects_;
+	std::shared_ptr<ZGameObject> editorCamera_;
 
     bool editorOpen_;
 	ImFont* editorFont_ = nullptr;
@@ -82,6 +83,7 @@ public:
     
     ZEditorConfig& Config() { return config_; }
     ZGameObjectMap& SelectedObjects() { return selectedObjects_; }
+	std::shared_ptr<ZGameObject> EditorCamera() { return editorCamera_; }
 
 	void SetEditorFont(std::string fontPath);
 	void SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle);

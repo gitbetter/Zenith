@@ -49,6 +49,8 @@
 #include "ZResourceHandle.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZResourceExtraData.hpp"
+#include "ZGameObject.hpp"
+#include "ZCameraComponent.hpp"
 
 #include "ZMenuBar.hpp"
 #include "ZActionBar.hpp"
@@ -92,6 +94,14 @@ void ZEditor::SetupImGui() {
 }
 
 void ZEditor::SetupInitialTools() {
+	if (!editorCamera_) {
+		editorCamera_ = std::make_shared<ZGameObject>(glm::vec3(0.f, 15.f, 50.f));
+		std::shared_ptr<ZCameraComponent> cameraComp = std::make_shared<ZCameraComponent>(ZCameraType::Perspective);
+		editorCamera_->AddComponent(cameraComp);
+		zenith::ProcessRunner()->AttachProcess(cameraComp);
+		zenith::Game()->ActiveScene()->AddGameObject(editorCamera_);
+	}
+
 	menuBar_ = std::make_shared<ZMenuBar>();
 
 	std::shared_ptr<ZActionBar> actionBar = std::make_shared<ZActionBar>();

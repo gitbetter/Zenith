@@ -42,13 +42,11 @@ class ZSceneTool : public ZEditorTool {
 
 private:
 
-    std::shared_ptr<ZGameObject> editorCamera_;
-
 	void UpdateViewportResolution(unsigned int& outWidth, unsigned int& outHeight);
 
 public:
 
-    ZSceneTool();
+	ZSceneTool() : ZEditorTool("Scene") { }
 
 	void Begin() override;
 	void Update() override;
