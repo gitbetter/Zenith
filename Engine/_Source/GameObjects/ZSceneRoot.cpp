@@ -29,9 +29,7 @@
 #include "ZSceneRoot.hpp"
 #include "ZPhysics.hpp"
 
-ZSceneRoot::ZSceneRoot() {
-	properties_.name = "Root";
-	
+ZSceneRoot::ZSceneRoot(std::string name) : ZGameObject(name) {
 	std::shared_ptr<ZGameObject> staticGroup = std::make_shared<ZGameObject>("StaticGroup");
 	staticGroup->SetRenderPass(ZRenderPass::Static);
 	children_.push_back(staticGroup);
@@ -59,7 +57,25 @@ void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject) {
 		_Z("The child being added has a non-extant render pass", ZERROR);
 		return;
 	}
+    
 	children_[pass]->AddChild(gameObject);
+    
+    if (std::find(publicChildren_.begin(), publicChildren_.end(), gameObject) == publicChildren_.end()) {
+        publicChildren_.push_back(gameObject);
+    }
+    
+    gameObject->parent_ = this;
+}
+
+void ZSceneRoot::RemoveChild(std::shared_ptr<ZGameObject> gameObject) {
+    ZGameObject::RemoveChild(gameObject);
+    for (ZGameObjectList::iterator it = children_.begin(), end = children_.end(); it != end; it++) {
+        (*it)->RemoveChild(gameObject);
+    }
+    
+    ZGameObjectList::iterator it = std::find(publicChildren_.begin(), publicChildren_.end(), gameObject);
+    if (it != publicChildren_.end())
+        publicChildren_.erase(it);
 }
 
 void ZSceneRoot::RenderChildren(ZRenderOp renderOp) {

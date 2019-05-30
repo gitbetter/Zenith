@@ -53,6 +53,7 @@ struct ZGameObjectProperties {
 class ZGameObject : public ZProcess {
     
     friend class ZScene;
+    friend class ZSceneRoot;
     friend class ZGOFactory;
     
 public:
@@ -78,7 +79,7 @@ public:
     ZScene* Scene() const { return scene_; }
 	std::string Name() const { return properties_.name; }
 	ZRenderPass RenderPass() const { return properties_.renderPass; }
-    ZGameObjectList& Children() { return children_; }
+    virtual ZGameObjectList& Children() { return children_; }
     glm::vec3 Position();
     glm::vec3 Scale();
     glm::quat Orientation();
@@ -134,9 +135,9 @@ public:
 protected:
     
     ZScene* scene_ = nullptr;
+    ZGameObject* parent_ = nullptr;
     ZComponentList components_;
     ZGameObjectList children_;
-    ZGameObject* parent_;
     ZGameObjectProperties properties_;
     
     struct {

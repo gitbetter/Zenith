@@ -86,7 +86,7 @@ private:
     
 public:
     
-	ZScene();
+    ZScene(std::string name = "");
 	ZScene(std::initializer_list<std::string> zofPaths);
     ~ZScene() { }
     

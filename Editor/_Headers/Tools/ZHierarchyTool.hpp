@@ -41,6 +41,8 @@ class ZHierarchyTool : public ZEditorTool {
     
 private:
     
+    std::vector<std::pair<std::shared_ptr<ZGameObject>, std::shared_ptr<ZGameObject>>> parentObjectPairs_;
+    
     void DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject);
 
 public:

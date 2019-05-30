@@ -132,14 +132,17 @@ void ZGameObject::CalculateDerivedData() {
 void ZGameObject::AddChild(std::shared_ptr<ZGameObject> gameObject) {
     if (std::find(children_.begin(), children_.end(), gameObject) == children_.end()) {
         if (!gameObject->scene_) gameObject->scene_ = scene_;
+        if (gameObject->parent_) gameObject->parent_->RemoveChild(gameObject);
+        gameObject->parent_ = this;
         children_.push_back(gameObject);
     }
 }
 
 void ZGameObject::RemoveChild(std::shared_ptr<ZGameObject> gameObject) {
+    gameObject->parent_ = nullptr;
     ZGameObjectList::iterator it = std::find(children_.begin(), children_.end(), gameObject);
     if (it != children_.end())
-    children_.erase(it);
+        children_.erase(it);
 }
 
 bool ZGameObject::IsVisible() {

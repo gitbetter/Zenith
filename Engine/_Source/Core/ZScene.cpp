@@ -54,8 +54,8 @@
 #include "ZSkyboxReadyEvent.hpp"
 #include "ZSceneReadyEvent.hpp"
 
-ZScene::ZScene() : loadedResourceCount_(0), playState_(ZPlayState::NotStarted) {
-    root_ = std::make_shared<ZSceneRoot>();
+ZScene::ZScene(std::string name) : loadedResourceCount_(0), playState_(ZPlayState::NotStarted) {
+    root_ = std::make_shared<ZSceneRoot>(name);
     root_->scene_ = this;
 }
 
@@ -121,6 +121,7 @@ void ZScene::ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree) {
 			std::shared_ptr<ZOFObjectNode> sceneDataNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
 			if (sceneDataNode->properties.find("name") != sceneDataNode->properties.end()) {
 				name_ = sceneDataNode->properties["name"]->Value<ZOFString>(0)->value;
+                root_->SetName(name_);
 			}
 		} else if (it->first.find("ZTEX") == 0 || it->first.find("ZMOD") == 0 || it->first.find("ZSH") == 0 || 
 				   /*it->first.find("ZSCR") == 0 ||*/ it->first.find("ZSKY") == 0) {

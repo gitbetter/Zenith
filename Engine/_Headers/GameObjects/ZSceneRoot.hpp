@@ -37,11 +37,19 @@
 // Class Definitions
 class ZSceneRoot : public ZGameObject {
     
+private:
+    
+    ZGameObjectList publicChildren_;
+    
 public:
 
-	ZSceneRoot();
+    ZSceneRoot() : ZGameObject("Root") { }
+    ZSceneRoot(std::string name);
+    
+    ZGameObjectList& Children() override { return publicChildren_; }
 
 	void AddChild(std::shared_ptr<ZGameObject> gameObject) override;
+    void RemoveChild(std::shared_ptr<ZGameObject> gameObject) override;
 	void RenderChildren(ZRenderOp renderOp = ZRenderOp::Color) override;
 	bool IsVisible() override { return true; }
 
