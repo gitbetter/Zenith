@@ -45,8 +45,8 @@ void ZHierarchyTool::Update() {
 }
 
 void ZHierarchyTool::DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject) {
-    if (gameObject == editor_->EditorCamera()) return;
-    
+    if (gameObject == editor_->EditorCamera() || gameObject->RenderPass() == ZRenderPass::Sky) return;
+
     bool selected = editor_->SelectedObjects().find(gameObject->ID()) != editor_->SelectedObjects().end();
     std::string name = gameObject->Name().empty() ? gameObject->ID() : gameObject->Name();
     

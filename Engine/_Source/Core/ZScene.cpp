@@ -222,7 +222,9 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
         
         if (std::dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
             gameLights_.insert({gameObject->ID(), std::dynamic_pointer_cast<ZLight>(gameObject)});
-        } else if (std::dynamic_pointer_cast<ZSkybox>(gameObject) != nullptr) {
+        }
+        
+        if (std::dynamic_pointer_cast<ZSkybox>(gameObject) != nullptr) {
             skybox_ = std::dynamic_pointer_cast<ZSkybox>(gameObject);
         } else {
             gameObjects_.insert({gameObject->ID(), gameObject});
