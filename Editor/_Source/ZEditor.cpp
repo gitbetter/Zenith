@@ -68,9 +68,9 @@ namespace ImGui {
 }
 
 void ZEditor::Initialize() {
+    SetupEngine();
 	SetupImGui();
 	SetupInitialTools();
-	SetupEngine();
 
 	ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZEditor::HandleResourceLoaded);
 	zenith::EventAgent()->AddListener(resourceLoadedDelegate, ZResourceLoadedEvent::Type);
@@ -106,21 +106,27 @@ void ZEditor::SetupInitialTools() {
 
 	std::shared_ptr<ZActionBar> actionBar = std::make_shared<ZActionBar>();
     actionBar->editor_ = this;
+    actionBar->Initialize();
 	tools_.push_back(actionBar);
 	std::shared_ptr<ZSceneTool> sceneTool = std::make_shared<ZSceneTool>();
     sceneTool->editor_ = this;
+    sceneTool->Initialize();
 	tools_.push_back(sceneTool);
 	std::shared_ptr<ZProjectTool> projectTool = std::make_shared<ZProjectTool>();
     projectTool->editor_ = this;
+    projectTool->Initialize();
 	tools_.push_back(projectTool);
 	std::shared_ptr<ZConsoleTool> consoleTool = std::make_shared<ZConsoleTool>();
     consoleTool->editor_ = this;
+    consoleTool->Initialize();
 	tools_.push_back(consoleTool);
 	std::shared_ptr<ZInspectorTool> inspectorTool = std::make_shared<ZInspectorTool>();
     inspectorTool->editor_ = this;
+    inspectorTool->Initialize();
 	tools_.push_back(inspectorTool);
 	std::shared_ptr<ZHierarchyTool> hierarchyTool = std::make_shared<ZHierarchyTool>();
     hierarchyTool->editor_ = this;
+    hierarchyTool->Initialize();
 	tools_.push_back(hierarchyTool);
 }
 

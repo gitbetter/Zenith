@@ -87,7 +87,6 @@ void ZHierarchyTool::DrawContextMenu(std::shared_ptr<ZGameObject> &gameObject) {
 }
 
 void ZHierarchyTool::SelectObjectsIfClicked(std::shared_ptr<ZGameObject> &gameObject) {
-
 	if (ImGui::IsItemClicked()) {
 		if (!zenith::Input()->Key(ZKEY_LEFT_CONTROL) && !zenith::Input()->Key(ZKEY_RIGHT_CONTROL)) {
 			editor_->SelectedObjects().clear();
@@ -117,17 +116,20 @@ void ZHierarchyTool::HandleDragDrop(std::shared_ptr<ZGameObject> &gameObject, st
 	}
 }
 
-void ZHierarchyTool::End() {
+void ZHierarchyTool::ReparentObjects() {
     for (auto pair : parentObjectPairs_) {
-		if (pair.second->Parent() == pair.first.get()) {	// When trying to parent a parent into one of the children, swap their positions in the heirarchy
-			pair.first->RemoveChild(pair.second);
-			pair.first->Parent()->AddChild(pair.second);
-			pair.second->AddChild(pair.first);
-		} else {
-			pair.second->AddChild(pair.first);
-		}
+        if (pair.second->Parent() == pair.first.get()) {    // When trying to parent a parent into one of the children, swap their positions in the heirarchy
+            pair.first->RemoveChild(pair.second);
+            pair.first->Parent()->AddChild(pair.second);
+            pair.second->AddChild(pair.first);
+        } else {
+            pair.second->AddChild(pair.first);
+        }
     }
     parentObjectPairs_.clear();
-    
+}
+
+void ZHierarchyTool::End() {
+    ReparentObjects();
 	ImGui::End();
 }

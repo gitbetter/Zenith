@@ -47,6 +47,8 @@ public:
 
 	ZEditorTool(std::string name) : name_(name), visible_(true) { }
 	virtual ~ZEditorTool() { }
+    
+    virtual void Initialize() { }
 
 	virtual void Begin() = 0;
 	virtual void Update() = 0;

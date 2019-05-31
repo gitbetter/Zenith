@@ -57,6 +57,8 @@ void ZSceneTool::Begin() {
 void ZSceneTool::Update() {
 	ImGui::PopStyleVar();
     
+    DrawSelected();
+    
     auto cameraComp = zenith::Game()->ActiveScene()->ActiveCamera()->FindComponent<ZCameraComponent>();
     if (!ImGui::IsWindowFocused()) {
         cameraComp->DisableUserLook();
@@ -83,6 +85,10 @@ void ZSceneTool::Update() {
 
 void ZSceneTool::End() {
 	ImGui::End();
+}
+
+void ZSceneTool::DrawSelected() {
+    // TODO: Draw an editor gizmo on top of object
 }
 
 void ZSceneTool::UpdateViewportResolution(unsigned int& outWidth, unsigned int& outHeight) {

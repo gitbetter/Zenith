@@ -382,8 +382,8 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
             _Z("ZGLGraphicsStrategy Error: Failed to load HDR texture at " + handle->Resource().name, ZERROR);
         }
     } else {
-        if (textureData->FloatData()) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData->Width(), textureData->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData->FloatData());
+        if (textureData->Data()) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData->Width(), textureData->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData->Data());
             glGenerateMipmap(GL_TEXTURE_2D);
             
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

@@ -28,13 +28,35 @@
  */
 
 #include "ZInspectorTool.hpp"
+#include "ZEditor.hpp"
+#include "ZGameObject.hpp"
+#include "ZGraphics.hpp"
+#include "ZGraphicsStrategy.hpp"
 
 void ZInspectorTool::Begin() {
 	ImGui::Begin(name_.c_str());
 }
 
-void ZInspectorTool::Update() {
+void ZInspectorTool::Initialize() {
+    objectCubeImage_ = zenith::Graphics()->Strategy()->LoadTexture("Editor/_Assets/Images/object_cube.png", "");
+    memset(objectNameBuffer_, 0, 512);
+}
 
+void ZInspectorTool::Update() {
+    std::shared_ptr<ZGameObject> selectedObject;
+    if (editor_->SelectedObjects().size() == 1)
+        selectedObject = editor_->SelectedObjects().begin()->second;
+    
+    ImGui::Image((ImTextureID)objectCubeImage_.id, ImVec2(40.0, 40.0), ImVec2(0, 1), ImVec2(1, 0));
+    
+    ImGui::SameLine();
+    
+    ImGui::SetCursorPos(ImVec2(60.0, 37.0));
+    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, selectedObject == nullptr);
+    if (ImGui::InputText("##name", objectNameBuffer_, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        memset(objectNameBuffer_, 0, 512);
+    }
+    ImGui::PopItemFlag();
 }
 
 void ZInspectorTool::End() {

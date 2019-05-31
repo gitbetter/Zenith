@@ -31,6 +31,8 @@
 
 // Includes
 #include "ZEditorTool.hpp"
+#include "ZGraphics.hpp"
+#include "ZGraphicsStrategy.hpp"
 
 // Forward Declarations
 class ZGameObject;
@@ -43,11 +45,12 @@ class ZSceneTool : public ZEditorTool {
 private:
 
 	void UpdateViewportResolution(unsigned int& outWidth, unsigned int& outHeight);
+    void DrawSelected();
 
 public:
 
 	ZSceneTool() : ZEditorTool("Scene") { }
-
+    
 	void Begin() override;
 	void Update() override;
 	void End() override;

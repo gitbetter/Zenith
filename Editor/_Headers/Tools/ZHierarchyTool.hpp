@@ -47,6 +47,7 @@ private:
 	void DrawContextMenu(std::shared_ptr<ZGameObject> &gameObject);
 	void SelectObjectsIfClicked(std::shared_ptr<ZGameObject> &gameObject);
 	void HandleDragDrop(std::shared_ptr<ZGameObject> &gameObject, std::string &tooltipText);
+    void ReparentObjects();
 
 public:
 

@@ -121,9 +121,6 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp) {
 	glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
 	glm::mat4 viewMatrix = cameraComp->ViewMatrix();
 
-	// Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
-	zenith::Graphics()->Strategy()->EnableStencilBuffer();
-
     std::shared_ptr<ZShader> shader;
     if (renderOp == ZRenderOp::Shadow) {
         shader = zenith::Graphics()->ShadowShader();
@@ -132,6 +129,9 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp) {
     } else {
         shader = ActiveShader();
     }
+    
+    // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
+    zenith::Graphics()->Strategy()->EnableStencilBuffer();
     
     if (shader) {
         shader->Activate();
@@ -187,16 +187,16 @@ std::shared_ptr<ZModel> ZGraphicsComponent::Model() {
 	return nullptr;
 }
 
+void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material) {
+    materials_.push_back(material);
+}
+
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
 	if (highlightShader_ == nullptr) {
 		highlightShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/blinnphong.vert", "Assets/Shaders/Pixel/outline.frag"));
 		highlightShader_->Initialize();
 	}
 	highlightColor_ = color;
-}
-
-void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material) {
-	materials_.push_back(material);
 }
 
 void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewProjection) {
@@ -206,7 +206,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewP
 
 	highlightShader_->Activate();
 
-	glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.07f, 1.07f, 1.07f));
+	glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.03f, 1.03f, 1.03f));
 
 	highlightShader_->SetMat4("ViewProjection", viewProjection);
 	highlightShader_->SetMat4("M", highlightModelMatrix);

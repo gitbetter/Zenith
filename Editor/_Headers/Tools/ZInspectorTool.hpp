@@ -38,10 +38,18 @@
 class ZInspectorTool : public ZEditorTool {
     
     friend class ZEditor;
+    
+private:
+    
+    ZTexture objectCubeImage_;
+
+    char objectNameBuffer_[512];
 
 public:
 
 	ZInspectorTool() : ZEditorTool("Inspector") {}
+    
+    void Initialize() override;
 
 	void Begin() override;
 	void Update() override;
