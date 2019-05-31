@@ -32,13 +32,18 @@
 #include "ZGameObject.hpp"
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
+#include "ZTextureReadyEvent.hpp"
+#include "ZEventAgent.hpp"
 
 void ZInspectorTool::Begin() {
 	ImGui::Begin(name_.c_str());
 }
 
 void ZInspectorTool::Initialize() {
-    objectCubeImage_ = zenith::Graphics()->Strategy()->LoadTexture("Editor/_Assets/Images/object_cube.png", "");
+    ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZInspectorTool::HandleTextureLoaded);
+    zenith::EventAgent()->AddListener(resourceLoadedDelegate, ZTextureReadyEvent::Type);
+    
+    zenith::Graphics()->Strategy()->LoadTextureAsync(OBJECT_CUBE_IMAGE_PATH, "");
     memset(objectNameBuffer_, 0, 512);
 }
 
@@ -47,18 +52,40 @@ void ZInspectorTool::Update() {
     if (editor_->SelectedObjects().size() == 1)
         selectedObject = editor_->SelectedObjects().begin()->second;
     
-    ImGui::Image((ImTextureID)objectCubeImage_.id, ImVec2(40.0, 40.0), ImVec2(0, 1), ImVec2(1, 0));
+    if (selectedObject) {
+        if (strcmp(objectNameBuffer_, selectedObject->Name().c_str()) != 0) {
+            if (selectedObject->Name().empty())
+                memset(objectNameBuffer_, 0, 512);
+            else
+                memcpy(objectNameBuffer_, selectedObject->Name().c_str(), selectedObject->Name().size());
+        }
+    }
+    
+    ImGui::Image((ImTextureID)objectCubeImage_.id, ImVec2(40.0, 40.0));
     
     ImGui::SameLine();
     
     ImGui::SetCursorPos(ImVec2(60.0, 37.0));
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, selectedObject == nullptr);
     if (ImGui::InputText("##name", objectNameBuffer_, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
-        memset(objectNameBuffer_, 0, 512);
+        if (selectedObject) {
+            std::string name(objectNameBuffer_);
+            selectedObject->SetName(name);
+        }
     }
     ImGui::PopItemFlag();
 }
 
 void ZInspectorTool::End() {
 	ImGui::End();
+}
+
+void ZInspectorTool::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
+    std::shared_ptr<ZTextureReadyEvent> textureEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+    if (textureEvent->Texture().path == OBJECT_CUBE_IMAGE_PATH) {
+        objectCubeImage_ = textureEvent->Texture();
+        
+        ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZInspectorTool::HandleTextureLoaded);
+        zenith::EventAgent()->RemoveListener(resourceLoadedDelegate, ZTextureReadyEvent::Type);
+    }
 }

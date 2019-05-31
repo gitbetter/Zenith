@@ -33,8 +33,11 @@
 #include "ZEditorTool.hpp"
 
 // Forward Declarations
+class ZEvent;
 
 // Definitions
+const std::string OBJECT_CUBE_IMAGE_PATH = "Editor/_Assets/Images/object_cube.png";
+
 class ZInspectorTool : public ZEditorTool {
     
     friend class ZEditor;
@@ -42,8 +45,9 @@ class ZInspectorTool : public ZEditorTool {
 private:
     
     ZTexture objectCubeImage_;
-
     char objectNameBuffer_[512];
+    
+    void HandleTextureLoaded(std::shared_ptr<ZEvent> event);
 
 public:
 
