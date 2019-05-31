@@ -157,3 +157,35 @@ void ZBulletRigidBody::SetGameObject(ZGameObject* gameObject) {
     
     body->setUserPointer(gameObject);
 }
+
+void ZBulletRigidBody::SetPosition(glm::vec3 position) {
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+
+    btTransform newTransform;
+    if (body->getMotionState()) {
+        body->getMotionState()->getWorldTransform(newTransform);
+    }
+    newTransform.setOrigin(btVector3(position.x, position.y, position.z));
+    
+    body->setWorldTransform(newTransform);
+    body->getMotionState()->setWorldTransform(newTransform);
+    body->activate();
+}
+
+void ZBulletRigidBody::SetRotation(glm::quat rotation) {
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+    
+    btTransform newTransform;
+    if (body->getMotionState()) {
+        body->getMotionState()->getWorldTransform(newTransform);
+    }
+    newTransform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+    
+    body->setWorldTransform(newTransform);
+    body->getMotionState()->setWorldTransform(newTransform);
+    body->activate();
+}
+
+void ZBulletRigidBody::SetScale(glm::vec3 scale) { }

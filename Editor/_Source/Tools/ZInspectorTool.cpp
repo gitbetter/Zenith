@@ -48,22 +48,21 @@ void ZInspectorTool::Initialize() {
 }
 
 void ZInspectorTool::Update() {
+    ImGui::Image((ImTextureID)objectCubeImage_.id, ImVec2(40.0, 40.0));
+    
+    ImGui::SameLine();
+    
+    // Draw inspector rename field
     std::shared_ptr<ZGameObject> selectedObject;
     if (editor_->SelectedObjects().size() == 1)
         selectedObject = editor_->SelectedObjects().begin()->second;
     
     if (selectedObject) {
         if (strcmp(objectNameBuffer_, selectedObject->Name().c_str()) != 0) {
-            if (selectedObject->Name().empty())
-                memset(objectNameBuffer_, 0, 512);
-            else
-                memcpy(objectNameBuffer_, selectedObject->Name().c_str(), selectedObject->Name().size());
+            if (selectedObject->Name().empty()) memset(objectNameBuffer_, 0, 512);
+            else memcpy(objectNameBuffer_, selectedObject->Name().c_str(), selectedObject->Name().size());
         }
     }
-    
-    ImGui::Image((ImTextureID)objectCubeImage_.id, ImVec2(40.0, 40.0));
-    
-    ImGui::SameLine();
     
     ImGui::SetCursorPos(ImVec2(60.0, 37.0));
     ImGui::PushItemFlag(ImGuiItemFlags_Disabled, selectedObject == nullptr);
@@ -74,6 +73,25 @@ void ZInspectorTool::Update() {
         }
     }
     ImGui::PopItemFlag();
+    
+    // Draw transform properties
+    ImGui::Text("%s", "Transform");
+    
+    glm::vec3 position(0.f), rotation(0.f), scale(0.f);
+    if (selectedObject) {
+        position = selectedObject->Position();
+        rotation = glm::eulerAngles(selectedObject->Orientation());
+        scale = selectedObject->Scale();
+    }
+    if (ImGui::DragFloat3("Position", (float*)glm::value_ptr(position))) {
+        selectedObject->SetPosition(position);
+    }
+    if (ImGui::DragFloat3("Rotation", (float*)glm::value_ptr(rotation))) {
+        selectedObject->SetOrientation(rotation);
+    }
+    if (ImGui::DragFloat3("Scale", (float*)glm::value_ptr(scale))) {
+        selectedObject->SetScale(scale);
+    }
 }
 
 void ZInspectorTool::End() {

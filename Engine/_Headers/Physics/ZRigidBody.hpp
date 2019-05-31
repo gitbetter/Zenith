@@ -59,6 +59,10 @@ public:
     
     virtual void SetColliderOffset(glm::vec3 offset) { colliderOffset_ = offset; }
     virtual void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
+    
+    virtual void SetPosition(glm::vec3 position) = 0;
+    virtual void SetRotation(glm::quat rotation) = 0;
+    virtual void SetScale(glm::vec3 scale) = 0;
 
     void* Get() { return ptr_; }
     

@@ -31,6 +31,7 @@
 #include "ZModel.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZPhysicsComponent.hpp"
+#include "ZRigidBody.hpp"
 #include "ZOFTree.hpp"
 #include "ZIDSequence.hpp"
 
@@ -258,6 +259,11 @@ void ZGameObject::SetPosition(glm::vec3 position) {
     properties_.previousPosition = properties_.position;
     properties_.position = glm::vec4(position, 1.f);
     objectMutexes_.position.unlock();
+    
+    std::shared_ptr<ZPhysicsComponent> physicsComp = FindComponent<ZPhysicsComponent>();
+    if (physicsComp)
+        physicsComp->RigidBody()->SetPosition(properties_.position);
+    
     CalculateDerivedData();
 }
 
@@ -278,6 +284,11 @@ void ZGameObject::SetOrientation(glm::quat quaternion) {
     properties_.previousOrientation = properties_.orientation;
     properties_.orientation = quaternion;
     objectMutexes_.orientation.unlock();
+    
+    std::shared_ptr<ZPhysicsComponent> physicsComp = FindComponent<ZPhysicsComponent>();
+    if (physicsComp)
+        physicsComp->RigidBody()->SetRotation(properties_.orientation);
+    
     CalculateDerivedData();
 }
 
@@ -288,6 +299,11 @@ void ZGameObject::SetOrientation(glm::vec3 euler) {
     properties_.previousOrientation = properties_.orientation;
     properties_.orientation = glm::quat(euler);
     objectMutexes_.orientation.unlock();
+    
+    std::shared_ptr<ZPhysicsComponent> physicsComp = FindComponent<ZPhysicsComponent>();
+    if (physicsComp)
+        physicsComp->RigidBody()->SetRotation(properties_.orientation);
+    
     CalculateDerivedData();
 }
 
