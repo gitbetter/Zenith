@@ -50,20 +50,43 @@ void ZHierarchyTool::DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject)
     bool selected = editor_->SelectedObjects().find(gameObject->ID()) != editor_->SelectedObjects().end();
     std::string name = gameObject->Name().empty() ? gameObject->ID() : gameObject->Name();
     
+	unsigned int flags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_DefaultOpen | (selected ? ImGuiTreeNodeFlags_Selected : 0) | (gameObject->Children().empty() ? ImGuiTreeNodeFlags_Leaf : 0);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-	bool open = ImGui::TreeNodeEx(gameObject->ID().c_str(),
-		ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_DefaultOpen | (selected ? ImGuiTreeNodeFlags_Selected : 0) | (gameObject->Children().empty() ? ImGuiTreeNodeFlags_Leaf : 0),
-		"%s", name.c_str());
+	bool open = ImGui::TreeNodeEx(gameObject->ID().c_str(), flags, "%s", name.c_str());
 	ImGui::PopStyleVar();
 
+	DrawContextMenu(gameObject);
+	SelectObjectsIfClicked(gameObject);
+	HandleDragDrop(gameObject, name);
+
+    if (open) {
+        for (ZGameObjectList::const_iterator it = gameObject->Children().cbegin(), end = gameObject->Children().cend(); it != end; it++)
+            DrawGameObjectNode(*it);
+        ImGui::TreePop();
+    }
+}
+
+void ZHierarchyTool::DrawContextMenu(std::shared_ptr<ZGameObject> &gameObject) {
 	ImGui::PushID(gameObject->ID().c_str());
+	static char nameBuffer[512] = "";
 	if (ImGui::BeginPopupContextItem()) {
-		// TODO: Polish this up
-		static char buf[128] = "";
-		ImGui::InputText("Rename", buf, 128);
+		if (strcmp(nameBuffer, gameObject->Name().c_str()) != 0) {
+			memcpy(nameBuffer, gameObject->Name().c_str(), gameObject->Name().size());
+		}
+		if (ImGui::InputText("Rename", nameBuffer, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			std::string name(nameBuffer);
+			gameObject->SetName(name);
+			memset(nameBuffer, 0, 512);
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::EndPopup();
+	} else {
+		memset(nameBuffer, 0, 128);
 	}
 	ImGui::PopID();
+}
+
+void ZHierarchyTool::SelectObjectsIfClicked(std::shared_ptr<ZGameObject> &gameObject) {
 
 	if (ImGui::IsItemClicked()) {
 		if (!zenith::Input()->Key(ZKEY_LEFT_CONTROL) && !zenith::Input()->Key(ZKEY_RIGHT_CONTROL)) {
@@ -71,7 +94,9 @@ void ZHierarchyTool::DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject)
 		}
 		editor_->SelectedObjects()[gameObject->ID()] = gameObject;
 	}
+}
 
+void ZHierarchyTool::HandleDragDrop(std::shared_ptr<ZGameObject> &gameObject, std::string &tooltipText) {
 	if (ImGui::BeginDragDropTarget()) {
 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ZGameObject")) {
 			ZGameObject* otherObjectPtr = static_cast<ZGameObject*>(payload->Data);
@@ -87,20 +112,20 @@ void ZHierarchyTool::DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject)
 
 	if (ImGui::BeginDragDropSource()) {
 		ImGui::SetDragDropPayload("ZGameObject", gameObject.get(), sizeof(ZGameObject));
-		ImGui::Text("%s", name.c_str());
+		ImGui::Text("%s", tooltipText.c_str());
 		ImGui::EndDragDropSource();
 	}
-
-    if (open) {
-        for (ZGameObjectList::const_iterator it = gameObject->Children().cbegin(), end = gameObject->Children().cend(); it != end; it++)
-            DrawGameObjectNode(*it);
-        ImGui::TreePop();
-    }
 }
 
 void ZHierarchyTool::End() {
     for (auto pair : parentObjectPairs_) {
-        pair.second->AddChild(pair.first);
+		if (pair.second->Parent() == pair.first.get()) {	// When trying to parent a parent into one of the children, swap their positions in the heirarchy
+			pair.first->RemoveChild(pair.second);
+			pair.first->Parent()->AddChild(pair.second);
+			pair.second->AddChild(pair.first);
+		} else {
+			pair.second->AddChild(pair.first);
+		}
     }
     parentObjectPairs_.clear();
     

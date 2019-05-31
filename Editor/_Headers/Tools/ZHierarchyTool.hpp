@@ -44,6 +44,9 @@ private:
     std::map<std::shared_ptr<ZGameObject>, std::shared_ptr<ZGameObject>> parentObjectPairs_;
     
     void DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject);
+	void DrawContextMenu(std::shared_ptr<ZGameObject> &gameObject);
+	void SelectObjectsIfClicked(std::shared_ptr<ZGameObject> &gameObject);
+	void HandleDragDrop(std::shared_ptr<ZGameObject> &gameObject, std::string &tooltipText);
 
 public:
 
