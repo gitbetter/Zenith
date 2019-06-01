@@ -47,6 +47,10 @@ private:
     ZTexture objectCubeImage_;
     char objectNameBuffer_[512];
     
+	void DrawNameField(std::shared_ptr<ZGameObject> &selectedObject);
+	void DrawTransformProperties(std::shared_ptr<ZGameObject> &selectedObject);
+	void DrawComponentProperties(std::shared_ptr<ZGameObject> &selectedObject);
+	void DrawRedoButton(std::shared_ptr<ZGameObject>& selectedObject, const std::string& prop);
     void HandleTextureLoaded(std::shared_ptr<ZEvent> event);
 
 public:
