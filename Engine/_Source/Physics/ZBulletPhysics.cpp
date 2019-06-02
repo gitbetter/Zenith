@@ -75,6 +75,16 @@ void ZBulletPhysics::AddRigidBody(std::shared_ptr<ZRigidBody> body) {
     dynamicsWorld_->addRigidBody(ptr, (int)body->Type(), (int)ZPhysicsBodyType::All);
 }
 
+void ZBulletPhysics::RemoveRigidBody(std::shared_ptr<ZRigidBody> body) {
+	btRigidBody* ptr = static_cast<btRigidBody*>(body->Get());
+	if (!ptr) {
+		_Z("The given rigid body is not a btRigidBody", ZERROR);
+		return;
+	}
+
+	dynamicsWorld_->removeRigidBody(ptr);
+}
+
 void ZBulletPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
     std::shared_ptr<ZRaycastEvent> raycastEvent = std::dynamic_pointer_cast<ZRaycastEvent>(event);
     

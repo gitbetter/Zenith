@@ -72,6 +72,8 @@ public:
     
     void Update() override;
 	void Render();
+
+	void CleanUp() override;
     
     void UpdateCameraOrientation();
     

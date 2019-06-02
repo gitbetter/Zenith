@@ -74,7 +74,7 @@ void ZSkybox::InitializeAsync() {
 void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 	std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 
-	std::shared_ptr<ZShader> skyboxShader(new ZShader("Assets/Shaders/Vertex/skybox.vert", "Assets/Shaders/Pixel/skybox.frag"));
+	std::shared_ptr<ZShader> skyboxShader(new ZShader("Engine/_Assets/Shaders/Vertex/skybox.vert", "Engine/_Assets/Shaders/Pixel/skybox.frag"));
 	skyboxShader->Initialize();
 
 	std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
@@ -102,7 +102,7 @@ void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
 		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
 		zenith::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
         
-        std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(shared_from_this());
+        std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(std::static_pointer_cast<ZSkybox>(shared_from_this()));
         zenith::EventAgent()->QueueEvent(skyboxReadyEvent);
 	}
 }

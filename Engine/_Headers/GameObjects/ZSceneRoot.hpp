@@ -49,7 +49,7 @@ public:
     ZGameObjectList& Children() override { return publicChildren_; }
 
 	void AddChild(std::shared_ptr<ZGameObject> gameObject) override;
-    void RemoveChild(std::shared_ptr<ZGameObject> gameObject) override;
+    void RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse = false) override;
 	void RenderChildren(ZRenderOp renderOp = ZRenderOp::Color) override;
 	bool IsVisible() override { return true; }
 

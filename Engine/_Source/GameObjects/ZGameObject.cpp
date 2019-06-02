@@ -34,6 +34,8 @@
 #include "ZRigidBody.hpp"
 #include "ZOFTree.hpp"
 #include "ZIDSequence.hpp"
+#include "ZEventAgent.hpp"
+#include "ZObjectDestroyedEvent.hpp"
 
 ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation) {
     properties_.previousPosition = properties_.position = glm::vec4(position, 1.f);
@@ -138,11 +140,18 @@ void ZGameObject::AddChild(std::shared_ptr<ZGameObject> gameObject) {
     }
 }
 
-void ZGameObject::RemoveChild(std::shared_ptr<ZGameObject> gameObject) {
-    gameObject->parent_ = nullptr;
+void ZGameObject::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse) {
     ZGameObjectList::iterator it = std::find(children_.begin(), children_.end(), gameObject);
-    if (it != children_.end())
-        children_.erase(it);
+	if (it != children_.end()) {
+		gameObject->parent_ = nullptr;
+		children_.erase(it);
+	}
+
+	if (recurse) {
+		for (auto it = children_.begin(), end = children_.end(); it != end; it++) {
+			(*it)->RemoveChild(gameObject, recurse);
+		}
+	}
 }
 
 bool ZGameObject::IsVisible() {
@@ -156,6 +165,18 @@ bool ZGameObject::IsVisible() {
         return activeCameraComp->Frustum().Contains(graphicsComp->Model()->AABB());
     }
     return false;
+}
+
+void ZGameObject::Destroy() {
+	CleanUp();
+
+	for (auto object : children_)
+		object->Destroy();
+	for (auto comp : components_)
+		comp->CleanUp();
+
+	std::shared_ptr<ZObjectDestroyedEvent> destroyEvent(new ZObjectDestroyedEvent(shared_from_this()));
+	zenith::EventAgent()->TriggerEvent(destroyEvent);
 }
 
 glm::vec3 ZGameObject::Position() {

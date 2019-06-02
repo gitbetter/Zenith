@@ -43,6 +43,19 @@ void ZMenuBar::Update() {
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Scene")) {
+		if (ImGui::BeginMenu("New")) {
+			if (ImGui::BeginMenu("Game Object")) {
+				ImGui::MenuItem("Empty");
+				ImGui::MenuItem("Cube");
+				ImGui::MenuItem("Sphere");
+				ImGui::MenuItem("Plane");
+				ImGui::EndMenu();
+			}
+			ImGui::MenuItem("Camera");
+			ImGui::MenuItem("Light");
+			ImGui::MenuItem("Trigger Volume");
+			ImGui::EndMenu();
+		}
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Edit")) {

@@ -81,6 +81,7 @@ private:
 	void HandleShaderReady(std::shared_ptr<ZEvent> event);
 	void HandleModelReady(std::shared_ptr<ZEvent> event);
 	void HandleSkyboxReady(std::shared_ptr<ZEvent> event);
+	void HandleObjectDestroyed(std::shared_ptr<ZEvent> event);
 
 	void CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event);
     
@@ -111,6 +112,8 @@ public:
     
     void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
     void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
+
+	void RemoveGameObject(std::shared_ptr<ZGameObject> gameObject);
     
     void AddUIElement(std::shared_ptr<ZUIElement> element);
     void AddUIElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements);

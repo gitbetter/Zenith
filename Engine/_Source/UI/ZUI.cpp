@@ -41,12 +41,12 @@ void ZUI::Initialize() {
   }
 
   if (uiShader_ == nullptr) {
-    uiShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/ui.vert", "Assets/Shaders/Pixel/ui.frag"));
+    uiShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/ui.vert", "Engine/_Assets/Shaders/Pixel/ui.frag"));
     uiShader_->Initialize();
   }
 
   if (textShader_ == nullptr) {
-    textShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/text.vert", "Assets/Shaders/Pixel/text.frag"));
+    textShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/text.vert", "Engine/_Assets/Shaders/Pixel/text.frag"));
     textShader_->Initialize();
   }
 }

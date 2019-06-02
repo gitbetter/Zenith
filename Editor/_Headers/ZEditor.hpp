@@ -60,6 +60,7 @@ private:
 
     bool editorOpen_;
 	ImFont* editorFont_ = nullptr;
+	ImFont* editorHeaderFont_ = nullptr;
 	std::shared_ptr<ZMenuBar> menuBar_;
 	std::vector<std::shared_ptr<ZEditorTool>> tools_;
 	
@@ -84,6 +85,8 @@ public:
     ZEditorConfig& Config() { return config_; }
     ZGameObjectMap& SelectedObjects() { return selectedObjects_; }
 	std::shared_ptr<ZGameObject> EditorCamera() { return editorCamera_; }
+	ImFont* MainFont() { return editorFont_; }
+	ImFont* HeaderFont() { return editorHeaderFont_; }
 
 	void SetEditorFont(std::string fontPath);
 	void SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle);

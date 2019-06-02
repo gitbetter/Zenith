@@ -67,10 +67,10 @@ void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject) {
     gameObject->parent_ = this;
 }
 
-void ZSceneRoot::RemoveChild(std::shared_ptr<ZGameObject> gameObject) {
+void ZSceneRoot::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse) {
     ZGameObject::RemoveChild(gameObject);
     for (ZGameObjectList::iterator it = children_.begin(), end = children_.end(); it != end; it++) {
-        (*it)->RemoveChild(gameObject);
+        (*it)->RemoveChild(gameObject, recurse);
     }
     
     ZGameObjectList::iterator it = std::find(publicChildren_.begin(), publicChildren_.end(), gameObject);

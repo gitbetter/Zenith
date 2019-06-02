@@ -184,7 +184,9 @@ void ZEditor::SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle) {
 	ImFontConfig fontConfig;
 	fontConfig.FontDataOwnedByAtlas = false;
 	editorFont_ = io.Fonts->AddFontFromMemoryTTF((void*)handle->Buffer(), handle->Size(), config_.mainFontSize, &fontConfig);
+	MergeFontIcons();
 
+	editorHeaderFont_ = io.Fonts->AddFontFromMemoryTTF((void*)handle->Buffer(), handle->Size(), config_.mainFontSize * 1.2, &fontConfig);
 	MergeFontIcons();
 
 	io.Fonts->Build();
@@ -216,7 +218,7 @@ void ZEditor::Update() {
 	}
 	DockspaceEnd();
 
-	// ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
     
 	EndFrame();
 

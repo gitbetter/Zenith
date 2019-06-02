@@ -39,6 +39,14 @@ void ZHierarchyTool::Begin() {
 }
 
 void ZHierarchyTool::Update() {
+	ImGui::PushFont(editor_->HeaderFont());
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 40));
+	ImGui::Text("%s", zenith::Game()->ActiveScene()->Name().c_str());
+	ImGui::PopStyleVar();
+	ImGui::PopFont();
+	ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 50);
+	ImGui::Text("%d objects", zenith::Game()->ActiveScene()->GameObjects().size() - 1); // - 1 because editor camera doesn't count
+
     ZGameObjectList& objects = zenith::Game()->ActiveScene()->Root()->Children();
     for (ZGameObjectList::iterator it = objects.begin(), end = objects.end(); it != end; it++)
         DrawGameObjectNode(*it);
@@ -73,12 +81,21 @@ void ZHierarchyTool::DrawContextMenu(std::shared_ptr<ZGameObject> &gameObject) {
 		if (strcmp(nameBuffer, gameObject->Name().c_str()) != 0) {
 			memcpy(nameBuffer, gameObject->Name().c_str(), gameObject->Name().size());
 		}
+
 		if (ImGui::InputText("Rename", nameBuffer, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
 			std::string name(nameBuffer);
 			gameObject->SetName(name);
 			memset(nameBuffer, 0, 512);
 			ImGui::CloseCurrentPopup();
 		}
+
+		ImGui::Separator();
+
+		if (ImGui::MenuItem("Remove")) {
+			if (std::find(objectsToRemove_.begin(), objectsToRemove_.end(), gameObject) == objectsToRemove_.end())
+				objectsToRemove_.push_back(gameObject);
+		}
+
 		ImGui::EndPopup();
 	} else {
 		memset(nameBuffer, 0, 128);
@@ -129,7 +146,16 @@ void ZHierarchyTool::ReparentObjects() {
     parentObjectPairs_.clear();
 }
 
+void ZHierarchyTool::ProcessPendingRemovals() {
+	if (!objectsToRemove_.empty()) 
+		editor_->SelectedObjects().clear();
+	for (auto object : objectsToRemove_)
+		object->Destroy();
+	objectsToRemove_.clear();
+}
+
 void ZHierarchyTool::End() {
     ReparentObjects();
+	ProcessPendingRemovals();
 	ImGui::End();
 }

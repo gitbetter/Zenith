@@ -86,9 +86,9 @@ void ZGraphics::InitializeBuffers() {
 }
 
 void ZGraphics::InitializeShaders() {
-	shadowShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/shadow.vert", "Assets/Shaders/Pixel/depth.frag"));
-	depthShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/depth.vert", "Assets/Shaders/Pixel/depth.frag"));
-	postShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/postprocess.vert", "Assets/Shaders/Pixel/postprocess.frag"));
+	shadowShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/shadow.vert", "Engine/_Assets/Shaders/Pixel/depth.frag"));
+	depthShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/depth.vert", "Engine/_Assets/Shaders/Pixel/depth.frag"));
+	postShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/postprocess.vert", "Engine/_Assets/Shaders/Pixel/postprocess.frag"));
 	shadowShader_->Initialize();
 	depthShader_->Initialize();
 	postShader_->Initialize();

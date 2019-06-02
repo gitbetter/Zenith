@@ -50,7 +50,7 @@ struct ZGameObjectProperties {
 	std::string name;
 };
 
-class ZGameObject : public ZProcess {
+class ZGameObject : public ZProcess, public std::enable_shared_from_this<ZGameObject> {
     
     friend class ZScene;
     friend class ZSceneRoot;
@@ -73,9 +73,11 @@ public:
     void CalculateDerivedData();
     
     virtual void AddChild(std::shared_ptr<ZGameObject> gameObject);
-    virtual void RemoveChild(std::shared_ptr<ZGameObject> gameObject);
+    virtual void RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse = false);
     virtual bool IsVisible();
     
+	virtual void Destroy();
+
     ZScene* Scene() const { return scene_; }
 	std::string Name() const { return properties_.name; }
 	ZRenderPass RenderPass() const { return properties_.renderPass; }

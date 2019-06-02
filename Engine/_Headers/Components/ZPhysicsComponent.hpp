@@ -49,6 +49,8 @@ public:
     void Initialize(std::string bodyType, std::string colliderType, float mass, glm::vec3 position, glm::vec3 scale, glm::quat rotation);
     
     void Update() override;
+
+	void CleanUp() override;
     
     void DisableCollisionResponse();
     void AddForce(glm::vec3& force);

@@ -55,7 +55,7 @@ private:
 
 public:
 
-	ZInspectorTool() : ZEditorTool("Inspector") {}
+	ZInspectorTool() : ZEditorTool("Inspector") { }
     
     void Initialize() override;
 

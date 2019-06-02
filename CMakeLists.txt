@@ -17,8 +17,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/_Bin/build)
 
 if(DEVELOPMENT)
 	add_compile_definitions(DEV_BUILD)
-	file(GLOB_RECURSE DEV_ASSETS "${CMAKE_SOURCE_DIR}/Assets/*")
-	list(APPEND SOURCES ${DEV_ASSETS})
 endif(DEVELOPMENT)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -95,20 +93,24 @@ if (APPLE)
       COMMENT "symbolically link editor assets folder from ${source} => ${destination}"
   )
 
+  add_custom_command(
+  	TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine"
+    COMMENT "create directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine"
+  )
+
+  set (source "${CMAKE_SOURCE_DIR}/Engine/_Assets")
+  set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine/_Assets")
+      add_custom_command(
+      TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
+      DEPENDS ${destination}
+      COMMENT "symbolically link engine assets folder from ${source} => ${destination}"
+  )
+
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${DARWIN_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
   )
-
-  if (DEVELOPMENT)
-	  set (source "${CMAKE_SOURCE_DIR}/Assets")
-	  set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Assets")
-	      add_custom_command(
-	      TARGET ${PROJECT_NAME} POST_BUILD
-	      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
-	      DEPENDS ${destination}
-	      COMMENT "symbolically link Assets folder from ${source} => ${destination}"
-	  )
-  endif()
 
 elseif (WIN32)
   find_package(OpenGL REQUIRED)

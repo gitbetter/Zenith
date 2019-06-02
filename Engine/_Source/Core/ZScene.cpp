@@ -53,6 +53,7 @@
 #include "ZModelReadyEvent.hpp"
 #include "ZSkyboxReadyEvent.hpp"
 #include "ZSceneReadyEvent.hpp"
+#include "ZObjectDestroyedEvent.hpp"
 
 ZScene::ZScene(std::string name) : loadedResourceCount_(0), playState_(ZPlayState::NotStarted) {
     root_ = std::make_shared<ZSceneRoot>(name);
@@ -85,6 +86,9 @@ void ZScene::Initialize() {
 
 	ZEventDelegate skyboxReadyDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleSkyboxReady);
 	zenith::EventAgent()->AddListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
+
+	ZEventDelegate objectDestroyedDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleObjectDestroyed);
+	zenith::EventAgent()->AddListener(objectDestroyedDelegate, ZObjectDestroyedEvent::Type);
 
 	for (auto it = pendingSceneDefinitions_.begin(); it != pendingSceneDefinitions_.end(); it++) {
 		zenith::LoadZOF(it->first);
@@ -233,6 +237,22 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
     }
 }
 
+void ZScene::RemoveGameObject(std::shared_ptr<ZGameObject> gameObject) {
+	if (gameObject != nullptr) {
+		gameObject->scene_ = nullptr;
+		if (gameObject->FindComponent<ZCameraComponent>() != nullptr && primaryCamera_ == gameObject) {
+			primaryCamera_ = nullptr;
+		}
+
+		if (std::dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
+			gameLights_.erase(gameObject->ID());
+		}
+
+		gameObjects_.erase(gameObject->ID());
+		root_->RemoveChild(gameObject, true);
+	}
+}
+
 void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element) {
     if (element != nullptr) {
         element->scene_ = this;
@@ -372,6 +392,11 @@ void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event
 	}
 }
 
+void ZScene::HandleObjectDestroyed(std::shared_ptr<ZEvent> event) {
+	std::shared_ptr<ZObjectDestroyedEvent> destroyedEvent = std::dynamic_pointer_cast<ZObjectDestroyedEvent>(event);
+	RemoveGameObject(destroyedEvent->Object());
+}
+
 void ZScene::CleanUp() {
     ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
     zenith::EventAgent()->RemoveListener(quitDelegate, ZQuitEvent::Type);
@@ -379,7 +404,7 @@ void ZScene::CleanUp() {
     UnregisterLoadDelegates();
     
     for (ZGameObjectMap::iterator it = gameObjects_.begin(); it != gameObjects_.end(); it++) {
-        it->second->CleanUp();
+        it->second->Destroy();
     }
     gameObjects_.clear();
     

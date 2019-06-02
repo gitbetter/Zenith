@@ -104,6 +104,8 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	// If there are any material subcomponents for this graphics component, we parse them with this loop
 	for (ZOFChildMap::iterator matIt = node->children.begin(); matIt != node->children.end(); matIt++) {
 		if (matIt->first == "Material") {
+			// TODO: Move material creation out of graphics component.
+			// We should be able to reuse materials across different objects.
 			std::shared_ptr<ZMaterial> material = std::make_shared<ZMaterial>();
 			material->Initialize(matIt->second);
 			materials_.push_back(material);
@@ -193,7 +195,7 @@ void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material) {
 
 void ZGraphicsComponent::SetOutline(glm::vec4 color) {
 	if (highlightShader_ == nullptr) {
-		highlightShader_ = std::shared_ptr<ZShader>(new ZShader("Assets/Shaders/Vertex/blinnphong.vert", "Assets/Shaders/Pixel/outline.frag"));
+		highlightShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/blinnphong.vert", "Engine/_Assets/Shaders/Pixel/outline.frag"));
 		highlightShader_->Initialize();
 	}
 	highlightColor_ = color;

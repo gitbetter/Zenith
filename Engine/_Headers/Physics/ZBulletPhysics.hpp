@@ -60,6 +60,8 @@ public:
     void Update() override;
     
     void AddRigidBody(std::shared_ptr<ZRigidBody> body) override;
+
+	void RemoveRigidBody(std::shared_ptr<ZRigidBody> body) override;
     
     ZRaycastHitResult Raycast(glm::vec3 start, glm::vec3 direction) override;
     

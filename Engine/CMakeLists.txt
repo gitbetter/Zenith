@@ -89,6 +89,7 @@ ${ENGINE_SOURCE_DIR}/EventAgent/ZEventAgent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/ZEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZCollisionEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZCollisionEndEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectDestroyedEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectLookEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectMoveEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZQuitEvent.cpp
@@ -134,6 +135,7 @@ ${ENGINE_HEADERS_DIR}/EventAgent/ZScriptableEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZCollisionEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZCollisionEndEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZFireEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectDestroyedEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectDragEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectLookEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectMoveEvent.hpp
@@ -1095,3 +1097,6 @@ ${ENGINE_HEADERS_DIR}/Utility
 ${ENGINE_HEADERS_DIR}/Utility/ZObjectFormatTools
 ${ENGINE_HEADERS_DIR}/Windowing
 )
+
+file(GLOB_RECURSE ENGINE_ASSETS "${CMAKE_SOURCE_DIR}/Engine/_Assets/*")
+list(APPEND ENGINE_SOURCES ${ENGINE_ASSETS})

@@ -49,6 +49,8 @@ public:
     virtual void CleanUp() override;
     
     virtual void AddRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
+
+	virtual void RemoveRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
     
     virtual ZRaycastHitResult Raycast(glm::vec3 start, glm::vec3 direction) = 0;
     

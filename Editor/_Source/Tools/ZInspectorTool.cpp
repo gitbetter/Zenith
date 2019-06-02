@@ -85,9 +85,12 @@ void ZInspectorTool::DrawNameField(std::shared_ptr<ZGameObject> &selectedObject)
 }
 
 void ZInspectorTool::DrawTransformProperties(std::shared_ptr<ZGameObject> &selectedObject) {
+	ImGui::PushFont(editor_->HeaderFont());
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 10));
 	ImGui::Text("%s", "Transform");
 	ImGui::PopStyleVar();
+	ImGui::PopFont();
+
 	DrawRedoButton(selectedObject, "Transform");
 
 	glm::vec3 position(0.f), rotation(0.f), scale(0.f);
@@ -96,15 +99,15 @@ void ZInspectorTool::DrawTransformProperties(std::shared_ptr<ZGameObject> &selec
 		rotation = glm::eulerAngles(selectedObject->Orientation());
 		scale = selectedObject->Scale();
 	}
-	if (ImGui::DragFloat3("Position", (float*)glm::value_ptr(position), 0.3f)) {
+	if (ImGui::DragFloat3("Position", (float*)glm::value_ptr(position), 0.05f)) {
 		if (selectedObject) selectedObject->SetPosition(position);
 	}
 	DrawRedoButton(selectedObject, "Position");
-	if (ImGui::DragFloat3("Rotation", (float*)glm::value_ptr(rotation), 0.15f)) {
+	if (ImGui::DragFloat3("Rotation", (float*)glm::value_ptr(rotation), 0.05f)) {
 		if (selectedObject) selectedObject->SetOrientation(rotation);
 	}
 	DrawRedoButton(selectedObject, "Rotation");
-	if (ImGui::DragFloat3("Scale", (float*)glm::value_ptr(scale), 0.3f)) {
+	if (ImGui::DragFloat3("Scale", (float*)glm::value_ptr(scale), 0.05f)) {
 		if (selectedObject) selectedObject->SetScale(scale);
 	}
 	DrawRedoButton(selectedObject, "Scale");

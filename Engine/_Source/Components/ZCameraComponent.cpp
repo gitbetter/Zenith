@@ -131,6 +131,15 @@ void ZCameraComponent::Render() {
 	zenith::Graphics()->DebugDrawer()->Draw(frustum_, drawColor);
 }
 
+void ZCameraComponent::CleanUp() {
+	ZComponent::CleanUp();
+
+	ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
+	ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
+	zenith::EventAgent()->RemoveListener(moveDelegate, ZObjectMoveEvent::Type);
+	zenith::EventAgent()->RemoveListener(lookDelegate, ZObjectLookEvent::Type);
+}
+
 void ZCameraComponent::UpdateCameraOrientation() {
 	if (movementStyle_ == ZCameraMovementStyle::Follow) {
 		pitchVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());

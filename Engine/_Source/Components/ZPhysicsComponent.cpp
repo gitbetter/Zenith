@@ -171,6 +171,11 @@ void ZPhysicsComponent::Update() {
     object_->SetModelMatrix(M);
 }
 
+void ZPhysicsComponent::CleanUp() {
+	ZComponent::CleanUp();
+	zenith::Physics()->RemoveRigidBody(body_);
+}
+
 void ZPhysicsComponent::DisableCollisionResponse() {
     if (body_) body_->DisableContactResponse();
 }

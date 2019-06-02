@@ -49,6 +49,8 @@ public:
   virtual void Initialize() override { ZProcess::Initialize(); }
   virtual void Initialize(std::shared_ptr<ZOFNode> root) = 0;
 
+  virtual void CleanUp() { Abort(); }
+
   ZGameObject* Object() { return object_; }
 
 protected:
