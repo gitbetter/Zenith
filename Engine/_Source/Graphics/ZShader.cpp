@@ -281,7 +281,7 @@ void ZShader::Use(const ZLightMap& lights) {
 			SetBool("lights[" + std::to_string(i) + "].isDirectional", true);
 			SetVec3("lights[" + std::to_string(i) + "].ambient", light->ambient);
 			SetVec3("lights[" + std::to_string(i) + "].color", light->color);
-			SetVec3("lights[" + std::to_string(i) + "].direction", light->direction);
+			SetVec3("lights[" + std::to_string(i) + "].direction", glm::eulerAngles(light->Orientation()));
 			SetVec3("lights[" + std::to_string(i) + "].position", light->Position());
 			break;
 		case ZLightType::Point:

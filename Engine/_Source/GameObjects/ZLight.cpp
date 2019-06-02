@@ -67,11 +67,6 @@ void ZLight::Initialize(std::shared_ptr<ZOFNode> root) {
         color = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
     }
     
-    if (props.find("direction") != props.end() && props["direction"]->HasValues()) {
-        std::shared_ptr<ZOFNumberList> prop = props["direction"]->Value<ZOFNumberList>(0);
-        direction = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
-    }
-    
     if (props.find("constantAttenuation") != props.end() && props["constantAttenuation"]->HasValues()) {
         std::shared_ptr<ZOFNumber> prop = props["constantAttenuation"]->Value<ZOFNumber>(0);
         attenuation.constant = prop->value;

@@ -61,7 +61,8 @@ void ZInspectorTool::Update() {
     ImGui::SameLine();
 	DrawNameField(selectedObject);
 	DrawTransformProperties(selectedObject);
-	DrawComponentProperties(selectedObject);
+
+	if (selectedObject) DrawComponentProperties(selectedObject);
 }
 
 void ZInspectorTool::DrawNameField(std::shared_ptr<ZGameObject> &selectedObject) {
@@ -95,31 +96,45 @@ void ZInspectorTool::DrawTransformProperties(std::shared_ptr<ZGameObject> &selec
 		rotation = glm::eulerAngles(selectedObject->Orientation());
 		scale = selectedObject->Scale();
 	}
-	if (ImGui::DragFloat3("Position", (float*)glm::value_ptr(position))) {
-		selectedObject->SetPosition(position);
+	if (ImGui::DragFloat3("Position", (float*)glm::value_ptr(position), 0.3f)) {
+		if (selectedObject) selectedObject->SetPosition(position);
 	}
 	DrawRedoButton(selectedObject, "Position");
-	if (ImGui::DragFloat3("Rotation", (float*)glm::value_ptr(rotation))) {
-		selectedObject->SetOrientation(rotation);
+	if (ImGui::DragFloat3("Rotation", (float*)glm::value_ptr(rotation), 0.15f)) {
+		if (selectedObject) selectedObject->SetOrientation(rotation);
 	}
 	DrawRedoButton(selectedObject, "Rotation");
-	if (ImGui::DragFloat3("Scale", (float*)glm::value_ptr(scale))) {
-		selectedObject->SetScale(scale);
+	if (ImGui::DragFloat3("Scale", (float*)glm::value_ptr(scale), 0.3f)) {
+		if (selectedObject) selectedObject->SetScale(scale);
 	}
 	DrawRedoButton(selectedObject, "Scale");
 }
 
 void ZInspectorTool::DrawComponentProperties(std::shared_ptr<ZGameObject>& selectedObject) {
 	if (selectedObject->FindComponent<ZGraphicsComponent>()) {
+		if (ImGui::CollapsingHeader("Graphics Component", ImGuiTreeNodeFlags_DefaultOpen)) {
+			
+		}
+	}
+	if (selectedObject->FindComponent<ZPhysicsComponent>()) {
+		if (ImGui::CollapsingHeader("Physics Component", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-	} else if (selectedObject->FindComponent<ZPhysicsComponent>()) {
+		}
+	}
+	if (selectedObject->FindComponent<ZCameraComponent>()) {
+		if (ImGui::CollapsingHeader("Camera Component", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-	} else if (selectedObject->FindComponent<ZCameraComponent>()) {
+		}
+	} 
+	if (selectedObject->FindComponent<ZAnimatorComponent>()) {
+		if (ImGui::CollapsingHeader("Animator Component", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-	} else if (selectedObject->FindComponent<ZAnimatorComponent>()) {
+		}
+	} 
+	if (selectedObject->FindComponent<ZScriptComponent>()) {
+		if (ImGui::CollapsingHeader("Script Component", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-	} else if (selectedObject->FindComponent<ZScriptComponent>()) {
-
+		}
 	}
 }
 
@@ -128,6 +143,7 @@ void ZInspectorTool::DrawRedoButton(std::shared_ptr<ZGameObject>& selectedObject
 	ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 15);
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
+	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, selectedObject == nullptr);
 	if (ImGui::Button(buttonID.c_str())) {
 		if (prop == "Transform") {
 			selectedObject->SetPosition(glm::vec3(0.f));
@@ -141,6 +157,7 @@ void ZInspectorTool::DrawRedoButton(std::shared_ptr<ZGameObject>& selectedObject
 			selectedObject->SetScale(glm::vec3(1.f));
 		}
 	}
+	ImGui::PopItemFlag();
 	ImGui::PopStyleColor(2);
 }
 

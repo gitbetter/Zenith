@@ -72,7 +72,6 @@ public:
     ZLAttenuationProperties attenuation;
     
     union {
-        glm::vec3 direction{0.f};
         ZLSpotProperties spot;
         ZLHemisphereProperties hemisphere;
     };
