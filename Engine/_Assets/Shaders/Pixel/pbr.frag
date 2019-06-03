@@ -320,7 +320,7 @@ float PCSSShadow(vec4 lightSpacePosition, float lightSize) {
 	float shadow = 0.0;
 	float theta = Random(vec4(projCoords.xy, fs_in.FragPos.xy));
 	mat2 rotation = mat2(vec2(cos(theta), sin(theta)), vec2(-sin(theta), cos(theta)));
-	float bias = max(0.1 * (1.0 - dot(fs_in.FragNormal, fs_in.FragPos - lightSpacePosition.xyz)), 0.002);  
+	float bias = max(0.05 * (1.0 - dot(fs_in.FragNormal, fs_in.FragPos - lightSpacePosition.xyz)), 0.002);  
     for (int i = 0; i < 32; i++) {
 	  vec2 offset = (rotation * poissonDisk[i]) * radius;
       float z = texture(shadowTexture, projCoords.xy + offset).r;

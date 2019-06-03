@@ -141,6 +141,8 @@ void ZCameraComponent::CleanUp() {
 }
 
 void ZCameraComponent::UpdateCameraOrientation() {
+	if (!lookEnabled_) return;
+
 	if (movementStyle_ == ZCameraMovementStyle::Follow) {
 		pitchVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());
 		yawVelocity_ *= glm::pow(cameraDamping_, (float)zenith::DeltaTime());

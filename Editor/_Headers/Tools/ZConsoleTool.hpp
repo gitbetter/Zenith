@@ -49,7 +49,7 @@ private:
 
 public:
 
-	ZConsoleTool() : ZEditorTool("Console"), autoScroll_(false) {}
+	ZConsoleTool() : ZEditorTool("Console"), autoScroll_(true) {}
 
 	void Begin() override;
 	void Update() override;
