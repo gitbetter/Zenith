@@ -44,6 +44,7 @@ void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const b
 	glm::mat4 VPMatrix = zenith::Game()->ActiveScene()->ViewProjection();
 
 	shader_->Activate();
+
 	shader_->SetMat4("ViewProjection", VPMatrix);
 	shader_->SetVec4("color", glm::vec4(color.x(), color.y(), color.z(), 1.f));
 

@@ -56,6 +56,12 @@ void ZAnimatorComponent::Update() {
 	}
 }
 
+std::shared_ptr<ZComponent> ZAnimatorComponent::Clone() {
+	std::shared_ptr<ZAnimatorComponent> clone = std::make_shared<ZAnimatorComponent>();
+	clone->currentClip_ = currentClip_;
+	return clone;
+}
+
 void ZAnimatorComponent::Play(std::string animationName, bool looping) {
     std::shared_ptr<ZGraphicsComponent> graphics = object_->FindComponent<ZGraphicsComponent>();
     if(!graphics) {

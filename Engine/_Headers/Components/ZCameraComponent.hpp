@@ -82,6 +82,8 @@ public:
     
     void EnableUserLook() { lookEnabled_ = true; }
     void DisableUserLook() { lookEnabled_ = false; }
+
+	std::shared_ptr<ZComponent> Clone() override;
     
     void SetType(ZCameraType type) { cameraType_ = type; }
     void SetSpeed(float speed) { movementSpeed_ = speed; }

@@ -63,6 +63,8 @@ public:
     ~ZLight() { }
     
     void Initialize(std::shared_ptr<ZOFNode> root) override;
+
+	std::shared_ptr<ZGameObject> Clone() override;
     
     ZLightType type;
     bool enabled;

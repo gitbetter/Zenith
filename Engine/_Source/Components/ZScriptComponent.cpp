@@ -28,3 +28,8 @@
 */
 
 #include "ZScriptComponent.hpp"
+
+std::shared_ptr<ZComponent> ZScriptComponent::Clone() {
+	std::shared_ptr<ZScriptComponent> clone = std::make_shared<ZScriptComponent>();
+	return clone;
+}

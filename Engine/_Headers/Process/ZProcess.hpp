@@ -72,7 +72,7 @@ public:
   bool IsDead() const { return state_ == ZProcessState::Finished || state_ == ZProcessState::Failed || 
                                state_ == ZProcessState::Aborted; }
   bool IsPaused() const { return state_ == ZProcessState::Paused; }
-  
+ 
   void SetState(ZProcessState state) { state_ = state; }
   void AttachChild(std::shared_ptr<ZProcess> child);
   std::shared_ptr<ZProcess> RemoveChild();  

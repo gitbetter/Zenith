@@ -1,15 +1,15 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
-    ZComponent.hpp
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    Created by Adrian Sanchez on 28/01/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZComponent.hpp
+
+	Created by Adrian Sanchez on 28/01/2019.
+	Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -39,22 +39,24 @@ struct ZOFNode;
 
 // Class and Data Structure Definitions
 class ZComponent : public ZProcess {
-friend class ZGameObject;
-private:
+
+	friend class ZGameObject;
 
 public:
 
-  virtual ~ZComponent() { }
+	virtual ~ZComponent() {}
 
-  virtual void Initialize() override { ZProcess::Initialize(); }
-  virtual void Initialize(std::shared_ptr<ZOFNode> root) = 0;
+	virtual void Initialize() override { ZProcess::Initialize(); }
+	virtual void Initialize(std::shared_ptr<ZOFNode> root) = 0;
 
-  virtual void CleanUp() { Abort(); }
+	virtual void CleanUp() { Abort(); }
 
-  ZGameObject* Object() { return object_; }
+	virtual std::shared_ptr<ZComponent> Clone() = 0;
+
+	ZGameObject* Object() { return object_; }
 
 protected:
 
-  ZGameObject* object_;
-  
+	ZGameObject* object_;
+
 };

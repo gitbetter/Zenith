@@ -74,7 +74,6 @@ std::shared_ptr<ZGameObject> ZGOFactory::CreateGameObject(std::shared_ptr<ZOFNod
         if (componentCreators_.find(compIt->first) != componentCreators_.end()) {
             std::shared_ptr<ZComponent> comp = (this->*componentCreators_[compIt->first])(gameObject);
             comp->Initialize(componentNode);
-			zenith::ProcessRunner()->AttachProcess(comp);
         } else {
             _Z("Component " + compIt->first + " is not available for creation", ZWARNING);
         }

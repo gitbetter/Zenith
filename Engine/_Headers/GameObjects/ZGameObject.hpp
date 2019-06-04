@@ -62,7 +62,7 @@ public:
 	ZGameObject(std::string name) : ZGameObject() { properties_.name = name; }
     virtual ~ZGameObject() { }
     
-    virtual void Initialize() override { }
+	virtual void Initialize() override { ZProcess::Initialize(); }
     virtual void Initialize(std::shared_ptr<ZOFNode> root);
     
 	virtual void PreRender();
@@ -72,6 +72,7 @@ public:
     
     void CalculateDerivedData();
     
+	virtual std::shared_ptr<ZGameObject> Clone();
     virtual void AddChild(std::shared_ptr<ZGameObject> gameObject);
     virtual void RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse = false);
     virtual bool IsVisible();

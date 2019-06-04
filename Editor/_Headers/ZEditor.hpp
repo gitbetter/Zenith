@@ -41,6 +41,7 @@ struct ImFont;
 
 // Definitions
 const std::string EDITOR_CONFIG_PATH = "Editor/_Assets/conf.zof";
+const std::string EDITOR_OBJECT_TEMPLATES_PATH = "Editor/_Assets/object_templates.zof";
 const std::string FA_PATH = "../Editor/_Assets/Fonts/FontAwesome5_Regular_400.otf";
 const std::string FA_SOLID_PATH = "../Editor/_Assets/Fonts/FontAwesome5_Solid_900.otf";
 
@@ -53,6 +54,9 @@ struct ZEditorConfig {
 class ZEditor : public ZProcess {
 
 private:
+
+	ZGameObjectMap gameObjectTemplates_;
+	ZUIElementMap uiElementTemplates_;
 
 	ZEditorConfig config_;
     ZGameObjectMap selectedObjects_;
@@ -69,6 +73,7 @@ private:
 	void SetupEngine();
 	void Configure(std::shared_ptr<ZOFTree> objectTree);
 	void Configure(ZEditorConfig config);
+	void LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree);
 
 	void MergeFontIcons();
 	void HandleResourceLoaded(std::shared_ptr<ZEvent> event);
@@ -82,6 +87,8 @@ public:
 	void Abort() override;
     void CleanUp() override { };
     
+	ZGameObjectMap& ObjectTemplates() { return gameObjectTemplates_; }
+	ZUIElementMap& UITemplates() { return uiElementTemplates_; }
     ZEditorConfig& Config() { return config_; }
     ZGameObjectMap& SelectedObjects() { return selectedObjects_; }
 	std::shared_ptr<ZGameObject> EditorCamera() { return editorCamera_; }

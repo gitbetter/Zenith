@@ -47,7 +47,6 @@ void ZMesh3D::Initialize() {
 }
 
 void ZMesh3D::Render(ZShader* shader, ZMaterial* material) {
-    shader->Activate();
     shader->Use(material);
     zenith::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
 }

@@ -1,7 +1,8 @@
 #version 400 core
 
-const int MAX_LOCAL_LIGHTS = 15;
-const int MAX_MATERIALS = 15;
+const int MAX_LOCAL_LIGHTS = 25;
+const int MAX_MATERIALS = 25;
+
 const float PI = 3.14159265359;
 
 vec2 poissonDisk[64] = vec2[]( 
@@ -132,6 +133,7 @@ uniform float heightScale;
 
 uniform vec3 viewPosition;
 uniform int materialIndex;
+uniform int lightCount = 0;
 uniform Light lights[MAX_LOCAL_LIGHTS];
 uniform Material materials[MAX_MATERIALS];
 uniform HemisphereLight hemisphereLight;
@@ -175,7 +177,7 @@ void main() {
   F0 = mix(F0, vec3(fragAlbedo), fragMetallic);
 
   vec3 Lo = vec3(0.0); int contributingLights = 0;
-  for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
+  for (int i = 0; i < lightCount; i++) {
     if (lights[i].isEnabled) {
       ++contributingLights;
       vec3 L = !lights[i].isDirectional ? normalize(lights[i].position - fs_in.FragPos) : normalize(lights[i].direction);

@@ -10,7 +10,7 @@
 
   Created by Adrian Sanchez on 26/01/2019.
   Copyright © 2019 Pervasive Sense. All rights reserved.
-
+  
   This file is part of Zenith.
 
   Zenith is free software: you can redistribute it and/or modify
@@ -114,6 +114,19 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	if (materials_.empty()) materials_.push_back(ZMaterial::DefaultMaterialPBR());
 }
 
+std::shared_ptr<ZComponent> ZGraphicsComponent::Clone() {
+	std::shared_ptr<ZGraphicsComponent> clone = std::make_shared<ZGraphicsComponent>();
+	clone->activeShaderIndex_ = activeShaderIndex_;
+	clone->shaders_ = shaders_;
+	clone->model_ = model_;
+	clone->modelObject_ = modelObject_;
+	clone->currentShaderObject_ = currentShaderObject_;
+	clone->materials_ = materials_;
+	clone->highlightShader_ = highlightShader_;
+	clone->highlightColor_ = highlightColor_;
+	return clone;
+}
+
 void ZGraphicsComponent::Render(ZRenderOp renderOp) {
 	if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
 
@@ -205,7 +218,6 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewP
 	if (highlightShader_ == nullptr) return;
 
 	zenith::Graphics()->Strategy()->DisableStencilBuffer();
-
 	highlightShader_->Activate();
 
 	glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.03f, 1.03f, 1.03f));

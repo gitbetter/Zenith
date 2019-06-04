@@ -741,12 +741,12 @@ ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUT.id, 0);
     
     glViewport(0, 0, zenith::LUT_SIZE, zenith::LUT_SIZE);
-    
     ClearViewport();
     
     Draw(quadBufferData, quadVertices);
     
     UnbindFramebuffer();
+
     return brdfLUT;
 }
 

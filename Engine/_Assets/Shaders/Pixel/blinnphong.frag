@@ -1,5 +1,8 @@
 #version 400 core
 
+const int MAX_LOCAL_LIGHTS = 25;
+const int MAX_MATERIALS = 25;
+
 out vec4 FragColor;
 
 in VS_OUT {
@@ -45,8 +48,7 @@ uniform sampler2D shadowTexture;
 uniform vec3 viewDirection;
 uniform int materialIndex;  // Single index across the fragments of a single mesh
 
-const int MAX_LOCAL_LIGHTS = 15;
-const int MAX_MATERIALS = 15;
+uniform unsigned int lightCount = 0;
 uniform Light lights[MAX_LOCAL_LIGHTS];
 uniform Material materials[MAX_MATERIALS];
 
@@ -60,7 +62,7 @@ void main() {
   vec3 reflectedLight = vec3(0.0);
 
   // Regular Blinn-Phong over multiple lights, if present and enabled
-  for (int i = 0; i < MAX_LOCAL_LIGHTS; i++) {
+  for (int i = 0; i < lightCount; i++) {
     if (!lights[i].isEnabled) continue;
 
     vec3 lightDirection = lights[i].isDirectional ? lights[i].direction : lights[i].position - fs_in.FragPos;

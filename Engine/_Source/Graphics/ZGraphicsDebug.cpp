@@ -63,6 +63,7 @@ void ZGraphicsDebug::DrawLine(const glm::vec3& from, const glm::vec3& to, const 
 	glm::mat4 VPMatrix = zenith::Game()->ActiveScene()->ViewProjection();
 
 	shader_->Activate();
+
 	shader_->SetMat4("ViewProjection", VPMatrix);
 	shader_->SetVec4("color", color);
 

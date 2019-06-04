@@ -51,6 +51,8 @@
 #include "ZResourceExtraData.hpp"
 #include "ZGameObject.hpp"
 #include "ZCameraComponent.hpp"
+#include "ZGOFactory.hpp"
+#include "ZUIFactory.hpp"
 
 #include "ZMenuBar.hpp"
 #include "ZActionBar.hpp"
@@ -78,6 +80,18 @@ void ZEditor::Initialize() {
 	ZProcess::Initialize();
 }
 
+void ZEditor::SetupEngine() {
+	zenith::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../Editor/_Assets")));
+
+	zenith::LoadZOF(EDITOR_CONFIG_PATH);
+	zenith::LoadZOF(EDITOR_OBJECT_TEMPLATES_PATH);
+
+	zenith::Physics()->Pause();
+
+	zenith::Options().drawCameraDebug = true;
+	zenith::Options().drawPhysicsDebug = true;
+}
+
 void ZEditor::SetupImGui() {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -103,6 +117,8 @@ void ZEditor::SetupInitialTools() {
 	}
 
 	menuBar_ = std::make_shared<ZMenuBar>();
+	menuBar_->editor_ = this;
+	menuBar_->Initialize();
 
 	std::shared_ptr<ZActionBar> actionBar = std::make_shared<ZActionBar>();
     actionBar->editor_ = this;
@@ -128,17 +144,6 @@ void ZEditor::SetupInitialTools() {
     hierarchyTool->editor_ = this;
     hierarchyTool->Initialize();
 	tools_.push_back(hierarchyTool);
-}
-
-void ZEditor::SetupEngine() {
-	zenith::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../Editor/_Assets")));
-
-	zenith::LoadZOF(EDITOR_CONFIG_PATH);
-
-	zenith::Physics()->Pause();
-
-	zenith::Options().drawCameraDebug = true;
-	zenith::Options().drawPhysicsDebug = true;
 }
 
 void ZEditor::Configure(std::shared_ptr<ZOFTree> objectTree) {
@@ -167,6 +172,11 @@ void ZEditor::Configure(ZEditorConfig config) {
         if (config_.theme == "Light") ImGui::StyleColorsCustomLight();
         else ImGui::StyleColorsCustomDark();
     }
+}
+
+void ZEditor::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
+	gameObjectTemplates_ = zenith::GameObjectFactory()->Load(objectTree);
+	uiElementTemplates_ = zenith::UIFactory()->Load(objectTree);
 }
 
 void ZEditor::SetEditorFont(std::string fontPath) {
@@ -316,6 +326,9 @@ void ZEditor::HandleResourceLoaded(std::shared_ptr<ZEvent> event) {
 	if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_CONFIG_PATH) {
 		std::shared_ptr<ZZOFResourceExtraData> zofData = std::dynamic_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
 		Configure(zofData->ObjectTree());
+	} else if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_OBJECT_TEMPLATES_PATH) {
+		std::shared_ptr<ZZOFResourceExtraData> zofData = std::dynamic_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
+		LoadObjectTemplates(zofData->ObjectTree());
 	} else if (resource.type == ZResourceType::Font && resource.name == config_.mainFontPath) {
 		SetEditorFontFromMemory(loadedEvent->Handle());
 	}

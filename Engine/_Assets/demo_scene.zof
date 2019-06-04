@@ -213,14 +213,6 @@ ZUI_01
 	^
 ^
 
-#ZUI_09
-#	:type Cursor:
-#	:position [0.0, 0.0]:
-#	:scale [20.0, 20.0]:
-#	:color [1.0, 1.0, 1.0, 1.0]:
-#	:speed 2.5:
-#^
-
 # Skybox
 
 ZSKY_01

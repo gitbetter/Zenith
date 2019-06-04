@@ -233,7 +233,11 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
         } else {
             gameObjects_.insert({gameObject->ID(), gameObject});
         }
+
         root_->AddChild(gameObject);
+
+		for (auto comp : gameObject->components_)
+			zenith::ProcessRunner()->AttachProcess(comp);
     }
 }
 

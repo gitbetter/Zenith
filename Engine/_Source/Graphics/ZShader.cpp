@@ -272,6 +272,9 @@ void ZShader::Use(ZMaterial* material) {
 
 void ZShader::Use(const ZLightMap& lights) {
 	Activate();
+
+	SetInt("lightCount", lights.size());
+
 	unsigned int i = 0;
 	for (auto it = lights.begin(); it != lights.end(); it++) {
 		std::shared_ptr<ZLight> light = it->second;

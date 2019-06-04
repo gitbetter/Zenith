@@ -33,6 +33,7 @@
 #include "ZEngine.hpp"
 
 // Forward Declarations
+class ZCollider;
 
 // Class and Data Structure Definitions
 class ZRigidBody {
@@ -45,6 +46,17 @@ public:
 
     virtual float InverseMass() = 0;
     virtual glm::mat4 TransformMatrix() = 0;
+	virtual glm::vec3 Position() = 0;
+	virtual glm::quat Rotation() = 0;
+	virtual glm::vec3 Scale() = 0;
+	virtual glm::vec3 Velocity() = 0;
+	virtual glm::vec3 AngularVelocity() = 0;
+	virtual ZPhysicsBodyType Type() const { return type_; }
+
+	void* Get() { return ptr_; }
+
+	virtual std::shared_ptr<ZRigidBody> Clone() = 0;
+
     virtual void ApplyForce(glm::vec3& force) = 0;
     virtual void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) = 0;
     virtual void ApplyTorque(glm::vec3& torque) = 0;
@@ -54,25 +66,17 @@ public:
     virtual void SetLinearDamping(float damping) = 0;
     virtual void SetAngularDamping(float damping) = 0;
     virtual void SetRestitution(float restitution) = 0;
-    
-    virtual ZPhysicsBodyType Type() const { return type_; }
-    
     virtual void SetColliderOffset(glm::vec3 offset) { colliderOffset_ = offset; }
     virtual void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
-    
     virtual void SetPosition(glm::vec3 position) = 0;
     virtual void SetRotation(glm::quat rotation) = 0;
     virtual void SetScale(glm::vec3 scale) = 0;
-
-    void* Get() { return ptr_; }
-    
-    virtual glm::vec3 Velocity() = 0;
-    virtual glm::vec3 AngularVelocity() = 0;
 
 protected:
 
     void* ptr_ = nullptr;
     ZGameObject* gameObject_ = nullptr;
+	std::shared_ptr<ZCollider> collider_;
     glm::vec3 colliderOffset_;
     ZPhysicsBodyType type_;
 

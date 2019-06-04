@@ -50,6 +50,8 @@ public:
 	void Pause() override;
 	void Stop();
 
+	std::shared_ptr<ZComponent> Clone() override;
+
 protected:
 
 	ZAnimationClip currentClip_;

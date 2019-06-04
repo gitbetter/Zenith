@@ -48,8 +48,6 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation) {
 }
 
 void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root) {
-    ZProcess::Initialize();
-    
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if(node == nullptr) {
         _Z("Could not initalize ZGameObject", ZERROR);
@@ -129,6 +127,25 @@ void ZGameObject::CalculateDerivedData() {
     
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     if (graphicsComp) graphicsComp->Model()->UpdateAABB(properties_.modelMatrix);
+}
+
+std::shared_ptr<ZGameObject> ZGameObject::Clone() {
+	std::shared_ptr<ZGameObject> clone = std::make_shared<ZGameObject>();
+	clone->properties_ = properties_;
+	clone->scene_ = scene_;
+	clone->parent_ = parent_;
+
+	for (std::shared_ptr<ZComponent> comp : components_) {
+		std::shared_ptr<ZComponent> compClone = comp->Clone();
+		clone->AddComponent(compClone);
+		if (auto physicsComp = std::dynamic_pointer_cast<ZPhysicsComponent>(compClone))
+			physicsComp->RigidBody()->SetGameObject(clone.get());
+	}
+
+	for (std::shared_ptr<ZGameObject> object : children_)
+		clone->AddChild(object->Clone());
+
+	return clone;
 }
 
 void ZGameObject::AddChild(std::shared_ptr<ZGameObject> gameObject) {

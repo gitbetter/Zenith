@@ -46,13 +46,13 @@ ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZColli
     btDefaultMotionState* motionState = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, coll, localInertia);
     btRigidBody* bodyPtr = new btRigidBody(rbInfo);
+
     ptr_ = bodyPtr;
     type_ = type;
+	collider_ = collider;
 }
 
-void ZBulletRigidBody::Initialize() {
-
-}
+void ZBulletRigidBody::Initialize() { }
 
 float ZBulletRigidBody::InverseMass() {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
@@ -73,6 +73,31 @@ glm::mat4 ZBulletRigidBody::TransformMatrix() {
     transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
     modelMatrix = glm::translate(modelMatrix, colliderOffset_);
     return modelMatrix;
+}
+
+glm::vec3 ZBulletRigidBody::Position() {
+	btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+	if (!body) return glm::vec3(0.f);
+
+	const btVector3& pos = body->getCenterOfMassPosition();
+	return glm::vec3(pos.x(), pos.y(), pos.z());
+}
+
+glm::quat ZBulletRigidBody::Rotation() {
+	btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+	if (!body) return glm::quat(1.f, 0.f, 0.f, 0.f);
+
+	const btQuaternion& orn = body->getOrientation();
+	return glm::quat(orn.w(), orn.x(), orn.y(), orn.z());
+}
+
+glm::vec3 ZBulletRigidBody::Scale() {
+	btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+	if (!body || !body->getCollisionShape()) return glm::vec3(0.f);
+
+	btCollisionShape* coll = body->getCollisionShape();
+	const btVector3& scale = coll->getLocalScaling();
+	return glm::vec3(scale.x(), scale.y(), scale.z());
 }
 
 glm::vec3 ZBulletRigidBody::Velocity() {
@@ -96,6 +121,16 @@ void ZBulletRigidBody::DisableContactResponse() {
     if (!body) return;
     
     body->setCollisionFlags(body->getCollisionFlags() | btRigidBody::CF_NO_CONTACT_RESPONSE);
+}
+
+std::shared_ptr<ZRigidBody> ZBulletRigidBody::Clone() {
+	glm::vec3 position = Position();
+	glm::quat rotation = Rotation();
+	glm::vec3 scale = Scale();
+	float mass = 1.f / InverseMass();
+	std::shared_ptr<ZBulletRigidBody> clone = std::make_shared<ZBulletRigidBody>(type_, collider_, mass, position, scale, rotation);
+	clone->colliderOffset_ = colliderOffset_;
+	return clone;
 }
 
 void ZBulletRigidBody::ApplyForce(glm::vec3& force) {

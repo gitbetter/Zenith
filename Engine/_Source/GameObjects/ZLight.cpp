@@ -107,3 +107,23 @@ void ZLight::Initialize(std::shared_ptr<ZOFNode> root) {
         hemisphere.groundColor = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
     }
 }
+
+std::shared_ptr<ZGameObject> ZLight::Clone() {
+	std::shared_ptr<ZLight> clone = std::make_shared<ZLight>(type);
+
+	clone->enabled = enabled;
+	clone->ambient = ambient;
+	clone->color = color;
+	clone->attenuation = attenuation;
+
+	clone->SetPosition(Position());
+	clone->SetOrientation(Orientation());
+	clone->SetScale(Scale());
+	
+	if (clone->type == ZLightType::Spot)
+		clone->spot = spot;
+	else if (clone->type == ZLightType::Hemisphere)
+		clone->hemisphere = hemisphere;
+
+	return clone;
+}

@@ -44,9 +44,11 @@ public:
     ZPhysicsComponent();
     ~ZPhysicsComponent() { }
     
-    void Initialize() override { }
+	void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
     void Initialize(std::string bodyType, std::string colliderType, float mass, glm::vec3 position, glm::vec3 scale, glm::quat rotation);
+
+	std::shared_ptr<ZComponent> Clone() override;
     
     void Update() override;
 

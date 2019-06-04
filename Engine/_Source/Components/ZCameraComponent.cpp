@@ -126,6 +126,22 @@ void ZCameraComponent::Update() {
 	frustum_.Recalculate(object_->Position(), object_->Front(), object_->Up());
 }
 
+std::shared_ptr<ZComponent> ZCameraComponent::Clone() {
+	std::shared_ptr<ZCameraComponent> clone = std::make_shared<ZCameraComponent>(cameraType_);
+	clone->movementSpeed_ = movementSpeed_;
+	clone->lookSensitivity_ = lookSensitivity_;
+	clone->zoom_ = zoom_;
+	clone->zoomSpeed_ = zoomSpeed_;
+	clone->nearClippingPlane_ = nearClippingPlane_;
+	clone->farClippingPlane_ = farClippingPlane_;
+	clone->cameraDamping_ = cameraDamping_;
+	clone->movementStyle_ = movementStyle_;
+	clone->frustum_ = frustum_;
+	clone->movementEnabled_ = movementEnabled_;
+	clone->lookEnabled_ = lookEnabled_;
+	return clone;
+}
+
 void ZCameraComponent::Render() {
 	glm::vec4 drawColor(1.f, 1.f, 1.f, 1.f);
 	zenith::Graphics()->DebugDrawer()->Draw(frustum_, drawColor);

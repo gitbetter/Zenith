@@ -49,10 +49,14 @@ public:
 
     float InverseMass() override;
     glm::mat4 TransformMatrix() override;
+	glm::vec3 Position() override;
+	glm::quat Rotation() override;
+	glm::vec3 Scale() override;
     glm::vec3 Velocity() override;
     glm::vec3 AngularVelocity() override;
-    void DisableContactResponse() override;
     
+	std::shared_ptr<ZRigidBody> Clone() override;
+
     void SetGravity(glm::vec3& gravity) override;
     void SetLinearDamping(float damping) override;
     void SetAngularDamping(float damping) override;
@@ -66,5 +70,6 @@ public:
     void ApplyForce(glm::vec3& force) override;
     void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) override;
     void ApplyTorque(glm::vec3& torque) override;
+	void DisableContactResponse() override;
 
 };

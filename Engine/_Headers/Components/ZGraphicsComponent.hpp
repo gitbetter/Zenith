@@ -21,13 +21,12 @@ struct ZOFNode;
 // Class and Data Structure Definitions
 class ZGraphicsComponent : public ZComponent {
     
-    typedef ZLightMap ZLightMap;
-    
 private:
     
+	ZLightMap gameLights_;
+	std::shared_ptr<ZGameObject> gameCamera_;
+
     unsigned int activeShaderIndex_ = -1;
-    ZLightMap gameLights_;
-    std::shared_ptr<ZGameObject> gameCamera_;
 	std::vector<std::string> shaders_;
 	std::string model_;
     
@@ -41,6 +40,8 @@ public:
     void Initialize() override { }
     void Initialize(std::shared_ptr<ZOFNode> root) override;
     void Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader);
+
+	std::shared_ptr<ZComponent> Clone() override;
     
     void Render(ZRenderOp renderOp = ZRenderOp::Color);
     

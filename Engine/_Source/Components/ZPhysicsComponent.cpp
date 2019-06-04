@@ -38,9 +38,12 @@ ZPhysicsComponent::ZPhysicsComponent() : ZComponent() {
     id_ = "ZCPhysics_" + zenith::IDSequence()->Next();
 }
 
+void ZPhysicsComponent::Initialize() {
+	ZComponent::Initialize();
+	if (body_) zenith::Physics()->AddRigidBody(body_);
+}
+
 void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
-    ZComponent::Initialize();
-    
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if(node == nullptr) {
         _Z("Could not initalize ZPhysicsComponent", ZERROR);
@@ -156,8 +159,6 @@ void ZPhysicsComponent::Initialize(std::string bodyType, std::string colliderTyp
     
     body_ = std::make_shared<ZBulletRigidBody>(type, collider, mass, position, size, rotation);
     body_->SetGameObject(object_);
-    
-    zenith::Physics()->AddRigidBody(body_);
 }
 
 void ZPhysicsComponent::Update() {
@@ -169,6 +170,12 @@ void ZPhysicsComponent::Update() {
     glm::mat4 M = body_->TransformMatrix();
     M = glm::scale(M, object_->Scale());
     object_->SetModelMatrix(M);
+}
+
+std::shared_ptr<ZComponent> ZPhysicsComponent::Clone() {
+	std::shared_ptr<ZPhysicsComponent> clone = std::make_shared<ZPhysicsComponent>();
+	clone->body_ = body_->Clone();
+	return clone;
 }
 
 void ZPhysicsComponent::CleanUp() {

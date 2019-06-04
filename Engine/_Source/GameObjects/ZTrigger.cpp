@@ -31,6 +31,7 @@
 
 ZTrigger::ZTrigger() : ZGameObject(glm::vec3(0.f)) {
     properties_.renderPass = ZRenderPass::Invisible;
+	id_ = "ZTR_" + zenith::IDSequence()->Next();
 }
 
 void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
@@ -41,5 +42,4 @@ void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
     physicsComp->DisableCollisionResponse();
     
     AddComponent(physicsComp);
-	zenith::ProcessRunner()->AttachProcess(physicsComp);
 }

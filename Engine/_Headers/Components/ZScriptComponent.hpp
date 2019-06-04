@@ -44,6 +44,8 @@ public:
 
   void Initialize(std::shared_ptr<ZOFNode> root) override { }
 
+  std::shared_ptr<ZComponent> Clone() override;
+
   void Update() override { }
 
 protected:
