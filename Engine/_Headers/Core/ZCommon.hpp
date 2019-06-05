@@ -200,6 +200,7 @@ if (zenith::Logger()) zenith::Log(message, severity);\
 #define ZMOUSE_8         7
 #define ZMOUSE_LAST      ZMOUSE_8
 
+class ZScene;
 class ZGameObject;
 class ZComponent;
 class ZUIElement;
@@ -431,4 +432,9 @@ struct ZEngineOptions {
 	bool drawPhysicsDebug = false;
 	bool drawCameraDebug = false;
     bool drawGrid = false;
+};
+
+struct ZSceneSnapshot {
+    std::shared_ptr<ZScene> scene;
+    double time;
 };

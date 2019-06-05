@@ -28,8 +28,10 @@
  */
 
 #include "ZActionBar.hpp"
+#include "ZEditor.hpp"
 #include "ZDomain.hpp"
 #include "ZGame.hpp"
+#include "ZScene.hpp"
 #include "ZPhysics.hpp"
 #include "IconsFontAwesome5.h"
 
@@ -54,6 +56,9 @@ void ZActionBar::Update() {
 		zenith::Options().drawCameraDebug = false;
 		zenith::Options().drawPhysicsDebug = false;
         zenith::Options().drawGrid = false;
+        
+        //ZSceneSnapshot snapshot = zenith::Game()->ActiveScene()->Snapshot();
+        //editor_->SetSceneSnapshot(snapshot);
     }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Play");
 	ImGui::SameLine();
@@ -70,6 +75,8 @@ void ZActionBar::Update() {
 		zenith::Options().drawCameraDebug = true;
 		zenith::Options().drawPhysicsDebug = true;
         zenith::Options().drawGrid = true;
+        
+        //zenith::Game()->ActiveScene()->RestoreSnapshot(editor_->LastSceneSnapshot());
     }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Stop");
 }

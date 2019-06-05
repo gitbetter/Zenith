@@ -73,6 +73,7 @@ private:
     void RenderUI();
 	void LoadSceneData(std::shared_ptr<ZOFTree> objectTree);
     void ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree);
+    void CreateSceneRoot(std::string &name);
 	void UpdateViewProjectionMatrices();
 	void UnregisterLoadDelegates();
 
@@ -86,6 +87,8 @@ private:
 	void CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event);
     
 public:
+    
+    void extracted(std::string &name);
     
     ZScene(std::string name = "");
 	ZScene(std::initializer_list<std::string> zofPaths);
@@ -110,8 +113,11 @@ public:
 	glm::mat4& PreviousViewProjection() { return previousViewProjection_; }
     ZPlayState& PlayState() { return playState_; }
     
-    void AddGameObject(std::shared_ptr<ZGameObject> gameObject);
-    void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects);
+    ZSceneSnapshot Snapshot();
+    void RestoreSnapshot(ZSceneSnapshot& snapshot);
+    
+    void AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImmediately = true);
+    void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately = true);
 
 	void RemoveGameObject(std::shared_ptr<ZGameObject> gameObject);
     

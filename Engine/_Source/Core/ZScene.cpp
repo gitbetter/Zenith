@@ -56,8 +56,7 @@
 #include "ZObjectDestroyedEvent.hpp"
 
 ZScene::ZScene(std::string name) : loadedResourceCount_(0), playState_(ZPlayState::NotStarted) {
-    root_ = std::make_shared<ZSceneRoot>(name);
-    root_->scene_ = this;
+    CreateSceneRoot(name);
 }
 
 ZScene::ZScene(std::initializer_list<std::string> zofPaths) : ZScene() {
@@ -211,13 +210,61 @@ void ZScene::UpdateViewProjectionMatrices() {
 	}
 }
 
-void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects) {
+ZSceneSnapshot ZScene::Snapshot() {
+    ZSceneSnapshot snapshot;
+    std::shared_ptr<ZScene> sceneClone = std::make_shared<ZScene>(name_);
+    
+    sceneClone->matrixStack_ = matrixStack_;
+    sceneClone->viewProjection_ = viewProjection_;
+    sceneClone->previousViewProjection_ = previousViewProjection_;
+    sceneClone->playState_ = playState_;
+    sceneClone->state_ = ZProcessState::Removed;
+    
+    sceneClone->AddGameObject(skybox_->Clone());
+    for (auto pair : gameObjects_)
+        sceneClone->AddGameObject(pair.second->Clone(), false);
+    
+    for (auto pair : uiElements_)
+        sceneClone->AddUIElement(pair.second); // TODO: Clone UI Elements too
+    
+    snapshot.scene = sceneClone;
+    snapshot.time = zenith::SecondsTime();
+    
+    return snapshot;
+}
+
+void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot) {
+    CreateSceneRoot(name_);
+    
+    matrixStack_ = snapshot.scene->matrixStack_;
+    viewProjection_ = snapshot.scene->viewProjection_;
+    previousViewProjection_ = snapshot.scene->previousViewProjection_;
+    playState_ = snapshot.scene->playState_;
+    state_ = snapshot.scene->state_;
+    
+    // TODO: Abort all component and game object processes before replacing them
+    
+    gameObjects_.clear(); uiElements_.clear(); gameLights_.clear();
+    
+    for (auto pair : snapshot.scene->gameObjects_)
+        AddGameObject(pair.second);
+    
+    for (auto pair : snapshot.scene->uiElements_)
+        AddUIElement(pair.second);
+}
+
+void ZScene::CreateSceneRoot(std::string &name) {
+    root_ = std::make_shared<ZSceneRoot>(name);
+    root_->scene_ = this;
+}
+
+void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately) {
     for (std::shared_ptr<ZGameObject> object : gameObjects) {
-        AddGameObject(object);
+        AddGameObject(object, runImmediately);
     }
 }
 
-void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
+void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImmediately) {
     if (gameObject != nullptr) {
         gameObject->scene_ = this;
         if (gameObject->FindComponent<ZCameraComponent>() != nullptr) {
@@ -236,8 +283,9 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject) {
 
         root_->AddChild(gameObject);
 
-		for (auto comp : gameObject->components_)
-			zenith::ProcessRunner()->AttachProcess(comp);
+        if (runImmediately)
+            for (auto comp : gameObject->components_)
+                zenith::ProcessRunner()->AttachProcess(comp);
     }
 }
 

@@ -67,6 +67,7 @@ private:
 	ImFont* editorHeaderFont_ = nullptr;
 	std::shared_ptr<ZMenuBar> menuBar_;
 	std::vector<std::shared_ptr<ZEditorTool>> tools_;
+    ZSceneSnapshot lastSceneSnapshot_;
 	
 	void SetupImGui();
 	void SetupInitialTools();
@@ -94,9 +95,11 @@ public:
 	std::shared_ptr<ZGameObject> EditorCamera() { return editorCamera_; }
 	ImFont* MainFont() { return editorFont_; }
 	ImFont* HeaderFont() { return editorHeaderFont_; }
+    ZSceneSnapshot& LastSceneSnapshot() { return lastSceneSnapshot_; }
 
 	void SetEditorFont(std::string fontPath);
 	void SetEditorFontFromMemory(std::shared_ptr<ZResourceHandle> handle);
+    void SetSceneSnapshot(ZSceneSnapshot& snapshot) { lastSceneSnapshot_ = snapshot; }
     
 protected:
 

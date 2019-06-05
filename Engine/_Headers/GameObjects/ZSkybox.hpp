@@ -52,6 +52,8 @@ public:
     void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
 	void InitializeAsync();
+    
+    std::shared_ptr<ZGameObject> Clone() override;
 
 	void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
     
