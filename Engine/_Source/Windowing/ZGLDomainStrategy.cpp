@@ -88,6 +88,26 @@ void ZGLDomainStrategy::ReleaseCursor() {
 	glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
+void ZGLDomainStrategy::HideCursor() {
+	GLFWwindow* glWindow = glfwGetCurrentContext();
+	glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+}
+
+void ZGLDomainStrategy::ShowCursor() {
+	GLFWwindow* glWindow = glfwGetCurrentContext();
+	glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+bool ZGLDomainStrategy::IsCursorCaptured() {
+	GLFWwindow* glWindow = glfwGetCurrentContext();
+	return glfwGetInputMode(glWindow, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
+}
+
+bool ZGLDomainStrategy::IsCursorHidden() {
+	GLFWwindow* glWindow = glfwGetCurrentContext();
+	return glfwGetInputMode(glWindow, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN;
+}
+
 void ZGLDomainStrategy::Resize(int width, int height) {
 	GLFWwindow* glWindow = glfwGetCurrentContext();
 	glfwSetWindowSize(glWindow, width, height);

@@ -29,6 +29,8 @@
 
 #include "ZInspectorTool.hpp"
 #include "ZEditor.hpp"
+#include "ZDomain.hpp"
+#include "ZInput.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZCameraComponent.hpp"
@@ -47,7 +49,7 @@ void ZInspectorTool::Begin() {
 void ZInspectorTool::Initialize() {
     ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZInspectorTool::HandleTextureLoaded);
     zenith::EventAgent()->AddListener(resourceLoadedDelegate, ZTextureReadyEvent::Type);
-    
+
     zenith::Graphics()->Strategy()->LoadTextureAsync(OBJECT_CUBE_IMAGE_PATH, "");
     memset(objectNameBuffer_, 0, 512);
 }
@@ -62,7 +64,10 @@ void ZInspectorTool::Update() {
 	DrawNameField(selectedObject);
 	DrawTransformProperties(selectedObject);
 
-	if (selectedObject) DrawComponentProperties(selectedObject);
+	if (selectedObject) {
+		DrawComponentProperties(selectedObject);
+		lastSelectedObject_ = selectedObject->ID();
+	}
 }
 
 void ZInspectorTool::DrawNameField(std::shared_ptr<ZGameObject> &selectedObject) {
@@ -91,26 +96,44 @@ void ZInspectorTool::DrawTransformProperties(std::shared_ptr<ZGameObject> &selec
 	ImGui::PopStyleVar();
 	ImGui::PopFont();
 
-	DrawRedoButton(selectedObject, "Transform");
+	RedoButton(selectedObject, "Transform");
 
-	glm::vec3 position(0.f), rotation(0.f), scale(0.f);
-	if (selectedObject) {
+	static glm::vec3 position(0.f), rotation(0.f), scale(0.f);
+	static bool dragActive = false;
+
+	if (selectedObject && lastSelectedObject_ != selectedObject->ID()) {
 		position = selectedObject->Position();
-		rotation = glm::eulerAngles(selectedObject->Orientation());
+		rotation = glm::eulerAngles(selectedObject->Orientation() * radsToAngleRatio_);
 		scale = selectedObject->Scale();
 	}
-	if (ImGui::DragFloat3("Position", (float*)glm::value_ptr(position), 0.05f)) {
+
+	if (ImGui::DragFloat3("Position", (float*)glm::value_ptr(position), 0.1f)) {
+		dragActive = true;
 		if (selectedObject) selectedObject->SetPosition(position);
 	}
-	DrawRedoButton(selectedObject, "Position");
-	if (ImGui::DragFloat3("Rotation", (float*)glm::value_ptr(rotation), 0.05f)) {
-		if (selectedObject) selectedObject->SetOrientation(rotation);
+	if (RedoButton(selectedObject, "Position")) {
+		position = glm::vec3(0.f);
 	}
-	DrawRedoButton(selectedObject, "Rotation");
-	if (ImGui::DragFloat3("Scale", (float*)glm::value_ptr(scale), 0.05f)) {
+	if (ImGui::DragFloat3("Rotation", (float*)glm::value_ptr(rotation), 0.1f)) {
+		dragActive = true;
+		if (selectedObject) selectedObject->SetOrientation(rotation * angleToRadsRatio_);
+	}
+	if (RedoButton(selectedObject, "Rotation")) {
+		rotation = glm::vec3(0.f);
+	}
+	if (ImGui::DragFloat3("Scale", (float*)glm::value_ptr(scale), 0.1f)) {
+		dragActive = true;
 		if (selectedObject) selectedObject->SetScale(scale);
 	}
-	DrawRedoButton(selectedObject, "Scale");
+	if (RedoButton(selectedObject, "Scale")) {
+		scale = glm::vec3(1.f);
+	}
+
+	if (dragActive && !zenith::Input()->Mouse(ZMOUSE_LEFT)) {
+		ReleaseMouse(); dragActive = false;
+	} else if (dragActive) {
+		CaptureMouse();
+	}
 }
 
 void ZInspectorTool::DrawComponentProperties(std::shared_ptr<ZGameObject>& selectedObject) {
@@ -141,13 +164,29 @@ void ZInspectorTool::DrawComponentProperties(std::shared_ptr<ZGameObject>& selec
 	}
 }
 
-void ZInspectorTool::DrawRedoButton(std::shared_ptr<ZGameObject>& selectedObject, const std::string& prop) {
+void ZInspectorTool::CaptureMouse() {
+	if (zenith::Domain()->Strategy()->IsCursorCaptured()) return;
+
+	double x, y;
+	zenith::Input()->GetCursorPosition(x, y);
+	zenith::Domain()->Strategy()->CaptureCursor();
+	zenith::Input()->SetCursorPosition(x, y);
+}
+
+void ZInspectorTool::ReleaseMouse() {
+	if (!zenith::Domain()->Strategy()->IsCursorCaptured()) return;
+	zenith::Domain()->Strategy()->ReleaseCursor();
+}
+
+bool ZInspectorTool::RedoButton(std::shared_ptr<ZGameObject>& selectedObject, const std::string& prop) {
+	bool clicked = false;
 	std::string buttonID(ICON_FA_REDO "##" + prop);
 	ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 15);
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0));
 	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, selectedObject == nullptr);
 	if (ImGui::Button(buttonID.c_str())) {
+		clicked = true;
 		if (prop == "Transform") {
 			selectedObject->SetPosition(glm::vec3(0.f));
 			selectedObject->SetOrientation(glm::vec3(0.f));
@@ -162,6 +201,7 @@ void ZInspectorTool::DrawRedoButton(std::shared_ptr<ZGameObject>& selectedObject
 	}
 	ImGui::PopItemFlag();
 	ImGui::PopStyleColor(2);
+	return clicked;
 }
 
 void ZInspectorTool::End() {

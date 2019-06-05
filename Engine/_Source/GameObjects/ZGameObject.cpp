@@ -119,10 +119,12 @@ void ZGameObject::CalculateDerivedData() {
     properties_.orientation = glm::normalize(properties_.orientation);
     objectMutexes_.orientation.unlock();
     
-    objectMutexes_.modelMatrix.lock();
-    properties_.modelMatrix = glm::mat4_cast(properties_.orientation);
-    properties_.modelMatrix = glm::scale(properties_.modelMatrix, properties_.scale);
-    properties_.modelMatrix = glm::translate(properties_.modelMatrix, glm::vec3(properties_.position));
+	glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(properties_.position));
+	glm::mat4 rotation = glm::mat4_cast(properties_.orientation);
+	glm::mat4 scale = glm::scale(glm::mat4(1.f), properties_.scale);
+
+	objectMutexes_.modelMatrix.lock();
+	properties_.modelMatrix = translation * rotation * scale;
     objectMutexes_.modelMatrix.unlock();
     
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
@@ -291,8 +293,6 @@ glm::vec3 ZGameObject::PreviousRight() {
 }
 
 void ZGameObject::SetPosition(glm::vec3 position) {
-    // TODO: set the btRigidBody transform position in the
-    // physics component, if there is one
     objectMutexes_.position.lock();
     properties_.previousPosition = properties_.position;
     properties_.position = glm::vec4(position, 1.f);
@@ -316,8 +316,6 @@ void ZGameObject::SetScale(glm::vec3 scale) {
 }
 
 void ZGameObject::SetOrientation(glm::quat quaternion) {
-    // TODO: set the btRigidBody transform orientation in the
-    // physics component, if there is one
     objectMutexes_.orientation.lock();
     properties_.previousOrientation = properties_.orientation;
     properties_.orientation = quaternion;
@@ -331,8 +329,6 @@ void ZGameObject::SetOrientation(glm::quat quaternion) {
 }
 
 void ZGameObject::SetOrientation(glm::vec3 euler) {
-    // TODO: set the btRigidBody transform orientation in the
-    // physics component, if there is one
     objectMutexes_.orientation.lock();
     properties_.previousOrientation = properties_.orientation;
     properties_.orientation = glm::quat(euler);

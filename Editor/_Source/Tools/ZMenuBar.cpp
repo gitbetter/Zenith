@@ -47,7 +47,7 @@ void ZMenuBar::Update() {
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Scene")) {
-		if (ImGui::BeginMenu("New")) {
+		if (ImGui::BeginMenu("Create")) {
 			if (ImGui::BeginMenu("Game Object")) {
 				if (ImGui::MenuItem("Empty")) {
 					std::shared_ptr<ZGameObject> empty = editor_->ObjectTemplates()["ZGO_EMPTY"]->Clone();

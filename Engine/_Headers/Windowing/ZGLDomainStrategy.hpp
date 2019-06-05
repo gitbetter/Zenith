@@ -54,6 +54,10 @@ public:
     void PollEvents() override;
     void CaptureCursor() override;
     void ReleaseCursor() override;
+	void HideCursor() override;
+	void ShowCursor() override;
+	bool IsCursorCaptured() override;
+	bool IsCursorHidden() override;
     void Resize(int width, int height) override;
     glm::vec2 FramebufferSize() override;
     void CloseWindow() override;

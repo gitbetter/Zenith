@@ -43,14 +43,20 @@ class ZInspectorTool : public ZEditorTool {
     friend class ZEditor;
     
 private:
+
+	float angleToRadsRatio_ = glm::pi<float>() / 180.f;
+	float radsToAngleRatio_ = 180.f / glm::pi<float>();
     
     ZTexture objectCubeImage_;
     char objectNameBuffer_[512];
+	std::string lastSelectedObject_;
     
 	void DrawNameField(std::shared_ptr<ZGameObject> &selectedObject);
 	void DrawTransformProperties(std::shared_ptr<ZGameObject> &selectedObject);
 	void DrawComponentProperties(std::shared_ptr<ZGameObject> &selectedObject);
-	void DrawRedoButton(std::shared_ptr<ZGameObject>& selectedObject, const std::string& prop);
+	void CaptureMouse();
+	void ReleaseMouse();
+	bool RedoButton(std::shared_ptr<ZGameObject>& selectedObject, const std::string& prop);
     void HandleTextureLoaded(std::shared_ptr<ZEvent> event);
 
 public:

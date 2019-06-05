@@ -37,8 +37,7 @@
 
 // Class and Data Structure Definitions
 class ZDomainStrategy {
-private:
-    
+
 public:
     
     ZDomainStrategy() { }
@@ -49,6 +48,10 @@ public:
     virtual void PollEvents() = 0;
     virtual void CaptureCursor() = 0;
     virtual void ReleaseCursor() = 0;
+	virtual void HideCursor() = 0;
+	virtual void ShowCursor() = 0;
+	virtual bool IsCursorCaptured() = 0;
+	virtual bool IsCursorHidden() = 0;
     virtual void Resize(int width, int height) = 0;
     virtual glm::vec2 FramebufferSize() = 0;
     virtual bool IsWindowClosing() = 0;
