@@ -39,17 +39,34 @@ void ZHierarchyTool::Begin() {
 }
 
 void ZHierarchyTool::Update() {
+    HandleDragDropRoot();
+    
 	ImGui::PushFont(editor_->HeaderFont());
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 40));
 	ImGui::Text("%s", zenith::Game()->ActiveScene()->Name().c_str());
 	ImGui::PopStyleVar();
 	ImGui::PopFont();
 	ImGui::SameLine(ImGui::GetWindowContentRegionWidth() - 50);
-	ImGui::Text("%d objects", zenith::Game()->ActiveScene()->GameObjects().size() - 1); // - 1 because editor camera doesn't count
+    ImGui::Text("%lu objects", zenith::Game()->ActiveScene()->GameObjects().size() - 1); // - 1 because editor camera doesn't count
 
     ZGameObjectList& objects = zenith::Game()->ActiveScene()->Root()->Children();
     for (ZGameObjectList::iterator it = objects.begin(), end = objects.end(); it != end; it++)
         DrawGameObjectNode(*it);
+}
+
+
+void ZHierarchyTool::HandleDragDropRoot() {
+    if (ImGui::BeginDragDropTargetCustom(ImGui::GetWindowAllowedExtentRect(ImGui::GetCurrentWindow()), ImGui::GetID("heirarchy_drag_drop"))) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ZGameObject", ImGuiDragDropFlags_AcceptNoDrawDefaultRect)) {
+            ZGameObject* otherObjectPtr = static_cast<ZGameObject*>(payload->Data);
+            ZGameObjectMap& gameObjects = zenith::Game()->ActiveScene()->GameObjects();
+            if (gameObjects.find(otherObjectPtr->ID()) != gameObjects.end()) {
+                std::shared_ptr<ZGameObject> other = gameObjects[otherObjectPtr->ID()];
+                parentObjectPairs_[other] = zenith::Game()->ActiveScene()->Root();
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
 }
 
 void ZHierarchyTool::DrawGameObjectNode(std::shared_ptr<ZGameObject> gameObject) {

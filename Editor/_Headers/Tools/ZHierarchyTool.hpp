@@ -48,7 +48,8 @@ private:
 	void DrawContextMenu(std::shared_ptr<ZGameObject> &gameObject);
 	void SelectObjectsIfClicked(std::shared_ptr<ZGameObject> &gameObject);
 	void HandleDragDrop(std::shared_ptr<ZGameObject> &gameObject, std::string &tooltipText);
-
+    void HandleDragDropRoot();
+    
     void ReparentObjects();
 	void ProcessPendingRemovals();
 
@@ -57,7 +58,9 @@ public:
 	ZHierarchyTool() : ZEditorTool("Hierarchy") { }
 
 	void Begin() override;
-	void Update() override;
+    void extracted();
+    
+    void Update() override;
 	void End() override;
 	
 };
