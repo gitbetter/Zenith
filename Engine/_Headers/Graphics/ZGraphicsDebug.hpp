@@ -48,6 +48,7 @@ public:
     void Initialize();
 
 	void Draw(ZFrustum& frustum, const glm::vec4& color);
+    void DrawGrid(const glm::vec4& color);
     
 protected:
     

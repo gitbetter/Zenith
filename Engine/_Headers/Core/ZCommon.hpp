@@ -430,4 +430,5 @@ struct ZRaycastHitResult {
 struct ZEngineOptions {
 	bool drawPhysicsDebug = false;
 	bool drawCameraDebug = false;
+    bool drawGrid = false;
 };

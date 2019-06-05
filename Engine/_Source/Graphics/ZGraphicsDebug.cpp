@@ -57,6 +57,19 @@ void ZGraphicsDebug::Draw(ZFrustum& frustum, const glm::vec4& color) {
 	}
 }
 
+void ZGraphicsDebug::DrawGrid(const glm::vec4& color) {
+    std::vector<std::pair<glm::vec3, glm::vec3>> linePoints;
+    int numGridLines = 200, gridCellSize = 1;
+    for (int i = -numGridLines / 2, j = numGridLines / 2; i < j; i+=(gridCellSize*2)) {
+        linePoints.push_back(std::make_pair<glm::vec3, glm::vec3>(glm::vec3(-(float)numGridLines / 2.f, 0.f, (float)i), glm::vec3((float)numGridLines / 2.f, 0.f, (float)i)));
+        linePoints.push_back(std::make_pair<glm::vec3, glm::vec3>(glm::vec3((float)i, 0.f, -(float)numGridLines / 2.f), glm::vec3((float)i, 0.f, (float)numGridLines / 2.f)));
+    }
+
+    for (std::pair<glm::vec3, glm::vec3> points : linePoints) {
+        DrawLine(points.first, points.second, color);
+    }
+}
+
 void ZGraphicsDebug::DrawLine(const glm::vec3& from, const glm::vec3& to, const glm::vec4& color) {
 	if (!zenith::Game()->ActiveScene()) return;
 

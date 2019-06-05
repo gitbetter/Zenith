@@ -53,6 +53,7 @@ void ZActionBar::Update() {
         zenith::Game()->ActiveScene()->Play();
 		zenith::Options().drawCameraDebug = false;
 		zenith::Options().drawPhysicsDebug = false;
+        zenith::Options().drawGrid = false;
     }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Play");
 	ImGui::SameLine();
@@ -60,6 +61,7 @@ void ZActionBar::Update() {
         zenith::Game()->ActiveScene()->Pause();
 		zenith::Options().drawCameraDebug = true;
 		zenith::Options().drawPhysicsDebug = true;
+        zenith::Options().drawGrid = true;
     }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Pause");
 	ImGui::SameLine();
@@ -67,6 +69,7 @@ void ZActionBar::Update() {
         zenith::Game()->ActiveScene()->Stop();
 		zenith::Options().drawCameraDebug = true;
 		zenith::Options().drawPhysicsDebug = true;
+        zenith::Options().drawGrid = true;
     }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Stop");
 }

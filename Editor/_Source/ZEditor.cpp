@@ -90,6 +90,7 @@ void ZEditor::SetupEngine() {
 
 	zenith::Options().drawCameraDebug = true;
 	zenith::Options().drawPhysicsDebug = true;
+    zenith::Options().drawGrid = true;
 }
 
 void ZEditor::SetupImGui() {

@@ -28,6 +28,7 @@
 
 #include "ZSceneRoot.hpp"
 #include "ZPhysics.hpp"
+#include "ZGraphicsDebug.hpp"
 
 ZSceneRoot::ZSceneRoot(std::string name) : ZGameObject(name) {
 	std::shared_ptr<ZGameObject> staticGroup = std::make_shared<ZGameObject>("StaticGroup");
@@ -79,6 +80,9 @@ void ZSceneRoot::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recur
 }
 
 void ZSceneRoot::RenderChildren(ZRenderOp renderOp) {
+    if (zenith::Options().drawGrid)
+        zenith::Graphics()->DebugDrawer()->DrawGrid(glm::vec4(0.75f, 0.75f, 0.75f, 1.f));
+    
 	for (int pass = ZRenderPass::First; pass < ZRenderPass::Last; pass++) {
 		switch (pass) {
 		case ZRenderPass::Static:
