@@ -39,12 +39,17 @@ class ZActionBar : public ZEditorTool {
     
     friend class ZEditor;
 
+private:
+    
+    void SaveSceneSnapshot();
+    void RestoreSceneSnapshot();
+
 public:
 
     ZActionBar() : ZEditorTool("Actions") { }
 
 	void Begin() override;
-	void Update() override;
+    void Update() override;
 	void End() override;
 
 };

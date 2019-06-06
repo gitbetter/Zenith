@@ -88,6 +88,7 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
 
 std::shared_ptr<ZGameObject> ZSkybox::Clone() {
     std::shared_ptr<ZSkybox> clone = std::make_shared<ZSkybox>();
+    clone->id_ = id_;
     clone->hdrPath_ = hdrPath_;
     clone->iblTexture_ = iblTexture_;
     if(std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>())

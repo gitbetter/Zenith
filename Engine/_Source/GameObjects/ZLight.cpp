@@ -111,6 +111,7 @@ void ZLight::Initialize(std::shared_ptr<ZOFNode> root) {
 std::shared_ptr<ZGameObject> ZLight::Clone() {
 	std::shared_ptr<ZLight> clone = std::make_shared<ZLight>(type);
 
+    clone->id_ = id_;
 	clone->enabled = enabled;
 	clone->ambient = ambient;
 	clone->color = color;

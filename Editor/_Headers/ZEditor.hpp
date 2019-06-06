@@ -70,7 +70,8 @@ private:
     ZSceneSnapshot lastSceneSnapshot_;
 	
 	void SetupImGui();
-	void SetupInitialTools();
+    
+    void SetupInitialTools();
 	void SetupEngine();
 	void Configure(std::shared_ptr<ZOFTree> objectTree);
 	void Configure(ZEditorConfig config);
@@ -87,6 +88,8 @@ public:
     void Update() override;
 	void Abort() override;
     void CleanUp() override { };
+    
+    void CreateEditorCamera();
     
 	ZGameObjectMap& ObjectTemplates() { return gameObjectTemplates_; }
 	ZUIElementMap& UITemplates() { return uiElementTemplates_; }

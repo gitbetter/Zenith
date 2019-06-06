@@ -45,7 +45,7 @@ ZCameraComponent::ZCameraComponent(ZCameraType type) : ZComponent() {
 	pitchVelocity_ = glm::vec3(0.f);
 	yawVelocity_ = glm::vec3(0.f);
 	frustum_ = ZFrustum(zoom_, zenith::Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
-	id_ = "ZCamera_" + zenith::IDSequence()->Next();
+	id_ = "ZCCamera_" + zenith::IDSequence()->Next();
 }
 
 void ZCameraComponent::Initialize() {
@@ -71,6 +71,11 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	}
 
 	ZOFPropertyMap props = node->properties;
+    
+    if (props.find("primary") != props.end() && props["primary"]->HasValues()) {
+        std::shared_ptr<ZOFString> prop = props["primary"]->Value<ZOFString>(0);
+        isPrimary_ = prop->value == "Yes";
+    }
 
 	if (props.find("speed") != props.end() && props["speed"]->HasValues()) {
 		std::shared_ptr<ZOFNumber> prop = props["speed"]->Value<ZOFNumber>(0);
@@ -128,6 +133,7 @@ void ZCameraComponent::Update() {
 
 std::shared_ptr<ZComponent> ZCameraComponent::Clone() {
 	std::shared_ptr<ZCameraComponent> clone = std::make_shared<ZCameraComponent>(cameraType_);
+    clone->isPrimary_ = isPrimary_;
 	clone->movementSpeed_ = movementSpeed_;
 	clone->lookSensitivity_ = lookSensitivity_;
 	clone->zoom_ = zoom_;
@@ -215,10 +221,8 @@ glm::mat4 ZCameraComponent::ProjectionMatrix() {
 }
 
 glm::mat4 ZCameraComponent::ViewMatrix() {
-	// TODO: Interpolation only useful when using forward rendering techniques?
 	float frameMix = zenith::FrameMix();
 	glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
 	glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
 	return glm::lookAt(object_->Position(), object_->Position() + interpolatedFront, interpolatedUp);
-	//return glm::lookAt(object_->Position(), object_->Position() + object_->Front(), object_->Up());
 }

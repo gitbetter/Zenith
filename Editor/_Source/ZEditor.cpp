@@ -108,13 +108,17 @@ void ZEditor::SetupImGui() {
 	ImGui_ImplOpenGL3_Init("#version 400");
 }
 
+void ZEditor::CreateEditorCamera() {
+    editorCamera_ = std::make_shared<ZGameObject>(glm::vec3(0.f, 15.f, 50.f));
+    std::shared_ptr<ZCameraComponent> cameraComp = std::make_shared<ZCameraComponent>(ZCameraType::Perspective);
+    editorCamera_->AddComponent(cameraComp);
+    zenith::ProcessRunner()->AttachProcess(cameraComp);
+    zenith::Game()->ActiveScene()->AddGameObject(editorCamera_);
+}
+
 void ZEditor::SetupInitialTools() {
 	if (!editorCamera_) {
-		editorCamera_ = std::make_shared<ZGameObject>(glm::vec3(0.f, 15.f, 50.f));
-		std::shared_ptr<ZCameraComponent> cameraComp = std::make_shared<ZCameraComponent>(ZCameraType::Perspective);
-		editorCamera_->AddComponent(cameraComp);
-		zenith::ProcessRunner()->AttachProcess(cameraComp);
-		zenith::Game()->ActiveScene()->AddGameObject(editorCamera_);
+        CreateEditorCamera();
 	}
 
 	menuBar_ = std::make_shared<ZMenuBar>();

@@ -42,5 +42,7 @@ public:
     
     ZTrigger();
     
+    void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
+    
 };

@@ -31,6 +31,7 @@
 #include "ZEditor.hpp"
 #include "ZDomain.hpp"
 #include "ZGame.hpp"
+#include "ZGameObject.hpp"
 #include "ZScene.hpp"
 #include "ZPhysics.hpp"
 #include "IconsFontAwesome5.h"
@@ -52,37 +53,46 @@ void ZActionBar::Update() {
 
 	ImGui::SetCursorPos(ImVec2(ImGui::GetWindowWidth() / 2.f, ImGui::GetWindowHeight() * 0.2f));
 	if (ImGui::Button(ICON_FA_PLAY, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) {
-		if (zenith::Game()->ActiveScene()->PlayState() != ZPlayState::Playing) {
-			//ZSceneSnapshot snapshot = zenith::Game()->ActiveScene()->Snapshot();
-			//editor_->SetSceneSnapshot(snapshot);
-			zenith::Options().drawCameraDebug = false;
-			zenith::Options().drawPhysicsDebug = false;
-			zenith::Options().drawGrid = false;
-			zenith::Game()->ActiveScene()->Play();
+		if (zenith::Game()->ActiveScene()->PlayState() == ZPlayState::NotStarted) {
+            SaveSceneSnapshot();
 		}
+        zenith::Options().drawCameraDebug = false;
+        zenith::Options().drawPhysicsDebug = false;
+        zenith::Options().drawGrid = false;
+        zenith::Game()->ActiveScene()->Play();
     }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Play");
 	ImGui::SameLine();
 	if (ImGui::Button(ICON_FA_PAUSE, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) {
-		if (zenith::Game()->ActiveScene()->PlayState() == ZPlayState::Playing) {
-			zenith::Options().drawCameraDebug = true;
-			zenith::Options().drawPhysicsDebug = true;
-			zenith::Options().drawGrid = true;
-			zenith::Game()->ActiveScene()->Pause();
-		}
+        zenith::Options().drawCameraDebug = true;
+        zenith::Options().drawPhysicsDebug = true;
+        zenith::Options().drawGrid = true;
+        zenith::Game()->ActiveScene()->Pause();
     }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Pause");
 	ImGui::SameLine();
 	if (ImGui::Button(ICON_FA_STOP, ImVec2(ImGui::GetWindowHeight() * 0.6f, ImGui::GetWindowHeight() * 0.6f))) {
 		if (zenith::Game()->ActiveScene()->PlayState() != ZPlayState::NotStarted) {
-			zenith::Options().drawCameraDebug = true;
-			zenith::Options().drawPhysicsDebug = true;
-			zenith::Options().drawGrid = true;
-			zenith::Game()->ActiveScene()->Stop();
-			//zenith::Game()->ActiveScene()->RestoreSnapshot(editor_->LastSceneSnapshot());
+            RestoreSceneSnapshot();
 		}
+        zenith::Game()->ActiveScene()->Stop();
+        zenith::Options().drawCameraDebug = true;
+        zenith::Options().drawPhysicsDebug = true;
+        zenith::Options().drawGrid = true;
     }
 	if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", "Stop");
+}
+
+void ZActionBar::SaveSceneSnapshot() {
+    editor_->EditorCamera()->Destroy();
+    ZSceneSnapshot snapshot = zenith::Game()->ActiveScene()->Snapshot();
+    editor_->SetSceneSnapshot(snapshot);
+    zenith::Game()->ActiveScene()->SetActiveCamera(zenith::Game()->ActiveScene()->PrimaryCamera());
+}
+
+void ZActionBar::RestoreSceneSnapshot() {
+    zenith::Game()->ActiveScene()->RestoreSnapshot(editor_->LastSceneSnapshot());
+    editor_->CreateEditorCamera();
 }
 
 void ZActionBar::End() {

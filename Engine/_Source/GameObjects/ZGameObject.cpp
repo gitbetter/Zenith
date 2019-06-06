@@ -135,6 +135,7 @@ void ZGameObject::CalculateDerivedData() {
 
 std::shared_ptr<ZGameObject> ZGameObject::Clone() {
 	std::shared_ptr<ZGameObject> clone = std::make_shared<ZGameObject>();
+    clone->id_ = id_;
 	clone->properties_ = properties_;
 	clone->scene_ = scene_;
 	clone->parent_ = parent_;

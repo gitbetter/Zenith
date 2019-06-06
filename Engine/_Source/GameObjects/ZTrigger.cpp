@@ -34,12 +34,17 @@ ZTrigger::ZTrigger() : ZGameObject(glm::vec3(0.f)) {
 	id_ = "ZTR_" + zenith::IDSequence()->Next();
 }
 
-void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
-    ZGameObject::Initialize(root);
+void ZTrigger::Initialize() {
+    ZGameObject::Initialize();
     
     std::shared_ptr<ZPhysicsComponent> physicsComp(new ZPhysicsComponent);
     physicsComp->Initialize("Trigger", "Box", 0.f, Position(), Scale(), Orientation());
     physicsComp->DisableCollisionResponse();
     
     AddComponent(physicsComp);
+}
+
+void ZTrigger::Initialize(std::shared_ptr<ZOFNode> root) {
+    ZGameObject::Initialize(root);
+    Initialize();
 }

@@ -26,7 +26,7 @@ private:
 	ZLightMap gameLights_;
 	std::shared_ptr<ZGameObject> gameCamera_;
 
-    unsigned int activeShaderIndex_ = -1;
+    int activeShaderIndex_ = -1;
 	std::vector<std::string> shaders_;
 	std::string model_;
     
@@ -37,7 +37,7 @@ public:
     ZGraphicsComponent();
     ~ZGraphicsComponent();
     
-    void Initialize() override { }
+    void Initialize() override { ZComponent::Initialize(); }
     void Initialize(std::shared_ptr<ZOFNode> root) override;
     void Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader);
 

@@ -280,9 +280,8 @@ std::shared_ptr<ZMesh2D> ZUIElement::ElementShape() {
 };
 
 void ZUIElement::CleanUp() {
-    for (std::shared_ptr<ZUIElement> child : children_) {
+    for (std::shared_ptr<ZUIElement> child : children_)
         child->CleanUp();
-    }
     children_.clear();
 }
 

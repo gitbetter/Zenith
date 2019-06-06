@@ -42,6 +42,7 @@ class ZCameraComponent : public ZComponent {
     
 private:
     
+    bool isPrimary_ = false;
     float movementSpeed_ = 25.f;
     float lookSensitivity_ = 0.1f;
     float zoom_ = 45.0f;
@@ -99,6 +100,7 @@ public:
     ZFrustum& Frustum() { return frustum_; }
     glm::mat4 ProjectionMatrix();
     glm::mat4 ViewMatrix();
+    bool IsPrimary() const { return isPrimary_; }
     
 protected:
     

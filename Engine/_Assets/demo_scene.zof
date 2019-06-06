@@ -168,6 +168,7 @@ ZGO_09
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
 	CameraComponent
+        :primary Yes:
 		:speed 20.0:
 		:type Perspective:
 		:movementStyle Follow:

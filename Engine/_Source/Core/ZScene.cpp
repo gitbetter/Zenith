@@ -218,9 +218,9 @@ ZSceneSnapshot ZScene::Snapshot() {
     sceneClone->viewProjection_ = viewProjection_;
     sceneClone->previousViewProjection_ = previousViewProjection_;
     sceneClone->playState_ = playState_;
-    sceneClone->state_ = ZProcessState::Removed;
+    sceneClone->state_ = state_;
     
-    sceneClone->AddGameObject(skybox_->Clone());
+    sceneClone->AddGameObject(skybox_->Clone(), false);
     for (auto pair : gameObjects_)
         sceneClone->AddGameObject(pair.second->Clone(), false);
     
@@ -242,14 +242,12 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot) {
     playState_ = snapshot.scene->playState_;
     state_ = snapshot.scene->state_;
     
-	for (auto pair : gameObjects_) {
-		for (auto comp : pair.second->components_)
-			comp->Abort();
-		//pair.second->Abort();
-	}
+    while (!gameObjects_.empty())
+		gameObjects_.begin()->second->Destroy();
     
     gameObjects_.clear(); uiElements_.clear(); gameLights_.clear();
     
+    AddGameObject(snapshot.scene->skybox_);
     for (auto pair : snapshot.scene->gameObjects_)
         AddGameObject(pair.second);
     
@@ -271,8 +269,9 @@ void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> 
 void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImmediately) {
     if (gameObject != nullptr) {
         gameObject->scene_ = this;
-        if (gameObject->FindComponent<ZCameraComponent>() != nullptr) {
-            activeCamera_ = primaryCamera_ = gameObject;
+        if (auto cameraComp = gameObject->FindComponent<ZCameraComponent>()) {
+            if (cameraComp->IsPrimary()) primaryCamera_ = gameObject;
+            activeCamera_ = gameObject;
         }
         
         if (std::dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
@@ -295,7 +294,6 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImme
 
 void ZScene::RemoveGameObject(std::shared_ptr<ZGameObject> gameObject) {
 	if (gameObject != nullptr) {
-		gameObject->scene_ = nullptr;
 		if (gameObject->FindComponent<ZCameraComponent>() != nullptr && primaryCamera_ == gameObject) {
 			primaryCamera_ = nullptr;
 		}
@@ -306,6 +304,8 @@ void ZScene::RemoveGameObject(std::shared_ptr<ZGameObject> gameObject) {
 
 		gameObjects_.erase(gameObject->ID());
 		root_->RemoveChild(gameObject, true);
+        gameObject->parent_ = nullptr;
+        gameObject->scene_ = nullptr;
 	}
 }
 
@@ -459,14 +459,12 @@ void ZScene::CleanUp() {
     
     UnregisterLoadDelegates();
     
-    for (ZGameObjectMap::iterator it = gameObjects_.begin(); it != gameObjects_.end(); it++) {
+    for (ZGameObjectMap::iterator it = gameObjects_.begin(); it != gameObjects_.end(); it++)
         it->second->Destroy();
-    }
     gameObjects_.clear();
     
-    for (ZUIElementMap::iterator it = uiElements_.begin(); it != uiElements_.end(); it++) {
+    for (ZUIElementMap::iterator it = uiElements_.begin(); it != uiElements_.end(); it++)
         it->second->CleanUp();
-    }
     uiElements_.clear();
     
     skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;

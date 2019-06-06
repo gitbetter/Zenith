@@ -128,7 +128,13 @@ std::shared_ptr<ZRigidBody> ZBulletRigidBody::Clone() {
 	glm::quat rotation = Rotation();
 	glm::vec3 scale = Scale();
 	float mass = 1.f / InverseMass();
+    
 	std::shared_ptr<ZBulletRigidBody> clone = std::make_shared<ZBulletRigidBody>(type_, collider_, mass, position, scale, rotation);
+    
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    btRigidBody* clonedBody = static_cast<btRigidBody*>(clone->ptr_);
+    clonedBody->setCollisionFlags(body->getCollisionFlags());
+    
 	clone->colliderOffset_ = colliderOffset_;
 	return clone;
 }
