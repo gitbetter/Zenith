@@ -31,6 +31,8 @@
 #include "ZModel.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZPhysicsComponent.hpp"
+#include "ZScriptComponent.hpp"
+#include "ZAnimatorComponent.hpp"
 #include "ZRigidBody.hpp"
 #include "ZOFTree.hpp"
 #include "ZIDSequence.hpp"
@@ -137,11 +139,21 @@ std::shared_ptr<ZGameObject> ZGameObject::Clone() {
 	clone->scene_ = scene_;
 	clone->parent_ = parent_;
 
+	// TODO: Can we template the component Clone method somehow?
 	for (std::shared_ptr<ZComponent> comp : components_) {
 		std::shared_ptr<ZComponent> compClone = comp->Clone();
-		clone->AddComponent(compClone);
-		if (auto physicsComp = std::dynamic_pointer_cast<ZPhysicsComponent>(compClone))
+		if (auto physicsComp = std::dynamic_pointer_cast<ZPhysicsComponent>(compClone)) {
+			clone->AddComponent(physicsComp);
 			physicsComp->RigidBody()->SetGameObject(clone.get());
+		} else if (auto cameraComp = std::dynamic_pointer_cast<ZCameraComponent>(compClone)) {
+			clone->AddComponent(cameraComp);
+		} else if (auto graphicsComp = std::dynamic_pointer_cast<ZGraphicsComponent>(compClone)) {
+			clone->AddComponent(graphicsComp);
+		} else if (auto scriptComp = std::dynamic_pointer_cast<ZScriptComponent>(compClone)) {
+			clone->AddComponent(scriptComp);
+		} else if (auto animComp = std::dynamic_pointer_cast<ZAnimatorComponent>(compClone)) {
+			clone->AddComponent(animComp);
+		}
 	}
 
 	for (std::shared_ptr<ZGameObject> object : children_)

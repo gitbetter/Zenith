@@ -242,7 +242,11 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot) {
     playState_ = snapshot.scene->playState_;
     state_ = snapshot.scene->state_;
     
-    // TODO: Abort all component and game object processes before replacing them
+	for (auto pair : gameObjects_) {
+		for (auto comp : pair.second->components_)
+			comp->Abort();
+		//pair.second->Abort();
+	}
     
     gameObjects_.clear(); uiElements_.clear(); gameLights_.clear();
     
