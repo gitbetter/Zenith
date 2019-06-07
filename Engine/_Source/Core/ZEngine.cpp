@@ -293,7 +293,7 @@ namespace zenith {
     void SetDeltaTime(double deltaTime) {
         lastDeltaTime_ = deltaTime_;
         deltaTime_ = deltaTime;
-        SetFrameMix((float)deltaTime_ - (UPDATE_STEP_SIZE * (float)MAX_FIXED_UPDATE_ITERATIONS));
+        SetFrameMix(deltaTime_ - ((double)UPDATE_STEP_SIZE * (double)MAX_FIXED_UPDATE_ITERATIONS));
     }
 
     void SetFrameMix(float frameMix) {

@@ -180,8 +180,8 @@ void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event) {
 	std::shared_ptr<ZObjectMoveEvent> moveEvent = std::static_pointer_cast<ZObjectMoveEvent>(event);
 
 	float velocity = movementSpeed_ * (float)zenith::DeltaTime();
-	object_->SetPosition(object_->Position() + object_->Right() * moveEvent->X() * -velocity);
-	object_->SetPosition(object_->Position() + object_->Front() * moveEvent->Z() * velocity);
+    glm::vec3 newPos = object_->Position() + (object_->Front() * moveEvent->Z() * velocity) + (object_->Right() * moveEvent->X() * -velocity);
+	object_->SetPosition(newPos);
 
 	if (cameraType_ == ZCameraType::Orthographic) {
 		zoom_ += zoomSpeed_ * moveEvent->Z() * velocity;

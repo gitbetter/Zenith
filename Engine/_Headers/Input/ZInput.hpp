@@ -49,6 +49,9 @@ public:
     virtual bool Key(unsigned int key) { return key < ZKEY_LAST+1 && key >= 0 && keyPress_[key]; }
     virtual bool Mouse(unsigned int mouse) { return mouse < ZMOUSE_LAST+1 && mouse >= 0 && mousePress_[mouse]; }
     
+    virtual void SetKey(unsigned int key, bool pressed = false) { if (key < ZKEY_LAST+1 && key >= 0) keyPress_[key] = pressed; }
+    virtual void SetMouse(unsigned int mouse, bool pressed = false) { if (mouse < ZMOUSE_LAST+1 && mouse >= 0) mousePress_[mouse] = pressed; }
+    
 protected:
     
     bool keyPress_[ZKEY_LAST+1] = { false };

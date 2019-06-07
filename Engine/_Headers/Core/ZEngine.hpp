@@ -64,7 +64,7 @@ namespace zenith {
     const float DEFAULT_X_RESOLUTION = 2560.f;
     const float DEFAULT_Y_RESOLUTION = 1600.f;
     const float UPDATE_STEP_SIZE = 0.017f;
-    const int MAX_FIXED_UPDATE_ITERATIONS = 50;
+    const int MAX_FIXED_UPDATE_ITERATIONS = 6;
     const unsigned int SHADOW_MAP_SIZE = 4096;
     const unsigned int CUBE_MAP_SIZE = 2048;
     const unsigned int IRRADIANCE_MAP_SIZE = 32;

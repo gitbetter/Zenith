@@ -42,8 +42,8 @@ class ZGLInput : public ZInput {
     
 private:
     
-    unsigned int keyMap_[ZKEY_LAST+1];
-    unsigned int mouseMap_[ZMOUSE_LAST+1];
+    static unsigned int keyMap_[ZKEY_LAST+1];
+    static unsigned int mouseMap_[ZMOUSE_LAST+1];
     
     double lastPitch_, lastYaw_;
     bool firstLook_ = true;
@@ -56,5 +56,8 @@ public:
     void SetCursorPosition(double& x, double& y) override;
     
 protected:
+    
+    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     
 };
