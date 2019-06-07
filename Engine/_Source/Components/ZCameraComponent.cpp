@@ -207,14 +207,15 @@ glm::mat4 ZCameraComponent::ProjectionMatrix() {
 	const ZDomain* domain = zenith::Domain();
 	glm::mat4 projectionMatrix;
 	if (cameraType_ == ZCameraType::Orthographic) {
-		float left = -(float)domain->ResolutionX() / (zoom_ * 2);
+        float zoomInverse_ = 1.f / (2.f * zoom_);
+		float left = -(float)domain->ResolutionX() * zoomInverse_;
 		float right = -left;
-		float bottom = -(float)domain->ResolutionY() / (zoom_ * 2);
+		float bottom = -(float)domain->ResolutionY() * zoomInverse_;
 		float top = -bottom;
-		projectionMatrix = glm::ortho(left, right, bottom, top, -farClippingPlane_ / 2.f, farClippingPlane_);
+		projectionMatrix = glm::ortho(left, right, bottom, top, -farClippingPlane_, farClippingPlane_);
 	} else {
 		projectionMatrix = glm::perspective(glm::radians(zoom_),
-			(float)domain->ResolutionX() / (float)domain->ResolutionY(),
+			(float)domain->Aspect(),
 			nearClippingPlane_, farClippingPlane_);
 	}
 	return projectionMatrix;

@@ -52,7 +52,7 @@ int main(int argc, const char * argv[]) {
 
 	// Add our editor instance to the process runner so that it can
 	// receive update ticks
-	zenith::ProcessRunner()->AttachProcess(editor, ZPriority::Low);
+	zenith::ProcessRunner()->AttachProcess(editor, ZPriority::Medium);
     
     // Create the game and start the main game loop. Nothing beyond this point will execute
     // for the duration of the game.

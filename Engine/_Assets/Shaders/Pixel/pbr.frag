@@ -73,6 +73,7 @@ vec2 poissonDisk[64] = vec2[](
 );
 
 layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 FragDepth;
 
 in VS_OUT {
   vec3 FragPos;
@@ -232,6 +233,7 @@ void main() {
   color = pow(color, vec3(1.0/2.2));
 
   FragColor = vec4(color, fragAlbedo.a);
+  FragDepth = vec4(vec3(fs_in.FragPos.z), 1.0);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness) {

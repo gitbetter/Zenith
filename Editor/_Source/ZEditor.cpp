@@ -124,7 +124,7 @@ void ZEditor::SetupInitialTools() {
 	menuBar_ = std::make_shared<ZMenuBar>();
 	menuBar_->editor_ = this;
 	menuBar_->Initialize();
-
+    tools_.push_back(menuBar_);
 	std::shared_ptr<ZActionBar> actionBar = std::make_shared<ZActionBar>();
     actionBar->editor_ = this;
     actionBar->Initialize();
@@ -221,10 +221,6 @@ void ZEditor::MergeFontIcons() {
 void ZEditor::Update() {
 	BeginFrame();
 
-	menuBar_->Begin();
-	menuBar_->Update();
-	menuBar_->End();
-
 	DockspaceBegin();
 	for (std::shared_ptr<ZEditorTool> tool : tools_) {
 		tool->Begin();
@@ -232,8 +228,6 @@ void ZEditor::Update() {
 		tool->End();
 	}
 	DockspaceEnd();
-
-	//ImGui::ShowDemoWindow();
     
 	EndFrame();
 

@@ -115,7 +115,7 @@ namespace zenith {
         /* ========= Event System ============ */
         eventAgent_ = std::make_shared<ZEventAgent>();
         eventAgent_->Initialize();
-        processRunner_->AttachProcess(eventAgent_);
+        processRunner_->AttachProcess(eventAgent_, ZPriority::High);
         /* =================================== */
         
         /* ========= Scripting System ============ */
@@ -293,7 +293,7 @@ namespace zenith {
     void SetDeltaTime(double deltaTime) {
         lastDeltaTime_ = deltaTime_;
         deltaTime_ = deltaTime;
-        SetFrameMix(deltaTime_ - ((double)UPDATE_STEP_SIZE * (double)MAX_FIXED_UPDATE_ITERATIONS));
+        SetFrameMix(glm::abs(deltaTime_ - ((double)UPDATE_STEP_SIZE * (double)MAX_FIXED_UPDATE_ITERATIONS)));
     }
 
     void SetFrameMix(float frameMix) {

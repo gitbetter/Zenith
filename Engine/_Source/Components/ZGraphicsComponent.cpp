@@ -145,16 +145,15 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp) {
         shader = ActiveShader();
     }
     
-    // Makes sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
+    // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
     zenith::Graphics()->Strategy()->EnableStencilBuffer();
     
     if (shader) {
-        shader->Activate();
         shader->Use(gameLights_);
 
-        zenith::Graphics()->Strategy()->BindTexture(zenith::Graphics()->DepthBuffer(), 0);
-        zenith::Graphics()->Strategy()->BindTexture(zenith::Graphics()->ShadowBuffer(), 1);
         if (renderOp == ZRenderOp::Color) {
+            zenith::Graphics()->Strategy()->BindTexture(zenith::Graphics()->DepthBuffer(), 0);
+            zenith::Graphics()->Strategy()->BindTexture(zenith::Graphics()->ShadowBuffer(), 1);
             shader->SetInt("depthTexture", 0);
             shader->SetInt("shadowTexture", 1);
         }

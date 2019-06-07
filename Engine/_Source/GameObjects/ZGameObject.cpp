@@ -82,8 +82,7 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root) {
 }
 
 void ZGameObject::PreRender() {
-	glm::mat4 M = scene_->TopMatrix() * properties_.modelMatrix;
-	scene_->PushMatrix(M);
+    scene_->PushMatrix(scene_->TopMatrix() * properties_.modelMatrix);
 }
 
 void ZGameObject::Render(ZRenderOp renderOp) {
@@ -91,11 +90,10 @@ void ZGameObject::Render(ZRenderOp renderOp) {
     std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
 	if (zenith::Options().drawCameraDebug && cameraComp && scene_->ActiveCamera().get() != this) {
 		cameraComp->Render();
-    } else if (graphicsComp) {
-        std::shared_ptr<ZGameObject> camera = scene_->ActiveCamera();
-        const ZLightMap& gameLights = scene_->GameLights();
-        graphicsComp->SetGameLights(gameLights);
-        graphicsComp->SetGameCamera(camera);
+    }
+    if (graphicsComp) {
+        graphicsComp->SetGameLights(scene_->GameLights());
+        graphicsComp->SetGameCamera(scene_->ActiveCamera());
         graphicsComp->Render(renderOp);
     }
 }
@@ -121,9 +119,17 @@ void ZGameObject::CalculateDerivedData() {
     properties_.orientation = glm::normalize(properties_.orientation);
     objectMutexes_.orientation.unlock();
     
+    objectMutexes_.position.lock();
 	glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(properties_.position));
+    objectMutexes_.position.unlock();
+    
+    objectMutexes_.orientation.lock();
 	glm::mat4 rotation = glm::mat4_cast(properties_.orientation);
+    objectMutexes_.orientation.unlock();
+    
+    objectMutexes_.scale.lock();
 	glm::mat4 scale = glm::scale(glm::mat4(1.f), properties_.scale);
+    objectMutexes_.scale.unlock();
 
 	objectMutexes_.modelMatrix.lock();
 	properties_.modelMatrix = translation * rotation * scale;
@@ -213,6 +219,7 @@ void ZGameObject::Destroy() {
 
 glm::vec3 ZGameObject::Position() {
     glm::vec3 pos;
+    float frameMix = zenith::FrameMix();
     objectMutexes_.position.lock();
     pos = glm::vec3(properties_.position);
     objectMutexes_.position.unlock();

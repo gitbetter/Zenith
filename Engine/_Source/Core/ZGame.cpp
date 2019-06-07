@@ -53,8 +53,6 @@ void ZGame::RunGameLoop() {
 		zenith::Graphics()->Strategy()->SwapBuffers();
         
         zenith::Domain()->Strategy()->PollEvents();
-        
-        MacDisplayHack();
     }
 }
 
@@ -65,7 +63,7 @@ bool ZGame::Running() {
 void ZGame::AddScene(std::shared_ptr<ZScene> scene) {
     activeScene_ = scenes_.size();
     scenes_.push_back(scene);
-	zenith::ProcessRunner()->AttachProcess(scene);
+    zenith::ProcessRunner()->AttachProcess(scene, ZPriority::High);
 }
 
 void ZGame::SetActiveScene(unsigned int index) {
@@ -73,18 +71,4 @@ void ZGame::SetActiveScene(unsigned int index) {
 	if (!scenes_.empty() && scenes_[activeScene_]->IsAlive())
 		scenes_[activeScene_]->Abort();
     activeScene_ = index;
-}
-
-// -.-
-void ZGame::MacDisplayHack() {
-#ifdef __APPLE__
-    static bool moved = false;
-    if (!moved) {
-        zenith::Domain()->ResizeWindow(
-                                        zenith::Domain()->WindowWidth() - 1,
-                                        zenith::Domain()->WindowHeight() - 1
-                                        );
-        moved = true;
-    }
-#endif
 }

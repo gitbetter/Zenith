@@ -160,9 +160,9 @@ void ZScene::Render() {
 	}
     
     // Render pass #2: Depth
-	zenith::Graphics()->SetupDepthPass();
+    zenith::Graphics()->SetupDepthPass();
     root_->RenderChildren(ZRenderOp::Depth);
-	zenith::Graphics()->FinishRenderPass();
+    zenith::Graphics()->FinishRenderPass();
     
     // Render pass #3: Color
 	zenith::Graphics()->SetupColorPass();
@@ -202,9 +202,7 @@ void ZScene::UpdateViewProjectionMatrices() {
 	previousViewProjection_ = viewProjection_;
 	if (activeCamera_) {
 		std::shared_ptr<ZCameraComponent> cameraComp = activeCamera_->FindComponent<ZCameraComponent>();
-		glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
-		glm::mat4 viewMatrix = cameraComp->ViewMatrix();
-		viewProjection_ = projectionMatrix * viewMatrix;
+		viewProjection_ = cameraComp->ProjectionMatrix() * cameraComp->ViewMatrix();
 	} else {
 		viewProjection_ = glm::mat4(1.f);
 	}

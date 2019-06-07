@@ -324,6 +324,8 @@ struct ZTexture {
     unsigned int id;
     std::string type;
     std::string path;
+    
+    ZTexture() : id(0) { }
 };
 
 struct ZIBLTexture {

@@ -57,7 +57,4 @@ public:
     bool Running();
     void AddScene(std::shared_ptr<ZScene> scene);
     
-    // TODO: Remove later when we figure out why some displays don't refresh on startup
-    void MacDisplayHack();
-    
 };
