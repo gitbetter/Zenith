@@ -128,7 +128,7 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 
 void ZCameraComponent::Update() {
 	UpdateCameraOrientation();
-	frustum_.Recalculate(object_->Position(), object_->Front(), object_->Up());
+	frustum_.Recalculate(object_->Position(), object_->Position() + object_->Front(), object_->Up());
 }
 
 std::shared_ptr<ZComponent> ZCameraComponent::Clone() {
