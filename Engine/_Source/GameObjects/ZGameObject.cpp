@@ -219,7 +219,6 @@ void ZGameObject::Destroy() {
 
 glm::vec3 ZGameObject::Position() {
     glm::vec3 pos;
-    float frameMix = zenith::FrameMix();
     objectMutexes_.position.lock();
     pos = glm::vec3(properties_.position);
     objectMutexes_.position.unlock();
