@@ -55,7 +55,7 @@ ZSceneRoot::ZSceneRoot(std::string name) : ZGameObject(name) {
 void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject) {
 	ZRenderPass pass = gameObject->RenderPass();
 	if (pass >= children_.size() || !children_[pass]) {
-		_Z("The child being added has a non-extant render pass", ZERROR);
+		zenith::Log("The child being added has a non-extant render pass", ZSeverity::Error);
 		return;
 	}
     

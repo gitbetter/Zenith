@@ -31,10 +31,6 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
-// We'll use more of these in the future to define our graphics implementation.
-// For now, we're only assuming OpenGL
-#define OGL_IMP
-
 // Includes
 #include "ZCommon.hpp"
 
@@ -124,8 +120,7 @@ namespace zenith {
     extern void LoadZOF(std::string zofPath);
 	extern std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
     
-    extern void Log(std::string text, unsigned int severity);
+    extern void Log(const std::string& text, ZSeverity severity);
     
     extern void CleanUp();
-    
 };

@@ -57,7 +57,7 @@ ZUIElementMap ZUIFactory::Load(std::shared_ptr<ZOFTree> data) {
       if (props.find("type") != props.end() && props["type"]->HasValues()) {
         std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
         if (elementCreators_.find(typeProp->value) == elementCreators_.end()) {
-          _Z("Could not create a UI component of type " + typeProp->value, ZERROR); continue;
+          zenith::Log("Could not create a UI component of type " + typeProp->value, ZSeverity::Error); continue;
         }
         element = std::shared_ptr<ZUIElement>((this->*elementCreators_[typeProp->value])(uiNode));
       }

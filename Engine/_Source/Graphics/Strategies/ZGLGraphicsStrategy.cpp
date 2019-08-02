@@ -364,7 +364,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
     glBindTexture(GL_TEXTURE_2D, texture.id);
     
     if (!handle) {
-        _Z("Failed to load texture", ZERROR);
+        zenith::Log("Failed to load texture", ZSeverity::Error);
         return texture;
     }
     
@@ -379,7 +379,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         } else {
-            _Z("ZGLGraphicsStrategy Error: Failed to load HDR texture at " + handle->Resource().name, ZERROR);
+            zenith::Log("ZGLGraphicsStrategy Error: Failed to load HDR texture at " + handle->Resource().name, ZSeverity::Error);
         }
     } else {
         if (textureData->Data()) {
@@ -391,7 +391,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         } else {
-            _Z("ZGLGraphicsStrategy Error: Failed to load texture at " + handle->Resource().name, ZERROR);
+            zenith::Log("ZGLGraphicsStrategy Error: Failed to load texture at " + handle->Resource().name, ZSeverity::Error);
         }
     }
     
@@ -425,14 +425,14 @@ ZTexture ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces) {
         std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
         
         if (!handle) {
-            _Z("Failed to load texture at " + faces[i], ZERROR); continue;
+            zenith::Log("Failed to load texture at " + faces[i], ZSeverity::Error); continue;
         }
         
         unsigned char* data = stbi_load_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &width, &height, &nrChannels, 0);
         if (data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         } else {
-            _Z("Could not load texture at path " + faces[i], ZERROR);
+            zenith::Log("Could not load texture at path " + faces[i], ZSeverity::Error);
         }
         stbi_image_free(data);
     }
@@ -501,7 +501,7 @@ ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool mul
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, color.rbo);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
-		_Z("Framebuffer operation incomplete dimensions", ZERROR);
+		zenith::Log("Framebuffer operation incomplete dimensions", ZSeverity::Error);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -518,7 +518,7 @@ ZBufferData ZGLGraphicsStrategy::LoadDepthMapBuffer(ZTexture depthTexture) {
     glReadBuffer(GL_NONE);
     
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
-        _Z("Framebuffer operation incomplete dimensions", ZERROR);
+        zenith::Log("Framebuffer operation incomplete dimensions", ZSeverity::Error);
     }
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -799,5 +799,5 @@ void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
 }
 
 void ZGLGraphicsStrategy::GLFWErrorCallback(int id, const char* description) {
-    _Z(description, ZERROR);
+    zenith::Log(description, ZSeverity::Error);
 }

@@ -66,7 +66,7 @@ void ZCameraComponent::Initialize() {
 void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
 	if (!node) {
-		_Z("Could not initalize ZCameraComponent", ZERROR);
+		zenith::Log("Could not initalize ZCameraComponent", ZSeverity::Error);
 		return;
 	}
 

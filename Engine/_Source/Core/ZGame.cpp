@@ -39,7 +39,7 @@ using namespace std;
 ZGame::ZGame() : activeScene_(0) { }
 
 void ZGame::RunGameLoop() {
-    _Z("Zenith is about to loop...", ZINFO);
+    zenith::Log("Zenith is about to loop...", ZSeverity::Info);
     
     double previousTime = zenith::SecondsTime();
     

@@ -65,7 +65,7 @@ void ZSceneTool::Update() {
         cameraComp->DisableUserMovement();
     } else {
         cameraComp->EnableUserMovement();
-        if (zenith::Input()->Mouse(ZMOUSE_RIGHT)) {
+        if (zenith::Input()->Mouse(ZMouse::RIGHT_MB)) {
             cameraComp->EnableUserLook();
             zenith::Domain()->Strategy()->CaptureCursor();
         } else {

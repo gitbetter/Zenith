@@ -184,7 +184,7 @@ void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderType shade
 
 	if (!success) {
 		if (isShader) { glGetShaderInfoLog(compilationUnit, 1024, NULL, infoLog); } else { glGetProgramInfoLog(compilationUnit, 1024, NULL, infoLog); }
-		_Z("Shader Compilation Error: (" + std::to_string(compilationUnit) + ") " + std::string(infoLog) + "\n" + shaderSource, ZERROR);
+		zenith::Log("Shader Compilation Error: (" + std::to_string(compilationUnit) + ") " + std::string(infoLog) + "\n" + shaderSource, ZSeverity::Error);
 	}
 }
 

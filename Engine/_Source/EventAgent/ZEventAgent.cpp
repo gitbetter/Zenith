@@ -38,7 +38,7 @@ bool ZEventAgent::AddListener(const ZEventDelegate& eventDelegate, const ZEventT
 	EventListenerList& listeners = eventListeners_[activeListeners_][type];
 	for (auto it = listeners.begin(); it != listeners.end(); it++) {
 		if (eventDelegate == (*it)) {
-			_Z("Attempted to register the same delegate twice", ZWARNING);
+			zenith::Log("Attempted to register the same delegate twice", ZSeverity::Warning);
 			return false;
 		}
 	}
@@ -143,7 +143,7 @@ void ZEventAgent::Update() {
 
 		currentTime = zenith::SecondsTime();
 		if (updateTimeoutMax_ != floatMax && currentTime >= maxTime) {
-			_Z("ZEventAgent processing timeout", ZWARNING);
+			zenith::Log("ZEventAgent processing timeout", ZSeverity::Warning);
 			break;
 		}
 	}

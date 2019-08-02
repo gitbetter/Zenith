@@ -312,7 +312,7 @@ namespace zenith {
         return scene;
     }
     
-    void Log(std::string text, unsigned int severity) {
+    void Log(const std::string& text, ZSeverity severity) {
         ZLogEntry entry;
         entry.severity = severity;
         entry.text = text;
@@ -320,13 +320,13 @@ namespace zenith {
         
 #ifdef DEV_BUILD
         switch(severity) {
-            case ZINFO:
+            case ZSeverity::Info:
                 std::cout << "\033[1;97m" << "[Info]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
                 break;
-            case ZWARNING:
+            case ZSeverity::Warning:
                 std::cout << "\033[1;33m" << "[Warning]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
                 break;
-            case ZERROR:
+            case ZSeverity::Error:
                 std::cout << "\033[1;91m" << "[Error]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
                 break;
         }

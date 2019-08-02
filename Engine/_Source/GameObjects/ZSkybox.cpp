@@ -43,7 +43,7 @@ void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root) {
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     
     if(!node) {
-        _Z("Could not initalize ZSkybox", ZERROR);
+        zenith::Log("Could not initalize ZSkybox", ZSeverity::Error);
         return;
     }
     

@@ -33,7 +33,7 @@
 bool ZALAudio::Initialize() {
 	device_ = alcOpenDevice(NULL);
 	if (!device_) {
-		_Z("Could not initialize OpenAL audio device", ZERROR);
+        zenith::Log("Could not initialize OpenAL audio device", ZSeverity::Error);
 		return false;
 	}
 

@@ -68,7 +68,7 @@ void ZBulletPhysics::Update() {
 void ZBulletPhysics::AddRigidBody(std::shared_ptr<ZRigidBody> body) {
     btRigidBody* ptr = static_cast<btRigidBody*>(body->Get());
     if (!ptr) {
-        _Z("The given rigid body is not a btRigidBody", ZERROR);
+        zenith::Log("The given rigid body is not a btRigidBody", ZSeverity::Error);
         return;
     }
     
@@ -78,7 +78,7 @@ void ZBulletPhysics::AddRigidBody(std::shared_ptr<ZRigidBody> body) {
 void ZBulletPhysics::RemoveRigidBody(std::shared_ptr<ZRigidBody> body) {
 	btRigidBody* ptr = static_cast<btRigidBody*>(body->Get());
 	if (!ptr) {
-		_Z("The given rigid body is not a btRigidBody", ZERROR);
+		zenith::Log("The given rigid body is not a btRigidBody", ZSeverity::Error);
 		return;
 	}
 

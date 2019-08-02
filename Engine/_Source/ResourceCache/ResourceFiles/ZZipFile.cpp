@@ -33,7 +33,7 @@ bool ZZipFile::Open() {
   zipFile_ = zip_open(fileName_.c_str(), ZIP_DEFAULT_COMPRESSION_LEVEL, 'r');
 
   if (!zipFile_) {
-    _Z("Failed to open zip file " + fileName_, ZERROR);
+    zenith::Log("Failed to open zip file " + fileName_, ZSeverity::Error);
     return false;
   }
 
@@ -79,7 +79,7 @@ void ZZipFile::PrintResources() const {
 //            int isdir = zip_entry_isdir(zipFile_);
 //            unsigned long long size = zip_entry_size(zipFile_);
 //            unsigned int crc32 = zip_entry_crc32(zipFile_);
-            _Z(name, ZINFO);
+            zenith::Log(name, ZSeverity::Error);
         }
         zip_entry_close(zipFile_);
     }

@@ -49,7 +49,7 @@ void ZUIText::Initialize(std::shared_ptr<ZOFNode> root) {
 
   std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
-    _Z("Could not initalize ZUIElement", ZERROR);
+    zenith::Log("Could not initalize ZUIElement", ZSeverity::Error);
     return;
   }
 

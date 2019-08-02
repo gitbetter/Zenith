@@ -46,7 +46,7 @@ void ZPhysicsComponent::Initialize() {
 void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if(!node) {
-        _Z("Could not initalize ZPhysicsComponent", ZERROR);
+        zenith::Log("Could not initalize ZPhysicsComponent", ZSeverity::Error);
         return;
     }
     
@@ -145,7 +145,7 @@ void ZPhysicsComponent::Initialize(std::string bodyType, std::string colliderTyp
     if (!colliderType.empty()) {
         collider = zenith::PhysicsFactory()->CreateCollider(colliderType, size);
     } else {
-        _Z("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZWARNING);
+        zenith::Log("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZSeverity::Warning);
         collider = zenith::PhysicsFactory()->CreateCollider("Box", size);
     }
     

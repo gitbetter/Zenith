@@ -75,21 +75,21 @@ void ZConsoleTool::Update() {
 
 void ZConsoleTool::StyledLogEntry(ZLogEntry entry) {
     switch (entry.severity) {
-        case ZINFO:
+        case ZSeverity::Info:
             if (editor_->Config().theme == "Light") {
                 ImGui::TextColored(ImVec4(0.15, 0.15, 0.15, 1), "%s", entry.text.c_str());
             } else {
                 ImGui::TextColored(ImVec4(1, 1, 1, 1), "%s", entry.text.c_str());
             }
             break;
-        case ZWARNING:
+        case ZSeverity::Warning:
             if (editor_->Config().theme == "Light") {
                 ImGui::TextColored(ImVec4(0.38, 0.43, 0.04, 1), "%s", entry.text.c_str());
             } else {
                 ImGui::TextColored(ImVec4(1.0, 0.85, 0.137, 1), "%s", entry.text.c_str());
             }
             break;
-        case ZERROR:
+        case ZSeverity::Error:
             if (editor_->Config().theme == "Light") {
                 ImGui::TextColored(ImVec4(0.43, 0.13, 0.13, 1), "%s", entry.text.c_str());
             } else {

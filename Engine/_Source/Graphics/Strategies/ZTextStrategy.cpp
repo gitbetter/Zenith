@@ -30,12 +30,12 @@
 #include "ZTextStrategy.hpp"
 
 void ZTextStrategy::Initialize() {
-  if (FT_Init_FreeType(&ft_)) _Z("Could not Initialize the FreeType library", ZERROR);
+  if (FT_Init_FreeType(&ft_)) zenith::Log("Could not Initialize the FreeType library", ZSeverity::Error);
 }
 
 void ZTextStrategy::SetFontSize(std::string font, unsigned int fontSize) {
   if (loadedFonts_.find(font) == loadedFonts_.end()) {
-    _Z("Can't set size on a font that has not been loaded yet", ZWARNING);
+    zenith::Log("Can't set size on a font that has not been loaded yet", ZSeverity::Warning);
     return;
   }
   LoadFont(font, fontSize);
@@ -43,7 +43,7 @@ void ZTextStrategy::SetFontSize(std::string font, unsigned int fontSize) {
 
 ZCharacter ZTextStrategy::Character(std::string font, unsigned char c) {
   if (loadedFonts_.find(font) == loadedFonts_.end()) {
-    _Z("The font " + font + " has not been loaded.", ZWARNING);
+    zenith::Log("The font " + font + " has not been loaded.", ZSeverity::Warning);
     return ZCharacter();
   }
   ZFont loadedFont = loadedFonts_[font];

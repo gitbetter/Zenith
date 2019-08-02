@@ -46,7 +46,7 @@ void ZInternalScriptExports::AttachScriptProcess(std::shared_ptr<ZScriptableProc
   if (scriptProcess) {
     zenith::ProcessRunner()->AttachProcess(scriptProcess, ZPriority::Low);
   } else {
-    _Z("Could not find 'process' object in script to attach", ZERROR);
+    zenith::Log("Could not find 'process' object in script to attach", ZSeverity::Error);
   }
 }
 
@@ -82,15 +82,15 @@ unsigned long ZInternalScriptExports::RegisterEventListener(ZEventType eventType
     return handle;
   }
 
-  _Z("Could not register the script event delegate using an invalid callback", ZERROR);
+  zenith::Log("Could not register the script event delegate using an invalid callback", ZSeverity::Error);
   return 0;
 }
 
 void ZInternalScriptExports::Log(sol::object obj) {
   if (obj.is<std::string>()) {
-    _Z(obj.as<std::string>(), ZINFO);
+    zenith::Log(obj.as<std::string>(), ZSeverity::Error);
   } else {
-    _Z("<Sol Type " + std::to_string((int)obj.get_type()) + ">", ZINFO);
+    zenith::Log("<Sol Type " + std::to_string((int)obj.get_type()) + ">", ZSeverity::Error);
   }
 }
 

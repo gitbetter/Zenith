@@ -40,7 +40,7 @@ void ZResourceLoadTask::Run() {
 	std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource_);
 
 	if (!handle) {
-		_Z("Could not find resource at path " + resource_.name, ZERROR);
+		zenith::Log("Could not find resource at path " + resource_.name, ZSeverity::Error);
 	}
 
 	switch (resource_.type) {

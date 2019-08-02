@@ -42,8 +42,8 @@ class ZGLInput : public ZInput {
     
 private:
     
-    static unsigned int keyMap_[ZKEY_LAST+1];
-    static unsigned int mouseMap_[ZMOUSE_LAST+1];
+    static std::map<unsigned int, ZKey> keyMap_;
+    static std::map<unsigned int, ZMouse> mouseMap_;
     
     double lastPitch_, lastYaw_;
     bool firstLook_ = true;

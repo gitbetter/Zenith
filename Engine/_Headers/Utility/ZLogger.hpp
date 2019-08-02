@@ -37,11 +37,11 @@
 
 // Class and Data Structure Definitions
 struct ZLogEntry {
-    unsigned int severity;
+    ZSeverity severity;
     std::string text;
     
-    ZLogEntry() : severity(0), text("") { }
-    ZLogEntry(std::string text, unsigned int severity) : severity(severity), text(text) { }
+    ZLogEntry() : severity(ZSeverity::Info), text("") { }
+    ZLogEntry(const std::string& text, ZSeverity severity) : severity(severity), text(text) { }
 };
 
 class ZLogger {

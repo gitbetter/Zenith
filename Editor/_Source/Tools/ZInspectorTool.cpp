@@ -129,7 +129,7 @@ void ZInspectorTool::DrawTransformProperties(std::shared_ptr<ZGameObject> &selec
 		scale = glm::vec3(1.f);
 	}
 
-	if (dragActive && !zenith::Input()->Mouse(ZMOUSE_LEFT)) {
+    if (dragActive && !zenith::Input()->Mouse(ZMouse::LEFT_MB)) {
 		ReleaseMouse(); dragActive = false;
 	} else if (dragActive) {
 		CaptureMouse();

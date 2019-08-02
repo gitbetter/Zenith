@@ -64,16 +64,16 @@ std::string ZOFParser::Scan() {
 
 void ZOFParser::Match(std::string token) {
   if (token == currentToken_) currentToken_ = Scan();
-  else _Z("[ZOFParse Error]: Expected " + token + ", but instead got " + currentToken_, ZERROR);
+  else zenith::Log("[ZOFParse Error]: Expected " + token + ", but instead got " + currentToken_, ZSeverity::Error);
 }
 
 void ZOFParser::Match(std::regex pattern) {
   if (std::regex_match(currentToken_, pattern)) currentToken_ = Scan();
-  else _Z("[ZOFParse Error]: Token " + currentToken_ + " is malformed", ZERROR);
+  else zenith::Log("[ZOFParse Error]: Token " + currentToken_ + " is malformed", ZSeverity::Error);
 }
 
 void ZOFParser::HandleParseError(std::shared_ptr<ZOFNode> node) {
-  _Z("[ZOFParse Error]: Unexpected token " + currentToken_, ZERROR);
+  zenith::Log("[ZOFParse Error]: Unexpected token " + currentToken_, ZSeverity::Error);
   node->Clear();
 }
 

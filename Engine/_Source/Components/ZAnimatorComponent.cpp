@@ -65,7 +65,7 @@ std::shared_ptr<ZComponent> ZAnimatorComponent::Clone() {
 void ZAnimatorComponent::Play(std::string animationName, bool looping) {
     std::shared_ptr<ZGraphicsComponent> graphics = object_->FindComponent<ZGraphicsComponent>();
     if(!graphics) {
-        _Z("Could not play animator animation. No graphics component exists for this game object.", ZERROR);
+        zenith::Log("Could not play animator animation. No graphics component exists for this game object.", ZSeverity::Error);
         return;
     }
     

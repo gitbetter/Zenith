@@ -116,7 +116,7 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource) {
     }
 
 	if (!loader) {
-		_Z("Default resource loader not found!", ZERROR);
+		zenith::Log("Default resource loader not found!", ZSeverity::Error);
 		return handle;
 	}
 

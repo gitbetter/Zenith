@@ -122,7 +122,7 @@ void ZHierarchyTool::DrawContextMenu(std::shared_ptr<ZGameObject> &gameObject) {
 
 void ZHierarchyTool::SelectObjectsIfClicked(std::shared_ptr<ZGameObject> &gameObject) {
 	if (ImGui::IsItemClicked()) {
-		if (!zenith::Input()->Key(ZKEY_LEFT_CONTROL) && !zenith::Input()->Key(ZKEY_RIGHT_CONTROL)) {
+        if (!zenith::Input()->Key(ZKey::LEFT_CONTROL) && !zenith::Input()->Key(ZKey::RIGHT_CONTROL)) {
 			editor_->SelectedObjects().clear();
 		}
 		editor_->SelectedObjects()[gameObject->ID()] = gameObject;

@@ -57,7 +57,7 @@ void* ZGLDomainStrategy::CreateWindow(int width, int height, bool visible, void*
 	}
 
 	if (window == NULL) {
-		_Z("Could not create glfw window", ZERROR);
+		zenith::Log("Could not create glfw window", ZSeverity::Error);
 		glfwTerminate();
 	}
 
@@ -150,7 +150,7 @@ void ZGLDomainStrategy::CleanUp() {
 }
 
 void ZGLDomainStrategy::GLFWErrorCallback(int id, const char* description) {
-	_Z(description, ZERROR);
+	zenith::Log(description, ZSeverity::Error);
 }
 
 void ZGLDomainStrategy::FrameBufferSizeCallback(GLFWwindow* window, int width, int height) {

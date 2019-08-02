@@ -61,7 +61,7 @@ ZMesh3DMap ZModelImporter::LoadModel(std::shared_ptr<ZResourceHandle> modelHandl
 
 	// The file might have incomplete data or no nodes to traverse. Handle that.
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-		_Z(std::string("ZModelImporter Error: ") + import.GetErrorString(), ZERROR);
+		zenith::Log(std::string("ZModelImporter Error: ") + import.GetErrorString(), ZSeverity::Error);
 		return meshes;
 	}
 

@@ -84,7 +84,7 @@ int VorbisSeek(void* data_src, long long offset, int origin) {
 		vorbisData->dataRead = vorbisData->dataSize + 1;
 		break;
 	default:
-		_Z("Bad parameter for 'origin', requires same as fseek.", ZERROR);
+		zenith::Log("Bad parameter for 'origin', requires same as fseek.", ZSeverity::Error);
 		break;
 	};
 
@@ -177,7 +177,7 @@ bool ZOggResourceLoader::ParseOgg(char *oggStream, unsigned int length, std::sha
 	bytes *= 2 * vi->channels;
 
 	if (handle->Size() != bytes) {
-		_Z("The OGG file size and the memory buffer size are not the same", ZERROR);
+		zenith::Log("The OGG file size and the memory buffer size are not the same", ZSeverity::Error);
 		ov_clear(&vf);
 		delete vorbisMemoryFile;
 		return false;

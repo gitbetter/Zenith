@@ -46,15 +46,14 @@ public:
     virtual void GetCursorPosition(double& x, double& y) = 0;
     virtual void SetCursorPosition(double& x, double& y) = 0;
     
-    virtual bool Key(unsigned int key) { return key < ZKEY_LAST+1 && key >= 0 && keyPress_[key]; }
-    virtual bool Mouse(unsigned int mouse) { return mouse < ZMOUSE_LAST+1 && mouse >= 0 && mousePress_[mouse]; }
-    
-    virtual void SetKey(unsigned int key, bool pressed = false) { if (key < ZKEY_LAST+1 && key >= 0) keyPress_[key] = pressed; }
-    virtual void SetMouse(unsigned int mouse, bool pressed = false) { if (mouse < ZMOUSE_LAST+1 && mouse >= 0) mousePress_[mouse] = pressed; }
+    inline bool Key(ZKey key) { return keyPress_.find(key) != keyPress_.end() && keyPress_[key]; }
+    inline bool Mouse(ZMouse mouse) { return mousePress_.find(mouse) != mousePress_.end() && mousePress_[mouse]; }
+    inline void SetKey(ZKey key, bool pressed = false) { keyPress_[key] = pressed; }
+    inline void SetMouse(ZMouse mouse, bool pressed = false) { mousePress_[mouse] = pressed; }
     
 protected:
     
-    bool keyPress_[ZKEY_LAST+1] = { false };
-    bool mousePress_[ZMOUSE_LAST+1] = { false };
+    std::map<ZKey, bool> keyPress_;
+    std::map<ZMouse, bool> mousePress_;
     
 };

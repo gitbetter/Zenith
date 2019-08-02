@@ -59,7 +59,7 @@ unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned in
 		switch (type) {
 		case MAKEFOURCC('f', 'a', 'c', 't'):
 		{
-			_Z("Compressed .wav files are not yet supported", ZWARNING);
+			zenith::Log("Compressed .wav files are not yet supported", ZSeverity::Warning);
 			break;
 		}
 		case MAKEFOURCC('f', 'm', 't', ' '):
@@ -127,7 +127,7 @@ bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int bufferLength, st
 		switch (type) {
 		case MAKEFOURCC('f', 'a', 'c', 't'):
 		{
-			_Z("Compressed .wav files are not yet supported", ZWARNING);
+			zenith::Log("Compressed .wav files are not yet supported", ZSeverity::Warning);
 			break;
 		}
 		case MAKEFOURCC('f', 'm', 't', ' '):
@@ -146,7 +146,7 @@ bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int bufferLength, st
 		{
 			copiedBuffer = true;
 			if (length != handle->Size()) {
-				_Z("Resource size and buffer size do not match", ZERROR);
+				zenith::Log("Resource size and buffer size do not match", ZSeverity::Error);
 				return 0;
 			}
 			memcpy(handle->FluidBuffer(), wavStream + pos, length); pos += length;

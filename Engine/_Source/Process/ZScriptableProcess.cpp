@@ -75,7 +75,7 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table const
     if (temp.valid()) {
       scriptUpdate_ = temp;
     } else {
-      _Z("No update() function found on script process", ZERROR);
+      zenith::Log("No update() function found on script process", ZSeverity::Error);
       return false;
     }
 
@@ -99,7 +99,7 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table const
     if (temp.valid())
       scriptAbort_ = temp;
   } else {
-    _Z("Script class is not a valid Lua table", ZERROR);
+    zenith::Log("Script class is not a valid Lua table", ZSeverity::Error);
     return false;
   }
 
@@ -120,7 +120,7 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table const
 void ZScriptableProcess::ScriptAttachChild(std::shared_ptr<ZScriptableProcess> process) {
   //std::shared_ptr<ZScriptableProcess> process = child.as<std::shared_ptr<ZScriptableProcess>>();
   if (process) AttachChild(process);
-  else _Z("Child process being attached is not valid", ZERROR);
+  else zenith::Log("Child process being attached is not valid", ZSeverity::Error);
 }
 
 sol::object ZScriptableProcess::GetDynamic(std::string key) {

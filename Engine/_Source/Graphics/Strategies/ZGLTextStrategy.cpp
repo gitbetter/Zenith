@@ -60,7 +60,7 @@ void ZGLTextStrategy::LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned
 
 	FT_Face face;
 	if (FT_New_Memory_Face(ft_, (const FT_Byte*)handle->Buffer(), (FT_Long)handle->Size(), 0, &face)) {
-		_Z("Could not load font at " + handle->Resource().name, ZERROR);
+		zenith::Log("Could not load font at " + handle->Resource().name, ZSeverity::Error);
 		return;
 	}
 
@@ -75,7 +75,7 @@ void ZGLTextStrategy::LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned
 
 	for (unsigned char c = 0; c < 255; c++) {
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-			_Z("Could not load character " + std::to_string(c), ZERROR);
+			zenith::Log("Could not load character " + std::to_string(c), ZSeverity::Error);
 
 		ZCharacter character;
 		character.texture.type = "glyph";

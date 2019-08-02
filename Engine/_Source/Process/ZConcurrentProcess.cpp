@@ -32,7 +32,7 @@
 void ZConcurrentProcess::Initialize() {
     processThread_ = std::thread(&ZConcurrentProcess::ThreadStarter, this);
     if (!processThread_.joinable()) {
-        _Z("Unable to create thread", ZERROR);
+        zenith::Log("Unable to create thread", ZSeverity::Error);
         Fail(); return;
     }
     ZProcess::Initialize();

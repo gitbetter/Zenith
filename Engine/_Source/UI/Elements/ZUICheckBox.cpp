@@ -49,7 +49,7 @@ void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root) {
 
   std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
-    _Z("Could not initalize ZUICheckbox", ZERROR); return;
+    zenith::Log("Could not initalize ZUICheckbox", ZSeverity::Error); return;
   }
 
   ZOFPropertyMap props = node->properties;
