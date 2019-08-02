@@ -42,7 +42,7 @@ ZSkybox::ZSkybox(std::string hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr) {
 void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root) {
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     
-    if(node == nullptr) {
+    if(!node) {
         _Z("Could not initalize ZSkybox", ZERROR);
         return;
     }
@@ -103,7 +103,7 @@ void ZSkybox::Render(ZRenderOp renderOp) {
 }
 
 void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
 	if (textureReadyEvent->Texture().path == hdrPath_) {
         ZTexture texture = textureReadyEvent->Texture();
         ZBufferData bufferData = textureReadyEvent->BufferData();

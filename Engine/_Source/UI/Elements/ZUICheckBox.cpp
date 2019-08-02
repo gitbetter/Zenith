@@ -47,7 +47,7 @@ void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root) {
   ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICheckBox::HandleMousePress);
   zenith::EventAgent()->AddListener(fireDelegate, ZObjectSelectedEvent::Type);
 
-  std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
+  std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZUICheckbox", ZERROR); return;
   }
@@ -66,7 +66,7 @@ void ZUICheckBox::Render(ZRenderOp renderOp) {
 }
 
 void ZUICheckBox::HandleMousePress(std::shared_ptr<ZEvent> event) {
-  std::shared_ptr<ZObjectSelectedEvent> fireEvent = std::dynamic_pointer_cast<ZObjectSelectedEvent>(event);
+  std::shared_ptr<ZObjectSelectedEvent> fireEvent = std::static_pointer_cast<ZObjectSelectedEvent>(event);
   if (id_ == fireEvent->ObjectID()) {
     checked_ = !checked_;
     if (checked_) {

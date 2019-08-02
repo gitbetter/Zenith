@@ -330,10 +330,10 @@ void ZShader::Use(const ZBoneList& bones) {
 }
 
 void ZShader::HandleShaderCodeLoaded(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
 	if (!loaded->Handle()) return;
 
-	std::shared_ptr<ZShaderResourceExtraData> extraData = std::dynamic_pointer_cast<ZShaderResourceExtraData>(loaded->Handle()->ExtraData());
+	std::shared_ptr<ZShaderResourceExtraData> extraData = std::static_pointer_cast<ZShaderResourceExtraData>(loaded->Handle()->ExtraData());
 
 	switch (loaded->Handle()->Resource().type) {
 	case ZResourceType::VertexShader:

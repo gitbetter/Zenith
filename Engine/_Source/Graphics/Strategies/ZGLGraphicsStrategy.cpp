@@ -368,7 +368,7 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
         return texture;
     }
     
-	std::shared_ptr<ZTextureResourceExtraData> textureData = std::dynamic_pointer_cast<ZTextureResourceExtraData>(handle->ExtraData());
+	std::shared_ptr<ZTextureResourceExtraData> textureData = std::static_pointer_cast<ZTextureResourceExtraData>(handle->ExtraData());
 
     if (hdr) {
         if (textureData->FloatData()) {
@@ -774,7 +774,7 @@ void ZGLGraphicsStrategy::DrawLines(ZBufferData bufferData, std::vector<ZVertex3
 }
 
 void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
 	if (!loaded->Handle()) return;
 
 	ZResource resource = loaded->Handle()->Resource();
@@ -783,7 +783,7 @@ void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
 		resource.type != ZResourceType::HDREquirectangularMap)
 		return;
 
-	std::shared_ptr<ZTextureResourceExtraData> textureData = std::dynamic_pointer_cast<ZTextureResourceExtraData>(loaded->Handle()->ExtraData());
+	std::shared_ptr<ZTextureResourceExtraData> textureData = std::static_pointer_cast<ZTextureResourceExtraData>(loaded->Handle()->ExtraData());
 
 	ZTexture texture = LoadTexture(loaded->Handle(), textureData->IsHDR(), textureData->IsFlipped());
 

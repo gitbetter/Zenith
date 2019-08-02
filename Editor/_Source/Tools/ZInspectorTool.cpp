@@ -209,7 +209,7 @@ void ZInspectorTool::End() {
 }
 
 void ZInspectorTool::HandleTextureLoaded(std::shared_ptr<ZEvent> event) {
-    std::shared_ptr<ZTextureReadyEvent> textureEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+    std::shared_ptr<ZTextureReadyEvent> textureEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
     if (textureEvent->Texture().path == OBJECT_CUBE_IMAGE_PATH) {
         objectCubeImage_ = textureEvent->Texture();
         

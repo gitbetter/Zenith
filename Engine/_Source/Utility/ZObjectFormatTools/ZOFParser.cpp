@@ -191,7 +191,7 @@ void ZOFParser::ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal) {
       Match(","); ListTail(terminal);
     } else if (std::regex_match(currentToken_, id_)) {
       // Push a new string onto the list of strings
-      std::shared_ptr<ZOFStringList> term = std::dynamic_pointer_cast<ZOFStringList>(terminal);
+      std::shared_ptr<ZOFStringList> term = std::static_pointer_cast<ZOFStringList>(terminal);
       if (term != nullptr) {
         std::string s = currentToken_;
         s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
@@ -201,7 +201,7 @@ void ZOFParser::ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal) {
       Match(id_), ListTail(term);
     } else if (std::regex_match(currentToken_, number_)) {
       // Push a new float onto the list of floats
-      std::shared_ptr<ZOFNumberList> term = std::dynamic_pointer_cast<ZOFNumberList>(terminal);
+      std::shared_ptr<ZOFNumberList> term = std::static_pointer_cast<ZOFNumberList>(terminal);
       if (term != nullptr)
         term->value.push_back(std::stof(currentToken_));
 

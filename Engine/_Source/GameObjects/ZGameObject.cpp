@@ -51,7 +51,7 @@ ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation) {
 
 void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root) {
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-    if(node == nullptr) {
+    if(!node) {
         _Z("Could not initalize ZGameObject", ZERROR);
         return;
     }
@@ -149,17 +149,9 @@ std::shared_ptr<ZGameObject> ZGameObject::Clone() {
 	// TODO: Can we template the component Clone method somehow?
 	for (std::shared_ptr<ZComponent> comp : components_) {
 		std::shared_ptr<ZComponent> compClone = comp->Clone();
+        clone->AddComponent(compClone);
 		if (auto physicsComp = std::dynamic_pointer_cast<ZPhysicsComponent>(compClone)) {
-			clone->AddComponent(physicsComp);
 			physicsComp->RigidBody()->SetGameObject(clone.get());
-		} else if (auto cameraComp = std::dynamic_pointer_cast<ZCameraComponent>(compClone)) {
-			clone->AddComponent(cameraComp);
-		} else if (auto graphicsComp = std::dynamic_pointer_cast<ZGraphicsComponent>(compClone)) {
-			clone->AddComponent(graphicsComp);
-		} else if (auto scriptComp = std::dynamic_pointer_cast<ZScriptComponent>(compClone)) {
-			clone->AddComponent(scriptComp);
-		} else if (auto animComp = std::dynamic_pointer_cast<ZAnimatorComponent>(compClone)) {
-			clone->AddComponent(animComp);
 		}
 	}
 

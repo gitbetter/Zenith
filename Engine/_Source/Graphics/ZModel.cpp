@@ -445,10 +445,10 @@ glm::vec3 ZModel::CalculateInterpolatedPosition(double animationTime, std::share
 }
 
 void ZModel::HandleModelLoaded(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
 	if (!loaded->Handle()) return;
 
-	std::shared_ptr<ZModelResourceExtraData> extraData = std::dynamic_pointer_cast<ZModelResourceExtraData>(loaded->Handle()->ExtraData());
+	std::shared_ptr<ZModelResourceExtraData> extraData = std::static_pointer_cast<ZModelResourceExtraData>(loaded->Handle()->ExtraData());
 
 	if (loaded->Handle()->Resource().name == modelPath_) {
 		meshes_ = extraData->Meshes();

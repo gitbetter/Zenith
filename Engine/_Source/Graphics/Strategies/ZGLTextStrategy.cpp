@@ -100,7 +100,7 @@ void ZGLTextStrategy::LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned
 }
 
 void ZGLTextStrategy::HandleFontLoaded(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZResourceLoadedEvent> resourceLoadedEvent = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	std::shared_ptr<ZResourceLoadedEvent> resourceLoadedEvent = std::static_pointer_cast<ZResourceLoadedEvent>(event);
 	std::shared_ptr<ZResourceHandle> handle = resourceLoadedEvent->Handle();
 
 	if (pendingFonts_.find(handle->Resource().name) != pendingFonts_.end()) {

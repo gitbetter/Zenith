@@ -48,7 +48,7 @@ ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0),
 void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root) {
     modelMatrix_ = glm::mat4(1.0); color_ = glm::vec4(0.6);
     
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
+    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
     if(node == nullptr) {
         _Z("Could not initalize ZUIElement", ZERROR);
         return;

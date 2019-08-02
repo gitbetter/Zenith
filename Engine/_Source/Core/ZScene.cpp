@@ -121,7 +121,7 @@ void ZScene::ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree) {
     bool hasSkybox = false;
     for (ZOFChildMap::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++) {
 		if (it->first.find("ZSCENE") == 0) {
-			std::shared_ptr<ZOFObjectNode> sceneDataNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
+			std::shared_ptr<ZOFObjectNode> sceneDataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
 			if (sceneDataNode->properties.find("name") != sceneDataNode->properties.end()) {
 				name_ = sceneDataNode->properties["name"]->Value<ZOFString>(0)->value;
                 root_->SetName(name_);
@@ -272,12 +272,12 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImme
             activeCamera_ = gameObject;
         }
         
-        if (std::dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
-            gameLights_.insert({gameObject->ID(), std::dynamic_pointer_cast<ZLight>(gameObject)});
+        if (auto light = std::dynamic_pointer_cast<ZLight>(gameObject)) {
+            gameLights_.insert({gameObject->ID(), light});
         }
         
-        if (std::dynamic_pointer_cast<ZSkybox>(gameObject) != nullptr) {
-            skybox_ = std::dynamic_pointer_cast<ZSkybox>(gameObject);
+        if (auto skybox = std::dynamic_pointer_cast<ZSkybox>(gameObject)) {
+            skybox_ = skybox;
         } else {
             gameObjects_.insert({gameObject->ID(), gameObject});
         }
@@ -292,11 +292,11 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImme
 
 void ZScene::RemoveGameObject(std::shared_ptr<ZGameObject> gameObject) {
 	if (gameObject != nullptr) {
-		if (gameObject->FindComponent<ZCameraComponent>() != nullptr && primaryCamera_ == gameObject) {
+		if (gameObject->FindComponent<ZCameraComponent>() && primaryCamera_ == gameObject) {
 			primaryCamera_ = nullptr;
 		}
 
-		if (std::dynamic_pointer_cast<ZLight>(gameObject) != nullptr) {
+		if (std::dynamic_pointer_cast<ZLight>(gameObject)) {
 			gameLights_.erase(gameObject->ID());
 		}
 
@@ -381,11 +381,11 @@ void ZScene::HandleQuit(std::shared_ptr<ZEvent> event) {
 }
 
 void ZScene::HandleZOFReady(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZResourceLoadedEvent> loaded = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
 	if (!loaded->Handle()) return;
 
 	if (pendingSceneDefinitions_.find(loaded->Handle()->Resource().name) != pendingSceneDefinitions_.end()) {
-		std::shared_ptr<ZZOFResourceExtraData> extraData = std::dynamic_pointer_cast<ZZOFResourceExtraData>(loaded->Handle()->ExtraData());
+		std::shared_ptr<ZZOFResourceExtraData> extraData = std::static_pointer_cast<ZZOFResourceExtraData>(loaded->Handle()->ExtraData());
 		LoadSceneData(extraData->ObjectTree());
 		pendingSceneDefinitions_.erase(loaded->Handle()->Resource().name);
 	}
@@ -431,7 +431,7 @@ void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event
 			pendingSceneObjects_.erase(it);
 			break;
 		} else if (type == "ZSKY") {
-			std::shared_ptr<ZSkyboxReadyEvent> ready = std::dynamic_pointer_cast<ZSkyboxReadyEvent>(event);
+			std::shared_ptr<ZSkyboxReadyEvent> ready = std::static_pointer_cast<ZSkyboxReadyEvent>(event);
 			if (ready->Skybox() == skybox_) {
 				pendingSceneObjects_.erase(it);
 				break;
@@ -447,7 +447,7 @@ void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event
 }
 
 void ZScene::HandleObjectDestroyed(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZObjectDestroyedEvent> destroyedEvent = std::dynamic_pointer_cast<ZObjectDestroyedEvent>(event);
+	std::shared_ptr<ZObjectDestroyedEvent> destroyedEvent = std::static_pointer_cast<ZObjectDestroyedEvent>(event);
 	RemoveGameObject(destroyedEvent->Object());
 }
 

@@ -35,7 +35,7 @@ void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root) {
   ZUIElement::Initialize(root);
   texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 
-   std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
+   std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
   if(node == nullptr) {
     _Z("Could not initalize ZUIElement", ZERROR);
     return;

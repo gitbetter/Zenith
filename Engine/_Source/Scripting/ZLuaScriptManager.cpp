@@ -41,7 +41,7 @@ void ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof) {
 	for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++) {
 		if (it->first.find("ZSCR") == 0) {
 
-			std::shared_ptr<ZOFObjectNode> scriptNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
+			std::shared_ptr<ZOFObjectNode> scriptNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
 
 			ZOFPropertyMap props = scriptNode->properties;
 
@@ -59,7 +59,7 @@ void ZLuaScriptManager::LoadAsync(std::shared_ptr<ZOFTree> zof) {
     for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++) {
         if (it->first.find("ZSCR") == 0) {
             
-            std::shared_ptr<ZOFObjectNode> scriptNode = std::dynamic_pointer_cast<ZOFObjectNode>(it->second);
+            std::shared_ptr<ZOFObjectNode> scriptNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
             
             ZOFPropertyMap props = scriptNode->properties;
             

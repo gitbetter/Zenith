@@ -61,7 +61,7 @@ void ZUIImage::SetImage(std::string path) {
 }
 
 void ZUIImage::HandleTextureReady(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
 	if (textureReadyEvent->Texture().path == path_) {
 		texture_ = textureReadyEvent->Texture();
 		texture_.type = "image";

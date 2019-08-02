@@ -217,7 +217,7 @@ void ZGraphics::CleanUp() {
 }
 
 void ZGraphics::HandleShaderReady(std::shared_ptr<ZEvent> event) {
-    std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::dynamic_pointer_cast<ZShaderReadyEvent>(event);
+    std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::static_pointer_cast<ZShaderReadyEvent>(event);
     if (pendingShaders_.find(shaderReadyEvent->Shader()) != pendingShaders_.end()) {
         std::shared_ptr<ZShader> shader = shaderReadyEvent->Shader();
         AddShader(pendingShaders_[shader], shader);
@@ -226,7 +226,7 @@ void ZGraphics::HandleShaderReady(std::shared_ptr<ZEvent> event) {
 }
 
 void ZGraphics::HandleTextureReady(std::shared_ptr<ZEvent> event) {
-    std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::dynamic_pointer_cast<ZTextureReadyEvent>(event);
+    std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
     if (pendingTextures_.find(textureReadyEvent->Texture().path) != pendingTextures_.end()) {
         ZTexture texture = textureReadyEvent->Texture();
         AddTexture(pendingTextures_[texture.path], texture);
@@ -235,7 +235,7 @@ void ZGraphics::HandleTextureReady(std::shared_ptr<ZEvent> event) {
 }
 
 void ZGraphics::HandleModelReady(std::shared_ptr<ZEvent> event) {
-    std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::dynamic_pointer_cast<ZModelReadyEvent>(event);
+    std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::static_pointer_cast<ZModelReadyEvent>(event);
     if (pendingModels_.find(modelReadyEvent->Model()) != pendingModels_.end()) {
         std::shared_ptr<ZModel> model = modelReadyEvent->Model();
         AddModel(pendingModels_[model], model);

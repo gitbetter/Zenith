@@ -86,7 +86,7 @@ void ZBulletPhysics::RemoveRigidBody(std::shared_ptr<ZRigidBody> body) {
 }
 
 void ZBulletPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event) {
-    std::shared_ptr<ZRaycastEvent> raycastEvent = std::dynamic_pointer_cast<ZRaycastEvent>(event);
+    std::shared_ptr<ZRaycastEvent> raycastEvent = std::static_pointer_cast<ZRaycastEvent>(event);
     
     if (raycastEvent->Origin().z == 0.f) { // Handle screen to world raycasting (i.e. mouse picking)
         std::shared_ptr<ZGameObject> camera = zenith::Game()->ActiveScene()->ActiveCamera();

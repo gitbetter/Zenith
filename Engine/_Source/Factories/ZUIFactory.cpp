@@ -49,7 +49,7 @@ ZUIElementMap ZUIFactory::Load(std::shared_ptr<ZOFTree> data) {
   for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++) {
     std::shared_ptr<ZOFNode> node = it->second;
     if (node->id.find("ZUI") == 0) {
-      std::shared_ptr<ZOFObjectNode> uiNode = std::dynamic_pointer_cast<ZOFObjectNode>(node);
+      std::shared_ptr<ZOFObjectNode> uiNode = std::static_pointer_cast<ZOFObjectNode>(node);
       ZOFPropertyMap props = uiNode->properties;
 
       std::shared_ptr<ZUIElement> element;

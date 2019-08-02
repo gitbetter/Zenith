@@ -45,7 +45,7 @@ void ZLight::Initialize(std::shared_ptr<ZOFNode> root) {
     ZGameObject::Initialize(root);
     
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-    if (node == nullptr) {
+    if (!node) {
         _Z("Could not initalize ZLight", ZERROR);
         return;
     }

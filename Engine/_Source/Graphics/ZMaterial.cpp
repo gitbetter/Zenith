@@ -37,7 +37,7 @@ void ZMaterial::Initialize(std::shared_ptr<ZOFTree> root) {
     ZMaterialProperties materialProperties;
     bool isPBR = false, hasDisplacement = false;
     
-    std::shared_ptr<ZOFObjectNode> materialNode = std::dynamic_pointer_cast<ZOFObjectNode>(root);
+    std::shared_ptr<ZOFObjectNode> materialNode = std::static_pointer_cast<ZOFObjectNode>(root);
     
     for (ZOFPropertyMap::iterator it = materialNode->properties.begin(); it != materialNode->properties.end(); it++) {
         if (!it->second->HasValues()) continue;

@@ -49,14 +49,14 @@ ZGraphicsComponent::~ZGraphicsComponent() {
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader) {
 	modelObject_ = model;
-	if (shader != nullptr) currentShaderObject_ = shader;
+	if (shader) currentShaderObject_ = shader;
 }
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	ZComponent::Initialize();
 
 	std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-	if (node == nullptr) {
+	if (!node) {
 		_Z("Could not initalize ZGraphicsComponent", ZERROR);
 		return;
 	}

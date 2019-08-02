@@ -65,7 +65,7 @@ void ZCameraComponent::Initialize() {
 // TODO: Initialize functions should come in two flavors
 void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root) {
 	std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-	if (node == nullptr) {
+	if (!node) {
 		_Z("Could not initalize ZCameraComponent", ZERROR);
 		return;
 	}

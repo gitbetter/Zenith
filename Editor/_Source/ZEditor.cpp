@@ -154,7 +154,7 @@ void ZEditor::SetupInitialTools() {
 void ZEditor::Configure(std::shared_ptr<ZOFTree> objectTree) {
 	ZEditorConfig config;
 	if (objectTree->children.find("CONFIG") != objectTree->children.end()) {
-		std::shared_ptr<ZOFObjectNode> configDataNode = std::dynamic_pointer_cast<ZOFObjectNode>(objectTree->children["CONFIG"]);
+		std::shared_ptr<ZOFObjectNode> configDataNode = std::static_pointer_cast<ZOFObjectNode>(objectTree->children["CONFIG"]);
 		if (configDataNode->properties.find("font") != configDataNode->properties.end()) {
 			config.mainFontPath = configDataNode->properties["font"]->Value<ZOFString>(0)->value;
 			config.mainFontSize = configDataNode->properties["font"]->Value<ZOFNumber>(1)->value;
@@ -319,14 +319,14 @@ void ZEditor::DockspaceEnd() {
 }
 
 void ZEditor::HandleResourceLoaded(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZResourceLoadedEvent> loadedEvent = std::dynamic_pointer_cast<ZResourceLoadedEvent>(event);
+	std::shared_ptr<ZResourceLoadedEvent> loadedEvent = std::static_pointer_cast<ZResourceLoadedEvent>(event);
 	ZResource& resource = loadedEvent->Handle()->Resource();
 
 	if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_CONFIG_PATH) {
-		std::shared_ptr<ZZOFResourceExtraData> zofData = std::dynamic_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
+		std::shared_ptr<ZZOFResourceExtraData> zofData = std::static_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
 		Configure(zofData->ObjectTree());
 	} else if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_OBJECT_TEMPLATES_PATH) {
-		std::shared_ptr<ZZOFResourceExtraData> zofData = std::dynamic_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
+		std::shared_ptr<ZZOFResourceExtraData> zofData = std::static_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
 		LoadObjectTemplates(zofData->ObjectTree());
 	} else if (resource.type == ZResourceType::Font && resource.name == config_.mainFontPath) {
 		SetEditorFontFromMemory(loadedEvent->Handle());
