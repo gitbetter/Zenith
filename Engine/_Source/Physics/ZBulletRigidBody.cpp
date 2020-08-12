@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZBulletRigidBody.cpp
 
     Created by Adrian Sanchez on 16/04/2019.
@@ -30,203 +30,226 @@
 #include "ZBulletRigidBody.hpp"
 #include "btBulletDynamicsCommon.h"
 
-ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale, glm::quat rotation) : ZBulletRigidBody() {
+ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale, glm::quat rotation) : ZBulletRigidBody()
+{
     btCollisionShape* coll = static_cast<btCollisionShape*>(collider->Get());
-    
+
     btTransform transform;
     transform.setIdentity();
     transform.setOrigin(btVector3(origin.x, origin.y, origin.z));
     transform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-    
+
     coll->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
-    
+
     btVector3 localInertia(0, 0, 0);
     if (mass > 0.f) coll->calculateLocalInertia(mass, localInertia);
-    
+
     btDefaultMotionState* motionState = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, coll, localInertia);
     btRigidBody* bodyPtr = new btRigidBody(rbInfo);
 
     ptr_ = bodyPtr;
     type_ = type;
-	collider_ = collider;
+    collider_ = collider;
 }
 
-void ZBulletRigidBody::Initialize() { }
+void ZBulletRigidBody::Initialize() {}
 
-float ZBulletRigidBody::InverseMass() {
+float ZBulletRigidBody::InverseMass()
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return 0.f;
-    
+
     return body->getInvMass();
 }
 
-glm::mat4 ZBulletRigidBody::TransformMatrix() {
-	// TODO: Might be best to cache this transform and update it when necessary
+glm::mat4 ZBulletRigidBody::TransformMatrix()
+{
+// TODO: Might be best to cache this transform and update it when necessary
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     btTransform transform; ATTRIBUTE_ALIGNED16(glm::mat4) modelMatrix;
     if (!body) return modelMatrix;
-    
-    if (body->getMotionState()) {
-      body->getMotionState()->getWorldTransform(transform);
+
+    if (body->getMotionState())
+    {
+        body->getMotionState()->getWorldTransform(transform);
     }
     transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
     modelMatrix = glm::translate(modelMatrix, colliderOffset_);
     return modelMatrix;
 }
 
-glm::vec3 ZBulletRigidBody::Position() {
-	btRigidBody* body = static_cast<btRigidBody*>(ptr_);
-	if (!body) return glm::vec3(0.f);
-
-	const btVector3& pos = body->getCenterOfMassPosition();
-	return glm::vec3(pos.x(), pos.y(), pos.z());
-}
-
-glm::quat ZBulletRigidBody::Rotation() {
-	btRigidBody* body = static_cast<btRigidBody*>(ptr_);
-	if (!body) return glm::quat(1.f, 0.f, 0.f, 0.f);
-
-	const btQuaternion& orn = body->getOrientation();
-	return glm::quat(orn.w(), orn.x(), orn.y(), orn.z());
-}
-
-glm::vec3 ZBulletRigidBody::Scale() {
-	btRigidBody* body = static_cast<btRigidBody*>(ptr_);
-	if (!body || !body->getCollisionShape()) return glm::vec3(0.f);
-
-	btCollisionShape* coll = body->getCollisionShape();
-	const btVector3& scale = coll->getLocalScaling();
-	return glm::vec3(scale.x(), scale.y(), scale.z());
-}
-
-glm::vec3 ZBulletRigidBody::Velocity() {
+glm::vec3 ZBulletRigidBody::Position()
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return glm::vec3(0.f);
-    
+
+    const btVector3& pos = body->getCenterOfMassPosition();
+    return glm::vec3(pos.x(), pos.y(), pos.z());
+}
+
+glm::quat ZBulletRigidBody::Rotation()
+{
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return glm::quat(1.f, 0.f, 0.f, 0.f);
+
+    const btQuaternion& orn = body->getOrientation();
+    return glm::quat(orn.w(), orn.x(), orn.y(), orn.z());
+}
+
+glm::vec3 ZBulletRigidBody::Scale()
+{
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body || !body->getCollisionShape()) return glm::vec3(0.f);
+
+    btCollisionShape* coll = body->getCollisionShape();
+    const btVector3& scale = coll->getLocalScaling();
+    return glm::vec3(scale.x(), scale.y(), scale.z());
+}
+
+glm::vec3 ZBulletRigidBody::Velocity()
+{
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return glm::vec3(0.f);
+
     btVector3 vel = body->getLinearVelocity();
     return glm::vec3(vel.x(), vel.y(), vel.z());
 }
 
-glm::vec3 ZBulletRigidBody::AngularVelocity() {
+glm::vec3 ZBulletRigidBody::AngularVelocity()
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return glm::vec3(0.f);
-    
+
     btVector3 vel = body->getAngularVelocity();
     return glm::vec3(vel.x(), vel.y(), vel.z());
 }
 
-void ZBulletRigidBody::DisableContactResponse() {
+void ZBulletRigidBody::DisableContactResponse()
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->setCollisionFlags(body->getCollisionFlags() | btRigidBody::CF_NO_CONTACT_RESPONSE);
 }
 
-std::shared_ptr<ZRigidBody> ZBulletRigidBody::Clone() {
-	glm::vec3 position = Position();
-	glm::quat rotation = Rotation();
-	glm::vec3 scale = Scale();
-	float mass = 1.f / InverseMass();
-    
-	std::shared_ptr<ZBulletRigidBody> clone = std::make_shared<ZBulletRigidBody>(type_, collider_, mass, position, scale, rotation);
-    
+std::shared_ptr<ZRigidBody> ZBulletRigidBody::Clone()
+{
+    glm::vec3 position = Position();
+    glm::quat rotation = Rotation();
+    glm::vec3 scale = Scale();
+    float mass = 1.f / InverseMass();
+
+    std::shared_ptr<ZBulletRigidBody> clone = std::make_shared<ZBulletRigidBody>(type_, collider_, mass, position, scale, rotation);
+
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     btRigidBody* clonedBody = static_cast<btRigidBody*>(clone->ptr_);
     clonedBody->setCollisionFlags(body->getCollisionFlags());
-    
-	clone->colliderOffset_ = colliderOffset_;
-	return clone;
+
+    clone->colliderOffset_ = colliderOffset_;
+    return clone;
 }
 
-void ZBulletRigidBody::ApplyForce(glm::vec3& force) {
+void ZBulletRigidBody::ApplyForce(glm::vec3& force)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->activate();
     body->applyCentralForce(btVector3(force.x, force.y, force.z));
 }
 
-void ZBulletRigidBody::ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) {
+void ZBulletRigidBody::ApplyForceAtPoint(glm::vec3& force, glm::vec3& point)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->activate();
     body->applyForce(btVector3(force.x, force.y, force.z), btVector3(point.x, point.y, point.z));
 }
 
-void ZBulletRigidBody::ApplyTorque(glm::vec3& torque) {
+void ZBulletRigidBody::ApplyTorque(glm::vec3& torque)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->activate();
     body->applyTorque(btVector3(torque.x, torque.y, torque.z));
 }
 
-void ZBulletRigidBody::SetGravity(glm::vec3& gravity) {
+void ZBulletRigidBody::SetGravity(glm::vec3& gravity)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->setGravity(btVector3(gravity[0], gravity[1], gravity[2]));
 }
 
-void ZBulletRigidBody::SetLinearDamping(float damping) {
+void ZBulletRigidBody::SetLinearDamping(float damping)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->setDamping(damping, body->getAngularDamping());
 }
 
-void ZBulletRigidBody::SetAngularDamping(float damping) {
+void ZBulletRigidBody::SetAngularDamping(float damping)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->setDamping(body->getLinearDamping(), damping);
 }
 
-void ZBulletRigidBody::SetRestitution(float restitution) {
+void ZBulletRigidBody::SetRestitution(float restitution)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->setRestitution(restitution);
 }
 
-void ZBulletRigidBody::SetGameObject(ZGameObject* gameObject) {
+void ZBulletRigidBody::SetGameObject(ZGameObject* gameObject)
+{
     ZRigidBody::SetGameObject(gameObject);
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     body->setUserPointer(gameObject);
 }
 
-void ZBulletRigidBody::SetPosition(glm::vec3 position) {
+void ZBulletRigidBody::SetPosition(glm::vec3 position)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
 
     btTransform newTransform;
-    if (body->getMotionState()) {
+    if (body->getMotionState())
+    {
         body->getMotionState()->getWorldTransform(newTransform);
     }
     newTransform.setOrigin(btVector3(position.x, position.y, position.z));
-    
+
     body->setWorldTransform(newTransform);
     body->getMotionState()->setWorldTransform(newTransform);
     body->activate();
 }
 
-void ZBulletRigidBody::SetRotation(glm::quat rotation) {
+void ZBulletRigidBody::SetRotation(glm::quat rotation)
+{
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
-    
+
     btTransform newTransform;
-    if (body->getMotionState()) {
+    if (body->getMotionState())
+    {
         body->getMotionState()->getWorldTransform(newTransform);
     }
     newTransform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-    
+
     body->setWorldTransform(newTransform);
     body->getMotionState()->setWorldTransform(newTransform);
     body->activate();
 }
 
-void ZBulletRigidBody::SetScale(glm::vec3 scale) { }
+void ZBulletRigidBody::SetScale(glm::vec3 scale) {}

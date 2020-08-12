@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZScriptableEvent.hpp
 
     Created by Adrian Sanchez on 24/03/2019.
@@ -56,52 +56,56 @@ class ZScriptableEvent;
 // Class and Data Structure Definitions
 typedef ZScriptableEvent* (*CreateEventForScriptFunctionType)();
 
-class ZScriptableEvent : public ZBaseEvent {
+class ZScriptableEvent : public ZBaseEvent
+{
 
-  typedef std::map<ZEventType, CreateEventForScriptFunctionType> CreationFunctions;
+    typedef std::map<ZEventType, CreateEventForScriptFunctionType> CreationFunctions;
 
 private:
 
-  static CreationFunctions creationFunctions_;
+    static CreationFunctions creationFunctions_;
 
 public:
 
-  static const ZEventType Type;
+    static const ZEventType Type;
 
-  ZScriptableEvent() { }
+    ZScriptableEvent() {}
 
-  sol::table EventData();
-  bool SetEventData(sol::table data);
+    sol::table EventData();
+    bool SetEventData(sol::table data);
 
-  static void RegisterEventTypeWithScript(const std::string& key, ZEventType type);
-  static void AddCreationFunction(ZEventType type, CreateEventForScriptFunctionType creationFunction);
+    static void RegisterEventTypeWithScript(const std::string& key, ZEventType type);
+    static void AddCreationFunction(ZEventType type, CreateEventForScriptFunctionType creationFunction);
 
-  static ZScriptableEvent* CreateEventFromScript(ZEventType type);
+    static ZScriptableEvent* CreateEventFromScript(ZEventType type);
 
 protected:
 
-  sol::table eventData_;
+    sol::table eventData_;
 
-  virtual bool BuildEventData() { return true; }
-  virtual bool BuildEventFromScript() { return true; }
+    virtual bool BuildEventData() { return true; }
+    virtual bool BuildEventFromScript() { return true; }
 
 };
 
-class ZScriptableEventDelegate {
+class ZScriptableEventDelegate
+{
 
-  private:
+private:
 
     ZEventType eventType_;
-    sol::function scriptCallback_; 
+    sol::function scriptCallback_;
 
-  public:
+public:
 
-    explicit ZScriptableEventDelegate(ZEventType eventType, const sol::function& scriptCallback) 
-    : eventType_(eventType), scriptCallback_(scriptCallback) { }
-    ~ZScriptableEventDelegate() { }
+    explicit ZScriptableEventDelegate(ZEventType eventType, const sol::function& scriptCallback)
+        : eventType_(eventType), scriptCallback_(scriptCallback)
+    {}
+    ~ZScriptableEventDelegate() {}
 
-    ZEventDelegate Delegate() {
-      return fastdelegate::MakeDelegate(this, &ZScriptableEventDelegate::EventDelegate);
+    ZEventDelegate Delegate()
+    {
+        return fastdelegate::MakeDelegate(this, &ZScriptableEventDelegate::EventDelegate);
     }
 
     void EventDelegate(std::shared_ptr<ZEvent> event);

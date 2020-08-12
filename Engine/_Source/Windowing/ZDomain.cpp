@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZWindow.cpp
 
     Created by Adrian Sanchez on 27/01/2019.
@@ -30,32 +30,39 @@
 #include "ZDomain.hpp"
 #include "ZGLDomainStrategy.hpp"
 
-void ZDomain::Initialize() {
-  // TODO: Switch the strategy here based on domain (windowing and input handling) implementation
-  if (domainStrategy_ == nullptr) {
-    domainStrategy_.reset(new ZGLDomainStrategy);
-    domainStrategy_->Initialize();
-    mainContext_ = domainStrategy_->CreateWindow(windowWidth_, windowHeight_);
+void ZDomain::Initialize()
+{
+// TODO: Switch the strategy here based on domain (windowing and input handling) implementation
+    if (domainStrategy_ == nullptr)
+    {
+        domainStrategy_.reset(new ZGLDomainStrategy);
+        domainStrategy_->Initialize();
+        mainContext_ = domainStrategy_->CreateWindow(windowWidth_, windowHeight_);
 
-	glm::vec2 frameBufferSize = domainStrategy_->FramebufferSize();
-	resolutionX_ = frameBufferSize.x; resolutionY_ = frameBufferSize.y;
-  }
+        glm::vec2 frameBufferSize = domainStrategy_->FramebufferSize();
+        resolutionX_ = frameBufferSize.x; resolutionY_ = frameBufferSize.y;
+    }
 }
 
-void ZDomain::ResizeWindow(int width, int height) {
-  if (domainStrategy_ != nullptr) {
-    domainStrategy_->Resize(width, height);
-  }
-  windowWidth_ = width; windowHeight_ = height;
+void ZDomain::ResizeWindow(int width, int height)
+{
+    if (domainStrategy_ != nullptr)
+    {
+        domainStrategy_->Resize(width, height);
+    }
+    windowWidth_ = width; windowHeight_ = height;
 }
 
-void ZDomain::SetResolution(unsigned int x, unsigned int y) {
-	resolutionX_ = x; resolutionY_ = y;
+void ZDomain::SetResolution(unsigned int x, unsigned int y)
+{
+    resolutionX_ = x; resolutionY_ = y;
 }
 
-void ZDomain::CleanUp() {
-  if (domainStrategy_ != nullptr) {
-    domainStrategy_->CleanUp();
-    domainStrategy_.reset();
-  }
+void ZDomain::CleanUp()
+{
+    if (domainStrategy_ != nullptr)
+    {
+        domainStrategy_->CleanUp();
+        domainStrategy_.reset();
+    }
 }

@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZAudioSource.hpp
 
     Created by Adrian Sanchez on 13/04/2019.
@@ -35,32 +35,33 @@
 class ZResourceHandle;
 
 // Class and Data Structure Definitions
-class ZAudioSource : public ZProcess {
+class ZAudioSource : public ZProcess
+{
 
-	friend class ZALAudio;
+    friend class ZALAudio;
 
 public:
 
-	ZAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr);
-  virtual ~ZAudioSource() { }
+    ZAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr);
+    virtual ~ZAudioSource() {}
 
-	virtual std::shared_ptr<ZResourceHandle> const Resource() { return resourceHandle_; }
+    virtual std::shared_ptr<ZResourceHandle> const Resource() { return resourceHandle_; }
 
-	virtual void Play(int volume, bool looping = true) = 0;
-	virtual void Stop() = 0;
+    virtual void Play(int volume, bool looping = true) = 0;
+    virtual void Stop() = 0;
 
-	virtual void TogglePause() = 0;
-	virtual bool IsPlaying() = 0;
-	virtual bool IsLooping() { return isLooping_; }
-	virtual int Volume() const { return volume_; }
-	virtual float Progress() const = 0;
-	virtual void SetLooping(bool looping) { isLooping_ = looping; }
-	virtual void SetVolume(int volume) = 0;
+    virtual void TogglePause() = 0;
+    virtual bool IsPlaying() = 0;
+    virtual bool IsLooping() { return isLooping_; }
+    virtual int Volume() const { return volume_; }
+    virtual float Progress() const = 0;
+    virtual void SetLooping(bool looping) { isLooping_ = looping; }
+    virtual void SetVolume(int volume) = 0;
 
 protected:
 
-	std::shared_ptr<ZResourceHandle> resourceHandle_;
-	bool isPaused_, isLooping_, playOnLoad_;
-	int volume_;
+    std::shared_ptr<ZResourceHandle> resourceHandle_;
+    bool isPaused_, isLooping_, playOnLoad_;
+    int volume_;
 
 };

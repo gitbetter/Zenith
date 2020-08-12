@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZScriptExports.hpp
 
     Created by Adrian Sanchez on 23/03/2019.
@@ -38,27 +38,29 @@ class ZScriptableEvent;
 class ZScriptableProcess;
 
 // Class and Data Structure Definitions
-class ZInternalScriptExports {
+class ZInternalScriptExports
+{
 
 public:
 
-	static bool Initialize() { return true;  }
-	static bool Destroy() { return true; }
+    static bool Initialize() { return true; }
+    static bool Destroy() { return true; }
 
-  static bool LoadAndExecuteScriptResource(const std::string& scriptResource);
+    static bool LoadAndExecuteScriptResource(const std::string& scriptResource);
 
-  static void AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess);
+    static void AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess);
 
-  static bool QueueEvent(ZEventType eventType, sol::table eventData);
-  static bool TriggerEvent(ZEventType eventType, sol::table eventData);
-  static std::shared_ptr<ZScriptableEvent> BuildEvent(ZEventType eventType, sol::table& eventData);
-  static unsigned long RegisterEventListener(ZEventType eventType, sol::function callback);
+    static bool QueueEvent(ZEventType eventType, sol::table eventData);
+    static bool TriggerEvent(ZEventType eventType, sol::table eventData);
+    static std::shared_ptr<ZScriptableEvent> BuildEvent(ZEventType eventType, sol::table& eventData);
+    static unsigned long RegisterEventListener(ZEventType eventType, sol::function callback);
 
-  static void Log(sol::object string);
+    static void Log(sol::object string);
 
 };
 
-namespace ZScriptExports {
-  void Register();
-  void UnRegister();
+namespace ZScriptExports
+{
+    void Register();
+    void UnRegister();
 }

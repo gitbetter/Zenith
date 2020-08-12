@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZResourceLoadedEvent.hpp
+    ZResourceLoadedEvent.hpp
 
-	Created by Adrian Sanchez on 12/05/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 12/05/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -36,24 +36,25 @@
 class ZResourceHandle;
 
 // Class and Data Structure Definitions
-class ZResourceLoadedEvent : public ZBaseEvent {
+class ZResourceLoadedEvent : public ZBaseEvent
+{
 
 private:
 
-	std::shared_ptr<ZResourceHandle> handle_;
+    std::shared_ptr<ZResourceHandle> handle_;
 
 public:
 
-	static const ZEventType Type;
+    static const ZEventType Type;
 
-	explicit ZResourceLoadedEvent(std::shared_ptr<ZResourceHandle> handle) : handle_(handle) { }
-	explicit ZResourceLoadedEvent(std::istringstream& in) { }
+    explicit ZResourceLoadedEvent(std::shared_ptr<ZResourceHandle> handle) : handle_(handle) {}
+    explicit ZResourceLoadedEvent(std::istringstream& in) {}
 
-	const ZEventType& EventType() const override { return Type; };
-	std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZResourceLoadedEvent>(new ZResourceLoadedEvent(handle_)); }
-	void Serialize(std::ostringstream& out) const override { }
-	std::string Name() const override { return "ZResourceLoadedEvent"; }
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZResourceLoadedEvent>(new ZResourceLoadedEvent(handle_)); }
+    void Serialize(std::ostringstream& out) const override {}
+    std::string Name() const override { return "ZResourceLoadedEvent"; }
 
-	std::shared_ptr<ZResourceHandle> Handle() { return handle_; }
+    std::shared_ptr<ZResourceHandle> Handle() { return handle_; }
 
 };

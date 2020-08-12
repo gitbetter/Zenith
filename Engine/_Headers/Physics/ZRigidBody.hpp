@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZRigidBody.hpp
 
     Created by Adrian Sanchez on 16/04/2019.
@@ -36,32 +36,33 @@
 class ZCollider;
 
 // Class and Data Structure Definitions
-class ZRigidBody {
+class ZRigidBody
+{
 
 public:
 
-    virtual ~ZRigidBody() { }
+    virtual ~ZRigidBody() {}
 
     virtual void Initialize() = 0;
 
     virtual float InverseMass() = 0;
     virtual glm::mat4 TransformMatrix() = 0;
-	virtual glm::vec3 Position() = 0;
-	virtual glm::quat Rotation() = 0;
-	virtual glm::vec3 Scale() = 0;
-	virtual glm::vec3 Velocity() = 0;
-	virtual glm::vec3 AngularVelocity() = 0;
-	virtual ZPhysicsBodyType Type() const { return type_; }
+    virtual glm::vec3 Position() = 0;
+    virtual glm::quat Rotation() = 0;
+    virtual glm::vec3 Scale() = 0;
+    virtual glm::vec3 Velocity() = 0;
+    virtual glm::vec3 AngularVelocity() = 0;
+    virtual ZPhysicsBodyType Type() const { return type_; }
 
-	void* Get() { return ptr_; }
+    void* Get() { return ptr_; }
 
-	virtual std::shared_ptr<ZRigidBody> Clone() = 0;
+    virtual std::shared_ptr<ZRigidBody> Clone() = 0;
 
     virtual void ApplyForce(glm::vec3& force) = 0;
     virtual void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) = 0;
     virtual void ApplyTorque(glm::vec3& torque) = 0;
     virtual void DisableContactResponse() = 0;
-    
+
     virtual void SetGravity(glm::vec3& gravity) = 0;
     virtual void SetLinearDamping(float damping) = 0;
     virtual void SetAngularDamping(float damping) = 0;
@@ -76,7 +77,7 @@ protected:
 
     void* ptr_ = nullptr;
     ZGameObject* gameObject_ = nullptr;
-	std::shared_ptr<ZCollider> collider_;
+    std::shared_ptr<ZCollider> collider_;
     glm::vec3 colliderOffset_;
     ZPhysicsBodyType type_;
 

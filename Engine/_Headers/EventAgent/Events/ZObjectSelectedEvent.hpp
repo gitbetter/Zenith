@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZObjectSelectedEvent.hpp
 
     Created by Adrian Sanchez on 13/03/2019.
@@ -35,27 +35,28 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZObjectSelectedEvent : public ZBaseEvent {
+class ZObjectSelectedEvent : public ZBaseEvent
+{
 
 private:
 
-  std::string objectId_;
-  glm::vec3 position_;
+    std::string objectId_;
+    glm::vec3 position_;
 
 public:
 
-  static const ZEventType Type;
+    static const ZEventType Type;
 
-  explicit ZObjectSelectedEvent(const std::string& objectId, const glm::vec3& pos) : objectId_(objectId), position_(pos) { }
-  explicit ZObjectSelectedEvent(std::istringstream& in) { in >> objectId_; }
+    explicit ZObjectSelectedEvent(const std::string& objectId, const glm::vec3& pos) : objectId_(objectId), position_(pos) {}
+    explicit ZObjectSelectedEvent(std::istringstream& in) { in >> objectId_; }
 
-  const ZEventType& EventType() const override { return Type; };
-  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectSelectedEvent>(new ZObjectSelectedEvent(objectId_, position_)); }
-  void Serialize(std::ostringstream& out) const override { out << objectId_; }
-  std::string Name() const override { return "ZObjectSelectedEvent"; }
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectSelectedEvent>(new ZObjectSelectedEvent(objectId_, position_)); }
+    void Serialize(std::ostringstream& out) const override { out << objectId_; }
+    std::string Name() const override { return "ZObjectSelectedEvent"; }
 
-  const std::string& ObjectID() const { return objectId_; }
-  const glm::vec3& Position() const { return position_; }
+    const std::string& ObjectID() const { return objectId_; }
+    const glm::vec3& Position() const { return position_; }
 
 protected:
 

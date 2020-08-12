@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZEvent.hpp
 
     Created by Adrian Sanchez on 12/03/2019.
@@ -36,39 +36,41 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZEvent {
+class ZEvent
+{
 
 private:
 
 public:
 
-  virtual const ZEventType& EventType() const = 0;
-  virtual float TimeStamp() const = 0;
-  virtual void SetTimeStamp(float timestamp) = 0;
-  virtual void Serialize(std::ostringstream& out) const = 0;
-  virtual std::shared_ptr<ZEvent> Copy() const = 0;
-  virtual std::string Name() const = 0;
+    virtual const ZEventType& EventType() const = 0;
+    virtual float TimeStamp() const = 0;
+    virtual void SetTimeStamp(float timestamp) = 0;
+    virtual void Serialize(std::ostringstream& out) const = 0;
+    virtual std::shared_ptr<ZEvent> Copy() const = 0;
+    virtual std::string Name() const = 0;
 
 protected:
 
 };
 
-class ZBaseEvent : public ZEvent {
+class ZBaseEvent : public ZEvent
+{
 
 private:
 
-  float timeStamp_;
+    float timeStamp_;
 
 public:
 
-  explicit ZBaseEvent(const float timeStamp = 0.f) : timeStamp_(timeStamp) { }
-  virtual ~ZBaseEvent() { }
+    explicit ZBaseEvent(const float timeStamp = 0.f) : timeStamp_(timeStamp) {}
+    virtual ~ZBaseEvent() {}
 
-  virtual const ZEventType& EventType() const override = 0;
-  float TimeStamp() const override { return timeStamp_; }
+    virtual const ZEventType& EventType() const override = 0;
+    float TimeStamp() const override { return timeStamp_; }
 
-  void SetTimeStamp(float timestamp) override { timeStamp_ = timestamp; }
+    void SetTimeStamp(float timestamp) override { timeStamp_ = timestamp; }
 
-  virtual void Serialize(std::ostringstream& out) const override { }
+    virtual void Serialize(std::ostringstream& out) const override {}
 
 };

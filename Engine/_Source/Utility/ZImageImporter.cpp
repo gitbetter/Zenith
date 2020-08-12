@@ -6,10 +6,10 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZImageImporter.cpp
+    ZImageImporter.cpp
 
-	Created by Adrian Sanchez on 12/05/2019.
-	Copyright � 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 12/05/2019.
+    Copyright � 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
 
@@ -33,29 +33,35 @@
 
 std::mutex ZImageImporter::importerMutex_;
 
-std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::string path, bool hdr, bool flipped) {
-	ZResource resource(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
-	std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
-	return LoadImage(handle, hdr, flipped);
+std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::string path, bool hdr, bool flipped)
+{
+    ZResource resource(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
+    std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
+    return LoadImage(handle, hdr, flipped);
 }
 
-std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::shared_ptr<ZResourceHandle> handle, bool hdr, bool flipped) {
-	if (!handle) return nullptr;
-    
+std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::shared_ptr<ZResourceHandle> handle, bool hdr, bool flipped)
+{
+    if (!handle) return nullptr;
+
     std::shared_ptr<ZTextureResourceExtraData> extraData = std::make_shared<ZTextureResourceExtraData>();
     handle->SetExtra(extraData);
 
     std::lock_guard<std::mutex> importerLock(importerMutex_);
-	stbi_set_flip_vertically_on_load(flipped);
+    stbi_set_flip_vertically_on_load(flipped);
 
-	if (handle->Resource().type == ZResourceType::HDRTexture) {
-		extraData->fData_ = stbi_loadf_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 0);
-	} else {
-		extraData->ucData_ = stbi_load_from_memory((const stbi_uc*)handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 4);
-	}
-	return handle;
+    if (handle->Resource().type == ZResourceType::HDRTexture)
+    {
+        extraData->fData_ = stbi_loadf_from_memory((const stbi_uc*) handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 0);
+    }
+    else
+    {
+        extraData->ucData_ = stbi_load_from_memory((const stbi_uc*) handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 4);
+    }
+    return handle;
 }
 
-void ZImageImporter::FreeImageData(void* data) {
-	stbi_image_free(data);
+void ZImageImporter::FreeImageData(void* data)
+{
+    stbi_image_free(data);
 }

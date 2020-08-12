@@ -1,28 +1,28 @@
 /*
- 
+
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
- 
+
    ZCommon.hpp
- 
+
    Created by Adrian Sanchez on 11/02/2019.
    Copyright © 2019 Pervasive Sense. All rights reserved.
- 
+
  This file is part of Zenith.
- 
+
  Zenith is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Zenith is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -61,7 +61,8 @@
 
 const unsigned int BonesPerVertex = 4;
 
-enum ZKey {
+enum ZKey
+{
     UNKNOWN,
     SPACE,
     APOSTROPHE,
@@ -184,7 +185,8 @@ enum ZKey {
     ZKEY_LAST
 };
 
-enum ZMouse {
+enum ZMouse
+{
     LEFT_MB,
     RIGHT_MB,
     MIDDLE_MB,
@@ -229,157 +231,193 @@ typedef std::vector<std::shared_ptr<ZBone>> ZBoneList;
 
 typedef unsigned long ZEventType;
 
-enum ZSeverity {
+enum ZSeverity
+{
     Info, Warning, Error
 };
 
-enum ZPriority {
-	FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority
+enum ZPriority
+{
+    FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority
 };
 
-enum ZRenderPass {
+enum ZRenderPass
+{
     First, Sky = First, Static, Dynamic, Invisible, UI, Last
 };
 
-enum ZRenderOp {
-	Depth, Shadow, Color, Post
+enum ZRenderOp
+{
+    Depth, Shadow, Color, Post
 };
 
-enum class ZPlayState {
+enum class ZPlayState
+{
     Playing, Paused, NotStarted
 };
 
-enum class ZPhysicsBodyType {
+enum class ZPhysicsBodyType
+{
     Dynamic = 1, Static = 2, Kinematic = 4, Trigger = 8, Character = 16, Particle = 32, All = -1
 };
 
-enum class ZCameraType {
+enum class ZCameraType
+{
     Orthographic, Perspective
 };
 
-enum class ZCameraMovementStyle {
+enum class ZCameraMovementStyle
+{
     None, Normal, Follow
 };
 
-enum class ZLightType {
+enum class ZLightType
+{
     Directional, Point, Spot, Area, Hemisphere
 };
 
-enum class ZColliderType {
+enum class ZColliderType
+{
     None, Box, Sphere, Capsule
 };
 
-enum class ZBufferDataType {
+enum class ZBufferDataType
+{
     FrameBuffer, VertexArray
 };
 
-enum class ZCubemapTextureType {
+enum class ZCubemapTextureType
+{
     Normal, Irradiance, Prefilter
 };
 
-enum class ZMeshDrawStyle {
+enum class ZMeshDrawStyle
+{
     Point, Line, LineStrip, Triangle, TriangleStrip
 };
 
-enum class ZPrimitiveType {
+enum class ZPrimitiveType
+{
     Plane, Cube, Sphere, Cylinder, Cone
 };
 
-enum class ZShaderType {
+enum class ZShaderType
+{
     Vertex, Pixel, Tesselation, Geometry, Other
 };
 
-enum class ZProcessState {
+enum class ZProcessState
+{
     Uninitialized, Removed, Running, Paused, Finished, Failed, Aborted
 };
 
-enum class ZSoundType {
+enum class ZSoundType
+{
     Wav, Ogg, Unknown
 };
 
-enum class ZResourceType {
-	ZOF, Model, VertexShader, PixelShader, TesselationShader, 
-	GeometryShader, Texture, HDRTexture, HDREquirectangularMap,
-	Sound, Script, Font, Other
+enum class ZResourceType
+{
+    ZOF, Model, VertexShader, PixelShader, TesselationShader,
+    GeometryShader, Texture, HDRTexture, HDREquirectangularMap,
+    Sound, Script, Font, Other
 };
 
-enum class ZAnimationState {
-	Initialized, Playing, Looping, Paused, Stopped, Invalid
+enum class ZAnimationState
+{
+    Initialized, Playing, Looping, Paused, Stopped, Invalid
 };
 
-struct ZBufferData {
+struct ZBufferData
+{
     ZBufferDataType type;
-    union {
-        struct {
+    union
+    {
+        struct
+        {
             unsigned int vbo, ebo, vao;
         };
-        struct {
+        struct
+        {
             unsigned int fbo, rbo;
         };
     };
 };
 
-struct ZTexture {
+struct ZTexture
+{
     unsigned int id;
     std::string type;
     std::string path;
-    
-    ZTexture() : id(0) { }
+
+    ZTexture() : id(0) {}
 };
 
-struct ZIBLTexture {
+struct ZIBLTexture
+{
     ZTexture cubeMap;
     ZTexture irradiance;
     ZTexture prefiltered;
     ZTexture brdfLUT;
 };
 
-struct ZMaterialProperties {
+struct ZMaterialProperties
+{
     glm::vec4 albedo;
     float alpha;
-    union {
-        struct {
+    union
+    {
+        struct
+        {
             float emission;
             float diffuse;
             float ambient;
             float specular;
             float shininess;
         };
-        struct {
+        struct
+        {
             float metallic;
             float roughness;
             float ao;
         };
     };
 
-	ZMaterialProperties() {
-		albedo = glm::vec4(1.f, 1.f, 1.f, 1.f);
-		alpha = 1.f; emission = 0.f; diffuse = 0.f;
-		ambient = 0.f; specular = 0.f; shininess = 0.f;
-	}
+    ZMaterialProperties()
+    {
+        albedo = glm::vec4(1.f, 1.f, 1.f, 1.f);
+        alpha = 1.f; emission = 0.f; diffuse = 0.f;
+        ambient = 0.f; specular = 0.f; shininess = 0.f;
+    }
 };
 
-struct ZVertex3D {
+struct ZVertex3D
+{
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 uv;
     glm::vec3 tangent;
     glm::vec3 bitangent;
-	unsigned int boneIDs[BonesPerVertex];
-	float boneWeights[BonesPerVertex];
-    
-    ZVertex3D() {
+    unsigned int boneIDs[BonesPerVertex];
+    float boneWeights[BonesPerVertex];
+
+    ZVertex3D()
+    {
         for (unsigned int i = 0; i < BonesPerVertex; i++) boneWeights[i] = 0.f;
     }
-    
-    ZVertex3D(glm::vec3 position, glm::vec3 normal = glm::vec3(0.f, 1.f, 0.f)) : ZVertex3D() {
+
+    ZVertex3D(glm::vec3 position, glm::vec3 normal = glm::vec3(0.f, 1.f, 0.f)) : ZVertex3D()
+    {
         this->position = position;
         this->normal = normal;
     }
 
-    void AddBoneData(unsigned int boneID, float weight) {
-        for (unsigned int i = 0; i < BonesPerVertex; i++) {
-            if (boneWeights[i] == 0.f) {
+    void AddBoneData(unsigned int boneID, float weight)
+    {
+        for (unsigned int i = 0; i < BonesPerVertex; i++)
+        {
+            if (boneWeights[i] == 0.f)
+            {
                 boneIDs[i] = boneID;
                 boneWeights[i] = weight;
                 return;
@@ -388,32 +426,37 @@ struct ZVertex3D {
     }
 };
 
-struct ZVertex2D {
+struct ZVertex2D
+{
     glm::vec2 position;
     glm::vec2 uv;
-    
-    ZVertex2D() { }
-    ZVertex2D(glm::vec2 position, glm::vec2 uv = glm::vec2(0.f)) : position(position), uv(uv) { }
+
+    ZVertex2D() {}
+    ZVertex2D(glm::vec2 position, glm::vec2 uv = glm::vec2(0.f)) : position(position), uv(uv) {}
 };
 
-struct ZCharacter {
+struct ZCharacter
+{
     ZTexture texture;
     glm::ivec2 size;
     glm::ivec2 bearing;
     unsigned int advance;
 };
 
-struct ZFont {
+struct ZFont
+{
     std::string name;
     std::map<unsigned char, ZCharacter> characters;
 };
 
-struct ZOFLoadResult {
+struct ZOFLoadResult
+{
     ZGameObjectMap gameObjects;
     ZUIElementMap uiElements;
 };
 
-struct ZWavFormatDesc {
+struct ZWavFormatDesc
+{
     unsigned short formatTag;
     unsigned short channels;
     unsigned long samplesPerSec;
@@ -423,19 +466,22 @@ struct ZWavFormatDesc {
     unsigned short cbSize;
 };
 
-struct ZRaycastHitResult {
+struct ZRaycastHitResult
+{
     ZGameObject* objectHit;
     glm::vec3 hitPosition;
     bool hasHit;
 };
 
-struct ZEngineOptions {
-	bool drawPhysicsDebug = false;
-	bool drawCameraDebug = false;
+struct ZEngineOptions
+{
+    bool drawPhysicsDebug = false;
+    bool drawCameraDebug = false;
     bool drawGrid = false;
 };
 
-struct ZSceneSnapshot {
+struct ZSceneSnapshot
+{
     std::shared_ptr<ZScene> scene;
     double time;
 };

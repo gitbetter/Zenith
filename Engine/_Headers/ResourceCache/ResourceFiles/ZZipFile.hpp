@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZZipFile.hpp
 
     Created by Adrian Sanchez on 09/03/2019.
@@ -37,17 +37,18 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZZipFile : public ZResourceFile {
+class ZZipFile : public ZResourceFile
+{
 
 private:
 
-  struct zip_t* zipFile_ = nullptr;
-  std::string fileName_;
+    struct zip_t* zipFile_ = nullptr;
+    std::string fileName_;
 
 public:
 
-    ZZipFile(const std::string& filePath) : fileName_(filePath) { }
-    ~ZZipFile() { }
+    ZZipFile(const std::string& filePath) : fileName_(filePath) {}
+    ~ZZipFile() {}
     bool Open() override;
     const std::string& Name() const override { return fileName_; }
     unsigned int RawResourceSize(ZResource& resource) override;

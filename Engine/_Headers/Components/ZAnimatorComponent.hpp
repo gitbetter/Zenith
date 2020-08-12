@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZAnimatorComponent.hpp
+    ZAnimatorComponent.hpp
 
-	Created by Adrian Sanchez on 30/03/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 30/03/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -36,24 +36,25 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZAnimatorComponent : public ZComponent {
+class ZAnimatorComponent : public ZComponent
+{
 
 public:
 
-	ZAnimatorComponent();
-	~ZAnimatorComponent() {}
+    ZAnimatorComponent();
+    ~ZAnimatorComponent() {}
 
-	void Initialize(std::shared_ptr<ZOFNode> root) override;
-	void Update() override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Update() override;
 
-	void Play(std::string animationName, bool looping = false);
-	void Pause() override;
-	void Stop();
+    void Play(std::string animationName, bool looping = false);
+    void Pause() override;
+    void Stop();
 
-	std::shared_ptr<ZComponent> Clone() override;
+    std::shared_ptr<ZComponent> Clone() override;
 
 protected:
 
-	ZAnimationClip currentClip_;
+    ZAnimationClip currentClip_;
 
 };

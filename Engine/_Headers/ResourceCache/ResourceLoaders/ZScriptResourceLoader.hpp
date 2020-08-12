@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZScriptResourceLoader.hpp
 
     Created by Adrian Sanchez on 24/03/2019.
@@ -36,11 +36,12 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZScriptResourceLoader : public ZResourceLoader {
+class ZScriptResourceLoader : public ZResourceLoader
+{
 
 public:
 
-    ~ZScriptResourceLoader() { }
+    ~ZScriptResourceLoader() {}
     std::string Pattern() override { return ".*\\.lua"; }
     bool UseRawFile() override { return false; };
     unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }

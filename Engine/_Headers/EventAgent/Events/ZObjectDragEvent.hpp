@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZObjectDragEvent.hpp
 
     Created by Adrian Sanchez on 13/03/2019.
@@ -35,27 +35,28 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZObjectDragEvent : public ZBaseEvent {
+class ZObjectDragEvent : public ZBaseEvent
+{
 
 private:
 
-  float x_, y_, z_;
+    float x_, y_, z_;
 
 public:
 
-  static const ZEventType Type;
+    static const ZEventType Type;
 
-  explicit ZObjectDragEvent(float x = 0.f, float y = 0.f, float z = 0.f) : x_(x), y_(y), z_(z) { }
-  explicit ZObjectDragEvent(std::istringstream& in) { in >> x_; in >> y_; in >> z_; }
+    explicit ZObjectDragEvent(float x = 0.f, float y = 0.f, float z = 0.f) : x_(x), y_(y), z_(z) {}
+    explicit ZObjectDragEvent(std::istringstream& in) { in >> x_; in >> y_; in >> z_; }
 
-  const ZEventType& EventType() const override { return Type; };
-  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectDragEvent>(new ZObjectDragEvent(x_, y_, z_)); }
-  void Serialize(std::ostringstream& out) const override { out << x_ << " " << y_ << " " << z_; }
-  std::string Name() const override { return "ZObjectDragEvent"; }
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectDragEvent>(new ZObjectDragEvent(x_, y_, z_)); }
+    void Serialize(std::ostringstream& out) const override { out << x_ << " " << y_ << " " << z_; }
+    std::string Name() const override { return "ZObjectDragEvent"; }
 
-  float DeltaX() const { return x_; }
-  float DeltaY() const { return y_; }
-  float DeltaZ() const { return z_; }
+    float DeltaX() const { return x_; }
+    float DeltaY() const { return y_; }
+    float DeltaZ() const { return z_; }
 
 protected:
 

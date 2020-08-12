@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZBulletRigidBody.hpp
 
     Created by Adrian Sanchez on 16/04/2019.
@@ -36,40 +36,41 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZBulletRigidBody : public ZRigidBody {
+class ZBulletRigidBody : public ZRigidBody
+{
 
 public:
 
     ZBulletRigidBody() { colliderOffset_ = glm::vec3(0.f); type_ = ZPhysicsBodyType::Dynamic; }
     ZBulletRigidBody(void* bodyPtr) : ZBulletRigidBody() { ptr_ = bodyPtr; }
     ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale, glm::quat rotation);
-	~ZBulletRigidBody() { }
+    ~ZBulletRigidBody() {}
 
-	void Initialize() override;
+    void Initialize() override;
 
     float InverseMass() override;
     glm::mat4 TransformMatrix() override;
-	glm::vec3 Position() override;
-	glm::quat Rotation() override;
-	glm::vec3 Scale() override;
+    glm::vec3 Position() override;
+    glm::quat Rotation() override;
+    glm::vec3 Scale() override;
     glm::vec3 Velocity() override;
     glm::vec3 AngularVelocity() override;
-    
-	std::shared_ptr<ZRigidBody> Clone() override;
+
+    std::shared_ptr<ZRigidBody> Clone() override;
 
     void SetGravity(glm::vec3& gravity) override;
     void SetLinearDamping(float damping) override;
     void SetAngularDamping(float damping) override;
     void SetRestitution(float restitution) override;
     void SetGameObject(ZGameObject* gameObject) override;
-    
+
     void SetPosition(glm::vec3 position) override;
     void SetRotation(glm::quat rotation) override;
     void SetScale(glm::vec3 scale) override;
-    
+
     void ApplyForce(glm::vec3& force) override;
     void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) override;
     void ApplyTorque(glm::vec3& torque) override;
-	void DisableContactResponse() override;
+    void DisableContactResponse() override;
 
 };

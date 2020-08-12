@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.17)
 set(CMAKE_CXX_STANDARD 14)
 
-project(Zenith VERSION 1.0.0.0 LANGUAGES CXX)
+project(Zenith VERSION 1.0.0 LANGUAGES CXX)
 
 option(DEVELOPMENT "Generate a development build" OFF)
 

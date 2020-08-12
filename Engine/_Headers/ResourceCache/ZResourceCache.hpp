@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZResourceCache.hpp
+    ZResourceCache.hpp
 
-	Created by Adrian Sanchez on 08/03/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 08/03/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -43,52 +43,54 @@ typedef std::map<std::string, std::shared_ptr<ZResourceHandle>> ResourceHandleMa
 typedef std::map<std::string, std::shared_ptr<ZResourceFile>> ResourceFileMap;
 typedef std::list<std::shared_ptr<ZResourceLoader>> ResourceLoaderList;
 
-class ZResourceCache {
+class ZResourceCache
+{
 
 private:
 
-	struct {
-		std::mutex allocated;
-		std::mutex lru;
-		std::mutex resources;
-		std::mutex resourceFiles;
-		std::mutex resourceLoaders;
-		std::mutex all;
-	} mutexes_;
+    struct
+    {
+        std::mutex allocated;
+        std::mutex lru;
+        std::mutex resources;
+        std::mutex resourceFiles;
+        std::mutex resourceLoaders;
+        std::mutex all;
+    } mutexes_;
 
 public:
 
-	ZResourceCache(const unsigned int sizeInMb);
-	~ZResourceCache();
+    ZResourceCache(const unsigned int sizeInMb);
+    ~ZResourceCache();
 
-	void Initialize();
-	void RegisterLoader(std::shared_ptr<ZResourceLoader> loader);
-	void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
-	std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);
-	void RequestHandle(ZResource& resource);
-	int Preload(const std::string pattern, void(*progressCallback)(int, bool &));
-	void Flush();
-	void FreeMemory(unsigned int size);
+    void Initialize();
+    void RegisterLoader(std::shared_ptr<ZResourceLoader> loader);
+    void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
+    std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);
+    void RequestHandle(ZResource& resource);
+    int Preload(const std::string pattern, void(*progressCallback)(int, bool&));
+    void Flush();
+    void FreeMemory(unsigned int size);
 
 protected:
 
-	ResourceHandleList lru_;
-	ResourceHandleMap resources_;
-	ResourceLoaderList resourceLoaders_;
-	ResourceFileMap resourceFiles_;
+    ResourceHandleList lru_;
+    ResourceHandleMap resources_;
+    ResourceLoaderList resourceLoaders_;
+    ResourceFileMap resourceFiles_;
 
-	unsigned int cacheSize_;
-	unsigned int allocated_;
+    unsigned int cacheSize_;
+    unsigned int allocated_;
 
-	std::shared_ptr<ZResourceHandle> Find(ZResource* resource);
-	const void Update(std::shared_ptr<ZResourceHandle> handle);
-	std::shared_ptr<ZResourceHandle> Load(ZResource* resource);
-	void Free(std::shared_ptr<ZResourceHandle> handle);
-	bool MatchPattern(std::string pattern, std::string str);
+    std::shared_ptr<ZResourceHandle> Find(ZResource* resource);
+    const void Update(std::shared_ptr<ZResourceHandle> handle);
+    std::shared_ptr<ZResourceHandle> Load(ZResource* resource);
+    void Free(std::shared_ptr<ZResourceHandle> handle);
+    bool MatchPattern(std::string pattern, std::string str);
 
-	bool MakeRoom(unsigned int size);
-	char* Allocate(unsigned int size);
-	void FreeOneResource();
+    bool MakeRoom(unsigned int size);
+    char* Allocate(unsigned int size);
+    void FreeOneResource();
 
-	void CleanUp() {}
+    void CleanUp() {}
 };

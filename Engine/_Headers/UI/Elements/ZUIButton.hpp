@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIButton.hpp
 
     Created by Adrian Sanchez on 06/02/2019.
@@ -36,15 +36,16 @@
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZUIButton : public ZUIElement {
+class ZUIButton : public ZUIElement
+{
 
 public:
 
-  ZUIButton(glm::vec2 position = glm::vec2(0.1f), glm::vec2 scale = glm::vec2(0.07f, 0.03f));
-  ~ZUIButton() { }
+    ZUIButton(glm::vec2 position = glm::vec2(0.1f), glm::vec2 scale = glm::vec2(0.07f, 0.03f));
+    ~ZUIButton() {}
 
-  void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-  void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
-  
+    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+
 };

@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZAudioSource.cpp
 
     Created by Adrian Sanchez on 13/04/2019.
@@ -29,6 +29,7 @@
 
 #include "ZAudioSource.hpp"
 
-ZAudioSource::ZAudioSource(std::shared_ptr<ZResourceHandle> resource) : isPaused_(false), isLooping_(false), playOnLoad_(false), volume_(50) { 
-	resourceHandle_ = resource; 
+ZAudioSource::ZAudioSource(std::shared_ptr<ZResourceHandle> resource) : isPaused_(false), isLooping_(false), playOnLoad_(false), volume_(50)
+{
+    resourceHandle_ = resource;
 }

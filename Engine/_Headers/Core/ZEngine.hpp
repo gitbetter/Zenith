@@ -1,28 +1,28 @@
 /*
- 
+
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
- 
+
     ZEngine.hpp
- 
+
     Created by Adrian Sanchez on 1/25/19.
     Copyright © 2019 Pervasive Sense. All rights reserved.
- 
+
  This file is part of Zenith.
- 
+
  Zenith is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Zenith is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -55,8 +55,9 @@ class ZLuaScriptManager;
 class ZLogger;
 
 // Definitions
-namespace zenith {
-    
+namespace zenith
+{
+
     const float DEFAULT_X_RESOLUTION = 2560.f;
     const float DEFAULT_Y_RESOLUTION = 1600.f;
     const float UPDATE_STEP_SIZE = 0.017f;
@@ -76,9 +77,9 @@ namespace zenith {
         "Engine/_Assets/Skyboxes/Default/back.png",
     };
     const std::string DEFAULT_HDR_CUBEMAP = "Engine/_Assets/Skyboxes/DefaultHDR/sky.hdr";
-    
+
     extern void Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight);
-    
+
     extern std::shared_ptr<ZGame> Game();
     extern ZDomain* Domain();
     extern ZGraphics* Graphics();
@@ -86,26 +87,26 @@ namespace zenith {
     extern ZUI* UI();
     extern ZPhysics* Physics();
     extern ZAudio* Audio();
-    
+
     extern ZProcessRunner* ProcessRunner();
     extern ZEventAgent* EventAgent();
     extern ZResourceCache* ResourceCache();
     extern ZLuaScriptManager* ScriptManager();
-    
+
     extern ZGOFactory* GameObjectFactory();
     extern ZGraphicsFactory* GraphicsFactory();
     extern ZUIFactory* UIFactory();
     extern ZPhysicsFactory* PhysicsFactory();
-    
+
     extern ZLogger* Logger();
     extern ZIDSequence* IDSequence();
     extern ZEngineOptions& Options();
-    
+
     extern double LastDeltaTime();
     extern double DeltaTime();
     extern double SecondsTime();
-	extern float FrameMix();
-    
+    extern float FrameMix();
+
     extern void Provide(std::shared_ptr<ZDomain> domain);
     extern void Provide(std::shared_ptr<ZGraphics> graphics);
     extern void Provide(std::shared_ptr<ZInput> input);
@@ -113,14 +114,14 @@ namespace zenith {
     extern void Provide(std::shared_ptr<ZPhysics> physics);
     extern void Provide(std::shared_ptr<ZAudio> audio);
     // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
-    
+
     extern void SetDeltaTime(double deltaTime);
-	extern void SetFrameMix(float frameMix);
-    
+    extern void SetFrameMix(float frameMix);
+
     extern void LoadZOF(std::string zofPath);
-	extern std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
-    
+    extern std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
+
     extern void Log(const std::string& text, ZSeverity severity);
-    
+
     extern void CleanUp();
 };

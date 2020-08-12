@@ -6,10 +6,10 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZImageImporter.hpp
+    ZImageImporter.hpp
 
-	Created by Adrian Sanchez on 12/05/2019.
-	Copyright � 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 12/05/2019.
+    Copyright � 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
 
@@ -37,16 +37,17 @@
 class ZResourceHandle;
 
 // Class and Data Structure Definitions
-class ZImageImporter {
-    
+class ZImageImporter
+{
+
 private:
-    
+
     static std::mutex importerMutex_;
 
 public:
 
-	static std::shared_ptr<ZResourceHandle> LoadImage(std::string path, bool hdr = false, bool flipped = true);
-	static std::shared_ptr<ZResourceHandle> LoadImage(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flipped = true);
-	static void FreeImageData(void* data);
+    static std::shared_ptr<ZResourceHandle> LoadImage(std::string path, bool hdr = false, bool flipped = true);
+    static std::shared_ptr<ZResourceHandle> LoadImage(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flipped = true);
+    static void FreeImageData(void* data);
 
 };

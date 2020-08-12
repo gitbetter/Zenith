@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIListPanel.cpp
 
     Created by Adrian Sanchez on 17/03/2019.
@@ -31,34 +31,39 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
-void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root) {
-  ZUIElement::Initialize(root);
-  texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root)
+{
+    ZUIElement::Initialize(root);
+    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 
-   std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
-  if(node == nullptr) {
-    zenith::Log("Could not initalize ZUIElement", ZSeverity::Error);
-    return;
-  }
+    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
+    if (node == nullptr)
+    {
+        zenith::Log("Could not initalize ZUIElement", ZSeverity::Error);
+        return;
+    }
 
-  ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = node->properties;
 
-  if (props.find("itemHeight") != props.end() && props["itemHeight"]->HasValues()) {
-    std::shared_ptr<ZOFNumber> itemHeightProp = props["itemHeight"]->Value<ZOFNumber>(0);
-    itemHeight_ = itemHeightProp->value;
-  }
+    if (props.find("itemHeight") != props.end() && props["itemHeight"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumber> itemHeightProp = props["itemHeight"]->Value<ZOFNumber>(0);
+        itemHeight_ = itemHeightProp->value;
+    }
 }
 
-void ZUIListPanel::Render(ZRenderOp renderOp) {
-  ZUIElement::Render();
-  RenderChildren();
+void ZUIListPanel::Render(ZRenderOp renderOp)
+{
+    ZUIElement::Render();
+    RenderChildren();
 }
 
-void ZUIListPanel::AddChild(std::shared_ptr<ZUIElement> element) {
-  element->SetPosition(glm::vec2(Size().x, 2.f * itemHeight_ * children_.size() + itemHeight_));
-  element->SetSize(glm::vec2(Size().x, itemHeight_));
+void ZUIListPanel::AddChild(std::shared_ptr<ZUIElement> element)
+{
+    element->SetPosition(glm::vec2(Size().x, 2.f * itemHeight_ * children_.size() + itemHeight_));
+    element->SetSize(glm::vec2(Size().x, itemHeight_));
 
-  SetSize(glm::vec2(Size().x, glm::max(Size().y, itemHeight_ * children_.size())));
+    SetSize(glm::vec2(Size().x, glm::max(Size().y, itemHeight_ * children_.size())));
 
-  ZUIElement::AddChild(element);  
-} 
+    ZUIElement::AddChild(element);
+}

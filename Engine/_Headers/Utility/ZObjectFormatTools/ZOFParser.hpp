@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZOFParser.hpp
 
     Created by Adrian Sanchez on 17/02/2019.
@@ -36,33 +36,34 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZOFParser {
+class ZOFParser
+{
 private:
 
-  std::string currentToken_;
-  std::stringstream zof_;
-  std::regex id_ = std::regex("[^\\-\\d]\\S*");
-  std::regex number_ = std::regex("-?\\d+\\.?\\d*");
+    std::string currentToken_;
+    std::stringstream zof_;
+    std::regex id_ = std::regex("[^\\-\\d]\\S*");
+    std::regex number_ = std::regex("-?\\d+\\.?\\d*");
 
-  std::string Scan();
-  void Match(std::string);
-  void Match(std::regex pattern);
-  void HandleParseError(std::shared_ptr<ZOFNode> node);
+    std::string Scan();
+    void Match(std::string);
+    void Match(std::regex pattern);
+    void HandleParseError(std::shared_ptr<ZOFNode> node);
 
-  void Start(std::shared_ptr<ZOFTree> tree);
-  void ObjectList(std::shared_ptr<ZOFTree> node);
-  void Object(std::shared_ptr<ZOFTree> tree);
-  void PropsList(std::shared_ptr<ZOFObjectNode> node);
-  void Prop(std::shared_ptr<ZOFObjectNode> node);
-  void ValuesList(std::shared_ptr<ZOFPropertyNode> prop);
-  void Value(std::shared_ptr<ZOFPropertyNode> prop);
-  void List(std::shared_ptr<ZOFPropertyNode> prop);
-  void ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal);
+    void Start(std::shared_ptr<ZOFTree> tree);
+    void ObjectList(std::shared_ptr<ZOFTree> node);
+    void Object(std::shared_ptr<ZOFTree> tree);
+    void PropsList(std::shared_ptr<ZOFObjectNode> node);
+    void Prop(std::shared_ptr<ZOFObjectNode> node);
+    void ValuesList(std::shared_ptr<ZOFPropertyNode> prop);
+    void Value(std::shared_ptr<ZOFPropertyNode> prop);
+    void List(std::shared_ptr<ZOFPropertyNode> prop);
+    void ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal);
 
 public:
 
-    ZOFParser() { }
-    ~ZOFParser() { }
+    ZOFParser() {}
+    ~ZOFParser() {}
 
     std::shared_ptr<ZOFTree> Parse(std::string contents);
 

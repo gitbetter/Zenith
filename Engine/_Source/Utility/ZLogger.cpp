@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZLogger.cpp
 
     Created by Adrian Sanchez on 22/05/2019.
@@ -29,7 +29,8 @@
 
 #include "ZLogger.hpp"
 
-void ZLogger::AddEntry(ZLogEntry entry) {
-	std::lock_guard<std::mutex> lockBuffer(loggerMutexes_.buffer);
+void ZLogger::AddEntry(ZLogEntry entry)
+{
+    std::lock_guard<std::mutex> lockBuffer(loggerMutexes_.buffer);
     logBuffer_.push_back(entry);
 }

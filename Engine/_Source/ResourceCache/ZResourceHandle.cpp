@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZResourceHandle.cpp
 
     Created by Adrian Sanchez on 09/03/2019.
@@ -30,11 +30,13 @@
 #include "ZResourceHandle.hpp"
 #include "ZResourceCache.hpp"
 
-ZResourceHandle::ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache) : resource_(resource), size_(size) { 
-  buffer_ = buffer;
-  resourceCache_ = resourceCache;
+ZResourceHandle::ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache) : resource_(resource), size_(size)
+{
+    buffer_ = buffer;
+    resourceCache_ = resourceCache;
 }
 
-ZResourceHandle::~ZResourceHandle() {
-  delete[] (char*)buffer_;
+ZResourceHandle::~ZResourceHandle()
+{
+    delete[](char*)buffer_;
 }

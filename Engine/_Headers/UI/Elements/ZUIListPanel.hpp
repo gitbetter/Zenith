@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIListPanel.hpp
 
     Created by Adrian Sanchez on 17/03/2019.
@@ -36,25 +36,26 @@
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZUIListPanel : public ZUIElement {
+class ZUIListPanel : public ZUIElement
+{
 
 private:
 
-  float itemHeight_ = 25.f;
+    float itemHeight_ = 25.f;
 
 public:
 
-  ZUIListPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f)) : ZUIElement(position, scale) { }
-  ~ZUIListPanel() { }
+    ZUIListPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f)) : ZUIElement(position, scale) {}
+    ~ZUIListPanel() {}
 
-  void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-  float ItemHeight() const { return itemHeight_; }
-  void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
+    float ItemHeight() const { return itemHeight_; }
+    void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
 
-  void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
-  void AddChild(std::shared_ptr<ZUIElement> element) override;
+    void AddChild(std::shared_ptr<ZUIElement> element) override;
 
 protected:
 

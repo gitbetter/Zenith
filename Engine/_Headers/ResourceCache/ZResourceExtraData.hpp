@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZResourceExtraData.hpp
+    ZResourceExtraData.hpp
 
-	Created by Adrian Sanchez on 11/04/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 11/04/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -40,131 +40,138 @@ class ZImageImporter;
 struct ZSkeleton;
 
 // Class and Data Structure Definitions
-class ZResourceExtraData {
+class ZResourceExtraData
+{
 
 public:
 
-	virtual ~ZResourceExtraData() {}
+    virtual ~ZResourceExtraData() {}
 
-	virtual std::string ToString() = 0;
+    virtual std::string ToString() = 0;
 
 };
 
-class ZSoundResourceExtraData : public ZResourceExtraData {
+class ZSoundResourceExtraData : public ZResourceExtraData
+{
 
-	friend class ZWavResourceLoader;
-	friend class ZOggResourceLoader;
-	friend class ZResourceLoadTask;
+    friend class ZWavResourceLoader;
+    friend class ZOggResourceLoader;
+    friend class ZResourceLoadTask;
 
 public:
 
-	ZSoundResourceExtraData();
-	~ZSoundResourceExtraData() {}
+    ZSoundResourceExtraData();
+    ~ZSoundResourceExtraData() {}
 
-	std::string ToString() override { return "ZSoundResourceExtraData"; }
-	ZSoundType SoundType() { return soundType_; }
-	unsigned int LengthMilli() const { return lengthMilli_; }
-	ZWavFormatDesc* WavFormatDesc() { return &wavFormatDesc_; }
+    std::string ToString() override { return "ZSoundResourceExtraData"; }
+    ZSoundType SoundType() { return soundType_; }
+    unsigned int LengthMilli() const { return lengthMilli_; }
+    ZWavFormatDesc* WavFormatDesc() { return &wavFormatDesc_; }
 
 protected:
 
-	ZSoundType soundType_;
-	unsigned int lengthMilli_;
-	ZWavFormatDesc wavFormatDesc_;
+    ZSoundType soundType_;
+    unsigned int lengthMilli_;
+    ZWavFormatDesc wavFormatDesc_;
 
 };
 
-class ZShaderResourceExtraData : public ZResourceExtraData {
+class ZShaderResourceExtraData : public ZResourceExtraData
+{
 
-	friend class ZResourceLoadTask;
+    friend class ZResourceLoadTask;
 
 public:
 
-	ZShaderResourceExtraData();
-	~ZShaderResourceExtraData() {}
+    ZShaderResourceExtraData();
+    ~ZShaderResourceExtraData() {}
 
-	std::string ToString() override { return "ZShaderResourceExtraData"; }
-	const std::string& Code() { return code_; }
-	ZShaderType Type() { return type_; }
+    std::string ToString() override { return "ZShaderResourceExtraData"; }
+    const std::string& Code() { return code_; }
+    ZShaderType Type() { return type_; }
 
 protected:
 
-	ZShaderType type_;
-	std::string code_;
+    ZShaderType type_;
+    std::string code_;
 
 };
 
-class ZZOFResourceExtraData : public ZResourceExtraData {
+class ZZOFResourceExtraData : public ZResourceExtraData
+{
 
-	friend class ZResourceLoadTask;
+    friend class ZResourceLoadTask;
 
 public:
 
-	ZZOFResourceExtraData() { }
-	~ZZOFResourceExtraData() { }
+    ZZOFResourceExtraData() {}
+    ~ZZOFResourceExtraData() {}
 
-	std::string ToString() override { return "ZZOFResourceExtraData"; }
-	std::shared_ptr<ZOFTree> ObjectTree() { return objectTree_; }
+    std::string ToString() override { return "ZZOFResourceExtraData"; }
+    std::shared_ptr<ZOFTree> ObjectTree() { return objectTree_; }
 
 protected:
 
-	std::shared_ptr<ZOFTree> objectTree_;
+    std::shared_ptr<ZOFTree> objectTree_;
 
 };
 
-class ZTextureResourceExtraData : public ZResourceExtraData {
+class ZTextureResourceExtraData : public ZResourceExtraData
+{
 
-	friend class ZResourceLoadTask;
-	friend class ZImageImporter;
+    friend class ZResourceLoadTask;
+    friend class ZImageImporter;
 
 public:
 
-	ZTextureResourceExtraData();
-	~ZTextureResourceExtraData();
+    ZTextureResourceExtraData();
+    ~ZTextureResourceExtraData();
 
-	std::string ToString() override { return "ZTextureResourceExtraData"; }
-	bool IsHDR() { return hdr_; }
-	bool IsFlipped() { return flipped_; }
-	int Width() { return width_; }
-	int Height() { return height_; }
-	int NumChannels() { return channels_; }
-	float* FloatData() { return fData_; }
-	unsigned char* Data() { return ucData_; }
+    std::string ToString() override { return "ZTextureResourceExtraData"; }
+    bool IsHDR() { return hdr_; }
+    bool IsFlipped() { return flipped_; }
+    int Width() { return width_; }
+    int Height() { return height_; }
+    int NumChannels() { return channels_; }
+    float* FloatData() { return fData_; }
+    unsigned char* Data() { return ucData_; }
 
 protected:
 
-	bool hdr_;
-	bool flipped_;
-	int width_, height_, channels_;
-	union {
-		float* fData_;
-		unsigned char* ucData_ = nullptr;
-	};
+    bool hdr_;
+    bool flipped_;
+    int width_, height_, channels_;
+    union
+    {
+        float* fData_;
+        unsigned char* ucData_ = nullptr;
+    };
 
 };
 
-class ZModelResourceExtraData : public ZResourceExtraData {
+class ZModelResourceExtraData : public ZResourceExtraData
+{
 
-	friend class ZResourceLoadTask;
+    friend class ZResourceLoadTask;
 
 public:
 
-	ZModelResourceExtraData() { }
-	~ZModelResourceExtraData() { }
+    ZModelResourceExtraData() {}
+    ~ZModelResourceExtraData() {}
 
-	std::string ToString() override { return "ZModelResourceExtraData"; }
-	ZMesh3DMap& Meshes() { return meshMap_; }
-	ZBoneMap& BoneMap() { return boneMap_; }
-	ZBoneList& Bones() { return boneList_; }
-	ZAnimationMap& Animations() { return animationMap_; }
-	std::shared_ptr<ZSkeleton> Skeleton() { return skeleton_; }
+    std::string ToString() override { return "ZModelResourceExtraData"; }
+    ZMesh3DMap& Meshes() { return meshMap_; }
+    ZBoneMap& BoneMap() { return boneMap_; }
+    ZBoneList& Bones() { return boneList_; }
+    ZAnimationMap& Animations() { return animationMap_; }
+    std::shared_ptr<ZSkeleton> Skeleton() { return skeleton_; }
 
 protected:
 
-	ZMesh3DMap meshMap_;
-	ZBoneMap boneMap_;
-	ZBoneList boneList_;
-	ZAnimationMap animationMap_;
-	std::shared_ptr<ZSkeleton> skeleton_;
+    ZMesh3DMap meshMap_;
+    ZBoneMap boneMap_;
+    ZBoneList boneList_;
+    ZAnimationMap animationMap_;
+    std::shared_ptr<ZSkeleton> skeleton_;
 
 };

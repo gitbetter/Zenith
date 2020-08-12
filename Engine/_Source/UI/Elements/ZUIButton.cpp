@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIButton.cpp
 
     Created by Adrian Sanchez on 06/02/2019.
@@ -31,15 +31,18 @@
 #include "ZShader.hpp"
 #include "ZUI.hpp"
 
-ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
-   texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
+{
+    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
-void ZUIButton::Initialize(std::shared_ptr<ZOFNode> root) {
-  ZUIElement::Initialize(root);
+void ZUIButton::Initialize(std::shared_ptr<ZOFNode> root)
+{
+    ZUIElement::Initialize(root);
 }
 
-void ZUIButton::Render(ZRenderOp renderOp) {
-  ZUIElement::Render();  
-  RenderChildren();
+void ZUIButton::Render(ZRenderOp renderOp)
+{
+    ZUIElement::Render();
+    RenderChildren();
 }

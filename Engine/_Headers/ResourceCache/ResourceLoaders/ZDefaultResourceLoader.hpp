@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZDefaultResourceLoader.hpp
 
     Created by Adrian Sanchez on 09/03/2019.
@@ -36,11 +36,12 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZDefaultResourceLoader : public ZResourceLoader {
+class ZDefaultResourceLoader : public ZResourceLoader
+{
 
 public:
 
-    ~ZDefaultResourceLoader() { }
+    ~ZDefaultResourceLoader() {}
     std::string Pattern() override { return ".*"; }
     bool UseRawFile() override { return true; };
     unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }

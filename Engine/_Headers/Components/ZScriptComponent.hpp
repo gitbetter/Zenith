@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZScriptComponent.hpp
 
     Created by Adrian Sanchez on 30/03/2019.
@@ -35,18 +35,19 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZScriptComponent : public ZComponent {
+class ZScriptComponent : public ZComponent
+{
 
 public:
 
-  ZScriptComponent() { }
-  ~ZScriptComponent() { }
+    ZScriptComponent() {}
+    ~ZScriptComponent() {}
 
-  void Initialize(std::shared_ptr<ZOFNode> root) override { }
+    void Initialize(std::shared_ptr<ZOFNode> root) override {}
 
-  std::shared_ptr<ZComponent> Clone() override;
+    std::shared_ptr<ZComponent> Clone() override;
 
-  void Update() override { }
+    void Update() override {}
 
 protected:
 

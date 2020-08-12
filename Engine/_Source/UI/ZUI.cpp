@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUI.cpp
 
     Created by Adrian Sanchez on 06/02/2019.
@@ -33,36 +33,44 @@
 #include "ZUIText.hpp"
 #include "ZGLTextStrategy.hpp"
 
-void ZUI::Initialize() {
-  // TODO: Switch the strategies here based on implementation details
-  if(textStrategy_ == nullptr) {
-    textStrategy_.reset(new ZGLTextStrategy);
-    textStrategy_->Initialize();
-  }
+void ZUI::Initialize()
+{
+// TODO: Switch the strategies here based on implementation details
+    if (textStrategy_ == nullptr)
+    {
+        textStrategy_.reset(new ZGLTextStrategy);
+        textStrategy_->Initialize();
+    }
 
-  if (uiShader_ == nullptr) {
-    uiShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/ui.vert", "Engine/_Assets/Shaders/Pixel/ui.frag"));
-    uiShader_->Initialize();
-  }
+    if (uiShader_ == nullptr)
+    {
+        uiShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/ui.vert", "Engine/_Assets/Shaders/Pixel/ui.frag"));
+        uiShader_->Initialize();
+    }
 
-  if (textShader_ == nullptr) {
-    textShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/text.vert", "Engine/_Assets/Shaders/Pixel/text.frag"));
-    textShader_->Initialize();
-  }
+    if (textShader_ == nullptr)
+    {
+        textShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/text.vert", "Engine/_Assets/Shaders/Pixel/text.frag"));
+        textShader_->Initialize();
+    }
 }
 
-void ZUI::RegisterFont(std::string fontPath) {
-  if (textStrategy_ != nullptr) textStrategy_->LoadFontAsync(fontPath, 64);
+void ZUI::RegisterFont(std::string fontPath)
+{
+    if (textStrategy_ != nullptr) textStrategy_->LoadFontAsync(fontPath, 64);
 }
 
-void ZUI::CleanUp() {
-  if (textShader_ != nullptr) {
-    textShader_.reset();
-  }
+void ZUI::CleanUp()
+{
+    if (textShader_ != nullptr)
+    {
+        textShader_.reset();
+    }
 
-  if (uiShader_ != nullptr) {
-    uiShader_.reset();
-  }
+    if (uiShader_ != nullptr)
+    {
+        uiShader_.reset();
+    }
 
-  textStrategy_.reset();
+    textStrategy_.reset();
 }

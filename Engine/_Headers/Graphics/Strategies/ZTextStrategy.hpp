@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZTextStrategy.hpp
 
     Created by Adrian Sanchez on 11/02/2019.
@@ -39,24 +39,25 @@ class ZResourceHandle;
 
 // Class and Data Structure Definitions
 
-class ZTextStrategy {
+class ZTextStrategy
+{
 
 public:
 
-  ZTextStrategy() { }
-  virtual ~ZTextStrategy() { }
+    ZTextStrategy() {}
+    virtual ~ZTextStrategy() {}
 
-  virtual void Initialize();
-  virtual void LoadFont(std::string fontPath, unsigned int fontSize = 24) = 0;
-  virtual void LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize = 24) = 0;
-  virtual void LoadFontAsync(std::string fontPath, unsigned int fontSize = 24) = 0;
-  virtual void SetFontSize(std::string font, unsigned int size);
+    virtual void Initialize();
+    virtual void LoadFont(std::string fontPath, unsigned int fontSize = 24) = 0;
+    virtual void LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize = 24) = 0;
+    virtual void LoadFontAsync(std::string fontPath, unsigned int fontSize = 24) = 0;
+    virtual void SetFontSize(std::string font, unsigned int size);
 
-  ZCharacter Character(std::string font, unsigned char c);
+    ZCharacter Character(std::string font, unsigned char c);
 
 protected:
 
-  FT_Library ft_;
-  std::map<std::string, ZFont> loadedFonts_;
+    FT_Library ft_;
+    std::map<std::string, ZFont> loadedFonts_;
 
 };

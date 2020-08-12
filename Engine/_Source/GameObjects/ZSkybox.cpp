@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZSkybox.cpp
+    ZSkybox.cpp
 
-	Created by Adrian Sanchez on 02/03/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 02/03/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -35,84 +35,96 @@
 #include "ZTextureReadyEvent.hpp"
 #include "ZSkyboxReadyEvent.hpp"
 
-ZSkybox::ZSkybox(std::string hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr) {
+ZSkybox::ZSkybox(std::string hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr)
+{
     properties_.renderPass = ZRenderPass::Sky;
 }
 
-void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root) {
+void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root)
+{
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-    
-    if(!node) {
+
+    if (!node)
+    {
         zenith::Log("Could not initalize ZSkybox", ZSeverity::Error);
         return;
     }
-    
+
     id_ = node->id;
-    
+
     ZOFPropertyMap props = node->properties;
-    
-    if (props.find("hdr") != props.end() && props["hdr"]->HasValues()) {
+
+    if (props.find("hdr") != props.end() && props["hdr"]->HasValues())
+    {
         std::shared_ptr<ZOFString> hdrProp = props["hdr"]->Value<ZOFString>(0);
         hdrPath_ = hdrProp->value;
         InitializeAsync();
     }
 }
 
-void ZSkybox::Initialize() {
-	ZBufferData cubemapBuffer;
-	ZTexture cubeMap = zenith::Graphics()->Strategy()->EquirectToCubemap(hdrPath_, cubemapBuffer);
-	Initialize(cubeMap, cubemapBuffer);
+void ZSkybox::Initialize()
+{
+    ZBufferData cubemapBuffer;
+    ZTexture cubeMap = zenith::Graphics()->Strategy()->EquirectToCubemap(hdrPath_, cubemapBuffer);
+    Initialize(cubeMap, cubemapBuffer);
 }
 
-void ZSkybox::InitializeAsync() {
+void ZSkybox::InitializeAsync()
+{
     ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
     zenith::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
-    
+
     zenith::Graphics()->Strategy()->EquirectToCubemapAsync(hdrPath_);
 }
 
-void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData) {
-	std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
+void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData)
+{
+    std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 
-	std::shared_ptr<ZShader> skyboxShader(new ZShader("Engine/_Assets/Shaders/Vertex/skybox.vert", "Engine/_Assets/Shaders/Pixel/skybox.frag"));
-	skyboxShader->Initialize();
+    std::shared_ptr<ZShader> skyboxShader(new ZShader("Engine/_Assets/Shaders/Vertex/skybox.vert", "Engine/_Assets/Shaders/Pixel/skybox.frag"));
+    skyboxShader->Initialize();
 
-	std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
-	skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
+    std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
+    skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
     std::vector<ZTexture> textures = { iblTexture_.cubeMap };
-	skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
+    skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
 
-	AddComponent(skyboxGraphicsComponent);
+    AddComponent(skyboxGraphicsComponent);
 }
 
-std::shared_ptr<ZGameObject> ZSkybox::Clone() {
+std::shared_ptr<ZGameObject> ZSkybox::Clone()
+{
     std::shared_ptr<ZSkybox> clone = std::make_shared<ZSkybox>();
     clone->id_ = id_;
     clone->hdrPath_ = hdrPath_;
     clone->iblTexture_ = iblTexture_;
-    if(std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>())
+    if (std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>())
         clone->AddComponent(graphicsComp->Clone());
     return clone;
 }
 
-void ZSkybox::Render(ZRenderOp renderOp) {
-	if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) {
-		ZGameObject::Render(renderOp);
-	}
+void ZSkybox::Render(ZRenderOp renderOp)
+{
+    if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow)
+    {
+        ZGameObject::Render(renderOp);
+    }
 }
 
-void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event) {
-	std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
-	if (textureReadyEvent->Texture().path == hdrPath_) {
+void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event)
+{
+    std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
+    if (textureReadyEvent->Texture().path == hdrPath_)
+    {
         ZTexture texture = textureReadyEvent->Texture();
         ZBufferData bufferData = textureReadyEvent->BufferData();
-		Initialize(texture, bufferData);
-        
-		ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
-		zenith::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
-        
+        Initialize(texture, bufferData);
+
+        ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
+        zenith::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+
         std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(std::static_pointer_cast<ZSkybox>(shared_from_this()));
         zenith::EventAgent()->QueueEvent(skyboxReadyEvent);
-	}
+    }
 }

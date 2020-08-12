@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZOggResourceLoader.hpp
 
     Created by Adrian Sanchez on 11/04/2019.
@@ -36,18 +36,19 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZOggResourceLoader : public ZResourceLoader {
+class ZOggResourceLoader : public ZResourceLoader
+{
 
 public:
 
-    ~ZOggResourceLoader() { }
+    ~ZOggResourceLoader() {}
     std::string Pattern() override { return ".*\\.ogg"; }
     bool UseRawFile() override { return false; };
-		unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override;
+    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override;
     bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
 
 protected:
 
-    bool ParseOgg(char *oggStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle);
+    bool ParseOgg(char* oggStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle);
 
 };

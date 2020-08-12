@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZWavResourceLoader.cpp
 
     Created by Adrian Sanchez on 11/04/2019.
@@ -34,137 +34,148 @@
 	((unsigned long)(unsigned char)(ch0) | ((unsigned long)(unsigned char)(ch1) << 8) |\
    ((unsigned long)(unsigned char)(ch2) << 16) | ((unsigned long)(unsigned char)(ch3) << 24))
 
-unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned int rawSize) {
-	unsigned long file = 0, fileEnd = 0, length = 0, type = 0;
-	unsigned long pos = 0;
+unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned int rawSize)
+{
+    unsigned long file = 0, fileEnd = 0, length = 0, type = 0;
+    unsigned long pos = 0;
 
-	type = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
-	if (type != MAKEFOURCC('R', 'I', 'F', 'F'))
-		return false;
+    type = *((unsigned long*) (rawBuffer + pos)); pos += sizeof(unsigned long);
+    if (type != MAKEFOURCC('R', 'I', 'F', 'F'))
+        return false;
 
-	length = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
-	type = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
-	if (type != MAKEFOURCC('W', 'A', 'V', 'E'))
-		return false;
+    length = *((unsigned long*) (rawBuffer + pos)); pos += sizeof(unsigned long);
+    type = *((unsigned long*) (rawBuffer + pos)); pos += sizeof(unsigned long);
+    if (type != MAKEFOURCC('W', 'A', 'V', 'E'))
+        return false;
 
-	fileEnd = length - 4;
+    fileEnd = length - 4;
 
-	while (file < fileEnd) {
-		type = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
-		file += sizeof(unsigned long);
+    while (file < fileEnd)
+    {
+        type = *((unsigned long*) (rawBuffer + pos)); pos += sizeof(unsigned long);
+        file += sizeof(unsigned long);
 
-		length = *((unsigned long*)(rawBuffer + pos)); pos += sizeof(unsigned long);
-		file += sizeof(unsigned long);
+        length = *((unsigned long*) (rawBuffer + pos)); pos += sizeof(unsigned long);
+        file += sizeof(unsigned long);
 
-		switch (type) {
-		case MAKEFOURCC('f', 'a', 'c', 't'):
-		{
-			zenith::Log("Compressed .wav files are not yet supported", ZSeverity::Warning);
-			break;
-		}
-		case MAKEFOURCC('f', 'm', 't', ' '):
-		{
-			pos += length;
-			break;
-		}
-		case MAKEFOURCC('L', 'I', 'S', 'T'):
-		case MAKEFOURCC('I', 'N', 'F', 'O'):
-		{
-			pos += length;
-			break;
-		}
-		case MAKEFOURCC('d', 'a', 't', 'a'):
-		{
-			return length;
-		}
-		}
+        switch (type)
+        {
+        case MAKEFOURCC('f', 'a', 'c', 't'):
+        {
+            zenith::Log("Compressed .wav files are not yet supported", ZSeverity::Warning);
+            break;
+        }
+        case MAKEFOURCC('f', 'm', 't', ' '):
+        {
+            pos += length;
+            break;
+        }
+        case MAKEFOURCC('L', 'I', 'S', 'T'):
+        case MAKEFOURCC('I', 'N', 'F', 'O'):
+        {
+            pos += length;
+            break;
+        }
+        case MAKEFOURCC('d', 'a', 't', 'a'):
+        {
+            return length;
+        }
+        }
 
-		file += length;
+        file += length;
 
-		if (length & 1) {
-			++pos; ++file;
-		}
-	}
+        if (length & 1)
+        {
+            ++pos; ++file;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
-bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) {
-	std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();
-	extra->soundType_ = ZSoundType::Wav;
-	handle->SetExtra(extra);
-	if (!ParseWav(rawBuffer, rawSize, handle)) return false;
-	return true;
+bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle)
+{
+    std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();
+    extra->soundType_ = ZSoundType::Wav;
+    handle->SetExtra(extra);
+    if (!ParseWav(rawBuffer, rawSize, handle)) return false;
+    return true;
 }
 
 
-bool ZWavResourceLoader::ParseWav(char *wavStream, unsigned int bufferLength, std::shared_ptr<ZResourceHandle> handle) {
-	std::shared_ptr<ZSoundResourceExtraData> extra = std::static_pointer_cast<ZSoundResourceExtraData>(handle->ExtraData());
-	unsigned long file = 0, fileEnd = 0, length = 0, type = 0;
-	unsigned long pos = 0;
+bool ZWavResourceLoader::ParseWav(char* wavStream, unsigned int bufferLength, std::shared_ptr<ZResourceHandle> handle)
+{
+    std::shared_ptr<ZSoundResourceExtraData> extra = std::static_pointer_cast<ZSoundResourceExtraData>(handle->ExtraData());
+    unsigned long file = 0, fileEnd = 0, length = 0, type = 0;
+    unsigned long pos = 0;
 
-	type = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
-	if (type != MAKEFOURCC('R', 'I', 'F', 'F'))
-		return false;
+    type = *((unsigned long*) (wavStream + pos)); pos += sizeof(unsigned long);
+    if (type != MAKEFOURCC('R', 'I', 'F', 'F'))
+        return false;
 
-	length = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
-	type = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
-	if (type != MAKEFOURCC('W', 'A', 'V', 'E'))
-		return false;
+    length = *((unsigned long*) (wavStream + pos)); pos += sizeof(unsigned long);
+    type = *((unsigned long*) (wavStream + pos)); pos += sizeof(unsigned long);
+    if (type != MAKEFOURCC('W', 'A', 'V', 'E'))
+        return false;
 
-	fileEnd = length - 4;
+    fileEnd = length - 4;
 
-	memset(&extra->wavFormatDesc_, 0, sizeof(ZWavFormatDesc));
+    memset(&extra->wavFormatDesc_, 0, sizeof(ZWavFormatDesc));
 
-	bool copiedBuffer = false;
-	while (file < fileEnd) {
-		type = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
-		file += sizeof(unsigned long);
+    bool copiedBuffer = false;
+    while (file < fileEnd)
+    {
+        type = *((unsigned long*) (wavStream + pos)); pos += sizeof(unsigned long);
+        file += sizeof(unsigned long);
 
-		length = *((unsigned long*)(wavStream + pos)); pos += sizeof(unsigned long);
-		file += sizeof(unsigned long);
+        length = *((unsigned long*) (wavStream + pos)); pos += sizeof(unsigned long);
+        file += sizeof(unsigned long);
 
-		switch (type) {
-		case MAKEFOURCC('f', 'a', 'c', 't'):
-		{
-			zenith::Log("Compressed .wav files are not yet supported", ZSeverity::Warning);
-			break;
-		}
-		case MAKEFOURCC('f', 'm', 't', ' '):
-		{
-			memcpy(&extra->wavFormatDesc_, wavStream + pos, length); pos += length;
-			extra->wavFormatDesc_.cbSize = (unsigned short)length;
-			break;
-		}
-		case MAKEFOURCC('L', 'I', 'S', 'T'):
-		case MAKEFOURCC('I', 'N', 'F', 'O'):
-		{
-			pos += length; // Skip the metadata
-			break;
-		}
-		case MAKEFOURCC('d', 'a', 't', 'a'):
-		{
-			copiedBuffer = true;
-			if (length != handle->Size()) {
-				zenith::Log("Resource size and buffer size do not match", ZSeverity::Error);
-				return 0;
-			}
-			memcpy(handle->FluidBuffer(), wavStream + pos, length); pos += length;
-			break;
-		}
-		}
+        switch (type)
+        {
+        case MAKEFOURCC('f', 'a', 'c', 't'):
+        {
+            zenith::Log("Compressed .wav files are not yet supported", ZSeverity::Warning);
+            break;
+        }
+        case MAKEFOURCC('f', 'm', 't', ' '):
+        {
+            memcpy(&extra->wavFormatDesc_, wavStream + pos, length); pos += length;
+            extra->wavFormatDesc_.cbSize = (unsigned short) length;
+            break;
+        }
+        case MAKEFOURCC('L', 'I', 'S', 'T'):
+        case MAKEFOURCC('I', 'N', 'F', 'O'):
+        {
+            pos += length; // Skip the metadata
+            break;
+        }
+        case MAKEFOURCC('d', 'a', 't', 'a'):
+        {
+            copiedBuffer = true;
+            if (length != handle->Size())
+            {
+                zenith::Log("Resource size and buffer size do not match", ZSeverity::Error);
+                return 0;
+            }
+            memcpy(handle->FluidBuffer(), wavStream + pos, length); pos += length;
+            break;
+        }
+        }
 
-		file += length;
+        file += length;
 
-		if (copiedBuffer) {
-			extra->lengthMilli_ = (handle->Size() * 1000) / extra->wavFormatDesc_.avgBytesPerSec;
-			return true;
-		}
+        if (copiedBuffer)
+        {
+            extra->lengthMilli_ = (handle->Size() * 1000) / extra->wavFormatDesc_.avgBytesPerSec;
+            return true;
+        }
 
-		if (length & 1) {
-			++pos; ++file;
-		}
-	}
+        if (length & 1)
+        {
+            ++pos; ++file;
+        }
+    }
 
-	return false;
+    return false;
 }

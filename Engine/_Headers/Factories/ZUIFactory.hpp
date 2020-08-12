@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIFactory.hpp
 
     Created by Adrian Sanchez on 10/03/2019.
@@ -36,28 +36,29 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZUIFactory {
+class ZUIFactory
+{
 
-  using ZUICreator = std::shared_ptr<ZUIElement> (ZUIFactory::*)(std::shared_ptr<ZOFNode> root);
+    using ZUICreator = std::shared_ptr<ZUIElement>(ZUIFactory::*)(std::shared_ptr<ZOFNode> root);
 
 private:
 
 public:
 
-  ZUIFactory();
-  ~ZUIFactory() { }
+    ZUIFactory();
+    ~ZUIFactory() {}
 
-  ZUIElementMap Load(std::shared_ptr<ZOFTree> data);
+    ZUIElementMap Load(std::shared_ptr<ZOFTree> data);
 
-  std::shared_ptr<ZUIElement> CreateUIButton(std::shared_ptr<ZOFNode> root);
-  std::shared_ptr<ZUIElement> CreateUIImage(std::shared_ptr<ZOFNode> root);
-  std::shared_ptr<ZUIElement> CreateUIPanel(std::shared_ptr<ZOFNode> root);
-  std::shared_ptr<ZUIElement> CreateUIText(std::shared_ptr<ZOFNode> root);
-  std::shared_ptr<ZUIElement> CreateUICheckbox(std::shared_ptr<ZOFNode> root);
-  std::shared_ptr<ZUIElement> CreateUIListPanel(std::shared_ptr<ZOFNode> root);
+    std::shared_ptr<ZUIElement> CreateUIButton(std::shared_ptr<ZOFNode> root);
+    std::shared_ptr<ZUIElement> CreateUIImage(std::shared_ptr<ZOFNode> root);
+    std::shared_ptr<ZUIElement> CreateUIPanel(std::shared_ptr<ZOFNode> root);
+    std::shared_ptr<ZUIElement> CreateUIText(std::shared_ptr<ZOFNode> root);
+    std::shared_ptr<ZUIElement> CreateUICheckbox(std::shared_ptr<ZOFNode> root);
+    std::shared_ptr<ZUIElement> CreateUIListPanel(std::shared_ptr<ZOFNode> root);
 
 protected:
 
-  std::map<std::string, ZUICreator> elementCreators_;
+    std::map<std::string, ZUICreator> elementCreators_;
 
 };

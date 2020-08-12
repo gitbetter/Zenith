@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIText.hpp
 
     Created by Adrian Sanchez on 11/02/2019.
@@ -36,28 +36,29 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZUIText : public ZUIElement {
+class ZUIText : public ZUIElement
+{
 
 private:
 
 public:
 
-  ZUIText(std::string text = "", std::string font = "", float fontSize = 1.f, glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.1f));
-  ~ZUIText() { }
+    ZUIText(std::string text = "", std::string font = "", float fontSize = 1.f, glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.1f));
+    ~ZUIText() {}
 
-  void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-  void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
-  void SetText(const std::string& text) { text_ = text; }
-  void SetFontScale(float scale) { fontScale_ = scale; }
-  void SetFont(const std::string& font) { font_ = font; }
+    void SetText(const std::string& text) { text_ = text; }
+    void SetFontScale(float scale) { fontScale_ = scale; }
+    void SetFont(const std::string& font) { font_ = font; }
 
 protected:
 
-  std::string text_;
-  std::string font_;
-  float fontScale_;
-  ZBufferData bufferData_;
+    std::string text_;
+    std::string font_;
+    float fontScale_;
+    ZBufferData bufferData_;
 
 };

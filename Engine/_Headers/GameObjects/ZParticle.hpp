@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZParticle.hpp
+    ZParticle.hpp
 
-	Created by Adrian Sanchez on 13/02/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 13/02/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -38,28 +38,29 @@ class ZGraphicsComponent;
 class ZPhysicsComponent;
 
 // Class and Data Structure Definitions
-class ZParticle : public ZGameObject {
+class ZParticle : public ZGameObject
+{
 private:
 
-	float age_;
-	bool active_;
+    float age_;
+    bool active_;
 
 public:
 
-	ZParticle() : ZGameObject() {}
-	~ZParticle() {}
+    ZParticle() : ZGameObject() {}
+    ~ZParticle() {}
 
-	void Initialize() override;
+    void Initialize() override;
 
-	void Update() override;
-	void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Update() override;
+    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
-	float Age() { return age_; }
-	bool Active() { return active_; }
+    float Age() { return age_; }
+    bool Active() { return active_; }
 
 protected:
 
-	ZGraphicsComponent* graphicsComponent_ = nullptr;
-	ZPhysicsComponent* physicsComponent_ = nullptr;
+    ZGraphicsComponent* graphicsComponent_ = nullptr;
+    ZPhysicsComponent* physicsComponent_ = nullptr;
 
 };

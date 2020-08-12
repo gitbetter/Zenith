@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZIDSequence.cpp
 
     Created by Adrian Sanchez on 16/02/2019.
@@ -29,7 +29,8 @@
 
 #include "ZIDSequence.hpp"
 
-ZIDSequence::ZIDSequence(std::string seed) {
-  std::seed_seq seedSeq(seed.begin(), seed.end());
-  generator_.seed(seedSeq);
+ZIDSequence::ZIDSequence(std::string seed)
+{
+    std::seed_seq seedSeq(seed.begin(), seed.end());
+    generator_.seed(seedSeq);
 }

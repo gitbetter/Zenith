@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIPanel.cpp
 
     Created by Adrian Sanchez on 06/02/2019.
@@ -31,12 +31,14 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
-void ZUIPanel::Initialize(std::shared_ptr<ZOFNode> root) {
-  ZUIElement::Initialize(root);
-  texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+void ZUIPanel::Initialize(std::shared_ptr<ZOFNode> root)
+{
+    ZUIElement::Initialize(root);
+    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
-void ZUIPanel::Render(ZRenderOp renderOp) {
-  ZUIElement::Render();
-  RenderChildren();
+void ZUIPanel::Render(ZRenderOp renderOp)
+{
+    ZUIElement::Render();
+    RenderChildren();
 }

@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZParticle.cpp
 
     Created by Adrian Sanchez on 13/02/2019.
@@ -31,23 +31,27 @@
 #include "ZGraphicsComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 
-void ZParticle::Initialize() {
-  // TODO: Uncomment once approriate model and shader is chosen for
-  // displaying a particle
-  // if (FindComponent<ZGraphicsComponent>() == nullptr) {
-  //   AddComponent(new ZGraphicsComponent(the-model, the-shader));
-  // }
+void ZParticle::Initialize()
+{
+// TODO: Uncomment once approriate model and shader is chosen for
+// displaying a particle
+// if (FindComponent<ZGraphicsComponent>() == nullptr) {
+//   AddComponent(new ZGraphicsComponent(the-model, the-shader));
+// }
 
-  if (FindComponent<ZPhysicsComponent>() == nullptr) {
-    AddComponent(std::shared_ptr<ZPhysicsComponent>(new ZPhysicsComponent));
-  }
+    if (FindComponent<ZPhysicsComponent>() == nullptr)
+    {
+        AddComponent(std::shared_ptr<ZPhysicsComponent>(new ZPhysicsComponent));
+    }
 }
 
-void ZParticle::Update() {
-  ZGameObject::Update();
-  age_ -= zenith::UPDATE_STEP_SIZE;
+void ZParticle::Update()
+{
+    ZGameObject::Update();
+    age_ -= zenith::UPDATE_STEP_SIZE;
 }
 
-void ZParticle::Render(ZRenderOp renderOp) {
-  // TODO: Render a particle as a quad that rotates with the camera
+void ZParticle::Render(ZRenderOp renderOp)
+{
+// TODO: Render a particle as a quad that rotates with the camera
 }

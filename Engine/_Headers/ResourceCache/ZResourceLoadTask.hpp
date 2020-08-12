@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZResourceLoadTask.hpp
+    ZResourceLoadTask.hpp
 
-	Created by Adrian Sanchez on 12/05/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 12/05/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -37,21 +37,22 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZResourceLoadTask : public ZConcurrentProcess, public std::enable_shared_from_this<ZResourceLoadTask> {
+class ZResourceLoadTask : public ZConcurrentProcess, public std::enable_shared_from_this<ZResourceLoadTask>
+{
 
 private:
 
-	ZResource resource_;
+    ZResource resource_;
 
 public:
 
-	ZResourceLoadTask(ZResource& resource) : ZConcurrentProcess(), resource_(resource) { }
-	~ZResourceLoadTask() { }
+    ZResourceLoadTask(ZResource& resource) : ZConcurrentProcess(), resource_(resource) {}
+    ~ZResourceLoadTask() {}
 
-	void Start();
+    void Start();
 
 protected:
 
-	void Run() override;
+    void Run() override;
 
 };

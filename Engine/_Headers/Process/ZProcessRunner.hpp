@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZProcessRunner.hpp
 
     Created by Adrian Sanchez on 23/03/2019.
@@ -36,25 +36,26 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZProcessRunner {
+class ZProcessRunner
+{
 
 private:
 
-  void ClearProcesses();
+    void ClearProcesses();
 
 public:
 
-  ~ZProcessRunner();
+    ~ZProcessRunner();
 
-  void UpdateTick();
-  void UpdateProcesses(ZPriority priority);
-  void AttachProcess(std::shared_ptr<ZProcess> process, ZPriority priority = ZPriority::FirstPriority);
-  void AbortAllProcesses(bool immediate);
+    void UpdateTick();
+    void UpdateProcesses(ZPriority priority);
+    void AttachProcess(std::shared_ptr<ZProcess> process, ZPriority priority = ZPriority::FirstPriority);
+    void AbortAllProcesses(bool immediate);
 
-  unsigned int ProcessCount(ZPriority priority) const { assert(priority >= ZPriority::FirstPriority && priority < ZPriority::LastPriority); return processList_[priority].size(); }
+    unsigned int ProcessCount(ZPriority priority) const { assert(priority >= ZPriority::FirstPriority && priority < ZPriority::LastPriority); return processList_[priority].size(); }
 
 protected:
 
-  ZProcessList processList_[ZPriority::LastPriority];
+    ZProcessList processList_[ZPriority::LastPriority];
 
 };

@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZProcess.hpp
 
     Created by Adrian Sanchez on 23/03/2019.
@@ -36,50 +36,54 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZProcess {
+class ZProcess
+{
 
 private:
 
-  std::shared_ptr<ZProcess> child_;
+    std::shared_ptr<ZProcess> child_;
 
 public:
 
-  ZProcess() : state_(ZProcessState::Uninitialized) { }
-  virtual ~ZProcess() { }
+    ZProcess() : state_(ZProcessState::Uninitialized) {}
+    virtual ~ZProcess() {}
 
-  virtual void Initialize() { state_ = ZProcessState::Running; OnInitialize(); };
-  virtual void OnInitialize() { };
-  virtual void Update() { OnUpdate(); };
-  virtual void OnUpdate() { };
-  virtual void Pause() { state_ = ZProcessState::Paused; OnPause(); };
-  virtual void OnPause() { };
-  virtual void Resume() { state_ = ZProcessState::Running; OnResume(); };
-  virtual void OnResume() { };
-  virtual void Finish() { state_ = ZProcessState::Finished; OnFinish(); };
-  virtual void OnFinish() { };
-  virtual void Fail() { state_ = ZProcessState::Failed; OnFail(); };
-  virtual void OnFail() { };
-  virtual void Abort() { state_ = ZProcessState::Aborted; OnAbort(); };
-  virtual void OnAbort() { };
-  virtual void CleanUp() { };
+    virtual void Initialize() { state_ = ZProcessState::Running; OnInitialize(); };
+    virtual void OnInitialize() {};
+    virtual void Update() { OnUpdate(); };
+    virtual void OnUpdate() {};
+    virtual void Pause() { state_ = ZProcessState::Paused; OnPause(); };
+    virtual void OnPause() {};
+    virtual void Resume() { state_ = ZProcessState::Running; OnResume(); };
+    virtual void OnResume() {};
+    virtual void Finish() { state_ = ZProcessState::Finished; OnFinish(); };
+    virtual void OnFinish() {};
+    virtual void Fail() { state_ = ZProcessState::Failed; OnFail(); };
+    virtual void OnFail() {};
+    virtual void Abort() { state_ = ZProcessState::Aborted; OnAbort(); };
+    virtual void OnAbort() {};
+    virtual void CleanUp() {};
 
-  std::string ID() { return id_; }
+    std::string ID() { return id_; }
 
-  ZProcessState State() const { return state_; }
-  std::shared_ptr<ZProcess> Child() { return child_; }
+    ZProcessState State() const { return state_; }
+    std::shared_ptr<ZProcess> Child() { return child_; }
 
-  bool IsAlive() const { return state_ == ZProcessState::Running || state_ == ZProcessState::Paused; }
-  bool IsDead() const { return state_ == ZProcessState::Finished || state_ == ZProcessState::Failed || 
-                               state_ == ZProcessState::Aborted; }
-  bool IsPaused() const { return state_ == ZProcessState::Paused; }
- 
-  void SetState(ZProcessState state) { state_ = state; }
-  void AttachChild(std::shared_ptr<ZProcess> child);
-  std::shared_ptr<ZProcess> RemoveChild();  
+    bool IsAlive() const { return state_ == ZProcessState::Running || state_ == ZProcessState::Paused; }
+    bool IsDead() const
+    {
+        return state_ == ZProcessState::Finished || state_ == ZProcessState::Failed ||
+            state_ == ZProcessState::Aborted;
+    }
+    bool IsPaused() const { return state_ == ZProcessState::Paused; }
+
+    void SetState(ZProcessState state) { state_ = state; }
+    void AttachChild(std::shared_ptr<ZProcess> child);
+    std::shared_ptr<ZProcess> RemoveChild();
 
 protected:
 
-  std::string id_;
-  ZProcessState state_;
-  
+    std::string id_;
+    ZProcessState state_;
+
 };

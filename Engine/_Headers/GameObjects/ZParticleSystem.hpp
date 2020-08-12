@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZParticleSystem.hpp
 
     Created by Adrian Sanchez on 14/02/2019.
@@ -36,32 +36,34 @@
 class ZParticle;
 
 // Class and Data Structure Definitions
-struct ZParticleRule {
-  float minAge = 0.5f;
-  float maxAge = 5.f;
-  float minVelocity = 5.f;
-  float maxVelocity = 100.f;
-  float damping = 0.1f;
+struct ZParticleRule
+{
+    float minAge = 0.5f;
+    float maxAge = 5.f;
+    float minVelocity = 5.f;
+    float maxVelocity = 100.f;
+    float damping = 0.1f;
 };
 
-class ZParticleSystem : public ZGameObject {
+class ZParticleSystem : public ZGameObject
+{
 private:
 
-  std::vector<ZParticle*> particles_;
-  bool isAlive_ = false;
+    std::vector<ZParticle*> particles_;
+    bool isAlive_ = false;
 
 public:
 
-  ZParticleSystem() { }
-  ZParticleSystem(std::initializer_list<ZParticleRule> rules);
-  ~ZParticleSystem() { }
+    ZParticleSystem() {}
+    ZParticleSystem(std::initializer_list<ZParticleRule> rules);
+    ~ZParticleSystem() {}
 
-  void Start() { isAlive_ = true; }
-  void Stop() { isAlive_ = false; }
+    void Start() { isAlive_ = true; }
+    void Stop() { isAlive_ = false; }
 
-  bool Alive() { return isAlive_; }
+    bool Alive() { return isAlive_; }
 
-  void Update() override;
+    void Update() override;
 
 protected:
 

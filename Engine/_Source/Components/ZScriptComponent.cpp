@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
   ZScriptComponent.cpp
 
   Created by Adrian Sanchez on 30/03/2019.
@@ -29,7 +29,8 @@
 
 #include "ZScriptComponent.hpp"
 
-std::shared_ptr<ZComponent> ZScriptComponent::Clone() {
-	std::shared_ptr<ZScriptComponent> clone = std::make_shared<ZScriptComponent>();
-	return clone;
+std::shared_ptr<ZComponent> ZScriptComponent::Clone()
+{
+    std::shared_ptr<ZScriptComponent> clone = std::make_shared<ZScriptComponent>();
+    return clone;
 }

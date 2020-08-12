@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZUIImage.hpp
+    ZUIImage.hpp
 
-	Created by Adrian Sanchez on 06/02/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 06/02/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -36,25 +36,26 @@
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZUIImage : public ZUIElement {
+class ZUIImage : public ZUIElement
+{
 
 private:
 
-	std::string path_;
+    std::string path_;
 
 public:
 
-	ZUIImage(std::string path = "", glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.25f));
-	~ZUIImage() {}
+    ZUIImage(std::string path = "", glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.25f));
+    ~ZUIImage() {}
 
-	void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-	void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
-	void SetImage(std::string path);
+    void SetImage(std::string path);
 
 protected:
 
-	void HandleTextureReady(std::shared_ptr<ZEvent> event);
+    void HandleTextureReady(std::shared_ptr<ZEvent> event);
 
 };

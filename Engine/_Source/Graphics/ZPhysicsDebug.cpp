@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZPhysicsDebug.cpp
+    ZPhysicsDebug.cpp
 
-	Created by Adrian Sanchez on 26/02/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 26/02/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -33,27 +33,29 @@
 #include "ZCameraComponent.hpp"
 #include "ZGame.hpp"
 
-void ZPhysicsDebug::Initialize() {
-	shader_ = std::unique_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/debug.vert", "Engine/_Assets/Shaders/Pixel/debug.frag"));
-	shader_->Initialize();
+void ZPhysicsDebug::Initialize()
+{
+    shader_ = std::unique_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/debug.vert", "Engine/_Assets/Shaders/Pixel/debug.frag"));
+    shader_->Initialize();
 }
 
-void ZPhysicsDebug::drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color) {
-	if (!zenith::Game()->ActiveScene()) return;
+void ZPhysicsDebug::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+{
+    if (!zenith::Game()->ActiveScene()) return;
 
-	glm::mat4 VPMatrix = zenith::Game()->ActiveScene()->ViewProjection();
+    glm::mat4 VPMatrix = zenith::Game()->ActiveScene()->ViewProjection();
 
-	shader_->Activate();
+    shader_->Activate();
 
-	shader_->SetMat4("ViewProjection", VPMatrix);
-	shader_->SetVec4("color", glm::vec4(color.x(), color.y(), color.z(), 1.f));
+    shader_->SetMat4("ViewProjection", VPMatrix);
+    shader_->SetVec4("color", glm::vec4(color.x(), color.y(), color.z(), 1.f));
 
-	std::vector<ZVertex3D> vertices({
-	  ZVertex3D(glm::vec3(from.x(), from.y(), from.z())),
-	  ZVertex3D(glm::vec3(to.x(), to.y(), to.z()))
-    });
+    std::vector<ZVertex3D> vertices({
+      ZVertex3D(glm::vec3(from.x(), from.y(), from.z())),
+      ZVertex3D(glm::vec3(to.x(), to.y(), to.z()))
+        });
 
-	ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(vertices);
-	zenith::Graphics()->Strategy()->DrawLines(bufferData, vertices);
-	zenith::Graphics()->Strategy()->DeleteBufferData(bufferData);
+    ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(vertices);
+    zenith::Graphics()->Strategy()->DrawLines(bufferData, vertices);
+    zenith::Graphics()->Strategy()->DeleteBufferData(bufferData);
 }

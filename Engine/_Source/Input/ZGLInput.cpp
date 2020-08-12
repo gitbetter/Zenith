@@ -1,28 +1,28 @@
 /*
- 
+
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
- 
+
     ZGLInput.cpp
- 
+
     Created by Adrian Sanchez on 28/01/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
- 
+
  This file is part of Zenith.
- 
+
  Zenith is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  Zenith is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -38,9 +38,10 @@
 std::map<unsigned int, ZKey> ZGLInput::keyMap_;
 std::map<unsigned int, ZMouse> ZGLInput::mouseMap_;
 
-void ZGLInput::Initialize() {
+void ZGLInput::Initialize()
+{
     ZInput::Initialize();
-    
+
     keyMap_[GLFW_KEY_SPACE] = ZKey::SPACE;
     keyMap_[GLFW_KEY_APOSTROPHE] = ZKey::APOSTROPHE;
     keyMap_[GLFW_KEY_COMMA] = ZKey::COMMA;
@@ -159,7 +160,7 @@ void ZGLInput::Initialize() {
     keyMap_[GLFW_KEY_RIGHT_ALT] = ZKey::RIGHT_ALT;
     keyMap_[GLFW_KEY_RIGHT_SUPER] = ZKey::RIGHT_SUPER;
     keyMap_[GLFW_KEY_MENU] = ZKey::MENU;
-    
+
     mouseMap_[GLFW_MOUSE_BUTTON_LEFT] = ZMouse::LEFT_MB;
     mouseMap_[GLFW_MOUSE_BUTTON_RIGHT] = ZMouse::RIGHT_MB;
     mouseMap_[GLFW_MOUSE_BUTTON_MIDDLE] = ZMouse::MIDDLE_MB;
@@ -168,79 +169,95 @@ void ZGLInput::Initialize() {
     mouseMap_[GLFW_MOUSE_BUTTON_6] = ZMouse::MB6;
     mouseMap_[GLFW_MOUSE_BUTTON_7] = ZMouse::MB7;
     mouseMap_[GLFW_MOUSE_BUTTON_8] = ZMouse::MB8;
-    
+
     GLFWwindow* windowHandle = glfwGetCurrentContext();
     glfwSetKeyCallback(windowHandle, &ZGLInput::KeyCallback);
     glfwSetMouseButtonCallback(windowHandle, &ZGLInput::MouseButtonCallback);
 }
 
-void ZGLInput::Update() {
+void ZGLInput::Update()
+{
     GLFWwindow* windowHandle = glfwGetCurrentContext();
-    
-    if (keyPress_[ZKey::W]) {
+
+    if (keyPress_[ZKey::W])
+    {
         std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, 1.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
-    if (keyPress_[ZKey::A]) {
+    if (keyPress_[ZKey::A])
+    {
         std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(-1.f, 0.f, 0.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
-    if (keyPress_[ZKey::S]) {
+    if (keyPress_[ZKey::S])
+    {
         std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, -1.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
-    if (keyPress_[ZKey::D]) {
+    if (keyPress_[ZKey::D])
+    {
         std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(1.f, 0.f, 0.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
-    if (keyPress_[ZKey::ESCAPE]) {
+    if (keyPress_[ZKey::ESCAPE])
+    {
         std::shared_ptr<ZQuitEvent> quitEvent(new ZQuitEvent);
         zenith::EventAgent()->TriggerEvent(quitEvent);
     }
-    
+
     double yaw, pitch;
     glfwGetCursorPos(windowHandle, &yaw, &pitch);
-    
-    if (firstLook_) {
+
+    if (firstLook_)
+    {
         lastYaw_ = yaw; lastPitch_ = pitch;
         firstLook_ = false;
     }
-    
+
     double deltaYaw = yaw - lastYaw_;
     double deltaPitch = lastPitch_ - pitch;
-    
-    if (mousePress_[ZMouse::LEFT_MB]) {
-        if (deltaYaw != 0.0 || deltaPitch != 0.0) {
+
+    if (mousePress_[ZMouse::LEFT_MB])
+    {
+        if (deltaYaw != 0.0 || deltaPitch != 0.0)
+        {
             std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(deltaYaw, deltaPitch, 0.f));
             zenith::EventAgent()->TriggerEvent(dragEvent);
-        } else {
+        }
+        else
+        {
             std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent(yaw, pitch, 0.f));
             zenith::EventAgent()->TriggerEvent(fireEvent);
         }
     }
-    
-    if (deltaYaw != 0.0 || deltaPitch != 0.0) {
+
+    if (deltaYaw != 0.0 || deltaPitch != 0.0)
+    {
         std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(deltaYaw, deltaPitch));
         zenith::EventAgent()->TriggerEvent(lookEvent);
     }
-    
+
     lastYaw_ = yaw; lastPitch_ = pitch;
 }
 
-void ZGLInput::GetCursorPosition(double& x, double& y) {
+void ZGLInput::GetCursorPosition(double& x, double& y)
+{
     GLFWwindow* windowHandle = glfwGetCurrentContext();
     glfwGetCursorPos(windowHandle, &x, &y);
 }
 
-void ZGLInput::SetCursorPosition(double& x, double& y) {
+void ZGLInput::SetCursorPosition(double& x, double& y)
+{
     GLFWwindow* windowHandle = glfwGetCurrentContext();
     glfwSetCursorPos(windowHandle, x, y);
 }
 
-void ZGLInput::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void ZGLInput::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
     zenith::Input()->SetKey(keyMap_[key], action != GLFW_RELEASE);
 }
 
-void ZGLInput::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+void ZGLInput::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
     zenith::Input()->SetMouse(mouseMap_[button], action == GLFW_PRESS);
 }

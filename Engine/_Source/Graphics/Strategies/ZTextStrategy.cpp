@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZTextStrategy.cpp
 
     Created by Adrian Sanchez on 11/02/2019.
@@ -29,23 +29,28 @@
 
 #include "ZTextStrategy.hpp"
 
-void ZTextStrategy::Initialize() {
-  if (FT_Init_FreeType(&ft_)) zenith::Log("Could not Initialize the FreeType library", ZSeverity::Error);
+void ZTextStrategy::Initialize()
+{
+    if (FT_Init_FreeType(&ft_)) zenith::Log("Could not Initialize the FreeType library", ZSeverity::Error);
 }
 
-void ZTextStrategy::SetFontSize(std::string font, unsigned int fontSize) {
-  if (loadedFonts_.find(font) == loadedFonts_.end()) {
-    zenith::Log("Can't set size on a font that has not been loaded yet", ZSeverity::Warning);
-    return;
-  }
-  LoadFont(font, fontSize);
+void ZTextStrategy::SetFontSize(std::string font, unsigned int fontSize)
+{
+    if (loadedFonts_.find(font) == loadedFonts_.end())
+    {
+        zenith::Log("Can't set size on a font that has not been loaded yet", ZSeverity::Warning);
+        return;
+    }
+    LoadFont(font, fontSize);
 }
 
-ZCharacter ZTextStrategy::Character(std::string font, unsigned char c) {
-  if (loadedFonts_.find(font) == loadedFonts_.end()) {
-    zenith::Log("The font " + font + " has not been loaded.", ZSeverity::Warning);
-    return ZCharacter();
-  }
-  ZFont loadedFont = loadedFonts_[font];
-  return loadedFont.characters[c];
+ZCharacter ZTextStrategy::Character(std::string font, unsigned char c)
+{
+    if (loadedFonts_.find(font) == loadedFonts_.end())
+    {
+        zenith::Log("The font " + font + " has not been loaded.", ZSeverity::Warning);
+        return ZCharacter();
+    }
+    ZFont loadedFont = loadedFonts_[font];
+    return loadedFont.characters[c];
 }

@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZZOFReadyEvent.hpp
+    ZZOFReadyEvent.hpp
 
-	Created by Adrian Sanchez on 12/05/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 12/05/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -35,18 +35,19 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZZOFReadyEvent : public ZBaseEvent {
+class ZZOFReadyEvent : public ZBaseEvent
+{
 
 public:
 
-	static const ZEventType Type;
+    static const ZEventType Type;
 
-	explicit ZZOFReadyEvent() {}
-	explicit ZZOFReadyEvent(std::istringstream& in) {}
+    explicit ZZOFReadyEvent() {}
+    explicit ZZOFReadyEvent(std::istringstream& in) {}
 
-	const ZEventType& EventType() const override { return Type; };
-	std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZZOFReadyEvent>(new ZZOFReadyEvent); }
-	void Serialize(std::ostringstream& out) const override {}
-	std::string Name() const override { return "ZZOFReadyEvent"; }
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZZOFReadyEvent>(new ZZOFReadyEvent); }
+    void Serialize(std::ostringstream& out) const override {}
+    std::string Name() const override { return "ZZOFReadyEvent"; }
 
 };

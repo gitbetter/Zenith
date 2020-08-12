@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZResourceExtraData.cpp
 
     Created by Adrian Sanchez on 11/04/2019.
@@ -30,12 +30,13 @@
 #include "ZResourceExtraData.hpp"
 #include "ZImageImporter.hpp"
 
-ZSoundResourceExtraData::ZSoundResourceExtraData() : soundType_(ZSoundType::Unknown), lengthMilli_(0) { }
+ZSoundResourceExtraData::ZSoundResourceExtraData() : soundType_(ZSoundType::Unknown), lengthMilli_(0) {}
 
-ZShaderResourceExtraData::ZShaderResourceExtraData() : type_(ZShaderType::Other) { }
+ZShaderResourceExtraData::ZShaderResourceExtraData() : type_(ZShaderType::Other) {}
 
-ZTextureResourceExtraData::ZTextureResourceExtraData() : hdr_(false), flipped_(true), width_(0), height_(0), channels_(0) { }
-ZTextureResourceExtraData::~ZTextureResourceExtraData() { 
-	if (fData_) ZImageImporter::FreeImageData(fData_);
-	else if (ucData_) ZImageImporter::FreeImageData(fData_);
+ZTextureResourceExtraData::ZTextureResourceExtraData() : hdr_(false), flipped_(true), width_(0), height_(0), channels_(0) {}
+ZTextureResourceExtraData::~ZTextureResourceExtraData()
+{
+    if (fData_) ZImageImporter::FreeImageData(fData_);
+    else if (ucData_) ZImageImporter::FreeImageData(fData_);
 }

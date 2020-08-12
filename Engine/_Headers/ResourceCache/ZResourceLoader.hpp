@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZResourceLoader.hpp
 
     Created by Adrian Sanchez on 09/03/2019.
@@ -36,11 +36,12 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZResourceLoader {
+class ZResourceLoader
+{
 
 public:
 
-    virtual ~ZResourceLoader() { }
+    virtual ~ZResourceLoader() {}
     virtual std::string Pattern() = 0;
     virtual bool UseRawFile() = 0;
     virtual unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) = 0;

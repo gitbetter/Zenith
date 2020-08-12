@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZObjectDestroyedEvent.hpp
 
     Created by Adrian Sanchez on 02/06/2019.
@@ -35,25 +35,26 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZObjectDestroyedEvent : public ZBaseEvent {
+class ZObjectDestroyedEvent : public ZBaseEvent
+{
 
 private:
 
-  std::shared_ptr<ZGameObject> object_;
+    std::shared_ptr<ZGameObject> object_;
 
 public:
 
-  static const ZEventType Type;
+    static const ZEventType Type;
 
-  explicit ZObjectDestroyedEvent(std::shared_ptr<ZGameObject> destroyed) : object_(destroyed) { }
-  explicit ZObjectDestroyedEvent(std::istringstream& in) { }
+    explicit ZObjectDestroyedEvent(std::shared_ptr<ZGameObject> destroyed) : object_(destroyed) {}
+    explicit ZObjectDestroyedEvent(std::istringstream& in) {}
 
-  const ZEventType& EventType() const override { return Type; };
-  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectDestroyedEvent>(new ZObjectDestroyedEvent(object_)); }
-  void Serialize(std::ostringstream& out) const override { }
-  std::string Name() const override { return "ZObjectDestroyedEvent"; }
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectDestroyedEvent>(new ZObjectDestroyedEvent(object_)); }
+    void Serialize(std::ostringstream& out) const override {}
+    std::string Name() const override { return "ZObjectDestroyedEvent"; }
 
-  std::shared_ptr<ZGameObject> Object() { return object_; }
+    std::shared_ptr<ZGameObject> Object() { return object_; }
 
 protected:
 

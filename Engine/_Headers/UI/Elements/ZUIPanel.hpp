@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUIPanel.hpp
 
     Created by Adrian Sanchez on 06/02/2019.
@@ -36,17 +36,18 @@
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZUIPanel : public ZUIElement {
+class ZUIPanel : public ZUIElement
+{
 private:
 
 public:
 
-  ZUIPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f)) : ZUIElement(position, scale) { }
-  ~ZUIPanel() { }
+    ZUIPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f)) : ZUIElement(position, scale) {}
+    ~ZUIPanel() {}
 
-  void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-  void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
 protected:
 

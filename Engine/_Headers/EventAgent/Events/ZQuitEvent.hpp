@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZQuitEvent.hpp
 
     Created by Adrian Sanchez on 28/01/2019.
@@ -35,19 +35,20 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZQuitEvent : public ZBaseEvent {
+class ZQuitEvent : public ZBaseEvent
+{
 
 private:
 
 public:
 
-  static const ZEventType Type;
+    static const ZEventType Type;
 
-  ZQuitEvent() { }
+    ZQuitEvent() {}
 
-  const ZEventType& EventType() const override { return Type; };
-  std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZQuitEvent>(new ZQuitEvent); }
-  std::string Name() const override { return "ZQuitEvent"; }
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZQuitEvent>(new ZQuitEvent); }
+    std::string Name() const override { return "ZQuitEvent"; }
 
 protected:
 

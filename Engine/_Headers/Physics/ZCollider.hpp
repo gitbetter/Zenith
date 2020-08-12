@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZCollider.hpp
 
     Created by Adrian Sanchez on 16/04/2019.
@@ -35,19 +35,20 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZCollider {
+class ZCollider
+{
 
 public:
 
-	ZCollider(void* colliderPtr, ZColliderType type) : ptr_(colliderPtr), type_(type) { }
-	virtual ~ZCollider() { }
+    ZCollider(void* colliderPtr, ZColliderType type) : ptr_(colliderPtr), type_(type) {}
+    virtual ~ZCollider() {}
 
-	void* Get() { return ptr_; }
-	ZColliderType Type() { return type_; }
+    void* Get() { return ptr_; }
+    ZColliderType Type() { return type_; }
 
 protected:
 
-	void* ptr_ = nullptr;
-	ZColliderType type_ = ZColliderType::None;
+    void* ptr_ = nullptr;
+    ZColliderType type_ = ZColliderType::None;
 
 };

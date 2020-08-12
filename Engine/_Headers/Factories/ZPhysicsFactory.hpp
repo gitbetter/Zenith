@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZPhysicsFactory.hpp
 
     Created by Adrian Sanchez on 05/04/2019.
@@ -36,23 +36,24 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZPhysicsFactory {
+class ZPhysicsFactory
+{
 
-  using ZColliderCreator = std::shared_ptr<ZCollider> (ZPhysicsFactory::*)(glm::vec3 extents);
+    using ZColliderCreator = std::shared_ptr<ZCollider>(ZPhysicsFactory::*)(glm::vec3 extents);
 
 public:
 
-  ZPhysicsFactory();
-  ~ZPhysicsFactory() { };
+    ZPhysicsFactory();
+    ~ZPhysicsFactory() {};
 
-	std::shared_ptr<ZCollider> CreateCollider(std::string type, glm::vec3 size);
+    std::shared_ptr<ZCollider> CreateCollider(std::string type, glm::vec3 size);
 
-	std::shared_ptr<ZCollider> CreateBoxCollider(glm::vec3 extents);
-	std::shared_ptr<ZCollider> CreateSphereCollider(glm::vec3 extents);
-	std::shared_ptr<ZCollider> CreateCapsuleCollider(glm::vec3 extents);
+    std::shared_ptr<ZCollider> CreateBoxCollider(glm::vec3 extents);
+    std::shared_ptr<ZCollider> CreateSphereCollider(glm::vec3 extents);
+    std::shared_ptr<ZCollider> CreateCapsuleCollider(glm::vec3 extents);
 
 protected:
 
-  std::map<std::string, ZColliderCreator> colliderCreators_;
+    std::map<std::string, ZColliderCreator> colliderCreators_;
 
 };

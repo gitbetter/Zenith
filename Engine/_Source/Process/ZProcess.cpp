@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZProcess.cpp
 
     Created by Adrian Sanchez on 23/03/2019.
@@ -29,17 +29,20 @@
 
 #include "ZProcess.hpp"
 
-void ZProcess::AttachChild(std::shared_ptr<ZProcess> child) {
-  if (child_) RemoveChild();
-  child_ = child;
+void ZProcess::AttachChild(std::shared_ptr<ZProcess> child)
+{
+    if (child_) RemoveChild();
+    child_ = child;
 }
 
-std::shared_ptr<ZProcess> ZProcess::RemoveChild() {
-  std::shared_ptr<ZProcess> child;
-  if (child_) {
-    child = child_;
-    child_->SetState(ZProcessState::Removed);
-    child_ = nullptr;
-  }
-  return child;
-} 
+std::shared_ptr<ZProcess> ZProcess::RemoveChild()
+{
+    std::shared_ptr<ZProcess> child;
+    if (child_)
+    {
+        child = child_;
+        child_->SetState(ZProcessState::Removed);
+        child_ = nullptr;
+    }
+    return child;
+}

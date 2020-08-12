@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZOFTree.hpp
 
     Created by Adrian Sanchez on 17/02/2019.
@@ -47,83 +47,95 @@ typedef std::map<std::string, std::shared_ptr<ZOFNode>> ZOFChildMap;
 typedef std::map<std::string, std::shared_ptr<ZOFPropertyNode>> ZOFPropertyMap;
 typedef std::vector<std::shared_ptr<ZOFAbstractTerminal>> ZOFAbstractTerminalList;
 
-struct ZOFNode {
-  std::string id;
-  std::shared_ptr<ZOFNode> root;
-  ZOFChildMap children;
+struct ZOFNode
+{
+    std::string id;
+    std::shared_ptr<ZOFNode> root;
+    ZOFChildMap children;
 
-  virtual ~ZOFNode() { }
+    virtual ~ZOFNode() {}
 
-  void Clear() {
-    children.clear();
-  }
+    void Clear()
+    {
+        children.clear();
+    }
 
-  virtual std::string ToString() {
-    std::string objString = (root == nullptr) ? "\n" : "";
-    ZOFChildMap::iterator it = children.begin();
-    for (; it != children.end(); it++) objString += it->second->ToString();
-    return objString;
-  }
+    virtual std::string ToString()
+    {
+        std::string objString = (root == nullptr) ? "\n" : "";
+        ZOFChildMap::iterator it = children.begin();
+        for (; it != children.end(); it++) objString += it->second->ToString();
+        return objString;
+    }
 };
 
-struct ZOFAbstractTerminal {
-  std::shared_ptr<ZOFNode> root;
-  virtual ~ZOFAbstractTerminal() { };
-  virtual std::string ToString() { return ""; }
+struct ZOFAbstractTerminal
+{
+    std::shared_ptr<ZOFNode> root;
+    virtual ~ZOFAbstractTerminal() {};
+    virtual std::string ToString() { return ""; }
 };
 
 template<class T>
-struct ZOFValueTerminal : public ZOFAbstractTerminal {
-  T value;
-  ~ZOFValueTerminal() { }
+struct ZOFValueTerminal : public ZOFAbstractTerminal
+{
+    T value;
+    ~ZOFValueTerminal() {}
 
-  std::string ToString() override { return ""; }
+    std::string ToString() override { return ""; }
 };
 
-struct ZOFPropertyNode : public ZOFNode {
-  ZOFAbstractTerminalList values;
+struct ZOFPropertyNode : public ZOFNode
+{
+    ZOFAbstractTerminalList values;
 
-  ~ZOFPropertyNode() {
-    values.clear();
-  }
+    ~ZOFPropertyNode()
+    {
+        values.clear();
+    }
 
-  bool HasValues() const { return values.size() > 0; }
+    bool HasValues() const { return values.size() > 0; }
 
-  unsigned int ValueCount() const { return values.size(); }
+    unsigned int ValueCount() const { return values.size(); }
 
-  template<typename T>
-  std::shared_ptr<T> Value(unsigned int index) {
-    if (index >= values.size()) return nullptr;
+    template<typename T>
+    std::shared_ptr<T> Value(unsigned int index)
+    {
+        if (index >= values.size()) return nullptr;
 
-    std::shared_ptr<T> val = std::dynamic_pointer_cast<T>(values[index]);
+        std::shared_ptr<T> val = std::dynamic_pointer_cast<T>(values[index]);
 
-    return val;
-  }
+        return val;
+    }
 
-  std::string ToString() override {
-    std::string propString = "\t:" + id;
-    for (std::shared_ptr<ZOFAbstractTerminal> val : values) propString += val->ToString();
-    propString += ZOFNode::ToString();
-    propString += ":\n";
-    return propString;
-  }
+    std::string ToString() override
+    {
+        std::string propString = "\t:" + id;
+        for (std::shared_ptr<ZOFAbstractTerminal> val : values) propString += val->ToString();
+        propString += ZOFNode::ToString();
+        propString += ":\n";
+        return propString;
+    }
 };
 
-struct ZOFObjectNode : public ZOFNode {
-  ZOFPropertyMap properties;
+struct ZOFObjectNode : public ZOFNode
+{
+    ZOFPropertyMap properties;
 
-  ~ZOFObjectNode() {
-    properties.clear();
-  }
+    ~ZOFObjectNode()
+    {
+        properties.clear();
+    }
 
-  std::string ToString() override {
-    std::string objString = id + "\n";
-    for (ZOFPropertyMap::iterator it = properties.begin(); it != properties.end(); it++)
-      objString += it->second->ToString();
-    objString += ZOFNode::ToString();
-    objString += "-\n";
-    return objString;
-  }
+    std::string ToString() override
+    {
+        std::string objString = id + "\n";
+        for (ZOFPropertyMap::iterator it = properties.begin(); it != properties.end(); it++)
+            objString += it->second->ToString();
+        objString += ZOFNode::ToString();
+        objString += "-\n";
+        return objString;
+    }
 };
 
 typedef ZOFValueTerminal<float> ZOFNumber;
@@ -138,30 +150,36 @@ template<> std::string ZOFString::ToString();
 template<> std::string ZOFNumberList::ToString();
 template<> std::string ZOFStringList::ToString();
 
-template<> inline std::string ZOFNumber::ToString() {
-  std::string valueString = " " + std::to_string(value);
-  return valueString;
+template<> inline std::string ZOFNumber::ToString()
+{
+    std::string valueString = " " + std::to_string(value);
+    return valueString;
 }
 
-template<> inline std::string ZOFString::ToString() {
-  std::string valueString = " " + value;
-  return valueString;
+template<> inline std::string ZOFString::ToString()
+{
+    std::string valueString = " " + value;
+    return valueString;
 }
 
-template<> inline std::string ZOFNumberList::ToString() {
-  std::string valueString = " [";
-  for (float v : value) {
-    valueString += std::to_string(v) + ", ";
-  }
-  valueString = valueString.substr(0, valueString.length() - 2);
-  return valueString + "]";
+template<> inline std::string ZOFNumberList::ToString()
+{
+    std::string valueString = " [";
+    for (float v : value)
+    {
+        valueString += std::to_string(v) + ", ";
+    }
+    valueString = valueString.substr(0, valueString.length() - 2);
+    return valueString + "]";
 }
 
-template<> inline std::string ZOFStringList::ToString() {
-  std::string valueString = " [";
-  for (std::string v : value) {
-    valueString += v + ", ";
-  }
-  valueString = valueString.substr(0, valueString.length() - 2);
-  return valueString + "]";
+template<> inline std::string ZOFStringList::ToString()
+{
+    std::string valueString = " [";
+    for (std::string v : value)
+    {
+        valueString += v + ", ";
+    }
+    valueString = valueString.substr(0, valueString.length() - 2);
+    return valueString + "]";
 }

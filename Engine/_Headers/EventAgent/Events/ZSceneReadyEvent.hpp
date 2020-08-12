@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZSceneReadyEvent.hpp
+    ZSceneReadyEvent.hpp
 
-	Created by Adrian Sanchez on 14/05/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 14/05/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -36,24 +36,25 @@
 class ZScene;
 
 // Class and Data Structure Definitions
-class ZSceneReadyEvent : public ZBaseEvent {
+class ZSceneReadyEvent : public ZBaseEvent
+{
 
 private:
 
-	std::shared_ptr<ZScene> scene_;
+    std::shared_ptr<ZScene> scene_;
 
 public:
 
-	static const ZEventType Type;
+    static const ZEventType Type;
 
-	explicit ZSceneReadyEvent(std::shared_ptr<ZScene> handle) : scene_(handle) {}
-	explicit ZSceneReadyEvent(std::istringstream& in) {}
+    explicit ZSceneReadyEvent(std::shared_ptr<ZScene> handle) : scene_(handle) {}
+    explicit ZSceneReadyEvent(std::istringstream& in) {}
 
-	const ZEventType& EventType() const override { return Type; };
-	std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZSceneReadyEvent>(new ZSceneReadyEvent(scene_)); }
-	void Serialize(std::ostringstream& out) const override {}
-	std::string Name() const override { return "ZSceneReadyEvent"; }
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZSceneReadyEvent>(new ZSceneReadyEvent(scene_)); }
+    void Serialize(std::ostringstream& out) const override {}
+    std::string Name() const override { return "ZSceneReadyEvent"; }
 
-	std::shared_ptr<ZScene> Scene() { return scene_; }
+    std::shared_ptr<ZScene> Scene() { return scene_; }
 
 };

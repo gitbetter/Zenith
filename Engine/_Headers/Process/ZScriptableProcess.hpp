@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZScriptableProcess.hpp
 
     Created by Adrian Sanchez on 23/03/2019.
@@ -37,45 +37,46 @@
 // class SomeClass;
 
 // Class and Data Structure Definitions
-class ZScriptableProcess : public ZProcess {
+class ZScriptableProcess : public ZProcess
+{
 
 private:
 
-  float frequency_, time_;
-  sol::function scriptInitialize_, scriptUpdate_, scriptPause_, scriptResume_,
-                scriptFinish_, scriptFail_, scriptAbort_;
-  std::unordered_map<std::string, sol::object> dynamicFields_;
-  static const std::string SCRIPT_PROCESS_NAME;
+    float frequency_, time_;
+    sol::function scriptInitialize_, scriptUpdate_, scriptPause_, scriptResume_,
+        scriptFinish_, scriptFail_, scriptAbort_;
+    std::unordered_map<std::string, sol::object> dynamicFields_;
+    static const std::string SCRIPT_PROCESS_NAME;
 
-  static std::shared_ptr<ZScriptableProcess> CreateFromScript(sol::table self, sol::table constructionData);
-  bool BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData);
+    static std::shared_ptr<ZScriptableProcess> CreateFromScript(sol::table self, sol::table constructionData);
+    bool BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData);
 
-  bool ScriptIsAlive() { return IsAlive(); }
-  bool ScriptIsDead() { return IsDead(); }
-  bool ScriptIsPaused() { return IsPaused(); }
+    bool ScriptIsAlive() { return IsAlive(); }
+    bool ScriptIsDead() { return IsDead(); }
+    bool ScriptIsPaused() { return IsPaused(); }
 
-  void ScriptAttachChild(std::shared_ptr<ZScriptableProcess> process);
+    void ScriptAttachChild(std::shared_ptr<ZScriptableProcess> process);
 
-  explicit ZScriptableProcess();
+    explicit ZScriptableProcess();
 
-  sol::object GetDynamic(std::string key);
-  void SetDynamic(std::string key, sol::object value);
+    sol::object GetDynamic(std::string key);
+    void SetDynamic(std::string key, sol::object value);
 
 public:
 
-  virtual ~ZScriptableProcess();
+    virtual ~ZScriptableProcess();
 
-  static void RegisterScriptClass();
+    static void RegisterScriptClass();
 
 protected:
 
-  virtual void OnInitialize() override;
-  virtual void OnUpdate() override;
-  virtual void OnPause() override;
-  virtual void OnResume() override;
-  virtual void OnFinish() override;
-  virtual void OnFail() override;
-  virtual void OnAbort() override;
-  virtual void CleanUp() override { }
+    virtual void OnInitialize() override;
+    virtual void OnUpdate() override;
+    virtual void OnPause() override;
+    virtual void OnResume() override;
+    virtual void OnFinish() override;
+    virtual void OnFail() override;
+    virtual void OnAbort() override;
+    virtual void CleanUp() override {}
 
 };

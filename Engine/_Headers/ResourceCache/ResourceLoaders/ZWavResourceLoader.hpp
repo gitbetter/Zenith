@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZWavResourceLoader.hpp
 
     Created by Adrian Sanchez on 11/04/2019.
@@ -36,18 +36,19 @@
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZWavResourceLoader : public ZResourceLoader {
+class ZWavResourceLoader : public ZResourceLoader
+{
 
 public:
 
-    ~ZWavResourceLoader() { }
+    ~ZWavResourceLoader() {}
     std::string Pattern() override { return ".*\\.wav"; }
     bool UseRawFile() override { return false; };
-		unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override;
+    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override;
     bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
 
 protected:
 
-    bool ParseWav(char *wavStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle);
+    bool ParseWav(char* wavStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle);
 
 };

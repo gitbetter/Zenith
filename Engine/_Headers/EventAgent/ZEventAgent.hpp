@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZEventAgent.hpp
 
     Created by Adrian Sanchez on 12/03/2019.
@@ -42,15 +42,16 @@ const unsigned int NUM_EVENT_QUEUES = 2;
 const unsigned int NUM_LISTENER_QUEUES = 2;
 
 
-class ZScriptableEventAgent {
+class ZScriptableEventAgent
+{
 
-  typedef std::set<ZScriptableEventDelegate*> ScriptEventListeners;
+    typedef std::set<ZScriptableEventDelegate*> ScriptEventListeners;
 
-  private:
+private:
 
     ScriptEventListeners listeners_;
 
-  public:
+public:
 
     ~ZScriptableEventAgent();
     void AddListener(ZScriptableEventDelegate* listener);
@@ -58,25 +59,26 @@ class ZScriptableEventAgent {
 
 };
 
-class ZEventAgent : public ZProcess {
+class ZEventAgent : public ZProcess
+{
 
-  typedef std::list<ZEventDelegate> EventListenerList;
-  typedef std::map<ZEventType, EventListenerList> EventListenerMap;
-  typedef std::list<std::shared_ptr<ZEvent>> EventQueue;
+    typedef std::list<ZEventDelegate> EventListenerList;
+    typedef std::map<ZEventType, EventListenerList> EventListenerMap;
+    typedef std::list<std::shared_ptr<ZEvent>> EventQueue;
 
 private:
 
-  std::unique_ptr<ZScriptableEventAgent> scriptableEventAgent_;
+    std::unique_ptr<ZScriptableEventAgent> scriptableEventAgent_;
 
-  EventListenerMap eventListeners_[NUM_LISTENER_QUEUES];
-  EventQueue eventQueues_[NUM_EVENT_QUEUES];
-  int activeQueue_, activeListeners_;
-  float updateTimeoutMax_;
+    EventListenerMap eventListeners_[NUM_LISTENER_QUEUES];
+    EventQueue eventQueues_[NUM_EVENT_QUEUES];
+    int activeQueue_, activeListeners_;
+    float updateTimeoutMax_;
 
 public:
 
-    ZEventAgent() : activeQueue_(0), activeListeners_(0), updateTimeoutMax_(zenith::UPDATE_STEP_SIZE * 2.f) { }
-    ~ZEventAgent() { }
+    ZEventAgent() : activeQueue_(0), activeListeners_(0), updateTimeoutMax_(zenith::UPDATE_STEP_SIZE * 2.f) {}
+    ~ZEventAgent() {}
 
     void Initialize() override;
     void Update() override;

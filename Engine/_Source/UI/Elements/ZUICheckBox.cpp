@@ -1,11 +1,11 @@
 /*
 
-   ______     ______     __   __     __     ______   __  __    
-  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \   
-  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \  
-    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
-    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
-                                                          
+   ______     ______     __   __     __     ______   __  __
+  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
+  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+
     ZUICheckBox.cpp
 
     Created by Adrian Sanchez on 16/03/2019.
@@ -34,45 +34,55 @@
 #include "ZUI.hpp"
 #include "ZObjectSelectedEvent.hpp"
 
-ZUICheckBox::ZUICheckBox(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale) {
-   texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+ZUICheckBox::ZUICheckBox(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
+{
+    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 }
 
-void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root) {
-  ZUIElement::Initialize(root);
-    
-  checkImage_ = std::make_shared<ZUIImage>("Engine/_Assets/Textures/UI/checkmark.png", glm::vec3(0.f) + Size(), Size());
-  AddChild(checkImage_);
+void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root)
+{
+    ZUIElement::Initialize(root);
 
-  ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICheckBox::HandleMousePress);
-  zenith::EventAgent()->AddListener(fireDelegate, ZObjectSelectedEvent::Type);
+    checkImage_ = std::make_shared<ZUIImage>("Engine/_Assets/Textures/UI/checkmark.png", glm::vec3(0.f) + Size(), Size());
+    AddChild(checkImage_);
 
-  std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
-  if(node == nullptr) {
-    zenith::Log("Could not initalize ZUICheckbox", ZSeverity::Error); return;
-  }
+    ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICheckBox::HandleMousePress);
+    zenith::EventAgent()->AddListener(fireDelegate, ZObjectSelectedEvent::Type);
 
-  ZOFPropertyMap props = node->properties;
-
-  if (props.find("checkColor") != props.end() && props["checkColor"]->HasValues()) {
-    std::shared_ptr<ZOFNumberList> chkColorProp = props["checkColor"]->Value<ZOFNumberList>(0);
-    checkImage_->SetColor(glm::vec4(chkColorProp->value[0], chkColorProp->value[1], chkColorProp->value[2], chkColorProp->value[3]));
-  }
-}
-
-void ZUICheckBox::Render(ZRenderOp renderOp) {
-  ZUIElement::Render();
-  RenderChildren();
-}
-
-void ZUICheckBox::HandleMousePress(std::shared_ptr<ZEvent> event) {
-  std::shared_ptr<ZObjectSelectedEvent> fireEvent = std::static_pointer_cast<ZObjectSelectedEvent>(event);
-  if (id_ == fireEvent->ObjectID()) {
-    checked_ = !checked_;
-    if (checked_) {
-      checkImage_->Show();
-    } else {
-      checkImage_->Hide();
+    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
+    if (node == nullptr)
+    {
+        zenith::Log("Could not initalize ZUICheckbox", ZSeverity::Error); return;
     }
-  }
+
+    ZOFPropertyMap props = node->properties;
+
+    if (props.find("checkColor") != props.end() && props["checkColor"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumberList> chkColorProp = props["checkColor"]->Value<ZOFNumberList>(0);
+        checkImage_->SetColor(glm::vec4(chkColorProp->value[0], chkColorProp->value[1], chkColorProp->value[2], chkColorProp->value[3]));
+    }
+}
+
+void ZUICheckBox::Render(ZRenderOp renderOp)
+{
+    ZUIElement::Render();
+    RenderChildren();
+}
+
+void ZUICheckBox::HandleMousePress(std::shared_ptr<ZEvent> event)
+{
+    std::shared_ptr<ZObjectSelectedEvent> fireEvent = std::static_pointer_cast<ZObjectSelectedEvent>(event);
+    if (id_ == fireEvent->ObjectID())
+    {
+        checked_ = !checked_;
+        if (checked_)
+        {
+            checkImage_->Show();
+        }
+        else
+        {
+            checkImage_->Hide();
+        }
+    }
 }

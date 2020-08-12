@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
-	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZShaderReadyEvent.hpp
+    ZShaderReadyEvent.hpp
 
-	Created by Adrian Sanchez on 12/05/2019.
-	Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 12/05/2019.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -36,24 +36,25 @@
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZShaderReadyEvent : public ZBaseEvent {
+class ZShaderReadyEvent : public ZBaseEvent
+{
 
 private:
 
-	std::shared_ptr<ZShader> shader_;
+    std::shared_ptr<ZShader> shader_;
 
 public:
 
-	static const ZEventType Type;
+    static const ZEventType Type;
 
-	explicit ZShaderReadyEvent(std::shared_ptr<ZShader> shader) : shader_(shader) {}
-	explicit ZShaderReadyEvent(std::istringstream& in) {}
+    explicit ZShaderReadyEvent(std::shared_ptr<ZShader> shader) : shader_(shader) {}
+    explicit ZShaderReadyEvent(std::istringstream& in) {}
 
-	const ZEventType& EventType() const override { return Type; };
-	std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZShaderReadyEvent>(new ZShaderReadyEvent(shader_)); }
-	void Serialize(std::ostringstream& out) const override {}
-	std::string Name() const override { return "ZShaderReadyEvent"; }
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZShaderReadyEvent>(new ZShaderReadyEvent(shader_)); }
+    void Serialize(std::ostringstream& out) const override {}
+    std::string Name() const override { return "ZShaderReadyEvent"; }
 
-	std::shared_ptr<ZShader> Shader() { return shader_; }
+    std::shared_ptr<ZShader> Shader() { return shader_; }
 
 };

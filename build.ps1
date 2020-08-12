@@ -10,7 +10,7 @@ if (-not (Test-Path _Bin -PathType Container)) {
     Invoke-Expression $exec
 } else {
     cd _Bin;
-    $exec = 'cmake -G "Visual Studio 15 2017 Win64"'
+    $exec = 'cmake -G "Visual Studio 16 2019"'
     if ($development) {
         $exec = "$exec -DDEVELOPMENT=ON"
     }
