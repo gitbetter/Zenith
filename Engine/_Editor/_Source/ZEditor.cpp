@@ -81,7 +81,7 @@ void ZEditor::Initialize() {
 }
 
 void ZEditor::SetupEngine() {
-	zenith::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../Editor/_Assets")));
+	zenith::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile("../_Assets")));
 
 	zenith::LoadZOF(EDITOR_CONFIG_PATH);
 	zenith::LoadZOF(EDITOR_OBJECT_TEMPLATES_PATH);

@@ -45,10 +45,10 @@ int main(int argc, const char * argv[]) {
     
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
     // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
-    zenith::UI()->RegisterFont("Engine/_Assets/Fonts/earth_orbiter/earthorbiter.ttf");
+    zenith::UI()->RegisterFont("../_Assets/Fonts/earth_orbiter/earthorbiter.ttf");
 
 	// Load our scene using description files
-    zenith::LoadScene({ "Engine/_Assets/demo_scene.zof" });
+    zenith::LoadScene({ "../_Assets/demo_scene.zof" });
 
 	// Add our editor instance to the process runner so that it can
 	// receive update ticks

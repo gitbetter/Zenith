@@ -1,27 +1,42 @@
 cmake_minimum_required(VERSION 3.17)
 set(CMAKE_CXX_STANDARD 14)
 
-project(Zenith VERSION 1.0.0 LANGUAGES CXX)
+set(ZENITH_LIB Zenith)
+set(ENGINE_DIRECTORY ${CMAKE_SOURCE_DIR}/Engine)
+
+project(${ZENITH_LIB})
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ENGINE_DIRECTORY}/_Bin/build)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ENGINE_DIRECTORY}/_Bin/build)
 
 option(DEVELOPMENT "Generate a development build" OFF)
+SET(USER_PROJECT_NAME "" CACHE STRING "Name of user project to generate")
 
-set(PROJECT_NAME Zenith)
-
-include(${CMAKE_SOURCE_DIR}/Engine/CMakeLists.txt)
-include(${CMAKE_SOURCE_DIR}/Editor/CMakeLists.txt)
-
-set(SOURCES ${ENGINE_SOURCES} ${EDITOR_SOURCES})
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/_Bin/build)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/_Bin/build)
+if (MSVC)
+  add_definitions(/MP)
+endif()
 
 if(DEVELOPMENT)
-	add_compile_definitions(DEV_BUILD)
+  add_compile_definitions(DEV_BUILD)
 endif(DEVELOPMENT)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+include(${ENGINE_DIRECTORY}/CMakeLists.txt)
+set(SOURCES ${ENGINE_SOURCES})
+set(INCLUDES ${ENGINE_INCLUDES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${ENGINE_INCLUDES} ${EDITOR_INCLUDES})
+if (NOT HEADLESS)
+  include(${ENGINE_DIRECTORY}/_Editor/CMakeLists.txt)
+  list(APPEND SOURCES ${EDITOR_SOURCES})
+  list(APPEND INCLUDES ${EDITOR_INCLUDES})
+endif()
+
+if (USER_PROJECT_NAME)
+  add_library(${ZENITH_LIB} ${SOURCES})
+else()
+  add_executable(${ZENITH_LIB} ${SOURCES})
+endif()
+
+target_include_directories(${ZENITH_LIB} PUBLIC ${INCLUDES})
 
 if (NOT DEVELOPMENT)
   file(GLOB RESOURCE_FILES
@@ -30,8 +45,8 @@ if (NOT DEVELOPMENT)
 
   foreach(FILE ${RESOURCE_FILES})
     get_filename_component(FILENAME ${FILE} NAME)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E copy ${FILE} ${CMAKE_SOURCE_DIR}/_Bin/${FILENAME}
+    add_custom_command(TARGET ${ZENITH_LIB} POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E copy ${FILE} ${ENGINE_DIRECTORY}/_Bin/${FILENAME}
                       )
   endforeach()
 endif()
@@ -55,7 +70,7 @@ if (APPLE)
   find_library(VORBISFILE_LIB NAMES vorbisfile HINTS "${DARWIN_LIB_DIR}")
   find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
 
-  target_link_libraries(${PROJECT_NAME} 
+  target_link_libraries(${ZENITH_LIB} 
   "-framework Cocoa" 
   "-framework OpenGL" 
   "-framework IOKit" 
@@ -79,38 +94,40 @@ if (APPLE)
   ${OPENAL_LIB})
 
   add_custom_command(
-  	TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Editor"
-    COMMENT "create directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Editor"
-  )
-
-  SET(source "${CMAKE_SOURCE_DIR}/Editor/_Assets")
-  SET(destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Editor/_Assets")
-  add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
-      DEPENDS ${destination}
-      COMMENT "symbolically link editor assets folder from ${source} => ${destination}"
-  )
-
-  add_custom_command(
-  	TARGET ${PROJECT_NAME} POST_BUILD
+  	TARGET ${ZENITH_LIB} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine"
     COMMENT "create directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine"
   )
 
-  set (source "${CMAKE_SOURCE_DIR}/Engine/_Assets")
+  set (source "${ENGINE_DIRECTORY}/_Assets")
   set (destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine/_Assets")
       add_custom_command(
-      TARGET ${PROJECT_NAME} POST_BUILD
+      TARGET ${ZENITH_LIB} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
       DEPENDS ${destination}
       COMMENT "symbolically link engine assets folder from ${source} => ${destination}"
   )
 
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${ZENITH_LIB} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${DARWIN_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
   )
+
+  if (NOT HEADLESS)
+    add_custom_command(
+      TARGET ${ZENITH_LIB} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine/_Editor"
+      COMMENT "create directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine/_Editor"
+    )
+
+    SET(source "${ENGINE_DIRECTORY}/_Editor/_Assets")
+    SET(destination "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Engine/_Editor/_Assets")
+    add_custom_command(
+        TARGET ${ZENITH_LIB} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${source} ${destination} 
+        DEPENDS ${destination}
+        COMMENT "symbolically link editor assets folder from ${source} => ${destination}"
+    )
+  endif()
 
 elseif (WIN32)
   find_package(OpenGL REQUIRED)
@@ -132,7 +149,7 @@ elseif (WIN32)
   find_library(VORBISFILE_LIB NAMES vorbisfile_static libvorbisfile_static HINTS "${WINDOWS_LIB_DIR}")
   find_library(OPENAL_LIB NAMES OpenAL32 HINTS "${WINDOWS_LIB_DIR}")
 
-  target_link_libraries(${PROJECT_NAME} 
+  target_link_libraries(${ZENITH_LIB} 
   ${OPENGL_LIBRARY} 
   gdi32 
   ${GLEW_LIB}
@@ -152,7 +169,7 @@ elseif (WIN32)
   ${VORBISFILE_LIB}
   ${OPENAL_LIB})
 
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  add_custom_command(TARGET ${ZENITH_LIB} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${WINDOWS_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
   )
 
@@ -164,3 +181,16 @@ foreach(FILE ${SOURCES})
 	string(REPLACE "/" "\\" GROUP "${GROUP}")
 	source_group("${GROUP}" FILES "${FILE}")
 endforeach()
+
+if (USER_PROJECT_NAME AND (NOT EXISTS ${USER_PROJECT_NAME}))
+  file(STRINGS ${CMAKE_SOURCE_DIR}/CMakeLists.user.txt USER_CMAKELISTS)
+  string(REPLACE ";" "\r\n" USER_CMAKELISTS "${USER_CMAKELISTS}")
+  file(MAKE_DIRECTORY ${USER_PROJECT_NAME})
+  file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Headers)
+  file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Source)
+  file(TOUCH ${USER_PROJECT_NAME}/Headers/Game.hpp)
+  file(WRITE ${USER_PROJECT_NAME}/Source/Game.cpp "int main(int argc, char* argv[])\n{}\n")
+  file(CONFIGURE OUTPUT ${CMAKE_SOURCE_DIR}/${USER_PROJECT_NAME}/CMakeLists.txt
+  CONTENT ${USER_CMAKELISTS} @ONLY
+  NEWLINE_STYLE CRLF)
+endif()

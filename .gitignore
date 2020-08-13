@@ -1,4 +1,4 @@
-*_Bin/**
+Engine/_Bin/**
 
 # Prerequisites
 *.d
@@ -12,10 +12,6 @@
 # Precompiled Headers
 *.gch
 *.pch
-
-# Fortran module files
-*.mod
-*.smod
 
 # Executables
 *.exe
