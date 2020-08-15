@@ -244,7 +244,7 @@ void ZGraphicsComponent::SetOutline(glm::vec4 color)
 {
     if (highlightShader_ == nullptr)
     {
-        highlightShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/blinnphong.vert", "Engine/_Assets/Shaders/Pixel/outline.frag"));
+        highlightShader_ = std::shared_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/blinnphong.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/outline.frag"));
         highlightShader_->Initialize();
     }
     highlightColor_ = color;

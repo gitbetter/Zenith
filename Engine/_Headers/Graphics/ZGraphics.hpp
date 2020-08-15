@@ -70,7 +70,6 @@ public:
     void SetupShadowDepthPass(std::shared_ptr<ZLight> light);
     void SetupDepthPass();
     void SetupColorPass();
-    void SetupPostProcessingPass();
     void PostProcessing(ZScene* scene);
     void FinishRenderPass();
 

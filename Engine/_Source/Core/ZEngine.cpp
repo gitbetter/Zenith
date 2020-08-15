@@ -58,8 +58,6 @@
 #include "ZZipFile.hpp"
 #endif
 
-const std::string ENGINE_ASSETS_PATH = "../Engine/_Assets";
-
 namespace zenith
 {
 
@@ -94,7 +92,16 @@ namespace zenith
 
     // TODO: Useful to have a config file to parse for more global state info such as window dimensions
     // and maximum resource cache size
+
     void Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight)
+    {
+        ZDomainOptions options;
+        options.width = windowWidth;
+        options.height = windowHeight;
+        Initialize(game, options);
+    }
+
+    extern void Initialize(std::shared_ptr<ZGame> game, const ZDomainOptions& domainOptions)
     {
         currentGame_ = game;
 
@@ -128,12 +135,12 @@ namespace zenith
         ZScriptableProcess::RegisterScriptClass();
         // We don't need to do anything with this resource. The resource loader
         // will load and execute the script for us.
-        ZResource luaSetupScript("Engine/_Assets/Scripts/init.lua", ZResourceType::Script);
+        ZResource luaSetupScript(ENGINE_ASSETS_PATH + "/Scripts/init.lua", ZResourceType::Script);
         resourceCache_->GetHandle(&luaSetupScript);
         /* ======================================= */
 
         /* ========= Windowing System ============ */
-        domain_ = std::make_shared<ZDomain>(windowWidth, windowHeight);
+        domain_ = std::make_shared<ZDomain>(domainOptions);
         domain_->Initialize();
         /* ======================================= */
 
@@ -368,6 +375,29 @@ namespace zenith
             break;
         }
     #endif
+    }
+
+    std::string FormatStringGlobals(const std::string& str)
+    {   
+        std::string s(str);
+        std::smatch matches;
+        if (std::regex_match(s, matches, std::regex(".*\\$(.*)\\$.*")))
+        {
+            for (unsigned int i = 1; i < matches.size(); i++)
+            {
+                if (matches.str(i) == "ENGINE_ROOT")
+                {
+                    s = std::regex_replace(s, std::regex("\\$ENGINE_ROOT\\$"), ENGINE_ROOT);
+                }
+                else if (matches.str(i) == "EDITOR_ROOT")
+                {
+                #ifdef EDITOR_ROOT
+                    s = std::regex_replace(s, std::regex("\\$EDITOR_ROOT\\$"), EDITOR_ROOT);
+                #endif
+                }
+            }
+        }
+        return s;
     }
 
     void CleanUp()

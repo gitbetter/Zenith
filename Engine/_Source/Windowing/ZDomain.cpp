@@ -30,14 +30,19 @@
 #include "ZDomain.hpp"
 #include "ZGLDomainStrategy.hpp"
 
+ZDomain::ZDomain(unsigned int windowWidth, unsigned int windowHeight)
+{
+    options_.width = windowWidth;
+    options_.height = windowHeight;
+}
+
 void ZDomain::Initialize()
 {
-// TODO: Switch the strategy here based on domain (windowing and input handling) implementation
     if (domainStrategy_ == nullptr)
     {
         domainStrategy_.reset(new ZGLDomainStrategy);
         domainStrategy_->Initialize();
-        mainContext_ = domainStrategy_->CreateWindow(windowWidth_, windowHeight_);
+        mainContext_ = domainStrategy_->CreateWindow(options_.width, options_.height, options_.maximized);
 
         glm::vec2 frameBufferSize = domainStrategy_->FramebufferSize();
         resolutionX_ = frameBufferSize.x; resolutionY_ = frameBufferSize.y;
@@ -50,7 +55,7 @@ void ZDomain::ResizeWindow(int width, int height)
     {
         domainStrategy_->Resize(width, height);
     }
-    windowWidth_ = width; windowHeight_ = height;
+    options_.width = width; options_.height = height;
 }
 
 void ZDomain::SetResolution(unsigned int x, unsigned int y)

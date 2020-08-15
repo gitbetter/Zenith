@@ -1,3 +1,5 @@
+add_definitions(-DEDITOR_ROOT="${ENGINE_DIRECTORY}/_Editor")
+
 set(EDITOR_HEADERS_DIR ${ENGINE_DIRECTORY}/_Editor/_Headers)
 set(EDITOR_SOURCES_DIR ${ENGINE_DIRECTORY}/_Editor/_Source)
 

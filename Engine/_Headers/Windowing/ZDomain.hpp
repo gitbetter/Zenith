@@ -41,13 +41,14 @@ class ZDomain
 
 public:
 
-    ZDomain(unsigned int windowWidth, unsigned int windowHeight) : windowWidth_(windowWidth), windowHeight_(windowHeight) {}
+    ZDomain(const ZDomainOptions& options) : options_(options) {}
+    ZDomain(unsigned int windowWidth, unsigned int windowHeight);
     virtual ~ZDomain() {}
 
     void Initialize();
 
-    unsigned int WindowWidth() const { return windowWidth_; }
-    unsigned int WindowHeight() const { return windowHeight_; }
+    unsigned int WindowWidth() const { return options_.width; }
+    unsigned int WindowHeight() const { return options_.height; }
     unsigned int ResolutionX() const { return resolutionX_; }
     unsigned int ResolutionY() const { return resolutionY_; }
     float ResolutionXRatio() const { return (float) ResolutionX() / zenith::DEFAULT_X_RESOLUTION; }
@@ -65,7 +66,7 @@ public:
 protected:
 
     std::unique_ptr<ZDomainStrategy> domainStrategy_;
-    unsigned int windowWidth_, windowHeight_;
+    ZDomainOptions options_;
     unsigned int resolutionX_, resolutionY_;
     void* mainContext_;
 

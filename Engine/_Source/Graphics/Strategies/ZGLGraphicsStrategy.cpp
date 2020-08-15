@@ -56,6 +56,9 @@ void ZGLGraphicsStrategy::Initialize()
     drawingStylesMap_[ZMeshDrawStyle::LineStrip] = GL_LINE_STRIP;
     drawingStylesMap_[ZMeshDrawStyle::Triangle] = GL_TRIANGLES;
     drawingStylesMap_[ZMeshDrawStyle::TriangleStrip] = GL_TRIANGLE_STRIP;
+    drawingStylesMap_[ZMeshDrawStyle::TriangleFan] = GL_TRIANGLE_FAN;
+    drawingStylesMap_[ZMeshDrawStyle::Quads] = GL_QUADS;
+
 
     glfwSetErrorCallback(GLFWErrorCallback);
 
@@ -546,18 +549,18 @@ ZTexture ZGLGraphicsStrategy::LoadEmptyCubeMap(ZCubemapTextureType type)
 
 ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool multisample)
 {
-    ZBufferData color;
-    color.type = ZBufferDataType::FrameBuffer;
-    glGenFramebuffers(1, &color.fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, color.fbo);
+    ZBufferData buffer;
+    buffer.type = ZBufferDataType::FrameBuffer;
+    glGenFramebuffers(1, &buffer.fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, buffer.fbo);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, colorTexture.id, 0);
 
     GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, drawBuffers);
 
-    glGenRenderbuffers(1, &color.rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, color.rbo);
+    glGenRenderbuffers(1, &buffer.rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, buffer.rbo);
 
     if (multisample)
     {
@@ -568,7 +571,7 @@ ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool mul
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
     }
 
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, color.rbo);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, buffer.rbo);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
     {
@@ -576,7 +579,7 @@ ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool mul
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    return color;
+    return buffer;
 }
 
 ZBufferData ZGLGraphicsStrategy::LoadDepthMapBuffer(ZTexture depthTexture)
@@ -694,7 +697,7 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(ZTexture& hdrTexture, ZBufferDat
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader equirectToCubemapShader("Engine/_Assets/Shaders/Vertex/basic.vert", "Engine/_Assets/Shaders/Pixel/equirect_to_cube.frag");
+    ZShader equirectToCubemapShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/basic.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/equirect_to_cube.frag");
     equirectToCubemapShader.Initialize();
     equirectToCubemapShader.Activate();
     equirectToCubemapShader.SetInt("equirectangularMap", 1);
@@ -736,7 +739,7 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader irradianceShader("Engine/_Assets/Shaders/Vertex/basic.vert", "Engine/_Assets/Shaders/Pixel/irradiance.frag");
+    ZShader irradianceShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/basic.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/irradiance.frag");
     irradianceShader.Initialize();
     irradianceShader.Activate();
     irradianceShader.SetInt("environmentMap", 1);
@@ -776,7 +779,7 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader prefilterShader("Engine/_Assets/Shaders/Vertex/basic.vert", "Engine/_Assets/Shaders/Pixel/prefilter_convolution.frag");
+    ZShader prefilterShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/basic.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/prefilter_convolution.frag");
     prefilterShader.Initialize();
     prefilterShader.Activate();
     prefilterShader.SetInt("environmentMap", 1);
@@ -821,7 +824,7 @@ ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData)
         ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
     };
     ZBufferData quadBufferData = LoadVertexData(quadVertices);
-    ZShader brdfLUTShader("Engine/_Assets/Shaders/Vertex/brdf_lut.vert", "Engine/_Assets/Shaders/Pixel/brdf_lut.frag");
+    ZShader brdfLUTShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/brdf_lut.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/brdf_lut.frag");
     brdfLUTShader.Initialize();
     brdfLUTShader.Activate();
 

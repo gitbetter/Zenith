@@ -36,7 +36,7 @@
 class ZEvent;
 
 // Definitions
-const std::string OBJECT_CUBE_IMAGE_PATH = "Editor/_Assets/Images/object_cube.png";
+const std::string OBJECT_CUBE_IMAGE_PATH = std::string(EDITOR_ROOT) + "/_Assets/Images/object_cube.png";
 
 class ZInspectorTool : public ZEditorTool {
     

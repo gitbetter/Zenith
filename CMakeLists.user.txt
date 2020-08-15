@@ -6,8 +6,15 @@ set(ENGINE_DIRECTORY @ENGINE_DIRECTORY@)
 set(HEADERS_DIR Headers)
 set(SOURCE_DIR Source)
 
+if (EXISTS ${ENGINE_DIRECTORY}/_Bin/build/Debug)
+	set(CONFIGURATION "Debug")
+else()
+	set(CONFIGURATION "Release")
+endif()
+
 project(${MY_PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
 
+add_definitions(-DENGINE_ROOT="${ENGINE_DIRECTORY}")
 if (MSVC)
   add_definitions(/MP)
 endif()
@@ -32,10 +39,17 @@ target_include_directories(${MY_PROJECT_NAME} PUBLIC
 @ENGINE_INCLUDES@
 ${PROJECT_INCLUDE_DIRS})
 
-find_library(ZENITH_LIB NAMES Zenith ZENITH HINTS "${ENGINE_DIRECTORY}/_Bin/Debug" "${ENGINE_DIRECTORY}/_Bin/Release")
+add_custom_command(TARGET ${MY_PROJECT_NAME} PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${ENGINE_DIRECTORY}/_Bin/build/${CONFIGURATION}
+		   ${ENGINE_DIRECTORY}/_Bin/${CONFIGURATION}
+		   ${CMAKE_CURRENT_BINARY_DIR}/${CONFIGURATION})
+
+find_library(ZENITH_LIB NAMES Zenith ZENITH HINTS "${ENGINE_DIRECTORY}/_Bin/${CONFIGURATION}")
 
 target_link_libraries(${MY_PROJECT_NAME}
-${ZENITH_LIB})
+${ZENITH_LIB}
+@LINKED_LIBS@)
 
 foreach(FILE ${SOURCES}) 
 	get_filename_component(PARENT_DIR "${FILE}" DIRECTORY)

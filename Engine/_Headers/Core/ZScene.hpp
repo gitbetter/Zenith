@@ -90,8 +90,6 @@ private:
 
 public:
 
-    void extracted(std::string& name);
-
     ZScene(std::string name = "");
     ZScene(std::initializer_list<std::string> zofPaths);
     ~ZScene() {}

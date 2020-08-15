@@ -50,6 +50,10 @@ fi
 
 cmake $flags ../..;
 
+if [ "$xcode" = false ]; then
+	make
+fi
+
 if [ -n "$project" ]; then
 	cd ../../$project;
 	if [ ! -d ./Build ]; then

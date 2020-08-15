@@ -37,7 +37,7 @@ void ZGLDomainStrategy::Initialize()
     glfwInit();
 }
 
-void* ZGLDomainStrategy::CreateWindow(int width, int height, bool visible, void* sharedContext)
+void* ZGLDomainStrategy::CreateWindow(int width, int height, bool maximized, bool visible, void* sharedContext)
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -47,7 +47,11 @@ void* ZGLDomainStrategy::CreateWindow(int width, int height, bool visible, void*
 #endif
     glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_VISIBLE, visible ? GL_TRUE : GL_FALSE);
-    glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+
+    if (maximized)
+    {
+        glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
+    }
 
     GLFWwindow* window;
     if (sharedContext == nullptr)

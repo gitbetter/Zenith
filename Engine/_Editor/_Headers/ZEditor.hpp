@@ -40,10 +40,10 @@ class ZResourceHandle;
 struct ImFont;
 
 // Definitions
-const std::string EDITOR_CONFIG_PATH = "Editor/_Assets/conf.zof";
-const std::string EDITOR_OBJECT_TEMPLATES_PATH = "Editor/_Assets/object_templates.zof";
-const std::string FA_PATH = "../Editor/_Assets/Fonts/FontAwesome5_Regular_400.otf";
-const std::string FA_SOLID_PATH = "../Editor/_Assets/Fonts/FontAwesome5_Solid_900.otf";
+const std::string EDITOR_CONFIG_PATH = std::string(EDITOR_ROOT) + "/_Assets/conf.zof";
+const std::string EDITOR_OBJECT_TEMPLATES_PATH = std::string(EDITOR_ROOT) + "/_Assets/object_templates.zof";
+const std::string FA_PATH = std::string(EDITOR_ROOT) + "/_Assets/Fonts/FontAwesome5_Regular_400.otf";
+const std::string FA_SOLID_PATH = std::string(EDITOR_ROOT) + "/_Assets/Fonts/FontAwesome5_Solid_900.otf";
 
 struct ZEditorConfig {
 	std::string mainFontPath;

@@ -1,4 +1,4 @@
 CONFIG
-	:font "Editor/_Assets/Fonts/clemente.ttf" 13.0:
+	:font "$EDITOR_ROOT$/_Assets/Fonts/clemente.ttf" 13.0:
     :theme "Dark":
 ^

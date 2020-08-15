@@ -81,7 +81,7 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData)
 {
     std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 
-    std::shared_ptr<ZShader> skyboxShader(new ZShader("Engine/_Assets/Shaders/Vertex/skybox.vert", "Engine/_Assets/Shaders/Pixel/skybox.frag"));
+    std::shared_ptr<ZShader> skyboxShader(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/skybox.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/skybox.frag"));
     skyboxShader->Initialize();
 
     std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);

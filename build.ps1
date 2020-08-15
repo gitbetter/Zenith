@@ -31,6 +31,10 @@ if ($projectName) {
 
 Invoke-Expression "$exec ../..;"
 
+if (Get-Command "devenv.com" -ErrorAction SilentlyContinue) {
+	Invoke-Expression "devenv.com Zenith.sln /build"
+}
+
 if ($projectName) {
 	cd ../../$projectName
     if (-Not (Test-Path ./Build -PathType Container)) {

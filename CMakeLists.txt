@@ -10,8 +10,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ENGINE_DIRECTORY}/_Bin/build)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ENGINE_DIRECTORY}/_Bin/build)
 
 option(DEVELOPMENT "Generate a development build" OFF)
-SET(USER_PROJECT_NAME "" CACHE STRING "Name of user project to generate")
+set(USER_PROJECT_NAME "" CACHE STRING "Name of user project to generate")
 
+add_definitions(-DENGINE_ROOT="${ENGINE_DIRECTORY}")
 if (MSVC)
   add_definitions(/MP)
 endif()
@@ -70,7 +71,7 @@ if (APPLE)
   find_library(VORBISFILE_LIB NAMES vorbisfile HINTS "${DARWIN_LIB_DIR}")
   find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
 
-  target_link_libraries(${ZENITH_LIB} 
+  set(LINKED_LIBS
   "-framework Cocoa" 
   "-framework OpenGL" 
   "-framework IOKit" 
@@ -92,6 +93,8 @@ if (APPLE)
   ${VORBIS_LIB}
   ${VORBISFILE_LIB}
   ${OPENAL_LIB})
+
+  target_link_libraries(${ZENITH_LIB} ${LINKED_LIBS})
 
   add_custom_command(
   	TARGET ${ZENITH_LIB} POST_BUILD
@@ -149,7 +152,7 @@ elseif (WIN32)
   find_library(VORBISFILE_LIB NAMES vorbisfile_static libvorbisfile_static HINTS "${WINDOWS_LIB_DIR}")
   find_library(OPENAL_LIB NAMES OpenAL32 HINTS "${WINDOWS_LIB_DIR}")
 
-  target_link_libraries(${ZENITH_LIB} 
+  set(LINKED_LIBS
   ${OPENGL_LIBRARY} 
   gdi32 
   ${GLEW_LIB}
@@ -169,6 +172,8 @@ elseif (WIN32)
   ${VORBISFILE_LIB}
   ${OPENAL_LIB})
 
+  target_link_libraries(${ZENITH_LIB} ${LINKED_LIBS})
+
   add_custom_command(TARGET ${ZENITH_LIB} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${WINDOWS_LIB_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>"
   )
@@ -183,13 +188,65 @@ foreach(FILE ${SOURCES})
 endforeach()
 
 if (USER_PROJECT_NAME AND (NOT EXISTS ${USER_PROJECT_NAME}))
-  file(STRINGS ${CMAKE_SOURCE_DIR}/CMakeLists.user.txt USER_CMAKELISTS)
-  string(REPLACE ";" "\r\n" USER_CMAKELISTS "${USER_CMAKELISTS}")
+  # Generate project files and directories
   file(MAKE_DIRECTORY ${USER_PROJECT_NAME})
   file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Headers)
   file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Source)
+  file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Assets)
   file(TOUCH ${USER_PROJECT_NAME}/Headers/Game.hpp)
-  file(WRITE ${USER_PROJECT_NAME}/Source/Game.cpp "int main(int argc, char* argv[])\n{}\n")
+  file(WRITE ${USER_PROJECT_NAME}/Source/Game.cpp 
+"#include \"ZGame.hpp\"
+#include \"ZScene.hpp\"
+#include \"ZUI.hpp\"
+#include \"ZEventAgent.hpp\"
+#include \"ZSceneReadyEvent.hpp\"
+#include \"ZDomain.hpp\"
+
+void onSceneLoad(std::shared_ptr<ZEvent> event);
+
+int main(int argc, const char* argv[]) {
+    // Create a new game instance
+    std::shared_ptr<ZGame> game = std::make_shared<ZGame>();
+
+    // Initialize the engine before anything else
+    ZDomainOptions windowOptions;
+    windowOptions.width = 800;
+    windowOptions.height = 600;
+    windowOptions.maximized = false;
+    zenith::Initialize(game, windowOptions);
+
+    // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
+    zenith::UI()->RegisterFont(std::string(ENGINE_ROOT) + \"/_Assets/Fonts/earth_orbiter/earthorbiter.ttf\");
+
+    // Load a default scene from the engine
+    zenith::LoadScene({ std::string(ENGINE_ROOT) + \"/_Assets/demo_scene.zof\" });
+
+    // Register delegate methods for specific UI events
+    ZEventDelegate sceneReadyDelegate(&onSceneLoad);
+    zenith::EventAgent()->AddListener(sceneReadyDelegate, ZSceneReadyEvent::Type);
+
+    // Free up window cursor. It is captured by default.
+    zenith::Domain()->Strategy()->ReleaseCursor();
+
+    // Create the game and start the main game loop. Nothing beyond this point will execute
+    // for the duration of the game.
+    game->RunGameLoop();
+
+    // Make sure to clean up all resources after we're done
+    zenith::CleanUp();
+
+    return 0;
+}
+
+void onSceneLoad(std::shared_ptr<ZEvent> event)
+{
+    std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::dynamic_pointer_cast<ZSceneReadyEvent>(event);
+    zenith::Log(\"Scene '\" + sceneReadyEvent->Scene()->Name() + \"' loaded\", ZSeverity::Info);
+    sceneReadyEvent->Scene()->Play();
+}")
+  # Generate user CMakeLists.txt
+  file(STRINGS ${CMAKE_SOURCE_DIR}/CMakeLists.user.txt USER_CMAKELISTS)
+  string(REPLACE ";" "\r\n" USER_CMAKELISTS "${USER_CMAKELISTS}")
   file(CONFIGURE OUTPUT ${CMAKE_SOURCE_DIR}/${USER_PROJECT_NAME}/CMakeLists.txt
   CONTENT ${USER_CMAKELISTS} @ONLY
   NEWLINE_STYLE CRLF)

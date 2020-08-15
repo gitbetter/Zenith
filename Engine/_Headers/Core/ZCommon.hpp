@@ -231,6 +231,8 @@ typedef std::vector<std::shared_ptr<ZBone>> ZBoneList;
 
 typedef unsigned long ZEventType;
 
+const std::string ENGINE_ASSETS_PATH(std::string(ENGINE_ROOT) + "/_Assets");
+
 enum ZSeverity
 {
     Info, Warning, Error
@@ -293,7 +295,7 @@ enum class ZCubemapTextureType
 
 enum class ZMeshDrawStyle
 {
-    Point, Line, LineStrip, Triangle, TriangleStrip
+    Point, Line, LineStrip, Triangle, TriangleStrip, TriangleFan, Quads
 };
 
 enum class ZPrimitiveType
@@ -478,6 +480,14 @@ struct ZEngineOptions
     bool drawPhysicsDebug = false;
     bool drawCameraDebug = false;
     bool drawGrid = false;
+};
+
+struct ZDomainOptions
+{
+    unsigned int width = 1920;
+    unsigned int height = 1080;
+    bool maximized = true;
+    bool visible = true;
 };
 
 struct ZSceneSnapshot
