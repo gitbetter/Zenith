@@ -578,6 +578,7 @@ ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool mul
         zenith::Log("Framebuffer operation incomplete dimensions", ZSeverity::Error);
     }
 
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return buffer;
 }
@@ -658,6 +659,40 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture()
 
     glBindTexture(GL_TEXTURE_2D, 0);
     return depthTexture;
+}
+
+void ZGLGraphicsStrategy::ResizeColorTexture(ZTexture texture, unsigned int width, unsigned int height, bool multisample)
+{
+    GLenum target = multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+
+    glBindTexture(target, texture.id);
+
+    if (multisample)
+    {
+        glTexImage2DMultisample(target, 4, GL_RGB, width, height, GL_TRUE);
+    }
+    else
+    {
+        glTexImage2D(target, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    }
+
+    glBindTexture(target, 0);
+}
+
+void ZGLGraphicsStrategy::ResizeColorBuffer(ZBufferData bufferData, unsigned int width, unsigned int height, bool multisample)
+{
+    glBindRenderbuffer(GL_RENDERBUFFER, bufferData.rbo);
+
+    if (multisample)
+    {
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, width, height);
+    }
+    else
+    {
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+    }
+
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 void ZGLGraphicsStrategy::UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data)

@@ -27,6 +27,7 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZDomain.hpp"
 #include "ZGLDomainStrategy.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -182,5 +183,6 @@ void ZGLDomainStrategy::GLFWErrorCallback(int id, const char* description)
 
 void ZGLDomainStrategy::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
+    zenith::Domain()->SetResolution(width, height);
     glViewport(0, 0, width, height);
 }

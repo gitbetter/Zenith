@@ -87,6 +87,8 @@ public:
     virtual ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) = 0;
     virtual ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) = 0;
     virtual ZBufferData LoadEmptyVertexData2D(unsigned int size) = 0;
+    virtual void ResizeColorTexture(ZTexture texture, unsigned int width, unsigned int height, bool multisample = false) = 0;
+    virtual void ResizeColorBuffer(ZBufferData bufferData, unsigned int width, unsigned int height, bool multisample = false) = 0;
     virtual void DeleteBufferData(ZBufferData bufferData) = 0;
     virtual void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) = 0;
     virtual void EquirectToCubemapAsync(std::string equirectHDRPath) = 0;

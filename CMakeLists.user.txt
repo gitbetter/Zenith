@@ -5,6 +5,7 @@ set(MY_PROJECT_NAME @USER_PROJECT_NAME@)
 set(ENGINE_DIRECTORY @ENGINE_DIRECTORY@)
 set(HEADERS_DIR Headers)
 set(SOURCE_DIR Source)
+set(ASSETS_DIR Assets)
 
 if (EXISTS ${ENGINE_DIRECTORY}/_Bin/build/Debug)
 	set(CONFIGURATION "Debug")
@@ -15,6 +16,7 @@ endif()
 project(${MY_PROJECT_NAME} VERSION 1.0.0 LANGUAGES CXX)
 
 add_definitions(-DENGINE_ROOT="${ENGINE_DIRECTORY}")
+add_definitions(-DGAME_ROOT="${CMAKE_SOURCE_DIR}")
 if (MSVC)
   add_definitions(/MP)
 endif()
@@ -25,7 +27,8 @@ option(DEBUG "Generate a debug build" OFF)
 # List your project sources here
 set(SOURCES
 ${SOURCE_DIR}/Game.cpp
-${HEADERS_DIR}/Game.hpp)
+${HEADERS_DIR}/Game.hpp
+${ASSETS_DIR}/scene.zof)
 
 file(GLOB_RECURSE ENGINE_HEADERS "${ENGINE_DIRECTORY}/_Headers/*.h" "${ENGINE_DIRECTORY}/_Headers/*.hpp")
 list(APPEND SOURCES ${ENGINE_HEADERS})

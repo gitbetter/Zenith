@@ -68,6 +68,4 @@ public:
     void DestroyContext(void* context) override;
     void CleanUp() override;
 
-protected:
-
 };

@@ -154,12 +154,19 @@ void ZGraphics::SetupDepthPass()
 
 void ZGraphics::SetupColorPass()
 {
+    graphicsStrategy_->ResizeColorTexture(colorBufferMultisampled_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY(), true);
+    graphicsStrategy_->ResizeColorBuffer(colorFrameBufferMultisampled_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY(), true);
     graphicsStrategy_->BindFramebuffer(colorFrameBufferMultisampled_);
     graphicsStrategy_->ClearViewport();
 }
 
 void ZGraphics::PostProcessing(ZScene* scene)
 {
+    graphicsStrategy_->ResizeColorTexture(colorBuffer_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
+    graphicsStrategy_->ResizeColorBuffer(colorFrameBuffer_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
+    graphicsStrategy_->ResizeColorTexture(postBuffer_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
+    graphicsStrategy_->ResizeColorBuffer(postFrameBuffer_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
+
     graphicsStrategy_->BlitFramebuffer(colorFrameBufferMultisampled_, colorFrameBuffer_);
     graphicsStrategy_->BindFramebuffer(postFrameBuffer_);
     graphicsStrategy_->ClearViewport();

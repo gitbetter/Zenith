@@ -193,6 +193,7 @@ if (USER_PROJECT_NAME AND (NOT EXISTS ${USER_PROJECT_NAME}))
   file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Headers)
   file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Source)
   file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Assets)
+  file(TOUCH ${USER_PROJECT_NAME}/Assets/scene.zof)
   file(TOUCH ${USER_PROJECT_NAME}/Headers/Game.hpp)
   file(WRITE ${USER_PROJECT_NAME}/Source/Game.cpp 
 "#include \"ZGame.hpp\"
