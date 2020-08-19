@@ -91,9 +91,9 @@ void ZGraphics::InitializeBuffers()
 
 void ZGraphics::InitializeShaders()
 {
-    shadowShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/shadow.vert", "Engine/_Assets/Shaders/Pixel/depth.frag"));
-    depthShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/depth.vert", "Engine/_Assets/Shaders/Pixel/depth.frag"));
-    postShader_ = std::shared_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/postprocess.vert", "Engine/_Assets/Shaders/Pixel/postprocess.frag"));
+    shadowShader_ = std::shared_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/shadow.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/depth.frag"));
+    depthShader_ = std::shared_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/depth.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/depth.frag"));
+    postShader_ = std::shared_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/postprocess.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/postprocess.frag"));
     shadowShader_->Initialize();
     depthShader_->Initialize();
     postShader_->Initialize();
@@ -128,7 +128,7 @@ void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root)
 
 void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light)
 {
-    zenith::Graphics()->Strategy()->ClearViewport();
+    graphicsStrategy_->ClearViewport();
     graphicsStrategy_->BindFramebuffer(shadowFrameBuffer_, true);
     graphicsStrategy_->ClearDepth();
 
@@ -148,25 +148,29 @@ void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light)
 void ZGraphics::SetupDepthPass()
 {
     graphicsStrategy_->BindFramebuffer(depthFrameBuffer_, true);
-    zenith::Graphics()->Strategy()->ClearViewport();
+    graphicsStrategy_->ClearViewport();
     graphicsStrategy_->ClearDepth();
 }
 
 void ZGraphics::SetupColorPass()
 {
+    graphicsStrategy_->ResizeColorTexture(colorBufferMultisampled_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY(), true);
+    graphicsStrategy_->ResizeColorBuffer(colorFrameBufferMultisampled_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY(), true);
     graphicsStrategy_->BindFramebuffer(colorFrameBufferMultisampled_);
-    zenith::Graphics()->Strategy()->ClearViewport();
-}
-
-void ZGraphics::SetupPostProcessingPass()
-{
-    graphicsStrategy_->BlitFramebuffer(colorFrameBufferMultisampled_, colorFrameBuffer_);
-    graphicsStrategy_->BindFramebuffer(postFrameBuffer_);
-    zenith::Graphics()->Strategy()->ClearViewport();
+    graphicsStrategy_->ClearViewport();
 }
 
 void ZGraphics::PostProcessing(ZScene* scene)
 {
+    graphicsStrategy_->ResizeColorTexture(colorBuffer_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
+    graphicsStrategy_->ResizeColorBuffer(colorFrameBuffer_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
+    graphicsStrategy_->ResizeColorTexture(postBuffer_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
+    graphicsStrategy_->ResizeColorBuffer(postFrameBuffer_, zenith::Domain()->ResolutionX(), zenith::Domain()->ResolutionY());
+
+    graphicsStrategy_->BlitFramebuffer(colorFrameBufferMultisampled_, colorFrameBuffer_);
+    graphicsStrategy_->BindFramebuffer(postFrameBuffer_);
+    graphicsStrategy_->ClearViewport();
+
     graphicsStrategy_->DisableDepthTesting();
 
     postShader_->Activate();
@@ -184,6 +188,14 @@ void ZGraphics::PostProcessing(ZScene* scene)
     graphicsStrategy_->EnableDepthTesting();
 
     scene->RenderUI();
+
+    FinishRenderPass();
+
+#ifndef EDITOR_ROOT
+    ZBufferData defaultFrameBuffer;
+    defaultFrameBuffer.fbo = 0;
+    graphicsStrategy_->BlitFramebuffer(colorFrameBufferMultisampled_, defaultFrameBuffer);
+#endif
 }
 
 void ZGraphics::FinishRenderPass()

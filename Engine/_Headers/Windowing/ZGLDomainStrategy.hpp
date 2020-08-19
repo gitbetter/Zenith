@@ -51,7 +51,7 @@ public:
     ~ZGLDomainStrategy() {}
 
     void Initialize() override;
-    void* CreateWindow(int width, int height, bool visible = true, void* sharedContext = nullptr) override;
+    void* CreateWindow(int width, int height, bool maximized = true, bool visible = true, void* sharedContext = nullptr) override;
     void PollEvents() override;
     void CaptureCursor() override;
     void ReleaseCursor() override;
@@ -67,7 +67,5 @@ public:
     void SetContext(void* context) override;
     void DestroyContext(void* context) override;
     void CleanUp() override;
-
-protected:
 
 };

@@ -47,7 +47,7 @@
 
 void ZShader::Initialize()
 {
-// Get the shader sources
+    // Get the shader sources
     vertexShaderCode_ = GetShaderCode(vertexShaderPath_, ZShaderType::Vertex);
     pixelShaderCode_ = GetShaderCode(pixelShaderPath_, ZShaderType::Pixel);
     geometryShaderCode_ = GetShaderCode(geometryShaderPath_, ZShaderType::Geometry);
@@ -58,7 +58,7 @@ void ZShader::Initialize()
 
 void ZShader::InitializeAsync()
 {
-// Get the shader sources
+    // Get the shader sources
     GetShaderCode(vertexShaderPath_, ZShaderType::Vertex, true);
     GetShaderCode(pixelShaderPath_, ZShaderType::Pixel, true);
     GetShaderCode(geometryShaderPath_, ZShaderType::Geometry, true);
@@ -121,7 +121,7 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
         {
             std::shared_ptr<ZResourceHandle> shaderHandle = zenith::ResourceCache()->GetHandle(&shaderResource);
             if (shaderHandle)
-            {
+            {               
                 shaderCode = std::string((char*) shaderHandle->Buffer());
             }
         }

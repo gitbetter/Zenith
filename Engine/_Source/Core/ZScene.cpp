@@ -188,9 +188,7 @@ void ZScene::Render()
     zenith::Graphics()->FinishRenderPass();
 
     // Render pass #4: Post-Processing
-    zenith::Graphics()->SetupPostProcessingPass();
     zenith::Graphics()->PostProcessing(this);
-    zenith::Graphics()->FinishRenderPass();
 }
 
 void ZScene::RenderUI()

@@ -47,7 +47,7 @@ bool ZDevResourceFile::Open()
 
 unsigned int ZDevResourceFile::RawResourceSize(ZResource& resource)
 {
-    auto it = assetIndices_.find("../" + resource.name);
+    auto it = assetIndices_.find(resource.name);
     if (it == assetIndices_.end())
         return 0;
 
@@ -56,7 +56,7 @@ unsigned int ZDevResourceFile::RawResourceSize(ZResource& resource)
 
 unsigned int ZDevResourceFile::RawResource(ZResource& resource, char* buffer)
 {
-    auto it = assetIndices_.find("../" + resource.name);
+    auto it = assetIndices_.find(resource.name);
     if (it == assetIndices_.end())
         return 0;
 

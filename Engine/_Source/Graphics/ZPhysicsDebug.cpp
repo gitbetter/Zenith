@@ -35,7 +35,7 @@
 
 void ZPhysicsDebug::Initialize()
 {
-    shader_ = std::unique_ptr<ZShader>(new ZShader("Engine/_Assets/Shaders/Vertex/debug.vert", "Engine/_Assets/Shaders/Pixel/debug.frag"));
+    shader_ = std::unique_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/debug.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/debug.frag"));
     shader_->Initialize();
 }
 

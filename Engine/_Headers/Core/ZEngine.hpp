@@ -69,16 +69,17 @@ namespace zenith
     const unsigned int LUT_SIZE = 512;
     const glm::vec4 WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);
     const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP{
-        "Engine/_Assets/Skyboxes/Default/right.png",
-        "Engine/_Assets/Skyboxes/Default/left.png",
-        "Engine/_Assets/Skyboxes/Default/up.png",
-        "Engine/_Assets/Skyboxes/Default/down.png",
-        "Engine/_Assets/Skyboxes/Default/front.png",
-        "Engine/_Assets/Skyboxes/Default/back.png",
+        ENGINE_ASSETS_PATH + "/Skyboxes/Default/right.png",
+        ENGINE_ASSETS_PATH + "/Skyboxes/Default/left.png",
+        ENGINE_ASSETS_PATH + "/Skyboxes/Default/up.png",
+        ENGINE_ASSETS_PATH + "/Skyboxes/Default/down.png",
+        ENGINE_ASSETS_PATH + "/Skyboxes/Default/front.png",
+        ENGINE_ASSETS_PATH + "/Skyboxes/Default/back.png",
     };
-    const std::string DEFAULT_HDR_CUBEMAP = "Engine/_Assets/Skyboxes/DefaultHDR/sky.hdr";
+    const std::string DEFAULT_HDR_CUBEMAP = ENGINE_ASSETS_PATH + "/Skyboxes/DefaultHDR/sky.hdr";
 
     extern void Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight);
+    extern void Initialize(std::shared_ptr<ZGame> game, const ZDomainOptions& domainOptions);
 
     extern std::shared_ptr<ZGame> Game();
     extern ZDomain* Domain();
@@ -122,6 +123,7 @@ namespace zenith
     extern std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
 
     extern void Log(const std::string& text, ZSeverity severity);
+    extern std::string FormatStringGlobals(const std::string& str);
 
     extern void CleanUp();
 };

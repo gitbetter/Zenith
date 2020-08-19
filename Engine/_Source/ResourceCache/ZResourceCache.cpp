@@ -69,6 +69,10 @@ void ZResourceCache::RegisterResourceFile(std::shared_ptr<ZResourceFile> file)
     {
         resourceFiles_[file->Name()] = file;
     }
+    else
+    {
+        zenith::Log("Could not open resource file " + file->Name(), ZSeverity::Error);
+    }
 }
 
 std::shared_ptr<ZResourceHandle> ZResourceCache::GetHandle(ZResource* resource)

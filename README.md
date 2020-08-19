@@ -25,20 +25,7 @@ or using your favorite Git desktop GUI client. Zenith uses LFS to store certain 
 
 ## Building and Running
 
-Make sure that you have met the requirements above. There is currently no way to build the project without CMake, and you might be left out in the cold if you try to run on any Linux distro or older Windows/OSX versions, as these have not yet been tested.
-
-### macOS
-* Run the `build.sh` or `rebuild.sh` scripts from within the project directory to generate the necessary Makefile and build configuration. You can optionally specify the `--xcode` command line flag when building with either command to generate an Xcode project if you prefer to work with Xcode.
-* Once the build succeeds, run the `run.sh` script any time to run the engine. On Xcode you can simply click on the build and run button to achieve the same result.
-
-### Windows
-* Open a powershell window, then go the project directory using `cd your\project\path`. Run the `build.ps1` or `rebuild.ps1` powershell script to generate a Visual Studio project. You can then open the `Zenith.sln` solution to run and build the project as normal
-
-  **OR**
-  
-* Use the CMake GUI to generate the Visual Studio project files, making sure to select *Visual Studio 15 2017 Win64* as the generator.
-
-**Note:** You can include `-development` (`--development` on Unix) as a command line flag for both the `build` and `rebuild` commands. This has some additional implications on how resources are expected to be bundled. For more information check out the [Resources and Assets](https://github.com/gitbetter/Zenith/wiki/Resources-and-Assets) wiki page.
+Make sure that you have met the requirements above. There is currently no way to build the project without CMake, and you might be left out in the cold if you try to run on any Linux distro or older Windows/OSX versions, as these have not yet been tested. Use the provided build tool (`build.ps1` on Windows, `build.sh` on macOS) to generate project files and build the engine. Check out the [Building](https://github.com/gitbetter/Zenith/wiki/Building) page for the full run down on the provided build tool.
 
 ## Overview
 
