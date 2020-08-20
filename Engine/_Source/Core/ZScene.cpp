@@ -191,16 +191,6 @@ void ZScene::Render()
     zenith::Graphics()->PostProcessing(this);
 }
 
-void ZScene::RenderUI()
-{
-    for (ZUIElementMap::iterator it = uiElements_.begin(); it != uiElements_.end(); it++)
-    {
-// Only render the top level elements that are not hidden. The children will
-// be rendered within the respective parent elements.
-        if (!it->second->Hidden() && !it->second->Parent()) it->second->Render();
-    }
-}
-
 void ZScene::Play()
 {
     playState_ = ZPlayState::Playing;
@@ -353,7 +343,7 @@ void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element)
     if (element != nullptr)
     {
         element->scene_ = this;
-        if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(zenith::UI()->TextShader());
+        if (element->type_ == ZUIElementType::Text) element->SetShader(zenith::UI()->TextShader());
         else element->SetShader(zenith::UI()->UIShader());
         uiElements_[element->ID()] = element;
     }

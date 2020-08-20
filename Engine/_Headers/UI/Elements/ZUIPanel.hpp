@@ -42,12 +42,10 @@ private:
 
 public:
 
-    ZUIPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f)) : ZUIElement(position, scale) {}
+    ZUIPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f));
     ~ZUIPanel() {}
 
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-
-    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
 protected:
 

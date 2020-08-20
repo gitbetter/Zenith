@@ -39,6 +39,8 @@
 class ZUIText : public ZUIElement
 {
 
+    friend class ZUI;
+
 private:
 
 public:
@@ -47,8 +49,6 @@ public:
     ~ZUIText() {}
 
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-
-    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
     void SetText(const std::string& text) { text_ = text; }
     void SetFontScale(float scale) { fontScale_ = scale; }

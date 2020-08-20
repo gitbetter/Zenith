@@ -123,8 +123,8 @@ void ZBulletPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event)
         }
     }
     else
-    { // Handle general 3D raycasting
-
+    { 
+        // Handle general 3D raycasting
     }
 }
 

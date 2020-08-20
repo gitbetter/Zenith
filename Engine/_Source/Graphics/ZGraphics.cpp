@@ -187,8 +187,6 @@ void ZGraphics::PostProcessing(ZScene* scene)
 
     graphicsStrategy_->EnableDepthTesting();
 
-    scene->RenderUI();
-
     FinishRenderPass();
 
 #ifndef EDITOR_ROOT
@@ -196,6 +194,8 @@ void ZGraphics::PostProcessing(ZScene* scene)
     defaultFrameBuffer.fbo = 0;
     graphicsStrategy_->BlitFramebuffer(colorFrameBufferMultisampled_, defaultFrameBuffer);
 #endif
+
+    zenith::UI()->Render(scene->uiElements_);
 }
 
 void ZGraphics::FinishRenderPass()

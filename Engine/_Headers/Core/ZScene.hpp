@@ -72,7 +72,6 @@ private:
     std::string name_;
 
     void Render();
-    void RenderUI();
     void LoadSceneData(std::shared_ptr<ZOFTree> objectTree);
     void ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree);
     void CreateSceneRoot(std::string& name);

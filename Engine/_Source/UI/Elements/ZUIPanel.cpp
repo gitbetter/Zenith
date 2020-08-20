@@ -31,14 +31,13 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
-void ZUIPanel::Initialize(std::shared_ptr<ZOFNode> root)
+ZUIPanel::ZUIPanel(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
 {
-    ZUIElement::Initialize(root);
-    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+    type_ = ZUIElementType::Panel;
 }
 
-void ZUIPanel::Render(ZRenderOp renderOp)
+void ZUIPanel::Initialize(std::shared_ptr<ZOFNode> root)
 {
-    ZUIElement::Render();
-    RenderChildren();
+    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+    ZUIElement::Initialize(root);
 }

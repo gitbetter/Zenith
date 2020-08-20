@@ -44,6 +44,7 @@ ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0),
     enabled_ = true;
     hidden_ = false;
     id_ = "ZUI_" + zenith::IDSequence()->Next();
+    type_ = ZUIElementType::Unknown;
 }
 
 void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root)
@@ -128,45 +129,9 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root)
     }
 }
 
-void ZUIElement::Render(ZRenderOp renderOp)
-{
-    std::shared_ptr<ZMesh2D> mesh = ElementShape();
-    shader_->Activate();
-
-    zenith::Graphics()->Strategy()->BindTexture(texture_, 0);
-    shader_->SetInt(texture_.type + "0", 0);
-
-    glm::mat4 ortho = glm::ortho(0.f, (float) zenith::Domain()->ResolutionX(), (float) zenith::Domain()->ResolutionY(), 0.f);
-    shader_->SetMat4("M", modelMatrix_);
-    shader_->SetMat4("P", ortho);
-    shader_->SetVec4("color", color_);
-    shader_->SetVec4("borderColor", glm::vec4(0.f));
-    shader_->SetFloat("borderWidth", 0.f);
-
-    if (border_.width > 0.f)
-    {
-        float borderWidth = border_.width / glm::length(Size());
-        float aspect = Size().y / Size().x;
-        shader_->SetVec4("borderColor", border_.color);
-        shader_->SetFloat("borderWidth", borderWidth);
-        shader_->SetFloat("aspectRatio", aspect);
-    }
-
-    mesh->Render(shader_.get());
-}
-
-void ZUIElement::RenderChildren()
-{
-    for (std::shared_ptr<ZUIElement> child : children_)
-    {
-// TODO: Also only render if the child has the dirty flag set
-        if (!child->Hidden()) child->Render();
-    }
-}
-
 void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element)
 {
-// Reset the child translation and move it to the parent's location
+    // Reset the child translation and move it to the parent's location
     glm::vec3 elementPos = element->Position();
     glm::vec3 elementSize = element->Size();
 

@@ -230,6 +230,12 @@ void ZGLInput::Update()
             zenith::EventAgent()->TriggerEvent(fireEvent);
         }
     }
+    else if (prevMousePress_[ZMouse::LEFT_MB] != mousePress_[ZMouse::LEFT_MB])
+    {
+        std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent(yaw, pitch, 0.f, true));
+        zenith::EventAgent()->TriggerEvent(fireEvent);
+        prevMousePress_[ZMouse::LEFT_MB] = mousePress_[ZMouse::LEFT_MB];
+    }
 
     if (deltaYaw != 0.0 || deltaPitch != 0.0)
     {
@@ -259,5 +265,5 @@ void ZGLInput::KeyCallback(GLFWwindow* window, int key, int scancode, int action
 
 void ZGLInput::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    zenith::Input()->SetMouse(mouseMap_[button], action == GLFW_PRESS);
+    zenith::Input()->SetMouse(mouseMap_[button], action != GLFW_RELEASE);
 }

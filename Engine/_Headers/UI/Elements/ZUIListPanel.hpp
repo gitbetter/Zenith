@@ -45,15 +45,13 @@ private:
 
 public:
 
-    ZUIListPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f)) : ZUIElement(position, scale) {}
+    ZUIListPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f));
     ~ZUIListPanel() {}
 
     void Initialize(std::shared_ptr<ZOFNode> root) override;
 
     float ItemHeight() const { return itemHeight_; }
     void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
-
-    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
 
     void AddChild(std::shared_ptr<ZUIElement> element) override;
 

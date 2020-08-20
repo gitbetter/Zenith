@@ -33,16 +33,11 @@
 
 ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
 {
-    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+    type_ = ZUIElementType::Button;
 }
 
 void ZUIButton::Initialize(std::shared_ptr<ZOFNode> root)
 {
+    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
     ZUIElement::Initialize(root);
-}
-
-void ZUIButton::Render(ZRenderOp renderOp)
-{
-    ZUIElement::Render();
-    RenderChildren();
 }

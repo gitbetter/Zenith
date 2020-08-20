@@ -303,6 +303,11 @@ enum class ZPrimitiveType
     Plane, Cube, Sphere, Cylinder, Cone
 };
 
+enum class ZUIElementType
+{
+    Button, CheckBox, Image, ListPanel, Panel, Text, Unknown
+};
+
 enum class ZShaderType
 {
     Vertex, Pixel, Tesselation, Geometry, Other

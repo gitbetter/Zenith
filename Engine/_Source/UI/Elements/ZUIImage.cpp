@@ -35,8 +35,10 @@
 
 ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
 {
-    SetImage(path);
     enabled_ = false;
+    path_ = path;
+    type_ = ZUIElementType::Image;
+    SetImage(path_);
 }
 
 void ZUIImage::Initialize(std::shared_ptr<ZOFNode> root)
@@ -44,23 +46,12 @@ void ZUIImage::Initialize(std::shared_ptr<ZOFNode> root)
     ZUIElement::Initialize(root);
 }
 
-void ZUIImage::Render(ZRenderOp renderOp)
-{
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
-    ZUIElement::Render();
-    zenith::Graphics()->Strategy()->DisableAlphaBlending();
-    RenderChildren();
-}
-
 void ZUIImage::SetImage(std::string path)
 {
     if (!path.empty())
     {
-        path_ = path;
-
         ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
         zenith::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
-
         zenith::Graphics()->Strategy()->LoadTextureAsync(path, "");
     }
 }

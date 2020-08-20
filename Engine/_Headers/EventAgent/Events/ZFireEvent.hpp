@@ -41,12 +41,13 @@ class ZFireEvent : public ZBaseEvent
 private:
 
     float x_, y_, z_;
+    bool done_;
 
 public:
 
     static const ZEventType Type;
 
-    explicit ZFireEvent(float x = 0.f, float y = 0.f, float z = 0.f) : x_(x), y_(y), z_(z) {}
+    explicit ZFireEvent(float x = 0.f, float y = 0.f, float z = 0.f, bool done = false) : x_(x), y_(y), z_(z), done_(done) {}
     explicit ZFireEvent(std::istringstream& in) { in >> x_ >> y_ >> z_; }
 
     const ZEventType& EventType() const override { return Type; };
@@ -57,6 +58,7 @@ public:
     float X() const { return x_; }
     float Y() const { return y_; }
     float Z() const { return z_; }
+    bool Done() const { return done_; }
 
 protected:
 
