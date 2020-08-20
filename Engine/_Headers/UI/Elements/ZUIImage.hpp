@@ -50,8 +50,6 @@ public:
 
     void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
-
     void SetImage(std::string path);
 
 protected:

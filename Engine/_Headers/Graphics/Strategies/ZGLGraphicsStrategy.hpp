@@ -103,7 +103,7 @@ public:
     ZTexture BRDFLUT(ZBufferData cubemapBufferData) override;
 
     void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
-    void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Quads) override;
+    void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) override;
     void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) override;
 
 protected:

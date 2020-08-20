@@ -55,8 +55,6 @@ public:
     bool Checked() const { return checked_; }
     void SetChecked(bool checked = true) { checked_ = checked; }
 
-    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
-
 protected:
 
     void HandleMousePress(std::shared_ptr<ZEvent> event);

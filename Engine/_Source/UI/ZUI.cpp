@@ -32,6 +32,7 @@
 #include "ZInput.hpp"
 #include "ZUIText.hpp"
 #include "ZGLTextStrategy.hpp"
+#include "ZDomain.hpp"
 
 void ZUI::Initialize()
 {
@@ -58,6 +59,115 @@ void ZUI::Initialize()
 void ZUI::RegisterFont(std::string fontPath)
 {
     if (textStrategy_ != nullptr) textStrategy_->LoadFontAsync(fontPath, 64);
+}
+
+void ZUI::Render(ZUIElementMap elements)
+{
+    for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++)
+    {
+        // Only render the top level elements that are not hidden. The children will
+        // be rendered within the respective parent elements.
+        RenderElement(it->second);
+    }
+}
+
+void ZUI::RenderElement(std::shared_ptr<ZUIElement> element)
+{
+    // TODO: Also only render if the child has the dirty flag set
+    if (element->hidden_) return;
+
+    switch (element->type_)
+    {
+    case ZUIElementType::Image:
+        RenderImage(element);
+        break;
+    case ZUIElementType::Text:
+        RenderText(element);
+        break;
+    case ZUIElementType::Button:
+    case ZUIElementType::CheckBox:
+    case ZUIElementType::ListPanel:
+    case ZUIElementType::Panel:
+    case ZUIElementType::Unknown:
+        RenderGeneric(element);
+        break;
+    }
+
+    for (std::shared_ptr<ZUIElement> child : element->children_)
+    {
+        RenderElement(child);
+    }
+}
+
+void ZUI::RenderGeneric(std::shared_ptr<ZUIElement>& element)
+{
+    std::shared_ptr<ZMesh2D> mesh = element->ElementShape();
+    element->shader_->Activate();
+
+    zenith::Graphics()->Strategy()->BindTexture(element->texture_, 0);
+    element->shader_->SetInt(element->texture_.type + "0", 0);
+
+    glm::mat4 ortho = glm::ortho(0.f, (float) zenith::Domain()->ResolutionX(), (float) zenith::Domain()->ResolutionY(), 0.f);
+    element->shader_->SetMat4("M", element->modelMatrix_);
+    element->shader_->SetMat4("P", ortho);
+    element->shader_->SetVec4("color", element->color_);
+    element->shader_->SetVec4("borderColor", glm::vec4(0.f));
+    element->shader_->SetFloat("borderWidth", 0.f);
+    element->shader_->SetFloat("aspectRatio", 1.f);
+
+    if (element->border_.width > 0.f)
+    {
+        float borderWidth = element->border_.width / glm::length(element->Size());
+        float aspect = element->Size().y / element->Size().x;
+        element->shader_->SetVec4("borderColor", element->border_.color);
+        element->shader_->SetFloat("borderWidth", borderWidth);
+        element->shader_->SetFloat("aspectRatio", aspect);
+    }
+
+    mesh->Render(element->shader_.get());
+}
+
+void ZUI::RenderImage(std::shared_ptr<ZUIElement>& element)
+{
+    zenith::Graphics()->Strategy()->EnableAlphaBlending();
+    RenderGeneric(element);
+    zenith::Graphics()->Strategy()->DisableAlphaBlending();
+}
+
+void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
+{
+    auto textEl = std::dynamic_pointer_cast<ZUIText>(element);
+    zenith::Graphics()->Strategy()->EnableAlphaBlending();
+    // TODO: Add text alignment property that calculates these value accordingly
+    float x = textEl->Position().x,
+        y = textEl->Position().y,
+        xRatio = zenith::Domain()->ResolutionXRatio(),
+        yRatio = zenith::Domain()->ResolutionYRatio();
+    for (auto c = textEl->text_.begin(); c != textEl->text_.end(); c++)
+    {
+        ZCharacter character = zenith::UI()->TextStrategy()->Character(textEl->font_, *c);
+        textEl->texture_ = character.texture;
+
+        float xpos = x + character.bearing.x * textEl->fontScale_;
+        float ypos = y - (character.size.y - character.bearing.y) * textEl->fontScale_;
+        float w = character.size.x * textEl->fontScale_ * xRatio;
+        float h = character.size.y * textEl->fontScale_ * yRatio;
+
+        std::vector<ZVertex2D> vertices = {
+          ZVertex2D(glm::vec2(xpos, ypos), glm::vec2(0.f, 0.f)),
+          ZVertex2D(glm::vec2(xpos, ypos + h), glm::vec2(0.f, 1.f)),
+          ZVertex2D(glm::vec2(xpos + w, ypos), glm::vec2(1.f, 0.f)),
+          ZVertex2D(glm::vec2(xpos + w, ypos + h), glm::vec2(1.f, 1.f))
+        };
+
+        RenderGeneric(element);
+
+        zenith::Graphics()->Strategy()->UpdateBuffer(textEl->bufferData_, vertices);
+        zenith::Graphics()->Strategy()->Draw(textEl->bufferData_, vertices);
+
+        x += (character.advance >> 6) * textEl->fontScale_ * xRatio;
+    }
+    zenith::Graphics()->Strategy()->DisableAlphaBlending();
 }
 
 void ZUI::CleanUp()

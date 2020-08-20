@@ -28,3 +28,15 @@
 */
 
 #include "ZInput.hpp"
+
+void ZInput::SetKey(ZKey key, bool pressed)
+{
+    prevKeyPress_[key] = keyPress_[key];
+    keyPress_[key] = pressed;
+}
+
+void ZInput::SetMouse(ZMouse mouse, bool pressed)
+{
+    prevMousePress_[mouse] = mousePress_[mouse];
+    mousePress_[mouse] = pressed;
+}

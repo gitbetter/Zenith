@@ -42,11 +42,13 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
     text_ = text;
     fontScale_ = fontSize;
     enabled_ = false;
-    bufferData_ = zenith::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
+    type_ = ZUIElementType::Text;
 }
 
 void ZUIText::Initialize(std::shared_ptr<ZOFNode> root)
 {
+    bufferData_ = zenith::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
+
     ZUIElement::Initialize(root);
 
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
@@ -74,40 +76,4 @@ void ZUIText::Initialize(std::shared_ptr<ZOFNode> root)
         std::shared_ptr<ZOFString> textProp = props["text"]->Value<ZOFString>(0);
         text_ = textProp->value;
     }
-}
-
-void ZUIText::Render(ZRenderOp renderOp)
-{
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
-        // TODO: Add text alignment property that calculates these value accordingly
-    float x = Position().x,
-        y = Position().y,
-        xRatio = zenith::Domain()->ResolutionXRatio(),
-        yRatio = zenith::Domain()->ResolutionYRatio();
-    for (auto c = text_.begin(); c != text_.end(); c++)
-    {
-        ZCharacter character = zenith::UI()->TextStrategy()->Character(font_, *c);
-        texture_ = character.texture;
-
-        float xpos = x + character.bearing.x * fontScale_;
-        float ypos = y - (character.size.y - character.bearing.y) * fontScale_;
-        float w = character.size.x * fontScale_ * xRatio;
-        float h = character.size.y * fontScale_ * yRatio;
-
-        std::vector<ZVertex2D> vertices = {
-          ZVertex2D(glm::vec2(xpos, ypos), glm::vec2(0.f, 0.f)),
-          ZVertex2D(glm::vec2(xpos, ypos + h), glm::vec2(0.f, 1.f)),
-          ZVertex2D(glm::vec2(xpos + w, ypos), glm::vec2(1.f, 0.f)),
-          ZVertex2D(glm::vec2(xpos + w, ypos + h), glm::vec2(1.f, 1.f))
-        };
-
-        ZUIElement::Render();
-
-        zenith::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertices);
-        zenith::Graphics()->Strategy()->Draw(bufferData_, vertices);
-
-        x += (character.advance >> 6) * fontScale_ * xRatio;
-    }
-    zenith::Graphics()->Strategy()->DisableAlphaBlending();
-    RenderChildren();
 }

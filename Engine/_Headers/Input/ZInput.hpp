@@ -49,12 +49,14 @@ public:
 
     inline bool Key(ZKey key) { return keyPress_.find(key) != keyPress_.end() && keyPress_[key]; }
     inline bool Mouse(ZMouse mouse) { return mousePress_.find(mouse) != mousePress_.end() && mousePress_[mouse]; }
-    inline void SetKey(ZKey key, bool pressed = false) { keyPress_[key] = pressed; }
-    inline void SetMouse(ZMouse mouse, bool pressed = false) { mousePress_[mouse] = pressed; }
+    void SetKey(ZKey key, bool pressed = false);
+    void SetMouse(ZMouse mouse, bool pressed = false);
 
 protected:
 
+    std::map<ZKey, bool> prevKeyPress_;
     std::map<ZKey, bool> keyPress_;
+    std::map<ZMouse, bool> prevMousePress_;
     std::map<ZMouse, bool> mousePress_;
 
 };

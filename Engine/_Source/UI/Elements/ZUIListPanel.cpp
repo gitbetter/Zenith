@@ -31,10 +31,16 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
+ZUIListPanel::ZUIListPanel(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
+{
+    type_ = ZUIElementType::ListPanel;
+}
+
 void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root)
 {
-    ZUIElement::Initialize(root);
     texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+
+    ZUIElement::Initialize(root);
 
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
     if (node == nullptr)
@@ -50,12 +56,6 @@ void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root)
         std::shared_ptr<ZOFNumber> itemHeightProp = props["itemHeight"]->Value<ZOFNumber>(0);
         itemHeight_ = itemHeightProp->value;
     }
-}
-
-void ZUIListPanel::Render(ZRenderOp renderOp)
-{
-    ZUIElement::Render();
-    RenderChildren();
 }
 
 void ZUIListPanel::AddChild(std::shared_ptr<ZUIElement> element)

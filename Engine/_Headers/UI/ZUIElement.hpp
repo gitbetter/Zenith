@@ -43,13 +43,14 @@ class ZShader;
 struct ZUIBorder
 {
     float width = 0.f;
-    glm::vec4 color = glm::vec4(1.f);
+    glm::vec4 color = glm::vec4(0.f);
 };
 
 class ZUIElement : public ZProcess
 {
 
     friend class ZScene;
+    friend class ZUI;
 
 private:
 
@@ -100,10 +101,7 @@ public:
     void SetParent(ZUIElement* parent) { parent_ = parent; }
     void RemoveParent();
 
-    virtual void Render(ZRenderOp renderOp = ZRenderOp::Color);
     virtual std::shared_ptr<ZMesh2D> ElementShape();
-
-    void RenderChildren();
 
     bool TrySelect(glm::vec3 position);
     bool Contains(glm::vec3 point);
@@ -139,5 +137,6 @@ protected:
     ZTexture texture_;
     ZUIBorder border_;
     ZScene* scene_;
+    ZUIElementType type_;
 
 };

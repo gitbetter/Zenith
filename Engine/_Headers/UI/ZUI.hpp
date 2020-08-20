@@ -47,15 +47,20 @@ public:
     ~ZUI() {}
 
     void Initialize();
-
     void RegisterFont(std::string fontPath);
+    void Render(ZUIElementMap elements);
+    void RenderElement(std::shared_ptr<ZUIElement> element);
+    void CleanUp();
 
     ZTextStrategy* TextStrategy() { return textStrategy_.get(); }
-
     std::shared_ptr<ZShader> TextShader() { return textShader_; }
     std::shared_ptr<ZShader> UIShader() { return uiShader_; }
 
-    void CleanUp();
+protected:
+
+    void RenderGeneric(std::shared_ptr<ZUIElement>& element);
+    void RenderImage(std::shared_ptr<ZUIElement>& element);
+    void RenderText(std::shared_ptr<ZUIElement>& element);
 
 protected:
 

@@ -217,7 +217,7 @@ ZUI_01
 # Skybox
 
 ZSKY_01
-    :hdr "$ENGINE_ROOT$/_Assets/Skyboxes/sky.hdr":
+    :hdr "$ENGINE_ROOT$/_Assets/Skyboxes/DefaultHDR/sky.hdr":
 ^
 
 # Shaders

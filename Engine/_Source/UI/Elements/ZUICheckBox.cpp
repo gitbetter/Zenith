@@ -32,22 +32,24 @@
 #include "ZShader.hpp"
 #include "ZUIImage.hpp"
 #include "ZUI.hpp"
-#include "ZObjectSelectedEvent.hpp"
+#include "ZFireEvent.hpp"
 
 ZUICheckBox::ZUICheckBox(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
 {
-    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+    type_ = ZUIElementType::CheckBox;
 }
 
 void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root)
 {
+    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+
     ZUIElement::Initialize(root);
 
     checkImage_ = std::make_shared<ZUIImage>(ENGINE_ASSETS_PATH + "/Textures/UI/checkmark.png", glm::vec3(0.f) + Size(), Size());
     AddChild(checkImage_);
 
     ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICheckBox::HandleMousePress);
-    zenith::EventAgent()->AddListener(fireDelegate, ZObjectSelectedEvent::Type);
+    zenith::EventAgent()->AddListener(fireDelegate, ZFireEvent::Type);
 
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
     if (node == nullptr)
@@ -64,16 +66,10 @@ void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root)
     }
 }
 
-void ZUICheckBox::Render(ZRenderOp renderOp)
-{
-    ZUIElement::Render();
-    RenderChildren();
-}
-
 void ZUICheckBox::HandleMousePress(std::shared_ptr<ZEvent> event)
 {
-    std::shared_ptr<ZObjectSelectedEvent> fireEvent = std::static_pointer_cast<ZObjectSelectedEvent>(event);
-    if (id_ == fireEvent->ObjectID())
+    std::shared_ptr<ZFireEvent> fireEvent = std::static_pointer_cast<ZFireEvent>(event);
+    if (fireEvent->Done() && TrySelect(glm::vec3(fireEvent->X(), fireEvent->Y(), fireEvent->Z())))
     {
         checked_ = !checked_;
         if (checked_)
