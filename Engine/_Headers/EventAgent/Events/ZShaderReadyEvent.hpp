@@ -36,7 +36,7 @@
 class ZShader;
 
 // Class and Data Structure Definitions
-class ZShaderReadyEvent : public ZBaseEvent
+class ZShaderReadyEvent : public ZEvent
 {
 
 private:

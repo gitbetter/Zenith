@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZFireEvent : public ZBaseEvent
+class ZFireEvent : public ZEvent
 {
 
 private:

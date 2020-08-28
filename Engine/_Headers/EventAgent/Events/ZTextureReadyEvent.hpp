@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZTextureReadyEvent : public ZBaseEvent
+class ZTextureReadyEvent : public ZEvent
 {
 
 private:

@@ -36,7 +36,7 @@
 class ZResourceHandle;
 
 // Class and Data Structure Definitions
-class ZResourceLoadedEvent : public ZBaseEvent
+class ZResourceLoadedEvent : public ZEvent
 {
 
 private:

@@ -56,7 +56,7 @@ class ZScriptableEvent;
 // Class and Data Structure Definitions
 typedef ZScriptableEvent* (*CreateEventForScriptFunctionType)();
 
-class ZScriptableEvent : public ZBaseEvent
+class ZScriptableEvent : public ZEvent
 {
 
     typedef std::map<ZEventType, CreateEventForScriptFunctionType> CreationFunctions;
@@ -76,7 +76,6 @@ public:
 
     static void RegisterEventTypeWithScript(const std::string& key, ZEventType type);
     static void AddCreationFunction(ZEventType type, CreateEventForScriptFunctionType creationFunction);
-
     static ZScriptableEvent* CreateEventFromScript(ZEventType type);
 
 protected:

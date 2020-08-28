@@ -36,7 +36,7 @@
 class ZScene;
 
 // Class and Data Structure Definitions
-class ZSceneReadyEvent : public ZBaseEvent
+class ZSceneReadyEvent : public ZEvent
 {
 
 private:

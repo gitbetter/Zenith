@@ -266,9 +266,3 @@ ZTEX_09
 ZMOD_01
 	:path "$ENGINE_ROOT$/_Assets/Models/wolf.dae":
 ^
-
-# Scripts
-
-ZSCR_01
-	:path "$ENGINE_ROOT$/_Assets/Scripts/process.lua":
-^

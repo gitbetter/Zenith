@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZCollisionEndEvent : public ZBaseEvent
+class ZCollisionEndEvent : public ZEvent
 {
 
 private:
