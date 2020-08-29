@@ -45,25 +45,38 @@ std::string ZOFParser::Scan()
     std::string whitepace("\r\n\t ");
     std::string specialCharacters("^,:[]");
     std::string token;
+    bool in_quotes(false);
     char c;
-    while (zof_ >> c)
+    while (zof_ >> std::noskipws >> c)
     {
-// Strip initial whitespace
-        if (whitepace.find(c) != std::string::npos) continue;
-        // Ignore comments
-        if (c == '#')
+        if (!in_quotes)
         {
-            zof_.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); continue;
-        }
-        // Handle .zof single character tokens
-        if (specialCharacters.find(c) != std::string::npos)
-        {
-            token += c; break;
+            // Strip initial whitespace
+            if (whitepace.find(c) != std::string::npos) continue;
+            // Ignore comments
+            if (c == '#')
+            {
+                zof_.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); continue;
+            }
+            else if (c == '"')
+            {
+                in_quotes = true;
+            }
+            // Handle .zof single character tokens
+            if (specialCharacters.find(c) != std::string::npos)
+            {
+                token += c; break;
+            }
         }
         token += c;
         // Break out of the loop once we have our token
         // (the following character is either whitepace or one of our single character tokens)
-        if ((whitepace + specialCharacters).find(zof_.peek()) != std::string::npos) break;
+        if (!in_quotes && (whitepace + specialCharacters).find(zof_.peek()) != std::string::npos) break;
+        // Break out of the loop if we have finished a quoted string
+        if (in_quotes && zof_.peek() == '"')
+        {
+            token += zof_.get(); break;
+        }
     }
     return token;
 }
@@ -105,7 +118,7 @@ void ZOFParser::Object(std::shared_ptr<ZOFNode> node)
 {
     if (std::regex_match(currentToken_, id_))
     {
-// Push a new object node onto the tree
+        // Push a new object node onto the tree
         std::shared_ptr<ZOFObjectNode> objectNode = std::make_shared<ZOFObjectNode>();
         objectNode->id = currentToken_;
         objectNode->root = node;
@@ -138,7 +151,7 @@ void ZOFParser::Prop(std::shared_ptr<ZOFObjectNode> objectNode)
 {
     if (std::regex_match(currentToken_, id_))
     {
-// Push a new prop onto the object node
+        // Push a new prop onto the object node
         std::shared_ptr<ZOFPropertyNode> propNode = std::make_shared<ZOFPropertyNode>();
         propNode->id = currentToken_;
         propNode->root = objectNode->root;
@@ -168,7 +181,7 @@ void ZOFParser::Value(std::shared_ptr<ZOFPropertyNode> prop)
     }
     else if (std::regex_match(currentToken_, id_))
     {
-// Push a new string onto the prop
+        // Push a new string onto the prop
         std::shared_ptr<ZOFString> terminal = std::make_shared<ZOFString>();
         std::string s(currentToken_);
         s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
@@ -181,7 +194,7 @@ void ZOFParser::Value(std::shared_ptr<ZOFPropertyNode> prop)
     }
     else if (std::regex_match(currentToken_, number_))
     {
-// Push a new float onto the prop
+        // Push a new float onto the prop
         std::shared_ptr<ZOFNumber> terminal = std::make_shared<ZOFNumber>();
         terminal->value = std::stof(currentToken_);
         terminal->root = prop->root;
@@ -201,7 +214,7 @@ void ZOFParser::List(std::shared_ptr<ZOFPropertyNode> prop)
     {
         if (std::regex_match(currentToken_, id_))
         {
-// Push a new list of strings onto the list
+            // Push a new list of strings onto the list
             std::shared_ptr<ZOFStringList> terminal = std::make_shared<ZOFStringList>();
             std::string s = currentToken_;
             s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
@@ -213,7 +226,7 @@ void ZOFParser::List(std::shared_ptr<ZOFPropertyNode> prop)
         }
         else if (std::regex_match(currentToken_, number_))
         {
-// Push a new list of floats onto the list
+            // Push a new list of floats onto the list
             std::shared_ptr<ZOFNumberList> terminal = std::make_shared<ZOFNumberList>();
             terminal->value.push_back(std::stof(currentToken_));
             terminal->root = prop->root;
@@ -238,7 +251,7 @@ void ZOFParser::ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal)
         }
         else if (std::regex_match(currentToken_, id_))
         {
-// Push a new string onto the list of strings
+            // Push a new string onto the list of strings
             std::shared_ptr<ZOFStringList> term = std::static_pointer_cast<ZOFStringList>(terminal);
             if (term != nullptr)
             {
@@ -251,7 +264,7 @@ void ZOFParser::ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal)
         }
         else if (std::regex_match(currentToken_, number_))
         {
-// Push a new float onto the list of floats
+            // Push a new float onto the list of floats
             std::shared_ptr<ZOFNumberList> term = std::static_pointer_cast<ZOFNumberList>(terminal);
             if (term != nullptr)
                 term->value.push_back(std::stof(currentToken_));

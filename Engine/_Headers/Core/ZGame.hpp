@@ -38,7 +38,7 @@
 class ZGame
 {
 
-private:
+protected:
 
     // TODO: Store this information in a scene manager class
     unsigned int activeScene_ = 0;
@@ -47,9 +47,10 @@ private:
 public:
 
     ZGame();
-    ~ZGame() {};
+    virtual ~ZGame() {};
 
-    void CleanUp() {}
+    virtual void Initialize() {}
+    virtual void CleanUp() {}
 
     std::shared_ptr<ZScene> ActiveScene() { return !(scenes_.empty()) ? scenes_[activeScene_] : nullptr; }
     void SetActiveScene(unsigned int index);

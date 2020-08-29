@@ -94,6 +94,13 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root)
         lookSensitivity_ = prop->value;
     }
 
+    if (props.find("type") != props.end() && props["type"]->HasValues())
+    {
+        std::shared_ptr<ZOFString> prop = props["type"]->Value<ZOFString>(0);
+        cameraType_ = prop->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
+        zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
+    }
+
     if (props.find("zoom") != props.end() && props["zoom"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> prop = props["zoom"]->Value<ZOFNumber>(0);
@@ -116,13 +123,6 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root)
     {
         std::shared_ptr<ZOFNumber> prop = props["farPlane"]->Value<ZOFNumber>(0);
         farClippingPlane_ = prop->value;
-    }
-
-    if (props.find("type") != props.end() && props["type"]->HasValues())
-    {
-        std::shared_ptr<ZOFString> prop = props["type"]->Value<ZOFString>(0);
-        cameraType_ = prop->value == "Orthographic" ? ZCameraType::Orthographic : ZCameraType::Perspective;
-        zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
     }
 
     if (props.find("movementStyle") != props.end() && props["movementStyle"]->HasValues())
@@ -236,9 +236,9 @@ glm::mat4 ZCameraComponent::ProjectionMatrix()
     if (cameraType_ == ZCameraType::Orthographic)
     {
         float zoomInverse_ = 1.f / (2.f * zoom_);
-        float left = -(float) domain->ResolutionX() * zoomInverse_;
+        float left = -((float) domain->ResolutionX() * zoomInverse_);
         float right = -left;
-        float bottom = -(float) domain->ResolutionY() * zoomInverse_;
+        float bottom = -((float) domain->ResolutionY() * zoomInverse_);
         float top = -bottom;
         projectionMatrix = glm::ortho(left, right, bottom, top, -farClippingPlane_, farClippingPlane_);
     }
