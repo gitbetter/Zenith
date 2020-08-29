@@ -231,8 +231,6 @@ typedef std::vector<std::shared_ptr<ZBone>> ZBoneList;
 
 typedef unsigned long ZEventType;
 
-const std::string ENGINE_ASSETS_PATH(std::string(ENGINE_ROOT) + "/_Assets");
-
 enum ZSeverity
 {
     Info, Warning, Error

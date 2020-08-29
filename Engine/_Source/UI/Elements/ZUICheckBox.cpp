@@ -45,7 +45,7 @@ void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root)
 
     ZUIElement::Initialize(root);
 
-    checkImage_ = std::make_shared<ZUIImage>(ENGINE_ASSETS_PATH + "/Textures/UI/checkmark.png", glm::vec3(0.f) + Size(), Size());
+    checkImage_ = std::make_shared<ZUIImage>("/Textures/UI/checkmark.png", glm::vec3(0.f) + Size(), Size());
     AddChild(checkImage_);
 
     ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICheckBox::HandleMousePress);

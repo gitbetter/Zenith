@@ -113,9 +113,9 @@ namespace zenith
         resourceCache_.reset(new ZResourceCache(100));
         resourceCache_->Initialize();
     #ifdef DEV_BUILD
-        resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(ENGINE_ASSETS_PATH)));
+        resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(ENGINE_ROOT) + "/_Assets")));
     #else
-        resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile(ENGINE_ASSETS_PATH + ".zip")));
+        resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile(std::string(ENGINE_ROOT) + "/_Assets.zip")));
     #endif
         resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
         resourceCache_->RegisterLoader(std::shared_ptr<ZWavResourceLoader>(new ZWavResourceLoader));
@@ -135,7 +135,7 @@ namespace zenith
         ZScriptableProcess::RegisterScriptClass();
         // We don't need to do anything with this resource. The resource loader
         // will load and execute the script for us.
-        ZResource luaSetupScript(ENGINE_ASSETS_PATH + "/Scripts/init.lua", ZResourceType::Script);
+        ZResource luaSetupScript("/Scripts/init.lua", ZResourceType::Script);
         resourceCache_->GetHandle(&luaSetupScript);
         /* ======================================= */
 

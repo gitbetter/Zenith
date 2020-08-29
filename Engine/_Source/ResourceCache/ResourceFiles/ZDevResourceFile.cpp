@@ -108,7 +108,9 @@ void ZDevResourceFile::ReadDirectoryEntries(FileHandle& fh)
         }
         else
         {
-            assetIndices_[file.path()] = assets_.size();
+            auto fp = file.path();
+            fp = fp.replace(fp.find(fileName_), fileName_.size(), "");
+            assetIndices_[fp] = assets_.size();
             assets_.push_back(file);
         }
     }

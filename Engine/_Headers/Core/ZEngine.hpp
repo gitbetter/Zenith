@@ -69,14 +69,14 @@ namespace zenith
     const unsigned int LUT_SIZE = 512;
     const glm::vec4 WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);
     const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP{
-        ENGINE_ASSETS_PATH + "/Skyboxes/Default/right.png",
-        ENGINE_ASSETS_PATH + "/Skyboxes/Default/left.png",
-        ENGINE_ASSETS_PATH + "/Skyboxes/Default/up.png",
-        ENGINE_ASSETS_PATH + "/Skyboxes/Default/down.png",
-        ENGINE_ASSETS_PATH + "/Skyboxes/Default/front.png",
-        ENGINE_ASSETS_PATH + "/Skyboxes/Default/back.png",
+        "/Skyboxes/Default/right.png",
+        "/Skyboxes/Default/left.png",
+        "/Skyboxes/Default/up.png",
+        "/Skyboxes/Default/down.png",
+        "/Skyboxes/Default/front.png",
+        "/Skyboxes/Default/back.png",
     };
-    const std::string DEFAULT_HDR_CUBEMAP = ENGINE_ASSETS_PATH + "/Skyboxes/DefaultHDR/sky.hdr";
+    const std::string DEFAULT_HDR_CUBEMAP = "/Skyboxes/DefaultHDR/sky.hdr";
 
     extern void Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight);
     extern void Initialize(std::shared_ptr<ZGame> game, const ZDomainOptions& domainOptions);

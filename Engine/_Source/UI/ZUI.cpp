@@ -45,13 +45,13 @@ void ZUI::Initialize()
 
     if (uiShader_ == nullptr)
     {
-        uiShader_ = std::shared_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/ui.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/ui.frag"));
+        uiShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"));
         uiShader_->Initialize();
     }
 
     if (textShader_ == nullptr)
     {
-        textShader_ = std::shared_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/text.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/text.frag"));
+        textShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/text.vert", "/Shaders/Pixel/text.frag"));
         textShader_->Initialize();
     }
 }
@@ -148,8 +148,8 @@ void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
         ZCharacter character = zenith::UI()->TextStrategy()->Character(textEl->font_, *c);
         textEl->texture_ = character.texture;
 
-        float xpos = x + character.bearing.x * textEl->fontScale_;
-        float ypos = y - (character.size.y - character.bearing.y) * textEl->fontScale_;
+        float xpos = x + character.bearing.x * textEl->fontScale_ * xRatio;
+        float ypos = y - (character.size.y - character.bearing.y) * textEl->fontScale_ * yRatio;
         float w = character.size.x * textEl->fontScale_ * xRatio;
         float h = character.size.y * textEl->fontScale_ * yRatio;
 

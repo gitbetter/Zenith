@@ -51,9 +51,9 @@ public:
     unsigned int WindowHeight() const { return options_.height; }
     unsigned int ResolutionX() const { return resolutionX_; }
     unsigned int ResolutionY() const { return resolutionY_; }
-    float ResolutionXRatio() const { return (float) ResolutionX() / zenith::DEFAULT_X_RESOLUTION; }
-    float ResolutionYRatio() const { return (float) ResolutionY() / zenith::DEFAULT_Y_RESOLUTION; }
-    float Aspect() const { return (float) ResolutionX() / (float) ResolutionY(); }
+    float ResolutionXRatio() const { return (float) resolutionX_ / zenith::DEFAULT_X_RESOLUTION; }
+    float ResolutionYRatio() const { return (float) resolutionY_ / zenith::DEFAULT_Y_RESOLUTION; }
+    float Aspect() const { return (float) resolutionX_ / (float) resolutionY_; }
 
     ZDomainStrategy* Strategy() { return domainStrategy_.get(); }
     void* MainContext() { return mainContext_; }

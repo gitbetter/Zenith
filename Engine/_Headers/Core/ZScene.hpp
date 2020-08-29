@@ -91,14 +91,14 @@ public:
 
     ZScene(std::string name = "");
     ZScene(std::initializer_list<std::string> zofPaths);
-    ~ZScene() {}
+    virtual ~ZScene() {}
 
-    void Initialize() override;
-    void Update() override;
-
-    void Play();
-    void Pause() override;
-    void Stop();
+    virtual void Initialize() override;
+    virtual void Update() override;
+    virtual void CleanUp() override;
+    virtual void Play();
+    virtual void Pause() override;
+    virtual void Stop();
 
     std::shared_ptr<ZGameObject> Root() { return root_; }
     std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
@@ -131,8 +131,6 @@ public:
     void SetActiveCamera(std::shared_ptr<ZGameObject> gameObject);
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
     void SetDefaultSkybox();
-
-    void CleanUp() override;
 
     void HandleQuit(std::shared_ptr<ZEvent> event);
 };

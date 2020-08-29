@@ -33,7 +33,7 @@
 
 void ZGraphicsDebug::Initialize()
 {
-    shader_ = std::unique_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/debug.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/debug.frag"));
+    shader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/debug.vert", "/Shaders/Pixel/debug.frag"));
     shader_->Initialize();
 }
 

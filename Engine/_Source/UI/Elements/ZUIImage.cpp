@@ -44,6 +44,22 @@ ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIE
 void ZUIImage::Initialize(std::shared_ptr<ZOFNode> root)
 {
     ZUIElement::Initialize(root);
+
+    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
+    if (node == nullptr)
+    {
+        zenith::Log("Could not initalize ZUIImage", ZSeverity::Error);
+        return;
+    }
+
+    ZOFPropertyMap props = node->properties;
+
+    if (props.find("path") != props.end() && props["path"]->HasValues())
+    {
+        std::shared_ptr<ZOFString> pathProp = props["path"]->Value<ZOFString>(0);
+        path_ = pathProp->value;
+        SetImage(path_);
+    }
 }
 
 void ZUIImage::SetImage(std::string path)

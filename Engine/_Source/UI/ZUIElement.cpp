@@ -82,8 +82,8 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root)
 
     if (props.find("anchor") != props.end() && props["anchor"]->HasValues())
     {
-        std::shared_ptr<ZOFString> vAnchorProp = props["anchor"]->Value<ZOFString>(0);
-        std::shared_ptr<ZOFString> hAnchorProp = props["anchor"]->Value<ZOFString>(1);
+        std::shared_ptr<ZOFString> hAnchorProp = props["anchor"]->Value<ZOFString>(0);
+        std::shared_ptr<ZOFString> vAnchorProp = props["anchor"]->Value<ZOFString>(1);
         // TODO: A parent pointer is needed to determine the bounds and therefore the anchor relative positioning.
         // if there is no parent we simply anchor to the screen/resolution bounds
     }
