@@ -99,7 +99,7 @@ void ZGLTextStrategy::LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned
 	FT_Done_Face(face);
 }
 
-void ZGLTextStrategy::HandleFontLoaded(std::shared_ptr<ZEvent> event) {
+void ZGLTextStrategy::HandleFontLoaded(const std::shared_ptr<ZEvent>& event) {
 	std::shared_ptr<ZResourceLoadedEvent> resourceLoadedEvent = std::static_pointer_cast<ZResourceLoadedEvent>(event);
 	std::shared_ptr<ZResourceHandle> handle = resourceLoadedEvent->Handle();
 

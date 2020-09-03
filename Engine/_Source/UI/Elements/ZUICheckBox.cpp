@@ -34,12 +34,12 @@
 #include "ZUI.hpp"
 #include "ZFireEvent.hpp"
 
-ZUICheckBox::ZUICheckBox(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
+ZUICheckBox::ZUICheckBox(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
     type_ = ZUIElementType::CheckBox;
 }
 
-void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root)
+void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
     texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 
@@ -66,7 +66,7 @@ void ZUICheckBox::Initialize(std::shared_ptr<ZOFNode> root)
     }
 }
 
-void ZUICheckBox::HandleMousePress(std::shared_ptr<ZEvent> event)
+void ZUICheckBox::HandleMousePress(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZFireEvent> fireEvent = std::static_pointer_cast<ZFireEvent>(event);
     if (fireEvent->Done() && TrySelect(glm::vec3(fireEvent->X(), fireEvent->Y(), fireEvent->Z())))

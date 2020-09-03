@@ -107,6 +107,6 @@ public:
         return fastdelegate::MakeDelegate(this, &ZScriptableEventDelegate::EventDelegate);
     }
 
-    void EventDelegate(std::shared_ptr<ZEvent> event);
+    void EventDelegate(const std::shared_ptr<ZEvent>& event);
 
 };

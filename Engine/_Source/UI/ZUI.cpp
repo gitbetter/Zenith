@@ -63,12 +63,14 @@ void ZUI::RegisterFont(std::string fontPath)
 
 void ZUI::Render(ZUIElementMap elements)
 {
+    zenith::Graphics()->Strategy()->EnableAlphaBlending();
     for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++)
     {
         // Only render the top level elements that are not hidden. The children will
         // be rendered within the respective parent elements.
         RenderElement(it->second);
     }
+    zenith::Graphics()->Strategy()->DisableAlphaBlending();
 }
 
 void ZUI::RenderElement(std::shared_ptr<ZUIElement> element)
@@ -129,15 +131,12 @@ void ZUI::RenderGeneric(std::shared_ptr<ZUIElement>& element)
 
 void ZUI::RenderImage(std::shared_ptr<ZUIElement>& element)
 {
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
     RenderGeneric(element);
-    zenith::Graphics()->Strategy()->DisableAlphaBlending();
 }
 
 void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
 {
     auto textEl = std::dynamic_pointer_cast<ZUIText>(element);
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
     // TODO: Add text alignment property that calculates these value accordingly
     float x = textEl->Position().x,
         y = textEl->Position().y,
@@ -167,7 +166,6 @@ void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
 
         x += (character.advance >> 6) * textEl->fontScale_ * xRatio;
     }
-    zenith::Graphics()->Strategy()->DisableAlphaBlending();
 }
 
 void ZUI::CleanUp()

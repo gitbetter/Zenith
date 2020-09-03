@@ -112,7 +112,7 @@ void ZSkybox::Render(ZRenderOp renderOp)
     }
 }
 
-void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event)
+void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
     if (textureReadyEvent->Texture().path == hdrPath_)

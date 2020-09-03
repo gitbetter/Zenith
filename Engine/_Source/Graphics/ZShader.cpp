@@ -370,7 +370,7 @@ void ZShader::Use(const ZBoneList& bones)
     }
 }
 
-void ZShader::HandleShaderCodeLoaded(std::shared_ptr<ZEvent> event)
+void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
     if (!loaded->Handle()) return;

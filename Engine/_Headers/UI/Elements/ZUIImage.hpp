@@ -45,15 +45,15 @@ private:
 
 public:
 
-    ZUIImage(std::string path = "", glm::vec2 position = glm::vec2(0.5f), glm::vec2 scale = glm::vec2(0.25f));
+    ZUIImage(const std::string& path = "", const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.25f));
     ~ZUIImage() {}
 
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
-    void SetImage(std::string path);
+    void SetImage(const std::string& path);
 
 protected:
 
-    void HandleTextureReady(std::shared_ptr<ZEvent> event);
+    void HandleTextureReady(const std::shared_ptr<ZEvent>& event);
 
 };

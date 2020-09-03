@@ -155,7 +155,7 @@ void ZMaterial::SetMaterialProperty(std::string property, glm::vec4 value, ZMate
     }
 }
 
-void ZMaterial::HandleTextureReady(std::shared_ptr<ZEvent> event)
+void ZMaterial::HandleTextureReady(const std::shared_ptr<ZEvent>& event)
 {
     auto it = pendingTextures_.begin();
     while (it != pendingTextures_.end())

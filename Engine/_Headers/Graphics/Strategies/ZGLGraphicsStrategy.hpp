@@ -110,6 +110,6 @@ protected:
 
     std::map<ZMeshDrawStyle, unsigned int> drawingStylesMap_;
 
-    void HandleTextureLoaded(std::shared_ptr<ZEvent> event);
+    void HandleTextureLoaded(const std::shared_ptr<ZEvent>& event);
 
 };

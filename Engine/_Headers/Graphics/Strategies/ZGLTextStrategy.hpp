@@ -43,7 +43,7 @@ private:
 
     std::map<std::string, unsigned int> pendingFonts_;
 
-    void HandleFontLoaded(std::shared_ptr<ZEvent> event);
+    void HandleFontLoaded(const std::shared_ptr<ZEvent>& event);
 
 public:
 

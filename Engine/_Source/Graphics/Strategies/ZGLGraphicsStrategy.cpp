@@ -73,7 +73,7 @@ void ZGLGraphicsStrategy::Initialize()
 
 void ZGLGraphicsStrategy::ClearViewport()
 {
-    glClearColor(0.3f, 0.1f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glStencilMask(0x00);
 }
@@ -436,8 +436,8 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData->Width(), textureData->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData->Data());
             glGenerateMipmap(GL_TEXTURE_2D);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         }
@@ -904,7 +904,7 @@ void ZGLGraphicsStrategy::DrawLines(ZBufferData bufferData, std::vector<ZVertex3
     glActiveTexture(GL_TEXTURE0);
 }
 
-void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event)
+void ZGLGraphicsStrategy::HandleTextureLoaded(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
     if (!loaded->Handle()) return;

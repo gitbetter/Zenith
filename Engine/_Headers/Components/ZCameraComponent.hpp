@@ -61,8 +61,8 @@ private:
     bool movementEnabled_ = true;
     bool lookEnabled_ = true;
 
-    void HandleMove(std::shared_ptr<ZEvent> event);
-    void HandleLook(std::shared_ptr<ZEvent> event);
+    void HandleMove(const std::shared_ptr<ZEvent>& event);
+    void HandleLook(const std::shared_ptr<ZEvent>& event);
 
 public:
 

@@ -33,7 +33,7 @@
 #include "ZTextureReadyEvent.hpp"
 #include "ZEventAgent.hpp"
 
-ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
+ZUIImage::ZUIImage(const std::string& path, const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
     enabled_ = false;
     path_ = path;
@@ -41,7 +41,7 @@ ZUIImage::ZUIImage(std::string path, glm::vec2 position, glm::vec2 scale) : ZUIE
     SetImage(path_);
 }
 
-void ZUIImage::Initialize(std::shared_ptr<ZOFNode> root)
+void ZUIImage::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
     ZUIElement::Initialize(root);
 
@@ -62,7 +62,7 @@ void ZUIImage::Initialize(std::shared_ptr<ZOFNode> root)
     }
 }
 
-void ZUIImage::SetImage(std::string path)
+void ZUIImage::SetImage(const std::string& path)
 {
     if (!path.empty())
     {
@@ -72,7 +72,7 @@ void ZUIImage::SetImage(std::string path)
     }
 }
 
-void ZUIImage::HandleTextureReady(std::shared_ptr<ZEvent> event)
+void ZUIImage::HandleTextureReady(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
     if (textureReadyEvent->Texture().path == path_)

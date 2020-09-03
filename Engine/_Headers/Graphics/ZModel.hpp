@@ -103,6 +103,6 @@ protected:
     glm::quat CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
     glm::vec3 CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
 
-    void HandleModelLoaded(std::shared_ptr<ZEvent> event);
+    void HandleModelLoaded(const std::shared_ptr<ZEvent>& event);
 
 };

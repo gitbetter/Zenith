@@ -72,20 +72,20 @@ private:
     std::string name_;
 
     void Render();
-    void LoadSceneData(std::shared_ptr<ZOFTree> objectTree);
-    void ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree);
-    void CreateSceneRoot(std::string& name);
+    void LoadSceneData(const std::shared_ptr<ZOFTree>& objectTree);
+    void ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree);
+    void CreateSceneRoot(const std::string& name);
     void UpdateViewProjectionMatrices();
     void UnregisterLoadDelegates();
 
-    void HandleZOFReady(std::shared_ptr<ZEvent> event);
-    void HandleTextureReady(std::shared_ptr<ZEvent> event);
-    void HandleShaderReady(std::shared_ptr<ZEvent> event);
-    void HandleModelReady(std::shared_ptr<ZEvent> event);
-    void HandleSkyboxReady(std::shared_ptr<ZEvent> event);
-    void HandleObjectDestroyed(std::shared_ptr<ZEvent> event);
+    void HandleZOFReady(const std::shared_ptr<ZEvent>& event);
+    void HandleTextureReady(const std::shared_ptr<ZEvent>& event);
+    void HandleShaderReady(const std::shared_ptr<ZEvent>& event);
+    void HandleModelReady(const std::shared_ptr<ZEvent>& event);
+    void HandleSkyboxReady(const std::shared_ptr<ZEvent>& event);
+    void HandleObjectDestroyed(const std::shared_ptr<ZEvent>& event);
 
-    void CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event);
+    void CheckPendingObject(const std::string& type, const std::shared_ptr<ZEvent>& event);
 
 public:
 
@@ -99,6 +99,7 @@ public:
     virtual void Play();
     virtual void Pause() override;
     virtual void Stop();
+    virtual void Finish() override;
 
     std::shared_ptr<ZGameObject> Root() { return root_; }
     std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
@@ -118,10 +119,14 @@ public:
     void AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImmediately = true);
     void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately = true);
 
+    std::shared_ptr<ZGameObject> FindGameObject(const std::string& id);
+
     void RemoveGameObject(std::shared_ptr<ZGameObject> gameObject);
 
     void AddUIElement(std::shared_ptr<ZUIElement> element);
     void AddUIElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements);
+
+    std::shared_ptr<ZUIElement> FindUIElement(const std::string& id);
 
     glm::mat4 TopMatrix();
     void PushMatrix(glm::mat4 matrix);
@@ -132,5 +137,5 @@ public:
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
     void SetDefaultSkybox();
 
-    void HandleQuit(std::shared_ptr<ZEvent> event);
+    void HandleQuit(const std::shared_ptr<ZEvent>& event);
 };

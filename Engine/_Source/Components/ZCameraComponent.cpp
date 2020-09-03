@@ -194,7 +194,7 @@ void ZCameraComponent::UpdateCameraOrientation()
     }
 }
 
-void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event)
+void ZCameraComponent::HandleMove(const std::shared_ptr<ZEvent>& event)
 {
     if (!movementEnabled_) return;
 
@@ -210,7 +210,7 @@ void ZCameraComponent::HandleMove(std::shared_ptr<ZEvent> event)
     }
 }
 
-void ZCameraComponent::HandleLook(std::shared_ptr<ZEvent> event)
+void ZCameraComponent::HandleLook(const std::shared_ptr<ZEvent>& event)
 {
     if (!lookEnabled_) return;
 

@@ -47,16 +47,16 @@ private:
 
 public:
 
-    ZUICheckBox(glm::vec2 position = glm::vec2(0.1f), glm::vec2 scale = glm::vec2(0.07f, 0.03f));
+    ZUICheckBox(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
     ~ZUICheckBox() {}
 
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     bool Checked() const { return checked_; }
     void SetChecked(bool checked = true) { checked_ = checked; }
 
 protected:
 
-    void HandleMousePress(std::shared_ptr<ZEvent> event);
+    void HandleMousePress(const std::shared_ptr<ZEvent>& event);
 
 };

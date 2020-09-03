@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIListPanel.hpp
+    ZTimedUpdateTask.cpp
 
-    Created by Adrian Sanchez on 17/03/2019.
+    Created by Adrian Sanchez on 02/09/2020.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,34 +27,17 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZTimedUpdateTask.hpp"
 
-// Includes
-#include "ZUIElement.hpp"
-
-// Forward Declarations
-class ZShader;
-
-// Class and Data Structure Definitions
-class ZUIListPanel : public ZUIElement
+void ZTimedUpdateTask::OnUpdate()
 {
-
-private:
-
-    float itemHeight_ = 25.f;
-
-public:
-
-    ZUIListPanel(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
-    ~ZUIListPanel() {}
-
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
-
-    float ItemHeight() const { return itemHeight_; }
-    void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
-
-    void AddChild(const std::shared_ptr<ZUIElement>& element) override;
-
-protected:
-
-};
+    elapsed_ += zenith::DeltaTime();
+    if (elapsed_ >= duration_)
+    {
+        Finish();
+    }
+    else
+    {
+        callback_(elapsed_);
+    }
+}

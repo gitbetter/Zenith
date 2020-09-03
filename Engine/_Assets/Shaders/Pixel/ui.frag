@@ -17,12 +17,15 @@ uniform sampler2D image;
 void main() {
     float maxX = 1.0 - borderWidth;
     float minX = borderWidth;
-    float maxY = maxX / aspectRatio;
-    float minY = minX / aspectRatio;
+    float maxY = 1.0 - borderWidth / aspectRatio;
+    float minY = borderWidth / aspectRatio;
 
     if (fs_in.FragUV.x < maxX && fs_in.FragUV.x > minX &&
         fs_in.FragUV.y < maxY && fs_in.FragUV.y > minY) {
-        FragColor = color * texture(image, fs_in.FragUV);
+        vec4 texColor = texture(image, fs_in.FragUV);
+        if (texColor.a < 0.1)
+            discard;
+        FragColor = color * texColor;
     } else {
         FragColor = borderColor;
     }
