@@ -81,7 +81,7 @@ void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData)
 {
     std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 
-    std::shared_ptr<ZShader> skyboxShader(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/skybox.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/skybox.frag"));
+    std::shared_ptr<ZShader> skyboxShader(new ZShader("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag"));
     skyboxShader->Initialize();
 
     std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
@@ -112,7 +112,7 @@ void ZSkybox::Render(ZRenderOp renderOp)
     }
 }
 
-void ZSkybox::HandleCubemapReady(std::shared_ptr<ZEvent> event)
+void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
     if (textureReadyEvent->Texture().path == hdrPath_)

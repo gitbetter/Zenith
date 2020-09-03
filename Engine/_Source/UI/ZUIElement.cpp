@@ -37,7 +37,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
-ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0), color_(0.6)
+ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.0), color_(0.6), relativePosition_(0.0), opacity_(1.f)
 {
     translationBounds_ = glm::vec4(0.f, (float) zenith::Domain()->ResolutionX(), 0.f, (float) zenith::Domain()->ResolutionY());
     SetPosition(position); SetSize(scale);
@@ -47,7 +47,7 @@ ZUIElement::ZUIElement(glm::vec2 position, glm::vec2 scale) : modelMatrix_(1.0),
     type_ = ZUIElementType::Unknown;
 }
 
-void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root)
+void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
     modelMatrix_ = glm::mat4(1.0); color_ = glm::vec4(0.6);
 
@@ -62,39 +62,48 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root)
 
     ZOFPropertyMap props = node->properties;
 
-    glm::vec2 size = Size(), position = Position();
+    glm::vec2 relativeSize = RelativeSize(),
+        relativePosition = RelativePosition();
 
     if (props.find("scale") != props.end() && props["scale"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-        float x = scaleProp->value[0] < 0 ? glm::min(zenith::Domain()->WindowWidth(), zenith::Domain()->ResolutionX()) : scaleProp->value[0] * zenith::Domain()->ResolutionXRatio();
-        float y = scaleProp->value[1] < 0 ? glm::min(zenith::Domain()->WindowHeight(), zenith::Domain()->ResolutionY()) : scaleProp->value[1] * zenith::Domain()->ResolutionYRatio();
-        size = glm::vec2(x, y);
+        float x = scaleProp->value[0] * 0.01;
+        float y = scaleProp->value[1] * 0.01;
+        relativeSize = glm::vec2(x, y);
     }
 
     if (props.find("position") != props.end() && props["position"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
-        float x = posProp->value[0] * zenith::Domain()->ResolutionXRatio();
-        float y = posProp->value[1] * zenith::Domain()->ResolutionYRatio();
-        position = glm::vec2(x + size.x, y + size.y);
+        float x = posProp->value[0] * 0.01;
+        float y = posProp->value[1] * 0.01;
+        relativePosition = glm::vec2(x, y);
     }
 
     if (props.find("anchor") != props.end() && props["anchor"]->HasValues())
     {
-        std::shared_ptr<ZOFString> vAnchorProp = props["anchor"]->Value<ZOFString>(0);
-        std::shared_ptr<ZOFString> hAnchorProp = props["anchor"]->Value<ZOFString>(1);
+        std::shared_ptr<ZOFString> hAnchorProp = props["anchor"]->Value<ZOFString>(0);
+        std::shared_ptr<ZOFString> vAnchorProp = props["anchor"]->Value<ZOFString>(1);
         // TODO: A parent pointer is needed to determine the bounds and therefore the anchor relative positioning.
         // if there is no parent we simply anchor to the screen/resolution bounds
     }
 
-    SetPosition(position);
-    SetSize(size);
+    SetRelativePosition(relativePosition);
+    SetRelativeSize(relativeSize);
 
     if (props.find("color") != props.end() && props["color"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> colorProp = props["color"]->Value<ZOFNumberList>(0);
         color_ = glm::vec4(colorProp->value[0], colorProp->value[1], colorProp->value[2], colorProp->value[3]);
+    }
+
+    if (props.find("opacity") != props.end() && props["opacity"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumber> opacityProp = props["opacity"]->Value<ZOFNumber>(0);
+        opacity_ = opacityProp->value;
+        color_.a = opacity_;
+        border_.color.a = opacity_;
     }
 
     if (props.find("isHidden") != props.end() && props["isHidden"]->HasValues())
@@ -129,16 +138,17 @@ void ZUIElement::Initialize(std::shared_ptr<ZOFNode> root)
     }
 }
 
-void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element)
+void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
 {
     // Reset the child translation and move it to the parent's location
-    glm::vec3 elementPos = element->Position();
-    glm::vec3 elementSize = element->Size();
+    glm::vec2 elPos(element->RelativePosition());
+    glm::vec2 elSize(element->RelativeSize());
 
     element->ResetModelMatrix();
-    element->SetPosition(Position() - Size() + elementPos);
-    element->SetSize(elementSize);
+    element->SetRelativePosition(relativePosition_ + elPos * relativeSize_ + elSize * 0.5f);
+    element->SetRelativeSize(elSize);
     element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
+    element->SetOpacity(Opacity());
 
     if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(zenith::UI()->TextShader());
     else element->SetShader(zenith::UI()->UIShader());
@@ -148,7 +158,7 @@ void ZUIElement::AddChild(std::shared_ptr<ZUIElement> element)
     children_.push_back(element);
 }
 
-bool ZUIElement::RemoveChild(std::shared_ptr<ZUIElement> element)
+bool ZUIElement::RemoveChild(const std::shared_ptr<ZUIElement>& element)
 {
     bool success = false;
     for (auto it = children_.begin(); it != children_.end(); it++)
@@ -167,17 +177,29 @@ void ZUIElement::RemoveParent()
     parent_ = nullptr;
 }
 
-void ZUIElement::SetSize(glm::vec2 size)
+void ZUIElement::SetSize(const glm::vec2& size)
 {
     modelMatrix_[0][0] = modelMatrix_[1][1] = modelMatrix_[2][2] = 1.f;
     modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(size, 0.f));
 }
 
-void ZUIElement::SetPosition(glm::vec2 position)
+void ZUIElement::SetRelativeSize(const glm::vec2& size)
+{
+    relativeSize_ = size;
+    SetSize(glm::vec2(size.x * zenith::Domain()->ResolutionX(), size.y * zenith::Domain()->ResolutionY()));
+}
+
+void ZUIElement::SetPosition(const glm::vec2& position)
 {
     modelMatrix_[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);
-    modelMatrix_ = glm::translate(modelMatrix_, glm::vec3(position, 0.f));
+    modelMatrix_ = glm::translate(modelMatrix_, glm::vec3(position.x / Size().x, position.y / Size().y, 0.f));
     ClampToBounds();
+}
+
+void ZUIElement::SetRelativePosition(const glm::vec2& position)
+{
+    relativePosition_ = position;
+    SetPosition(glm::vec2(position.x * zenith::Domain()->ResolutionX(), position.y * zenith::Domain()->ResolutionY()));
 }
 
 void ZUIElement::SetRotation(float angle)
@@ -196,14 +218,30 @@ void ZUIElement::SetTranslationBounds(float left, float right, float bottom, flo
     }
 }
 
-glm::vec3 ZUIElement::Position()
+void ZUIElement::SetOpacity(float opacity, bool relativeToAlpha)
+{
+    opacity_ = opacity;
+    color_.a = relativeToAlpha ? color_.a * opacity_ : opacity_;
+    border_.color.a = relativeToAlpha ? border_.color.a * opacity_ : opacity_;
+    for (std::shared_ptr<ZUIElement> child : children_)
+    {
+        child->SetOpacity(opacity);
+    }
+}
+
+glm::vec3 ZUIElement::Position() const
 {
     return glm::vec3(modelMatrix_[3].x,
         modelMatrix_[3].y,
         0.f);
 }
 
-glm::vec3 ZUIElement::Size()
+glm::vec2 ZUIElement::RelativePosition() const
+{
+    return relativePosition_;
+}
+
+glm::vec3 ZUIElement::Size() const
 {
     glm::mat3 scaleMatrix(modelMatrix_);
     return glm::vec3(glm::length(scaleMatrix[0]),
@@ -211,14 +249,19 @@ glm::vec3 ZUIElement::Size()
         glm::length(scaleMatrix[2]));
 }
 
-float ZUIElement::Angle()
+glm::vec2 ZUIElement::RelativeSize() const
+{
+    return relativeSize_;
+}
+
+float ZUIElement::Angle() const
 {
     glm::vec3 rotationAxis; float angle;
     glm::axisAngle(modelMatrix_, rotationAxis, angle);
     return angle;
 }
 
-void ZUIElement::Translate(glm::vec2 translation)
+void ZUIElement::Translate(const glm::vec2& translation)
 {
     modelMatrix_ = glm::translate(modelMatrix_,
         glm::vec3(translation.x / Size().x,
@@ -243,14 +286,14 @@ void ZUIElement::Rotate(float angle)
     }
 }
 
-void ZUIElement::Scale(glm::vec2 factor)
+void ZUIElement::Scale(const glm::vec2& factor)
 {
     modelMatrix_ = glm::scale(modelMatrix_, glm::vec3(factor.x,
         factor.y,
         0.f));
 }
 
-bool ZUIElement::TrySelect(glm::vec3 position)
+bool ZUIElement::TrySelect(const glm::vec3& position)
 {
     bool selected = false;
     if (enabled_ && Contains(position))
@@ -272,7 +315,7 @@ bool ZUIElement::TrySelect(glm::vec3 position)
     return selected;
 }
 
-bool ZUIElement::Contains(glm::vec3 point)
+bool ZUIElement::Contains(const glm::vec3& point)
 {
     return point.x >= Position().x - Size().x && point.x <= Position().x + Size().x &&
         point.y >= Position().y - Size().y && point.y <= Position().y + Size().y;

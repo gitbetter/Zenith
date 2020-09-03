@@ -91,7 +91,7 @@ void ZBulletPhysics::RemoveRigidBody(std::shared_ptr<ZRigidBody> body)
     dynamicsWorld_->removeRigidBody(ptr);
 }
 
-void ZBulletPhysics::HandleRaycastEvent(std::shared_ptr<ZEvent> event)
+void ZBulletPhysics::HandleRaycastEvent(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZRaycastEvent> raycastEvent = std::static_pointer_cast<ZRaycastEvent>(event);
 

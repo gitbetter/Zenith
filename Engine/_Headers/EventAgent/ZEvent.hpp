@@ -41,36 +41,20 @@ class ZEvent
 
 private:
 
-public:
-
-    virtual const ZEventType& EventType() const = 0;
-    virtual float TimeStamp() const = 0;
-    virtual void SetTimeStamp(float timestamp) = 0;
-    virtual void Serialize(std::ostringstream& out) const = 0;
-    virtual std::shared_ptr<ZEvent> Copy() const = 0;
-    virtual std::string Name() const = 0;
-
-protected:
-
-};
-
-class ZBaseEvent : public ZEvent
-{
-
-private:
-
     float timeStamp_;
 
 public:
 
-    explicit ZBaseEvent(const float timeStamp = 0.f) : timeStamp_(timeStamp) {}
-    virtual ~ZBaseEvent() {}
+    explicit ZEvent(const float timeStamp = 0.f) : timeStamp_(timeStamp) {}
+    virtual ~ZEvent() {}
 
-    virtual const ZEventType& EventType() const override = 0;
-    float TimeStamp() const override { return timeStamp_; }
+    virtual const ZEventType& EventType() const = 0;
+    virtual float TimeStamp() const { return timeStamp_; }
+    virtual void SetTimeStamp(float timestamp) { timeStamp_ = timestamp; }
+    virtual void Serialize(std::ostringstream& out) const {}
+    virtual std::shared_ptr<ZEvent> Copy() const = 0;
+    virtual std::string Name() const = 0;
 
-    void SetTimeStamp(float timestamp) override { timeStamp_ = timestamp; }
-
-    virtual void Serialize(std::ostringstream& out) const override {}
+protected:
 
 };

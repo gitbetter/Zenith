@@ -31,12 +31,12 @@
 #include "ZGraphics.hpp"
 #include "ZGraphicsStrategy.hpp"
 
-ZUIListPanel::ZUIListPanel(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
+ZUIListPanel::ZUIListPanel(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
     type_ = ZUIElementType::ListPanel;
 }
 
-void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root)
+void ZUIListPanel::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
     texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
 
@@ -58,7 +58,7 @@ void ZUIListPanel::Initialize(std::shared_ptr<ZOFNode> root)
     }
 }
 
-void ZUIListPanel::AddChild(std::shared_ptr<ZUIElement> element)
+void ZUIListPanel::AddChild(const std::shared_ptr<ZUIElement>& element)
 {
     element->SetPosition(glm::vec2(Size().x, 2.f * itemHeight_ * children_.size() + itemHeight_));
     element->SetSize(glm::vec2(Size().x, itemHeight_));

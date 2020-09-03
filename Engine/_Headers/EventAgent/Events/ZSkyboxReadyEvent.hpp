@@ -36,7 +36,7 @@
 class ZSkybox;
 
 // Class and Data Structure Definitions
-class ZSkyboxReadyEvent : public ZBaseEvent
+class ZSkyboxReadyEvent : public ZEvent
 {
 
 private:

@@ -58,35 +58,40 @@ private:
 
 public:
 
-    ZUIElement(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f));
+    ZUIElement(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
     virtual ~ZUIElement() {}
 
     virtual void Initialize() override {}
-    virtual void Initialize(std::shared_ptr<ZOFNode> root);
+    virtual void Initialize(const std::shared_ptr<ZOFNode>& root);
 
-    bool Enabled() { return enabled_; }
-    bool Hidden() { return hidden_; }
-    bool Selected() { return selected_; }
-    glm::vec3 Position();
-    glm::vec3 Size();
-    float Angle();
-    glm::vec4 Color() { return color_; }
-    const ZTexture& Texture() { return texture_; }
+    bool Enabled() const { return enabled_; }
+    bool Hidden() const { return hidden_; }
+    bool Selected() const { return selected_; }
+    glm::vec3 Position() const;
+    glm::vec2 RelativePosition() const;
+    glm::vec3 Size() const;
+    glm::vec2 RelativeSize() const;
+    float Angle() const;
+    glm::vec4 Color() const { return color_; }
+    float Opacity() const { return opacity_; }
+    const ZTexture& Texture() const { return texture_; }
     const std::shared_ptr<ZShader>& Shader() const { return shader_; }
 
-    void SetSize(glm::vec2 size);
-    void SetPosition(glm::vec2 position);
+    void SetSize(const glm::vec2& size);
+    void SetRelativeSize(const glm::vec2& size);
+    void SetPosition(const glm::vec2& position);
+    void SetRelativePosition(const glm::vec2& position);
     void SetRotation(float angle);
-
-    void SetTexture(ZTexture texture) { texture_ = texture; }
-    virtual void SetColor(glm::vec4 newColor) { color_ = newColor; }
+    void SetTexture(const ZTexture& texture) { texture_ = texture; }
+    virtual void SetColor(const glm::vec4& newColor) { color_ = newColor; }
+    void SetOpacity(float opacity, bool relativeToAlpha = false);
     void SetTranslationBounds(float left, float right, float bottom, float top);
-    void SetShader(std::shared_ptr<ZShader> shader) { shader_ = shader; }
-    void ResetModelMatrix() { modelMatrix_ = glm::mat4(1.f); }
+    void SetShader(const std::shared_ptr<ZShader>& shader) { shader_ = shader; }
 
-    void Translate(glm::vec2 translation);
+    void ResetModelMatrix() { modelMatrix_ = glm::mat4(1.f); }
+    void Translate(const glm::vec2& translation);
     void Rotate(float angle);
-    void Scale(glm::vec2 factor);
+    void Scale(const glm::vec2& factor);
 
     void Hide() { hidden_ = true; }
     void Show() { hidden_ = false; }
@@ -95,23 +100,24 @@ public:
     void Select() { if (enabled_) selected_ = true; }
     void Deselect() { selected_ = false; }
 
-    virtual void AddChild(std::shared_ptr<ZUIElement> element);
-    bool RemoveChild(std::shared_ptr<ZUIElement> element);
+    bool HasChildren() const { return !children_.empty(); }
+    virtual void AddChild(const std::shared_ptr<ZUIElement>& element);
+    bool RemoveChild(const std::shared_ptr<ZUIElement>& element);
 
     void SetParent(ZUIElement* parent) { parent_ = parent; }
     void RemoveParent();
 
     virtual std::shared_ptr<ZMesh2D> ElementShape();
 
-    bool TrySelect(glm::vec3 position);
-    bool Contains(glm::vec3 point);
+    bool TrySelect(const glm::vec3& position);
+    bool Contains(const glm::vec3& point);
 
     void CleanUp() override;
 
     ZUIElement* Parent() const { return parent_; }
 
     template<class T>
-    std::shared_ptr<T> Child(std::string id)
+    std::shared_ptr<T> Child(const std::string& id)
     {
         if (!std::is_base_of<ZUIElement, T>::value) return nullptr;
 
@@ -127,16 +133,22 @@ public:
 
 protected:
 
-    bool hidden_, enabled_, selected_, dirty_;
-    ZUIElement* parent_ = nullptr;
-    glm::mat4 modelMatrix_;
-    glm::vec4 translationBounds_;
-    glm::vec4 color_;
+    bool                                     hidden_;
+    bool                                     enabled_;
+    bool                                     selected_;
+    bool                                     dirty_;
+    ZUIElement*                              parent_ = nullptr;
+    glm::mat4                                modelMatrix_;
+    glm::vec2                                relativePosition_;
+    glm::vec2                                relativeSize_;
+    glm::vec4                                translationBounds_;
+    glm::vec4                                color_;
+    float                                    opacity_;
     std::vector<std::shared_ptr<ZUIElement>> children_;
-    std::shared_ptr<ZShader> shader_;
-    ZTexture texture_;
-    ZUIBorder border_;
-    ZScene* scene_;
-    ZUIElementType type_;
+    std::shared_ptr<ZShader>                 shader_;
+    ZTexture                                 texture_;
+    ZUIBorder                                border_;
+    ZScene*                                  scene_;
+    ZUIElementType                           type_;
 
 };

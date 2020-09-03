@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZObjectSelectedEvent : public ZBaseEvent
+class ZObjectSelectedEvent : public ZEvent
 {
 
 private:

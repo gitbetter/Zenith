@@ -70,6 +70,6 @@ public:
 
     void CleanUp() override;
 
-    void HandleRaycastEvent(std::shared_ptr<ZEvent> event);
+    void HandleRaycastEvent(const std::shared_ptr<ZEvent>& event);
 
 };

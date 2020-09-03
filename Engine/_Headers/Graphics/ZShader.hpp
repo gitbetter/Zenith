@@ -59,7 +59,7 @@ private:
     unsigned int CreateProgram(int vShader, int pShader, int gShader);
     void CheckCompileErrors(unsigned int compilationUnit, ZShaderType shaderType, const std::string& shaderSource);
 
-    void HandleShaderCodeLoaded(std::shared_ptr<ZEvent> event);
+    void HandleShaderCodeLoaded(const std::shared_ptr<ZEvent>& event);
 
 public:
 

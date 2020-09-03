@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZRaycastEvent : public ZBaseEvent
+class ZRaycastEvent : public ZEvent
 {
 
 private:

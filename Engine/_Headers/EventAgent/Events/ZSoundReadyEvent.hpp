@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZSoundReadyEvent : public ZBaseEvent
+class ZSoundReadyEvent : public ZEvent
 {
 
 public:

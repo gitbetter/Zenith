@@ -45,13 +45,13 @@ void ZUI::Initialize()
 
     if (uiShader_ == nullptr)
     {
-        uiShader_ = std::shared_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/ui.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/ui.frag"));
+        uiShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"));
         uiShader_->Initialize();
     }
 
     if (textShader_ == nullptr)
     {
-        textShader_ = std::shared_ptr<ZShader>(new ZShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/text.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/text.frag"));
+        textShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/text.vert", "/Shaders/Pixel/text.frag"));
         textShader_->Initialize();
     }
 }
@@ -63,12 +63,14 @@ void ZUI::RegisterFont(std::string fontPath)
 
 void ZUI::Render(ZUIElementMap elements)
 {
+    zenith::Graphics()->Strategy()->EnableAlphaBlending();
     for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++)
     {
         // Only render the top level elements that are not hidden. The children will
         // be rendered within the respective parent elements.
         RenderElement(it->second);
     }
+    zenith::Graphics()->Strategy()->DisableAlphaBlending();
 }
 
 void ZUI::RenderElement(std::shared_ptr<ZUIElement> element)
@@ -129,15 +131,12 @@ void ZUI::RenderGeneric(std::shared_ptr<ZUIElement>& element)
 
 void ZUI::RenderImage(std::shared_ptr<ZUIElement>& element)
 {
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
     RenderGeneric(element);
-    zenith::Graphics()->Strategy()->DisableAlphaBlending();
 }
 
 void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
 {
     auto textEl = std::dynamic_pointer_cast<ZUIText>(element);
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
     // TODO: Add text alignment property that calculates these value accordingly
     float x = textEl->Position().x,
         y = textEl->Position().y,
@@ -148,8 +147,8 @@ void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
         ZCharacter character = zenith::UI()->TextStrategy()->Character(textEl->font_, *c);
         textEl->texture_ = character.texture;
 
-        float xpos = x + character.bearing.x * textEl->fontScale_;
-        float ypos = y - (character.size.y - character.bearing.y) * textEl->fontScale_;
+        float xpos = x + character.bearing.x * textEl->fontScale_ * xRatio;
+        float ypos = y - (character.size.y - character.bearing.y) * textEl->fontScale_ * yRatio;
         float w = character.size.x * textEl->fontScale_ * xRatio;
         float h = character.size.y * textEl->fontScale_ * yRatio;
 
@@ -167,7 +166,6 @@ void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
 
         x += (character.advance >> 6) * textEl->fontScale_ * xRatio;
     }
-    zenith::Graphics()->Strategy()->DisableAlphaBlending();
 }
 
 void ZUI::CleanUp()

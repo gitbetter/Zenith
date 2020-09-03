@@ -69,7 +69,7 @@ ZScriptableEvent* ZScriptableEvent::CreateEventFromScript(ZEventType type)
     return creationFunctions_[type]();
 }
 
-void ZScriptableEventDelegate::EventDelegate(std::shared_ptr<ZEvent> event)
+void ZScriptableEventDelegate::EventDelegate(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZScriptableEvent> scriptEvent = std::static_pointer_cast<ZScriptableEvent>(event);
     sol::function callback = scriptCallback_;

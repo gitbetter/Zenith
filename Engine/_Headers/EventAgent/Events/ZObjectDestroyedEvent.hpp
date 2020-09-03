@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZObjectDestroyedEvent : public ZBaseEvent
+class ZObjectDestroyedEvent : public ZEvent
 {
 
 private:

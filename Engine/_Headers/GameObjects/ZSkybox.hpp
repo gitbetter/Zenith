@@ -66,6 +66,6 @@ protected:
 
     ZIBLTexture iblTexture_;
 
-    void HandleCubemapReady(std::shared_ptr<ZEvent> event);
+    void HandleCubemapReady(const std::shared_ptr<ZEvent>& event);
 
 };

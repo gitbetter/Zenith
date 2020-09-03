@@ -82,6 +82,6 @@ public:
 
 protected:
 
-    void HandleTextureReady(std::shared_ptr<ZEvent> event);
+    void HandleTextureReady(const std::shared_ptr<ZEvent>& event);
 
 };

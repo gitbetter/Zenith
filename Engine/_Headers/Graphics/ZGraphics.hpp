@@ -94,9 +94,9 @@ public:
 
     void CleanUp();
 
-    void HandleShaderReady(std::shared_ptr<ZEvent> event);
-    void HandleTextureReady(std::shared_ptr<ZEvent> event);
-    void HandleModelReady(std::shared_ptr<ZEvent> event);
+    void HandleShaderReady(const std::shared_ptr<ZEvent>& event);
+    void HandleTextureReady(const std::shared_ptr<ZEvent>& event);
+    void HandleModelReady(const std::shared_ptr<ZEvent>& event);
 
 protected:
 

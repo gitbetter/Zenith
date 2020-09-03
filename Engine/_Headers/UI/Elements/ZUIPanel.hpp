@@ -42,10 +42,10 @@ private:
 
 public:
 
-    ZUIPanel(glm::vec2 position = glm::vec2(0.f), glm::vec2 scale = glm::vec2(1.f));
+    ZUIPanel(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
     ~ZUIPanel() {}
 
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
 protected:
 

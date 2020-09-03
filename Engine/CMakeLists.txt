@@ -60,6 +60,7 @@ ${ENGINE_SOURCE_DIR}/Process/ZProcessRunner.cpp
 ${ENGINE_SOURCE_DIR}/Process/ZProcess.cpp
 ${ENGINE_SOURCE_DIR}/Process/ZScriptableProcess.cpp
 ${ENGINE_SOURCE_DIR}/Process/ZConcurrentProcess.cpp
+${ENGINE_SOURCE_DIR}/Process/ZTimedUpdateTask.cpp
 ${ENGINE_SOURCE_DIR}/Physics/ZPhysics.cpp
 ${ENGINE_SOURCE_DIR}/Physics/ZBulletPhysics.cpp
 ${ENGINE_SOURCE_DIR}/Physics/ZRigidBody.cpp
@@ -189,6 +190,7 @@ ${ENGINE_HEADERS_DIR}/Process/ZProcess.hpp
 ${ENGINE_HEADERS_DIR}/Process/ZProcessRunner.hpp
 ${ENGINE_HEADERS_DIR}/Process/ZScriptableProcess.hpp
 ${ENGINE_HEADERS_DIR}/Process/ZConcurrentProcess.hpp
+${ENGINE_HEADERS_DIR}/Process/ZTimedUpdateTask.hpp
 ${ENGINE_HEADERS_DIR}/ResourceCache/ZResource.hpp
 ${ENGINE_HEADERS_DIR}/ResourceCache/ZResourceCache.hpp
 ${ENGINE_HEADERS_DIR}/ResourceCache/ZResourceFile.hpp

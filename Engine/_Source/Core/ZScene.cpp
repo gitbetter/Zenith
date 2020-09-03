@@ -101,7 +101,7 @@ void ZScene::Initialize()
     ZProcess::Initialize();
 }
 
-void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree)
+void ZScene::LoadSceneData(const std::shared_ptr<ZOFTree>& objectTree)
 {
     ParseSceneMetadata(objectTree);
 
@@ -125,7 +125,7 @@ void ZScene::LoadSceneData(std::shared_ptr<ZOFTree> objectTree)
     }
 }
 
-void ZScene::ParseSceneMetadata(std::shared_ptr<ZOFTree> objectTree)
+void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree)
 {
     bool hasSkybox = false;
     for (ZOFChildMap::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++)
@@ -270,7 +270,7 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot)
         AddUIElement(pair.second);
 }
 
-void ZScene::CreateSceneRoot(std::string& name)
+void ZScene::CreateSceneRoot(const std::string& name)
 {
     root_ = std::make_shared<ZSceneRoot>(name);
     root_->scene_ = this;
@@ -338,6 +338,26 @@ void ZScene::RemoveGameObject(std::shared_ptr<ZGameObject> gameObject)
     }
 }
 
+std::shared_ptr<ZGameObject> ZScene::FindGameObject(const std::string& id)
+{
+    if (!id.empty())
+    {
+        for (auto it = gameObjects_.begin(); it != gameObjects_.end(); it++)
+        {
+            if (it->first == id)
+            {
+                return it->second;
+            }
+            else if (it->second->HasChildren())
+            {
+                auto found = it->second->Child<ZGameObject>(id);
+                if (found) return found;
+            }
+        }
+    }
+    return nullptr;
+}
+
 void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element)
 {
     if (element != nullptr)
@@ -355,6 +375,26 @@ void ZScene::AddUIElements(std::initializer_list<std::shared_ptr<ZUIElement>> el
     {
         AddUIElement(element);
     }
+}
+
+std::shared_ptr<ZUIElement> ZScene::FindUIElement(const std::string& id)
+{
+    if (!id.empty())
+    {
+        for (auto it = uiElements_.begin(); it != uiElements_.end(); it++)
+        {
+            if (it->first == id)
+            {
+                return it->second;
+            }
+            else if (it->second->HasChildren())
+            {
+                auto found = it->second->Child<ZUIElement>(id);
+                if (found) return found;
+            }
+        }
+    }
+    return nullptr;
 }
 
 glm::mat4 ZScene::TopMatrix()
@@ -402,6 +442,9 @@ void ZScene::SetDefaultSkybox()
 
 void ZScene::UnregisterLoadDelegates()
 {
+    ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
+    zenith::EventAgent()->RemoveListener(quitDelegate, ZQuitEvent::Type);
+
     ZEventDelegate zofLoadDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleZOFReady);
     zenith::EventAgent()->RemoveListener(zofLoadDelegate, ZResourceLoadedEvent::Type);
 
@@ -418,12 +461,12 @@ void ZScene::UnregisterLoadDelegates()
     zenith::EventAgent()->RemoveListener(skyboxReadyDelegate, ZSkyboxReadyEvent::Type);
 }
 
-void ZScene::HandleQuit(std::shared_ptr<ZEvent> event)
+void ZScene::HandleQuit(const std::shared_ptr<ZEvent>& event)
 {
     zenith::Domain()->Strategy()->ReleaseCursor();
 }
 
-void ZScene::HandleZOFReady(std::shared_ptr<ZEvent> event)
+void ZScene::HandleZOFReady(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
     if (!loaded->Handle()) return;
@@ -442,27 +485,27 @@ void ZScene::HandleZOFReady(std::shared_ptr<ZEvent> event)
     }
 }
 
-void ZScene::HandleTextureReady(std::shared_ptr<ZEvent> event)
+void ZScene::HandleTextureReady(const std::shared_ptr<ZEvent>& event)
 {
     CheckPendingObject("ZTEX", event);
 }
 
-void ZScene::HandleShaderReady(std::shared_ptr<ZEvent> event)
+void ZScene::HandleShaderReady(const std::shared_ptr<ZEvent>& event)
 {
     CheckPendingObject("ZSH", event);
 }
 
-void ZScene::HandleSkyboxReady(std::shared_ptr<ZEvent> event)
+void ZScene::HandleSkyboxReady(const std::shared_ptr<ZEvent>& event)
 {
     CheckPendingObject("ZSKY", event);
 }
 
-void ZScene::HandleModelReady(std::shared_ptr<ZEvent> event)
+void ZScene::HandleModelReady(const std::shared_ptr<ZEvent>& event)
 {
     CheckPendingObject("ZMOD", event);
 }
 
-void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event)
+void ZScene::CheckPendingObject(const std::string& type, const std::shared_ptr<ZEvent>& event)
 {
     std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
 
@@ -509,7 +552,7 @@ void ZScene::CheckPendingObject(std::string type, std::shared_ptr<ZEvent>& event
     }
 }
 
-void ZScene::HandleObjectDestroyed(std::shared_ptr<ZEvent> event)
+void ZScene::HandleObjectDestroyed(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZObjectDestroyedEvent> destroyedEvent = std::static_pointer_cast<ZObjectDestroyedEvent>(event);
     RemoveGameObject(destroyedEvent->Object());
@@ -517,9 +560,6 @@ void ZScene::HandleObjectDestroyed(std::shared_ptr<ZEvent> event)
 
 void ZScene::CleanUp()
 {
-    ZEventDelegate quitDelegate = fastdelegate::MakeDelegate(this, &ZScene::HandleQuit);
-    zenith::EventAgent()->RemoveListener(quitDelegate, ZQuitEvent::Type);
-
     UnregisterLoadDelegates();
 
     for (ZGameObjectMap::iterator it = gameObjects_.begin(); it != gameObjects_.end(); it++)
@@ -531,4 +571,13 @@ void ZScene::CleanUp()
     uiElements_.clear();
 
     skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;
+
+    zenith::Graphics()->Strategy()->ClearViewport();
+}
+
+void ZScene::Finish()
+{
+    Stop();
+    CleanUp();
+    ZProcess::Finish();
 }

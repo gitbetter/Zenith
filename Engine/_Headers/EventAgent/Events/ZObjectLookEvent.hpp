@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZObjectLookEvent : public ZBaseEvent
+class ZObjectLookEvent : public ZEvent
 {
 
 private:

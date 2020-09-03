@@ -211,27 +211,24 @@ class ZLight;
 struct ZAnimation;
 struct ZBone;
 
-typedef std::function<void()> ZEventCallback;
-typedef std::map<std::string, std::shared_ptr<ZGameObject>> ZGameObjectMap;
-typedef std::map<std::string, std::shared_ptr<ZLight>> ZLightMap;
-typedef std::map<std::string, std::shared_ptr<ZUIElement>> ZUIElementMap;
-typedef std::map<std::string, std::shared_ptr<ZShader>> ZShaderMap;
-typedef std::map<std::string, std::shared_ptr<ZModel>> ZModelMap;
-typedef std::map<std::string, std::shared_ptr<ZMesh3D>> ZMesh3DMap;
-typedef std::map<std::string, std::shared_ptr<ZMaterial>> ZMaterialMap;
-typedef std::vector<std::shared_ptr<ZGameObject>> ZGameObjectList;
-typedef std::vector<std::shared_ptr<ZComponent>> ZComponentList;
-typedef std::list<std::shared_ptr<ZProcess>> ZProcessList;
-typedef fastdelegate::FastDelegate1<std::shared_ptr<ZEvent>> ZEventDelegate;
-typedef std::pair<ZGameObject*, ZGameObject*> ZCollisionPair;
-typedef std::set<ZCollisionPair> ZCollisionPairs;
-typedef std::map<std::string, std::shared_ptr<ZAnimation>> ZAnimationMap;
-typedef std::map<std::string, unsigned int> ZBoneMap;
-typedef std::vector<std::shared_ptr<ZBone>> ZBoneList;
-
-typedef unsigned long ZEventType;
-
-const std::string ENGINE_ASSETS_PATH(std::string(ENGINE_ROOT) + "/_Assets");
+using ZGameObjectMap = std::map<std::string, std::shared_ptr<ZGameObject>>;
+using ZLightMap = std::map<std::string, std::shared_ptr<ZLight>>;
+using ZUIElementMap = std::map<std::string, std::shared_ptr<ZUIElement>>;
+using ZShaderMap = std::map<std::string, std::shared_ptr<ZShader>>;
+using ZModelMap = std::map<std::string, std::shared_ptr<ZModel>>;
+using ZMesh3DMap = std::map<std::string, std::shared_ptr<ZMesh3D>>;
+using ZMaterialMap = std::map<std::string, std::shared_ptr<ZMaterial>>;
+using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
+using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
+using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
+using ZEventDelegate = fastdelegate::FastDelegate1<const std::shared_ptr<ZEvent>&>;
+using ZCollisionPair = std::pair<ZGameObject*, ZGameObject*>;
+using ZCollisionPairs = std::set<ZCollisionPair>;
+using ZAnimationMap = std::map<std::string, std::shared_ptr<ZAnimation>>;
+using ZBoneMap = std::map<std::string, unsigned int>;
+using ZBoneList = std::vector<std::shared_ptr<ZBone>>;
+using ZTimedUpdateCallback = std::function<void(float)>;
+using ZEventType = unsigned long;
 
 enum ZSeverity
 {

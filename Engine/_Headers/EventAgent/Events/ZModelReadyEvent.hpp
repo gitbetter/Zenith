@@ -36,7 +36,7 @@
 class ZModel;
 
 // Class and Data Structure Definitions
-class ZModelReadyEvent : public ZBaseEvent
+class ZModelReadyEvent : public ZEvent
 {
 
 private:

@@ -77,6 +77,7 @@ public:
     virtual std::shared_ptr<ZGameObject> Clone();
     virtual void AddChild(std::shared_ptr<ZGameObject> gameObject);
     virtual void RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse = false);
+    bool HasChildren() { return !children_.empty(); }
     virtual bool IsVisible();
 
     virtual void Destroy();
@@ -118,7 +119,8 @@ public:
         }
     }
 
-    template<class T> std::shared_ptr<T> RemoveComponent()
+    template<class T>
+    std::shared_ptr<T> RemoveComponent()
     {
         ZComponentList::iterator found;
         for (ZComponentList::iterator it = components_.begin(); it != components_.end(); ++it)
@@ -136,13 +138,29 @@ public:
         return removed;
     }
 
-    template<class T> std::shared_ptr<T> FindComponent()
+    template<class T>
+    std::shared_ptr<T> FindComponent()
     {
         for (std::shared_ptr<ZComponent> comp : components_)
         {
             if (std::dynamic_pointer_cast<T>(comp)) return std::dynamic_pointer_cast<T>(comp);
         }
         return nullptr;
+    }
+
+    template<class T>
+    std::shared_ptr<T> Child(const std::string& id)
+    {
+        if (!std::is_base_of<ZGameObject, T>::value) return nullptr;
+
+        std::shared_ptr<T> go;
+        for (auto it = children_.begin(); it != children_.end(); it++)
+        {
+            if ((go = std::dynamic_pointer_cast<T>(*it)) && go->ID() == id) return go;
+            go = nullptr;
+        }
+
+        return go;
     }
 
 protected:

@@ -31,12 +31,12 @@
 #include "ZShader.hpp"
 #include "ZUI.hpp"
 
-ZUIButton::ZUIButton(glm::vec2 position, glm::vec2 scale) : ZUIElement(position, scale)
+ZUIButton::ZUIButton(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
     type_ = ZUIElementType::Button;
 }
 
-void ZUIButton::Initialize(std::shared_ptr<ZOFNode> root)
+void ZUIButton::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
     texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
     ZUIElement::Initialize(root);

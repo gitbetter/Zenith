@@ -35,7 +35,7 @@
 #include "ZShader.hpp"
 #include "ZDomain.hpp"
 
-ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 position, glm::vec2 scale)
+ZUIText::ZUIText(const std::string& text, const std::string& font, float fontSize, const glm::vec2& position, const glm::vec2& scale)
     : ZUIElement(position, scale)
 {
     font_ = font;
@@ -45,7 +45,7 @@ ZUIText::ZUIText(std::string text, std::string font, float fontSize, glm::vec2 p
     type_ = ZUIElementType::Text;
 }
 
-void ZUIText::Initialize(std::shared_ptr<ZOFNode> root)
+void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
     bufferData_ = zenith::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
 

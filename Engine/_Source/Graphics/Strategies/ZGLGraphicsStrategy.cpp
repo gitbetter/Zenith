@@ -73,7 +73,7 @@ void ZGLGraphicsStrategy::Initialize()
 
 void ZGLGraphicsStrategy::ClearViewport()
 {
-    glClearColor(0.3f, 0.1f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glStencilMask(0x00);
 }
@@ -436,8 +436,8 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData->Width(), textureData->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData->Data());
             glGenerateMipmap(GL_TEXTURE_2D);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         }
@@ -732,7 +732,7 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(ZTexture& hdrTexture, ZBufferDat
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader equirectToCubemapShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/basic.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/equirect_to_cube.frag");
+    ZShader equirectToCubemapShader("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/equirect_to_cube.frag");
     equirectToCubemapShader.Initialize();
     equirectToCubemapShader.Activate();
     equirectToCubemapShader.SetInt("equirectangularMap", 1);
@@ -774,7 +774,7 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader irradianceShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/basic.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/irradiance.frag");
+    ZShader irradianceShader("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/irradiance.frag");
     irradianceShader.Initialize();
     irradianceShader.Activate();
     irradianceShader.SetInt("environmentMap", 1);
@@ -814,7 +814,7 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    ZShader prefilterShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/basic.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/prefilter_convolution.frag");
+    ZShader prefilterShader("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/prefilter_convolution.frag");
     prefilterShader.Initialize();
     prefilterShader.Activate();
     prefilterShader.SetInt("environmentMap", 1);
@@ -859,7 +859,7 @@ ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData)
         ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
     };
     ZBufferData quadBufferData = LoadVertexData(quadVertices);
-    ZShader brdfLUTShader(ENGINE_ASSETS_PATH + "/Shaders/Vertex/brdf_lut.vert", ENGINE_ASSETS_PATH + "/Shaders/Pixel/brdf_lut.frag");
+    ZShader brdfLUTShader("/Shaders/Vertex/brdf_lut.vert", "/Shaders/Pixel/brdf_lut.frag");
     brdfLUTShader.Initialize();
     brdfLUTShader.Activate();
 
@@ -904,7 +904,7 @@ void ZGLGraphicsStrategy::DrawLines(ZBufferData bufferData, std::vector<ZVertex3
     glActiveTexture(GL_TEXTURE0);
 }
 
-void ZGLGraphicsStrategy::HandleTextureLoaded(std::shared_ptr<ZEvent> event)
+void ZGLGraphicsStrategy::HandleTextureLoaded(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
     if (!loaded->Handle()) return;
