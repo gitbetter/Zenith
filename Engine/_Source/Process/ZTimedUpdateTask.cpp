@@ -34,6 +34,7 @@ void ZTimedUpdateTask::OnUpdate()
     elapsed_ += zenith::DeltaTime();
     if (elapsed_ >= duration_)
     {
+        callback_(duration_);
         Finish();
     }
     else

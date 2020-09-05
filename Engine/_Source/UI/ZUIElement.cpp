@@ -148,7 +148,7 @@ void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
     element->SetRelativePosition(relativePosition_ + elPos * relativeSize_ + elSize * 0.5f);
     element->SetRelativeSize(elSize);
     element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
-    element->SetOpacity(Opacity());
+    element->SetOpacity(Opacity(), true);
 
     if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(zenith::UI()->TextShader());
     else element->SetShader(zenith::UI()->UIShader());
@@ -225,7 +225,7 @@ void ZUIElement::SetOpacity(float opacity, bool relativeToAlpha)
     border_.color.a = relativeToAlpha ? border_.color.a * opacity_ : opacity_;
     for (std::shared_ptr<ZUIElement> child : children_)
     {
-        child->SetOpacity(opacity);
+        child->SetOpacity(opacity, relativeToAlpha);
     }
 }
 
