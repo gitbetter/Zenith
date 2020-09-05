@@ -120,10 +120,23 @@ namespace zenith
     extern void SetFrameMix(float frameMix);
 
     extern void LoadZOF(std::string zofPath);
-    extern std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths);
 
     extern void Log(const std::string& text, ZSeverity severity);
     extern std::string FormatStringGlobals(const std::string& str);
 
     extern void CleanUp();
+
+    template <class T, typename... Args>
+    std::shared_ptr<T> LoadScene(Args&&... args)
+    {
+        if (!std::is_base_of<ZScene, T>::value)
+        {
+            Log("Cannot load " + std::string(typeid(T).name()) + " as a ZScene object", ZSeverity::Error);
+            return nullptr;
+        }
+        std::shared_ptr<T> scene = std::make_shared<T>(std::forward<Args>(args)...);
+        scene->Initialize();
+        Game()->AddScene(scene);
+        return scene;
+    }
 };

@@ -70,6 +70,15 @@ void ZGame::AddScene(std::shared_ptr<ZScene> scene)
     zenith::ProcessRunner()->AttachProcess(scene, ZPriority::High);
 }
 
+void ZGame::RemoveScene(std::shared_ptr<ZScene> scene)
+{
+    auto it = std::find(scenes_.begin(), scenes_.end(), scene);
+    if (it != scenes_.end())
+    {
+        scenes_.erase(it);
+    }
+}
+
 void ZGame::SetActiveScene(unsigned int index)
 {
     if (index < 0 || index >= scenes_.size() || index == activeScene_) return;

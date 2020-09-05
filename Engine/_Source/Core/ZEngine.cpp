@@ -346,14 +346,6 @@ namespace zenith
         resourceCache_->RequestHandle(zofResource);
     }
 
-    std::shared_ptr<ZScene> LoadScene(std::initializer_list<std::string> zofPaths)
-    {
-        std::shared_ptr<ZScene> scene = std::make_shared<ZScene>(zofPaths);
-        scene->Initialize();
-        currentGame_->AddScene(scene);
-        return scene;
-    }
-
     void Log(const std::string& text, ZSeverity severity)
     {
         ZLogEntry entry;

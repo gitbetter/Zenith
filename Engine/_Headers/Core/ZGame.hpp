@@ -58,5 +58,6 @@ public:
     void RunGameLoop();
     bool Running();
     void AddScene(std::shared_ptr<ZScene> scene);
+    void RemoveScene(std::shared_ptr<ZScene> scene);
 
 };
