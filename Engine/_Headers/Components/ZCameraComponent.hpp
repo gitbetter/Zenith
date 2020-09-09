@@ -44,6 +44,8 @@ class ZCameraComponent : public ZComponent
 private:
 
     bool isPrimary_ = false;
+    bool movementEnabled_ = true;
+    bool lookEnabled_ = true;
     float movementSpeed_ = 25.f;
     float lookSensitivity_ = 0.1f;
     float zoom_ = 45.0f;
@@ -54,12 +56,8 @@ private:
     ZCameraType cameraType_;
     ZCameraMovementStyle movementStyle_;
     ZFrustum frustum_;
-
     glm::vec3 pitchVelocity_, yawVelocity_;
     glm::quat pitch_, yaw_;
-
-    bool movementEnabled_ = true;
-    bool lookEnabled_ = true;
 
     void HandleMove(const std::shared_ptr<ZEvent>& event);
     void HandleLook(const std::shared_ptr<ZEvent>& event);
@@ -79,11 +77,13 @@ public:
 
     void UpdateCameraOrientation();
 
-    void EnableUserMovement() { movementEnabled_ = true; }
-    void DisableUserMovement() { movementEnabled_ = false; }
+    void Move(float z, float x, bool useWorldFront = false);
+    void EnableDefaultMovement() { movementEnabled_ = true; }
+    void DisableDefaultMovement() { movementEnabled_ = false; }
 
-    void EnableUserLook() { lookEnabled_ = true; }
-    void DisableUserLook() { lookEnabled_ = false; }
+    void Look(float pitch, float yaw);
+    void EnableDefaultLook() { lookEnabled_ = true; }
+    void DisableDefaultLook() { lookEnabled_ = false; }
 
     std::shared_ptr<ZComponent> Clone() override;
 

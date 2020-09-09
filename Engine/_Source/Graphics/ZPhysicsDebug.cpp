@@ -50,12 +50,14 @@ void ZPhysicsDebug::drawLine(const btVector3& from, const btVector3& to, const b
     shader_->SetMat4("ViewProjection", VPMatrix);
     shader_->SetVec4("color", glm::vec4(color.x(), color.y(), color.z(), 1.f));
 
-    std::vector<ZVertex3D> vertices({
+    
+
+    ZVertex3DDataOptions options;
+    options.vertices = std::vector<ZVertex3D>{
       ZVertex3D(glm::vec3(from.x(), from.y(), from.z())),
       ZVertex3D(glm::vec3(to.x(), to.y(), to.z()))
-        });
-
-    ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(vertices);
-    zenith::Graphics()->Strategy()->DrawLines(bufferData, vertices);
+    };
+    ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(options);
+    zenith::Graphics()->Strategy()->Draw(bufferData, options, ZMeshDrawStyle::Line);
     zenith::Graphics()->Strategy()->DeleteBufferData(bufferData);
 }

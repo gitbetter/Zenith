@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMoveEvent.cpp
+    ZMoveEvent.hpp
 
     Created by Adrian Sanchez on 28/01/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -27,6 +27,37 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZMoveEvent.hpp"
+#pragma once
 
-const ZEventType ZMoveEvent::Type(0x5a201dd9);
+// Includes
+#include "ZEvent.hpp"
+
+// Forward Declarations
+
+// Class and Data Structure Definitions
+class ZMoveEvent : public ZEvent
+{
+
+private:
+
+    float x_, y_, z_;
+
+public:
+
+    static const ZEventType Type;
+
+    explicit ZMoveEvent(float x = 0.f, float y = 0.f, float z = 0.f) : x_(x), y_(y), z_(z) {}
+    explicit ZMoveEvent(std::istringstream& in) { in >> x_; in >> y_; in >> z_; }
+
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZMoveEvent>(new ZMoveEvent(x_, y_, z_)); }
+    void Serialize(std::ostringstream& out) const override { out << z_ << " " << y_ << " " << x_; }
+    std::string Name() const override { return "ZMoveEvent"; }
+
+    float X() const { return x_; }
+    float Y() const { return y_; }
+    float Z() const { return z_; }
+
+protected:
+
+};

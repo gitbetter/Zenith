@@ -91,7 +91,8 @@ void ZAnimatorComponent::Play(std::string animationName, bool looping)
 
         if (currentClip_.model)
         {
-            std::shared_ptr<ZAnimation> animation = currentClip_.model->Animations()[animationName];
+            auto animations = currentClip_.model->Animations();
+            std::shared_ptr<ZAnimation> animation = animations[animationName];
             currentClip_.name = animationName;
             currentClip_.currentTime = 0.0;
             currentClip_.startTime = zenith::SecondsTime();

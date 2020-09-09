@@ -91,13 +91,13 @@ ${ENGINE_SOURCE_DIR}/EventAgent/ZEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZCollisionEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZCollisionEndEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectDestroyedEvent.cpp
-${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectLookEvent.cpp
-${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectMoveEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZLookEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZMoveEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZQuitEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZRaycastEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZFireEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectSelectedEvent.cpp
-${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectDragEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZDragEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZResourceLoadedEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZModelReadyEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZScriptReadyEvent.cpp
@@ -107,6 +107,8 @@ ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZTextureReadyEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZZOFReadyEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZSkyboxReadyEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZSceneReadyEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZWindowResizeEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZScrollEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/ZScriptableEvent.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZAudio.cpp
@@ -137,9 +139,9 @@ ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZCollisionEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZCollisionEndEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZFireEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectDestroyedEvent.hpp
-${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectDragEvent.hpp
-${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectLookEvent.hpp
-${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectMoveEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZDragEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZLookEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZMoveEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectSelectedEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZResourceLoadedEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZQuitEvent.hpp
@@ -152,6 +154,8 @@ ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZTextureReadyEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZZOFReadyEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZSkyboxReadyEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZSceneReadyEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZWindowResizeEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZScrollEvent.hpp
 ${ENGINE_HEADERS_DIR}/Factories/ZGOFactory.hpp
 ${ENGINE_HEADERS_DIR}/Factories/ZGraphicsFactory.hpp
 ${ENGINE_HEADERS_DIR}/Factories/ZPhysicsFactory.hpp

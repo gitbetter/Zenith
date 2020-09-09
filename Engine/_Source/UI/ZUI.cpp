@@ -152,7 +152,8 @@ void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
         float w = character.size.x * textEl->fontScale_ * xRatio;
         float h = character.size.y * textEl->fontScale_ * yRatio;
 
-        std::vector<ZVertex2D> vertices = {
+        ZVertex2DDataOptions options;
+        options.vertices = std::vector<ZVertex2D>{
           ZVertex2D(glm::vec2(xpos, ypos), glm::vec2(0.f, 0.f)),
           ZVertex2D(glm::vec2(xpos, ypos + h), glm::vec2(0.f, 1.f)),
           ZVertex2D(glm::vec2(xpos + w, ypos), glm::vec2(1.f, 0.f)),
@@ -161,8 +162,8 @@ void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
 
         RenderGeneric(element);
 
-        zenith::Graphics()->Strategy()->UpdateBuffer(textEl->bufferData_, vertices);
-        zenith::Graphics()->Strategy()->Draw(textEl->bufferData_, vertices);
+        zenith::Graphics()->Strategy()->UpdateBuffer(textEl->bufferData_, options);
+        zenith::Graphics()->Strategy()->Draw(textEl->bufferData_, options);
 
         x += (character.advance >> 6) * textEl->fontScale_ * xRatio;
     }

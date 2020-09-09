@@ -84,15 +84,12 @@ public:
     ZBufferData LoadCubeMapBuffer() override;
     ZTexture LoadCubeMap(std::vector<std::string> faces) override;
     ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) override;
-    ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) override;
-    ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) override;
-    ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) override;
-    ZBufferData LoadEmptyVertexData2D(unsigned int size) override;
+    ZBufferData LoadVertexData(const ZVertex3DDataOptions& options) override;
+    ZBufferData LoadVertexData(const ZVertex2DDataOptions& options) override;
 
     void ResizeColorTexture(ZTexture texture, unsigned int width, unsigned int height, bool multisample = false) override;
     void ResizeColorBuffer(ZBufferData bufferData, unsigned int width, unsigned int height, bool multisample = false) override;
     void DeleteBufferData(ZBufferData bufferData) override;
-    void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) override;
 
     void EquirectToCubemapAsync(std::string equirectHDRPath) override;
     ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) override;
@@ -102,9 +99,11 @@ public:
     ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
     ZTexture BRDFLUT(ZBufferData cubemapBufferData) override;
 
-    void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
-    void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) override;
-    void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) override;
+    void Draw(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
+    void Draw(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) override;
+
+    void UpdateBuffer(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData) override;
+    void UpdateBuffer(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData) override;
 
 protected:
 

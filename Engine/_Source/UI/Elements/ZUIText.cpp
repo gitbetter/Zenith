@@ -47,7 +47,9 @@ ZUIText::ZUIText(const std::string& text, const std::string& font, float fontSiz
 
 void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
-    bufferData_ = zenith::Graphics()->Strategy()->LoadEmptyVertexData2D(4);
+    ZVertex2DDataOptions options;
+    options.numVertices = 4;
+    bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(options);
 
     ZUIElement::Initialize(root);
 

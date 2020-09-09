@@ -45,16 +45,16 @@ class ZMesh3D : public ZMesh
 
 private:
 
-    std::vector<ZVertex3D> vertices_;
-    std::vector<unsigned int> indices_;
+    ZVertex3DDataOptions vertexData_;
 
 public:
 
-    ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
+    ZMesh3D(ZVertex3DDataOptions vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
     ~ZMesh3D();
 
     void Initialize() override;
 
     void Render(ZShader* shader, ZMaterial* material) override;
 
+    void SetInstanceData(const ZInstancedDataOptions& data);
 };

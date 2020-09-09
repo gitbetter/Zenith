@@ -34,24 +34,32 @@
 
 void ZMesh2D::Initialize()
 {
-    bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(vertices_);
+    bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(vertexData_);
 }
 
 void ZMesh2D::Render(ZShader* shader, ZMaterial* material)
 {
-    if (material) shader->Use(material);
-    zenith::Graphics()->Strategy()->Draw(bufferData_, vertices_);
+    if (material)
+    {
+        shader->Use(material);
+    }
+    if (vertexData_.instanced.count > 1)
+    {
+        shader->SetBool("instanced", true);
+    }
+    zenith::Graphics()->Strategy()->Draw(bufferData_, vertexData_);
 }
 
 std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad()
 {
-    std::vector<ZVertex2D> vertices = {
+    ZVertex2DDataOptions options;
+    options.vertices = std::vector<ZVertex2D>{
         ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f)),
         ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 1.f)),
         ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 0.f)),
         ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f))
     };
-    std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(vertices);
+    std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(options);
     mesh->Initialize();
     return mesh;
 }

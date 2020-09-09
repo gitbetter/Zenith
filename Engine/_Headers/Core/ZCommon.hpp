@@ -339,7 +339,7 @@ struct ZBufferData
     {
         struct
         {
-            unsigned int vbo, ebo, vao;
+            unsigned int vbo, ivbo, ebo, vao;
         };
         struct
         {
@@ -490,6 +490,26 @@ struct ZDomainOptions
     unsigned int height = 1080;
     bool maximized = true;
     bool visible = true;
+};
+
+struct ZInstancedDataOptions
+{
+    std::vector<glm::mat4> translations;
+    unsigned int count = 1;
+};
+
+struct ZVertex3DDataOptions
+{
+    std::vector<ZVertex3D> vertices;
+    std::vector<unsigned int> indices;
+    ZInstancedDataOptions instanced;
+};
+
+struct ZVertex2DDataOptions
+{
+    std::vector<ZVertex2D> vertices;
+    unsigned int numVertices;
+    ZInstancedDataOptions instanced;
 };
 
 struct ZSceneSnapshot

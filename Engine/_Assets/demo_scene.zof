@@ -193,24 +193,15 @@ ZLT_01
 ZUI_01
 	:type Panel:
 	:position [0.0, 0.0]:
-	:scale [-1.0, 60.0]:
+	:scale [100.0, 7.0]:
 	:color [0.141, 0.145, 0.165, 1.0]:
 	ZUI_02
 		:type Text:
-		:position [50.0, 0.0]:
-		:scale [55.0, 45.0]:
+		:position [5.0, 25.0]:
+		:scale [1.0, 1.0]:
 		:color [1.0, 1.0, 1.0, 1.0]:
 		:text "Zenith":
 		:font "earthorbiter" 1.0:
-	^
-	ZUI_03
-		:type Checkbox:
-		:position [50.0, 50.0]:
-		:scale [15.0, 15.0]:
-		:color [0.141, 0.145, 0.165, 1.0]:
-		:checkColor [1.0, 1.0, 1.0, 1.0]:
-		:borderWidth 1.0:
-		:borderColor [1.0, 1.0, 1.0, 1.0]:
 	^
 ^
 

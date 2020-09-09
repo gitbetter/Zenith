@@ -29,11 +29,12 @@
 
 #include "ZGLInput.hpp"
 #include "ZEventAgent.hpp"
-#include "ZObjectLookEvent.hpp"
-#include "ZObjectDragEvent.hpp"
-#include "ZObjectMoveEvent.hpp"
+#include "ZLookEvent.hpp"
+#include "ZDragEvent.hpp"
+#include "ZMoveEvent.hpp"
 #include "ZQuitEvent.hpp"
 #include "ZFireEvent.hpp"
+#include "ZScrollEvent.hpp"
 
 std::map<unsigned int, ZKey> ZGLInput::keyMap_;
 std::map<unsigned int, ZMouse> ZGLInput::mouseMap_;
@@ -173,6 +174,7 @@ void ZGLInput::Initialize()
     GLFWwindow* windowHandle = glfwGetCurrentContext();
     glfwSetKeyCallback(windowHandle, &ZGLInput::KeyCallback);
     glfwSetMouseButtonCallback(windowHandle, &ZGLInput::MouseButtonCallback);
+    glfwSetScrollCallback(windowHandle, &ZGLInput::MouseScrollCallback);
 }
 
 void ZGLInput::Update()
@@ -181,22 +183,22 @@ void ZGLInput::Update()
 
     if (keyPress_[ZKey::W])
     {
-        std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, 1.f));
+        std::shared_ptr<ZMoveEvent> moveEvent(new ZMoveEvent(0.f, 0.f, 1.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
     if (keyPress_[ZKey::A])
     {
-        std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(-1.f, 0.f, 0.f));
+        std::shared_ptr<ZMoveEvent> moveEvent(new ZMoveEvent(-1.f, 0.f, 0.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
     if (keyPress_[ZKey::S])
     {
-        std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(0.f, 0.f, -1.f));
+        std::shared_ptr<ZMoveEvent> moveEvent(new ZMoveEvent(0.f, 0.f, -1.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
     if (keyPress_[ZKey::D])
     {
-        std::shared_ptr<ZObjectMoveEvent> moveEvent(new ZObjectMoveEvent(1.f, 0.f, 0.f));
+        std::shared_ptr<ZMoveEvent> moveEvent(new ZMoveEvent(1.f, 0.f, 0.f));
         zenith::EventAgent()->TriggerEvent(moveEvent);
     }
     if (keyPress_[ZKey::ESCAPE])
@@ -221,7 +223,7 @@ void ZGLInput::Update()
     {
         if (deltaYaw != 0.0 || deltaPitch != 0.0)
         {
-            std::shared_ptr<ZObjectDragEvent> dragEvent(new ZObjectDragEvent(deltaYaw, deltaPitch, 0.f));
+            std::shared_ptr<ZDragEvent> dragEvent(new ZDragEvent(deltaYaw, deltaPitch, 0.f));
             zenith::EventAgent()->TriggerEvent(dragEvent);
         }
         else
@@ -239,7 +241,7 @@ void ZGLInput::Update()
 
     if (deltaYaw != 0.0 || deltaPitch != 0.0)
     {
-        std::shared_ptr<ZObjectLookEvent> lookEvent(new ZObjectLookEvent(deltaYaw, deltaPitch));
+        std::shared_ptr<ZLookEvent> lookEvent(new ZLookEvent(deltaYaw, deltaPitch));
         zenith::EventAgent()->TriggerEvent(lookEvent);
     }
 
@@ -266,4 +268,10 @@ void ZGLInput::KeyCallback(GLFWwindow* window, int key, int scancode, int action
 void ZGLInput::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
     zenith::Input()->SetMouse(mouseMap_[button], action != GLFW_RELEASE);
+}
+
+void ZGLInput::MouseScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+{
+    std::shared_ptr<ZScrollEvent> scrollEvent(new ZScrollEvent(xOffset, yOffset));
+    zenith::EventAgent()->TriggerEvent(scrollEvent);
 }
