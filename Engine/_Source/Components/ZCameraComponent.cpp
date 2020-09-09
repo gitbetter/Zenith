@@ -32,8 +32,8 @@
 #include "ZDomain.hpp"
 #include "ZGameObject.hpp"
 #include "ZEventAgent.hpp"
-#include "ZObjectMoveEvent.hpp"
-#include "ZObjectLookEvent.hpp"
+#include "ZMoveEvent.hpp"
+#include "ZLookEvent.hpp"
 #include "ZOFTree.hpp"
 
 ZCameraComponent::ZCameraComponent(ZCameraType type) : ZComponent()
@@ -55,11 +55,11 @@ void ZCameraComponent::Initialize()
 
     ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
     ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
-    zenith::EventAgent()->AddListener(moveDelegate, ZObjectMoveEvent::Type);
-    zenith::EventAgent()->AddListener(lookDelegate, ZObjectLookEvent::Type);
+    zenith::EventAgent()->AddListener(moveDelegate, ZMoveEvent::Type);
+    zenith::EventAgent()->AddListener(lookDelegate, ZLookEvent::Type);
 
-    DisableUserMovement();
-    DisableUserLook();
+    DisableDefaultMovement();
+    DisableDefaultLook();
 
     ZComponent::Initialize();
 }
@@ -176,8 +176,8 @@ void ZCameraComponent::CleanUp()
 
     ZEventDelegate moveDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleMove);
     ZEventDelegate lookDelegate = fastdelegate::MakeDelegate(this, &ZCameraComponent::HandleLook);
-    zenith::EventAgent()->RemoveListener(moveDelegate, ZObjectMoveEvent::Type);
-    zenith::EventAgent()->RemoveListener(lookDelegate, ZObjectLookEvent::Type);
+    zenith::EventAgent()->RemoveListener(moveDelegate, ZMoveEvent::Type);
+    zenith::EventAgent()->RemoveListener(lookDelegate, ZLookEvent::Type);
 }
 
 void ZCameraComponent::UpdateCameraOrientation()
@@ -194,19 +194,39 @@ void ZCameraComponent::UpdateCameraOrientation()
     }
 }
 
-void ZCameraComponent::HandleMove(const std::shared_ptr<ZEvent>& event)
+void ZCameraComponent::Move(float z, float x, bool useWorldFront)
 {
-    if (!movementEnabled_) return;
-
-    std::shared_ptr<ZObjectMoveEvent> moveEvent = std::static_pointer_cast<ZObjectMoveEvent>(event);
-
     float velocity = movementSpeed_ * (float) zenith::DeltaTime();
-    glm::vec3 newPos = object_->Position() + (object_->Front() * moveEvent->Z() * velocity) + (object_->Right() * moveEvent->X() * -velocity);
+    glm::vec3 newPos = object_->Position() + ((useWorldFront ? zenith::WORLD_FRONT : object_->Front()) * z * velocity) + (object_->Right() * x * -velocity);
     object_->SetPosition(newPos);
 
     if (cameraType_ == ZCameraType::Orthographic)
     {
-        zoom_ += zoomSpeed_ * moveEvent->Z() * velocity;
+        zoom_ += zoomSpeed_ * z * velocity;
+    }
+}
+
+void ZCameraComponent::HandleMove(const std::shared_ptr<ZEvent>& event)
+{
+    if (!movementEnabled_) return;
+
+    std::shared_ptr<ZMoveEvent> moveEvent = std::static_pointer_cast<ZMoveEvent>(event);
+
+    Move(moveEvent->Z(), moveEvent->X());
+}
+
+void ZCameraComponent::Look(float pitch, float yaw)
+{
+    if (movementStyle_ == ZCameraMovementStyle::Follow)
+    {
+        pitchVelocity_ += glm::vec3(glm::radians(-pitch * lookSensitivity_), 0.f, 0.f);
+        yawVelocity_ += glm::vec3(0.f, glm::radians(yaw * lookSensitivity_), 0.f);
+    }
+    else if (movementStyle_ == ZCameraMovementStyle::Normal)
+    {
+        pitch_ = glm::angleAxis(glm::radians(-pitch * lookSensitivity_), glm::vec3(1.f, 0.f, 0.f));
+        yaw_ = glm::angleAxis(glm::radians(yaw * lookSensitivity_), glm::vec3(0.f, 1.f, 0.f));
+        object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
     }
 }
 
@@ -214,19 +234,9 @@ void ZCameraComponent::HandleLook(const std::shared_ptr<ZEvent>& event)
 {
     if (!lookEnabled_) return;
 
-    std::shared_ptr<ZObjectLookEvent> lookEvent = std::static_pointer_cast<ZObjectLookEvent>(event);
+    std::shared_ptr<ZLookEvent> lookEvent = std::static_pointer_cast<ZLookEvent>(event);
 
-    if (movementStyle_ == ZCameraMovementStyle::Follow)
-    {
-        pitchVelocity_ += glm::vec3(glm::radians(-lookEvent->Pitch() * lookSensitivity_), 0.f, 0.f);
-        yawVelocity_ += glm::vec3(0.f, glm::radians(lookEvent->Yaw() * lookSensitivity_), 0.f);
-    }
-    else if (movementStyle_ == ZCameraMovementStyle::Normal)
-    {
-        pitch_ = glm::angleAxis(glm::radians(-lookEvent->Pitch() * lookSensitivity_), glm::vec3(1.f, 0.f, 0.f));
-        yaw_ = glm::angleAxis(glm::radians(lookEvent->Yaw() * lookSensitivity_), glm::vec3(0.f, 1.f, 0.f));
-        object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
-    }
+    Look(lookEvent->Pitch(), lookEvent->Yaw());
 }
 
 glm::mat4 ZCameraComponent::ProjectionMatrix()

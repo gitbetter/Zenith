@@ -43,18 +43,18 @@ private:
 public:
 
     ZMesh2D() {}
-    ZMesh2D(std::vector<ZVertex2D> vertices) : vertices_(vertices) {}
+    ZMesh2D(const ZVertex2DDataOptions& vertexData) : vertexData_(vertexData) {}
     ~ZMesh2D() {}
 
     void Initialize() override;
 
     void Render(ZShader* shader, ZMaterial* material = nullptr) override;
 
-    std::vector<ZVertex2D> Vertices() const { return vertices_; }
+    std::vector<ZVertex2D> Vertices() const { return vertexData_.vertices; }
 
     static std::shared_ptr<ZMesh2D> NewQuad();
 
 protected:
 
-    std::vector<ZVertex2D> vertices_;
+    ZVertex2DDataOptions vertexData_;
 };

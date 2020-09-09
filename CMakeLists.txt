@@ -187,7 +187,7 @@ foreach(FILE ${SOURCES})
 	source_group("${GROUP}" FILES "${FILE}")
 endforeach()
 
-if (USER_PROJECT_NAME AND (NOT EXISTS ${USER_PROJECT_NAME}))
+if (USER_PROJECT_NAME AND (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${USER_PROJECT_NAME}"))
   # Generate project files and directories
   file(MAKE_DIRECTORY ${USER_PROJECT_NAME})
   file(MAKE_DIRECTORY ${USER_PROJECT_NAME}/Headers)

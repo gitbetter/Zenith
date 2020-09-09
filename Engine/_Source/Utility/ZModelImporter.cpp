@@ -120,12 +120,13 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string
  */
 std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory)
 {
-    std::vector<ZVertex3D> vertices = LoadVertexData(mesh);
-    std::vector<unsigned int> indices = LoadIndexData(mesh);
+    ZVertex3DDataOptions options;
+    options.vertices = LoadVertexData(mesh);
+    options.indices = LoadIndexData(mesh);
 
-    LoadBones(mesh, vertices);
+    LoadBones(mesh, options.vertices);
 
-    std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(vertices, indices);
+    std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(options);
 
     return mesh3D;
 }

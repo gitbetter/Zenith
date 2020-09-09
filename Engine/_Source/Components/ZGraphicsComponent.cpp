@@ -37,9 +37,8 @@
 #include "ZSkybox.hpp"
 #include "ZOFTree.hpp"
 
-ZGraphicsComponent::ZGraphicsComponent() : ZComponent()
+ZGraphicsComponent::ZGraphicsComponent() : ZComponent(), highlightColor_(0.f), isBillboard_(false)
 {
-    highlightColor_ = glm::vec4(0.f);
     id_ = "ZCGraphics_" + zenith::IDSequence()->Next();
 }
 
@@ -98,6 +97,27 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         }
     }
 
+    if (props.find("billboard") != props.end() && props["billboard"]->HasValues())
+    {
+        std::shared_ptr<ZOFString> billboardProp = props["billboard"]->Value<ZOFString>(0);
+        isBillboard_ = billboardProp->value == "Yes";
+    }
+
+    if (props.find("instances") != props.end() && props["instances"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumber> instancesProp = props["instances"]->Value<ZOFNumber>(0);
+        instanceData_.count = instancesProp->value;
+        for (unsigned int i = 0; i < instanceData_.count; i++)
+        {
+            glm::mat4 world(1.f);
+            auto range = std::floor((i * 2 - 1) / 2);
+            auto x = -range + (std::rand() % static_cast<int>(range * 2 + 1));
+            auto z = -range + (std::rand() % static_cast<int>(range * 2 + 1));
+            glm::translate(world, glm::vec3(x, 0.f, z));
+            instanceData_.translations.push_back(world);
+        }
+    }
+
     if (props.find("model") != props.end() && props["model"]->HasValues())
     {
         std::shared_ptr<ZOFString> nameProp = props["model"]->Value<ZOFString>(0);
@@ -116,6 +136,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
             {
                 modelObject_ = zenith::GraphicsFactory()->CreateModel(nameProp->value);
             }
+            modelObject_->SetInstanceData(instanceData_);
         }
     }
 
@@ -145,6 +166,8 @@ std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
     clone->materials_ = materials_;
     clone->highlightShader_ = highlightShader_;
     clone->highlightColor_ = highlightColor_;
+    clone->instanceData_ = instanceData_;
+    clone->isBillboard_ = isBillboard_;
     return clone;
 }
 
@@ -230,6 +253,7 @@ std::shared_ptr<ZModel> ZGraphicsComponent::Model()
     if (zenith::Graphics()->Models().find(model_) != zenith::Graphics()->Models().end())
     {
         modelObject_ = zenith::Graphics()->Models()[model_];
+        modelObject_->SetInstanceData(instanceData_);
         return modelObject_;
     }
     return nullptr;

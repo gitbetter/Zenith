@@ -64,5 +64,7 @@ protected:
     std::vector<std::shared_ptr<ZMaterial>> materials_;
     std::shared_ptr<ZShader> highlightShader_ = nullptr;
     glm::vec4 highlightColor_{ 0.f };
+    ZInstancedDataOptions instanceData_;
+    bool isBillboard_;
 
 };

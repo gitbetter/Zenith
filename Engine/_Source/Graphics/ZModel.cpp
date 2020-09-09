@@ -44,7 +44,7 @@ ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) : globalInverseTra
     switch (primitiveType)
     {
     case ZPrimitiveType::Plane:
-        CreateGround(scale); break;
+        CreatePlane(scale); break;
     case ZPrimitiveType::Cube:
         CreateCube(scale); break;
     case ZPrimitiveType::Sphere:
@@ -118,7 +118,7 @@ void ZModel::InitializeAABB()
     ZMesh3DMap::iterator it = meshes_.begin(), end = meshes_.end();
     for (; it != end; it++)
     {
-        const std::vector<ZVertex3D>& vertices = it->second->vertices_;
+        const std::vector<ZVertex3D>& vertices = it->second->vertexData_.vertices;
         for (int i = 0; i < vertices.size(); i++)
         {
             if (vertices[i].position.x < min.x) min.x = vertices[i].position.x;
@@ -143,12 +143,12 @@ void ZModel::UpdateAABB(glm::mat4 transform)
 /**
  *  Plane Creation
  */
-std::unique_ptr<ZModel> ZModel::NewGroundPrimitive(glm::vec3 scale)
+std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(glm::vec3 scale)
 {
     return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Plane, scale));
 }
 
-void ZModel::CreateGround(glm::vec3 scale)
+void ZModel::CreatePlane(glm::vec3 scale)
 {
 // TODO: Refactor the texture tiling. It does not belong in the model creation code.
     float textureTiling = 15.f;
@@ -160,16 +160,17 @@ void ZModel::CreateGround(glm::vec3 scale)
     ZGraphics::ComputeTangentBitangent(bottomLeft, bottomRight, topRight);
     ZGraphics::ComputeTangentBitangent(bottomLeft, topRight, topLeft);
 
-    std::vector<ZVertex3D> vertices = {
+    ZVertex3DDataOptions options;
+    options.vertices = std::vector<ZVertex3D>{
         topLeft, bottomLeft, bottomRight, topRight
     };
-
-    std::vector<unsigned int> indices = {
+    options.indices = std::vector<unsigned int>{
         0, 1, 2,
         0, 2, 3
     };
+    
 
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }
@@ -235,7 +236,8 @@ void ZModel::CreateCube(glm::vec3 scale)
     ZGraphics::ComputeTangentBitangent(bottom_BottomLeft, bottom_BottomRight, bottom_TopRight);
     ZGraphics::ComputeTangentBitangent(bottom_BottomLeft, bottom_TopRight, bottom_TopLeft);
 
-    std::vector<ZVertex3D> vertices = {
+    ZVertex3DDataOptions options;
+    options.vertices = std::vector<ZVertex3D>{
         front_BottomLeft, front_BottomRight, front_TopRight, front_TopLeft,
         right_BottomLeft, right_BottomRight, right_TopRight, right_TopLeft,
         back_BottomLeft, back_BottomRight, back_TopRight, back_TopLeft,
@@ -243,8 +245,7 @@ void ZModel::CreateCube(glm::vec3 scale)
         top_BottomLeft, top_BottomRight, top_TopRight, top_TopLeft,
         bottom_BottomLeft, bottom_BottomRight, bottom_TopRight, bottom_TopLeft
     };
-
-    std::vector<unsigned int> indices = {
+    options.indices = std::vector<unsigned int>{
         0, 1, 2, 0, 2, 3,
         4, 5, 6, 4, 6, 7,
         8, 9, 10, 8, 10, 11,
@@ -253,7 +254,7 @@ void ZModel::CreateCube(glm::vec3 scale)
         20, 21, 22, 20, 22, 23
     };
 
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }
@@ -268,8 +269,7 @@ std::unique_ptr<ZModel> ZModel::NewSpherePrimitive(glm::vec3 scale)
 
 void ZModel::CreateSphere(glm::vec3 scale)
 {
-    std::vector<ZVertex3D> vertices;
-    std::vector<unsigned int> indices;
+    ZVertex3DDataOptions options;
 
     const unsigned int X_SEGMENTS = 64;
     const unsigned int Y_SEGMENTS = 64;
@@ -286,7 +286,7 @@ void ZModel::CreateSphere(glm::vec3 scale)
             ZVertex3D vertex(glm::vec3(xPos * scale.x, yPos * scale.y, zPos * scale.z), glm::vec3(xPos, yPos, zPos));
             vertex.uv = glm::vec2(xSegment, ySegment);
 
-            vertices.push_back(vertex);
+            options.vertices.push_back(vertex);
         }
     }
 
@@ -297,22 +297,22 @@ void ZModel::CreateSphere(glm::vec3 scale)
         {
             for (int x = 0; x <= X_SEGMENTS; ++x)
             {
-                indices.push_back(y * (X_SEGMENTS + 1) + x);
-                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+                options.indices.push_back(y * (X_SEGMENTS + 1) + x);
+                options.indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
             }
         }
         else
         {
             for (int x = X_SEGMENTS; x >= 0; --x)
             {
-                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                indices.push_back(y * (X_SEGMENTS + 1) + x);
+                options.indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+                options.indices.push_back(y * (X_SEGMENTS + 1) + x);
             }
         }
         oddRow = !oddRow;
     }
 
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(vertices, indices, ZMeshDrawStyle::TriangleStrip);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options, ZMeshDrawStyle::TriangleStrip);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }
@@ -361,6 +361,15 @@ std::unique_ptr<ZModel> ZModel::NewSkybox(ZTexture& cubeMap, ZBufferData& buffer
     generatedIBLTexture.brdfLUT = zenith::Graphics()->Strategy()->BRDFLUT(bufferData);
 
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+}
+
+void ZModel::SetInstanceData(const ZInstancedDataOptions& instanceData)
+{
+    instanceData_ = instanceData;
+    for (auto it = meshes_.begin(); it != meshes_.end(); it++)
+    {
+        it->second->SetInstanceData(instanceData);
+    }
 }
 
 void ZModel::BoneTransform(std::string anim, double secondsTime)

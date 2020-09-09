@@ -87,11 +87,12 @@ void ZGraphicsDebug::DrawLine(const glm::vec3& from, const glm::vec3& to, const 
     shader_->SetMat4("ViewProjection", VPMatrix);
     shader_->SetVec4("color", color);
 
-    std::vector<ZVertex3D> vertices({
+    ZVertex3DDataOptions options;
+    options.vertices = std::vector<ZVertex3D>{
       ZVertex3D(from), ZVertex3D(to)
-        });
+    };
 
-    ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(vertices);
-    zenith::Graphics()->Strategy()->DrawLines(bufferData, vertices);
+    ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(options);
+    zenith::Graphics()->Strategy()->Draw(bufferData, options, ZMeshDrawStyle::Line);
     zenith::Graphics()->Strategy()->DeleteBufferData(bufferData);
 }

@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMoveEvent.cpp
+    ZWindowResizeEvent.hpp
 
-    Created by Adrian Sanchez on 28/01/2019.
-    Copyright Â© 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 09/07/2020.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,6 +27,27 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZMoveEvent.hpp"
+#pragma once
 
-const ZEventType ZMoveEvent::Type(0x5a201dd9);
+// Includes
+#include "ZEvent.hpp"
+
+// Forward Declarations
+
+// Class and Data Structure Definitions
+class ZWindowResizeEvent : public ZEvent
+{
+
+public:
+
+    static const ZEventType Type;
+
+    explicit ZWindowResizeEvent() {}
+    explicit ZWindowResizeEvent(std::istringstream& in) {}
+
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZWindowResizeEvent>(new ZWindowResizeEvent); }
+    void Serialize(std::ostringstream& out) const override {}
+    std::string Name() const override { return "ZWindowResizeEvent"; }
+
+};

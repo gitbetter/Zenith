@@ -3,6 +3,7 @@
 layout (location = 0) in vec3 position;
 layout (location = 5) in ivec4 boneIDs;
 layout (location = 6) in vec4 boneWeights;
+layout (location = 7) in mat4 instanceM;
 
 const int MAX_BONES = 100;
 
@@ -10,6 +11,7 @@ uniform mat4 P_lightSpace;
 uniform mat4 M;
 uniform mat4 Bones[MAX_BONES];
 uniform bool rigged = false;
+uniform bool instanced = false;
 
 void main()
 {
@@ -23,5 +25,5 @@ void main()
         pos = boneTransform * pos;
     }
 
-    gl_Position = P_lightSpace * M * pos;
+    gl_Position = P_lightSpace * (instanced ? instanceM : M) * pos;
 }

@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMoveEvent.cpp
+    ZDragEvent.hpp
 
-    Created by Adrian Sanchez on 28/01/2019.
+    Created by Adrian Sanchez on 13/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,6 +27,37 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZMoveEvent.hpp"
+#pragma once
 
-const ZEventType ZMoveEvent::Type(0x5a201dd9);
+// Includes
+#include "ZEvent.hpp"
+
+// Forward Declarations
+
+// Class and Data Structure Definitions
+class ZDragEvent : public ZEvent
+{
+
+private:
+
+    float x_, y_, z_;
+
+public:
+
+    static const ZEventType Type;
+
+    explicit ZDragEvent(float x = 0.f, float y = 0.f, float z = 0.f) : x_(x), y_(y), z_(z) {}
+    explicit ZDragEvent(std::istringstream& in) { in >> x_; in >> y_; in >> z_; }
+
+    const ZEventType& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZDragEvent>(new ZDragEvent(x_, y_, z_)); }
+    void Serialize(std::ostringstream& out) const override { out << x_ << " " << y_ << " " << z_; }
+    std::string Name() const override { return "ZDragEvent"; }
+
+    float DeltaX() const { return x_; }
+    float DeltaY() const { return y_; }
+    float DeltaZ() const { return z_; }
+
+protected:
+
+};

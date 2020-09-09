@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZObjectDragEvent.cpp
+    ZWindowResizeEvent.cpp
 
-    Created by Adrian Sanchez on 13/03/2019.
-    Copyright Â© 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 09/07/2020.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,6 +27,6 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZObjectDragEvent.hpp"
+#include "ZWindowResizeEvent.hpp"
 
-const ZEventType ZObjectDragEvent::Type(0xc135f5ba);
+const ZEventType ZWindowResizeEvent::Type(0x8f39d796);

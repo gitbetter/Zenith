@@ -34,6 +34,7 @@
 #include "ZUI.hpp"
 #include "ZEventAgent.hpp"
 #include "ZObjectSelectedEvent.hpp"
+#include "ZWindowResizeEvent.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
@@ -136,6 +137,9 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
         std::shared_ptr<ZOFNumberList> borderColorProp = props["borderColor"]->Value<ZOFNumberList>(0);
         border_.color = glm::vec4(borderColorProp->value[0], borderColorProp->value[1], borderColorProp->value[2], borderColorProp->value[3]);
     }
+
+    ZEventDelegate windowResizeDelegate = fastdelegate::MakeDelegate(this, &ZUIElement::OnWindowResized);
+    zenith::EventAgent()->AddListener(windowResizeDelegate, ZWindowResizeEvent::Type);
 }
 
 void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
@@ -340,4 +344,10 @@ void ZUIElement::ClampToBounds()
         glm::clamp(modelMatrix_[3][1], translationBounds_.z, translationBounds_.w),
         modelMatrix_[3][2],
         modelMatrix_[3][3]);
+}
+
+void ZUIElement::OnWindowResized(const std::shared_ptr<ZEvent>& event)
+{
+    SetSize(glm::vec2(relativeSize_.x * zenith::Domain()->ResolutionX(), relativeSize_.y * zenith::Domain()->ResolutionY()));
+    SetPosition(glm::vec2(relativePosition_.x * zenith::Domain()->ResolutionX(), relativePosition_.y * zenith::Domain()->ResolutionY()));
 }

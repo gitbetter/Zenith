@@ -67,7 +67,9 @@ namespace zenith
     const unsigned int IRRADIANCE_MAP_SIZE = 32;
     const unsigned int PREFILTER_MAP_SIZE = 128;
     const unsigned int LUT_SIZE = 512;
-    const glm::vec4 WORLD_UP(0.0f, 1.0f, 0.0f, 0.0f);
+    const glm::vec3 WORLD_UP(0.0f, 1.0f, 0.0f);
+    const glm::vec3 WORLD_RIGHT(1.0f, 0.0f, 0.0f);
+    const glm::vec3 WORLD_FRONT(0.0f, 0.0f, -1.0f);
     const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP{
         "/Skyboxes/Default/right.png",
         "/Skyboxes/Default/left.png",

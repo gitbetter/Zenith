@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMoveEvent.cpp
+    ZScrollEvent.cpp
 
-    Created by Adrian Sanchez on 28/01/2019.
-    Copyright Â© 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 09/08/2020.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,6 +27,6 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZMoveEvent.hpp"
+#include "ZScrollEvent.hpp"
 
-const ZEventType ZMoveEvent::Type(0x5a201dd9);
+const ZEventType ZScrollEvent::Type(0xf22939c7);

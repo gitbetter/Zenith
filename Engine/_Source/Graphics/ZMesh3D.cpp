@@ -32,8 +32,8 @@
 #include "ZShader.hpp"
 #include "ZSkeleton.hpp"
 
-ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle)
-    : vertices_(vertices), indices_(indices)
+ZMesh3D::ZMesh3D(ZVertex3DDataOptions vertexData, ZMeshDrawStyle drawStyle)
+    : vertexData_(vertexData)
 {
     drawStyle_ = drawStyle;
     id_ = "ZMSH3D_" + zenith::IDSequence()->Next();
@@ -41,16 +41,27 @@ ZMesh3D::ZMesh3D(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indi
 
 ZMesh3D::~ZMesh3D()
 {
-    vertices_.clear();
+    vertexData_.vertices.clear();
+    vertexData_.indices.clear();
 }
 
 void ZMesh3D::Initialize()
 {
-    bufferData_ = zenith::Graphics()->Strategy()->LoadIndexedVertexData(vertices_, indices_);
+    bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(vertexData_);
 }
 
 void ZMesh3D::Render(ZShader* shader, ZMaterial* material)
 {
     shader->Use(material);
-    zenith::Graphics()->Strategy()->Draw(bufferData_, vertices_, indices_, drawStyle_);
+    if (vertexData_.instanced.count > 1)
+    {
+        shader->SetBool("instanced", true);
+    }
+    zenith::Graphics()->Strategy()->Draw(bufferData_, vertexData_, drawStyle_);
+}
+
+void ZMesh3D::SetInstanceData(const ZInstancedDataOptions& data)
+{
+    vertexData_.instanced = data;
+    zenith::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertexData_);
 }

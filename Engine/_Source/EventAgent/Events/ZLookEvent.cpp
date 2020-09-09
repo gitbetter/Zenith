@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZObjectLookEvent.cpp
+    ZLookEvent.cpp
 
     Created by Adrian Sanchez on 28/01/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -27,6 +27,6 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZObjectLookEvent.hpp"
+#include "ZLookEvent.hpp"
 
-const ZEventType ZObjectLookEvent::Type(0x5f73b043);
+const ZEventType ZLookEvent::Type(0x5f73b043);

@@ -5,7 +5,7 @@
 #include "ZSceneReadyEvent.hpp"
 #include "ZDomain.hpp"
 
-void onSceneLoad(std::shared_ptr<ZEvent> event);
+void onSceneLoad(const std::shared_ptr<ZEvent>& event);
 
 int main(int argc, const char* argv[]) {
     // Create a new game instance
@@ -19,10 +19,10 @@ int main(int argc, const char* argv[]) {
     zenith::Initialize(game, windowOptions);
 
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    zenith::UI()->RegisterFont(std::string(ENGINE_ROOT) + "/_Assets/Fonts/earth_orbiter/earthorbiter.ttf");
+    zenith::UI()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
 
     // Load a default scene from the engine
-    zenith::LoadScene({ std::string(ENGINE_ROOT) + "/_Assets/demo_scene.zof" });
+    zenith::LoadScene<ZScene>(std::initializer_list<std::string>({ "/demo_scene.zof" }));
 
     // Register delegate methods for specific UI events
     ZEventDelegate sceneReadyDelegate(&onSceneLoad);
@@ -41,7 +41,7 @@ int main(int argc, const char* argv[]) {
     return 0;
 }
 
-void onSceneLoad(std::shared_ptr<ZEvent> event)
+void onSceneLoad(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::dynamic_pointer_cast<ZSceneReadyEvent>(event);
     zenith::Log("Scene '" + sceneReadyEvent->Scene()->Name() + "' loaded", ZSeverity::Info);

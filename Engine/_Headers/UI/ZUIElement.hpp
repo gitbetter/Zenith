@@ -55,6 +55,7 @@ class ZUIElement : public ZProcess
 private:
 
     void ClampToBounds();
+    void OnWindowResized(const std::shared_ptr<ZEvent>& event);
 
 public:
 
@@ -74,6 +75,7 @@ public:
     float Angle() const;
     glm::vec4 Color() const { return color_; }
     float Opacity() const { return opacity_; }
+    glm::vec4 TranslationBounds() const { return translationBounds_; }
     const ZTexture& Texture() const { return texture_; }
     const std::shared_ptr<ZShader>& Shader() const { return shader_; }
 

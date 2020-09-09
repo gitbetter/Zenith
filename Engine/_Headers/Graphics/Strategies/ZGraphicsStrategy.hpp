@@ -83,22 +83,20 @@ public:
     virtual ZBufferData LoadCubeMapBuffer() = 0;
     virtual ZTexture LoadCubeMap(std::vector<std::string> faces) = 0;
     virtual ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) = 0;
-    virtual ZBufferData LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices) = 0;
-    virtual ZBufferData LoadVertexData(std::vector<ZVertex3D> vertices) = 0;
-    virtual ZBufferData LoadVertexData(std::vector<ZVertex2D> vertices) = 0;
-    virtual ZBufferData LoadEmptyVertexData2D(unsigned int size) = 0;
+    virtual ZBufferData LoadVertexData(const ZVertex3DDataOptions& options) = 0;
+    virtual ZBufferData LoadVertexData(const ZVertex2DDataOptions& options) = 0;
     virtual void ResizeColorTexture(ZTexture texture, unsigned int width, unsigned int height, bool multisample = false) = 0;
     virtual void ResizeColorBuffer(ZBufferData bufferData, unsigned int width, unsigned int height, bool multisample = false) = 0;
     virtual void DeleteBufferData(ZBufferData bufferData) = 0;
-    virtual void UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data) = 0;
     virtual void EquirectToCubemapAsync(std::string equirectHDRPath) = 0;
     virtual ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) = 0;
     virtual ZTexture EquirectToCubemap(ZTexture& hdrTexture, ZBufferData& bufferData) = 0;
     virtual ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
     virtual ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) = 0;
     virtual ZTexture BRDFLUT(ZBufferData cubemapBufferData) = 0;
-    virtual void Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
-    virtual void Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
-    virtual void DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices) = 0;
+    virtual void Draw(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
+    virtual void Draw(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
+    virtual void UpdateBuffer(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData) = 0;
+    virtual void UpdateBuffer(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData) = 0;
 
 };

@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZObjectDragEvent.hpp
+    ZScrollEvent.hpp
 
-    Created by Adrian Sanchez on 13/03/2019.
-    Copyright Â© 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 09/08/2020.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -35,29 +35,26 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZObjectDragEvent : public ZEvent
+class ZScrollEvent : public ZEvent
 {
 
 private:
 
-    float x_, y_, z_;
+    double x_, y_;
 
 public:
 
     static const ZEventType Type;
 
-    explicit ZObjectDragEvent(float x = 0.f, float y = 0.f, float z = 0.f) : x_(x), y_(y), z_(z) {}
-    explicit ZObjectDragEvent(std::istringstream& in) { in >> x_; in >> y_; in >> z_; }
+    explicit ZScrollEvent(double xOffset, double yOffset) : x_(xOffset), y_(yOffset) {}
+    explicit ZScrollEvent(std::istringstream& in) : x_(0), y_(0) {}
 
     const ZEventType& EventType() const override { return Type; };
-    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectDragEvent>(new ZObjectDragEvent(x_, y_, z_)); }
-    void Serialize(std::ostringstream& out) const override { out << x_ << " " << y_ << " " << z_; }
-    std::string Name() const override { return "ZObjectDragEvent"; }
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZScrollEvent>(new ZScrollEvent(x_, y_)); }
+    void Serialize(std::ostringstream& out) const override {}
+    std::string Name() const override { return "ZScrollEvent"; }
 
-    float DeltaX() const { return x_; }
-    float DeltaY() const { return y_; }
-    float DeltaZ() const { return z_; }
-
-protected:
+    double X() const { return x_; }
+    double Y() const { return y_; }
 
 };

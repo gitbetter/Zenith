@@ -212,22 +212,30 @@ void ZGLGraphicsStrategy::BindTexture(ZTexture texture, unsigned int index)
     }
 }
 
-ZBufferData ZGLGraphicsStrategy::LoadIndexedVertexData(std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices)
+ZBufferData ZGLGraphicsStrategy::LoadVertexData(const ZVertex3DDataOptions& options)
 {
     ZBufferData bufferData;
     glGenVertexArrays(1, &bufferData.vao);
     glGenBuffers(1, &bufferData.vbo);
-    glGenBuffers(1, &bufferData.ebo);
+    glGenBuffers(1, &bufferData.ivbo);
+
+    if (!options.indices.empty())
+    {
+        glGenBuffers(1, &bufferData.ebo);
+    }
 
     glBindVertexArray(bufferData.vao);
 
     // Bind the buffer object and set the vertex data
     glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ZVertex3D), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, options.vertices.size() * sizeof(ZVertex3D), &options.vertices[0], GL_STATIC_DRAW);
 
-    //  Bind the element buffer object (for indexed drawing) and set the index data
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    if (!options.indices.empty())
+    {
+        //  Bind the element buffer object (for indexed drawing) and set the index data
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, options.indices.size() * sizeof(unsigned int), &options.indices[0], GL_STATIC_DRAW);
+    }
 
     // Vertex position vector
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*) 0);
@@ -256,6 +264,24 @@ ZBufferData ZGLGraphicsStrategy::LoadIndexedVertexData(std::vector<ZVertex3D> ve
     // Vertex bone weight data
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*) offsetof(ZVertex3D, boneWeights));
     glEnableVertexAttribArray(6);
+
+    // Instanced translation data
+    glBindBuffer(GL_ARRAY_BUFFER, bufferData.ivbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * options.instanced.count, options.instanced.translations.empty() ? NULL : &options.instanced.translations[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) 0);
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (sizeof(glm::vec4)));
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (2 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(9);
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (3 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(10);
+
+    glVertexAttribDivisor(7, 1);
+    glVertexAttribDivisor(8, 1);
+    glVertexAttribDivisor(9, 1);
+    glVertexAttribDivisor(10, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -263,95 +289,51 @@ ZBufferData ZGLGraphicsStrategy::LoadIndexedVertexData(std::vector<ZVertex3D> ve
     return bufferData;
 }
 
-ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<ZVertex3D> vertices)
+ZBufferData ZGLGraphicsStrategy::LoadVertexData(const ZVertex2DDataOptions& options)
 {
     ZBufferData bufferData;
     glGenVertexArrays(1, &bufferData.vao);
     glGenBuffers(1, &bufferData.vbo);
+    glGenBuffers(1, &bufferData.ivbo);
 
     glBindVertexArray(bufferData.vao);
 
     // Bind the buffer object and set the vertex data
     glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ZVertex3D), &vertices[0], GL_STATIC_DRAW);
+    if (options.vertices.empty())
+    {
+        glBufferData(GL_ARRAY_BUFFER, sizeof(ZVertex2D) * options.numVertices, NULL, GL_STATIC_DRAW);
+    }
+    else
+    {
+        glBufferData(GL_ARRAY_BUFFER, options.vertices.size() * sizeof(ZVertex2D), &options.vertices[0], GL_STATIC_DRAW);
+    }
 
-    // Vertex position vector
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*) 0);
+    // Vertex position attribute
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*) 0);
     glEnableVertexAttribArray(0);
 
-    // Vertex normal vector
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*) offsetof(ZVertex3D, normal));
+    // Vertex texture coordinates attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*) offsetof(ZVertex2D, uv));
     glEnableVertexAttribArray(1);
 
-    // Vertex textures coordinates
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*) offsetof(ZVertex3D, uv));
+    // Instanced translation data
+    glBindBuffer(GL_ARRAY_BUFFER, bufferData.ivbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * options.instanced.count, options.instanced.translations.empty() ? NULL : &options.instanced.translations[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) 0);
     glEnableVertexAttribArray(2);
-
-    // Vertex tangent vector
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*) offsetof(ZVertex3D, tangent));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (sizeof(glm::vec4)));
     glEnableVertexAttribArray(3);
-
-    // Vertex bitangent vector (the tangent to the tangent, but not the normal)
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*) offsetof(ZVertex3D, bitangent));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (2 * sizeof(glm::vec4)));
     glEnableVertexAttribArray(4);
-
-    // Vertex bone id data
-    glVertexAttribIPointer(5, 4, GL_INT, sizeof(ZVertex3D), (void*) offsetof(ZVertex3D, boneIDs));
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (3 * sizeof(glm::vec4)));
     glEnableVertexAttribArray(5);
 
-    // Vertex bone weight data
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(ZVertex3D), (void*) offsetof(ZVertex3D, boneWeights));
-    glEnableVertexAttribArray(6);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    return bufferData;
-}
-
-ZBufferData ZGLGraphicsStrategy::LoadVertexData(std::vector<ZVertex2D> vertices)
-{
-    ZBufferData bufferData;
-    glGenVertexArrays(1, &bufferData.vao);
-    glGenBuffers(1, &bufferData.vbo);
-
-    glBindVertexArray(bufferData.vao);
-
-    // Bind the buffer object and set the vertex data
-    glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(ZVertex2D), &vertices[0], GL_STATIC_DRAW);
-
-    // Vertex position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*) 0);
-    glEnableVertexAttribArray(0);
-
-    // Vertex texture coordinates attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*) offsetof(ZVertex2D, uv));
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    return bufferData;
-}
-
-ZBufferData ZGLGraphicsStrategy::LoadEmptyVertexData2D(unsigned int size)
-{
-    ZBufferData bufferData;
-    glGenVertexArrays(1, &bufferData.vao);
-    glGenBuffers(1, &bufferData.vbo);
-
-    glBindVertexArray(bufferData.vao);
-
-    // Bind the buffer object and set the vertex data
-    glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(ZVertex2D) * size, NULL, GL_STATIC_DRAW);
-
-    // Vertex position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*) 0);
-    glEnableVertexAttribArray(0);
-
-    // Vertex texture coordinates attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*) offsetof(ZVertex2D, uv));
-    glEnableVertexAttribArray(1);
+    glVertexAttribDivisor(2, 1);
+    glVertexAttribDivisor(3, 1);
+    glVertexAttribDivisor(4, 1);
+    glVertexAttribDivisor(5, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -363,6 +345,7 @@ void ZGLGraphicsStrategy::DeleteBufferData(ZBufferData bufferData)
     glDeleteVertexArrays(1, &bufferData.vao);
     glDeleteBuffers(1, &bufferData.vbo);
     glDeleteBuffers(1, &bufferData.ebo);
+    glDeleteBuffers(1, &bufferData.ivbo);
 }
 
 ZTexture ZGLGraphicsStrategy::LoadDefaultTexture()
@@ -695,11 +678,35 @@ void ZGLGraphicsStrategy::ResizeColorBuffer(ZBufferData bufferData, unsigned int
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
-void ZGLGraphicsStrategy::UpdateBuffer(ZBufferData buffer, std::vector<ZVertex2D> data)
+void ZGLGraphicsStrategy::UpdateBuffer(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData)
 {
-    glBindVertexArray(buffer.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer.vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, data.size() * sizeof(ZVertex2D), &data[0]);
+    glBindVertexArray(bufferData.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexData.vertices.size() * sizeof(ZVertex3D), &vertexData.vertices[0]);
+    if (!vertexData.indices.empty())
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, vertexData.indices.size() * sizeof(unsigned int), &vertexData.indices[0]);
+    }
+    if (vertexData.instanced.count > 1)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, bufferData.ivbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4) * vertexData.instanced.count, vertexData.instanced.translations.empty() ? NULL : &vertexData.instanced.translations[0]);
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void ZGLGraphicsStrategy::UpdateBuffer(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData)
+{
+    glBindVertexArray(bufferData.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexData.vertices.size() * sizeof(ZVertex2D), &vertexData.vertices[0]);
+    if (vertexData.instanced.count > 1)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, bufferData.ivbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4) * vertexData.instanced.count, vertexData.instanced.translations.empty() ? NULL : &vertexData.instanced.translations[0]);
+    }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
@@ -852,13 +859,14 @@ ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData)
 {
     ZTexture brdfLUT = LoadEmptyLUT();
 
-    std::vector<ZVertex2D> quadVertices = {
+    ZVertex2DDataOptions options;
+    options.vertices = std::vector<ZVertex2D>{
         ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f)),
         ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 0.f)),
         ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f)),
         ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
     };
-    ZBufferData quadBufferData = LoadVertexData(quadVertices);
+    ZBufferData quadBufferData = LoadVertexData(options);
     ZShader brdfLUTShader("/Shaders/Vertex/brdf_lut.vert", "/Shaders/Pixel/brdf_lut.frag");
     brdfLUTShader.Initialize();
     brdfLUTShader.Activate();
@@ -871,35 +879,55 @@ ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData)
     glViewport(0, 0, zenith::LUT_SIZE, zenith::LUT_SIZE);
     ClearViewport();
 
-    Draw(quadBufferData, quadVertices);
+    Draw(quadBufferData, options);
 
     UnbindFramebuffer();
 
     return brdfLUT;
 }
 
-void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex3D> vertices, std::vector<unsigned int> indices, ZMeshDrawStyle drawStyle)
+void ZGLGraphicsStrategy::Draw(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
 {
     glBindVertexArray(bufferData.vao);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
-    glDrawElements(drawingStylesMap_[drawStyle], indices.size(), GL_UNSIGNED_INT, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    if (!vertexData.indices.empty())
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
+        if (vertexData.instanced.count > 1)
+        {
+            glDrawElementsInstanced(drawingStylesMap_[drawStyle], vertexData.indices.size(), GL_UNSIGNED_INT, 0, vertexData.instanced.count);
+        }
+        else
+        {
+            glDrawElements(drawingStylesMap_[drawStyle], vertexData.indices.size(), GL_UNSIGNED_INT, 0);
+        }
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+    else
+    {
+        if (vertexData.instanced.count > 1)
+        {
+            glDrawArraysInstanced(drawingStylesMap_[drawStyle], 0, 2, vertexData.instanced.count);
+        }
+        else
+        {
+            glDrawArrays(drawingStylesMap_[drawStyle], 0, vertexData.vertices.size());
+        }
+    }
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
 }
 
-void ZGLGraphicsStrategy::Draw(ZBufferData bufferData, std::vector<ZVertex2D> vertices, ZMeshDrawStyle drawStyle)
+void ZGLGraphicsStrategy::Draw(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
 {
     glBindVertexArray(bufferData.vao);
-    glDrawArrays(drawingStylesMap_[drawStyle], 0, vertices.size());
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-}
-
-void ZGLGraphicsStrategy::DrawLines(ZBufferData bufferData, std::vector<ZVertex3D> vertices)
-{
-    glBindVertexArray(bufferData.vao);
-    glDrawArrays(GL_LINES, 0, 2);
+    if (vertexData.instanced.count > 1)
+    {
+        glDrawArraysInstanced(drawingStylesMap_[drawStyle], 0, vertexData.vertices.size(), vertexData.instanced.count);
+    }
+    else
+    {
+        glDrawArrays(drawingStylesMap_[drawStyle], 0, vertexData.vertices.size());
+    }
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
 }

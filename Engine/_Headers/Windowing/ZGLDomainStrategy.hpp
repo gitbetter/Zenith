@@ -44,6 +44,7 @@ private:
 
     static void GLFWErrorCallback(int id, const char* description);
     static void FrameBufferSizeCallback(GLFWwindow* window, int height, int width);
+    static void WindowSizeCallback(GLFWwindow* window, int height, int width);
 
 public:
 

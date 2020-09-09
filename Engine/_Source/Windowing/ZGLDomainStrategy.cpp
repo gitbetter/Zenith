@@ -29,6 +29,8 @@
 
 #include "ZDomain.hpp"
 #include "ZGLDomainStrategy.hpp"
+#include "ZWindowResizeEvent.hpp"
+#include "ZEventAgent.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -78,6 +80,7 @@ void* ZGLDomainStrategy::CreateWindow(int width, int height, bool maximized, boo
         glewInit();
 
         glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
+        glfwSetWindowSizeCallback(window, WindowSizeCallback);
 
     #ifndef EDITOR
         CaptureCursor();
@@ -185,4 +188,14 @@ void ZGLDomainStrategy::FrameBufferSizeCallback(GLFWwindow* window, int width, i
 {
     zenith::Domain()->SetResolution(width, height);
     glViewport(0, 0, width, height);
+}
+
+void ZGLDomainStrategy::WindowSizeCallback(GLFWwindow* window, int height, int width)
+{
+    int reswidth, resheight;
+    glfwGetFramebufferSize(window, &reswidth, &resheight);
+    zenith::Domain()->SetResolution(reswidth, resheight);
+
+    std::shared_ptr<ZWindowResizeEvent> windowResizeEvent = std::make_shared<ZWindowResizeEvent>();
+    zenith::EventAgent()->QueueEvent(windowResizeEvent);
 }

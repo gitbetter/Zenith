@@ -53,10 +53,11 @@ private:
     ZAnimationMap animations_;
     std::shared_ptr<ZSkeleton> skeleton_;
     ZAABBox boundingBox_;
+    ZInstancedDataOptions instanceData_;
 
     glm::mat4 globalInverseTransform_;
 
-    void CreateGround(glm::vec3 scale);
+    void CreatePlane(glm::vec3 scale);
     void CreateCube(glm::vec3 scale);
     void CreateSphere(glm::vec3 scale);
     void CreateCylinder(glm::vec3 scale);
@@ -70,25 +71,24 @@ public:
 
     void Initialize();
     void InitializeAsync();
-
     virtual void Render(ZShader* shader);
     virtual void Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials);
-
-    const std::string& Path() { return modelPath_; }
-    const ZMesh3DMap& Meshes() { return meshes_; }
-    const ZAABBox& AABB() { return boundingBox_; }
-    ZBoneList& Bones() { return bones_; }
-    ZBoneMap& BonesMap() { return bonesMap_; }
-    ZAnimationMap& Animations() { return animations_; }
-    const std::shared_ptr<ZSkeleton> Skeleton() { return skeleton_; }
-    const glm::mat4 GlobalInverseTransform() { return globalInverseTransform_; }
-
     virtual void InitializeAABB();
     virtual void UpdateAABB(glm::mat4 transform);
-
+    void SetInstanceData(const ZInstancedDataOptions& instanceData);
     void BoneTransform(std::string anim, double secondsTime);
 
-    static std::unique_ptr<ZModel> NewGroundPrimitive(glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f));
+    const std::string& Path() const { return modelPath_; }
+    const ZMesh3DMap& Meshes() const { return meshes_; }
+    const ZAABBox& AABB() const { return boundingBox_; }
+    const ZBoneList& Bones() const { return bones_; }
+    const ZBoneMap& BonesMap() const { return bonesMap_; }
+    const ZAnimationMap& Animations() const { return animations_; }
+    const ZInstancedDataOptions& InstanceData() const { return instanceData_; }
+    const std::shared_ptr<ZSkeleton> Skeleton() const { return skeleton_; }
+    const glm::mat4 GlobalInverseTransform() const { return globalInverseTransform_; }
+
+    static std::unique_ptr<ZModel> NewPlanePrimitive(glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f));
     static std::unique_ptr<ZModel> NewCubePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewSpherePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewCylinderPrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));

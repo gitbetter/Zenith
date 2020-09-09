@@ -68,7 +68,7 @@ glm::mat4 ZBulletRigidBody::TransformMatrix()
 // TODO: Might be best to cache this transform and update it when necessary
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     btTransform transform; ATTRIBUTE_ALIGNED16(glm::mat4) modelMatrix;
-    if (!body) return modelMatrix;
+    if (!body) return glm::mat4(1.f);
 
     if (body->getMotionState())
     {
