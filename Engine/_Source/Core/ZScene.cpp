@@ -172,7 +172,8 @@ void ZScene::Render()
     // TODO: Support more shadow casting lights!
     if (gameLights_.size() > 0)
     {
-        zenith::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second);
+        std::shared_ptr<ZCameraComponent> cameraComp = activeCamera_->FindComponent<ZCameraComponent>();
+        zenith::Graphics()->SetupShadowDepthPass(gameLights_.begin()->second, cameraComp->Frustum());
         root_->RenderChildren(ZRenderOp::Shadow);
         zenith::Graphics()->FinishRenderPass();
     }

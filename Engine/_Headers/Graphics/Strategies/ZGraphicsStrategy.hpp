@@ -71,9 +71,9 @@ public:
     virtual void UnbindFramebuffer() = 0;
     virtual void BlitFramebuffer(ZBufferData source, ZBufferData destination) = 0;
     virtual ZTexture LoadDefaultTexture() = 0;
-    virtual void LoadTextureAsync(std::string path, const std::string& directory, bool hdr = false, bool flip = true, bool equirect = false) = 0;
-    virtual ZTexture LoadTexture(std::string path, const std::string& directory, bool hdr = false, bool flip = true) = 0;
-    virtual ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flip = false) = 0;
+    virtual void LoadTextureAsync(std::string path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false) = 0;
+    virtual ZTexture LoadTexture(std::string path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) = 0;
+    virtual ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) = 0;
     virtual ZTexture LoadEmptyLUT() = 0;
     virtual ZTexture LoadColorTexture(bool multisample = false) = 0;
     virtual ZTexture LoadDepthTexture() = 0;

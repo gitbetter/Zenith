@@ -107,6 +107,7 @@ struct Light {
 
 struct Material {
   vec4 albedo;
+  float alpha;
   float metallic;
   float roughness;
   float ao;
@@ -164,7 +165,12 @@ void main() {
 
   vec2 texCoords = hasDisplacement ? ParallaxFromMap() : fs_in.FragUV;
 
-  vec4 fragAlbedo = isTextured ? vec4(pow(texture(albedo, texCoords).rgb, vec3(2.2)), 1.0) : mat.albedo;
+  vec4 albedoTexData = texture(albedo, texCoords);
+  vec4 fragAlbedo = isTextured ? vec4(pow(albedoTexData.rgb, vec3(2.2)), albedoTexData.a) : mat.albedo;
+
+  if (fragAlbedo.a < 0.1)
+	discard;
+
   float fragMetallic = isTextured ? texture(metallic, texCoords).r : mat.metallic;
   float fragRoughness = isTextured ? texture(roughness, texCoords).r : mat.roughness;
   float fragAO = isTextured ? texture(ao, texCoords).r : mat.ao;
@@ -335,7 +341,7 @@ float PCSSShadow(vec4 lightSpacePosition, float lightSize) {
 
 vec2 ParallaxFromMap() {
   mat3 TBN = transpose(fs_in.FragTBN);
-  vec3 viewDir = normalize(TBN * fs_in.FragPos - TBN * viewPosition);
+  vec3 viewDir = normalize(TBN * viewPosition - TBN * fs_in.FragPos);
 
   const float minLayers = 16.0;
   const float maxLayers = 128.0;
@@ -347,11 +353,11 @@ vec2 ParallaxFromMap() {
   vec2 deltaTexCoords = P / numLayers;
 
   vec2 currentTexCoords = fs_in.FragUV;
-  float currentDepthMapValue = 1.0 - texture(height, currentTexCoords).r;
+  float currentDepthMapValue = texture(height, currentTexCoords).r;
 
   while (currentLayerDepth < currentDepthMapValue) {
       currentTexCoords -= deltaTexCoords;
-      currentDepthMapValue = 1.0 - texture(height, currentTexCoords).r;
+      currentDepthMapValue = texture(height, currentTexCoords).r;
       currentLayerDepth += layerDepth;
   }
 

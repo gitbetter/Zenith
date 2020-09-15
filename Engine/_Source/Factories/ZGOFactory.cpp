@@ -32,6 +32,7 @@
 #include "ZLight.hpp"
 #include "ZTrigger.hpp"
 #include "ZSkybox.hpp"
+#include "ZGrass.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZCameraComponent.hpp"
@@ -70,6 +71,11 @@ ZGameObjectMap ZGOFactory::Load(std::shared_ptr<ZOFTree> data)
         {
             std::shared_ptr<ZSkybox> skybox = CreateSkybox(node);
             gameObjects[skybox->ID()] = skybox;
+        }
+        else if (node->id.find("ZGR") == 0)
+        {
+            std::shared_ptr<ZGrass> grass = CreateGrass(node);
+            gameObjects[grass->ID()] = grass;
         }
     }
     return gameObjects;
@@ -116,6 +122,13 @@ std::shared_ptr<ZSkybox> ZGOFactory::CreateSkybox(std::shared_ptr<ZOFNode> data)
     std::shared_ptr<ZSkybox> skybox(new ZSkybox);
     skybox->Initialize(data);
     return skybox;
+}
+
+std::shared_ptr<ZGrass> ZGOFactory::CreateGrass(std::shared_ptr<ZOFNode> data)
+{
+    std::shared_ptr<ZGrass> grass(new ZGrass);
+    grass->Initialize(data);
+    return grass;
 }
 
 std::shared_ptr<ZComponent> ZGOFactory::CreateGraphicsComponent(std::shared_ptr<ZGameObject> gameObject)

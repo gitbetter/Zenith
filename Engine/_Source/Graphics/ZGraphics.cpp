@@ -126,7 +126,7 @@ void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root)
     zenith::GraphicsFactory()->CreateAssetsAsync(root, pendingTextures_, pendingShaders_, pendingModels_);
 }
 
-void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light)
+void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light, const ZFrustum& frustum)
 {
     graphicsStrategy_->ClearViewport();
     graphicsStrategy_->BindFramebuffer(shadowFrameBuffer_, true);
@@ -137,10 +137,10 @@ void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light)
     // so that multiple light space matrices are supported for multiple light sources
     // that can cast shadows, possibly using deferred rendering
     // TODO: Do something about these magic numbers!
-    glm::mat4 lightP = glm::ortho(-50.f, 50.f, -50.f, 50.f, -100.f, 100.f);
+    glm::mat4 lightP = glm::ortho(-frustum.nearWidth, frustum.nearWidth, -frustum.nearHeight, -frustum.nearHeight, frustum.near, frustum.far);
     glm::mat4 lightV = glm::lookAt(light->type == ZLightType::Directional ?
         glm::eulerAngles(light->Orientation()) :
-        light->Position(), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+        light->Position(), glm::vec3(0.f), zenith::WORLD_UP);
     glm::mat4 lightSpaceMatrix = lightP * lightV;
     currentLightSpaceMatrix_ = lightSpaceMatrix;
 }
@@ -266,7 +266,7 @@ void ZGraphics::HandleTextureReady(const std::shared_ptr<ZEvent>& event)
     if (pendingTextures_.find(textureReadyEvent->Texture().path) != pendingTextures_.end())
     {
         ZTexture texture = textureReadyEvent->Texture();
-        AddTexture(pendingTextures_[texture.path], texture);
+        AddTexture(pendingTextures_[texture.path].name, texture);
         pendingTextures_.erase(texture.path);
     }
 }

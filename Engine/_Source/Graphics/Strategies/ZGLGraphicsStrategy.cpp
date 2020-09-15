@@ -267,7 +267,7 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(const ZVertex3DDataOptions& opti
 
     // Instanced translation data
     glBindBuffer(GL_ARRAY_BUFFER, bufferData.ivbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * options.instanced.count, options.instanced.translations.empty() ? NULL : &options.instanced.translations[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * options.instanced.count, options.instanced.translations.empty() ? NULL : &options.instanced.translations[0], GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) 0);
     glEnableVertexAttribArray(7);
@@ -319,7 +319,7 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(const ZVertex2DDataOptions& opti
 
     // Instanced translation data
     glBindBuffer(GL_ARRAY_BUFFER, bufferData.ivbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * options.instanced.count, options.instanced.translations.empty() ? NULL : &options.instanced.translations[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * options.instanced.count, options.instanced.translations.empty() ? NULL : &options.instanced.translations[0], GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) 0);
     glEnableVertexAttribArray(2);
@@ -363,7 +363,7 @@ ZTexture ZGLGraphicsStrategy::LoadDefaultTexture()
     return texture;
 }
 
-void ZGLGraphicsStrategy::LoadTextureAsync(std::string path, const std::string& directory, bool hdr, bool flip, bool equirect)
+void ZGLGraphicsStrategy::LoadTextureAsync(std::string path, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip, bool equirect)
 {
     std::string filename = (!directory.empty() ? directory + '/' : "") + path;
     ZResourceType type = ZResourceType::Other;
@@ -371,22 +371,26 @@ void ZGLGraphicsStrategy::LoadTextureAsync(std::string path, const std::string& 
     else if (hdr) type = ZResourceType::HDRTexture;
     else type = ZResourceType::Texture;
 
+    pendingTextureWrappings_[filename] = wrapping;
+
     ZResource textureResource(filename, type);
     zenith::ResourceCache()->RequestHandle(textureResource);
 }
 
-ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string& directory, bool hdr, bool flip)
+ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip)
 {
     std::string filename = (!directory.empty() ? directory + '/' : "") + path;
     std::shared_ptr<ZResourceHandle> handle = ZImageImporter::LoadImage(filename, hdr, flip);
-    return LoadTexture(handle, hdr, flip);
+    return LoadTexture(handle, wrapping, hdr, flip);
 }
 
-ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr, bool flip)
+ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping, bool hdr, bool flip)
 {
     ZTexture texture;
     glGenTextures(1, &texture.id);
     glBindTexture(GL_TEXTURE_2D, texture.id);
+
+    auto glWrap = wrapping == ZTextureWrapping::Repeat ? GL_REPEAT : GL_CLAMP_TO_EDGE;
 
     if (!handle)
     {
@@ -402,8 +406,8 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
         {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, textureData->Width(), textureData->Height(), 0, GL_RGB, GL_FLOAT, textureData->FloatData());
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrap);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         }
@@ -419,8 +423,8 @@ ZTexture ZGLGraphicsStrategy::LoadTexture(std::shared_ptr<ZResourceHandle> handl
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData->Width(), textureData->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData->Data());
             glGenerateMipmap(GL_TEXTURE_2D);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrap);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         }
@@ -682,16 +686,17 @@ void ZGLGraphicsStrategy::UpdateBuffer(const ZBufferData& bufferData, const ZVer
 {
     glBindVertexArray(bufferData.vao);
     glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexData.vertices.size() * sizeof(ZVertex3D), &vertexData.vertices[0]);
-    if (!vertexData.indices.empty())
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, vertexData.indices.size() * sizeof(unsigned int), &vertexData.indices[0]);
-    }
+    glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(ZVertex3D), &vertexData.vertices[0], GL_STATIC_DRAW);
     if (vertexData.instanced.count > 1)
     {
         glBindBuffer(GL_ARRAY_BUFFER, bufferData.ivbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4) * vertexData.instanced.count, vertexData.instanced.translations.empty() ? NULL : &vertexData.instanced.translations[0]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * vertexData.instanced.count, vertexData.instanced.translations.empty() ? NULL : &vertexData.instanced.translations[0], GL_DYNAMIC_DRAW);
+    }
+    if (!vertexData.indices.empty())
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferData.ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexData.indices.size() * sizeof(unsigned int), &vertexData.indices[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -701,11 +706,11 @@ void ZGLGraphicsStrategy::UpdateBuffer(const ZBufferData& bufferData, const ZVer
 {
     glBindVertexArray(bufferData.vao);
     glBindBuffer(GL_ARRAY_BUFFER, bufferData.vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexData.vertices.size() * sizeof(ZVertex2D), &vertexData.vertices[0]);
+    glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(ZVertex2D), &vertexData.vertices[0], GL_DYNAMIC_DRAW);
     if (vertexData.instanced.count > 1)
     {
         glBindBuffer(GL_ARRAY_BUFFER, bufferData.ivbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4) * vertexData.instanced.count, vertexData.instanced.translations.empty() ? NULL : &vertexData.instanced.translations[0]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * vertexData.instanced.count, vertexData.instanced.translations.empty() ? NULL : &vertexData.instanced.translations[0], GL_DYNAMIC_DRAW);
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -713,12 +718,12 @@ void ZGLGraphicsStrategy::UpdateBuffer(const ZBufferData& bufferData, const ZVer
 
 void ZGLGraphicsStrategy::EquirectToCubemapAsync(std::string equirectHDRPath)
 {
-    LoadTextureAsync(equirectHDRPath, "", true, false, true);
+    LoadTextureAsync(equirectHDRPath, "", ZTextureWrapping::EdgeClamp, true, false, true);
 }
 
 ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData)
 {
-    ZTexture hdrTexture = LoadTexture(equirectHDRPath, "", true, true);
+    ZTexture hdrTexture = LoadTexture(equirectHDRPath, "", ZTextureWrapping::EdgeClamp, true, true);
     return EquirectToCubemap(hdrTexture, bufferData);
 }
 
@@ -906,7 +911,7 @@ void ZGLGraphicsStrategy::Draw(const ZBufferData& bufferData, const ZVertex3DDat
     {
         if (vertexData.instanced.count > 1)
         {
-            glDrawArraysInstanced(drawingStylesMap_[drawStyle], 0, 2, vertexData.instanced.count);
+            glDrawArraysInstanced(drawingStylesMap_[drawStyle], 0, vertexData.vertices.size(), vertexData.instanced.count);
         }
         else
         {
@@ -945,7 +950,8 @@ void ZGLGraphicsStrategy::HandleTextureLoaded(const std::shared_ptr<ZEvent>& eve
 
     std::shared_ptr<ZTextureResourceExtraData> textureData = std::static_pointer_cast<ZTextureResourceExtraData>(loaded->Handle()->ExtraData());
 
-    ZTexture texture = LoadTexture(loaded->Handle(), textureData->IsHDR(), textureData->IsFlipped());
+    ZTexture texture = LoadTexture(loaded->Handle(), pendingTextureWrappings_[loaded->Handle()->Resource().name], textureData->IsHDR(), textureData->IsFlipped());
+    pendingTextureWrappings_.erase(loaded->Handle()->Resource().name);
 
     std::shared_ptr<ZTextureReadyEvent> textureReadyEvent;
     if (resource.type == ZResourceType::HDREquirectangularMap)

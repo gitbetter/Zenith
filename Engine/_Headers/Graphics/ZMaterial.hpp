@@ -59,8 +59,7 @@ public:
 
     void Initialize(std::shared_ptr<ZOFTree> root);
 
-    static std::unique_ptr<ZMaterial> DefaultMaterialSimple();
-    static std::unique_ptr<ZMaterial> DefaultMaterialPBR();
+    static std::unique_ptr<ZMaterial> DefaultMaterial();
 
     void SetMeshID(std::string id) { meshId_ = id; }
     const std::string MeshID() const { return meshId_; }

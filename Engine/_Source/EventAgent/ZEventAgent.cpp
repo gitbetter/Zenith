@@ -54,7 +54,6 @@ bool ZEventAgent::AddListener(const ZEventDelegate& eventDelegate, const ZEventT
 bool ZEventAgent::RemoveListener(const ZEventDelegate& eventDelegate, const ZEventType& type)
 {
     bool success = false;
-
     auto findIt = eventListeners_[activeListeners_].find(type);
     if (findIt != eventListeners_[activeListeners_].end())
     {
@@ -76,7 +75,6 @@ bool ZEventAgent::RemoveListener(const ZEventDelegate& eventDelegate, const ZEve
 bool ZEventAgent::TriggerEvent(const std::shared_ptr<ZEvent>& event)
 {
     bool processed = false;
-
     auto findIt = eventListeners_[activeListeners_].find(event->EventType());
     if (findIt != eventListeners_[activeListeners_].end())
     {
@@ -133,17 +131,17 @@ bool ZEventAgent::AbortEvent(const ZEventType& eventType, bool allOfType)
 
 void ZEventAgent::Update()
 {
-    float floatMax = std::numeric_limits<float>::max();
+    constexpr float floatMax = std::numeric_limits<float>::max();
     float currentTime = zenith::SecondsTime();
-    float maxTime = ((updateTimeoutMax_ == floatMax) ? floatMax : currentTime + updateTimeoutMax_);
+    const float maxTime = ((updateTimeoutMax_ == floatMax) ? floatMax : currentTime + updateTimeoutMax_);
+
+    int listenersToProcess = activeListeners_;
+    activeListeners_ = (activeListeners_ + 1) % NUM_LISTENER_QUEUES;
+    eventListeners_[activeListeners_] = eventListeners_[listenersToProcess];
 
     int queueToProcess = activeQueue_;
-    int listenersToProcess = activeListeners_;
     activeQueue_ = (activeQueue_ + 1) % NUM_EVENT_QUEUES;
-    activeListeners_ = (activeListeners_ + 1) % NUM_LISTENER_QUEUES;
-
     eventQueues_[activeQueue_].clear();
-    eventListeners_[activeListeners_] = eventListeners_[listenersToProcess];
 
     while (!eventQueues_[queueToProcess].empty())
     {

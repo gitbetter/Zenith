@@ -80,7 +80,7 @@ void ZModel::InitializeAsync()
 
 void ZModel::Render(ZShader* shader)
 {
-    std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::DefaultMaterialPBR() };
+    std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::DefaultMaterial() };
     Render(shader, materials);
 }
 
@@ -150,8 +150,7 @@ std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(glm::vec3 scale)
 
 void ZModel::CreatePlane(glm::vec3 scale)
 {
-// TODO: Refactor the texture tiling. It does not belong in the model creation code.
-    float textureTiling = 15.f;
+    float textureTiling = 1.f;
 
     ZVertex3D topLeft(glm::vec3(-scale.x, 0.f, -scale.z)); topLeft.uv = glm::vec2(0.f, textureTiling);
     ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.f, scale.z)); bottomLeft.uv = glm::vec2(0.f, 0.f);
@@ -185,8 +184,7 @@ std::unique_ptr<ZModel> ZModel::NewCubePrimitive(glm::vec3 scale)
 
 void ZModel::CreateCube(glm::vec3 scale)
 {
-// TODO: Refactor the texture tiling. It does not belong in the model creation code.
-    float textureTiling = 15.f;
+    float textureTiling = 1.f;
 
     // Front face
     ZVertex3D front_BottomLeft(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_BottomLeft.uv = glm::vec2(0.f, 0.f);

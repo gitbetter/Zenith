@@ -67,5 +67,6 @@ protected:
     std::unique_ptr<ZTextStrategy> textStrategy_;
     std::shared_ptr<ZShader> uiShader_;
     std::shared_ptr<ZShader> textShader_;
+    glm::mat4 projection_;
 
 };

@@ -36,11 +36,8 @@
 #include "ZDomain.hpp"
 
 ZUIText::ZUIText(const std::string& text, const std::string& font, float fontSize, const glm::vec2& position, const glm::vec2& scale)
-    : ZUIElement(position, scale)
+    : ZUIElement(position, scale), font_(font), text_(text), fontScale_(fontSize), wrapToBounds_(false)
 {
-    font_ = font;
-    text_ = text;
-    fontScale_ = fontSize;
     enabled_ = false;
     type_ = ZUIElementType::Text;
 }
@@ -77,5 +74,17 @@ void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
     {
         std::shared_ptr<ZOFString> textProp = props["text"]->Value<ZOFString>(0);
         text_ = textProp->value;
+    }
+
+    if (props.find("wrap") != props.end() && props["wrap"]->HasValues())
+    {
+        std::shared_ptr<ZOFString> textProp = props["wrap"]->Value<ZOFString>(0);
+        wrapToBounds_ = textProp->value == "Yes";
+    }
+
+    if (props.find("lineSpacing") != props.end() && props["lineSpacing"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumber> lineSpacingProp = props["lineSpacing"]->Value<ZOFNumber>(0);
+        lineSpacing_ = lineSpacingProp->value;
     }
 }

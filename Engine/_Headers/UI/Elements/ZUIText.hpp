@@ -40,6 +40,7 @@ class ZUIText : public ZUIElement
 {
 
     friend class ZUI;
+    friend class ZGLTextStrategy;
 
 private:
 
@@ -59,6 +60,8 @@ protected:
     std::string text_;
     std::string font_;
     float fontScale_;
+    float lineSpacing_;
+    bool wrapToBounds_;
     ZBufferData bufferData_;
 
 };

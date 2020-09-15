@@ -50,6 +50,7 @@ class ZScriptableEventAgent
 private:
 
     ScriptEventListeners listeners_;
+    std::mutex agentMutex_;
 
 public:
 
@@ -92,7 +93,5 @@ public:
     ZScriptableEventAgent* Scriptable() const { return scriptableEventAgent_.get(); }
 
     void CleanUp() override;
-
-protected:
 
 };

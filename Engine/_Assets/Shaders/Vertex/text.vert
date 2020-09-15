@@ -10,5 +10,5 @@ uniform mat4 P;
 void main()
 {
     UV = uv;
-    gl_Position = P * vec4(vertex, 0.0, 1.0);
+    gl_Position = normalize(P * vec4(vertex, 0.0, 1.0));
 }
