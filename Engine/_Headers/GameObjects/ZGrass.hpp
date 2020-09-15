@@ -6,10 +6,10 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMesh3D.hpp
+   ZGrass.hpp
 
-    Created by Adrian Sanchez on 1/25/19.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+   Created by Adrian Sanchez on 09/08/2020.
+   Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
 
@@ -30,37 +30,38 @@
 #pragma once
 
 // Includes
-#include "ZMesh.hpp"
-#include "ZMaterial.hpp"
+#include "ZGameObject.hpp"
 
 // Forward Declarations
-class ZShader;
+// class SomeClass;
 
-// Class Definitions
-class ZMesh3D : public ZMesh
+// Class and Data Structure Definitions
+class ZGrass : public ZGameObject
 {
-
-    friend class ZModel;
-    friend class ZModelImporter;
 
 private:
 
-    ZVertex3DDataOptions vertexData_;
+    static constexpr unsigned int const& cPolygonCount = 3;
+
+    std::shared_ptr<ZGraphicsComponent> graphicsComp_;
+    std::string textureId_;
+    unsigned int instanceCount_;
+    std::vector<std::shared_ptr<ZModel>> polygons_;
+    glm::vec3 windDirection_;
+    float windStrength_;
 
 public:
 
-    ZMesh3D(ZVertex3DDataOptions vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
-    ~ZMesh3D();
+    ZGrass(unsigned int instances = 0);
+    ~ZGrass() {}
 
     void Initialize() override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
+    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    bool IsVisible() override { return true; }
 
-    void Render(ZShader* shader, ZMaterial* material) override;
+private:
 
-    void SetInstanceData(const ZInstancedDataOptions& data);
-    void SetVertices(const std::vector<ZVertex3D>& data);
-    void SetIndices(const std::vector<unsigned int>& data);
+    void UpdateVertexNormals(std::shared_ptr<ZModel>& model);
 
-    const ZInstancedDataOptions& InstanceData() const { return vertexData_.instanced; }
-    const std::vector<ZVertex3D>& Vertices() const { return vertexData_.vertices; }
-    const std::vector<unsigned int>& Indices() const { return vertexData_.indices; }
 };

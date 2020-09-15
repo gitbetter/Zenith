@@ -9,6 +9,7 @@ in VS_OUT {
   vec3 FragPos;
   vec3 FragNormal;
   vec2 FragUV;
+  mat3 FragTBN;
   vec4 FragPosLightSpace;
 } fs_in;
 
@@ -43,7 +44,10 @@ struct Material {
   float shininess;
 };
 
+uniform bool isTextured;
+
 uniform sampler2D shadowTexture;
+uniform sampler2D albedo;
 
 uniform vec3 viewDirection;
 uniform int materialIndex;  // Single index across the fragments of a single mesh
@@ -95,14 +99,21 @@ void main() {
     reflectedLight += lights[i].color * materials[materialIndex].specular * specular * attenunation;
   }
 
+  vec4 albd = materials[materialIndex].albedo;
+  if (isTextured)
+  {
+    vec4 albedoTexData = texture(albedo, fs_in.FragUV);
+    albd = vec4(pow(albedoTexData.rgb, vec3(2.2)), albedoTexData.a);
+  }
+
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
-  vec3 color = min(materials[materialIndex].emission + materials[materialIndex].albedo.rgb + (1.0 - shadow) * (scatteredLight + reflectedLight), vec3(1.0));
+  vec3 color = min(materials[materialIndex].emission + albd.rgb + (1.0 - shadow) * (scatteredLight + reflectedLight), vec3(1.0));
 
   vec3 hemisphereLightDirection = normalize(hemisphereLight.position - fs_in.FragPos);
   float a = dot(fs_in.FragNormal, hemisphereLightDirection) * 0.5 + 0.5;
   color += mix(hemisphereLight.groundColor, hemisphereLight.skyColor, a);
 
-  FragColor = vec4(color, materials[materialIndex].albedo.a);
+  FragColor = vec4(color, albd.a);
 }
 
 float CalculateShadow(vec4 lightSpacePosition) {

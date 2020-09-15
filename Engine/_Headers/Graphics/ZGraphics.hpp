@@ -42,6 +42,7 @@ class ZLight;
 class ZModel;
 class ZMesh2D;
 class ZScene;
+class ZFrustum;
 
 // Class and Data Structure Definitions
 typedef std::map<std::string, ZTexture> ZTextureMap;
@@ -51,7 +52,7 @@ class ZGraphics
 
 private:
 
-    std::map<std::string, std::string> pendingTextures_;
+    std::map<std::string, ZTexture> pendingTextures_;
     std::map<std::shared_ptr<ZShader>, std::string> pendingShaders_;
     std::map<std::shared_ptr<ZModel>, std::string> pendingModels_;
 
@@ -60,18 +61,20 @@ private:
 
 public:
 
-    ZGraphics() {}
+    ZGraphics() : hasPBR_(true) {}
     ~ZGraphics() {}
 
     void Initialize();
     void Load(std::shared_ptr<ZOFTree> root);
     void LoadAsync(std::shared_ptr<ZOFTree> root);
 
-    void SetupShadowDepthPass(std::shared_ptr<ZLight> light);
+    void SetupShadowDepthPass(std::shared_ptr<ZLight> light, const ZFrustum& frustum);
     void SetupDepthPass();
     void SetupColorPass();
     void PostProcessing(ZScene* scene);
     void FinishRenderPass();
+    void UsePBRPipeline(bool pbr = true) { hasPBR_ = pbr; }
+    bool HasPBR() const { return hasPBR_; }
 
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_.get(); }
     ZGraphicsDebug* DebugDrawer() { return debugDrawer_.get(); }
@@ -114,4 +117,5 @@ protected:
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;
     ZModelMap loadedModels_;
+    bool hasPBR_;
 };

@@ -4,6 +4,9 @@
 #include "ZEventAgent.hpp"
 #include "ZSceneReadyEvent.hpp"
 #include "ZDomain.hpp"
+#include "ZScene.hpp"
+#include "ZCameraComponent.hpp"
+#include "ZGameObject.hpp"
 
 void onSceneLoad(const std::shared_ptr<ZEvent>& event);
 
@@ -28,9 +31,6 @@ int main(int argc, const char* argv[]) {
     ZEventDelegate sceneReadyDelegate(&onSceneLoad);
     zenith::EventAgent()->AddListener(sceneReadyDelegate, ZSceneReadyEvent::Type);
 
-    // Free up window cursor. It is captured by default.
-    zenith::Domain()->Strategy()->ReleaseCursor();
-
     // Create the game and start the main game loop. Nothing beyond this point will execute
     // for the duration of the game.
     game->RunGameLoop();
@@ -45,5 +45,16 @@ void onSceneLoad(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::dynamic_pointer_cast<ZSceneReadyEvent>(event);
     zenith::Log("Scene '" + sceneReadyEvent->Scene()->Name() + "' loaded", ZSeverity::Info);
-    sceneReadyEvent->Scene()->Play();
+    auto scene = sceneReadyEvent->Scene();
+
+    if (scene)
+    {
+        auto cameraComp = scene->ActiveCamera()->FindComponent<ZCameraComponent>();
+        if (cameraComp)
+        {
+            cameraComp->EnableDefaultMovement();
+            cameraComp->EnableDefaultLook();
+        }
+        scene->Play();
+    }
 }

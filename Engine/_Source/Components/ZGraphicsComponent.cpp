@@ -50,8 +50,15 @@ ZGraphicsComponent::~ZGraphicsComponent()
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader)
 {
-    modelObject_ = model;
-    if (shader) currentShaderObject_ = shader;
+    if (model)
+    {
+        modelObject_ = model;
+        instanceData_ = modelObject_->InstanceData();
+    }
+    if (shader)
+    {
+        currentShaderObject_ = shader;
+    }
 }
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
@@ -107,15 +114,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     {
         std::shared_ptr<ZOFNumber> instancesProp = props["instances"]->Value<ZOFNumber>(0);
         instanceData_.count = instancesProp->value;
-        for (unsigned int i = 0; i < instanceData_.count; i++)
-        {
-            glm::mat4 world(1.f);
-            auto range = std::floor((i * 2 - 1) / 2);
-            auto x = -range + (std::rand() % static_cast<int>(range * 2 + 1));
-            auto z = -range + (std::rand() % static_cast<int>(range * 2 + 1));
-            glm::translate(world, glm::vec3(x, 0.f, z));
-            instanceData_.translations.push_back(world);
-        }
+        instanceData_.translations.clear();
     }
 
     if (props.find("model") != props.end() && props["model"]->HasValues())
@@ -152,7 +151,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
             materials_.push_back(material);
         }
     }
-    if (materials_.empty()) materials_.push_back(ZMaterial::DefaultMaterialPBR());
+    if (materials_.empty()) materials_.push_back(ZMaterial::DefaultMaterial());
 }
 
 std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
@@ -197,6 +196,7 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp)
 
     // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
     zenith::Graphics()->Strategy()->EnableStencilBuffer();
+    zenith::Graphics()->Strategy()->EnableAlphaBlending();
 
     if (shader)
     {
@@ -216,6 +216,7 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp)
         shader->SetMat4("ViewProjection", object_->Scene()->ViewProjection());
         shader->SetMat4("P_lightSpace", zenith::Graphics()->LightSpaceMatrix());
         shader->SetVec3("viewPosition", gameCamera_->Position());
+        shader->SetBool("instanced", false);
 
         if (object_->Scene()->Skybox() != nullptr)
         {
@@ -230,6 +231,7 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp)
         modelObject_->Render(shader.get(), materials_);
     }
 
+    zenith::Graphics()->Strategy()->DisableAlphaBlending();
     DrawOutlineIfEnabled(modelMatrix, object_->Scene()->ViewProjection());
 }
 
@@ -261,6 +263,7 @@ std::shared_ptr<ZModel> ZGraphicsComponent::Model()
 
 void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material)
 {
+    if (!material) return;
     materials_.push_back(material);
 }
 
@@ -272,6 +275,12 @@ void ZGraphicsComponent::SetOutline(glm::vec4 color)
         highlightShader_->Initialize();
     }
     highlightColor_ = color;
+}
+
+void ZGraphicsComponent::SetModel(std::shared_ptr<ZModel> model)
+{
+    modelObject_ = model;
+    instanceData_ = modelObject_->InstanceData();
 }
 
 void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewProjection)

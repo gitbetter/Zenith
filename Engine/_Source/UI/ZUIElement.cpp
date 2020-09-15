@@ -90,21 +90,13 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
         // if there is no parent we simply anchor to the screen/resolution bounds
     }
 
-    SetRelativePosition(relativePosition);
     SetRelativeSize(relativeSize);
+    SetRelativePosition(relativePosition);
 
     if (props.find("color") != props.end() && props["color"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> colorProp = props["color"]->Value<ZOFNumberList>(0);
         color_ = glm::vec4(colorProp->value[0], colorProp->value[1], colorProp->value[2], colorProp->value[3]);
-    }
-
-    if (props.find("opacity") != props.end() && props["opacity"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumber> opacityProp = props["opacity"]->Value<ZOFNumber>(0);
-        opacity_ = opacityProp->value;
-        color_.a = opacity_;
-        border_.color.a = opacity_;
     }
 
     if (props.find("isHidden") != props.end() && props["isHidden"]->HasValues())
@@ -138,26 +130,38 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
         border_.color = glm::vec4(borderColorProp->value[0], borderColorProp->value[1], borderColorProp->value[2], borderColorProp->value[3]);
     }
 
+    if (props.find("borderRadius") != props.end() && props["borderRadius"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumber> borderRadiusProp = props["borderRadius"]->Value<ZOFNumber>(0);
+        border_.radius = borderRadiusProp->value;
+    }
+
+    if (props.find("opacity") != props.end() && props["opacity"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumber> opacityProp = props["opacity"]->Value<ZOFNumber>(0);
+        opacity_ = opacityProp->value;
+        color_.a = opacity_;
+        border_.color.a = opacity_;
+    }
+
     ZEventDelegate windowResizeDelegate = fastdelegate::MakeDelegate(this, &ZUIElement::OnWindowResized);
     zenith::EventAgent()->AddListener(windowResizeDelegate, ZWindowResizeEvent::Type);
 }
 
 void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
 {
-    // Reset the child translation and move it to the parent's location
-    glm::vec2 elPos(element->RelativePosition());
-    glm::vec2 elSize(element->RelativeSize());
-
-    element->ResetModelMatrix();
-    element->SetRelativePosition(relativePosition_ + elPos * relativeSize_ + elSize * 0.5f);
-    element->SetRelativeSize(elSize);
-    element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
     element->SetOpacity(Opacity(), true);
+    element->SetTranslationBounds(translationBounds_.x, translationBounds_.y, translationBounds_.z, translationBounds_.w);
 
     if (std::dynamic_pointer_cast<ZUIText>(element)) element->SetShader(zenith::UI()->TextShader());
     else element->SetShader(zenith::UI()->UIShader());
 
     element->SetParent(this);
+
+    // Recalculate size and position now that we've set the parent
+    element->ResetModelMatrix();
+    element->SetRelativeSize(element->RelativeSize());
+    element->SetRelativePosition(element->RelativePosition());
 
     children_.push_back(element);
 }
@@ -190,20 +194,25 @@ void ZUIElement::SetSize(const glm::vec2& size)
 void ZUIElement::SetRelativeSize(const glm::vec2& size)
 {
     relativeSize_ = size;
-    SetSize(glm::vec2(size.x * zenith::Domain()->ResolutionX(), size.y * zenith::Domain()->ResolutionY()));
+    SetSize(glm::vec2(size.x * 0.5f * zenith::Domain()->ResolutionX(), size.y * 0.5f * zenith::Domain()->ResolutionY()));
 }
 
 void ZUIElement::SetPosition(const glm::vec2& position)
 {
     modelMatrix_[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);
-    modelMatrix_ = glm::translate(modelMatrix_, glm::vec3(position.x / Size().x, position.y / Size().y, 0.f));
+    modelMatrix_ = glm::translate(modelMatrix_, glm::vec3((position.x + Size().x) / Size().x , (position.y + Size().y) / Size().y, 0.f));
     ClampToBounds();
 }
 
 void ZUIElement::SetRelativePosition(const glm::vec2& position)
 {
     relativePosition_ = position;
-    SetPosition(glm::vec2(position.x * zenith::Domain()->ResolutionX(), position.y * zenith::Domain()->ResolutionY()));
+    glm::vec2 pos = position;
+    if (parent_)
+    {
+        pos = parent_->relativePosition_ + pos * parent_->relativeSize_;
+    }
+    SetPosition(glm::vec2(pos.x * zenith::Domain()->ResolutionX(), pos.y * zenith::Domain()->ResolutionY()));
 }
 
 void ZUIElement::SetRotation(float angle)
@@ -348,6 +357,6 @@ void ZUIElement::ClampToBounds()
 
 void ZUIElement::OnWindowResized(const std::shared_ptr<ZEvent>& event)
 {
-    SetSize(glm::vec2(relativeSize_.x * zenith::Domain()->ResolutionX(), relativeSize_.y * zenith::Domain()->ResolutionY()));
+    SetSize(glm::vec2(relativeSize_.x * 0.5f * zenith::Domain()->ResolutionX(), relativeSize_.y * 0.5f * zenith::Domain()->ResolutionY()));
     SetPosition(glm::vec2(relativePosition_.x * zenith::Domain()->ResolutionX(), relativePosition_.y * zenith::Domain()->ResolutionY()));
 }

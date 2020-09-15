@@ -130,15 +130,12 @@ void ZGameObject::RenderChildren(ZRenderOp renderOp)
 
 void ZGameObject::CalculateDerivedData()
 {
-    objectMutexes_.orientation.lock();
-    properties_.orientation = glm::normalize(properties_.orientation);
-    objectMutexes_.orientation.unlock();
-
     objectMutexes_.position.lock();
     glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(properties_.position));
     objectMutexes_.position.unlock();
 
     objectMutexes_.orientation.lock();
+    properties_.orientation = glm::normalize(properties_.orientation);
     glm::mat4 rotation = glm::mat4_cast(properties_.orientation);
     objectMutexes_.orientation.unlock();
 

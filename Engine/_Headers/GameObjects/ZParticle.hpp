@@ -58,9 +58,4 @@ public:
     float Age() { return age_; }
     bool Active() { return active_; }
 
-protected:
-
-    ZGraphicsComponent* graphicsComponent_ = nullptr;
-    ZPhysicsComponent* physicsComponent_ = nullptr;
-
 };

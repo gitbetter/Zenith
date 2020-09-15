@@ -72,9 +72,9 @@ public:
     void UnbindFramebuffer() override;
     void BlitFramebuffer(ZBufferData source, ZBufferData destination) override;
     ZTexture LoadDefaultTexture() override;
-    void LoadTextureAsync(std::string path, const std::string& directory, bool hdr = false, bool flip = true, bool equirect = false) override;
-    ZTexture LoadTexture(std::string path, const std::string& directory, bool hdr = false, bool flip = true) override;
-    ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flip = false) override;
+    void LoadTextureAsync(std::string path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false) override;
+    ZTexture LoadTexture(std::string path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) override;
+    ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) override;
     ZTexture LoadEmptyLUT() override;
     ZTexture LoadColorTexture(bool multisample = false) override;
     ZTexture LoadDepthTexture() override;
@@ -107,6 +107,7 @@ public:
 
 protected:
 
+    std::map<std::string, ZTextureWrapping> pendingTextureWrappings_;
     std::map<ZMeshDrawStyle, unsigned int> drawingStylesMap_;
 
     void HandleTextureLoaded(const std::shared_ptr<ZEvent>& event);

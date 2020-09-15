@@ -36,6 +36,7 @@
 
 // Forward Declarations
 class ZResourceHandle;
+class ZUIText;
 
 // Class and Data Structure Definitions
 
@@ -51,6 +52,7 @@ public:
     virtual void LoadFont(std::string fontPath, unsigned int fontSize = 24) = 0;
     virtual void LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize = 24) = 0;
     virtual void LoadFontAsync(std::string fontPath, unsigned int fontSize = 24) = 0;
+    virtual void Draw(std::shared_ptr<ZUIText> textEl) = 0;
     virtual void SetFontSize(std::string font, unsigned int size);
 
     ZCharacter Character(std::string font, unsigned char c);

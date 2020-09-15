@@ -52,5 +52,5 @@ ZCharacter ZTextStrategy::Character(std::string font, unsigned char c)
         return ZCharacter();
     }
     ZFont loadedFont = loadedFonts_[font];
-    return loadedFont.characters[c];
+    return loadedFont.atlas.characterInfo[c];
 }

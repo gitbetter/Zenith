@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMesh3D.hpp
+    ZEasing.hpp
 
-    Created by Adrian Sanchez on 1/25/19.
+    Created by Adrian Sanchez on 09/13/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
@@ -30,37 +30,14 @@
 #pragma once
 
 // Includes
-#include "ZMesh.hpp"
-#include "ZMaterial.hpp"
+#include "ZEngine.hpp"
 
-// Forward Declarations
-class ZShader;
-
-// Class Definitions
-class ZMesh3D : public ZMesh
+// Class and Data Structure Definitions
+namespace zenith
 {
-
-    friend class ZModel;
-    friend class ZModelImporter;
-
-private:
-
-    ZVertex3DDataOptions vertexData_;
-
-public:
-
-    ZMesh3D(ZVertex3DDataOptions vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
-    ~ZMesh3D();
-
-    void Initialize() override;
-
-    void Render(ZShader* shader, ZMaterial* material) override;
-
-    void SetInstanceData(const ZInstancedDataOptions& data);
-    void SetVertices(const std::vector<ZVertex3D>& data);
-    void SetIndices(const std::vector<unsigned int>& data);
-
-    const ZInstancedDataOptions& InstanceData() const { return vertexData_.instanced; }
-    const std::vector<ZVertex3D>& Vertices() const { return vertexData_.vertices; }
-    const std::vector<unsigned int>& Indices() const { return vertexData_.indices; }
-};
+    extern float Linear(float percent, float startValue, float endValue);
+    extern float EaseIn(float percent, float startValue, float endValue);
+    extern float EaseOut(float percent, float startValue, float endValue);
+    extern float EaseInOut(float percent, float startValue, float endValue);
+    extern float EaseOutElastic(float percent, float startValue, float endValue);
+}

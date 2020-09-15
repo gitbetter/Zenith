@@ -332,6 +332,11 @@ enum class ZAnimationState
     Initialized, Playing, Looping, Paused, Stopped, Invalid
 };
 
+enum class ZTextureWrapping
+{
+    Repeat, EdgeClamp, BorderClamp
+};
+
 struct ZBufferData
 {
     ZBufferDataType type;
@@ -351,10 +356,12 @@ struct ZBufferData
 struct ZTexture
 {
     unsigned int id;
+    std::string name;
     std::string type;
     std::string path;
+    ZTextureWrapping wrapping;
 
-    ZTexture() : id(0) {}
+    ZTexture() : id(0), name(std::string()), type(std::string()), path(std::string()), wrapping(ZTextureWrapping::Repeat) {}
 };
 
 struct ZIBLTexture
@@ -369,6 +376,7 @@ struct ZMaterialProperties
 {
     glm::vec4 albedo;
     float alpha;
+    float tiling;
     union
     {
         struct
@@ -392,6 +400,7 @@ struct ZMaterialProperties
         albedo = glm::vec4(1.f, 1.f, 1.f, 1.f);
         alpha = 1.f; emission = 0.f; diffuse = 0.f;
         ambient = 0.f; specular = 0.f; shininess = 0.f;
+        tiling = 1.f;
     }
 };
 
@@ -441,16 +450,25 @@ struct ZVertex2D
 
 struct ZCharacter
 {
+    glm::vec2 advance;
+    glm::vec2 bitmapSize;
+    glm::vec2 bitmapPos;
+    float xOffset;
+};
+
+struct ZAtlas
+{
+    unsigned int width;
+    unsigned int height;
     ZTexture texture;
-    glm::ivec2 size;
-    glm::ivec2 bearing;
-    unsigned int advance;
+    std::map<const char, ZCharacter> characterInfo;
 };
 
 struct ZFont
 {
     std::string name;
-    std::map<unsigned char, ZCharacter> characters;
+    float size;
+    ZAtlas atlas;
 };
 
 struct ZOFLoadResult

@@ -279,7 +279,7 @@ void ZShader::Use(ZMaterial* material)
     SetBool("isTextured", material->IsTextured());
     SetBool("hasDisplacement", material->HasDisplacement());
     // TODO: Move this elsewhere for configurability
-    SetFloat("heightScale", 0.05f);
+    SetFloat("heightScale", 0.01f);
     SetVec4("materials[" + std::to_string(material->Index()) + "].albedo", material->Properties().albedo);
     if (material->IsPBR())
     {
@@ -298,11 +298,12 @@ void ZShader::Use(ZMaterial* material)
 
     // We start the external texture indices at 4 due to the depth, shadow and PBR irradiance maps, which are set internally
     // and should not be overriden
+    unsigned int startIndex = material->IsPBR() ? 6 : 1;
     for (unsigned int i = 0, j = material->Textures().size(); i < j; i++)
     {
         ZTexture texture = material->Textures()[i];
-        SetInt(texture.type, i + 6);
-        zenith::Graphics()->Strategy()->BindTexture(texture, i + 6);
+        SetInt(texture.type, i + startIndex);
+        zenith::Graphics()->Strategy()->BindTexture(texture, i + startIndex);
     }
 }
 

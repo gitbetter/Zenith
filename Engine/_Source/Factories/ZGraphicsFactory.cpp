@@ -103,13 +103,14 @@ void ZGraphicsFactory::CreateShaders(std::shared_ptr<ZOFTree> data, ZShaderMap& 
     outShaderMap = shaders;
 }
 
-void ZGraphicsFactory::CreateTexturesAsync(std::shared_ptr<ZOFTree> data, std::map<std::string, std::string>& outPendingTextures)
+void ZGraphicsFactory::CreateTexturesAsync(std::shared_ptr<ZOFTree> data, ZTextureMap& outPendingTextures)
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         if (it->first.find("ZTEX") == 0)
         {
             std::string path;
+            ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp;
             std::shared_ptr<ZOFObjectNode> textureNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
             if (textureNode->properties.find("path") != textureNode->properties.end())
             {
@@ -117,16 +118,26 @@ void ZGraphicsFactory::CreateTexturesAsync(std::shared_ptr<ZOFTree> data, std::m
                 path = pathStr->value;
             }
 
+            if (textureNode->properties.find("wrapping") != textureNode->properties.end())
+            {
+                std::shared_ptr<ZOFString> wrappingStr = textureNode->properties["wrapping"]->Value<ZOFString>(0);
+                wrapping = wrappingStr->value == "Repeat" ? ZTextureWrapping::Repeat : ZTextureWrapping::EdgeClamp;
+            }
+
             if (!path.empty())
             {
-                outPendingTextures[path] = it->first;
+                ZTexture texture;
+                texture.path = path;
+                texture.name = it->first;
+                texture.wrapping = wrapping;
+                outPendingTextures[path] = texture;
             }
         }
     }
 
     for (auto it = outPendingTextures.begin(); it != outPendingTextures.end(); it++)
     {
-        zenith::Graphics()->Strategy()->LoadTextureAsync(it->first, "");
+        zenith::Graphics()->Strategy()->LoadTextureAsync(it->first, "", it->second.wrapping);
     }
 }
 
@@ -138,6 +149,7 @@ void ZGraphicsFactory::CreateTextures(std::shared_ptr<ZOFTree> data, ZTextureMap
         if (it->first.find("ZTEX") == 0)
         {
             std::string path;
+            ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp;
             std::shared_ptr<ZOFObjectNode> textureNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
             if (textureNode->properties.find("path") != textureNode->properties.end())
             {
@@ -145,9 +157,15 @@ void ZGraphicsFactory::CreateTextures(std::shared_ptr<ZOFTree> data, ZTextureMap
                 path = pathStr->value;
             }
 
+            if (textureNode->properties.find("wrapping") != textureNode->properties.end())
+            {
+                std::shared_ptr<ZOFString> wrappingStr = textureNode->properties["wrapping"]->Value<ZOFString>(0);
+                wrapping = wrappingStr->value == "Repeat" ? ZTextureWrapping::Repeat : ZTextureWrapping::EdgeClamp;
+            }
+
             if (!path.empty())
             {
-                ZTexture texture = zenith::Graphics()->Strategy()->LoadTexture(path, "");
+                ZTexture texture = zenith::Graphics()->Strategy()->LoadTexture(path, "", wrapping);
                 textures[it->first] = texture;
             }
         }
@@ -210,7 +228,7 @@ void ZGraphicsFactory::CreateModels(std::shared_ptr<ZOFTree> data, ZModelMap& ou
 }
 
 // TODO: Some repeated code across these functions. Refactor it.
-void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTextureTypeMap& outPendingTextures, ZShaderIDMap& outPendingShaders, ZModelIDMap& outPendingModels)
+void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTextureMap& outPendingTextures, ZShaderIDMap& outPendingShaders, ZModelIDMap& outPendingModels)
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
@@ -219,17 +237,28 @@ void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTexture
             std::shared_ptr<ZOFObjectNode> textureNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
 
             std::string path;
+            ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp;
             if (textureNode->properties.find("path") != textureNode->properties.end())
             {
                 std::shared_ptr<ZOFString> pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
                 path = pathStr->value;
             }
 
+            if (textureNode->properties.find("wrapping") != textureNode->properties.end())
+            {
+                std::shared_ptr<ZOFString> wrappingStr = textureNode->properties["wrapping"]->Value<ZOFString>(0);
+                wrapping = wrappingStr->value == "Repeat" ? ZTextureWrapping::Repeat : ZTextureWrapping::EdgeClamp;
+            }
+
             if (!path.empty())
             {
                 if (it->first.find("ZTEX") == 0)
                 {
-                    outPendingTextures[path] = it->first;
+                    ZTexture texture;
+                    texture.path = path;
+                    texture.name = it->first;
+                    texture.wrapping = wrapping;
+                    outPendingTextures[path] = texture;
                 }
                 else if (it->first.find("ZMOD") == 0)
                 {
@@ -260,7 +289,7 @@ void ZGraphicsFactory::CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTexture
 
     for (auto it = outPendingTextures.begin(); it != outPendingTextures.end(); it++)
     {
-        zenith::Graphics()->Strategy()->LoadTextureAsync(it->first, "");
+        zenith::Graphics()->Strategy()->LoadTextureAsync(it->first, "", it->second.wrapping);
     }
 
     for (auto it = outPendingShaders.begin(); it != outPendingShaders.end(); it++)
@@ -282,6 +311,7 @@ void ZGraphicsFactory::CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& 
         if (it->first.find("ZTEX") == 0 || it->first.find("ZMOD") == 0)
         {
             std::string path;
+            ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp;
             std::shared_ptr<ZOFObjectNode> textureNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
             if (textureNode->properties.find("path") != textureNode->properties.end())
             {
@@ -289,11 +319,17 @@ void ZGraphicsFactory::CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& 
                 path = pathStr->value;
             }
 
+            if (textureNode->properties.find("wrapping") != textureNode->properties.end())
+            {
+                std::shared_ptr<ZOFString> wrappingStr = textureNode->properties["wrapping"]->Value<ZOFString>(0);
+                wrapping = wrappingStr->value == "Repeat" ? ZTextureWrapping::Repeat : ZTextureWrapping::EdgeClamp;
+            }
+
             if (!path.empty())
             {
                 if (it->first.find("ZTEX") == 0)
                 {
-                    ZTexture texture = zenith::Graphics()->Strategy()->LoadTexture(path, "");
+                    ZTexture texture = zenith::Graphics()->Strategy()->LoadTexture(path, "", wrapping);
                     textures[it->first] = texture;
                 }
                 else if (it->first.find("ZMOD") == 0)

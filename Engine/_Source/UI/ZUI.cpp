@@ -64,6 +64,7 @@ void ZUI::RegisterFont(std::string fontPath)
 void ZUI::Render(ZUIElementMap elements)
 {
     zenith::Graphics()->Strategy()->EnableAlphaBlending();
+    projection_ = glm::ortho(0.f, (float) zenith::Domain()->ResolutionX(), (float) zenith::Domain()->ResolutionY(), 0.f);
     for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++)
     {
         // Only render the top level elements that are not hidden. The children will
@@ -109,12 +110,13 @@ void ZUI::RenderGeneric(std::shared_ptr<ZUIElement>& element)
     zenith::Graphics()->Strategy()->BindTexture(element->texture_, 0);
     element->shader_->SetInt(element->texture_.type + "0", 0);
 
-    glm::mat4 ortho = glm::ortho(0.f, (float) zenith::Domain()->ResolutionX(), (float) zenith::Domain()->ResolutionY(), 0.f);
     element->shader_->SetMat4("M", element->modelMatrix_);
-    element->shader_->SetMat4("P", ortho);
+    element->shader_->SetMat4("P", projection_);
     element->shader_->SetVec4("color", element->color_);
     element->shader_->SetVec4("borderColor", glm::vec4(0.f));
     element->shader_->SetFloat("borderWidth", 0.f);
+    element->shader_->SetFloat("borderRadius", element->border_.radius);
+    element->shader_->SetVec2("resolution", element->Size());
     element->shader_->SetFloat("aspectRatio", 1.f);
 
     if (element->border_.width > 0.f)
@@ -137,36 +139,13 @@ void ZUI::RenderImage(std::shared_ptr<ZUIElement>& element)
 void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
 {
     auto textEl = std::dynamic_pointer_cast<ZUIText>(element);
-    // TODO: Add text alignment property that calculates these value accordingly
-    float x = textEl->Position().x,
-        y = textEl->Position().y,
-        xRatio = zenith::Domain()->ResolutionXRatio(),
-        yRatio = zenith::Domain()->ResolutionYRatio();
-    for (auto c = textEl->text_.begin(); c != textEl->text_.end(); c++)
-    {
-        ZCharacter character = zenith::UI()->TextStrategy()->Character(textEl->font_, *c);
-        textEl->texture_ = character.texture;
 
-        float xpos = x + character.bearing.x * textEl->fontScale_ * xRatio;
-        float ypos = y - (character.size.y - character.bearing.y) * textEl->fontScale_ * yRatio;
-        float w = character.size.x * textEl->fontScale_ * xRatio;
-        float h = character.size.y * textEl->fontScale_ * yRatio;
+    element->shader_->Activate();
+    element->shader_->SetMat4("M", element->modelMatrix_);
+    element->shader_->SetMat4("P", projection_);
+    element->shader_->SetVec4("color", element->color_);
 
-        ZVertex2DDataOptions options;
-        options.vertices = std::vector<ZVertex2D>{
-          ZVertex2D(glm::vec2(xpos, ypos), glm::vec2(0.f, 0.f)),
-          ZVertex2D(glm::vec2(xpos, ypos + h), glm::vec2(0.f, 1.f)),
-          ZVertex2D(glm::vec2(xpos + w, ypos), glm::vec2(1.f, 0.f)),
-          ZVertex2D(glm::vec2(xpos + w, ypos + h), glm::vec2(1.f, 1.f))
-        };
-
-        RenderGeneric(element);
-
-        zenith::Graphics()->Strategy()->UpdateBuffer(textEl->bufferData_, options);
-        zenith::Graphics()->Strategy()->Draw(textEl->bufferData_, options);
-
-        x += (character.advance >> 6) * textEl->fontScale_ * xRatio;
-    }
+    zenith::UI()->TextStrategy()->Draw(textEl);
 }
 
 void ZUI::CleanUp()

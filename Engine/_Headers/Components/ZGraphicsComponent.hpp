@@ -48,12 +48,14 @@ public:
 
     std::shared_ptr<ZShader> ActiveShader();
     std::shared_ptr<ZModel> Model();
+    const std::vector<std::shared_ptr<ZMaterial>>& Materials() const { return materials_; }
 
     void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
     void ClearOutline();
 
     void SetGameLights(ZLightMap lights) { gameLights_ = lights; }
     void SetGameCamera(std::shared_ptr<ZGameObject> camera) { gameCamera_ = camera; }
+    void SetModel(std::shared_ptr<ZModel> model);
 
     void AddMaterial(std::shared_ptr<ZMaterial> material);
 

@@ -43,6 +43,7 @@ class ZShader;
 struct ZUIBorder
 {
     float width = 0.f;
+    float radius = 0.f;
     glm::vec4 color = glm::vec4(0.f);
 };
 

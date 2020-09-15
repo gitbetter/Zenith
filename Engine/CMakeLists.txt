@@ -5,6 +5,7 @@ set(ENGINE_SOURCE_DIR ${ENGINE_DIRECTORY}/_Source)
 
 set(ENGINE_SOURCES
 ${ENGINE_HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
+${ENGINE_SOURCE_DIR}/Utility/ZEasing.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZLogger.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZIDSequence.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
@@ -49,6 +50,7 @@ ${ENGINE_SOURCE_DIR}/Components/ZAnimatorComponent.cpp
 ${ENGINE_SOURCE_DIR}/GameObjects/ZLight.cpp
 ${ENGINE_SOURCE_DIR}/GameObjects/ZGameObject.cpp
 ${ENGINE_SOURCE_DIR}/GameObjects/ZSkybox.cpp
+${ENGINE_SOURCE_DIR}/GameObjects/ZGrass.cpp
 ${ENGINE_SOURCE_DIR}/GameObjects/ZParticleSystem.cpp
 ${ENGINE_SOURCE_DIR}/GameObjects/ZParticle.cpp
 ${ENGINE_SOURCE_DIR}/GameObjects/ZSceneRoot.cpp
@@ -165,6 +167,7 @@ ${ENGINE_HEADERS_DIR}/GameObjects/ZLight.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZParticle.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZParticleSystem.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZSkybox.hpp
+${ENGINE_HEADERS_DIR}/GameObjects/ZGrass.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZSceneRoot.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZTrigger.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZGraphics.hpp
@@ -219,6 +222,7 @@ ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIImage.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIText.hpp
+${ENGINE_HEADERS_DIR}/Utility/ZEasing.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZLogger.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZIDSequence.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFParser.hpp
