@@ -5,6 +5,7 @@ set(ENGINE_SOURCE_DIR ${ENGINE_DIRECTORY}/_Source)
 
 set(ENGINE_SOURCES
 ${ENGINE_HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
+${ENGINE_SOURCE_DIR}/Utility/ZStringHelpers.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZEasing.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZLogger.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZIDSequence.cpp
@@ -222,6 +223,7 @@ ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIImage.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIText.hpp
+${ENGINE_HEADERS_DIR}/Utility/ZStringHelpers.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZEasing.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZLogger.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZIDSequence.hpp

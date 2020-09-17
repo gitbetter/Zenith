@@ -47,6 +47,9 @@ struct Material {
 uniform bool isTextured;
 
 uniform sampler2D shadowTexture;
+uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
 uniform sampler2D albedo;
 
 uniform vec3 viewDirection;

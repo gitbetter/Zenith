@@ -30,8 +30,9 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
 #include "ZOFTree.hpp"
+#include "ZEngine.hpp"
+#include "ZStringHelpers.hpp"
 
 // Forward Declarations
 

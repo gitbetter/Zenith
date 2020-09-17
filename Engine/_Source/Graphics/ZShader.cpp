@@ -298,7 +298,7 @@ void ZShader::Use(ZMaterial* material)
 
     // We start the external texture indices at 4 due to the depth, shadow and PBR irradiance maps, which are set internally
     // and should not be overriden
-    unsigned int startIndex = material->IsPBR() ? 6 : 1;
+    unsigned int startIndex = 6;
     for (unsigned int i = 0, j = material->Textures().size(); i < j; i++)
     {
         ZTexture texture = material->Textures()[i];

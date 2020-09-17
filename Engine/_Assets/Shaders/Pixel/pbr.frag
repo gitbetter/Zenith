@@ -115,7 +115,6 @@ struct Material {
 
 uniform sampler2D depthTexture;
 uniform sampler2D shadowTexture;
-
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;

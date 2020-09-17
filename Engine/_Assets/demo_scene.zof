@@ -86,11 +86,11 @@ ZUI_01
 	:color [0.141, 0.145, 0.165, 1.0]:
 	ZUI_02
 		:type Text:
-		:position [5.0, 25.0]:
+		:position [5.0, 30.0]:
 		:scale [1.0, 1.0]:
 		:color [1.0, 1.0, 1.0, 1.0]:
 		:text "Zenith":
-		:font "earthorbiter" 1.0:
+		:font "earthorbiter" 32.0:
 	^
 ^
 

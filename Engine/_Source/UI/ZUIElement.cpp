@@ -38,9 +38,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
-ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.0), color_(0.6), relativePosition_(0.0), opacity_(1.f)
+ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f), color_(0.f), relativePosition_(0.f), normalizedPosition_(0.f), opacity_(1.f)
 {
-    translationBounds_ = glm::vec4(0.f, (float) zenith::Domain()->ResolutionX(), 0.f, (float) zenith::Domain()->ResolutionY());
+    translationBounds_ = glm::vec4(0.f, 1.f, 0.f, 1.f);
     SetPosition(position); SetSize(scale);
     enabled_ = true;
     hidden_ = false;
@@ -144,6 +144,12 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
         border_.color.a = opacity_;
     }
 
+    if (props.find("zIndex") != props.end() && props["zIndex"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumber> zIndexProp = props["zIndex"]->Value<ZOFNumber>(0);
+        id_ = id_.substr(0, id_.find("_")) + "_" + std::to_string(static_cast<int>(zIndexProp->value)) + id_.substr(id_.find("_"));
+    }
+
     ZEventDelegate windowResizeDelegate = fastdelegate::MakeDelegate(this, &ZUIElement::OnWindowResized);
     zenith::EventAgent()->AddListener(windowResizeDelegate, ZWindowResizeEvent::Type);
 }
@@ -163,21 +169,31 @@ void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
     element->SetRelativeSize(element->RelativeSize());
     element->SetRelativePosition(element->RelativePosition());
 
-    children_.push_back(element);
+    children_[element->ID()] = element;
 }
 
 bool ZUIElement::RemoveChild(const std::shared_ptr<ZUIElement>& element)
 {
     bool success = false;
-    for (auto it = children_.begin(); it != children_.end(); it++)
+    if (children_.find(element->ID()) != children_.end())
     {
-        if ((*it) == element)
-        {
-            (*it)->RemoveParent();
-            children_.erase(it); success = true; break;
-        }
+        element->RemoveParent();
+        children_.erase(element->ID());        
+        success = true;
     }
     return success;
+}
+
+void ZUIElement::DoRecursiveChildUpdate(std::function<void(std::shared_ptr<ZUIElement>)> callback)
+{
+    for (auto it = children_.begin(); it != children_.end(); it++)
+    {
+        callback(it->second);
+        if (it->second->HasChildren())
+        {
+            it->second->DoRecursiveChildUpdate(callback);
+        }
+    }
 }
 
 void ZUIElement::RemoveParent()
@@ -207,12 +223,8 @@ void ZUIElement::SetPosition(const glm::vec2& position)
 void ZUIElement::SetRelativePosition(const glm::vec2& position)
 {
     relativePosition_ = position;
-    glm::vec2 pos = position;
-    if (parent_)
-    {
-        pos = parent_->relativePosition_ + pos * parent_->relativeSize_;
-    }
-    SetPosition(glm::vec2(pos.x * zenith::Domain()->ResolutionX(), pos.y * zenith::Domain()->ResolutionY()));
+    normalizedPosition_ = parent_ ? parent_->normalizedPosition_ + relativePosition_ * parent_->relativeSize_ : relativePosition_;
+    SetPosition(glm::vec2(normalizedPosition_.x * zenith::Domain()->ResolutionX(), normalizedPosition_.y * zenith::Domain()->ResolutionY()));
 }
 
 void ZUIElement::SetRotation(float angle)
@@ -225,9 +237,9 @@ void ZUIElement::SetRotation(float angle)
 void ZUIElement::SetTranslationBounds(float left, float right, float bottom, float top)
 {
     translationBounds_ = glm::vec4(left, right, bottom, top);
-    for (std::shared_ptr<ZUIElement> child : children_)
+    for (auto it = children_.begin(); it != children_.end(); it++)
     {
-        child->SetTranslationBounds(left, right, bottom, top);
+        it->second->SetTranslationBounds(left, right, bottom, top);
     }
 }
 
@@ -236,9 +248,9 @@ void ZUIElement::SetOpacity(float opacity, bool relativeToAlpha)
     opacity_ = opacity;
     color_.a = relativeToAlpha ? color_.a * opacity_ : opacity_;
     border_.color.a = relativeToAlpha ? border_.color.a * opacity_ : opacity_;
-    for (std::shared_ptr<ZUIElement> child : children_)
+    for (auto it = children_.begin(); it != children_.end(); it++)
     {
-        child->SetOpacity(opacity, relativeToAlpha);
+        it->second->SetOpacity(opacity, relativeToAlpha);
     }
 }
 
@@ -283,9 +295,9 @@ void ZUIElement::Translate(const glm::vec2& translation)
     ClampToBounds();
 
     // Recursively update child positions
-    for (std::shared_ptr<ZUIElement> child : children_)
+    for (auto it = children_.begin(); it != children_.end(); it++)
     {
-        child->Translate(translation);
+        it->second->Translate(translation);
     }
 }
 
@@ -293,9 +305,9 @@ void ZUIElement::Rotate(float angle)
 {
     modelMatrix_ = glm::rotate(modelMatrix_, angle, glm::vec3(0.f, 0.f, 1.f));
 
-    for (std::shared_ptr<ZUIElement> child : children_)
+    for (auto it = children_.begin(); it != children_.end(); it++)
     {
-        child->Rotate(angle);
+        it->second->Rotate(angle);
     }
 }
 
@@ -312,9 +324,9 @@ bool ZUIElement::TrySelect(const glm::vec3& position)
     if (enabled_ && Contains(position))
     {
         bool selectedChild = false;
-        for (std::shared_ptr<ZUIElement>& child : children_)
+        for (auto it = children_.begin(); it != children_.end(); it++)
         {
-            selectedChild = child->TrySelect(position);
+            selectedChild = it->second->TrySelect(position);
         }
 
         if (!selectedChild)
@@ -342,15 +354,17 @@ std::shared_ptr<ZMesh2D> ZUIElement::ElementShape()
 
 void ZUIElement::CleanUp()
 {
-    for (std::shared_ptr<ZUIElement> child : children_)
-        child->CleanUp();
+    for (auto it = children_.begin(); it != children_.end(); it++)
+    {
+        it->second->CleanUp();
+    }
     children_.clear();
 }
 
 void ZUIElement::ClampToBounds()
 {
-    modelMatrix_[3] = glm::vec4(glm::clamp(modelMatrix_[3][0], translationBounds_.x, translationBounds_.y),
-        glm::clamp(modelMatrix_[3][1], translationBounds_.z, translationBounds_.w),
+    modelMatrix_[3] = glm::vec4(glm::clamp(modelMatrix_[3][0], translationBounds_.x * zenith::Domain()->ResolutionX(), translationBounds_.y * zenith::Domain()->ResolutionX()),
+        glm::clamp(modelMatrix_[3][1], translationBounds_.z * zenith::Domain()->ResolutionY(), translationBounds_.w * zenith::Domain()->ResolutionY()),
         modelMatrix_[3][2],
         modelMatrix_[3][3]);
 }
@@ -358,5 +372,5 @@ void ZUIElement::ClampToBounds()
 void ZUIElement::OnWindowResized(const std::shared_ptr<ZEvent>& event)
 {
     SetSize(glm::vec2(relativeSize_.x * 0.5f * zenith::Domain()->ResolutionX(), relativeSize_.y * 0.5f * zenith::Domain()->ResolutionY()));
-    SetPosition(glm::vec2(relativePosition_.x * zenith::Domain()->ResolutionX(), relativePosition_.y * zenith::Domain()->ResolutionY()));
+    SetPosition(glm::vec2(normalizedPosition_.x * zenith::Domain()->ResolutionX(), normalizedPosition_.y * zenith::Domain()->ResolutionY()));
 }

@@ -34,6 +34,7 @@
 #include "ZUIText.hpp"
 #include "ZUICheckBox.hpp"
 #include "ZUIListPanel.hpp"
+#include "ZStringHelpers.hpp"
 
 ZUIFactory::ZUIFactory()
 {
@@ -51,7 +52,7 @@ ZUIElementMap ZUIFactory::Load(std::shared_ptr<ZOFTree> data)
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         std::shared_ptr<ZOFNode> node = it->second;
-        if (node->id.find("ZUI") == 0)
+        if (zenith::strings::HasUIPrefix(node->id))
         {
             std::shared_ptr<ZOFObjectNode> uiNode = std::static_pointer_cast<ZOFObjectNode>(node);
             ZOFPropertyMap props = uiNode->properties;

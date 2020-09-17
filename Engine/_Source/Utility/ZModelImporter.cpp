@@ -200,10 +200,16 @@ std::vector<unsigned int> ZModelImporter::LoadIndexData(const aiMesh* mesh)
  */
 void ZModelImporter::LoadSkeleton(const aiScene* scene)
 {
-    std::shared_ptr<ZSkeleton> skeleton = std::make_shared<ZSkeleton>();
     aiNode* rootNode = FindSkeletonRoot(scene->mRootNode);
-    if (rootNode) skeleton->rootJoint = LoadSkeletonJoint(rootNode);
-    currentSkeleton_ = skeleton;
+    if (rootNode)
+    {
+        currentSkeleton_ = std::make_shared<ZSkeleton>();
+        currentSkeleton_->rootJoint = LoadSkeletonJoint(rootNode);
+    }
+    else
+    {
+        currentSkeleton_ = nullptr;
+    }
 }
 
 

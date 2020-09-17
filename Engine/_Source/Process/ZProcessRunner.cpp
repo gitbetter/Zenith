@@ -105,6 +105,8 @@ void ZProcessRunner::ClearProcesses()
 
 void ZProcessRunner::AttachProcess(std::shared_ptr<ZProcess> process, ZPriority priority)
 {
+    if (std::find(processList_[priority].begin(), processList_[priority].end(), process) != processList_[priority].end())
+        return;
     processList_[priority].push_back(process);
 }
 

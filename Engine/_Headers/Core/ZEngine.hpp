@@ -124,7 +124,6 @@ namespace zenith
     extern void LoadZOF(std::string zofPath);
 
     extern void Log(const std::string& text, ZSeverity severity);
-    extern std::string FormatStringGlobals(const std::string& str);
 
     extern void CleanUp();
 

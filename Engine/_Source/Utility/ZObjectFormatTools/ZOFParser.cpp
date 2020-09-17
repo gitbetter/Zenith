@@ -185,7 +185,7 @@ void ZOFParser::Value(std::shared_ptr<ZOFPropertyNode> prop)
         std::shared_ptr<ZOFString> terminal = std::make_shared<ZOFString>();
         std::string s(currentToken_);
         s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
-        s = zenith::FormatStringGlobals(s);
+        s = zenith::strings::FormatStringGlobals(s);
         terminal->value = s;
         terminal->root = prop->root;
         prop->values.push_back(terminal);

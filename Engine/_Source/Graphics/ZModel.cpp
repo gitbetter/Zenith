@@ -64,7 +64,7 @@ void ZModel::Initialize()
         ZModelImporter importer;
         meshes_ = importer.LoadModel(modelPath_, bonesMap_, bones_, animations_, skeleton_);
         for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) it->second->Initialize();
-        if (skeleton_) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
+        if (skeleton_ && skeleton_->rootJoint) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
     }
     InitializeAABB();
 }
@@ -525,7 +525,7 @@ void ZModel::HandleModelLoaded(const std::shared_ptr<ZEvent>& event)
         skeleton_ = extraData->Skeleton();
 
         for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) it->second->Initialize();
-        if (skeleton_) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
+        if (skeleton_ && skeleton_->rootJoint) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
         InitializeAABB();
 
         ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);

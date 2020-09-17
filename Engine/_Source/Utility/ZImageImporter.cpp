@@ -45,12 +45,13 @@ std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::shared_ptr<ZReso
     if (!handle) return nullptr;
 
     std::shared_ptr<ZTextureResourceExtraData> extraData = std::make_shared<ZTextureResourceExtraData>();
-    handle->SetExtra(extraData);
+    extraData->hdr_ = hdr;
+    extraData->flipped_ = flipped;
 
-    std::lock_guard<std::mutex> importerLock(importerMutex_);
+    importerMutex_.lock();
     stbi_set_flip_vertically_on_load(flipped);
 
-    if (handle->Resource().type == ZResourceType::HDRTexture)
+    if (hdr)
     {
         extraData->fData_ = stbi_loadf_from_memory((const stbi_uc*) handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 0);
     }
@@ -58,6 +59,10 @@ std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::shared_ptr<ZReso
     {
         extraData->ucData_ = stbi_load_from_memory((const stbi_uc*) handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 4);
     }
+    importerMutex_.unlock();
+
+    handle->SetExtra(extraData);
+
     return handle;
 }
 
