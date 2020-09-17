@@ -369,29 +369,6 @@ namespace zenith
     #endif
     }
 
-    std::string FormatStringGlobals(const std::string& str)
-    {   
-        std::string s(str);
-        std::smatch matches;
-        if (std::regex_match(s, matches, std::regex(".*\\$(.*)\\$.*")))
-        {
-            for (unsigned int i = 1; i < matches.size(); i++)
-            {
-                if (matches.str(i) == "ENGINE_ROOT")
-                {
-                    s = std::regex_replace(s, std::regex("\\$ENGINE_ROOT\\$"), ENGINE_ROOT);
-                }
-                else if (matches.str(i) == "EDITOR_ROOT")
-                {
-                #ifdef EDITOR_ROOT
-                    s = std::regex_replace(s, std::regex("\\$EDITOR_ROOT\\$"), EDITOR_ROOT);
-                #endif
-                }
-            }
-        }
-        return s;
-    }
-
     void CleanUp()
     {
         processRunner_->AbortAllProcesses(true);

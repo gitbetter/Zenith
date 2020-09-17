@@ -63,12 +63,11 @@ void ZUI::RegisterFont(std::string fontPath)
 
 void ZUI::Render(ZUIElementMap elements)
 {
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
     projection_ = glm::ortho(0.f, (float) zenith::Domain()->ResolutionX(), (float) zenith::Domain()->ResolutionY(), 0.f);
-    for (ZUIElementMap::iterator it = elements.begin(); it != elements.end(); it++)
+
+    zenith::Graphics()->Strategy()->EnableAlphaBlending();
+    for (ZUIElementMap::reverse_iterator it = elements.rbegin(); it != elements.rend(); it++)
     {
-        // Only render the top level elements that are not hidden. The children will
-        // be rendered within the respective parent elements.
         RenderElement(it->second);
     }
     zenith::Graphics()->Strategy()->DisableAlphaBlending();
@@ -76,6 +75,8 @@ void ZUI::Render(ZUIElementMap elements)
 
 void ZUI::RenderElement(std::shared_ptr<ZUIElement> element)
 {
+    // Only render the top level elements that are not hidden. The children will
+    // be rendered within the respective parent elements.
     // TODO: Also only render if the child has the dirty flag set
     if (element->hidden_) return;
 
@@ -96,9 +97,9 @@ void ZUI::RenderElement(std::shared_ptr<ZUIElement> element)
         break;
     }
 
-    for (std::shared_ptr<ZUIElement> child : element->children_)
+    for (auto it = element->Children().begin(); it != element->Children().end(); it++)
     {
-        RenderElement(child);
+        RenderElement(it->second);
     }
 }
 

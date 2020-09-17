@@ -99,8 +99,8 @@ void ZResourceLoadTask::Run()
             ZModelImporter importer;
             std::string modelDirectory = resource_.name.substr(0, resource_.name.find_last_of("/\\"));
             std::shared_ptr<ZModelResourceExtraData> extraData = std::make_shared<ZModelResourceExtraData>();
-            handle->SetExtra(extraData);
             extraData->meshMap_ = importer.LoadModel(handle, extraData->boneMap_, extraData->boneList_, extraData->animationMap_, extraData->skeleton_, modelDirectory);
+            handle->SetExtra(extraData);
         }
         break;
     }

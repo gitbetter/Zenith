@@ -74,7 +74,9 @@ public:
     void PostProcessing(ZScene* scene);
     void FinishRenderPass();
     void UsePBRPipeline(bool pbr = true) { hasPBR_ = pbr; }
+    void UseMotionBlur(bool blur = false) { hasMotionBlur_ = blur; }
     bool HasPBR() const { return hasPBR_; }
+    bool HasMotionBlur() const { return hasMotionBlur_; }
 
     ZGraphicsStrategy* Strategy() { return graphicsStrategy_.get(); }
     ZGraphicsDebug* DebugDrawer() { return debugDrawer_.get(); }
@@ -117,5 +119,6 @@ protected:
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;
     ZModelMap loadedModels_;
-    bool hasPBR_;
+    bool hasPBR_ = true;
+    bool hasMotionBlur_ = false;
 };

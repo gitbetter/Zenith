@@ -141,11 +141,8 @@ protected:
     bool hdr_;
     bool flipped_;
     int width_, height_, channels_;
-    union
-    {
-        float* fData_;
-        unsigned char* ucData_ = nullptr;
-    };
+    float* fData_ = nullptr;
+    unsigned char* ucData_ = nullptr;
 
 };
 

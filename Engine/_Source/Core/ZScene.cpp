@@ -54,6 +54,7 @@
 #include "ZSkyboxReadyEvent.hpp"
 #include "ZSceneReadyEvent.hpp"
 #include "ZObjectDestroyedEvent.hpp"
+#include "ZStringHelpers.hpp"
 
 ZScene::ZScene(std::string name) : loadedResourceCount_(0), playState_(ZPlayState::NotStarted)
 {
@@ -190,6 +191,9 @@ void ZScene::Render()
 
     // Render pass #4: Post-Processing
     zenith::Graphics()->PostProcessing(this);
+
+    // Render pass #5: UI
+    zenith::UI()->Render(uiElements_);
 }
 
 void ZScene::Play()
@@ -345,7 +349,7 @@ std::shared_ptr<ZGameObject> ZScene::FindGameObject(const std::string& id)
     {
         for (auto it = gameObjects_.begin(); it != gameObjects_.end(); it++)
         {
-            if (it->first == id)
+            if (zenith::strings::HasSuffix(it->first, id))
             {
                 return it->second;
             }
@@ -384,7 +388,7 @@ std::shared_ptr<ZUIElement> ZScene::FindUIElement(const std::string& id)
     {
         for (auto it = uiElements_.begin(); it != uiElements_.end(); it++)
         {
-            if (it->first == id)
+            if (zenith::strings::HasSuffix(it->first, id))
             {
                 return it->second;
             }

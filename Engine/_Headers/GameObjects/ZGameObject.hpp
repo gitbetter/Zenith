@@ -33,6 +33,7 @@
 #include "ZProcess.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZProcessRunner.hpp"
+#include "ZStringHelpers.hpp"
 
 // Forward Declarations
 class ZGame;
@@ -156,7 +157,10 @@ public:
         std::shared_ptr<T> go;
         for (auto it = children_.begin(); it != children_.end(); it++)
         {
-            if ((go = std::dynamic_pointer_cast<T>(*it)) && go->ID() == id) return go;
+            if ((go = std::dynamic_pointer_cast<T>(*it)) && zenith::strings::HasSuffix(go->ID(), id))
+            {
+                return go;
+            }
             go = nullptr;
         }
 

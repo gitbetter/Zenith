@@ -32,6 +32,7 @@
 // Includes
 #include "ZMesh2D.hpp"
 #include "ZProcess.hpp"
+#include "ZStringHelpers.hpp"
 
 // Forward Declarations
 class ZScene;
@@ -79,6 +80,7 @@ public:
     glm::vec4 TranslationBounds() const { return translationBounds_; }
     const ZTexture& Texture() const { return texture_; }
     const std::shared_ptr<ZShader>& Shader() const { return shader_; }
+    const ZUIElementMap& Children() const { return children_; }
 
     void SetSize(const glm::vec2& size);
     void SetRelativeSize(const glm::vec2& size);
@@ -106,6 +108,7 @@ public:
     bool HasChildren() const { return !children_.empty(); }
     virtual void AddChild(const std::shared_ptr<ZUIElement>& element);
     bool RemoveChild(const std::shared_ptr<ZUIElement>& element);
+    void DoRecursiveChildUpdate(std::function<void(std::shared_ptr<ZUIElement>)> callback);
 
     void SetParent(ZUIElement* parent) { parent_ = parent; }
     void RemoveParent();
@@ -127,7 +130,10 @@ public:
         std::shared_ptr<T> el;
         for (auto it = children_.begin(); it != children_.end(); it++)
         {
-            if ((el = std::dynamic_pointer_cast<T>(*it)) && el->ID() == id) return el;
+            if ((el = std::dynamic_pointer_cast<T>(it->second)) && zenith::strings::HasSuffix(it->first, id))
+            {
+                return el;
+            }
             el = nullptr;
         }
 
@@ -143,11 +149,12 @@ protected:
     ZUIElement*                              parent_ = nullptr;
     glm::mat4                                modelMatrix_;
     glm::vec2                                relativePosition_;
+    glm::vec2                                normalizedPosition_;
     glm::vec2                                relativeSize_;
     glm::vec4                                translationBounds_;
     glm::vec4                                color_;
     float                                    opacity_;
-    std::vector<std::shared_ptr<ZUIElement>> children_;
+    ZUIElementMap                            children_;
     std::shared_ptr<ZShader>                 shader_;
     ZTexture                                 texture_;
     ZUIBorder                                border_;

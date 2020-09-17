@@ -176,6 +176,7 @@ void ZGraphics::PostProcessing(ZScene* scene)
     postShader_->Activate();
     postShader_->SetMat4("previousViewProjection", scene->PreviousViewProjection());
     postShader_->SetMat4("inverseViewProjection", glm::inverse(scene->ViewProjection()));
+    postShader_->SetBool("useMotionBlur", hasMotionBlur_);
 
     graphicsStrategy_->BindTexture(colorBuffer_, 0);
     postShader_->SetInt("colorSampler", 0);
@@ -192,10 +193,8 @@ void ZGraphics::PostProcessing(ZScene* scene)
 #ifndef EDITOR_ROOT
     ZBufferData defaultFrameBuffer;
     defaultFrameBuffer.fbo = 0;
-    graphicsStrategy_->BlitFramebuffer(colorFrameBufferMultisampled_, defaultFrameBuffer);
+    graphicsStrategy_->BlitFramebuffer(postFrameBuffer_, defaultFrameBuffer);
 #endif
-
-    zenith::UI()->Render(scene->uiElements_);
 }
 
 void ZGraphics::FinishRenderPass()

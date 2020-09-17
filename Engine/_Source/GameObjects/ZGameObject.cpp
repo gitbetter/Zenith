@@ -115,7 +115,7 @@ void ZGameObject::PostRender()
 
 void ZGameObject::RenderChildren(ZRenderOp renderOp)
 {
-    ZGameObjectList::iterator it = children_.begin(), end = children_.end();
+    ZGameObjectList::reverse_iterator it = children_.rbegin(), end = children_.rend();
     for (; it != end; it++)
     {
         (*it)->PreRender();

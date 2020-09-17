@@ -44,6 +44,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <list>
 #include <set>
 #include <functional>
@@ -220,6 +221,7 @@ using ZMesh3DMap = std::map<std::string, std::shared_ptr<ZMesh3D>>;
 using ZMaterialMap = std::map<std::string, std::shared_ptr<ZMaterial>>;
 using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
 using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
+using ZUIElementList = std::vector<std::shared_ptr<ZUIElement>>;
 using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
 using ZEventDelegate = fastdelegate::FastDelegate1<const std::shared_ptr<ZEvent>&>;
 using ZCollisionPair = std::pair<ZGameObject*, ZGameObject*>;
