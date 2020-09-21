@@ -45,7 +45,7 @@ bool ZDevResourceFile::Open()
     return true;
 }
 
-unsigned int ZDevResourceFile::RawResourceSize(ZResource& resource)
+unsigned int ZDevResourceFile::RawResourceSize(const ZResource& resource)
 {
     auto it = assetIndices_.find(resource.name);
     if (it == assetIndices_.end())
@@ -54,7 +54,7 @@ unsigned int ZDevResourceFile::RawResourceSize(ZResource& resource)
     return assets_[it->second].size();
 }
 
-unsigned int ZDevResourceFile::RawResource(ZResource& resource, char* buffer)
+unsigned int ZDevResourceFile::RawResource(const ZResource& resource, char* buffer)
 {
     auto it = assetIndices_.find(resource.name);
     if (it == assetIndices_.end())
@@ -97,7 +97,7 @@ void ZDevResourceFile::Close()
     assets_.clear();
 }
 
-void ZDevResourceFile::ReadDirectoryEntries(FileHandle& fh)
+void ZDevResourceFile::ReadDirectoryEntries(const FileHandle& fh)
 {
     for (FileIterator it = fh.begin(); it != fh.end(); ++it)
     {

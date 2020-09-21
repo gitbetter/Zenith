@@ -33,14 +33,14 @@
 
 std::mutex ZImageImporter::importerMutex_;
 
-std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::string path, bool hdr, bool flipped)
+std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(const std::string& path, bool hdr, bool flipped)
 {
     ZResource resource(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
     std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
     return LoadImage(handle, hdr, flipped);
 }
 
-std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(std::shared_ptr<ZResourceHandle> handle, bool hdr, bool flipped)
+std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(const std::shared_ptr<ZResourceHandle>& handle, bool hdr, bool flipped)
 {
     if (!handle) return nullptr;
 

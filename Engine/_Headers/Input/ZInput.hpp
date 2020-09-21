@@ -47,10 +47,10 @@ public:
     virtual void GetCursorPosition(double& x, double& y) = 0;
     virtual void SetCursorPosition(double& x, double& y) = 0;
 
-    inline bool Key(ZKey key) { return keyPress_.find(key) != keyPress_.end() && keyPress_[key]; }
-    inline bool Mouse(ZMouse mouse) { return mousePress_.find(mouse) != mousePress_.end() && mousePress_[mouse]; }
-    void SetKey(ZKey key, bool pressed = false);
-    void SetMouse(ZMouse mouse, bool pressed = false);
+    inline bool Key(const ZKey& key) { return keyPress_.find(key) != keyPress_.end() && keyPress_[key]; }
+    inline bool Mouse(const ZMouse& mouse) { return mousePress_.find(mouse) != mousePress_.end() && mousePress_[mouse]; }
+    void SetKey(const ZKey& key, bool pressed = false);
+    void SetMouse(const ZMouse& mouse, bool pressed = false);
 
 protected:
 

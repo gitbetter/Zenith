@@ -58,20 +58,20 @@ public:
 
     virtual std::shared_ptr<ZRigidBody> Clone() = 0;
 
-    virtual void ApplyForce(glm::vec3& force) = 0;
-    virtual void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) = 0;
-    virtual void ApplyTorque(glm::vec3& torque) = 0;
+    virtual void ApplyForce(const glm::vec3& force) = 0;
+    virtual void ApplyForceAtPoint(const glm::vec3& force, const glm::vec3& point) = 0;
+    virtual void ApplyTorque(const glm::vec3& torque) = 0;
     virtual void DisableContactResponse() = 0;
 
-    virtual void SetGravity(glm::vec3& gravity) = 0;
+    virtual void SetGravity(const glm::vec3& gravity) = 0;
     virtual void SetLinearDamping(float damping) = 0;
     virtual void SetAngularDamping(float damping) = 0;
     virtual void SetRestitution(float restitution) = 0;
-    virtual void SetColliderOffset(glm::vec3 offset) { colliderOffset_ = offset; }
+    virtual void SetColliderOffset(const glm::vec3& offset) { colliderOffset_ = offset; }
     virtual void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
-    virtual void SetPosition(glm::vec3 position) = 0;
-    virtual void SetRotation(glm::quat rotation) = 0;
-    virtual void SetScale(glm::vec3 scale) = 0;
+    virtual void SetPosition(const glm::vec3& position) = 0;
+    virtual void SetRotation(const glm::quat& rotation) = 0;
+    virtual void SetScale(const glm::vec3& scale) = 0;
 
 protected:
 

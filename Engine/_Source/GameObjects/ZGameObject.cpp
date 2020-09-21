@@ -118,13 +118,14 @@ void ZGameObject::RenderChildren(ZRenderOp renderOp)
     ZGameObjectList::reverse_iterator it = children_.rbegin(), end = children_.rend();
     for (; it != end; it++)
     {
-        (*it)->PreRender();
-        if ((*it)->IsVisible())
+        auto go = *it;
+        go->PreRender();
+        if (go->IsVisible())
         {
-            (*it)->Render(renderOp);
+            go->Render(renderOp);
         }
-        (*it)->RenderChildren(renderOp);
-        (*it)->PostRender();
+        go->RenderChildren(renderOp);
+        go->PostRender();
     }
 }
 

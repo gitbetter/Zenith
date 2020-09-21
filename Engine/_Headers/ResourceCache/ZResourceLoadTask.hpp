@@ -46,7 +46,7 @@ private:
 
 public:
 
-    ZResourceLoadTask(ZResource& resource) : ZConcurrentProcess(), resource_(resource) {}
+    ZResourceLoadTask(const ZResource& resource) : ZConcurrentProcess(), resource_(resource) {}
     ~ZResourceLoadTask() {}
 
     void Start();

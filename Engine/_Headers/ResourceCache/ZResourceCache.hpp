@@ -38,10 +38,10 @@
 class ZResource;
 
 // Class and Data Structure Definitions
-typedef std::list<std::shared_ptr<ZResourceHandle>> ResourceHandleList;
-typedef std::map<std::string, std::shared_ptr<ZResourceHandle>> ResourceHandleMap;
-typedef std::map<std::string, std::shared_ptr<ZResourceFile>> ResourceFileMap;
-typedef std::list<std::shared_ptr<ZResourceLoader>> ResourceLoaderList;
+using ResourceHandleList = std::list<std::shared_ptr<ZResourceHandle>>;
+using ResourceHandleMap = std::map<std::string, std::shared_ptr<ZResourceHandle>>;
+using ResourceFileMap = std::map<std::string, std::shared_ptr<ZResourceFile>>;
+using ResourceLoaderList = std::list<std::shared_ptr<ZResourceLoader>>;
 
 class ZResourceCache
 {
@@ -67,8 +67,8 @@ public:
     void RegisterLoader(std::shared_ptr<ZResourceLoader> loader);
     void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
     std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);
-    void RequestHandle(ZResource& resource);
-    int Preload(const std::string pattern, void(*progressCallback)(int, bool&));
+    void RequestHandle(const ZResource& resource);
+    int Preload(const std::string& pattern, void(*progressCallback)(int, bool&));
     void Flush();
     void FreeMemory(unsigned int size);
 
@@ -86,7 +86,7 @@ protected:
     const void Update(std::shared_ptr<ZResourceHandle> handle);
     std::shared_ptr<ZResourceHandle> Load(ZResource* resource);
     void Free(std::shared_ptr<ZResourceHandle> handle);
-    bool MatchPattern(std::string pattern, std::string str);
+    bool MatchPattern(const std::string& pattern, const std::string& str);
 
     bool MakeRoom(unsigned int size);
     char* Allocate(unsigned int size);

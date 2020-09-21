@@ -56,12 +56,12 @@ void ZUI::Initialize()
     }
 }
 
-void ZUI::RegisterFont(std::string fontPath)
+void ZUI::RegisterFont(const std::string& fontPath)
 {
     if (textStrategy_ != nullptr) textStrategy_->LoadFontAsync(fontPath, 64);
 }
 
-void ZUI::Render(ZUIElementMap elements)
+void ZUI::Render(ZUIElementMap& elements)
 {
     projection_ = glm::ortho(0.f, (float) zenith::Domain()->ResolutionX(), (float) zenith::Domain()->ResolutionY(), 0.f);
 
@@ -73,7 +73,7 @@ void ZUI::Render(ZUIElementMap elements)
     zenith::Graphics()->Strategy()->DisableAlphaBlending();
 }
 
-void ZUI::RenderElement(std::shared_ptr<ZUIElement> element)
+void ZUI::RenderElement(const std::shared_ptr<ZUIElement>& element)
 {
     // Only render the top level elements that are not hidden. The children will
     // be rendered within the respective parent elements.
@@ -103,7 +103,7 @@ void ZUI::RenderElement(std::shared_ptr<ZUIElement> element)
     }
 }
 
-void ZUI::RenderGeneric(std::shared_ptr<ZUIElement>& element)
+void ZUI::RenderGeneric(const std::shared_ptr<ZUIElement>& element)
 {
     std::shared_ptr<ZMesh2D> mesh = element->ElementShape();
     element->shader_->Activate();
@@ -132,12 +132,12 @@ void ZUI::RenderGeneric(std::shared_ptr<ZUIElement>& element)
     mesh->Render(element->shader_.get());
 }
 
-void ZUI::RenderImage(std::shared_ptr<ZUIElement>& element)
+void ZUI::RenderImage(const std::shared_ptr<ZUIElement>& element)
 {
     RenderGeneric(element);
 }
 
-void ZUI::RenderText(std::shared_ptr<ZUIElement>& element)
+void ZUI::RenderText(const std::shared_ptr<ZUIElement>& element)
 {
     auto textEl = std::dynamic_pointer_cast<ZUIText>(element);
 

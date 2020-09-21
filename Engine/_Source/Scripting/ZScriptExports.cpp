@@ -55,7 +55,7 @@ void ZInternalScriptExports::AttachScriptProcess(std::shared_ptr<ZScriptableProc
     }
 }
 
-bool ZInternalScriptExports::QueueEvent(ZEventType eventType, sol::table eventData)
+bool ZInternalScriptExports::QueueEvent(ZEventType eventType, const sol::table& eventData)
 {
     std::shared_ptr<ZScriptableEvent> event(BuildEvent(eventType, eventData));
     if (event)
@@ -65,7 +65,7 @@ bool ZInternalScriptExports::QueueEvent(ZEventType eventType, sol::table eventDa
     return false;
 }
 
-bool ZInternalScriptExports::TriggerEvent(ZEventType eventType, sol::table eventData)
+bool ZInternalScriptExports::TriggerEvent(ZEventType eventType, const sol::table& eventData)
 {
     std::shared_ptr<ZScriptableEvent> event(BuildEvent(eventType, eventData));
     if (event)
@@ -75,7 +75,7 @@ bool ZInternalScriptExports::TriggerEvent(ZEventType eventType, sol::table event
     return false;
 }
 
-std::shared_ptr<ZScriptableEvent> ZInternalScriptExports::BuildEvent(ZEventType eventType, sol::table& eventData)
+std::shared_ptr<ZScriptableEvent> ZInternalScriptExports::BuildEvent(ZEventType eventType, const sol::table& eventData)
 {
     std::shared_ptr<ZScriptableEvent> event(ZScriptableEvent::CreateEventFromScript(eventType));
     if (!event) return nullptr;
@@ -83,7 +83,7 @@ std::shared_ptr<ZScriptableEvent> ZInternalScriptExports::BuildEvent(ZEventType 
     return event;
 }
 
-unsigned long ZInternalScriptExports::RegisterEventListener(ZEventType eventType, sol::function callback)
+unsigned long ZInternalScriptExports::RegisterEventListener(ZEventType eventType, const sol::function& callback)
 {
     if (callback.valid())
     {
@@ -98,7 +98,7 @@ unsigned long ZInternalScriptExports::RegisterEventListener(ZEventType eventType
     return 0;
 }
 
-void ZInternalScriptExports::Log(sol::object obj)
+void ZInternalScriptExports::Log(const sol::object& obj)
 {
     if (obj.is<std::string>())
     {

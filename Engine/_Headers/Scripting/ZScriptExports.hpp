@@ -50,12 +50,12 @@ public:
 
     static void AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess);
 
-    static bool QueueEvent(ZEventType eventType, sol::table eventData);
-    static bool TriggerEvent(ZEventType eventType, sol::table eventData);
-    static std::shared_ptr<ZScriptableEvent> BuildEvent(ZEventType eventType, sol::table& eventData);
-    static unsigned long RegisterEventListener(ZEventType eventType, sol::function callback);
+    static bool QueueEvent(ZEventType eventType, const sol::table& eventData);
+    static bool TriggerEvent(ZEventType eventType, const sol::table& eventData);
+    static std::shared_ptr<ZScriptableEvent> BuildEvent(ZEventType eventType, const sol::table& eventData);
+    static unsigned long RegisterEventListener(ZEventType eventType, const sol::function& callback);
 
-    static void Log(sol::object string);
+    static void Log(const sol::object& string);
 
 };
 

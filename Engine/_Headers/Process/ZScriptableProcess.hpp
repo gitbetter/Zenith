@@ -48,19 +48,19 @@ private:
     std::unordered_map<std::string, sol::object> dynamicFields_;
     static const std::string SCRIPT_PROCESS_NAME;
 
-    static std::shared_ptr<ZScriptableProcess> CreateFromScript(sol::table self, sol::table constructionData);
-    bool BuildCppDataFromScript(sol::table scriptClass, sol::table constructionData);
+    static std::shared_ptr<ZScriptableProcess> CreateFromScript(const sol::table& self, const sol::table& constructionData);
+    bool BuildCppDataFromScript(const sol::table& scriptClass, const sol::table& constructionData);
 
-    bool ScriptIsAlive() { return IsAlive(); }
-    bool ScriptIsDead() { return IsDead(); }
-    bool ScriptIsPaused() { return IsPaused(); }
+    bool ScriptIsAlive() const { return IsAlive(); }
+    bool ScriptIsDead() const { return IsDead(); }
+    bool ScriptIsPaused() const { return IsPaused(); }
 
     void ScriptAttachChild(std::shared_ptr<ZScriptableProcess> process);
 
     explicit ZScriptableProcess();
 
-    sol::object GetDynamic(std::string key);
-    void SetDynamic(std::string key, sol::object value);
+    sol::object GetDynamic(const std::string& key);
+    void SetDynamic(const std::string& key, const sol::object& value);
 
 public:
 

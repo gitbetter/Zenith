@@ -268,10 +268,9 @@ glm::vec2 ZUIElement::RelativePosition() const
 
 glm::vec3 ZUIElement::Size() const
 {
-    glm::mat3 scaleMatrix(modelMatrix_);
-    return glm::vec3(glm::length(scaleMatrix[0]),
-        glm::length(scaleMatrix[1]),
-        glm::length(scaleMatrix[2]));
+    return glm::vec3(glm::length(modelMatrix_[0]),
+        glm::length(modelMatrix_[1]),
+        glm::length(modelMatrix_[2]));
 }
 
 glm::vec2 ZUIElement::RelativeSize() const

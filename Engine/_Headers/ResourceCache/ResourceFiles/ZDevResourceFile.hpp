@@ -51,9 +51,9 @@ public:
     ~ZDevResourceFile() {}
 
     bool Open() override;
-    const std::string& Name() const override { return fileName_; }
-    unsigned int RawResourceSize(ZResource& resource) override;
-    unsigned int RawResource(ZResource& resource, char* buffer) override;
+    std::string Name() const override { return fileName_; }
+    unsigned int RawResourceSize(const ZResource& resource) override;
+    unsigned int RawResource(const ZResource& resource, char* buffer) override;
     unsigned int ResourceCount() const override;
     std::string ResourceName(unsigned int num) const override;
     void PrintResources() const override;
@@ -64,6 +64,6 @@ protected:
     std::map<std::string, unsigned int> assetIndices_;
     std::vector<cppfs::FileHandle> assets_;
 
-    void ReadDirectoryEntries(cppfs::FileHandle& fh);
+    void ReadDirectoryEntries(const cppfs::FileHandle& fh);
 
 };

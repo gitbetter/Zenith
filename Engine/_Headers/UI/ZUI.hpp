@@ -47,9 +47,9 @@ public:
     ~ZUI() {}
 
     void Initialize();
-    void RegisterFont(std::string fontPath);
-    void Render(ZUIElementMap elements);
-    void RenderElement(std::shared_ptr<ZUIElement> element);
+    void RegisterFont(const std::string& fontPath);
+    void Render(ZUIElementMap& elements);
+    void RenderElement(const std::shared_ptr<ZUIElement>& element);
     void CleanUp();
 
     ZTextStrategy* TextStrategy() { return textStrategy_.get(); }
@@ -58,9 +58,9 @@ public:
 
 protected:
 
-    void RenderGeneric(std::shared_ptr<ZUIElement>& element);
-    void RenderImage(std::shared_ptr<ZUIElement>& element);
-    void RenderText(std::shared_ptr<ZUIElement>& element);
+    void RenderGeneric(const std::shared_ptr<ZUIElement>& element);
+    void RenderImage(const std::shared_ptr<ZUIElement>& element);
+    void RenderText(const std::shared_ptr<ZUIElement>& element);
 
 protected:
 

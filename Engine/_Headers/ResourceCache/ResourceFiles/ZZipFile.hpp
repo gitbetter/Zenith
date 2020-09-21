@@ -50,9 +50,9 @@ public:
     ZZipFile(const std::string& filePath) : fileName_(filePath) {}
     ~ZZipFile() {}
     bool Open() override;
-    const std::string& Name() const override { return fileName_; }
-    unsigned int RawResourceSize(ZResource& resource) override;
-    unsigned int RawResource(ZResource& resource, char* buffer) override;
+    std::string Name() const override { return fileName_; }
+    unsigned int RawResourceSize(const ZResource& resource) override;
+    unsigned int RawResource(const ZResource& resource, char* buffer) override;
     unsigned int ResourceCount() const override;
     std::string ResourceName(unsigned int num) const override;
     void PrintResources() const override;

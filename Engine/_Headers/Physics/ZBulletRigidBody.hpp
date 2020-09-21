@@ -43,7 +43,7 @@ public:
 
     ZBulletRigidBody() { colliderOffset_ = glm::vec3(0.f); type_ = ZPhysicsBodyType::Dynamic; }
     ZBulletRigidBody(void* bodyPtr) : ZBulletRigidBody() { ptr_ = bodyPtr; }
-    ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, glm::vec3 origin, glm::vec3 scale, glm::quat rotation);
+    ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, const glm::vec3& origin, const glm::vec3& scale, const glm::quat& rotation);
     ~ZBulletRigidBody() {}
 
     void Initialize() override;
@@ -58,19 +58,17 @@ public:
 
     std::shared_ptr<ZRigidBody> Clone() override;
 
-    void SetGravity(glm::vec3& gravity) override;
+    void SetGravity(const glm::vec3& gravity) override;
     void SetLinearDamping(float damping) override;
     void SetAngularDamping(float damping) override;
     void SetRestitution(float restitution) override;
     void SetGameObject(ZGameObject* gameObject) override;
-
-    void SetPosition(glm::vec3 position) override;
-    void SetRotation(glm::quat rotation) override;
-    void SetScale(glm::vec3 scale) override;
-
-    void ApplyForce(glm::vec3& force) override;
-    void ApplyForceAtPoint(glm::vec3& force, glm::vec3& point) override;
-    void ApplyTorque(glm::vec3& torque) override;
+    void SetPosition(const glm::vec3& position) override;
+    void SetRotation(const glm::quat& rotation) override;
+    void SetScale(const glm::vec3& scale) override;
+    void ApplyForce(const glm::vec3& force) override;
+    void ApplyForceAtPoint(const glm::vec3& force, const glm::vec3& point) override;
+    void ApplyTorque(const glm::vec3& torque) override;
     void DisableContactResponse() override;
 
 };
