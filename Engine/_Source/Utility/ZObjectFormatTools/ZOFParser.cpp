@@ -29,7 +29,7 @@
 
 #include "ZOFParser.hpp"
 
-std::shared_ptr<ZOFTree> ZOFParser::Parse(std::string contents)
+std::shared_ptr<ZOFTree> ZOFParser::Parse(const std::string& contents)
 {
     std::shared_ptr<ZOFTree> parseTree = std::make_shared<ZOFTree>();
     if (!contents.empty())
@@ -81,13 +81,13 @@ std::string ZOFParser::Scan()
     return token;
 }
 
-void ZOFParser::Match(std::string token)
+void ZOFParser::Match(const std::string& token)
 {
     if (token == currentToken_) currentToken_ = Scan();
     else zenith::Log("[ZOFParse Error]: Expected " + token + ", but instead got " + currentToken_, ZSeverity::Error);
 }
 
-void ZOFParser::Match(std::regex pattern)
+void ZOFParser::Match(const std::regex& pattern)
 {
     if (std::regex_match(currentToken_, pattern)) currentToken_ = Scan();
     else zenith::Log("[ZOFParse Error]: Token " + currentToken_ + " is malformed", ZSeverity::Error);

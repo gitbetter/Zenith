@@ -49,8 +49,8 @@ class ZModelImporter
 
 private:
 
-    void ProcessNode(aiNode* node, const aiScene* scene, std::string directory, ZMesh3DMap& outMeshes);
-    std::shared_ptr<ZMesh3D> ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory);
+    void ProcessNode(aiNode* node, const aiScene* scene, const std::string& directory, ZMesh3DMap& outMeshes);
+    std::shared_ptr<ZMesh3D> ProcessMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory);
 
     std::vector<ZVertex3D> LoadVertexData(const aiMesh* mesh);
     std::vector<unsigned int> LoadIndexData(const aiMesh* mesh);
@@ -59,12 +59,12 @@ private:
     std::shared_ptr<ZJoint> LoadSkeletonJoint(const aiNode* node);
     void LoadBones(const aiMesh* mesh, std::vector<ZVertex3D>& vertices);
     void LoadAnimations(const aiScene* scene);
-    std::vector<ZTexture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, std::string directory);
+    std::vector<ZTexture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::string& directory);
 
 public:
 
-    ZMesh3DMap LoadModel(std::string modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton);
-    ZMesh3DMap LoadModel(std::shared_ptr<ZResourceHandle> modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, std::string modelDirectory = "");
+    ZMesh3DMap LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton);
+    ZMesh3DMap LoadModel(const std::shared_ptr<ZResourceHandle>& modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, const std::string& modelDirectory = "");
 
     glm::vec3 AssimpToGLMVec3(const aiVector3D& vec);
     glm::quat AssimpToGLMQuat(const aiQuaternion& quat);

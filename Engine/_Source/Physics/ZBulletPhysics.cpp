@@ -128,7 +128,7 @@ void ZBulletPhysics::HandleRaycastEvent(const std::shared_ptr<ZEvent>& event)
     }
 }
 
-ZRaycastHitResult ZBulletPhysics::Raycast(glm::vec3 start, glm::vec3 direction)
+ZRaycastHitResult ZBulletPhysics::Raycast(const glm::vec3& start, const glm::vec3& direction)
 {
     glm::vec3 end = direction * 1000.f;
     btCollisionWorld::ClosestRayResultCallback rayCallback(

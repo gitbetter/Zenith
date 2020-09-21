@@ -47,8 +47,8 @@ private:
     std::regex number_ = std::regex("-?\\d+\\.?\\d*");
 
     std::string Scan();
-    void Match(std::string);
-    void Match(std::regex pattern);
+    void Match(const std::string& token);
+    void Match(const std::regex& pattern);
     void HandleParseError(std::shared_ptr<ZOFNode> node);
 
     void Start(std::shared_ptr<ZOFTree> tree);
@@ -66,7 +66,7 @@ public:
     ZOFParser() {}
     ~ZOFParser() {}
 
-    std::shared_ptr<ZOFTree> Parse(std::string contents);
+    std::shared_ptr<ZOFTree> Parse(const std::string& contents);
 
 protected:
 

@@ -53,7 +53,7 @@ public:
 
     virtual void RemoveRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
 
-    virtual ZRaycastHitResult Raycast(glm::vec3 start, glm::vec3 direction) = 0;
+    virtual ZRaycastHitResult Raycast(const glm::vec3& start, const glm::vec3& direction) = 0;
 
     virtual void DebugDraw() = 0;
 

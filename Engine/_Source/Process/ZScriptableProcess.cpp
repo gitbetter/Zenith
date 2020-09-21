@@ -58,7 +58,7 @@ void ZScriptableProcess::RegisterScriptClass()
         );
 }
 
-std::shared_ptr<ZScriptableProcess> ZScriptableProcess::CreateFromScript(sol::table self, sol::table constructionData)
+std::shared_ptr<ZScriptableProcess> ZScriptableProcess::CreateFromScript(const sol::table& self, const sol::table& constructionData)
 {
     std::shared_ptr<ZScriptableProcess> process(new ZScriptableProcess);
     if (!process->BuildCppDataFromScript(self, constructionData))
@@ -68,7 +68,7 @@ std::shared_ptr<ZScriptableProcess> ZScriptableProcess::CreateFromScript(sol::ta
     return process;
 }
 
-bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table constructionData)
+bool ZScriptableProcess::BuildCppDataFromScript(const sol::table& obj, const sol::table& constructionData)
 {
     if (obj.valid())
     {
@@ -115,7 +115,7 @@ bool ZScriptableProcess::BuildCppDataFromScript(sol::table obj, sol::table const
 
     if (constructionData.valid())
     {
-        constructionData.for_each([this] (sol::object key, sol::object value) {
+        constructionData.for_each([this] (const sol::object& key, const sol::object& value) {
             std::string k = key.as<std::string>();
             if (k == "frequency" && value.is<float>())
             {
@@ -138,7 +138,7 @@ void ZScriptableProcess::ScriptAttachChild(std::shared_ptr<ZScriptableProcess> p
     else zenith::Log("Child process being attached is not valid", ZSeverity::Error);
 }
 
-sol::object ZScriptableProcess::GetDynamic(std::string key)
+sol::object ZScriptableProcess::GetDynamic(const std::string& key)
 {
     auto it = dynamicFields_.find(key);
     if (it == dynamicFields_.cend())
@@ -146,7 +146,7 @@ sol::object ZScriptableProcess::GetDynamic(std::string key)
     return it->second;
 }
 
-void ZScriptableProcess::SetDynamic(std::string key, sol::object value)
+void ZScriptableProcess::SetDynamic(const std::string& key, const sol::object& value)
 {
     auto it = dynamicFields_.find(key);
     if (it == dynamicFields_.cend())

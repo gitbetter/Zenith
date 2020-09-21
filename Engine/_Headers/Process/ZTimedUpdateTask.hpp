@@ -48,7 +48,7 @@ private:
 
 public:
 
-    ZTimedUpdateTask(float duration, ZTimedUpdateCallback callback) :
+    ZTimedUpdateTask(float duration, const ZTimedUpdateCallback& callback) :
         ZProcess(), duration_(duration), elapsed_(0.f), callback_(callback) {}
     ~ZTimedUpdateTask() {};
 

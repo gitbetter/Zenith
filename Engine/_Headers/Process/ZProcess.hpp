@@ -64,10 +64,10 @@ public:
     virtual void OnAbort() {};
     virtual void CleanUp() {};
 
-    std::string ID() { return id_; }
+    std::string ID() const { return id_; }
 
     ZProcessState State() const { return state_; }
-    std::shared_ptr<ZProcess> Child() { return child_; }
+    std::shared_ptr<ZProcess> Child() const { return child_; }
 
     bool IsAlive() const { return state_ == ZProcessState::Running || state_ == ZProcessState::Paused; }
     bool IsDead() const

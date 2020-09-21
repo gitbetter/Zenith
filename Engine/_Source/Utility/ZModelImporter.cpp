@@ -42,7 +42,7 @@
  @param shaderPath the path to the model file.
  @param outMeshes the mesh vector to populate.
  */
-ZMesh3DMap ZModelImporter::LoadModel(std::string modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton)
+ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton)
 {
     std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
 
@@ -53,7 +53,7 @@ ZMesh3DMap ZModelImporter::LoadModel(std::string modelPath, ZBoneMap& outBoneMap
     return LoadModel(handle, outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
 }
 
-ZMesh3DMap ZModelImporter::LoadModel(std::shared_ptr<ZResourceHandle> modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, std::string modelDirectory)
+ZMesh3DMap ZModelImporter::LoadModel(const std::shared_ptr<ZResourceHandle>& modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, const std::string& modelDirectory)
 {
     ZMesh3DMap meshes;
 
@@ -90,7 +90,7 @@ ZMesh3DMap ZModelImporter::LoadModel(std::shared_ptr<ZResourceHandle> modelHandl
  @param shaderPath the path to the model file.
  @param outMeshes the mesh vector to populate.
  */
-void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string directory, ZMesh3DMap& outMeshes)
+void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, const std::string& directory, ZMesh3DMap& outMeshes)
 {
 // Process the node's meshes and add them to the out parameter
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -118,7 +118,7 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, std::string
  @param directory the model directory, used for loading the textures for the materials.
  @return a ZMesh3D instance with all the relevant data
  */
-std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string directory)
+std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory)
 {
     ZVertex3DDataOptions options;
     options.vertices = LoadVertexData(mesh);
@@ -360,7 +360,7 @@ void ZModelImporter::LoadAnimations(const aiScene* scene)
  @param directory the directory that supposedly contains the textures. We'll see.
  @return a vector of ZTextures with all the relevant data
  */
-std::vector<ZTexture> ZModelImporter::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName, std::string directory)
+std::vector<ZTexture> ZModelImporter::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::string& directory)
 {
     std::vector<ZTexture> textures;
     for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)

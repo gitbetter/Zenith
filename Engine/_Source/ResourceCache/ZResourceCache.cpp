@@ -84,13 +84,13 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::GetHandle(ZResource* resource)
     return handle;
 }
 
-void ZResourceCache::RequestHandle(ZResource& resource)
+void ZResourceCache::RequestHandle(const ZResource& resource)
 {
     std::shared_ptr<ZResourceLoadTask> loadTask = std::make_shared<ZResourceLoadTask>(resource);
     loadTask->Start();
 }
 
-int ZResourceCache::Preload(const std::string pattern, void(*progressCallback)(int, bool&))
+int ZResourceCache::Preload(const std::string& pattern, void(*progressCallback)(int, bool&))
 {
 // TODO: Could be used to load level specific or pinch point
 // assets (by pattern matching a specific folder)
@@ -204,7 +204,7 @@ void ZResourceCache::Free(std::shared_ptr<ZResourceHandle> handle)
     FreeMemory(handle->Size());
 }
 
-bool ZResourceCache::MatchPattern(std::string pattern, std::string str)
+bool ZResourceCache::MatchPattern(const std::string& pattern, const std::string& str)
 {
     std::regex rx(pattern);
     return std::regex_match(str, rx);

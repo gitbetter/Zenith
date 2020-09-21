@@ -46,7 +46,7 @@ private:
 public:
 
     ZIDSequence() {}
-    ZIDSequence(std::string seed);
+    ZIDSequence(const std::string& seed);
     ~ZIDSequence() {}
 
     // TODO: Use a random number generator to sample from a

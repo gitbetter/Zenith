@@ -46,8 +46,8 @@ private:
 
 public:
 
-    static std::shared_ptr<ZResourceHandle> LoadImage(std::string path, bool hdr = false, bool flipped = true);
-    static std::shared_ptr<ZResourceHandle> LoadImage(std::shared_ptr<ZResourceHandle> handle, bool hdr = false, bool flipped = true);
+    static std::shared_ptr<ZResourceHandle> LoadImage(const std::string& path, bool hdr = false, bool flipped = true);
+    static std::shared_ptr<ZResourceHandle> LoadImage(const std::shared_ptr<ZResourceHandle>& handle, bool hdr = false, bool flipped = true);
     static void FreeImageData(void* data);
 
 };

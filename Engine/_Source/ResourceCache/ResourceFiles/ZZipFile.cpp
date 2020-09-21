@@ -42,7 +42,7 @@ bool ZZipFile::Open()
     return true;
 }
 
-unsigned int ZZipFile::RawResourceSize(ZResource& resource)
+unsigned int ZZipFile::RawResourceSize(const ZResource& resource)
 {
     zip_entry_open(zipFile_, resource.name.c_str());
     unsigned int size = zip_entry_size(zipFile_);
@@ -50,7 +50,7 @@ unsigned int ZZipFile::RawResourceSize(ZResource& resource)
     return size;
 }
 
-unsigned int ZZipFile::RawResource(ZResource& resource, char* buffer)
+unsigned int ZZipFile::RawResource(const ZResource& resource, char* buffer)
 {
     if (zipFile_)
     {
