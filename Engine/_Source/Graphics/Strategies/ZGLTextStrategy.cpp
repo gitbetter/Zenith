@@ -48,13 +48,13 @@ void ZGLTextStrategy::Initialize() {
 	zenith::EventAgent()->AddListener(fontLoadedDelegate, ZResourceLoadedEvent::Type);
 }
 
-void ZGLTextStrategy::LoadFont(std::string fontPath, unsigned int fontSize) {
+void ZGLTextStrategy::LoadFont(const std::string& fontPath, unsigned int fontSize) {
 	ZResource resource(fontPath, ZResourceType::Font);
 	std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
 	LoadFont(handle, fontSize);
 }
 
-void ZGLTextStrategy::LoadFontAsync(std::string fontPath, unsigned int fontSize) {
+void ZGLTextStrategy::LoadFontAsync(const std::string& fontPath, unsigned int fontSize) {
 	ZResource resource(fontPath, ZResourceType::Font);
 	zenith::ResourceCache()->RequestHandle(resource);
 	pendingFonts_[fontPath] = fontSize;

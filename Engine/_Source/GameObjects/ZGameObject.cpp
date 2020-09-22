@@ -39,7 +39,7 @@
 #include "ZEventAgent.hpp"
 #include "ZObjectDestroyedEvent.hpp"
 
-ZGameObject::ZGameObject(glm::vec3 position, glm::quat orientation)
+ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation)
 {
     properties_.previousPosition = properties_.position = glm::vec4(position, 1.f);
     properties_.previousScale = properties_.scale = glm::vec3(1.f, 1.f, 1.f);
@@ -341,7 +341,7 @@ glm::vec3 ZGameObject::PreviousRight()
     return prev;
 }
 
-void ZGameObject::SetPosition(glm::vec3 position)
+void ZGameObject::SetPosition(const glm::vec3& position)
 {
     objectMutexes_.position.lock();
     properties_.previousPosition = properties_.position;
@@ -355,10 +355,10 @@ void ZGameObject::SetPosition(glm::vec3 position)
     CalculateDerivedData();
 }
 
-void ZGameObject::SetScale(glm::vec3 scale)
+void ZGameObject::SetScale(const glm::vec3& scale)
 {
-// TODO: set the btRigidBody local scaling in the
-// physics component, if there is one
+    // TODO: set the btRigidBody local scaling in the
+    // physics component, if there is one
     objectMutexes_.scale.lock();
     properties_.previousScale = properties_.scale;
     properties_.scale = scale;
@@ -366,7 +366,7 @@ void ZGameObject::SetScale(glm::vec3 scale)
     CalculateDerivedData();
 }
 
-void ZGameObject::SetOrientation(glm::quat quaternion)
+void ZGameObject::SetOrientation(const glm::quat& quaternion)
 {
     objectMutexes_.orientation.lock();
     properties_.previousOrientation = properties_.orientation;
@@ -380,7 +380,7 @@ void ZGameObject::SetOrientation(glm::quat quaternion)
     CalculateDerivedData();
 }
 
-void ZGameObject::SetOrientation(glm::vec3 euler)
+void ZGameObject::SetOrientation(const glm::vec3& euler)
 {
     objectMutexes_.orientation.lock();
     properties_.previousOrientation = properties_.orientation;
@@ -394,7 +394,7 @@ void ZGameObject::SetOrientation(glm::vec3 euler)
     CalculateDerivedData();
 }
 
-void ZGameObject::SetModelMatrix(glm::mat4 modelMatrix)
+void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
 {
     objectMutexes_.modelMatrix.lock();
     properties_.modelMatrix = modelMatrix;

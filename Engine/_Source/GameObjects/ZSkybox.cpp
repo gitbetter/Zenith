@@ -35,7 +35,7 @@
 #include "ZTextureReadyEvent.hpp"
 #include "ZSkyboxReadyEvent.hpp"
 
-ZSkybox::ZSkybox(std::string hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr)
+ZSkybox::ZSkybox(const std::string& hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr)
 {
     properties_.renderPass = ZRenderPass::Sky;
 }
@@ -77,7 +77,7 @@ void ZSkybox::InitializeAsync()
     zenith::Graphics()->Strategy()->EquirectToCubemapAsync(hdrPath_);
 }
 
-void ZSkybox::Initialize(ZTexture& cubeMap, ZBufferData& bufferData)
+void ZSkybox::Initialize(const ZTexture& cubeMap, const ZBufferData& bufferData)
 {
     std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 

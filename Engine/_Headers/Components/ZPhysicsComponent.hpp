@@ -47,7 +47,7 @@ public:
 
     void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Initialize(std::string bodyType, std::string colliderType, float mass, glm::vec3 position, glm::vec3 scale, glm::quat rotation);
+    void Initialize(const std::string& bodyType, const std::string& colliderType, float mass, const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation);
 
     std::shared_ptr<ZComponent> Clone() override;
 
@@ -56,9 +56,9 @@ public:
     void CleanUp() override;
 
     void DisableCollisionResponse();
-    void AddForce(glm::vec3& force);
-    void AddForceAtPoint(glm::vec3& force, glm::vec3& point);
-    void AddTorque(glm::vec3& torque);
+    void AddForce(const glm::vec3& force);
+    void AddForceAtPoint(const glm::vec3& force, const glm::vec3& point);
+    void AddTorque(const glm::vec3& torque);
     bool HasFiniteMass();
 
     std::shared_ptr<ZRigidBody> RigidBody() { return body_; }

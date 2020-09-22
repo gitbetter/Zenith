@@ -267,7 +267,7 @@ void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material)
     materials_.push_back(material);
 }
 
-void ZGraphicsComponent::SetOutline(glm::vec4 color)
+void ZGraphicsComponent::SetOutline(const glm::vec4& color)
 {
     if (highlightShader_ == nullptr)
     {
@@ -283,7 +283,7 @@ void ZGraphicsComponent::SetModel(std::shared_ptr<ZModel> model)
     instanceData_ = modelObject_->InstanceData();
 }
 
-void ZGraphicsComponent::DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewProjection)
+void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm::mat4& viewProjection)
 {
     if (highlightShader_ == nullptr) return;
 

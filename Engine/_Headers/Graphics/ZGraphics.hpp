@@ -91,9 +91,9 @@ public:
     ZShaderMap& Shaders() { return loadedShaders_; }
     ZModelMap& Models() { return loadedModels_; }
 
-    void AddShader(std::string id, std::shared_ptr<ZShader> shader);
-    void AddTexture(std::string id, ZTexture texture);
-    void AddModel(std::string id, std::shared_ptr<ZModel> model);
+    void AddShader(const std::string& id, std::shared_ptr<ZShader> shader);
+    void AddTexture(const std::string& id, const ZTexture& texture);
+    void AddModel(const std::string& id, std::shared_ptr<ZModel> model);
 
     static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
 

@@ -43,11 +43,11 @@ private:
 
     std::string hdrPath_;
 
-    void Initialize(ZTexture& cubeMap, ZBufferData& bufferData);
+    void Initialize(const ZTexture& cubeMap, const ZBufferData& bufferData);
 
 public:
 
-    ZSkybox(std::string hdr = "");
+    ZSkybox(const std::string& hdr = "");
     ~ZSkybox() {}
 
     void Initialize() override;

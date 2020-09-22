@@ -54,12 +54,12 @@
 class ZScriptableEvent;
 
 // Class and Data Structure Definitions
-typedef ZScriptableEvent* (*CreateEventForScriptFunctionType)();
+using CreateEventForScriptFunctionType = ZScriptableEvent* (*)();
 
 class ZScriptableEvent : public ZEvent
 {
 
-    typedef std::map<ZEventType, CreateEventForScriptFunctionType> CreationFunctions;
+    using CreationFunctions = std::map<ZEventType, CreateEventForScriptFunctionType>;
 
 private:
 

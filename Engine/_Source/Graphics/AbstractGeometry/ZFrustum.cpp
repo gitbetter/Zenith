@@ -45,7 +45,7 @@ ZFrustum::ZFrustum(float fov, float ratio, float near, float far)
     Recalculate(glm::vec3(0.f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f));
 }
 
-void ZFrustum::Recalculate(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
+void ZFrustum::Recalculate(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
 {
     glm::vec3 nearCenter, farCenter, x, y, z;
 
@@ -73,7 +73,7 @@ void ZFrustum::Recalculate(glm::vec3 pos, glm::vec3 front, glm::vec3 up)
     planes[RIGHT] = ZPlane(corners[2], corners[1], corners[6]);
 }
 
-bool ZFrustum::Contains(glm::vec3 point)
+bool ZFrustum::Contains(const glm::vec3& point)
 {
     for (int plane = 0; plane < NUMPLANES; plane++)
     {
@@ -83,7 +83,7 @@ bool ZFrustum::Contains(glm::vec3 point)
     return true;
 }
 
-bool ZFrustum::Contains(glm::vec3 center, float radius)
+bool ZFrustum::Contains(const glm::vec3& center, float radius)
 {
     float distance;
     for (int plane = 0; plane < NUMPLANES; plane++)

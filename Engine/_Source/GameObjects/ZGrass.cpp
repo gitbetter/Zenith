@@ -31,7 +31,7 @@
 #include "ZShader.hpp"
 
 ZGrass::ZGrass(unsigned int instances) : 
-    ZGameObject(), textureId_(std::string()), instanceCount_(instances), windDirection_(1.f), windStrength_(5.f)
+    ZGameObject(), textureId_(std::string()), instanceCount_(instances), windDirection_(1.f), windStrength_(5.f), time_(0.f)
 {
     graphicsComp_ = std::make_shared<ZGraphicsComponent>();
 }
@@ -157,16 +157,32 @@ void ZGrass::Render(ZRenderOp renderOp)
 
     if (hasMaterials)
     {
+        time_ += zenith::DeltaTime();
         for (auto it = polygons_.begin(); it != polygons_.end(); it++)
         {
             graphicsComp_->SetModel(*it);
             auto shader = graphicsComp_->ActiveShader();
             shader->Activate();
-            shader->SetFloat("timestamp", zenith::SecondsTime());
+            shader->SetFloat("timestamp", time_);
             shader->SetFloat("windStrength", windStrength_);
             shader->SetVec3("windDirection", windDirection_);
             ZGameObject::Render(renderOp);
         }
+    }
+}
+
+void ZGrass::TrimPatch(const glm::vec3& position, const glm::vec3& size)
+{
+    for (unsigned int i = 0; i < cPolygonCount; i++)
+    {
+        auto polygon = polygons_[i];
+        auto instanceData = polygon->InstanceData();
+        instanceData.translations.erase(std::remove_if(instanceData.translations.begin(), instanceData.translations.end(), [position, size] (const glm::mat4& translation) {
+            return translation[3][0] >= position.x && translation[3][0] <= position.x + size.x &&
+                translation[3][2] >= position.z && translation[3][2] <= position.z + size.z;
+        }), instanceData.translations.end());
+        instanceData.count = instanceData.translations.size();
+        polygon->SetInstanceData(instanceData);
     }
 }
 

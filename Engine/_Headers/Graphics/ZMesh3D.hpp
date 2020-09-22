@@ -49,7 +49,7 @@ private:
 
 public:
 
-    ZMesh3D(ZVertex3DDataOptions vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
+    ZMesh3D(const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
     ~ZMesh3D();
 
     void Initialize() override;

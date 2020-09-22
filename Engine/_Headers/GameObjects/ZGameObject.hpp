@@ -61,8 +61,8 @@ class ZGameObject : public ZProcess, public std::enable_shared_from_this<ZGameOb
 
 public:
 
-    ZGameObject(glm::vec3 position = glm::vec3(0.f, 1.f, 0.f), glm::quat orientation = glm::quat(glm::vec3(0.f)));
-    ZGameObject(std::string name) : ZGameObject() { properties_.name = name; }
+    ZGameObject(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)));
+    ZGameObject(const std::string& name) : ZGameObject() { properties_.name = name; }
     virtual ~ZGameObject() {}
 
     virtual void Initialize() override { ZProcess::Initialize(); }
@@ -100,11 +100,11 @@ public:
     glm::vec3 PreviousUp();
     glm::vec3 PreviousRight();
 
-    void SetPosition(glm::vec3 position);
-    void SetScale(glm::vec3 scale);
-    void SetOrientation(glm::quat quaternion);
-    void SetOrientation(glm::vec3 euler);
-    void SetModelMatrix(glm::mat4 modelMatrix);
+    void SetPosition(const glm::vec3& position);
+    void SetScale(const glm::vec3& scale);
+    void SetOrientation(const glm::quat& quaternion);
+    void SetOrientation(const glm::vec3& euler);
+    void SetModelMatrix(const glm::mat4& modelMatrix);
     void SetRenderPass(ZRenderPass renderPass) { properties_.renderPass = renderPass; }
     void SetName(const std::string& name) { properties_.name = name; }
 

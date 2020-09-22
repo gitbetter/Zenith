@@ -45,7 +45,7 @@ private:
 public:
 
     ZSceneRoot() : ZGameObject("Root") {}
-    ZSceneRoot(std::string name);
+    ZSceneRoot(const std::string& name);
 
     ZGameObjectList& Children() override { return publicChildren_; }
 

@@ -31,7 +31,7 @@ private:
     std::vector<std::string> shaders_;
     std::string model_;
 
-    void DrawOutlineIfEnabled(glm::mat4& model, glm::mat4& viewProjection);
+    void DrawOutlineIfEnabled(const glm::mat4& model, const glm::mat4& viewProjection);
 
 public:
 
@@ -50,10 +50,10 @@ public:
     std::shared_ptr<ZModel> Model();
     const std::vector<std::shared_ptr<ZMaterial>>& Materials() const { return materials_; }
 
-    void SetOutline(glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
+    void SetOutline(const glm::vec4& color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
     void ClearOutline();
 
-    void SetGameLights(ZLightMap lights) { gameLights_ = lights; }
+    void SetGameLights(const ZLightMap& lights) { gameLights_ = lights; }
     void SetGameCamera(std::shared_ptr<ZGameObject> camera) { gameCamera_ = camera; }
     void SetModel(std::shared_ptr<ZModel> model);
 

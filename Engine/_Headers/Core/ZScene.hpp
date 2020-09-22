@@ -89,7 +89,7 @@ private:
 
 public:
 
-    ZScene(std::string name = "");
+    ZScene(const std::string& name = "");
     ZScene(std::initializer_list<std::string> zofPaths);
     virtual ~ZScene() {}
 
@@ -129,7 +129,7 @@ public:
     std::shared_ptr<ZUIElement> FindUIElement(const std::string& id);
 
     glm::mat4 TopMatrix();
-    void PushMatrix(glm::mat4 matrix);
+    void PushMatrix(const glm::mat4& matrix);
     void PopMatrix();
 
     void SetPrimaryCamera(std::shared_ptr<ZGameObject> gameObject);

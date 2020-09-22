@@ -113,7 +113,7 @@ std::unique_ptr<ZMaterial> ZMaterial::DefaultMaterial()
     }
 }
 
-void ZMaterial::SetMaterialProperty(std::string property, float value, ZMaterialProperties& materialProperties)
+void ZMaterial::SetMaterialProperty(const std::string& property, float value, ZMaterialProperties& materialProperties)
 {
     if (property == "emission")
     {
@@ -157,7 +157,7 @@ void ZMaterial::SetMaterialProperty(std::string property, float value, ZMaterial
     }
 }
 
-void ZMaterial::SetMaterialProperty(std::string property, glm::vec4 value, ZMaterialProperties& materialProperties)
+void ZMaterial::SetMaterialProperty(const std::string& property, const glm::vec4& value, ZMaterialProperties& materialProperties)
 {
     if (property == "albedo")
     {

@@ -56,7 +56,7 @@
 #include "ZObjectDestroyedEvent.hpp"
 #include "ZStringHelpers.hpp"
 
-ZScene::ZScene(std::string name) : loadedResourceCount_(0), playState_(ZPlayState::NotStarted)
+ZScene::ZScene(const std::string& name) : loadedResourceCount_(0), playState_(ZPlayState::NotStarted)
 {
     CreateSceneRoot(name);
 }
@@ -412,7 +412,7 @@ glm::mat4 ZScene::TopMatrix()
     return M;
 }
 
-void ZScene::PushMatrix(glm::mat4 matrix)
+void ZScene::PushMatrix(const glm::mat4& matrix)
 {
     sceneMutexes_.matrixStack.lock();
     matrixStack_.push_back(matrix);

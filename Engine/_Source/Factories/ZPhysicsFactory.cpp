@@ -36,22 +36,22 @@ ZPhysicsFactory::ZPhysicsFactory()
     colliderCreators_["Capsule"] = &ZPhysicsFactory::CreateCapsuleCollider;
 }
 
-std::shared_ptr<ZCollider> ZPhysicsFactory::CreateCollider(std::string type, glm::vec3 size)
+std::shared_ptr<ZCollider> ZPhysicsFactory::CreateCollider(const std::string& type, const glm::vec3& size)
 {
     return (this->*colliderCreators_[type])(size);
 }
 
-std::shared_ptr<ZCollider> ZPhysicsFactory::CreateBoxCollider(glm::vec3 extents)
+std::shared_ptr<ZCollider> ZPhysicsFactory::CreateBoxCollider(const glm::vec3& extents)
 {
     return std::make_shared<ZCollider>(new btBoxShape(btVector3(extents[0], extents[1], extents[2])), ZColliderType::Box);
 }
 
-std::shared_ptr<ZCollider> ZPhysicsFactory::CreateSphereCollider(glm::vec3 extents)
+std::shared_ptr<ZCollider> ZPhysicsFactory::CreateSphereCollider(const glm::vec3& extents)
 {
     return std::make_shared<ZCollider>(new btSphereShape(extents[0]), ZColliderType::Sphere);
 }
 
-std::shared_ptr<ZCollider> ZPhysicsFactory::CreateCapsuleCollider(glm::vec3 extents)
+std::shared_ptr<ZCollider> ZPhysicsFactory::CreateCapsuleCollider(const glm::vec3& extents)
 {
     return std::make_shared<ZCollider>(new btCapsuleShape(extents[0], extents[1]), ZColliderType::Capsule);
 }

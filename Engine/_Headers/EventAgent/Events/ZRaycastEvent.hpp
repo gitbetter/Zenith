@@ -47,7 +47,7 @@ public:
 
     static const ZEventType Type;
 
-    explicit ZRaycastEvent(glm::vec3 origin = glm::vec3(0.f), glm::vec3 direction = glm::vec3(0.f)) : origin_(origin), direction_(direction) {}
+    explicit ZRaycastEvent(const glm::vec3& origin = glm::vec3(0.f), const glm::vec3& direction = glm::vec3(0.f)) : origin_(origin), direction_(direction) {}
     explicit ZRaycastEvent(std::istringstream& in)
     {
         in >> origin_.x; in >> origin_.y; in >> origin_.z;

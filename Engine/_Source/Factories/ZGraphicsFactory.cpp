@@ -364,7 +364,7 @@ void ZGraphicsFactory::CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& 
     outTextureMap = textures; outShaderMap = shaders; outModelMap = models;
 }
 
-std::unique_ptr<ZModel> ZGraphicsFactory::CreateModel(std::string type, glm::vec3 scale)
+std::unique_ptr<ZModel> ZGraphicsFactory::CreateModel(const std::string& type, const glm::vec3& scale)
 {
     return modelCreators_[type](scale);
 }

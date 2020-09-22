@@ -72,7 +72,7 @@ std::shared_ptr<ZComponent> ZAnimatorComponent::Clone()
     return clone;
 }
 
-void ZAnimatorComponent::Play(std::string animationName, bool looping)
+void ZAnimatorComponent::Play(const std::string& animationName, bool looping)
 {
     std::shared_ptr<ZGraphicsComponent> graphics = object_->FindComponent<ZGraphicsComponent>();
     if (!graphics)

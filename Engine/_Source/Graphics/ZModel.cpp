@@ -39,7 +39,7 @@
 #include "ZResourceExtraData.hpp"
 #include "ZModelReadyEvent.hpp"
 
-ZModel::ZModel(ZPrimitiveType primitiveType, glm::vec3 scale) : globalInverseTransform_(glm::mat4(1.f))
+ZModel::ZModel(ZPrimitiveType primitiveType, const glm::vec3& scale) : globalInverseTransform_(glm::mat4(1.f))
 {
     switch (primitiveType)
     {
@@ -84,7 +84,7 @@ void ZModel::Render(ZShader* shader)
     Render(shader, materials);
 }
 
-void ZModel::Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials)
+void ZModel::Render(ZShader* shader, const std::vector<std::shared_ptr<ZMaterial>>& materials)
 {
     shader->Activate();
     shader->SetBool("rigged", skeleton_ != nullptr);
@@ -134,7 +134,7 @@ void ZModel::InitializeAABB()
     boundingBox_.maximum = max;
 }
 
-void ZModel::UpdateAABB(glm::mat4 transform)
+void ZModel::UpdateAABB(const glm::mat4& transform)
 {
     boundingBox_.minimum = transform * glm::vec4(boundingBox_.minimum, 1.f);
     boundingBox_.maximum = transform * glm::vec4(boundingBox_.maximum, 1.f);
@@ -143,12 +143,12 @@ void ZModel::UpdateAABB(glm::mat4 transform)
 /**
  *  Plane Creation
  */
-std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(glm::vec3 scale)
+std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(const glm::vec3& scale)
 {
     return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Plane, scale));
 }
 
-void ZModel::CreatePlane(glm::vec3 scale)
+void ZModel::CreatePlane(const glm::vec3& scale)
 {
     float textureTiling = 1.f;
 
@@ -177,12 +177,12 @@ void ZModel::CreatePlane(glm::vec3 scale)
 /**
  *  Cube Creation
  */
-std::unique_ptr<ZModel> ZModel::NewCubePrimitive(glm::vec3 scale)
+std::unique_ptr<ZModel> ZModel::NewCubePrimitive(const glm::vec3& scale)
 {
     return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cube, scale));
 }
 
-void ZModel::CreateCube(glm::vec3 scale)
+void ZModel::CreateCube(const glm::vec3& scale)
 {
     float textureTiling = 1.f;
 
@@ -260,12 +260,12 @@ void ZModel::CreateCube(glm::vec3 scale)
 /**
  *  Sphere Creation
  */
-std::unique_ptr<ZModel> ZModel::NewSpherePrimitive(glm::vec3 scale)
+std::unique_ptr<ZModel> ZModel::NewSpherePrimitive(const glm::vec3& scale)
 {
     return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Sphere, scale));
 }
 
-void ZModel::CreateSphere(glm::vec3 scale)
+void ZModel::CreateSphere(const glm::vec3& scale)
 {
     ZVertex3DDataOptions options;
 
@@ -318,12 +318,12 @@ void ZModel::CreateSphere(glm::vec3 scale)
 /**
  *  Cylinder Creation
  */
-std::unique_ptr<ZModel> ZModel::NewCylinderPrimitive(glm::vec3 scale)
+std::unique_ptr<ZModel> ZModel::NewCylinderPrimitive(const glm::vec3& scale)
 {
     return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cylinder, scale));
 }
 
-void ZModel::CreateCylinder(glm::vec3 scale)
+void ZModel::CreateCylinder(const glm::vec3& scale)
 {
 
 }
@@ -331,12 +331,12 @@ void ZModel::CreateCylinder(glm::vec3 scale)
 /**
  *  Cone Creation
  */
-std::unique_ptr<ZModel> ZModel::NewConePrimitive(glm::vec3 scale)
+std::unique_ptr<ZModel> ZModel::NewConePrimitive(const glm::vec3& scale)
 {
     return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cone, scale));
 }
 
-void ZModel::CreateCone(glm::vec3 scale)
+void ZModel::CreateCone(const glm::vec3& scale)
 {
 
 }
@@ -344,14 +344,14 @@ void ZModel::CreateCone(glm::vec3 scale)
 /**
  *  Skybox Creation
  */
-std::unique_ptr<ZModel> ZModel::NewSkybox(ZIBLTexture& generatedIBLTexture, std::vector<std::string> faces)
+std::unique_ptr<ZModel> ZModel::NewSkybox(ZIBLTexture& generatedIBLTexture, const std::vector<std::string>& faces)
 {
     generatedIBLTexture.cubeMap = zenith::Graphics()->Strategy()->LoadCubeMap(faces);
 
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }
 
-std::unique_ptr<ZModel> ZModel::NewSkybox(ZTexture& cubeMap, ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture)
+std::unique_ptr<ZModel> ZModel::NewSkybox(const ZTexture& cubeMap, const ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture)
 {
     generatedIBLTexture.cubeMap = cubeMap;
     generatedIBLTexture.irradiance = zenith::Graphics()->Strategy()->IrradianceMapFromCubeMap(bufferData, cubeMap);
@@ -370,7 +370,7 @@ void ZModel::SetInstanceData(const ZInstancedDataOptions& instanceData)
     }
 }
 
-void ZModel::BoneTransform(std::string anim, double secondsTime)
+void ZModel::BoneTransform(const std::string& anim, double secondsTime)
 {
     glm::mat4 identity(1.f);
 
@@ -384,7 +384,7 @@ void ZModel::BoneTransform(std::string anim, double secondsTime)
     }
 }
 
-void ZModel::CalculateTransformsInHierarchy(std::string animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform)
+void ZModel::CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform)
 {
     std::shared_ptr<ZAnimation> animation = animations_[animName];
     glm::mat4 jointTransform = joint->transform;
