@@ -49,6 +49,7 @@ private:
     std::vector<std::shared_ptr<ZModel>> polygons_;
     glm::vec3 windDirection_;
     float windStrength_;
+    float time_;
 
 public:
 
@@ -59,6 +60,8 @@ public:
     void Initialize(std::shared_ptr<ZOFNode> root) override;
     void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
     bool IsVisible() override { return true; }
+
+    void TrimPatch(const glm::vec3& position, const glm::vec3& size);
 
 private:
 

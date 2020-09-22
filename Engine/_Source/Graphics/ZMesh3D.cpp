@@ -32,7 +32,7 @@
 #include "ZShader.hpp"
 #include "ZSkeleton.hpp"
 
-ZMesh3D::ZMesh3D(ZVertex3DDataOptions vertexData, ZMeshDrawStyle drawStyle)
+ZMesh3D::ZMesh3D(const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
     : vertexData_(vertexData)
 {
     drawStyle_ = drawStyle;

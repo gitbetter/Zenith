@@ -108,6 +108,10 @@ void main() {
     vec4 albedoTexData = texture(albedo, fs_in.FragUV);
     albd = vec4(pow(albedoTexData.rgb, vec3(2.2)), albedoTexData.a);
   }
+  if (albd.a < 0.1)
+  {
+    discard;
+  }
 
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
   vec3 color = min(materials[materialIndex].emission + albd.rgb + (1.0 - shadow) * (scatteredLight + reflectedLight), vec3(1.0));

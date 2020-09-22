@@ -34,7 +34,7 @@ void ZTextStrategy::Initialize()
     if (FT_Init_FreeType(&ft_)) zenith::Log("Could not Initialize the FreeType library", ZSeverity::Error);
 }
 
-void ZTextStrategy::SetFontSize(std::string font, unsigned int fontSize)
+void ZTextStrategy::SetFontSize(const std::string& font, unsigned int fontSize)
 {
     if (loadedFonts_.find(font) == loadedFonts_.end())
     {
@@ -44,7 +44,7 @@ void ZTextStrategy::SetFontSize(std::string font, unsigned int fontSize)
     LoadFont(font, fontSize);
 }
 
-ZCharacter ZTextStrategy::Character(std::string font, unsigned char c)
+ZCharacter ZTextStrategy::Character(const std::string& font, unsigned char c)
 {
     if (loadedFonts_.find(font) == loadedFonts_.end())
     {

@@ -49,13 +49,13 @@ public:
     virtual ~ZTextStrategy() {}
 
     virtual void Initialize();
-    virtual void LoadFont(std::string fontPath, unsigned int fontSize = 24) = 0;
+    virtual void LoadFont(const std::string& fontPath, unsigned int fontSize = 24) = 0;
     virtual void LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize = 24) = 0;
-    virtual void LoadFontAsync(std::string fontPath, unsigned int fontSize = 24) = 0;
+    virtual void LoadFontAsync(const std::string& fontPath, unsigned int fontSize = 24) = 0;
     virtual void Draw(std::shared_ptr<ZUIText> textEl) = 0;
-    virtual void SetFontSize(std::string font, unsigned int size);
+    virtual void SetFontSize(const std::string& font, unsigned int size);
 
-    ZCharacter Character(std::string font, unsigned char c);
+    ZCharacter Character(const std::string& font, unsigned char c);
 
 protected:
 

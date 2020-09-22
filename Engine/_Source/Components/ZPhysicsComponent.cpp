@@ -155,7 +155,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     body_->SetColliderOffset(offs);
 }
 
-void ZPhysicsComponent::Initialize(std::string bodyType, std::string colliderType, float mass, glm::vec3 position, glm::vec3 size, glm::quat rotation)
+void ZPhysicsComponent::Initialize(const std::string& bodyType, const std::string& colliderType, float mass, const glm::vec3& position, const glm::vec3& size, const glm::quat& rotation)
 {
     std::shared_ptr<ZCollider> collider;
     if (!colliderType.empty())
@@ -210,17 +210,17 @@ void ZPhysicsComponent::DisableCollisionResponse()
     if (body_) body_->DisableContactResponse();
 }
 
-void ZPhysicsComponent::AddForce(glm::vec3& force)
+void ZPhysicsComponent::AddForce(const glm::vec3& force)
 {
     body_->ApplyForce(force);
 }
 
-void ZPhysicsComponent::AddForceAtPoint(glm::vec3& force, glm::vec3& point)
+void ZPhysicsComponent::AddForceAtPoint(const glm::vec3& force, const glm::vec3& point)
 {
     body_->ApplyForceAtPoint(force, point);
 }
 
-void ZPhysicsComponent::AddTorque(glm::vec3& torque)
+void ZPhysicsComponent::AddTorque(const glm::vec3& torque)
 {
     body_->ApplyTorque(torque);
 }

@@ -57,26 +57,26 @@ private:
 
     glm::mat4 globalInverseTransform_;
 
-    void CreatePlane(glm::vec3 scale);
-    void CreateCube(glm::vec3 scale);
-    void CreateSphere(glm::vec3 scale);
-    void CreateCylinder(glm::vec3 scale);
-    void CreateCone(glm::vec3 scale);
+    void CreatePlane(const glm::vec3& scale);
+    void CreateCube(const glm::vec3& scale);
+    void CreateSphere(const glm::vec3& scale);
+    void CreateCylinder(const glm::vec3& scale);
+    void CreateCone(const glm::vec3& scale);
 
 public:
 
-    ZModel(ZPrimitiveType primitiveType, glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f));
-    ZModel(std::string path = "") : modelPath_(path) {}
+    ZModel(ZPrimitiveType primitiveType, const glm::vec3& scale = glm::vec3(1.0f, 0.f, 1.0f));
+    ZModel(const std::string& path = "") : modelPath_(path) {}
     virtual ~ZModel() {}
 
     void Initialize();
     void InitializeAsync();
     virtual void Render(ZShader* shader);
-    virtual void Render(ZShader* shader, std::vector<std::shared_ptr<ZMaterial>> materials);
+    virtual void Render(ZShader* shader, const std::vector<std::shared_ptr<ZMaterial>>& materials);
     virtual void InitializeAABB();
-    virtual void UpdateAABB(glm::mat4 transform);
+    virtual void UpdateAABB(const glm::mat4& transform);
     void SetInstanceData(const ZInstancedDataOptions& instanceData);
-    void BoneTransform(std::string anim, double secondsTime);
+    void BoneTransform(const std::string& anim, double secondsTime);
 
     const std::string& Path() const { return modelPath_; }
     const ZMesh3DMap& Meshes() const { return meshes_; }
@@ -88,17 +88,17 @@ public:
     const std::shared_ptr<ZSkeleton> Skeleton() const { return skeleton_; }
     const glm::mat4 GlobalInverseTransform() const { return globalInverseTransform_; }
 
-    static std::unique_ptr<ZModel> NewPlanePrimitive(glm::vec3 scale = glm::vec3(1.0f, 0.f, 1.0f));
-    static std::unique_ptr<ZModel> NewCubePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewSpherePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewCylinderPrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewConePrimitive(glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, std::vector<std::string> faces = zenith::DEFAULT_SKYBOX_CUBEMAP);
-    static std::unique_ptr<ZModel> NewSkybox(ZTexture& cubeMap, ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture);
+    static std::unique_ptr<ZModel> NewPlanePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 0.f, 1.0f));
+    static std::unique_ptr<ZModel> NewCubePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
+    static std::unique_ptr<ZModel> NewSpherePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
+    static std::unique_ptr<ZModel> NewCylinderPrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
+    static std::unique_ptr<ZModel> NewConePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
+    static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, const std::vector<std::string>& faces = zenith::DEFAULT_SKYBOX_CUBEMAP);
+    static std::unique_ptr<ZModel> NewSkybox(const ZTexture& cubeMap, const ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture);
 
 protected:
 
-    void CalculateTransformsInHierarchy(std::string animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
+    void CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
     glm::vec3 CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
     glm::quat CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
     glm::vec3 CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);

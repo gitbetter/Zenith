@@ -30,7 +30,7 @@
 #include "ZPhysics.hpp"
 #include "ZGraphicsDebug.hpp"
 
-ZSceneRoot::ZSceneRoot(std::string name) : ZGameObject(name)
+ZSceneRoot::ZSceneRoot(const std::string& name) : ZGameObject(name)
 {
     std::shared_ptr<ZGameObject> staticGroup = std::make_shared<ZGameObject>("StaticGroup");
     staticGroup->SetRenderPass(ZRenderPass::Static);

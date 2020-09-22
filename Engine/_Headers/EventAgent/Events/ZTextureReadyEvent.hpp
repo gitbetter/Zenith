@@ -47,8 +47,8 @@ public:
 
     static const ZEventType Type;
 
-    explicit ZTextureReadyEvent(ZTexture texture) : texture_(texture) {}
-    explicit ZTextureReadyEvent(ZTexture texture, ZBufferData bufferData) : texture_(texture), bufferData_(bufferData) {}
+    explicit ZTextureReadyEvent(const ZTexture& texture) : texture_(texture) {}
+    explicit ZTextureReadyEvent(const ZTexture& texture, const ZBufferData& bufferData) : texture_(texture), bufferData_(bufferData) {}
     explicit ZTextureReadyEvent(std::istringstream& in) {}
 
     const ZEventType& EventType() const override { return Type; };

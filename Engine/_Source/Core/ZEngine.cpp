@@ -340,7 +340,7 @@ namespace zenith
         frameMix_ = glm::clamp(frameMix, 0.f, 1.f);
     }
 
-    void LoadZOF(std::string zofPath)
+    void LoadZOF(const std::string& zofPath)
     {
         ZResource zofResource(zofPath, ZResourceType::ZOF);
         resourceCache_->RequestHandle(zofResource);

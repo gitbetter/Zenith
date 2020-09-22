@@ -48,29 +48,29 @@ private:
     int index_;
     bool isPBR_ = false, hasDisplacement_ = false;
 
-    void SetMaterialProperty(std::string property, float value, ZMaterialProperties& materialProperties);
-    void SetMaterialProperty(std::string property, glm::vec4 value, ZMaterialProperties& materialProperties);
+    void SetMaterialProperty(const std::string& property, float value, ZMaterialProperties& materialProperties);
+    void SetMaterialProperty(const std::string& property, const glm::vec4& value, ZMaterialProperties& materialProperties);
 
 public:
 
     ZMaterial(int index = 0) { index_ = index; }
-    ZMaterial(ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
-    ZMaterial(std::vector<ZTexture> textures) : ZMaterial(0) { textures_ = textures; }
+    ZMaterial(const ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
+    ZMaterial(const std::vector<ZTexture>& textures) : ZMaterial(0) { textures_ = textures; }
 
     void Initialize(std::shared_ptr<ZOFTree> root);
 
     static std::unique_ptr<ZMaterial> DefaultMaterial();
 
-    void SetMeshID(std::string id) { meshId_ = id; }
+    void SetMeshID(const std::string& id) { meshId_ = id; }
     const std::string MeshID() const { return meshId_; }
 
-    void SetProperties(ZMaterialProperties properties) { properties_ = properties; }
+    void SetProperties(const ZMaterialProperties& properties) { properties_ = properties; }
     const ZMaterialProperties& Properties() const { return properties_; }
 
     void SetAlpha(float alpha) { properties_.alpha = alpha; }
     float Alpha(float alpha) const { return properties_.alpha; }
 
-    void AddTexture(ZTexture& texture) { textures_.push_back(texture); }
+    void AddTexture(const ZTexture& texture) { textures_.push_back(texture); }
     const std::vector<ZTexture>& Textures() const { return textures_; }
 
     int Index() const { return index_; }

@@ -40,7 +40,7 @@ class ZShader;
 class ZGraphicsFactory
 {
 
-    typedef std::unique_ptr<ZModel>(*ZModelCreator)(glm::vec3);
+    typedef std::unique_ptr<ZModel>(*ZModelCreator)(const glm::vec3&);
     typedef std::map<std::shared_ptr<ZShader>, std::string> ZShaderIDMap;
     typedef std::map<std::shared_ptr<ZModel>, std::string> ZModelIDMap;
     typedef std::map<std::string, ZTexture> ZTextureMap;
@@ -60,7 +60,7 @@ public:
     void CreateAssets(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap, ZShaderMap& outShaderMap, ZModelMap& outModelMap);
     void CreateAssetsAsync(std::shared_ptr<ZOFTree> data, ZTextureMap& outPendingTextures, ZShaderIDMap& outPendingShaders, ZModelIDMap& outPendingModels);
 
-    std::unique_ptr<ZModel> CreateModel(std::string type, glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
+    std::unique_ptr<ZModel> CreateModel(const std::string& type, const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
 
 protected:
 

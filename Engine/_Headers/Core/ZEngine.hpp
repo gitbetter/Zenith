@@ -121,7 +121,7 @@ namespace zenith
     extern void SetDeltaTime(double deltaTime);
     extern void SetFrameMix(float frameMix);
 
-    extern void LoadZOF(std::string zofPath);
+    extern void LoadZOF(const std::string& zofPath);
 
     extern void Log(const std::string& text, ZSeverity severity);
 

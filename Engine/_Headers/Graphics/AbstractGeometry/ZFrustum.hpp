@@ -51,9 +51,9 @@ public:
     ZFrustum() {}
     ZFrustum(float fov, float ratio, float near, float far);
 
-    void Recalculate(glm::vec3 pos, glm::vec3 front, glm::vec3 up);
-    bool Contains(glm::vec3 point);
-    bool Contains(glm::vec3 center, float radius);
+    void Recalculate(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up);
+    bool Contains(const glm::vec3& point);
+    bool Contains(const glm::vec3& center, float radius);
     bool Contains(const ZAABBox& box);
     bool Contains(const ZFrustum& frustum);
 

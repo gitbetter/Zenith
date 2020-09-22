@@ -46,7 +46,7 @@ public:
 
     static const ZEventType Type;
 
-    explicit ZCollisionEvent(ZCollisionPair collisionPair) : collisionPair_(collisionPair) {}
+    explicit ZCollisionEvent(const ZCollisionPair& collisionPair) : collisionPair_(collisionPair) {}
 
     const ZEventType& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZCollisionEvent>(new ZCollisionEvent(collisionPair_)); }

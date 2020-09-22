@@ -171,7 +171,7 @@ void ZGLGraphicsStrategy::ClearDepth()
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void ZGLGraphicsStrategy::BindFramebuffer(ZBufferData frameBuffer, bool depth)
+void ZGLGraphicsStrategy::BindFramebuffer(const ZBufferData& frameBuffer, bool depth)
 {
     if (depth)
     {
@@ -191,7 +191,7 @@ void ZGLGraphicsStrategy::UnbindFramebuffer()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void ZGLGraphicsStrategy::BlitFramebuffer(ZBufferData source, ZBufferData destination)
+void ZGLGraphicsStrategy::BlitFramebuffer(const ZBufferData& source, const ZBufferData& destination)
 {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, source.fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destination.fbo);
@@ -199,7 +199,7 @@ void ZGLGraphicsStrategy::BlitFramebuffer(ZBufferData source, ZBufferData destin
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ZGLGraphicsStrategy::BindTexture(ZTexture texture, unsigned int index)
+void ZGLGraphicsStrategy::BindTexture(const ZTexture& texture, unsigned int index)
 {
     glActiveTexture(GL_TEXTURE0 + index);
     if (texture.type == "cubemap" || texture.type == "irradiance" || texture.type == "prefilter")
@@ -340,7 +340,7 @@ ZBufferData ZGLGraphicsStrategy::LoadVertexData(const ZVertex2DDataOptions& opti
     return bufferData;
 }
 
-void ZGLGraphicsStrategy::DeleteBufferData(ZBufferData bufferData)
+void ZGLGraphicsStrategy::DeleteBufferData(const ZBufferData& bufferData)
 {
     glDeleteVertexArrays(1, &bufferData.vao);
     glDeleteBuffers(1, &bufferData.vbo);
@@ -363,7 +363,7 @@ ZTexture ZGLGraphicsStrategy::LoadDefaultTexture()
     return texture;
 }
 
-void ZGLGraphicsStrategy::LoadTextureAsync(std::string path, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip, bool equirect)
+void ZGLGraphicsStrategy::LoadTextureAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip, bool equirect)
 {
     std::string filename = (!directory.empty() ? directory + '/' : "") + path;
     ZResourceType type = ZResourceType::Other;
@@ -377,7 +377,7 @@ void ZGLGraphicsStrategy::LoadTextureAsync(std::string path, const std::string& 
     zenith::ResourceCache()->RequestHandle(textureResource);
 }
 
-ZTexture ZGLGraphicsStrategy::LoadTexture(std::string path, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip)
+ZTexture ZGLGraphicsStrategy::LoadTexture(const std::string& path, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip)
 {
     std::string filename = (!directory.empty() ? directory + '/' : "") + path;
     std::shared_ptr<ZResourceHandle> handle = ZImageImporter::LoadImage(filename, hdr, flip);
@@ -453,7 +453,7 @@ ZTexture ZGLGraphicsStrategy::LoadEmptyLUT()
     return lut;
 }
 
-ZTexture ZGLGraphicsStrategy::LoadCubeMap(std::vector<std::string> faces)
+ZTexture ZGLGraphicsStrategy::LoadCubeMap(const std::vector<std::string>& faces)
 {
     ZTexture cubemap;
     cubemap.type = "cubemap";
@@ -534,7 +534,7 @@ ZTexture ZGLGraphicsStrategy::LoadEmptyCubeMap(ZCubemapTextureType type)
     return cubemap;
 }
 
-ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool multisample)
+ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(const ZTexture& colorTexture, bool multisample)
 {
     ZBufferData buffer;
     buffer.type = ZBufferDataType::FrameBuffer;
@@ -570,7 +570,7 @@ ZBufferData ZGLGraphicsStrategy::LoadColorBuffer(ZTexture colorTexture, bool mul
     return buffer;
 }
 
-ZBufferData ZGLGraphicsStrategy::LoadDepthMapBuffer(ZTexture depthTexture)
+ZBufferData ZGLGraphicsStrategy::LoadDepthMapBuffer(const ZTexture& depthTexture)
 {
     ZBufferData depth;
     depth.type = ZBufferDataType::FrameBuffer;
@@ -648,7 +648,7 @@ ZTexture ZGLGraphicsStrategy::LoadDepthTexture()
     return depthTexture;
 }
 
-void ZGLGraphicsStrategy::ResizeColorTexture(ZTexture texture, unsigned int width, unsigned int height, bool multisample)
+void ZGLGraphicsStrategy::ResizeColorTexture(const ZTexture& texture, unsigned int width, unsigned int height, bool multisample)
 {
     GLenum target = multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 
@@ -666,7 +666,7 @@ void ZGLGraphicsStrategy::ResizeColorTexture(ZTexture texture, unsigned int widt
     glBindTexture(target, 0);
 }
 
-void ZGLGraphicsStrategy::ResizeColorBuffer(ZBufferData bufferData, unsigned int width, unsigned int height, bool multisample)
+void ZGLGraphicsStrategy::ResizeColorBuffer(const ZBufferData& bufferData, unsigned int width, unsigned int height, bool multisample)
 {
     glBindRenderbuffer(GL_RENDERBUFFER, bufferData.rbo);
 
@@ -716,18 +716,18 @@ void ZGLGraphicsStrategy::UpdateBuffer(const ZBufferData& bufferData, const ZVer
     glBindVertexArray(0);
 }
 
-void ZGLGraphicsStrategy::EquirectToCubemapAsync(std::string equirectHDRPath)
+void ZGLGraphicsStrategy::EquirectToCubemapAsync(const std::string& equirectHDRPath)
 {
     LoadTextureAsync(equirectHDRPath, "", ZTextureWrapping::EdgeClamp, true, false, true);
 }
 
-ZTexture ZGLGraphicsStrategy::EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData)
+ZTexture ZGLGraphicsStrategy::EquirectToCubemap(const std::string& equirectHDRPath, ZBufferData& bufferData)
 {
     ZTexture hdrTexture = LoadTexture(equirectHDRPath, "", ZTextureWrapping::EdgeClamp, true, true);
     return EquirectToCubemap(hdrTexture, bufferData);
 }
 
-ZTexture ZGLGraphicsStrategy::EquirectToCubemap(ZTexture& hdrTexture, ZBufferData& bufferData)
+ZTexture ZGLGraphicsStrategy::EquirectToCubemap(const ZTexture& hdrTexture, ZBufferData& bufferData)
 {
     bufferData = LoadCubeMapBuffer();
     ZTexture cubeMap = LoadEmptyCubeMap();
@@ -770,7 +770,7 @@ ZTexture ZGLGraphicsStrategy::EquirectToCubemap(ZTexture& hdrTexture, ZBufferDat
     return cubeMap;
 }
 
-ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture)
+ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(const ZBufferData& cubemapBufferData, const ZTexture& cubemapTexture)
 {
     ZTexture irradianceMap = LoadEmptyCubeMap(ZCubemapTextureType::Irradiance);
     irradianceMap.type = "irradiance";
@@ -810,7 +810,7 @@ ZTexture ZGLGraphicsStrategy::IrradianceMapFromCubeMap(ZBufferData cubemapBuffer
     return irradianceMap;
 }
 
-ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture)
+ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(const ZBufferData& cubemapBufferData, const ZTexture& cubemapTexture)
 {
     ZTexture prefilterMap = LoadEmptyCubeMap(ZCubemapTextureType::Prefilter);
     prefilterMap.type = "prefilter";
@@ -860,7 +860,7 @@ ZTexture ZGLGraphicsStrategy::PrefilterCubeMap(ZBufferData cubemapBufferData, ZT
     return prefilterMap;
 }
 
-ZTexture ZGLGraphicsStrategy::BRDFLUT(ZBufferData cubemapBufferData)
+ZTexture ZGLGraphicsStrategy::BRDFLUT(const ZBufferData& cubemapBufferData)
 {
     ZTexture brdfLUT = LoadEmptyLUT();
 

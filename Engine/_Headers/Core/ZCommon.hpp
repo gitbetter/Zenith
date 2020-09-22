@@ -421,7 +421,7 @@ struct ZVertex3D
         for (unsigned int i = 0; i < BonesPerVertex; i++) boneWeights[i] = 0.f;
     }
 
-    ZVertex3D(glm::vec3 position, glm::vec3 normal = glm::vec3(0.f, 1.f, 0.f)) : ZVertex3D()
+    ZVertex3D(const glm::vec3& position, const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f)) : ZVertex3D()
     {
         this->position = position;
         this->normal = normal;
@@ -446,8 +446,7 @@ struct ZVertex2D
     glm::vec2 position;
     glm::vec2 uv;
 
-    ZVertex2D() {}
-    ZVertex2D(glm::vec2 position, glm::vec2 uv = glm::vec2(0.f)) : position(position), uv(uv) {}
+    ZVertex2D(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& uv = glm::vec2(0.f)) : position(position), uv(uv) {}
 };
 
 struct ZCharacter

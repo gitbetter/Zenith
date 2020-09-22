@@ -47,7 +47,7 @@ public:
     void Initialize(std::shared_ptr<ZOFNode> root) override;
     void Update() override;
 
-    void Play(std::string animationName, bool looping = false);
+    void Play(const std::string& animationName, bool looping = false);
     void Pause() override;
     void Stop();
 

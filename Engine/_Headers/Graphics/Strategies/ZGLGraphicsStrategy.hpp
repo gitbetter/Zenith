@@ -68,36 +68,36 @@ public:
     void CullFrontFaces() override;
     void CullBackFaces() override;
     void ClearDepth() override;
-    void BindFramebuffer(ZBufferData frameBuffer, bool depth = false) override;
+    void BindFramebuffer(const ZBufferData& frameBuffer, bool depth = false) override;
     void UnbindFramebuffer() override;
-    void BlitFramebuffer(ZBufferData source, ZBufferData destination) override;
+    void BlitFramebuffer(const ZBufferData& source, const ZBufferData& destination) override;
     ZTexture LoadDefaultTexture() override;
-    void LoadTextureAsync(std::string path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false) override;
-    ZTexture LoadTexture(std::string path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) override;
+    void LoadTextureAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false) override;
+    ZTexture LoadTexture(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) override;
     ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) override;
     ZTexture LoadEmptyLUT() override;
     ZTexture LoadColorTexture(bool multisample = false) override;
     ZTexture LoadDepthTexture() override;
-    void BindTexture(ZTexture texture, unsigned int index) override;
-    ZBufferData LoadColorBuffer(ZTexture colorTexture, bool multisample = false) override;
-    ZBufferData LoadDepthMapBuffer(ZTexture depthTexture) override;
+    void BindTexture(const ZTexture& texture, unsigned int index) override;
+    ZBufferData LoadColorBuffer(const ZTexture& colorTexture, bool multisample = false) override;
+    ZBufferData LoadDepthMapBuffer(const ZTexture& depthTexture) override;
     ZBufferData LoadCubeMapBuffer() override;
-    ZTexture LoadCubeMap(std::vector<std::string> faces) override;
+    ZTexture LoadCubeMap(const std::vector<std::string>& faces) override;
     ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) override;
     ZBufferData LoadVertexData(const ZVertex3DDataOptions& options) override;
     ZBufferData LoadVertexData(const ZVertex2DDataOptions& options) override;
 
-    void ResizeColorTexture(ZTexture texture, unsigned int width, unsigned int height, bool multisample = false) override;
-    void ResizeColorBuffer(ZBufferData bufferData, unsigned int width, unsigned int height, bool multisample = false) override;
-    void DeleteBufferData(ZBufferData bufferData) override;
+    void ResizeColorTexture(const ZTexture& texture, unsigned int width, unsigned int height, bool multisample = false) override;
+    void ResizeColorBuffer(const ZBufferData& bufferData, unsigned int width, unsigned int height, bool multisample = false) override;
+    void DeleteBufferData(const ZBufferData& bufferData) override;
 
-    void EquirectToCubemapAsync(std::string equirectHDRPath) override;
-    ZTexture EquirectToCubemap(std::string equirectHDRPath, ZBufferData& bufferData) override;
-    ZTexture EquirectToCubemap(ZTexture& hdrTexture, ZBufferData& bufferData) override;
+    void EquirectToCubemapAsync(const std::string& equirectHDRPath) override;
+    ZTexture EquirectToCubemap(const std::string& equirectHDRPath, ZBufferData& bufferData) override;
+    ZTexture EquirectToCubemap(const ZTexture& hdrTexture, ZBufferData& bufferData) override;
 
-    ZTexture IrradianceMapFromCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
-    ZTexture PrefilterCubeMap(ZBufferData cubemapBufferData, ZTexture cubemapTexture) override;
-    ZTexture BRDFLUT(ZBufferData cubemapBufferData) override;
+    ZTexture IrradianceMapFromCubeMap(const ZBufferData& cubemapBufferData, const ZTexture& cubemapTexture) override;
+    ZTexture PrefilterCubeMap(const ZBufferData& cubemapBufferData, const ZTexture& cubemapTexture) override;
+    ZTexture BRDFLUT(const ZBufferData& cubemapBufferData) override;
 
     void Draw(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
     void Draw(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) override;

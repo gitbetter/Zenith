@@ -44,11 +44,11 @@ public:
     glm::vec3 normal;
 
     ZPlane() {}
-    ZPlane(glm::vec3 c, glm::vec3 n) : center(c), normal(n) {}
-    ZPlane(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
+    ZPlane(const glm::vec3& c, const glm::vec3& n) : center(c), normal(n) {}
+    ZPlane(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
 
-    float Distance(glm::vec3 point);
-    glm::vec3 Intersection(ZPlane a, ZPlane b);
+    float Distance(const glm::vec3& point);
+    glm::vec3 Intersection(const ZPlane& a, const ZPlane& b);
 
 };
 

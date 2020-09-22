@@ -202,17 +202,17 @@ void ZGraphics::FinishRenderPass()
     graphicsStrategy_->UnbindFramebuffer();
 }
 
-void ZGraphics::AddShader(std::string id, std::shared_ptr<ZShader> shader)
+void ZGraphics::AddShader(const std::string& id, std::shared_ptr<ZShader> shader)
 {
     if (shader) loadedShaders_[id] = shader;
 }
 
-void ZGraphics::AddTexture(std::string id, ZTexture texture)
+void ZGraphics::AddTexture(const std::string& id, const ZTexture& texture)
 {
     loadedTextures_[id] = texture;
 }
 
-void ZGraphics::AddModel(std::string id, std::shared_ptr<ZModel> model)
+void ZGraphics::AddModel(const std::string& id, std::shared_ptr<ZModel> model)
 {
     loadedModels_[id] = model;
 }
