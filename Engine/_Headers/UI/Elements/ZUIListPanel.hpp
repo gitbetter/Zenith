@@ -46,8 +46,10 @@ private:
 public:
 
     ZUIListPanel(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
+    ZUIListPanel(const ZUIElementOptions& options);
     ~ZUIListPanel() {}
 
+    void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     float ItemHeight() const { return itemHeight_; }

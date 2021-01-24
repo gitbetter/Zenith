@@ -35,10 +35,23 @@
 
 ZUIImage::ZUIImage(const std::string& path, const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
-    enabled_ = false;
+    options_.enabled = false;
     path_ = path;
     type_ = ZUIElementType::Image;
     SetImage(path_);
+}
+
+ZUIImage::ZUIImage(const ZUIElementOptions& options, const std::string& path) : ZUIElement(options)
+{
+    options_.enabled = false;
+    path_ = path;
+    type_ = ZUIElementType::Image;
+    SetImage(path_);
+}
+
+void ZUIImage::Initialize()
+{
+    ZUIElement::Initialize();
 }
 
 void ZUIImage::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -77,8 +90,8 @@ void ZUIImage::HandleTextureReady(const std::shared_ptr<ZEvent>& event)
     std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
     if (textureReadyEvent->Texture().path == path_)
     {
-        texture_ = textureReadyEvent->Texture();
-        texture_.type = "image";
+        options_.texture = textureReadyEvent->Texture();
+        options_.texture.type = "image";
 
         ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
         zenith::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);

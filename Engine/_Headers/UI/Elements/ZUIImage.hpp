@@ -46,8 +46,10 @@ private:
 public:
 
     ZUIImage(const std::string& path = "", const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.25f));
+    ZUIImage(const ZUIElementOptions& options, const std::string& path = "");
     ~ZUIImage() {}
 
+    void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     void SetImage(const std::string& path);

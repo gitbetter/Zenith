@@ -32,32 +32,31 @@
 // Includes
 #include "ZEngine.hpp"
 
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 
 // Forward Declarations
-class ZEditor;
+class ZEditorScene;
+class ZUIPanel;
 
 // Definitions
 class ZEditorTool {
 
 public:
 
-	ZEditorTool(std::string name) : name_(name), visible_(true) { }
+	ZEditorTool(const std::string& name, const ZUITheme& theme = ZUITheme())
+		: name_(name), theme_(theme), visible_(true) { }
 	virtual ~ZEditorTool() { }
     
-    virtual void Initialize() { }
+	virtual void Initialize();
 
-	virtual void Begin() = 0;
 	virtual void Update() = 0;
-	virtual void End() = 0;
+
+	std::shared_ptr<ZUIPanel> Container() const { return container_; }
 	
 protected:
 
-    ZEditor* editor_;
+	std::shared_ptr<ZUIPanel> container_;
 	std::string name_;
+	ZUITheme theme_;
 	bool visible_;
 
 };

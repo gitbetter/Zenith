@@ -29,14 +29,6 @@
 
 #include "ZProjectSettingsTool.hpp"
 
-void ZProjectSettingsTool::Begin() {
-	ImGui::Begin(name_.c_str());
-}
-
 void ZProjectSettingsTool::Update() {
 
-}
-
-void ZProjectSettingsTool::End() {
-	ImGui::End();
 }

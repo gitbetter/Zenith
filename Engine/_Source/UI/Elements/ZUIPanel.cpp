@@ -36,8 +36,17 @@ ZUIPanel::ZUIPanel(const glm::vec2& position, const glm::vec2& scale) : ZUIEleme
     type_ = ZUIElementType::Panel;
 }
 
+ZUIPanel::ZUIPanel(const ZUIElementOptions& options) : ZUIElement(options)
+{
+    type_ = ZUIElementType::Panel;
+}
+
+void ZUIPanel::Initialize()
+{
+    ZUIElement::Initialize();
+}
+
 void ZUIPanel::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
-    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
     ZUIElement::Initialize(root);
 }

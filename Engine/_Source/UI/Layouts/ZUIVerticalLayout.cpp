@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUICheckBox.hpp
+    ZUIVerticalLayout.cpp
 
-    Created by Adrian Sanchez on 16/03/2019.
+    Created by Adrian Sanchez on 20/01/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,38 +27,20 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZUIVerticalLayout.hpp"
 
-// Includes
-#include "ZUIElement.hpp"
-
-// Forward Declarations
-class ZShader;
-class ZUIImage;
-
-// Class and Data Structure Definitions
-class ZUICheckBox : public ZUIElement
+ZRect ZUIVerticalLayout::CalculateNewRect(const std::string& element, const glm::vec2& size)
 {
+    ZRect newRect;
+    newRect.size = size;
+    newRect.position.x = options_.dimensions.position.x;
+    if (!calculatedRects_.empty()) {
+        ZUICalculatedLayoutEntry lastEntry = calculatedRects_.back();
+        newRect.position.y = lastEntry.rect.position.y + lastEntry.rect.size.y + options_.itemSpacing;
+    }
+    else {
+        newRect.position.y = options_.dimensions.position.y;
+    }
 
-private:
-
-    std::shared_ptr<ZUIImage> checkImage_;
-    bool checked_ = false;
-
-public:
-
-    ZUICheckBox(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
-    ZUICheckBox(const ZUIElementOptions& options);
-    ~ZUICheckBox() {}
-
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
-
-    bool Checked() const { return checked_; }
-    void SetChecked(bool checked = true) { checked_ = checked; }
-
-protected:
-
-    void HandleMousePress(const std::shared_ptr<ZEvent>& event);
-
-};
+    return newRect;
+}

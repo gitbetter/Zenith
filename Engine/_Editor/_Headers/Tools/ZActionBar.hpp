@@ -33,23 +33,18 @@
 #include "ZEditorTool.hpp"
 
 // Forward Declarations
+class ZUIPanel;
 
 // Definitions
 class ZActionBar : public ZEditorTool {
-    
-    friend class ZEditor;
-
-private:
-    
-    void SaveSceneSnapshot();
-    void RestoreSceneSnapshot();
 
 public:
 
-    ZActionBar() : ZEditorTool("Actions") { }
+  ZActionBar(const ZUITheme& theme = ZUITheme())
+      : ZEditorTool("Actions", theme) { }
 
-	void Begin() override;
-    void Update() override;
-	void End() override;
+  void Initialize() override;
+
+  void Update() override;
 
 };

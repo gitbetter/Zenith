@@ -42,7 +42,7 @@ void ZDomain::Initialize()
     {
         domainStrategy_.reset(new ZGLDomainStrategy);
         domainStrategy_->Initialize();
-        mainContext_ = domainStrategy_->CreateWindow(options_.width, options_.height, options_.maximized);
+        mainContext_ = domainStrategy_->CreateWindow(options_.width, options_.height, options_.maximized, options_.visible);
 
         glm::vec2 frameBufferSize = domainStrategy_->FramebufferSize();
         resolutionX_ = frameBufferSize.x; resolutionY_ = frameBufferSize.y;

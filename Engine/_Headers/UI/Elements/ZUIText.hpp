@@ -47,8 +47,10 @@ private:
 public:
 
     ZUIText(const std::string& text = "", const std::string& font = "", float fontSize = 1.f, const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.1f));
+    ZUIText(const ZUIElementOptions& options, const std::string& text = "", const std::string& font = "", float fontSize = 1.f);
     ~ZUIText() {}
 
+    void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     void SetText(const std::string& text) { text_ = text; }

@@ -35,7 +35,7 @@
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZEditorReadyEvent : public ZBaseEvent {
+class ZEditorReadyEvent : public ZEvent {
 
 public:
 

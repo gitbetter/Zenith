@@ -82,7 +82,7 @@ void* ZGLDomainStrategy::CreateWindow(int width, int height, bool maximized, boo
         glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
         glfwSetWindowSizeCallback(window, WindowSizeCallback);
 
-    #ifndef EDITOR
+    #ifndef EDITOR_ROOT
         CaptureCursor();
     #endif
     }

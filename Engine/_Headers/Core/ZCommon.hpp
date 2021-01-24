@@ -339,6 +339,16 @@ enum class ZTextureWrapping
     Repeat, EdgeClamp, BorderClamp
 };
 
+enum class ZAlignment
+{
+    Left, Middle, Right, Top, Bottom
+};
+
+enum class ZPositioning
+{
+    Absolute, Relative
+};
+
 struct ZBufferData
 {
     ZBufferDataType type;
@@ -535,4 +545,48 @@ struct ZSceneSnapshot
 {
     std::shared_ptr<ZScene> scene;
     double time;
+};
+
+struct ZRect 
+{
+    glm::vec2 position;
+    glm::vec2 size;
+
+    ZRect() : ZRect(0.f, 0.f, 0.f, 0.f) { }
+    ZRect(float val) : ZRect(val, val, val, val) { }
+    ZRect(const glm::vec2& position, const glm::vec2& size) : position(position), size(size) { }
+    ZRect(float x, float y, float w, float h)
+    {
+        position.x = x;
+        position.y = y;
+        size.x = w;
+        size.y = h;
+    }
+
+    inline ZRect operator*(float factor) const
+    {
+        return ZRect(position * factor, size * factor);
+    }
+    inline ZRect& operator*(float factor)
+    {
+        position *= factor;
+        size *= factor;
+        return *this;
+    }
+    inline bool operator==(const ZRect& other) const {
+        return position == other.position && size == other.size;
+    }
+    inline bool operator!=(const ZRect& other) const {
+        return !((*this) == other);
+    }
+};
+
+struct ZUITheme {
+    glm::vec4   primaryColor;
+    glm::vec4   secondaryColor;
+    glm::vec4   buttonColor;
+    glm::vec4   textColor;
+    glm::vec4   highlightColor;
+    glm::vec4   selectedColor;
+    ZFont       font;
 };

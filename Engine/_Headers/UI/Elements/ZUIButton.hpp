@@ -42,8 +42,10 @@ class ZUIButton : public ZUIElement
 public:
 
     ZUIButton(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
+    ZUIButton(const ZUIElementOptions& options);
     ~ZUIButton() {}
 
+    void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
 };

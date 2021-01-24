@@ -29,14 +29,6 @@
 
 #include "ZPerformanceTool.hpp"
 
-void ZPerformanceTool::Begin() {
-	ImGui::Begin(name_.c_str());
-}
-
 void ZPerformanceTool::Update() {
 
-}
-
-void ZPerformanceTool::End() {
-	ImGui::End();
 }

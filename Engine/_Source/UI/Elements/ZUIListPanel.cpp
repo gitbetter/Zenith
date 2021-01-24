@@ -36,10 +36,18 @@ ZUIListPanel::ZUIListPanel(const glm::vec2& position, const glm::vec2& scale) : 
     type_ = ZUIElementType::ListPanel;
 }
 
+ZUIListPanel::ZUIListPanel(const ZUIElementOptions& options) : ZUIElement(options)
+{
+    type_ = ZUIElementType::ListPanel;
+}
+
+void ZUIListPanel::Initialize()
+{
+    ZUIElement::Initialize();
+}
+
 void ZUIListPanel::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
-    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
-
     ZUIElement::Initialize(root);
 
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);

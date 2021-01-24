@@ -5,6 +5,7 @@ set(ENGINE_SOURCE_DIR ${ENGINE_DIRECTORY}/_Source)
 
 set(ENGINE_SOURCES
 ${ENGINE_HEADERS_DIR}/_ThirdParty/glm/detail/glm.cpp
+${ENGINE_SOURCE_DIR}/Utility/ZUIHelpers.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZStringHelpers.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZEasing.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZLogger.cpp
@@ -13,6 +14,8 @@ ${ENGINE_SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZModelImporter.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZImageImporter.cpp
 ${ENGINE_SOURCE_DIR}/Utility/stb_image.cpp
+${ENGINE_SOURCE_DIR}/UI/ZUI.cpp
+${ENGINE_SOURCE_DIR}/UI/ZUILayout.cpp
 ${ENGINE_SOURCE_DIR}/UI/ZUIElement.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUICheckBox.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIText.cpp
@@ -20,7 +23,8 @@ ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIListPanel.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIPanel.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIImage.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIButton.cpp
-${ENGINE_SOURCE_DIR}/UI/ZUI.cpp
+${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIHorizontalLayout.cpp
+${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIVerticalLayout.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptManager.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptExports.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZLuaScriptManager.cpp
@@ -216,6 +220,7 @@ ${ENGINE_HEADERS_DIR}/Scripting/ZLuaScriptManager.hpp
 ${ENGINE_HEADERS_DIR}/Scripting/ZScriptExports.hpp
 ${ENGINE_HEADERS_DIR}/Scripting/ZScriptManager.hpp
 ${ENGINE_HEADERS_DIR}/UI/ZUI.hpp
+${ENGINE_HEADERS_DIR}/UI/ZUILayout.hpp
 ${ENGINE_HEADERS_DIR}/UI/ZUIElement.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIButton.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUICheckBox.hpp
@@ -223,6 +228,9 @@ ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIImage.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIText.hpp
+${ENGINE_HEADERS_DIR}/UI/Layouts/ZUIHorizontalLayout.hpp
+${ENGINE_HEADERS_DIR}/UI/Layouts/ZUIVerticalLayout.hpp
+${ENGINE_HEADERS_DIR}/Utility/ZUIHelpers.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZStringHelpers.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZEasing.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZLogger.hpp
@@ -1105,6 +1113,7 @@ ${ENGINE_HEADERS_DIR}/ResourceCache/ResourceLoaders
 ${ENGINE_HEADERS_DIR}/Scripting
 ${ENGINE_HEADERS_DIR}/UI
 ${ENGINE_HEADERS_DIR}/UI/Elements
+${ENGINE_HEADERS_DIR}/UI/Layouts
 ${ENGINE_HEADERS_DIR}/Utility
 ${ENGINE_HEADERS_DIR}/Utility/ZObjectFormatTools
 ${ENGINE_HEADERS_DIR}/Windowing

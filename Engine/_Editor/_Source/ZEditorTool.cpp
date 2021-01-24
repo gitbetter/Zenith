@@ -28,3 +28,12 @@
  */
 
 #include "ZEditorTool.hpp"
+#include "ZUIPanel.hpp"
+
+void ZEditorTool::Initialize() {
+	ZUIElementOptions elementOptions;
+	elementOptions.positioning = ZPositioning::Relative;
+	elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+	container_ = std::make_shared<ZUIPanel>(elementOptions);
+	container_->Initialize();
+}

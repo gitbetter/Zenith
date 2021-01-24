@@ -29,14 +29,6 @@
 
 #include "ZPreviewTool.hpp"
 
-void ZPreviewTool::Begin() {
-	ImGui::Begin(name_.c_str());
-}
-
 void ZPreviewTool::Update() {
 
-}
-
-void ZPreviewTool::End() {
-	ImGui::End();
 }
