@@ -32,41 +32,13 @@
 // Includes
 #include "ZEditorTool.hpp"
 
-// Forward Declarations
-class ZEvent;
-
-// Definitions
-const std::string OBJECT_CUBE_IMAGE_PATH = std::string(EDITOR_ROOT) + "/_Assets/Images/object_cube.png";
-
 class ZInspectorTool : public ZEditorTool {
-    
-    friend class ZEditor;
-    
-private:
-
-	float angleToRadsRatio_ = glm::pi<float>() / 180.f;
-	float radsToAngleRatio_ = 180.f / glm::pi<float>();
-    
-    ZTexture objectCubeImage_;
-    char objectNameBuffer_[512];
-	std::string lastSelectedObject_;
-    
-	void DrawNameField(std::shared_ptr<ZGameObject> &selectedObject);
-	void DrawTransformProperties(std::shared_ptr<ZGameObject> &selectedObject);
-	void DrawComponentProperties(std::shared_ptr<ZGameObject> &selectedObject);
-	void CaptureMouse();
-	void ReleaseMouse();
-	bool RedoButton(std::shared_ptr<ZGameObject>& selectedObject, const std::string& prop);
-    void HandleTextureLoaded(std::shared_ptr<ZEvent> event);
 
 public:
 
-	ZInspectorTool() : ZEditorTool("Inspector") { }
-    
-    void Initialize() override;
+	ZInspectorTool(const ZUITheme& theme = ZUITheme())
+        : ZEditorTool("Inspector", theme) { }
 
-	void Begin() override;
 	void Update() override;
-	void End() override;
 
 };

@@ -368,8 +368,6 @@ void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element)
     if (element != nullptr)
     {
         element->scene_ = this;
-        if (element->type_ == ZUIElementType::Text) element->SetShader(zenith::UI()->TextShader());
-        else element->SetShader(zenith::UI()->UIShader());
         uiElements_[element->ID()] = element;
     }
 }

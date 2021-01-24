@@ -8,7 +8,7 @@
  
     main.cpp
  
-    Created by Adrian Sanchez on 17/05/19.
+    Created by Adrian Sanchez on 18/01/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -34,32 +34,14 @@
 #include "ZProcessRunner.hpp"
 #include "ZResourceCache.hpp"
 
-// TODO: How can we identify model meshes and add materials to them independently?
 int main(int argc, const char * argv[]) {
-    // Create a new game instance
-    std::shared_ptr<ZGame> game = std::make_shared<ZGame>();
 	std::shared_ptr<ZEditor> editor = std::make_shared<ZEditor>();
     
-    // Initialize the engine before anything else
-    zenith::Initialize(game, 1920, 1080);
+    editor->Initialize();
     
-    // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    // TODO: Add a name field to this method to allow fonts to have arbitrary, unique names
-    zenith::UI()->RegisterFont(ENGINE_ASSETS_PATH + "/Fonts/earth_orbiter/earthorbiter.ttf");
-
-	// Load our scene using description files
-    zenith::LoadScene({ ENGINE_ASSETS_PATH + "/demo_scene.zof" });
-
-	// Add our editor instance to the process runner so that it can
-	// receive update ticks
-	zenith::ProcessRunner()->AttachProcess(editor, ZPriority::Medium);
+    editor->Loop();
     
-    // Create the game and start the main game loop. Nothing beyond this point will execute
-    // for the duration of the game.
-    game->RunGameLoop();
-    
-    // Make sure to clean up all resources after we're done
-    zenith::CleanUp();
+    editor->CleanUp();
     
     return 0;
 }

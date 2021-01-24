@@ -36,15 +36,12 @@
 
 // Definitions
 class ZMenuBar : public ZEditorTool {
-    
-    friend class ZEditor;
 
 public:
 
-    ZMenuBar() : ZEditorTool("MenuBar") { }
+    ZMenuBar(const ZUITheme& theme = ZUITheme())
+        : ZEditorTool("MenuBar", theme) { }
 
-	void Begin() override;
 	void Update() override;
-	void End() override;
 
 };

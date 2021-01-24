@@ -36,15 +36,12 @@
 
 // Definitions
 class ZProjectSettingsTool : public ZEditorTool {
-    
-    friend class ZEditor;
 
 public:
 
-	ZProjectSettingsTool() : ZEditorTool("Project Settings") {}
+	ZProjectSettingsTool(const ZUITheme& theme = ZUITheme())
+        : ZEditorTool("Project Settings", theme) {}
 
-	void Begin() override;
 	void Update() override;
-	void End() override;
 
 };

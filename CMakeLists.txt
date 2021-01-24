@@ -217,10 +217,10 @@ int main(int argc, const char* argv[]) {
     zenith::Initialize(game, windowOptions);
 
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    zenith::UI()->RegisterFont(std::string(ENGINE_ROOT) + \"/_Assets/Fonts/earth_orbiter/earthorbiter.ttf\");
+    zenith::UI()->RegisterFont(\"/Fonts/earth_orbiter/earthorbiter.ttf\");
 
     // Load a default scene from the engine
-    zenith::LoadScene({ std::string(ENGINE_ROOT) + \"/_Assets/demo_scene.zof\" });
+    zenith::LoadScene({ \"/demo_scene.zof\" });
 
     // Register delegate methods for specific UI events
     ZEventDelegate sceneReadyDelegate(&onSceneLoad);
@@ -231,7 +231,7 @@ int main(int argc, const char* argv[]) {
 
     // Create the game and start the main game loop. Nothing beyond this point will execute
     // for the duration of the game.
-    game->RunGameLoop();
+    game->Loop();
 
     // Make sure to clean up all resources after we're done
     zenith::CleanUp();

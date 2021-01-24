@@ -28,66 +28,7 @@
  */
 
 #include "ZMenuBar.hpp"
-#include "ZEditor.hpp"
-#include "ZGame.hpp"
-#include "ZScene.hpp"
-#include "ZGameObject.hpp"
-
-void ZMenuBar::Begin() {
-	ImGui::BeginMainMenuBar();
-}
 
 void ZMenuBar::Update() {
-	if (ImGui::BeginMenu("File")) {
-		if (ImGui::BeginMenu("New")) {
-			ImGui::MenuItem("Project");
-			ImGui::MenuItem("Scene");
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenu();
-	}
-	if (ImGui::BeginMenu("Scene")) {
-		if (ImGui::BeginMenu("Create")) {
-			if (ImGui::BeginMenu("Game Object")) {
-				if (ImGui::MenuItem("Empty")) {
-					std::shared_ptr<ZGameObject> empty = editor_->ObjectTemplates()["ZGO_EMPTY"]->Clone();
-					zenith::Game()->ActiveScene()->AddGameObject(empty);
-				}
-				if (ImGui::MenuItem("Cube")) {
-					std::shared_ptr<ZGameObject> cube = editor_->ObjectTemplates()["ZGO_CUBE"]->Clone();
-					zenith::Game()->ActiveScene()->AddGameObject(cube);
-				}
-				if (ImGui::MenuItem("Sphere")) {
-					std::shared_ptr<ZGameObject> sphere = editor_->ObjectTemplates()["ZGO_SPHERE"]->Clone();
-					zenith::Game()->ActiveScene()->AddGameObject(sphere);
-				}
-				if (ImGui::MenuItem("Plane")) {
-					std::shared_ptr<ZGameObject> plane = editor_->ObjectTemplates()["ZGO_PLANE"]->Clone();
-					zenith::Game()->ActiveScene()->AddGameObject(plane);
-				}
-				ImGui::EndMenu();
-			}
-			if (ImGui::MenuItem("Camera")) {
-				std::shared_ptr<ZGameObject> camera = editor_->ObjectTemplates()["ZGO_CAMERA"]->Clone();
-				zenith::Game()->ActiveScene()->AddGameObject(camera);
-			}
-			if (ImGui::MenuItem("Light")) {
-				std::shared_ptr<ZGameObject> light = editor_->ObjectTemplates()["ZLT_LIGHT"]->Clone();
-				zenith::Game()->ActiveScene()->AddGameObject(light);
-			}
-			if (ImGui::MenuItem("Trigger Volume")) {
-				std::shared_ptr<ZGameObject> trigger = editor_->ObjectTemplates()["ZTR_TRIGGER"]->Clone();
-				zenith::Game()->ActiveScene()->AddGameObject(trigger);
-			}
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenu();
-	}
-	if (ImGui::BeginMenu("Edit")) {
-		ImGui::EndMenu();
-	}
-}
 
-void ZMenuBar::End() {
-	ImGui::EndMainMenuBar();
 }

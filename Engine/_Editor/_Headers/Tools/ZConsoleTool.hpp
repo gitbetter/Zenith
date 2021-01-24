@@ -37,22 +37,12 @@
 
 // Definitions
 class ZConsoleTool : public ZEditorTool {
-    
-    friend class ZEditor;
-    
-private:
-    
-    bool autoScroll_;
-    ImGuiTextFilter filter_;
-    
-    void StyledLogEntry(ZLogEntry entry);
 
 public:
 
-	ZConsoleTool() : ZEditorTool("Console"), autoScroll_(true) {}
+	ZConsoleTool(const ZUITheme& theme = ZUITheme())
+        : ZEditorTool("Console", theme) {}
 
-	void Begin() override;
 	void Update() override;
-	void End() override;
 
 };

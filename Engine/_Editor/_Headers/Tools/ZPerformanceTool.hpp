@@ -36,15 +36,12 @@
 
 // Definitions
 class ZPerformanceTool : public ZEditorTool {
-    
-    friend class ZEditor;
 
 public:
 
-	ZPerformanceTool() : ZEditorTool("Performance") {}
+	ZPerformanceTool(const ZUITheme& theme = ZUITheme())
+        : ZEditorTool("Performance", theme) {}
 
-	void Begin() override;
 	void Update() override;
-	void End() override;
 
 };

@@ -36,8 +36,17 @@ ZUIButton::ZUIButton(const glm::vec2& position, const glm::vec2& scale) : ZUIEle
     type_ = ZUIElementType::Button;
 }
 
+ZUIButton::ZUIButton(const ZUIElementOptions& options) : ZUIElement(options)
+{
+    type_ = ZUIElementType::Button;
+}
+
+void ZUIButton::Initialize()
+{
+    ZUIElement::Initialize();
+}
+
 void ZUIButton::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
-    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
     ZUIElement::Initialize(root);
 }

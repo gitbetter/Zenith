@@ -38,16 +38,29 @@
 ZUIText::ZUIText(const std::string& text, const std::string& font, float fontSize, const glm::vec2& position, const glm::vec2& scale)
     : ZUIElement(position, scale), font_(font), text_(text), fontScale_(fontSize), wrapToBounds_(false)
 {
-    enabled_ = false;
+    options_.enabled = false;
     type_ = ZUIElementType::Text;
 }
 
-void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
+ZUIText::ZUIText(const ZUIElementOptions& options, const std::string& text, const std::string& font, float fontSize)
+    : ZUIElement(options), font_(font), text_(text), fontScale_(fontSize), wrapToBounds_(false)
 {
+    options_.enabled = false;
+    type_ = ZUIElementType::Text;
+}
+
+void ZUIText::Initialize() {
+    ZUIElement::Initialize();
+
     ZVertex2DDataOptions options;
     options.numVertices = 4;
     bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(options);
 
+    options_.shader = zenith::UI()->TextShader();
+}
+
+void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
+{
     ZUIElement::Initialize(root);
 
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);

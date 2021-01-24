@@ -78,7 +78,7 @@ void ZUI::RenderElement(const std::shared_ptr<ZUIElement>& element)
     // Only render the top level elements that are not hidden. The children will
     // be rendered within the respective parent elements.
     // TODO: Also only render if the child has the dirty flag set
-    if (element->hidden_) return;
+    if (element->options_.hidden) return;
 
     switch (element->type_)
     {
@@ -106,30 +106,30 @@ void ZUI::RenderElement(const std::shared_ptr<ZUIElement>& element)
 void ZUI::RenderGeneric(const std::shared_ptr<ZUIElement>& element)
 {
     std::shared_ptr<ZMesh2D> mesh = element->ElementShape();
-    element->shader_->Activate();
+    element->Shader()->Activate();
 
-    zenith::Graphics()->Strategy()->BindTexture(element->texture_, 0);
-    element->shader_->SetInt(element->texture_.type + "0", 0);
+    zenith::Graphics()->Strategy()->BindTexture(element->Texture(), 0);
+    element->Shader()->SetInt(element->Texture().type + "0", 0);
 
-    element->shader_->SetMat4("M", element->modelMatrix_);
-    element->shader_->SetMat4("P", projection_);
-    element->shader_->SetVec4("color", element->color_);
-    element->shader_->SetVec4("borderColor", glm::vec4(0.f));
-    element->shader_->SetFloat("borderWidth", 0.f);
-    element->shader_->SetFloat("borderRadius", element->border_.radius);
-    element->shader_->SetVec2("resolution", element->Size());
-    element->shader_->SetFloat("aspectRatio", 1.f);
+    element->Shader()->SetMat4("M", element->modelMatrix_);
+    element->Shader()->SetMat4("P", projection_);
+    element->Shader()->SetVec4("color", element->Color());
+    element->Shader()->SetVec4("borderColor", glm::vec4(0.f));
+    element->Shader()->SetFloat("borderWidth", 0.f);
+    element->Shader()->SetFloat("borderRadius", element->Border().radius);
+    element->Shader()->SetVec2("resolution", element->CalculatedRect().size);
+    element->Shader()->SetFloat("aspectRatio", 1.f);
 
-    if (element->border_.width > 0.f)
+    if (element->Border().width > 0.f)
     {
-        float borderWidth = element->border_.width / glm::length(element->Size());
+        float borderWidth = element->Border().width / glm::length(element->Size());
         float aspect = element->Size().y / element->Size().x;
-        element->shader_->SetVec4("borderColor", element->border_.color);
-        element->shader_->SetFloat("borderWidth", borderWidth);
-        element->shader_->SetFloat("aspectRatio", aspect);
+        element->Shader()->SetVec4("borderColor", element->Border().color);
+        element->Shader()->SetFloat("borderWidth", borderWidth);
+        element->Shader()->SetFloat("aspectRatio", aspect);
     }
 
-    mesh->Render(element->shader_.get());
+    mesh->Render(element->Shader().get());
 }
 
 void ZUI::RenderImage(const std::shared_ptr<ZUIElement>& element)
@@ -141,10 +141,10 @@ void ZUI::RenderText(const std::shared_ptr<ZUIElement>& element)
 {
     auto textEl = std::dynamic_pointer_cast<ZUIText>(element);
 
-    element->shader_->Activate();
-    element->shader_->SetMat4("M", element->modelMatrix_);
-    element->shader_->SetMat4("P", projection_);
-    element->shader_->SetVec4("color", element->color_);
+    element->Shader()->Activate();
+    element->Shader()->SetMat4("M", element->modelMatrix_);
+    element->Shader()->SetMat4("P", projection_);
+    element->Shader()->SetVec4("color", element->Color());
 
     zenith::UI()->TextStrategy()->Draw(textEl);
 }

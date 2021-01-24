@@ -142,7 +142,7 @@ void ZGLTextStrategy::Draw(std::shared_ptr<ZUIText> textEl)
 
 	auto font = loadedFonts_[textEl->font_];
 	zenith::Graphics()->Strategy()->BindTexture(font.atlas.texture, 0);
-	textEl->shader_->SetInt(font.atlas.texture.type + "0", 0);
+	textEl->options_.shader->SetInt(font.atlas.texture.type + "0", 0);
 
 	auto pos = textEl->Position();
 	float x = pos.x, y = pos.y;

@@ -39,17 +39,25 @@ ZUICheckBox::ZUICheckBox(const glm::vec2& position, const glm::vec2& scale) : ZU
     type_ = ZUIElementType::CheckBox;
 }
 
-void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
+ZUICheckBox::ZUICheckBox(const ZUIElementOptions& options) : ZUIElement(options)
 {
-    texture_ = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+    type_ = ZUIElementType::CheckBox;
+}
 
-    ZUIElement::Initialize(root);
+void ZUICheckBox::Initialize() {
+    ZUIElement::Initialize();
 
-    checkImage_ = std::make_shared<ZUIImage>("/Textures/UI/checkmark.png", glm::vec3(0.f) + Size(), Size());
+    checkImage_ = std::make_shared<ZUIImage>("/Textures/UI/checkmark.png", glm::vec2(0.f) + Size(), Size());
+    checkImage_->Initialize();
     AddChild(checkImage_);
 
     ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICheckBox::HandleMousePress);
     zenith::EventAgent()->AddListener(fireDelegate, ZFireEvent::Type);
+}
+
+void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
+{
+    ZUIElement::Initialize(root);
 
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
     if (node == nullptr)

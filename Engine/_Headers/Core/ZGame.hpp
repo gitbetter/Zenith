@@ -55,7 +55,7 @@ public:
     std::shared_ptr<ZScene> ActiveScene() { return !(scenes_.empty()) ? scenes_[activeScene_] : nullptr; }
     void SetActiveScene(unsigned int index);
 
-    void RunGameLoop();
+    void Loop();
     bool Running();
     void AddScene(std::shared_ptr<ZScene> scene);
     void RemoveScene(std::shared_ptr<ZScene> scene);

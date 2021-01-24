@@ -36,15 +36,12 @@
 
 // Definitions
 class ZPreviewTool : public ZEditorTool {
-    
-    friend class ZEditor;
 
 public:
 
-	ZPreviewTool() : ZEditorTool("Preview") {}
+	ZPreviewTool(const ZUITheme& theme = ZUITheme())
+        : ZEditorTool("Preview", theme) {}
 
-	void Begin() override;
 	void Update() override;
-	void End() override;
 
 };

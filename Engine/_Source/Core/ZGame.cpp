@@ -38,7 +38,7 @@ using namespace std;
 
 ZGame::ZGame() : activeScene_(0) {}
 
-void ZGame::RunGameLoop()
+void ZGame::Loop()
 {
     zenith::Log("Zenith is about to loop...", ZSeverity::Info);
 
