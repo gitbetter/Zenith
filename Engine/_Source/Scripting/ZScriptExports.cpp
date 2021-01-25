@@ -112,7 +112,8 @@ void ZInternalScriptExports::Log(const sol::object& obj)
 
 void ZScriptExports::Register()
 {
-    sol::state& lua = zenith::ScriptManager()->LuaState();
+    ZLuaScriptManager* scriptManager = static_cast<ZLuaScriptManager*>(zenith::ScriptManager());
+    sol::state& lua = scriptManager->LuaState();
     lua["LoadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
     lua["AttachProcess"] = ZInternalScriptExports::AttachScriptProcess;
     lua["QueueEvent"] = ZInternalScriptExports::QueueEvent;

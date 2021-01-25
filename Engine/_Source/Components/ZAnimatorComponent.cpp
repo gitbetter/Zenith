@@ -42,11 +42,11 @@ void ZAnimatorComponent::Initialize(std::shared_ptr<ZOFNode> root)
 // TODO: Load from zof tree as usual
 }
 
-void ZAnimatorComponent::Update()
+void ZAnimatorComponent::Update(double deltaTime)
 {
     if (currentClip_.state == ZAnimationState::Playing || currentClip_.state == ZAnimationState::Looping)
     {
-        currentClip_.currentTime += zenith::DeltaTime();
+        currentClip_.currentTime += deltaTime;
         if (currentClip_.startTime + currentClip_.currentTime <= currentClip_.endTime)
         {
             currentClip_.model->BoneTransform(currentClip_.name, currentClip_.currentTime);

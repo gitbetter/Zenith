@@ -82,7 +82,7 @@ public:
     ~ZEventAgent() {}
 
     void Initialize() override;
-    void Update() override;
+    void Update(double deltaTime) override;
 
     bool AddListener(const ZEventDelegate& eventDelegate, const ZEventType& type);
     bool RemoveListener(const ZEventDelegate& eventDelegate, const ZEventType& type);

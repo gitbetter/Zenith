@@ -44,7 +44,7 @@ public:
     ~ZALAudioSource();
 
     void Initialize() override;
-    void Update() override;
+    void Update(double deltaTime) override;
     void Play(int volume, bool looping = true) override;
     void Pause() override;
     void Stop() override;

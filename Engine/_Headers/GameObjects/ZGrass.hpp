@@ -58,7 +58,7 @@ public:
 
     void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color) override;
     bool IsVisible() override { return true; }
 
     void TrimPatch(const glm::vec3& position, const glm::vec3& size);

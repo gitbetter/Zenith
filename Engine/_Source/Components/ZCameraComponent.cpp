@@ -140,8 +140,14 @@ void ZCameraComponent::Initialize(std::shared_ptr<ZOFNode> root)
     Initialize();
 }
 
-void ZCameraComponent::Update()
+void ZCameraComponent::Update(double deltaTime)
 {
+    currentDeltaTime_ = deltaTime;
+    frameMix_ = glm::clamp(
+        glm::abs(currentDeltaTime_ - ((double)zenith::UPDATE_STEP_SIZE * (double)zenith::MAX_FIXED_UPDATE_ITERATIONS)),
+        0.0,
+        1.0
+    );
     UpdateCameraOrientation();
     frustum_.Recalculate(object_->Position(), object_->Position() + object_->Front(), object_->Up());
 }
@@ -186,17 +192,17 @@ void ZCameraComponent::UpdateCameraOrientation()
 
     if (movementStyle_ == ZCameraMovementStyle::Follow)
     {
-        pitchVelocity_ *= glm::pow(cameraDamping_, (float) zenith::DeltaTime());
-        yawVelocity_ *= glm::pow(cameraDamping_, (float) zenith::DeltaTime());
-        pitch_ = glm::quat(pitchVelocity_ * (float) zenith::DeltaTime());
-        yaw_ = glm::quat(yawVelocity_ * (float) zenith::DeltaTime());
+        pitchVelocity_ *= glm::pow(cameraDamping_, (float) currentDeltaTime_);
+        yawVelocity_ *= glm::pow(cameraDamping_, (float) currentDeltaTime_);
+        pitch_ = glm::quat(pitchVelocity_ * (float) currentDeltaTime_);
+        yaw_ = glm::quat(yawVelocity_ * (float) currentDeltaTime_);
         object_->SetOrientation(glm::normalize(pitch_ * object_->Orientation() * yaw_));
     }
 }
 
 void ZCameraComponent::Move(float z, float x, bool useWorldFront)
 {
-    float velocity = movementSpeed_ * (float) zenith::DeltaTime();
+    float velocity = movementSpeed_ * (float) currentDeltaTime_;
     glm::vec3 newPos = object_->Position() + ((useWorldFront ? zenith::WORLD_FRONT : object_->Front()) * z * velocity) + (object_->Right() * x * -velocity);
     object_->SetPosition(newPos);
 
@@ -263,8 +269,7 @@ glm::mat4 ZCameraComponent::ProjectionMatrix()
 
 glm::mat4 ZCameraComponent::ViewMatrix()
 {
-    float frameMix = zenith::FrameMix();
-    glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix) + object_->Front() * frameMix;
-    glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix) + object_->Up() * frameMix;
+    glm::vec3 interpolatedFront = object_->PreviousFront() * (1.f - frameMix_) + object_->Front() * frameMix_;
+    glm::vec3 interpolatedUp = object_->PreviousUp() * (1.f - frameMix_) + object_->Up() * frameMix_;
     return glm::lookAt(object_->Position(), object_->Position() + interpolatedFront, interpolatedUp);
 }

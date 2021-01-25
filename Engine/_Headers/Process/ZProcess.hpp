@@ -50,8 +50,8 @@ public:
 
     virtual void Initialize() { state_ = ZProcessState::Running; OnInitialize(); };
     virtual void OnInitialize() {};
-    virtual void Update() { OnUpdate(); };
-    virtual void OnUpdate() {};
+    virtual void Update(double deltaTime) { OnUpdate(deltaTime); };
+    virtual void OnUpdate(double deltaTime) {};
     virtual void Pause() { state_ = ZProcessState::Paused; OnPause(); };
     virtual void OnPause() {};
     virtual void Resume() { state_ = ZProcessState::Running; OnResume(); };

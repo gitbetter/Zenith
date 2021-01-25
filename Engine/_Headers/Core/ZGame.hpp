@@ -43,6 +43,8 @@ protected:
     // TODO: Store this information in a scene manager class
     unsigned int activeScene_ = 0;
     std::vector<std::shared_ptr<ZScene>> scenes_;
+    double deltaTime_ = 0.0;
+
 
 public:
 

@@ -47,7 +47,7 @@ class ZProcessRunner;
 class ZResourceCache;
 class ZGame;
 class ZEventAgent;
-class ZLuaScriptManager;
+class ZScriptManager;
 
 // Definitions
 namespace zenith
@@ -79,6 +79,11 @@ namespace zenith
     extern void Initialize(std::shared_ptr<ZGame> game, const ZDomainOptions& domainOptions);
 
     extern std::shared_ptr<ZGame> Game();
+
+    extern ZProcessRunner* ProcessRunner();
+    extern ZEventAgent* EventAgent();
+    extern ZResourceCache* ResourceCache();
+    extern ZScriptManager* ScriptManager();
     extern ZDomain* Domain();
     extern ZGraphics* Graphics();
     extern ZInput* Input();
@@ -86,27 +91,21 @@ namespace zenith
     extern ZPhysics* Physics();
     extern ZAudio* Audio();
 
-    extern ZProcessRunner* ProcessRunner();
-    extern ZEventAgent* EventAgent();
-    extern ZResourceCache* ResourceCache();
-    extern ZLuaScriptManager* ScriptManager();
-
     extern ZIDSequence* IDSequence();
     extern ZEngineOptions& Options();
 
-    extern double LastDeltaTime();
-    extern double DeltaTime();
     extern double SecondsTime();
-    extern float FrameMix();
 
+    extern void Provide(std::shared_ptr<ZProcessRunner> processRunner);
+    extern void Provide(std::shared_ptr<ZResourceCache> resourceCache);
+    extern void Provide(std::shared_ptr<ZEventAgent> eventAgent);
+    extern void Provide(std::shared_ptr<ZScriptManager> scriptManager);
     extern void Provide(std::shared_ptr<ZDomain> domain);
     extern void Provide(std::shared_ptr<ZGraphics> graphics);
     extern void Provide(std::shared_ptr<ZInput> input);
     extern void Provide(std::shared_ptr<ZUI> ui);
     extern void Provide(std::shared_ptr<ZPhysics> physics);
     extern void Provide(std::shared_ptr<ZAudio> audio);
-
-    extern void SetDeltaTime(double deltaTime);
 
     extern void LoadZOF(const std::string& zofPath);
 

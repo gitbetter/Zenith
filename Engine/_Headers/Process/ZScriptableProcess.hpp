@@ -71,7 +71,7 @@ public:
 protected:
 
     virtual void OnInitialize() override;
-    virtual void OnUpdate() override;
+    virtual void OnUpdate(double deltaTime) override;
     virtual void OnPause() override;
     virtual void OnResume() override;
     virtual void OnFinish() override;

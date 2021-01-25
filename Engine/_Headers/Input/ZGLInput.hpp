@@ -52,7 +52,7 @@ private:
 public:
 
     void Initialize() override;
-    void Update() override;
+    void Update(double deltaTime) override;
     void GetCursorPosition(double& x, double& y) override;
     void SetCursorPosition(double& x, double& y) override;
 

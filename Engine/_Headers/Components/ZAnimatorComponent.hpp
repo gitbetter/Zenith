@@ -45,7 +45,7 @@ public:
     ~ZAnimatorComponent() {}
 
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Update() override;
+    void Update(double deltaTime) override;
 
     void Play(const std::string& animationName, bool looping = false);
     void Pause() override;

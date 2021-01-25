@@ -59,6 +59,9 @@ private:
     glm::vec3 pitchVelocity_, yawVelocity_;
     glm::quat pitch_, yaw_;
 
+    double currentDeltaTime_ = 0.0;
+    float frameMix_ = 0.f;
+
     void HandleMove(const std::shared_ptr<ZEvent>& event);
     void HandleLook(const std::shared_ptr<ZEvent>& event);
 
@@ -70,7 +73,7 @@ public:
     void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-    void Update() override;
+    void Update(double deltaTime) override;
     void Render();
 
     void CleanUp() override;

@@ -58,7 +58,7 @@ public:
 
     void Initialize() override;
 
-    void Update() override;
+    void Update(double deltaTime) override;
 
     void AddRigidBody(std::shared_ptr<ZRigidBody> body) override;
 

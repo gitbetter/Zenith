@@ -54,6 +54,6 @@ public:
 
 protected:
 
-    void OnUpdate() override;
+    void OnUpdate(double deltaTime) override;
 
 };

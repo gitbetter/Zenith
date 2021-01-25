@@ -85,7 +85,7 @@ void ZSceneRoot::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recur
         publicChildren_.erase(it);
 }
 
-void ZSceneRoot::RenderChildren(ZRenderOp renderOp)
+void ZSceneRoot::RenderChildren(double deltaTime, ZRenderOp renderOp)
 {
     if (zenith::Options().drawGrid)
         zenith::Graphics()->DebugDrawer()->DrawGrid(glm::vec4(0.75f, 0.75f, 0.75f, 1.f));
@@ -98,7 +98,7 @@ void ZSceneRoot::RenderChildren(ZRenderOp renderOp)
         case ZRenderPass::Dynamic:
         case ZRenderPass::Sky:
         case ZRenderPass::UI:
-            children_[pass]->RenderChildren(renderOp);
+            children_[pass]->RenderChildren(deltaTime, renderOp);
             break;
         default: break;
         }

@@ -71,8 +71,8 @@ public:
     virtual void Initialize(std::shared_ptr<ZOFNode> root);
 
     virtual void PreRender();
-    virtual void Render(ZRenderOp renderOp = ZRenderOp::Color);
-    virtual void RenderChildren(ZRenderOp renderOp = ZRenderOp::Color);
+    virtual void Render(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color);
+    virtual void RenderChildren(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color);
     virtual void PostRender();
 
     void CalculateDerivedData();

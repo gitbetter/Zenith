@@ -104,11 +104,11 @@ std::shared_ptr<ZGameObject> ZSkybox::Clone()
     return clone;
 }
 
-void ZSkybox::Render(ZRenderOp renderOp)
+void ZSkybox::Render(double deltaTime, ZRenderOp renderOp)
 {
     if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow)
     {
-        ZGameObject::Render(renderOp);
+        ZGameObject::Render(deltaTime, renderOp);
     }
 }
 

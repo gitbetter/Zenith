@@ -85,7 +85,7 @@ public:
     ZEditorScene() : ZScene(), editorOpen_(true) { }
     
     void Initialize() override;
-    void Update() override;
+    void Update(double deltaTime) override;
     void CleanUp() override;
     
     std::shared_ptr<ZGameObject> CreateCamera();

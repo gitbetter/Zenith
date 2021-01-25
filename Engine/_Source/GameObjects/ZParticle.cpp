@@ -45,13 +45,13 @@ void ZParticle::Initialize()
     }
 }
 
-void ZParticle::Update()
+void ZParticle::Update(double deltaTime)
 {
-    ZGameObject::Update();
+    ZGameObject::Update(deltaTime);
     age_ -= zenith::UPDATE_STEP_SIZE;
 }
 
-void ZParticle::Render(ZRenderOp renderOp)
+void ZParticle::Render(double deltaTime, ZRenderOp renderOp)
 {
 // TODO: Render a particle as a quad that rotates with the camera
 }

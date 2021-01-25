@@ -37,7 +37,7 @@ ZParticleSystem::ZParticleSystem(std::initializer_list<ZParticleRule> rules)
     }
 }
 
-void ZParticleSystem::Update()
+void ZParticleSystem::Update(double deltaTime)
 {
 // TODO: Create a particle based on a particle rule and set its age randomly between the min and max ages.
 // Also set the velocity randomly between the min and max velocities. If emitting randomly,

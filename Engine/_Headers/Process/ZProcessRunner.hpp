@@ -47,8 +47,8 @@ public:
 
     ~ZProcessRunner();
 
-    void UpdateTick();
-    void UpdateProcesses(ZPriority priority);
+    void UpdateTick(double deltaTime);
+    void UpdateProcesses(double deltaTime, ZPriority priority);
     void AttachProcess(std::shared_ptr<ZProcess> process, ZPriority priority = ZPriority::FirstPriority);
     void AbortAllProcesses(bool immediate);
 

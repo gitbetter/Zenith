@@ -47,10 +47,10 @@ void ZGame::Loop()
     while (Running())
     {
         double currentTime = zenith::SecondsTime();
-        zenith::SetDeltaTime(currentTime - previousTime);
+        deltaTime_ = currentTime - previousTime;
         previousTime = currentTime;
 
-        zenith::ProcessRunner()->UpdateTick();
+        zenith::ProcessRunner()->UpdateTick(deltaTime_);
 
         zenith::Graphics()->SwapBuffers();
 

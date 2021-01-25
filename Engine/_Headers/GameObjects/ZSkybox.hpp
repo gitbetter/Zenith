@@ -56,7 +56,7 @@ public:
 
     std::shared_ptr<ZGameObject> Clone() override;
 
-    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color) override;
 
     bool IsVisible() override { return true; }
 

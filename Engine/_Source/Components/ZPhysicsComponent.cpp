@@ -180,7 +180,7 @@ void ZPhysicsComponent::Initialize(const std::string& bodyType, const std::strin
     body_->SetGameObject(object_);
 }
 
-void ZPhysicsComponent::Update()
+void ZPhysicsComponent::Update(double deltaTime)
 {
     assert(object_ != nullptr && body_ != nullptr);
 

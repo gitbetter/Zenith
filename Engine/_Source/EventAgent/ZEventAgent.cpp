@@ -129,7 +129,7 @@ bool ZEventAgent::AbortEvent(const ZEventType& eventType, bool allOfType)
     return success;
 }
 
-void ZEventAgent::Update()
+void ZEventAgent::Update(double deltaTime)
 {
     constexpr float floatMax = std::numeric_limits<float>::max();
     float currentTime = zenith::SecondsTime();
@@ -180,7 +180,7 @@ void ZEventAgent::Update()
 
     eventListeners_[listenersToProcess] = eventListeners_[activeListeners_];
 
-    ZProcess::Update();
+    ZProcess::Update(deltaTime);
 }
 
 void ZEventAgent::CleanUp()

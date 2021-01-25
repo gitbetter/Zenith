@@ -38,7 +38,8 @@ ZScriptableProcess::~ZScriptableProcess() { dynamicFields_.clear(); }
 
 void ZScriptableProcess::RegisterScriptClass()
 {
-    sol::state& lua = zenith::ScriptManager()->LuaState();
+    ZLuaScriptManager* scriptManager = static_cast<ZLuaScriptManager*>(zenith::ScriptManager());
+    sol::state& lua = scriptManager->LuaState();
     lua.new_usertype<ZScriptableProcess>(SCRIPT_PROCESS_NAME,
         "Create", sol::factories(ZScriptableProcess::CreateFromScript),
         "Initialize", &ZProcess::Initialize,
@@ -168,11 +169,11 @@ void ZScriptableProcess::OnInitialize()
         scriptInitialize_(*this);
 }
 
-void ZScriptableProcess::OnUpdate()
+void ZScriptableProcess::OnUpdate(double deltaTime)
 {
-    ZProcess::OnUpdate();
+    ZProcess::OnUpdate(deltaTime);
 
-    time_ += (float) zenith::DeltaTime();
+    time_ += (float) deltaTime;
     if (time_ > frequency_ / 1000.f)
     {
         scriptUpdate_(*this);

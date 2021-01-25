@@ -51,7 +51,7 @@ public:
 
     void AddChild(std::shared_ptr<ZGameObject> gameObject) override;
     void RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse = false) override;
-    void RenderChildren(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void RenderChildren(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color) override;
     bool IsVisible() override { return true; }
 
 };
