@@ -177,7 +177,7 @@ void ZGLInput::Initialize()
     glfwSetScrollCallback(windowHandle, &ZGLInput::MouseScrollCallback);
 }
 
-void ZGLInput::Update()
+void ZGLInput::Update(double deltaTime)
 {
     GLFWwindow* windowHandle = glfwGetCurrentContext();
 

@@ -47,7 +47,7 @@ public:
 
     std::shared_ptr<ZComponent> Clone() override;
 
-    void Update() override {}
+    void Update(double deltaTime) override {}
 
 protected:
 

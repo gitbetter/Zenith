@@ -61,10 +61,10 @@ void ZBulletPhysics::Initialize()
     zenith::EventAgent()->AddListener(raycastDelegate, ZRaycastEvent::Type);
 }
 
-void ZBulletPhysics::Update()
+void ZBulletPhysics::Update(double deltaTime)
 {
-    ZPhysics::Update();
-    dynamicsWorld_->stepSimulation(zenith::DeltaTime(), zenith::MAX_FIXED_UPDATE_ITERATIONS, zenith::UPDATE_STEP_SIZE);
+    ZPhysics::Update(deltaTime);
+    dynamicsWorld_->stepSimulation(deltaTime, zenith::MAX_FIXED_UPDATE_ITERATIONS, zenith::UPDATE_STEP_SIZE);
 }
 
 void ZBulletPhysics::AddRigidBody(std::shared_ptr<ZRigidBody> body)

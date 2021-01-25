@@ -52,8 +52,8 @@ public:
 
     void Initialize() override;
 
-    void Update() override;
-    void Render(ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Update(double deltaTime) override;
+    void Render(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color) override;
 
     float Age() { return age_; }
     bool Active() { return active_; }

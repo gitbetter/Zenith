@@ -152,7 +152,7 @@ void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree)
     if (!hasSkybox) SetDefaultSkybox();
 }
 
-void ZScene::Update()
+void ZScene::Update(double deltaTime)
 {
     if (zenith::Game()->Running())
     {

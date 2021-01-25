@@ -50,12 +50,7 @@ bool ZScriptableEvent::SetEventData(sol::table data)
 
 void ZScriptableEvent::RegisterEventTypeWithScript(const std::string& key, ZEventType type)
 {
-    sol::state& lua = zenith::ScriptManager()->LuaState();
-    sol::table eventTypeTable = lua["ZEventType"];
-    if (!eventTypeTable.valid())
-        eventTypeTable = lua.create_named_table("ZEventType");
-
-    eventTypeTable[key] = (double) type;
+    zenith::ScriptManager()->RegisterEventTypeWithScript(key, type);
 }
 
 void ZScriptableEvent::AddCreationFunction(ZEventType type, CreateEventForScriptFunctionType creationFunction)
@@ -72,6 +67,5 @@ ZScriptableEvent* ZScriptableEvent::CreateEventFromScript(ZEventType type)
 void ZScriptableEventDelegate::EventDelegate(const std::shared_ptr<ZEvent>& event)
 {
     std::shared_ptr<ZScriptableEvent> scriptEvent = std::static_pointer_cast<ZScriptableEvent>(event);
-    sol::function callback = scriptCallback_;
-    callback(scriptEvent->EventData());
+    scriptCallback_(scriptEvent->EventData());
 }

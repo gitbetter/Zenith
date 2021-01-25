@@ -93,9 +93,9 @@ void ZALAudioSource::Initialize()
     if (playOnLoad_) Play(volume_, isLooping_);
 }
 
-void ZALAudioSource::Update()
+void ZALAudioSource::Update(double deltaTime)
 {
-    ZProcess::Update();
+    ZProcess::Update(deltaTime);
 
     if (!IsPlaying() && !isLooping_)
         Finish();

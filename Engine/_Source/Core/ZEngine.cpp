@@ -55,15 +55,14 @@
 
 namespace zenith
 {
-
     namespace
     {
         std::shared_ptr<ZGame> currentGame_ = nullptr;
 
-        std::unique_ptr<ZProcessRunner> processRunner_ = nullptr;
+        std::shared_ptr<ZProcessRunner> processRunner_ = nullptr;
         std::shared_ptr<ZEventAgent> eventAgent_ = nullptr;
-        std::unique_ptr<ZResourceCache> resourceCache_ = nullptr;
-        std::unique_ptr<ZLuaScriptManager> scriptManager_ = nullptr;
+        std::shared_ptr<ZResourceCache> resourceCache_ = nullptr;
+        std::shared_ptr<ZScriptManager> scriptManager_ = nullptr;
         std::shared_ptr<ZDomain> domain_ = nullptr;
         std::shared_ptr<ZGraphics> graphics_ = nullptr;
         std::shared_ptr<ZInput> input_ = nullptr;
@@ -74,10 +73,6 @@ namespace zenith
         std::unique_ptr<ZIDSequence> idGenerator_(new ZIDSequence);
 
         ZEngineOptions options_;
-
-        double deltaTime_ = 0.0;
-        double lastDeltaTime_ = 0.0;
-        float frameMix_ = 0.f;
     }
 
     // TODO: Useful to have a config file to parse for more global state info such as window dimensions
@@ -96,69 +91,43 @@ namespace zenith
         currentGame_ = game;
 
         /* ========= Process System ============ */
-        processRunner_.reset(new ZProcessRunner);
+        Provide(std::make_shared<ZProcessRunner>());
         /* ===================================== */
 
         /* ========= Resource Cache System ============ */
-        resourceCache_.reset(new ZResourceCache(100));
-        resourceCache_->Initialize();
-    #ifdef DEV_BUILD
-        resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(ENGINE_ROOT) + "/_Assets")));
-    #else
-        resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile(std::string(ENGINE_ROOT) + "/_Assets.zip")));
-    #endif
-        resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
-        resourceCache_->RegisterLoader(std::shared_ptr<ZWavResourceLoader>(new ZWavResourceLoader));
-        resourceCache_->RegisterLoader(std::shared_ptr<ZOggResourceLoader>(new ZOggResourceLoader));
+        Provide(std::make_shared<ZResourceCache>(100));
         /* ============================================ */
 
         /* ========= Event System ============ */
-        eventAgent_ = std::make_shared<ZEventAgent>();
-        eventAgent_->Initialize();
-        processRunner_->AttachProcess(eventAgent_, ZPriority::High);
+        Provide(std::make_shared<ZEventAgent>());
         /* =================================== */
 
         /* ========= Scripting System ============ */
-        scriptManager_.reset(new ZLuaScriptManager);
-        scriptManager_->Initialize();
-        ZScriptExports::Register();
-        ZScriptableProcess::RegisterScriptClass();
-        // We don't need to do anything with this resource. The resource loader
-        // will load and execute the script for us.
-        ZResource luaSetupScript("/Scripts/init.lua", ZResourceType::Script);
-        resourceCache_->GetHandle(&luaSetupScript);
+        Provide(std::make_shared<ZLuaScriptManager>());
         /* ======================================= */
 
         /* ========= Windowing System ============ */
-        domain_ = std::make_shared<ZDomain>(domainOptions);
-        domain_->Initialize();
+        Provide(std::make_shared<ZDomain>(domainOptions));
         /* ======================================= */
 
         /* ========= Graphics System ============ */
-        graphics_ = std::make_shared<ZGraphics>();
-        graphics_->Initialize();
+        Provide(std::make_shared<ZGraphics>());
         /* ====================================== */
 
         /* ========= Input System ============ */
-        input_ = std::make_shared<ZGLInput>();
-        input_->Initialize();
-        processRunner_->AttachProcess(input_);
+        Provide(std::make_shared<ZGLInput>());
         /* =================================== */
 
         /* ========= UI System ============ */
-        ui_ = std::make_shared<ZUI>();
-        ui_->Initialize();
+        Provide(std::make_shared<ZUI>());
         /* ================================ */
 
         /* ========= Physics System ============ */
-        physics_ = std::make_shared<ZBulletPhysics>();
-        physics_->Initialize();
-        processRunner_->AttachProcess(physics_);
+        Provide(std::make_shared<ZBulletPhysics>());
         /* ===================================== */
 
         /* ========= Audio System ============ */
-        audio_ = std::make_shared<ZALAudio>();
-        audio_->Initialize();
+        Provide(std::make_shared<ZALAudio>());
         /* ===================================== */
     }
 
@@ -212,7 +181,7 @@ namespace zenith
         return eventAgent_.get();
     }
 
-    ZLuaScriptManager* ScriptManager()
+    ZScriptManager* ScriptManager()
     {
         return scriptManager_.get();
     }
@@ -227,74 +196,123 @@ namespace zenith
         return options_;
     }
 
-    double LastDeltaTime()
+    void Provide(std::shared_ptr<ZProcessRunner> processRunner)
     {
-        return lastDeltaTime_;
+        if (processRunner_)
+            processRunner_->AbortAllProcesses(true);
+
+        processRunner_ = processRunner;
     }
 
-    double DeltaTime()
+    void Provide(std::shared_ptr<ZResourceCache> resourceCache)
     {
-        return deltaTime_;
+        if (resourceCache_)
+            resourceCache_->CleanUp();
+
+        resourceCache_ = resourceCache;
+        resourceCache_->Initialize();
+#ifdef DEV_BUILD
+        resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(ENGINE_ROOT) + "/_Assets")));
+#else
+        resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile(std::string(ENGINE_ROOT) + "/_Assets.zip")));
+#endif
+        resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
+        resourceCache_->RegisterLoader(std::shared_ptr<ZWavResourceLoader>(new ZWavResourceLoader));
+        resourceCache_->RegisterLoader(std::shared_ptr<ZOggResourceLoader>(new ZOggResourceLoader));
     }
 
-    double SecondsTime()
+    void Provide(std::shared_ptr<ZEventAgent> eventAgent)
     {
-        using namespace std::chrono;
-        return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() * 0.001;
+        if (eventAgent_) {
+            eventAgent_->Abort();
+            eventAgent_->CleanUp();
+        }
+
+        eventAgent_ = eventAgent;
+        eventAgent_->Initialize();
+        processRunner_->AttachProcess(eventAgent_, ZPriority::High);
     }
 
-    float FrameMix()
+    void Provide(std::shared_ptr<ZScriptManager> scriptManager)
     {
-        return frameMix_;
+        scriptManager_ = scriptManager;
+        scriptManager_->Initialize();
+        ZScriptExports::Register();
+        ZScriptableProcess::RegisterScriptClass();
+        // We don't need to do anything with this resource. The resource loader
+        // will load and execute the script for us.
+        if (resourceCache_) {
+            ZResource luaSetupScript("/Scripts/init.lua", ZResourceType::Script);
+            resourceCache_->GetHandle(&luaSetupScript);
+        }
     }
 
     void Provide(std::shared_ptr<ZDomain> domain)
     {
+        if (domain_)
+            domain_->CleanUp();
+
         domain_ = domain;
         domain_->Initialize();
     }
 
     void Provide(std::shared_ptr<ZGraphics> graphics)
     {
+        if (graphics_)
+            graphics_->CleanUp();
+
         graphics_ = graphics;
         graphics_->Initialize();
     }
 
     void Provide(std::shared_ptr<ZInput> input)
     {
-        if (input_) input_->Abort();
+        if (input_) {
+            input_->Abort();
+            input_->CleanUp();
+        }
+
         input_ = input;
+        input_->Initialize();
         processRunner_->AttachProcess(input_);
     }
 
     void Provide(std::shared_ptr<ZUI> ui)
     {
+        if (ui_)
+            ui_->CleanUp();
+
         ui_ = ui;
         ui_->Initialize();
     }
 
     void Provide(std::shared_ptr<ZPhysics> physics)
     {
-        if (physics_) physics_->Abort();
+        if (physics_) {
+            physics_->Abort();
+            physics_->CleanUp();
+        }
+        if (!physics)
+            return;
+
         physics_ = physics;
         physics_->Initialize();
+        processRunner_->AttachProcess(physics_);
     }
 
     void Provide(std::shared_ptr<ZAudio> audio)
     {
+        if (audio_)
+            audio_->CleanUp();
+
         audio_ = audio;
         audio_->Initialize();
     }
 
-    void SetDeltaTime(double deltaTime)
+    double SecondsTime()
     {
-        lastDeltaTime_ = deltaTime_;
-        deltaTime_ = deltaTime;
-        frameMix_ = glm::clamp(
-            glm::abs(deltaTime_ - ((double) UPDATE_STEP_SIZE * (double) MAX_FIXED_UPDATE_ITERATIONS)),
-            0.0,
-            1.0
-        );
+        using namespace std::chrono;
+        return duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() * 0.001;
     }
 
     void LoadZOF(const std::string& zofPath)
@@ -311,11 +329,11 @@ namespace zenith
         audio_->CleanUp(); audio_.reset();
         physics_->CleanUp(); physics_.reset();
         ui_->CleanUp(); ui_.reset();
-        input_.reset();
+        input_->CleanUp(); input_.reset();
         graphics_->CleanUp(); graphics_.reset();
         domain_->CleanUp(); domain_.reset();
-        resourceCache_.reset();
-        eventAgent_->CleanUp();
+        resourceCache_->CleanUp(); resourceCache_.reset();
+        eventAgent_->CleanUp(); eventAgent_.reset();
         scriptManager_.reset();
     }
 

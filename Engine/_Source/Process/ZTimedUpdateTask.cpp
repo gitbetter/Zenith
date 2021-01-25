@@ -29,9 +29,9 @@
 
 #include "ZTimedUpdateTask.hpp"
 
-void ZTimedUpdateTask::OnUpdate()
+void ZTimedUpdateTask::OnUpdate(double deltaTime)
 {
-    elapsed_ += zenith::DeltaTime();
+    elapsed_ += deltaTime;
     if (elapsed_ >= duration_)
     {
         callback_(duration_);

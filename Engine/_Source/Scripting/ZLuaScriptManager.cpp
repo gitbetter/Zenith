@@ -38,51 +38,13 @@ void ZLuaScriptManager::Initialize()
     lua_.set_function("executeString", &ZLuaScriptManager::ExecuteString, (*this));
 }
 
-void ZLuaScriptManager::Load(std::shared_ptr<ZOFTree> zof)
+void ZLuaScriptManager::RegisterEventTypeWithScript(const std::string& key, ZEventType type)
 {
-    for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++)
-    {
-        if (it->first.find("ZSCR") == 0)
-        {
+    sol::table eventTypeTable = lua_["ZEventType"];
+    if (!eventTypeTable.valid())
+        eventTypeTable = lua_.create_named_table("ZEventType");
 
-            std::shared_ptr<ZOFObjectNode> scriptNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-
-            ZOFPropertyMap props = scriptNode->properties;
-
-            if (props.find("path") != props.end() && props["path"]->HasValues())
-            {
-                std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
-                ZResource scriptResource(prop->value, ZResourceType::Script);
-                zenith::ResourceCache()->GetHandle(&scriptResource);
-                scripts_[it->first] = true;
-            }
-        }
-    }
-}
-
-void ZLuaScriptManager::LoadAsync(std::shared_ptr<ZOFTree> zof)
-{
-    for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++)
-    {
-        if (it->first.find("ZSCR") == 0)
-        {
-
-            std::shared_ptr<ZOFObjectNode> scriptNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-
-            ZOFPropertyMap props = scriptNode->properties;
-
-            if (props.find("path") != props.end() && props["path"]->HasValues())
-            {
-                std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
-                ZResource scriptResource(prop->value, ZResourceType::Script);
-                zenith::ResourceCache()->RequestHandle(scriptResource);
-                // TODO: Create a ZScriptReadyEvent that we can catch in order to cache the script properly.
-                // Might also want to refactor the scripts into separate ZScript objects where we can store extra
-                // data.
-                scripts_[it->first] = true;
-            }
-        }
-    }
+    eventTypeTable[key] = (double)type;
 }
 
 void ZLuaScriptManager::ExecuteFile(const std::string& resource)

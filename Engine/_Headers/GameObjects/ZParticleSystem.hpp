@@ -63,7 +63,7 @@ public:
 
     bool Alive() { return isAlive_; }
 
-    void Update() override;
+    void Update(double deltaTime) override;
 
 protected:
 

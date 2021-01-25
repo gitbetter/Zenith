@@ -95,7 +95,7 @@ void ZGameObject::PreRender()
     scene_->PushMatrix(scene_->TopMatrix() * properties_.modelMatrix);
 }
 
-void ZGameObject::Render(ZRenderOp renderOp)
+void ZGameObject::Render(double deltaTime, ZRenderOp renderOp)
 {
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
@@ -116,7 +116,7 @@ void ZGameObject::PostRender()
     scene_->PopMatrix();
 }
 
-void ZGameObject::RenderChildren(ZRenderOp renderOp)
+void ZGameObject::RenderChildren(double deltaTime, ZRenderOp renderOp)
 {
     ZGameObjectList::reverse_iterator it = children_.rbegin(), end = children_.rend();
     for (; it != end; it++)
@@ -125,7 +125,7 @@ void ZGameObject::RenderChildren(ZRenderOp renderOp)
         go->PreRender();
         if (go->IsVisible())
         {
-            go->Render(renderOp);
+            go->Render(deltaTime, renderOp);
         }
         go->RenderChildren(renderOp);
         go->PostRender();

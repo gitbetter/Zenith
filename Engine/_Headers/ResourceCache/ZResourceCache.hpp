@@ -64,6 +64,8 @@ public:
     ~ZResourceCache();
 
     void Initialize();
+    void CleanUp() { }
+
     void RegisterLoader(std::shared_ptr<ZResourceLoader> loader);
     void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
     std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);
@@ -91,6 +93,4 @@ protected:
     bool MakeRoom(unsigned int size);
     char* Allocate(unsigned int size);
     void FreeOneResource();
-
-    void CleanUp() {}
 };

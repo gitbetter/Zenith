@@ -266,11 +266,11 @@ void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
 	uiElementTemplates_ = ZUIElement::Load(objectTree);
 }
 
-void ZEditorScene::Update() {
+void ZEditorScene::Update(double deltaTime) {
 	for (std::shared_ptr<ZEditorTool> tool : tools_) {
 		tool->Update();
 	}
-	ZScene::Update();
+	ZScene::Update(deltaTime);
 }
 
 void ZEditorScene::HandleResourceLoaded(const std::shared_ptr<ZEvent>& event) {

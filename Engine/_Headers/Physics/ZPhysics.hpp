@@ -45,7 +45,7 @@ public:
 
     virtual void Initialize() override;
 
-    virtual void Update() override;
+    virtual void Update(double deltaTime) override;
 
     virtual void CleanUp() override;
 

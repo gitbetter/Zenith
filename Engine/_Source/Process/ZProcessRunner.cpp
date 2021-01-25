@@ -36,15 +36,15 @@ ZProcessRunner::~ZProcessRunner()
     ClearProcesses();
 }
 
-void ZProcessRunner::UpdateTick()
+void ZProcessRunner::UpdateTick(double deltaTime)
 {
     for (int priority = ZPriority::FirstPriority; priority < ZPriority::LastPriority; priority++)
     {
-        UpdateProcesses((ZPriority) priority);
+        UpdateProcesses(deltaTime, (ZPriority) priority);
     }
 }
 
-void ZProcessRunner::UpdateProcesses(ZPriority priority)
+void ZProcessRunner::UpdateProcesses(double deltaTime, ZPriority priority)
 {
     unsigned short int successCount = 0, failCount = 0;
 
@@ -63,7 +63,7 @@ void ZProcessRunner::UpdateProcesses(ZPriority priority)
 
         if (process->State() == ZProcessState::Running)
         {
-            process->Update();
+            process->Update(deltaTime);
         }
 
         if (process->IsDead())

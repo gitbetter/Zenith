@@ -34,9 +34,9 @@ void ZPhysics::Initialize()
     ZProcess::Initialize();
 }
 
-void ZPhysics::Update()
+void ZPhysics::Update(double deltaTime)
 {
-    ZProcess::Update();
+    ZProcess::Update(deltaTime);
 }
 
 void ZPhysics::CleanUp()

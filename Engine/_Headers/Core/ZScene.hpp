@@ -94,7 +94,7 @@ public:
     virtual ~ZScene() {}
 
     virtual void Initialize() override;
-    virtual void Update() override;
+    virtual void Update(double deltaTime) override;
     virtual void CleanUp() override;
     virtual void Play();
     virtual void Pause() override;

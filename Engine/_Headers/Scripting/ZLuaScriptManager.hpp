@@ -40,13 +40,10 @@
 class ZLuaScriptManager : public ZScriptManager
 {
 
-    typedef std::map<std::string, bool> ZScriptMap;
-
 private:
 
     sol::state lua_;
     std::string lastError_;
-    ZScriptMap scripts_;
 
 public:
 
@@ -57,12 +54,10 @@ public:
     ~ZLuaScriptManager() {}
 
     sol::state& LuaState() { return lua_; }
-    ZScriptMap& Scripts() { return scripts_; }
 
-    virtual void Initialize() override;
-    virtual void Load(std::shared_ptr<ZOFTree> zof) override;
-    virtual void LoadAsync(std::shared_ptr<ZOFTree> zof) override;
-    virtual void ExecuteFile(const std::string& resource) override;
-    virtual void ExecuteString(const std::string& script) override;
+    void Initialize() override;
+    void RegisterEventTypeWithScript(const std::string& key, ZEventType type) override;
+    void ExecuteFile(const std::string& resource) override;
+    void ExecuteString(const std::string& script) override;
 
 };

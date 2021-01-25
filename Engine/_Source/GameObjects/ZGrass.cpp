@@ -144,7 +144,7 @@ void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
     ZGrass::Initialize();
 }
 
-void ZGrass::Render(ZRenderOp renderOp)
+void ZGrass::Render(double deltaTime, ZRenderOp renderOp)
 {
     bool hasMaterials = !graphicsComp_->Materials().empty();
     if (!hasMaterials && zenith::Graphics()->Textures().find(textureId_) != zenith::Graphics()->Textures().end())
@@ -157,7 +157,7 @@ void ZGrass::Render(ZRenderOp renderOp)
 
     if (hasMaterials)
     {
-        time_ += zenith::DeltaTime();
+        time_ += deltaTime;
         for (auto it = polygons_.begin(); it != polygons_.end(); it++)
         {
             graphicsComp_->SetModel(*it);
