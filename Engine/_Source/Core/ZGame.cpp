@@ -52,15 +52,15 @@ void ZGame::Loop()
 
         zenith::ProcessRunner()->UpdateTick();
 
-        zenith::Graphics()->Strategy()->SwapBuffers();
+        zenith::Graphics()->SwapBuffers();
 
-        zenith::Domain()->Strategy()->PollEvents();
+        zenith::Domain()->PollEvents();
     }
 }
 
 bool ZGame::Running()
 {
-    return !zenith::Domain()->Strategy()->IsWindowClosing();
+    return !zenith::Domain()->IsWindowClosing();
 }
 
 void ZGame::AddScene(std::shared_ptr<ZScene> scene)

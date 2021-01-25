@@ -39,6 +39,15 @@
 #include "ZResourceExtraData.hpp"
 #include "ZModelReadyEvent.hpp"
 
+
+std::map<std::string, ZModel::Creator> ZModel::modelCreators_ = {
+    { "Cube", &ZModel::NewCubePrimitive },
+    { "Plane", &ZModel::NewPlanePrimitive },
+    { "Sphere", &ZModel::NewSpherePrimitive },
+    { "Cylinder", &ZModel::NewCylinderPrimitive },
+    { "Cone", &ZModel::NewConePrimitive }
+};
+
 ZModel::ZModel(ZPrimitiveType primitiveType, const glm::vec3& scale) : globalInverseTransform_(glm::mat4(1.f))
 {
     switch (primitiveType)
@@ -138,227 +147,6 @@ void ZModel::UpdateAABB(const glm::mat4& transform)
 {
     boundingBox_.minimum = transform * glm::vec4(boundingBox_.minimum, 1.f);
     boundingBox_.maximum = transform * glm::vec4(boundingBox_.maximum, 1.f);
-}
-
-/**
- *  Plane Creation
- */
-std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(const glm::vec3& scale)
-{
-    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Plane, scale));
-}
-
-void ZModel::CreatePlane(const glm::vec3& scale)
-{
-    float textureTiling = 1.f;
-
-    ZVertex3D topLeft(glm::vec3(-scale.x, 0.f, -scale.z)); topLeft.uv = glm::vec2(0.f, textureTiling);
-    ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.f, scale.z)); bottomLeft.uv = glm::vec2(0.f, 0.f);
-    ZVertex3D bottomRight(glm::vec3(scale.x, 0.f, scale.z)); bottomRight.uv = glm::vec2(textureTiling, 0.f);
-    ZVertex3D topRight(glm::vec3(scale.x, 0.f, -scale.z)); topRight.uv = glm::vec2(textureTiling, textureTiling);
-    ZGraphics::ComputeTangentBitangent(bottomLeft, bottomRight, topRight);
-    ZGraphics::ComputeTangentBitangent(bottomLeft, topRight, topLeft);
-
-    ZVertex3DDataOptions options;
-    options.vertices = std::vector<ZVertex3D>{
-        topLeft, bottomLeft, bottomRight, topRight
-    };
-    options.indices = std::vector<unsigned int>{
-        0, 1, 2,
-        0, 2, 3
-    };
-    
-
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
-    mesh->Initialize();
-    meshes_[mesh->ID()] = mesh;
-}
-
-/**
- *  Cube Creation
- */
-std::unique_ptr<ZModel> ZModel::NewCubePrimitive(const glm::vec3& scale)
-{
-    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cube, scale));
-}
-
-void ZModel::CreateCube(const glm::vec3& scale)
-{
-    float textureTiling = 1.f;
-
-    // Front face
-    ZVertex3D front_BottomLeft(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_BottomLeft.uv = glm::vec2(0.f, 0.f);
-    ZVertex3D front_BottomRight(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_BottomRight.uv = glm::vec2(textureTiling, 0.f);
-    ZVertex3D front_TopRight(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_TopRight.uv = glm::vec2(textureTiling, textureTiling);
-    ZVertex3D front_TopLeft(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_TopLeft.uv = glm::vec2(0.f, textureTiling);
-    ZGraphics::ComputeTangentBitangent(front_BottomLeft, front_BottomRight, front_TopRight);
-    ZGraphics::ComputeTangentBitangent(front_BottomLeft, front_TopRight, front_TopLeft);
-
-    // Back face
-    ZVertex3D back_BottomLeft(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_BottomLeft.uv = glm::vec2(0.f, 0.f);
-    ZVertex3D back_BottomRight(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_BottomRight.uv = glm::vec2(textureTiling, 0.f);
-    ZVertex3D back_TopRight(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_TopRight.uv = glm::vec2(textureTiling, textureTiling);
-    ZVertex3D back_TopLeft(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_TopLeft.uv = glm::vec2(0.f, textureTiling);
-    ZGraphics::ComputeTangentBitangent(back_BottomLeft, back_BottomRight, back_TopRight);
-    ZGraphics::ComputeTangentBitangent(back_BottomLeft, back_TopRight, back_TopLeft);
-
-    // Right Face
-    ZVertex3D right_BottomLeft(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(1.f, 0.f, 0.f)); right_BottomLeft.uv = glm::vec2(0.f, 0.f);
-    ZVertex3D right_BottomRight(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(1.f, 0.f, 0.f)); right_BottomRight.uv = glm::vec2(textureTiling, 0.f);
-    ZVertex3D right_TopRight(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(1.f, 0.f, 0.f)); right_TopRight.uv = glm::vec2(textureTiling, textureTiling);
-    ZVertex3D right_TopLeft(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(1.f, 0.f, 0.f)); right_TopLeft.uv = glm::vec2(0.f, textureTiling);
-    ZGraphics::ComputeTangentBitangent(right_BottomLeft, right_BottomRight, right_TopRight);
-    ZGraphics::ComputeTangentBitangent(right_BottomLeft, right_TopRight, right_TopLeft);
-
-    // Left face
-    ZVertex3D left_BottomLeft(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_BottomLeft.uv = glm::vec2(0.f, 0.f);
-    ZVertex3D left_BottomRight(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_BottomRight.uv = glm::vec2(textureTiling, 0.f);
-    ZVertex3D left_TopRight(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_TopRight.uv = glm::vec2(textureTiling, textureTiling);
-    ZVertex3D left_TopLeft(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_TopLeft.uv = glm::vec2(0.f, textureTiling);
-    ZGraphics::ComputeTangentBitangent(left_BottomLeft, left_BottomRight, left_TopRight);
-    ZGraphics::ComputeTangentBitangent(left_BottomLeft, left_TopRight, left_TopLeft);
-
-    // Top face
-    ZVertex3D top_BottomLeft(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(0.f, 1.f, 0.f)); top_BottomLeft.uv = glm::vec2(0.f, 0.f);
-    ZVertex3D top_BottomRight(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(0.f, 1.f, 0.f)); top_BottomRight.uv = glm::vec2(textureTiling, 0.f);
-    ZVertex3D top_TopRight(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(0.f, 1.f, 0.f)); top_TopRight.uv = glm::vec2(textureTiling, textureTiling);
-    ZVertex3D top_TopLeft(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(0.f, 1.f, 0.f)); top_TopLeft.uv = glm::vec2(0.f, textureTiling);
-    ZGraphics::ComputeTangentBitangent(top_BottomLeft, top_BottomRight, top_TopRight);
-    ZGraphics::ComputeTangentBitangent(top_BottomLeft, top_TopRight, top_TopLeft);
-
-    // Bottom face
-    ZVertex3D bottom_BottomLeft(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_BottomLeft.uv = glm::vec2(0.f, 0.f);
-    ZVertex3D bottom_BottomRight(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_BottomRight.uv = glm::vec2(textureTiling, 0.f);
-    ZVertex3D bottom_TopRight(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_TopRight.uv = glm::vec2(textureTiling, textureTiling);
-    ZVertex3D bottom_TopLeft(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_TopLeft.uv = glm::vec2(0.f, textureTiling);
-    ZGraphics::ComputeTangentBitangent(bottom_BottomLeft, bottom_BottomRight, bottom_TopRight);
-    ZGraphics::ComputeTangentBitangent(bottom_BottomLeft, bottom_TopRight, bottom_TopLeft);
-
-    ZVertex3DDataOptions options;
-    options.vertices = std::vector<ZVertex3D>{
-        front_BottomLeft, front_BottomRight, front_TopRight, front_TopLeft,
-        right_BottomLeft, right_BottomRight, right_TopRight, right_TopLeft,
-        back_BottomLeft, back_BottomRight, back_TopRight, back_TopLeft,
-        left_BottomLeft, left_BottomRight, left_TopRight, left_TopLeft,
-        top_BottomLeft, top_BottomRight, top_TopRight, top_TopLeft,
-        bottom_BottomLeft, bottom_BottomRight, bottom_TopRight, bottom_TopLeft
-    };
-    options.indices = std::vector<unsigned int>{
-        0, 1, 2, 0, 2, 3,
-        4, 5, 6, 4, 6, 7,
-        8, 9, 10, 8, 10, 11,
-        12, 13, 14, 12, 14, 15,
-        16, 17, 18, 16, 18, 19,
-        20, 21, 22, 20, 22, 23
-    };
-
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
-    mesh->Initialize();
-    meshes_[mesh->ID()] = mesh;
-}
-
-/**
- *  Sphere Creation
- */
-std::unique_ptr<ZModel> ZModel::NewSpherePrimitive(const glm::vec3& scale)
-{
-    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Sphere, scale));
-}
-
-void ZModel::CreateSphere(const glm::vec3& scale)
-{
-    ZVertex3DDataOptions options;
-
-    const unsigned int X_SEGMENTS = 64;
-    const unsigned int Y_SEGMENTS = 64;
-    for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
-    {
-        for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
-        {
-            float xSegment = (float) x / (float) X_SEGMENTS;
-            float ySegment = (float) y / (float) Y_SEGMENTS;
-            float xPos = glm::cos(xSegment * 2.0f * glm::pi<float>()) * glm::sin(ySegment * glm::pi<float>());
-            float yPos = glm::cos(ySegment * glm::pi<float>());
-            float zPos = glm::sin(xSegment * 2.0f * glm::pi<float>()) * glm::sin(ySegment * glm::pi<float>());
-
-            ZVertex3D vertex(glm::vec3(xPos * scale.x, yPos * scale.y, zPos * scale.z), glm::vec3(xPos, yPos, zPos));
-            vertex.uv = glm::vec2(xSegment, ySegment);
-
-            options.vertices.push_back(vertex);
-        }
-    }
-
-    bool oddRow = false;
-    for (int y = 0; y < Y_SEGMENTS; ++y)
-    {
-        if (!oddRow)
-        {
-            for (int x = 0; x <= X_SEGMENTS; ++x)
-            {
-                options.indices.push_back(y * (X_SEGMENTS + 1) + x);
-                options.indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-            }
-        }
-        else
-        {
-            for (int x = X_SEGMENTS; x >= 0; --x)
-            {
-                options.indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
-                options.indices.push_back(y * (X_SEGMENTS + 1) + x);
-            }
-        }
-        oddRow = !oddRow;
-    }
-
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options, ZMeshDrawStyle::TriangleStrip);
-    mesh->Initialize();
-    meshes_[mesh->ID()] = mesh;
-}
-
-/**
- *  Cylinder Creation
- */
-std::unique_ptr<ZModel> ZModel::NewCylinderPrimitive(const glm::vec3& scale)
-{
-    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cylinder, scale));
-}
-
-void ZModel::CreateCylinder(const glm::vec3& scale)
-{
-
-}
-
-/**
- *  Cone Creation
- */
-std::unique_ptr<ZModel> ZModel::NewConePrimitive(const glm::vec3& scale)
-{
-    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cone, scale));
-}
-
-void ZModel::CreateCone(const glm::vec3& scale)
-{
-
-}
-
-/**
- *  Skybox Creation
- */
-std::unique_ptr<ZModel> ZModel::NewSkybox(ZIBLTexture& generatedIBLTexture, const std::vector<std::string>& faces)
-{
-    generatedIBLTexture.cubeMap = zenith::Graphics()->Strategy()->LoadCubeMap(faces);
-
-    return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-}
-
-std::unique_ptr<ZModel> ZModel::NewSkybox(const ZTexture& cubeMap, const ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture)
-{
-    generatedIBLTexture.cubeMap = cubeMap;
-    generatedIBLTexture.irradiance = zenith::Graphics()->Strategy()->IrradianceMapFromCubeMap(bufferData, cubeMap);
-    generatedIBLTexture.prefiltered = zenith::Graphics()->Strategy()->PrefilterCubeMap(bufferData, cubeMap);
-    generatedIBLTexture.brdfLUT = zenith::Graphics()->Strategy()->BRDFLUT(bufferData);
-
-    return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }
 
 void ZModel::SetInstanceData(const ZInstancedDataOptions& instanceData)
@@ -536,3 +324,282 @@ void ZModel::HandleModelLoaded(const std::shared_ptr<ZEvent>& event)
     }
 }
 
+void ZModel::CreateAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingModels)
+{
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    {
+        if (it->first.find("ZMOD") == 0)
+        {
+            std::string path;
+            std::shared_ptr<ZOFObjectNode> textureNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+            if (textureNode->properties.find("path") != textureNode->properties.end())
+            {
+                std::shared_ptr<ZOFString> pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
+                path = pathStr->value;
+            }
+
+            if (!path.empty())
+            {
+                std::shared_ptr<ZModel> model(new ZModel(path));
+                outPendingModels[model] = it->first;
+            }
+        }
+    }
+
+    for (auto it = outPendingModels.begin(); it != outPendingModels.end(); it++)
+    {
+        it->first->InitializeAsync();
+    }
+}
+
+void ZModel::Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap)
+{
+    ZModelMap models;
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    {
+        if (it->first.find("ZMOD") == 0)
+        {
+            std::string path;
+            std::shared_ptr<ZOFObjectNode> textureNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+            if (textureNode->properties.find("path") != textureNode->properties.end())
+            {
+                std::shared_ptr<ZOFString> pathStr = textureNode->properties["path"]->Value<ZOFString>(0);
+                path = pathStr->value;
+            }
+
+            if (!path.empty())
+            {
+                std::shared_ptr<ZModel> model(new ZModel(path));
+                model->Initialize();
+                models[it->first] = model;
+            }
+        }
+    }
+    outModelMap = models;
+}
+
+std::unique_ptr<ZModel> ZModel::Create(const std::string& type, const glm::vec3& scale)
+{
+    return modelCreators_[type](scale);
+}
+
+/**
+ *  Plane Creation
+ */
+std::unique_ptr<ZModel> ZModel::NewPlanePrimitive(const glm::vec3& scale)
+{
+    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Plane, scale));
+}
+
+void ZModel::CreatePlane(const glm::vec3& scale)
+{
+    float textureTiling = 1.f;
+
+    ZVertex3D topLeft(glm::vec3(-scale.x, 0.f, -scale.z)); topLeft.uv = glm::vec2(0.f, textureTiling);
+    ZVertex3D bottomLeft(glm::vec3(-scale.x, 0.f, scale.z)); bottomLeft.uv = glm::vec2(0.f, 0.f);
+    ZVertex3D bottomRight(glm::vec3(scale.x, 0.f, scale.z)); bottomRight.uv = glm::vec2(textureTiling, 0.f);
+    ZVertex3D topRight(glm::vec3(scale.x, 0.f, -scale.z)); topRight.uv = glm::vec2(textureTiling, textureTiling);
+    ZGraphics::ComputeTangentBitangent(bottomLeft, bottomRight, topRight);
+    ZGraphics::ComputeTangentBitangent(bottomLeft, topRight, topLeft);
+
+    ZVertex3DDataOptions options;
+    options.vertices = std::vector<ZVertex3D>{
+        topLeft, bottomLeft, bottomRight, topRight
+    };
+    options.indices = std::vector<unsigned int>{
+        0, 1, 2,
+        0, 2, 3
+    };
+
+
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
+    mesh->Initialize();
+    meshes_[mesh->ID()] = mesh;
+}
+
+/**
+ *  Cube Creation
+ */
+std::unique_ptr<ZModel> ZModel::NewCubePrimitive(const glm::vec3& scale)
+{
+    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cube, scale));
+}
+
+void ZModel::CreateCube(const glm::vec3& scale)
+{
+    float textureTiling = 1.f;
+
+    // Front face
+    ZVertex3D front_BottomLeft(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_BottomLeft.uv = glm::vec2(0.f, 0.f);
+    ZVertex3D front_BottomRight(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_BottomRight.uv = glm::vec2(textureTiling, 0.f);
+    ZVertex3D front_TopRight(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_TopRight.uv = glm::vec2(textureTiling, textureTiling);
+    ZVertex3D front_TopLeft(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(0.f, 0.f, 1.f)); front_TopLeft.uv = glm::vec2(0.f, textureTiling);
+    ZGraphics::ComputeTangentBitangent(front_BottomLeft, front_BottomRight, front_TopRight);
+    ZGraphics::ComputeTangentBitangent(front_BottomLeft, front_TopRight, front_TopLeft);
+
+    // Back face
+    ZVertex3D back_BottomLeft(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_BottomLeft.uv = glm::vec2(0.f, 0.f);
+    ZVertex3D back_BottomRight(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_BottomRight.uv = glm::vec2(textureTiling, 0.f);
+    ZVertex3D back_TopRight(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_TopRight.uv = glm::vec2(textureTiling, textureTiling);
+    ZVertex3D back_TopLeft(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(0.f, 0.f, -1.f)); back_TopLeft.uv = glm::vec2(0.f, textureTiling);
+    ZGraphics::ComputeTangentBitangent(back_BottomLeft, back_BottomRight, back_TopRight);
+    ZGraphics::ComputeTangentBitangent(back_BottomLeft, back_TopRight, back_TopLeft);
+
+    // Right Face
+    ZVertex3D right_BottomLeft(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(1.f, 0.f, 0.f)); right_BottomLeft.uv = glm::vec2(0.f, 0.f);
+    ZVertex3D right_BottomRight(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(1.f, 0.f, 0.f)); right_BottomRight.uv = glm::vec2(textureTiling, 0.f);
+    ZVertex3D right_TopRight(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(1.f, 0.f, 0.f)); right_TopRight.uv = glm::vec2(textureTiling, textureTiling);
+    ZVertex3D right_TopLeft(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(1.f, 0.f, 0.f)); right_TopLeft.uv = glm::vec2(0.f, textureTiling);
+    ZGraphics::ComputeTangentBitangent(right_BottomLeft, right_BottomRight, right_TopRight);
+    ZGraphics::ComputeTangentBitangent(right_BottomLeft, right_TopRight, right_TopLeft);
+
+    // Left face
+    ZVertex3D left_BottomLeft(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_BottomLeft.uv = glm::vec2(0.f, 0.f);
+    ZVertex3D left_BottomRight(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_BottomRight.uv = glm::vec2(textureTiling, 0.f);
+    ZVertex3D left_TopRight(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_TopRight.uv = glm::vec2(textureTiling, textureTiling);
+    ZVertex3D left_TopLeft(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(-1.f, 0.f, 0.f)); left_TopLeft.uv = glm::vec2(0.f, textureTiling);
+    ZGraphics::ComputeTangentBitangent(left_BottomLeft, left_BottomRight, left_TopRight);
+    ZGraphics::ComputeTangentBitangent(left_BottomLeft, left_TopRight, left_TopLeft);
+
+    // Top face
+    ZVertex3D top_BottomLeft(glm::vec3(-scale.x, scale.y, scale.z), glm::vec3(0.f, 1.f, 0.f)); top_BottomLeft.uv = glm::vec2(0.f, 0.f);
+    ZVertex3D top_BottomRight(glm::vec3(scale.x, scale.y, scale.z), glm::vec3(0.f, 1.f, 0.f)); top_BottomRight.uv = glm::vec2(textureTiling, 0.f);
+    ZVertex3D top_TopRight(glm::vec3(scale.x, scale.y, -scale.z), glm::vec3(0.f, 1.f, 0.f)); top_TopRight.uv = glm::vec2(textureTiling, textureTiling);
+    ZVertex3D top_TopLeft(glm::vec3(-scale.x, scale.y, -scale.z), glm::vec3(0.f, 1.f, 0.f)); top_TopLeft.uv = glm::vec2(0.f, textureTiling);
+    ZGraphics::ComputeTangentBitangent(top_BottomLeft, top_BottomRight, top_TopRight);
+    ZGraphics::ComputeTangentBitangent(top_BottomLeft, top_TopRight, top_TopLeft);
+
+    // Bottom face
+    ZVertex3D bottom_BottomLeft(glm::vec3(-scale.x, -scale.y, scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_BottomLeft.uv = glm::vec2(0.f, 0.f);
+    ZVertex3D bottom_BottomRight(glm::vec3(scale.x, -scale.y, scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_BottomRight.uv = glm::vec2(textureTiling, 0.f);
+    ZVertex3D bottom_TopRight(glm::vec3(scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_TopRight.uv = glm::vec2(textureTiling, textureTiling);
+    ZVertex3D bottom_TopLeft(glm::vec3(-scale.x, -scale.y, -scale.z), glm::vec3(0.f, -1.f, 0.f)); bottom_TopLeft.uv = glm::vec2(0.f, textureTiling);
+    ZGraphics::ComputeTangentBitangent(bottom_BottomLeft, bottom_BottomRight, bottom_TopRight);
+    ZGraphics::ComputeTangentBitangent(bottom_BottomLeft, bottom_TopRight, bottom_TopLeft);
+
+    ZVertex3DDataOptions options;
+    options.vertices = std::vector<ZVertex3D>{
+        front_BottomLeft, front_BottomRight, front_TopRight, front_TopLeft,
+        right_BottomLeft, right_BottomRight, right_TopRight, right_TopLeft,
+        back_BottomLeft, back_BottomRight, back_TopRight, back_TopLeft,
+        left_BottomLeft, left_BottomRight, left_TopRight, left_TopLeft,
+        top_BottomLeft, top_BottomRight, top_TopRight, top_TopLeft,
+        bottom_BottomLeft, bottom_BottomRight, bottom_TopRight, bottom_TopLeft
+    };
+    options.indices = std::vector<unsigned int>{
+        0, 1, 2, 0, 2, 3,
+        4, 5, 6, 4, 6, 7,
+        8, 9, 10, 8, 10, 11,
+        12, 13, 14, 12, 14, 15,
+        16, 17, 18, 16, 18, 19,
+        20, 21, 22, 20, 22, 23
+    };
+
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
+    mesh->Initialize();
+    meshes_[mesh->ID()] = mesh;
+}
+
+/**
+ *  Sphere Creation
+ */
+std::unique_ptr<ZModel> ZModel::NewSpherePrimitive(const glm::vec3& scale)
+{
+    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Sphere, scale));
+}
+
+void ZModel::CreateSphere(const glm::vec3& scale)
+{
+    ZVertex3DDataOptions options;
+
+    const unsigned int X_SEGMENTS = 64;
+    const unsigned int Y_SEGMENTS = 64;
+    for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
+    {
+        for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
+        {
+            float xSegment = (float)x / (float)X_SEGMENTS;
+            float ySegment = (float)y / (float)Y_SEGMENTS;
+            float xPos = glm::cos(xSegment * 2.0f * glm::pi<float>()) * glm::sin(ySegment * glm::pi<float>());
+            float yPos = glm::cos(ySegment * glm::pi<float>());
+            float zPos = glm::sin(xSegment * 2.0f * glm::pi<float>()) * glm::sin(ySegment * glm::pi<float>());
+
+            ZVertex3D vertex(glm::vec3(xPos * scale.x, yPos * scale.y, zPos * scale.z), glm::vec3(xPos, yPos, zPos));
+            vertex.uv = glm::vec2(xSegment, ySegment);
+
+            options.vertices.push_back(vertex);
+        }
+    }
+
+    bool oddRow = false;
+    for (int y = 0; y < Y_SEGMENTS; ++y)
+    {
+        if (!oddRow)
+        {
+            for (int x = 0; x <= X_SEGMENTS; ++x)
+            {
+                options.indices.push_back(y * (X_SEGMENTS + 1) + x);
+                options.indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+            }
+        }
+        else
+        {
+            for (int x = X_SEGMENTS; x >= 0; --x)
+            {
+                options.indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+                options.indices.push_back(y * (X_SEGMENTS + 1) + x);
+            }
+        }
+        oddRow = !oddRow;
+    }
+
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options, ZMeshDrawStyle::TriangleStrip);
+    mesh->Initialize();
+    meshes_[mesh->ID()] = mesh;
+}
+
+/**
+ *  Cylinder Creation
+ */
+std::unique_ptr<ZModel> ZModel::NewCylinderPrimitive(const glm::vec3& scale)
+{
+    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cylinder, scale));
+}
+
+void ZModel::CreateCylinder(const glm::vec3& scale)
+{
+
+}
+
+/**
+ *  Cone Creation
+ */
+std::unique_ptr<ZModel> ZModel::NewConePrimitive(const glm::vec3& scale)
+{
+    return std::unique_ptr<ZModel>(new ZModel(ZPrimitiveType::Cone, scale));
+}
+
+void ZModel::CreateCone(const glm::vec3& scale)
+{
+
+}
+
+/**
+ *  Skybox Creation
+ */
+std::unique_ptr<ZModel> ZModel::NewSkybox(ZIBLTexture& generatedIBLTexture, const std::vector<std::string>& faces)
+{
+    generatedIBLTexture.cubeMap = zenith::Graphics()->LoadCubeMap(faces);
+
+    return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+}
+
+std::unique_ptr<ZModel> ZModel::NewSkybox(const ZTexture& cubeMap, const ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture)
+{
+    generatedIBLTexture.cubeMap = cubeMap;
+    generatedIBLTexture.irradiance = zenith::Graphics()->IrradianceMapFromCubeMap(bufferData, cubeMap);
+    generatedIBLTexture.prefiltered = zenith::Graphics()->PrefilterCubeMap(bufferData, cubeMap);
+    generatedIBLTexture.brdfLUT = zenith::Graphics()->BRDFLUT(bufferData);
+
+    return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+}

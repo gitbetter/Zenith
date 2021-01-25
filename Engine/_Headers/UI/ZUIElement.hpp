@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZMesh2D.hpp"
+#include "ZTexture.hpp"
 #include "ZProcess.hpp"
 #include "ZStringHelpers.hpp"
 #include "ZUIHelpers.hpp"
@@ -73,6 +74,8 @@ class ZUIElement : public ZProcess, public std::enable_shared_from_this<ZUIEleme
 
     friend class ZScene;
     friend class ZUI;
+
+    using Creator = std::shared_ptr<ZUIElement>(*)(std::shared_ptr<ZOFNode> root);
 
 private:
 
@@ -168,6 +171,14 @@ public:
         return el;
     }
 
+    static ZUIElementMap Load(std::shared_ptr<ZOFTree> data);
+    static std::shared_ptr<ZUIElement> CreateUIButton(std::shared_ptr<ZOFNode> root);
+    static std::shared_ptr<ZUIElement> CreateUIImage(std::shared_ptr<ZOFNode> root);
+    static std::shared_ptr<ZUIElement> CreateUIPanel(std::shared_ptr<ZOFNode> root);
+    static std::shared_ptr<ZUIElement> CreateUIText(std::shared_ptr<ZOFNode> root);
+    static std::shared_ptr<ZUIElement> CreateUICheckbox(std::shared_ptr<ZOFNode> root);
+    static std::shared_ptr<ZUIElement> CreateUIListPanel(std::shared_ptr<ZOFNode> root);
+
 protected:
 
     bool                                     dirty_;
@@ -177,5 +188,7 @@ protected:
     ZUIElementMap                            children_;
     ZUIElementType                           type_;
     ZUIElementOptions                        options_;
+
+    static std::map<std::string, Creator> elementCreators_;
 
 };

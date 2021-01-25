@@ -26,4 +26,62 @@
   You should have received a copy of the GNU General Public License
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include "ZComponent.hpp"
+#include "ZGraphicsComponent.hpp"
+#include "ZCameraComponent.hpp"
+#include "ZPhysicsComponent.hpp"
+#include "ZAnimatorComponent.hpp"
+#include "ZGameObject.hpp"
+
+std::map<std::string, ZComponent::Creator> ZComponent::componentCreators_ = {
+    { "GraphicsComponent", &ZComponent::CreateGraphicsComponent },
+    { "CameraComponent", &ZComponent::CreateCameraComponent },
+    { "PhysicsComponent", &ZComponent::CreatePhysicsComponent },
+    { "AnimatorComponent", &ZComponent::CreateAnimatorComponent }
+};
+
+
+std::shared_ptr<ZComponent> ZComponent::CreateGraphicsComponent(const std::shared_ptr<ZGameObject>& gameObject)
+{
+    std::shared_ptr<ZGraphicsComponent> comp(new ZGraphicsComponent);
+    gameObject->AddComponent(comp);
+    return comp;
+}
+
+std::shared_ptr<ZComponent> ZComponent::CreateCameraComponent(const std::shared_ptr<ZGameObject>& gameObject)
+{
+    std::shared_ptr<ZCameraComponent> comp(new ZCameraComponent);
+    gameObject->AddComponent(comp);
+    return comp;
+}
+
+std::shared_ptr<ZComponent> ZComponent::CreatePhysicsComponent(const std::shared_ptr<ZGameObject>& gameObject)
+{
+    std::shared_ptr<ZPhysicsComponent> comp(new ZPhysicsComponent);
+    gameObject->AddComponent(comp);
+    return comp;
+}
+
+std::shared_ptr<ZComponent> ZComponent::CreateAnimatorComponent(const std::shared_ptr<ZGameObject>& gameObject)
+{
+    std::shared_ptr<ZAnimatorComponent> comp(new ZAnimatorComponent);
+    gameObject->AddComponent(comp);
+    return comp;
+}
+
+void ZComponent::CreateIn(const std::string& type, const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data)
+{
+    if (componentCreators_.find(type) != componentCreators_.end())
+    {
+        std::shared_ptr<ZComponent> comp = (componentCreators_[type])(gameObject);
+        if (data) {
+            comp->Initialize(data);
+        }
+        else {
+            comp->Initialize();
+        }
+    }
+    else
+    {
+        zenith::Log("Component " + type + " is not available for creation", ZSeverity::Warning);
+    }
+}

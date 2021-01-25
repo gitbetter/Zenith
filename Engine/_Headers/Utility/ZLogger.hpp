@@ -30,20 +30,35 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 // class SomeClass;
 
 // Class and Data Structure Definitions
+enum class ZSeverity
+{
+    Info, Warning, Error
+};
+
 struct ZLogEntry
 {
-    ZSeverity severity;
+    ZSeverity severity;    
+    std::string file;
+    unsigned int line;
     std::string text;
 
-    ZLogEntry() : severity(ZSeverity::Info), text("") {}
-    ZLogEntry(const std::string& text, ZSeverity severity) : severity(severity), text(text) {}
+    ZLogEntry()
+        : severity(ZSeverity::Info), file(""), line(0), text("")
+    { }
+    ZLogEntry(const std::string& text, const std::string& file, unsigned int line, ZSeverity severity)
+        : severity(severity), file(file), line(line), text(text)
+    { }
 };
+
+namespace zenith {
+    extern void Log(const std::string& text, ZSeverity severity);
+}
 
 class ZLogger
 {
@@ -57,14 +72,13 @@ private:
 
     std::vector<ZLogEntry> logBuffer_;
 
-public:
+    void AddEntry(const ZLogEntry& entry);
 
-    ZLogger() {}
-    ~ZLogger() {}
+public:
 
     const std::vector<ZLogEntry>& Buffer() const { return logBuffer_; }
 
-    void AddEntry(ZLogEntry entry);
+    void Log(const ZLogEntry& entry);
     void Clear() { logBuffer_.clear(); }
 
 };

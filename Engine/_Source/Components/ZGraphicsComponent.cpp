@@ -28,7 +28,6 @@
 */
 
 #include "ZGraphicsComponent.hpp"
-#include "ZGraphicsFactory.hpp"
 #include "ZDomain.hpp"
 #include "ZCameraComponent.hpp"
 #include "ZModel.hpp"
@@ -129,11 +128,11 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
             if (props["model"]->ValueCount() > 1)
             {
                 std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);
-                modelObject_ = zenith::GraphicsFactory()->CreateModel(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
+                modelObject_ = ZModel::Create(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
             }
             else
             {
-                modelObject_ = zenith::GraphicsFactory()->CreateModel(nameProp->value);
+                modelObject_ = ZModel::Create(nameProp->value);
             }
             modelObject_->SetInstanceData(instanceData_);
         }
@@ -195,8 +194,8 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp)
     }
 
     // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
-    zenith::Graphics()->Strategy()->EnableStencilBuffer();
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
+    zenith::Graphics()->EnableStencilBuffer();
+    zenith::Graphics()->EnableAlphaBlending();
 
     if (shader)
     {
@@ -204,8 +203,8 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp)
 
         if (renderOp == ZRenderOp::Color)
         {
-            zenith::Graphics()->Strategy()->BindTexture(zenith::Graphics()->DepthBuffer(), 0);
-            zenith::Graphics()->Strategy()->BindTexture(zenith::Graphics()->ShadowBuffer(), 1);
+            zenith::Graphics()->BindTexture(zenith::Graphics()->DepthBuffer(), 0);
+            zenith::Graphics()->BindTexture(zenith::Graphics()->ShadowBuffer(), 1);
             shader->SetInt("depthTexture", 0);
             shader->SetInt("shadowTexture", 1);
         }
@@ -220,18 +219,18 @@ void ZGraphicsComponent::Render(ZRenderOp renderOp)
 
         if (object_->Scene()->Skybox() != nullptr)
         {
-            zenith::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 3);
+            zenith::Graphics()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 3);
             shader->SetInt("irradianceMap", 3);
-            zenith::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 4);
+            zenith::Graphics()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 4);
             shader->SetInt("prefilterMap", 4);
-            zenith::Graphics()->Strategy()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 5);
+            zenith::Graphics()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 5);
             shader->SetInt("brdfLUT", 5);
         }
 
         modelObject_->Render(shader.get(), materials_);
     }
 
-    zenith::Graphics()->Strategy()->DisableAlphaBlending();
+    zenith::Graphics()->DisableAlphaBlending();
     DrawOutlineIfEnabled(modelMatrix, object_->Scene()->ViewProjection());
 }
 
@@ -287,7 +286,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm:
 {
     if (highlightShader_ == nullptr) return;
 
-    zenith::Graphics()->Strategy()->DisableStencilBuffer();
+    zenith::Graphics()->DisableStencilBuffer();
     highlightShader_->Activate();
 
     glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.03f, 1.03f, 1.03f));
@@ -298,7 +297,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm:
 
     modelObject_->Render(highlightShader_.get(), materials_);
 
-    zenith::Graphics()->Strategy()->EnableStencilBuffer();
+    zenith::Graphics()->EnableStencilBuffer();
 }
 
 void ZGraphicsComponent::ClearOutline()

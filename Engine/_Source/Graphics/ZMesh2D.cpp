@@ -34,7 +34,7 @@
 
 void ZMesh2D::Initialize()
 {
-    bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(vertexData_);
+    bufferData_ = zenith::Graphics()->LoadVertexData(vertexData_);
 }
 
 void ZMesh2D::Render(ZShader* shader, ZMaterial* material)
@@ -47,7 +47,7 @@ void ZMesh2D::Render(ZShader* shader, ZMaterial* material)
     {
         shader->SetBool("instanced", true);
     }
-    zenith::Graphics()->Strategy()->Draw(bufferData_, vertexData_);
+    zenith::Graphics()->Draw(bufferData_, vertexData_);
 }
 
 std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad()

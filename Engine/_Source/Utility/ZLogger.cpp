@@ -29,8 +29,42 @@
 
 #include "ZLogger.hpp"
 
-void ZLogger::AddEntry(ZLogEntry entry)
+namespace zenith {
+    void Log(const std::string& text, ZSeverity severity)
+    {
+        static ZLogger logger;
+
+        ZLogEntry entry;
+        entry.file = std::string(__FILE__);
+        entry.line = (unsigned int) __LINE__;
+        entry.severity = severity;
+        entry.text = text;
+
+        logger.Log(entry);
+    }
+}
+
+void ZLogger::Log(const ZLogEntry& entry)
+{
+    AddEntry(entry);
+#ifdef DEV_BUILD
+    switch (entry.severity)
+    {
+    case ZSeverity::Info:
+        std::cout << "\033[1;97m" << "[Info]: " << entry.file << ":" << entry.line << ": " << entry.text << "\033[0m" << std::endl;
+        break;
+    case ZSeverity::Warning:
+        std::cout << "\033[1;33m" << "[Warning]: " << entry.file << ":" << entry.line << ": " << entry.text << "\033[0m" << std::endl;
+        break;
+    case ZSeverity::Error:
+        std::cout << "\033[1;91m" << "[Error]: " << entry.file << ":" << entry.line << ": " << entry.text << "\033[0m" << std::endl;
+        break;
+    }
+#endif
+}
+
+void ZLogger::AddEntry(const ZLogEntry& entry)
 {
     std::lock_guard<std::mutex> lockBuffer(loggerMutexes_.buffer);
-    logBuffer_.push_back(entry);
+    logBuffer_.emplace_back(entry);
 }

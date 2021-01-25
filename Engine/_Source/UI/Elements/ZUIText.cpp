@@ -54,7 +54,7 @@ void ZUIText::Initialize() {
 
     ZVertex2DDataOptions options;
     options.numVertices = 4;
-    bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(options);
+    bufferData_ = zenith::Graphics()->LoadVertexData(options);
 
     options_.shader = zenith::UI()->TextShader();
 }

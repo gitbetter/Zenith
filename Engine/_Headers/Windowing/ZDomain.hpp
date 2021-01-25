@@ -41,33 +41,42 @@ class ZDomain
 
 public:
 
-    ZDomain(const ZDomainOptions& options) : options_(options) {}
+    ZDomain(const ZDomainOptions& options) : options_(options), window_(nullptr) {}
     ZDomain(unsigned int windowWidth, unsigned int windowHeight);
     virtual ~ZDomain() {}
 
     void Initialize();
 
-    unsigned int WindowWidth() const { return options_.width; }
-    unsigned int WindowHeight() const { return options_.height; }
-    unsigned int ResolutionX() const { return resolutionX_; }
-    unsigned int ResolutionY() const { return resolutionY_; }
-    float ResolutionXRatio() const { return (float) resolutionX_ / zenith::DEFAULT_X_RESOLUTION; }
-    float ResolutionYRatio() const { return (float) resolutionY_ / zenith::DEFAULT_Y_RESOLUTION; }
-    float Aspect() const { return (float) resolutionX_ / (float) resolutionY_; }
+    unsigned int WindowWidth() const { return options_.windowSize.x; }
+    unsigned int WindowHeight() const { return options_.windowSize.y; }
+    unsigned int ResolutionX() const { return options_.resolution.x; }
+    unsigned int ResolutionY() const { return options_.resolution.y; }
+    float ResolutionXRatio() const { return (float)options_.resolution.x / zenith::DEFAULT_X_RESOLUTION; }
+    float ResolutionYRatio() const { return (float)options_.resolution.y / zenith::DEFAULT_Y_RESOLUTION; }
+    float Aspect() const { return (float)options_.resolution.x / (float)options_.resolution.y; }
 
-    ZDomainStrategy* Strategy() { return domainStrategy_.get(); }
-    void* MainContext() { return mainContext_; }
+    void* Window() { return window_; }
 
-    void ResizeWindow(int width, int height);
-    void SetResolution(unsigned int x, unsigned int y);
-
+    void PollEvents();
+    void CaptureCursor();
+    void ReleaseCursor();
+    void HideCursor();
+    void ShowCursor();
+    bool IsCursorCaptured();
+    bool IsCursorHidden();
+    glm::vec2 FramebufferSize();
+    void CloseWindow();
+    bool IsWindowClosing();
+    void SetWindowSize(int x, int y);
+    void SetResolution(int x, int y);
+    void SetWindow(void* window);
+    void DestroyWindow(void* window);
     void CleanUp();
 
 protected:
 
     std::unique_ptr<ZDomainStrategy> domainStrategy_;
     ZDomainOptions options_;
-    unsigned int resolutionX_, resolutionY_;
-    void* mainContext_;
+    void* window_;
 
 };

@@ -92,7 +92,7 @@ public:
     void Use(const ZLightMap& lights);
     void Use(const ZBoneList& bones);
 
-protected:
-
-
+    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendingShaders);
+    static void Create(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap);
+    static std::shared_ptr<ZShader> Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "");
 };

@@ -29,11 +29,13 @@
 
 #include "ZDomain.hpp"
 #include "ZGLDomainStrategy.hpp"
+#include "ZWindowResizeEvent.hpp"
+#include "ZEventAgent.hpp"
 
 ZDomain::ZDomain(unsigned int windowWidth, unsigned int windowHeight)
 {
-    options_.width = windowWidth;
-    options_.height = windowHeight;
+    options_.windowSize.x = windowWidth;
+    options_.windowSize.y = windowHeight;
 }
 
 void ZDomain::Initialize()
@@ -42,25 +44,129 @@ void ZDomain::Initialize()
     {
         domainStrategy_.reset(new ZGLDomainStrategy);
         domainStrategy_->Initialize();
-        mainContext_ = domainStrategy_->CreateWindow(options_.width, options_.height, options_.maximized, options_.visible);
+        window_ = domainStrategy_->CreateWindow(options_.windowSize.x, options_.windowSize.y, options_.maximized, options_.visible);
+        if (!window_) {
+            zenith::Log("Could not create glfw window", ZSeverity::Error);
+            return;
+        }
+
+        domainStrategy_->OnFramebufferResized([this](int width, int height) {
+            this->options_.resolution.x = width; this->options_.resolution.y = height;
+        });
+
+        domainStrategy_->OnWindowResized([this](int width, int height) {
+            std::shared_ptr<ZWindowResizeEvent> windowResizeEvent = std::make_shared<ZWindowResizeEvent>();
+            zenith::EventAgent()->QueueEvent(windowResizeEvent);
+        });
 
         glm::vec2 frameBufferSize = domainStrategy_->FramebufferSize();
-        resolutionX_ = frameBufferSize.x; resolutionY_ = frameBufferSize.y;
+        options_.resolution.x = frameBufferSize.x; options_.resolution.y = frameBufferSize.y;
     }
 }
 
-void ZDomain::ResizeWindow(int width, int height)
+void ZDomain::PollEvents()
 {
-    if (domainStrategy_ != nullptr)
-    {
-        domainStrategy_->Resize(width, height);
+    if (domainStrategy_) {
+        domainStrategy_->PollEvents();
     }
-    options_.width = width; options_.height = height;
 }
 
-void ZDomain::SetResolution(unsigned int x, unsigned int y)
+void ZDomain::CaptureCursor()
 {
-    resolutionX_ = x; resolutionY_ = y;
+    if (domainStrategy_) {
+        domainStrategy_->CaptureCursor();
+    }
+}
+
+void ZDomain::ReleaseCursor()
+{
+    if (domainStrategy_) {
+        domainStrategy_->ReleaseCursor();
+    }
+}
+
+void ZDomain::HideCursor()
+{
+    if (domainStrategy_) {
+        domainStrategy_->HideCursor();
+    }
+}
+
+void ZDomain::ShowCursor()
+{
+    if (domainStrategy_) {
+        domainStrategy_->ShowCursor();
+    }
+}
+
+bool ZDomain::IsCursorCaptured()
+{
+    if (domainStrategy_) {
+        return domainStrategy_->IsCursorCaptured();
+    }
+}
+
+bool ZDomain::IsCursorHidden()
+{
+    if (domainStrategy_) {
+        return domainStrategy_->IsCursorHidden();
+    }
+    return true;
+}
+
+glm::vec2 ZDomain::FramebufferSize()
+{
+    if (domainStrategy_) {
+        return domainStrategy_->FramebufferSize();
+    }
+    return glm::vec2(0.f);
+}
+
+void ZDomain::CloseWindow()
+{
+    if (domainStrategy_) {
+        domainStrategy_->CloseWindow();
+    }
+}
+
+bool ZDomain::IsWindowClosing()
+{
+    if (domainStrategy_) {
+        return domainStrategy_->IsWindowClosing();
+    }
+    return false;
+}
+
+void ZDomain::SetWindowSize(int width, int height)
+{
+    if (domainStrategy_) {
+        domainStrategy_->ResizeWindow(width, height);
+    }
+    options_.windowSize.x = width; options_.windowSize.y = height;
+}
+
+void ZDomain::SetResolution(int x, int y)
+{
+    if (domainStrategy_) {
+        domainStrategy_->ResizeFramebuffer(x, y);
+    }
+    options_.resolution.x = x; options_.resolution.y = y;
+}
+
+void ZDomain::SetWindow(void* window)
+{
+    if (domainStrategy_) {
+        window_ = window;
+        domainStrategy_->SetWindow(window);
+    }
+}
+
+void ZDomain::DestroyWindow(void* window)
+{
+    if (domainStrategy_) {
+        domainStrategy_->DestroyWindow(window);
+        window_ = nullptr;
+    }
 }
 
 void ZDomain::CleanUp()
@@ -69,5 +175,6 @@ void ZDomain::CleanUp()
     {
         domainStrategy_->CleanUp();
         domainStrategy_.reset();
+        window_ = nullptr;
     }
 }

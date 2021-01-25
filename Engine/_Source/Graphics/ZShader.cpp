@@ -36,6 +36,7 @@
 #include "ZEventAgent.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZShaderReadyEvent.hpp"
+#include "ZOFTree.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -303,7 +304,7 @@ void ZShader::Use(ZMaterial* material)
     {
         ZTexture texture = material->Textures()[i];
         SetInt(texture.type, i + startIndex);
-        zenith::Graphics()->Strategy()->BindTexture(texture, i + startIndex);
+        zenith::Graphics()->BindTexture(texture, i + startIndex);
     }
 }
 
@@ -414,4 +415,69 @@ void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZEvent>& event)
         std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
         zenith::EventAgent()->QueueEvent(shaderReadyEvent);
     }
+}
+
+void ZShader::CreateAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendingShaders)
+{
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    {
+        if (it->first.find("ZSH") == 0)
+        {
+            std::string vertexPath = "", pixelPath = "", geometryPath = "";
+
+            std::shared_ptr<ZOFObjectNode> shaderNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+
+            for (ZOFPropertyMap::iterator it = shaderNode->properties.begin(); it != shaderNode->properties.end(); it++)
+            {
+                if (!it->second->HasValues()) continue;
+
+                std::shared_ptr<ZOFString> str = it->second->Value<ZOFString>(0);
+                if (it->second->id == "vertex") vertexPath = str->value;
+                else if (it->second->id == "pixel") pixelPath = str->value;
+                else if (it->second->id == "geometry") geometryPath = str->value;
+            }
+
+            std::shared_ptr<ZShader> shader(new ZShader(vertexPath, pixelPath, geometryPath));
+            outPendingShaders[shader] = it->first;
+        }
+    }
+
+    for (auto it = outPendingShaders.begin(); it != outPendingShaders.end(); it++)
+    {
+        it->first->InitializeAsync();
+    }
+}
+
+void ZShader::Create(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap)
+{
+    ZShaderMap shaders;
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    {
+        if (it->first.find("ZSH") == 0)
+        {
+            std::string vertexPath = "", pixelPath = "", geometryPath = "";
+
+            std::shared_ptr<ZOFObjectNode> shaderNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+
+            for (ZOFPropertyMap::iterator it = shaderNode->properties.begin(); it != shaderNode->properties.end(); it++)
+            {
+                if (!it->second->HasValues()) continue;
+
+                std::shared_ptr<ZOFString> str = it->second->Value<ZOFString>(0);
+                if (it->second->id == "vertex") vertexPath = str->value;
+                else if (it->second->id == "pixel") pixelPath = str->value;
+                else if (it->second->id == "geometry") geometryPath = str->value;
+            }
+
+            shaders[it->first] = ZShader::Create(vertexPath, pixelPath, geometryPath);
+        }
+    }
+    outShaderMap = shaders;
+}
+
+std::shared_ptr<ZShader> ZShader::Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath)
+{
+    std::shared_ptr<ZShader> shader = std::make_shared<ZShader>(vertexShaderPath, pixelShaderPath, geomShaderPath);
+    shader->Initialize();
+    return shader;
 }

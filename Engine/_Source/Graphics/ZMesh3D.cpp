@@ -47,7 +47,7 @@ ZMesh3D::~ZMesh3D()
 
 void ZMesh3D::Initialize()
 {
-    bufferData_ = zenith::Graphics()->Strategy()->LoadVertexData(vertexData_);
+    bufferData_ = zenith::Graphics()->LoadVertexData(vertexData_);
 }
 
 void ZMesh3D::Render(ZShader* shader, ZMaterial* material)
@@ -63,29 +63,29 @@ void ZMesh3D::Render(ZShader* shader, ZMaterial* material)
         }
         materialProps.tiling = 1.f;
         material->SetProperties(materialProps);
-        zenith::Graphics()->Strategy()->UpdateBuffer(bufferData_, data);
+        zenith::Graphics()->UpdateBuffer(bufferData_, data);
     }
     if (vertexData_.instanced.count > 1)
     {
         shader->SetBool("instanced", true);
     }
-    zenith::Graphics()->Strategy()->Draw(bufferData_, data, drawStyle_);
+    zenith::Graphics()->Draw(bufferData_, data, drawStyle_);
 }
 
 void ZMesh3D::SetInstanceData(const ZInstancedDataOptions& data)
 {
     vertexData_.instanced = data;
-    zenith::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertexData_);
+    zenith::Graphics()->UpdateBuffer(bufferData_, vertexData_);
 }
 
 void ZMesh3D::SetVertices(const std::vector<ZVertex3D>& vertices)
 {
     vertexData_.vertices = vertices;
-    zenith::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertexData_);
+    zenith::Graphics()->UpdateBuffer(bufferData_, vertexData_);
 }
 
 void ZMesh3D::SetIndices(const std::vector<unsigned int>& indices)
 {
     vertexData_.indices = indices;
-    zenith::Graphics()->Strategy()->UpdateBuffer(bufferData_, vertexData_);
+    zenith::Graphics()->UpdateBuffer(bufferData_, vertexData_);
 }

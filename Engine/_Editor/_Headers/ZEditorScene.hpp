@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZScene.hpp"
+#include "ZUI.hpp"
 
 // Forward Declarations
 class ZEditorTool;

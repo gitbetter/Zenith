@@ -46,8 +46,6 @@
 #include "ZResourceHandle.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZResourceExtraData.hpp"
-#include "ZGOFactory.hpp"
-#include "ZUIFactory.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZShaderReadyEvent.hpp"
 #include "ZModelReadyEvent.hpp"
@@ -112,8 +110,8 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFTree>& objectTree)
     zenith::Graphics()->LoadAsync(objectTree);
 
     ZOFLoadResult zofResults;
-    zofResults.gameObjects = zenith::GameObjectFactory()->Load(objectTree);
-    zofResults.uiElements = zenith::UIFactory()->Load(objectTree);
+    zofResults.gameObjects = ZGameObject::Load(objectTree);
+    zofResults.uiElements = ZUIElement::Load(objectTree);
 
     for (ZGameObjectMap::iterator it = zofResults.gameObjects.begin(); it != zofResults.gameObjects.end(); it++)
     {
@@ -466,7 +464,7 @@ void ZScene::UnregisterLoadDelegates()
 
 void ZScene::HandleQuit(const std::shared_ptr<ZEvent>& event)
 {
-    zenith::Domain()->Strategy()->ReleaseCursor();
+    zenith::Domain()->ReleaseCursor();
 }
 
 void ZScene::HandleZOFReady(const std::shared_ptr<ZEvent>& event)
@@ -575,7 +573,7 @@ void ZScene::CleanUp()
 
     skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;
 
-    zenith::Graphics()->Strategy()->ClearViewport();
+    zenith::Graphics()->ClearViewport();
 }
 
 void ZScene::Finish()

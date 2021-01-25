@@ -92,7 +92,7 @@ void ZGraphicsDebug::DrawLine(const glm::vec3& from, const glm::vec3& to, const 
       ZVertex3D(from), ZVertex3D(to)
     };
 
-    ZBufferData bufferData = zenith::Graphics()->Strategy()->LoadVertexData(options);
-    zenith::Graphics()->Strategy()->Draw(bufferData, options, ZMeshDrawStyle::Line);
-    zenith::Graphics()->Strategy()->DeleteBufferData(bufferData);
+    ZBufferData bufferData = zenith::Graphics()->LoadVertexData(options);
+    zenith::Graphics()->Draw(bufferData, options, ZMeshDrawStyle::Line);
+    zenith::Graphics()->DeleteBufferData(bufferData);
 }

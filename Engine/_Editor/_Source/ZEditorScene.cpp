@@ -40,10 +40,8 @@
 #include "ZResourceExtraData.hpp"
 #include "ZGameObject.hpp"
 #include "ZCameraComponent.hpp"
-#include "ZGOFactory.hpp"
 
 #include "ZUI.hpp"
-#include "ZUIFactory.hpp"
 #include "ZUIVerticalLayout.hpp"
 #include "ZUIHorizontalLayout.hpp"
 #include "ZUIPanel.hpp"
@@ -264,8 +262,8 @@ void ZEditorScene::Configure(ZEditorConfig config) {
 }
 
 void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
-	gameObjectTemplates_ = zenith::GameObjectFactory()->Load(objectTree);
-	uiElementTemplates_ = zenith::UIFactory()->Load(objectTree);
+	gameObjectTemplates_ = ZGameObject::Load(objectTree);
+	uiElementTemplates_ = ZUIElement::Load(objectTree);
 }
 
 void ZEditorScene::Update() {

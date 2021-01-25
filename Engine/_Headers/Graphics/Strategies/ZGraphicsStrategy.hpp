@@ -30,7 +30,7 @@
 #pragma once
 
 // Includes
-#include "ZMaterial.hpp"
+#include "ZTexture.hpp"
 #include "stb_image.hpp"
 
 // Forward Declarations

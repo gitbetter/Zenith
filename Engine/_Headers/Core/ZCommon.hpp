@@ -58,6 +58,7 @@
 #include <thread>
 #include <mutex>
 #include "ZOFTree.hpp"
+#include "ZLogger.hpp"
 #include "FastDelegate.h"
 
 const unsigned int BonesPerVertex = 4;
@@ -211,12 +212,16 @@ class ZEvent;
 class ZLight;
 struct ZAnimation;
 struct ZBone;
+struct ZTexture;
 
 using ZGameObjectMap = std::map<std::string, std::shared_ptr<ZGameObject>>;
 using ZLightMap = std::map<std::string, std::shared_ptr<ZLight>>;
 using ZUIElementMap = std::map<std::string, std::shared_ptr<ZUIElement>>;
 using ZShaderMap = std::map<std::string, std::shared_ptr<ZShader>>;
 using ZModelMap = std::map<std::string, std::shared_ptr<ZModel>>;
+using ZShaderIDMap = std::map<std::shared_ptr<ZShader>, std::string>;
+using ZModelIDMap = std::map<std::shared_ptr<ZModel>, std::string>;
+using ZTextureMap = std::map<std::string, ZTexture>;
 using ZMesh3DMap = std::map<std::string, std::shared_ptr<ZMesh3D>>;
 using ZMaterialMap = std::map<std::string, std::shared_ptr<ZMaterial>>;
 using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
@@ -231,11 +236,6 @@ using ZBoneMap = std::map<std::string, unsigned int>;
 using ZBoneList = std::vector<std::shared_ptr<ZBone>>;
 using ZTimedUpdateCallback = std::function<void(float)>;
 using ZEventType = unsigned long;
-
-enum ZSeverity
-{
-    Info, Warning, Error
-};
 
 enum ZPriority
 {
@@ -365,25 +365,6 @@ struct ZBufferData
     };
 };
 
-struct ZTexture
-{
-    unsigned int id;
-    std::string name;
-    std::string type;
-    std::string path;
-    ZTextureWrapping wrapping;
-
-    ZTexture() : id(0), name(std::string()), type(std::string()), path(std::string()), wrapping(ZTextureWrapping::Repeat) {}
-};
-
-struct ZIBLTexture
-{
-    ZTexture cubeMap;
-    ZTexture irradiance;
-    ZTexture prefiltered;
-    ZTexture brdfLUT;
-};
-
 struct ZMaterialProperties
 {
     glm::vec4 albedo;
@@ -467,21 +448,6 @@ struct ZCharacter
     float xOffset;
 };
 
-struct ZAtlas
-{
-    unsigned int width;
-    unsigned int height;
-    ZTexture texture;
-    std::map<const char, ZCharacter> characterInfo;
-};
-
-struct ZFont
-{
-    std::string name;
-    float size;
-    ZAtlas atlas;
-};
-
 struct ZOFLoadResult
 {
     ZGameObjectMap gameObjects;
@@ -515,8 +481,8 @@ struct ZEngineOptions
 
 struct ZDomainOptions
 {
-    unsigned int width = 1920;
-    unsigned int height = 1080;
+    glm::vec2 windowSize;
+    glm::vec2 resolution;
     bool maximized = true;
     bool visible = true;
 };
@@ -579,14 +545,4 @@ struct ZRect
     inline bool operator!=(const ZRect& other) const {
         return !((*this) == other);
     }
-};
-
-struct ZUITheme {
-    glm::vec4   primaryColor;
-    glm::vec4   secondaryColor;
-    glm::vec4   buttonColor;
-    glm::vec4   textColor;
-    glm::vec4   highlightColor;
-    glm::vec4   selectedColor;
-    ZFont       font;
 };

@@ -160,12 +160,12 @@ void ZPhysicsComponent::Initialize(const std::string& bodyType, const std::strin
     std::shared_ptr<ZCollider> collider;
     if (!colliderType.empty())
     {
-        collider = zenith::PhysicsFactory()->CreateCollider(colliderType, size);
+        collider = ZCollider::Create(colliderType, size);
     }
     else
     {
         zenith::Log("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZSeverity::Warning);
-        collider = zenith::PhysicsFactory()->CreateCollider("Box", size);
+        collider = ZCollider::Create("Box", size);
     }
 
     ZPhysicsBodyType type;

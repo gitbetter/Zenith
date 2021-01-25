@@ -38,6 +38,8 @@
 class ZCollider
 {
 
+    using Creator = std::shared_ptr<ZCollider>(*)(const glm::vec3& extents);
+
 public:
 
     ZCollider(void* colliderPtr, ZColliderType type) : ptr_(colliderPtr), type_(type) {}
@@ -46,9 +48,16 @@ public:
     void* Get() { return ptr_; }
     ZColliderType Type() { return type_; }
 
+    static std::shared_ptr<ZCollider> Create(const std::string& type, const glm::vec3& size);
+    static std::shared_ptr<ZCollider> CreateBoxCollider(const glm::vec3& extents);
+    static std::shared_ptr<ZCollider> CreateSphereCollider(const glm::vec3& extents);
+    static std::shared_ptr<ZCollider> CreateCapsuleCollider(const glm::vec3& extents);
+
 protected:
 
     void* ptr_ = nullptr;
     ZColliderType type_ = ZColliderType::None;
+
+    static std::map<std::string, Creator> colliderCreators_;
 
 };

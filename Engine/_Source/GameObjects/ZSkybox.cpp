@@ -65,7 +65,7 @@ void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root)
 void ZSkybox::Initialize()
 {
     ZBufferData cubemapBuffer;
-    ZTexture cubeMap = zenith::Graphics()->Strategy()->EquirectToCubemap(hdrPath_, cubemapBuffer);
+    ZTexture cubeMap = zenith::Graphics()->EquirectToCubemap(hdrPath_, cubemapBuffer);
     Initialize(cubeMap, cubemapBuffer);
 }
 
@@ -74,7 +74,7 @@ void ZSkybox::InitializeAsync()
     ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
     zenith::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
 
-    zenith::Graphics()->Strategy()->EquirectToCubemapAsync(hdrPath_);
+    zenith::Graphics()->EquirectToCubemapAsync(hdrPath_);
 }
 
 void ZSkybox::Initialize(const ZTexture& cubeMap, const ZBufferData& bufferData)

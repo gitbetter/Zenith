@@ -56,21 +56,21 @@ void ZUI::Initialize()
     }
 }
 
-void ZUI::RegisterFont(const std::string& fontPath)
+void ZUI::RegisterFont(const std::string& fontPath, unsigned int fontSize)
 {
-    if (textStrategy_ != nullptr) textStrategy_->LoadFontAsync(fontPath, 64);
+    LoadFontAsync(fontPath, fontSize);
 }
 
 void ZUI::Render(ZUIElementMap& elements)
 {
     projection_ = glm::ortho(0.f, (float) zenith::Domain()->ResolutionX(), (float) zenith::Domain()->ResolutionY(), 0.f);
 
-    zenith::Graphics()->Strategy()->EnableAlphaBlending();
+    zenith::Graphics()->EnableAlphaBlending();
     for (ZUIElementMap::reverse_iterator it = elements.rbegin(); it != elements.rend(); it++)
     {
         RenderElement(it->second);
     }
-    zenith::Graphics()->Strategy()->DisableAlphaBlending();
+    zenith::Graphics()->DisableAlphaBlending();
 }
 
 void ZUI::RenderElement(const std::shared_ptr<ZUIElement>& element)
@@ -108,7 +108,7 @@ void ZUI::RenderGeneric(const std::shared_ptr<ZUIElement>& element)
     std::shared_ptr<ZMesh2D> mesh = element->ElementShape();
     element->Shader()->Activate();
 
-    zenith::Graphics()->Strategy()->BindTexture(element->Texture(), 0);
+    zenith::Graphics()->BindTexture(element->Texture(), 0);
     element->Shader()->SetInt(element->Texture().type + "0", 0);
 
     element->Shader()->SetMat4("M", element->modelMatrix_);
@@ -140,13 +140,13 @@ void ZUI::RenderImage(const std::shared_ptr<ZUIElement>& element)
 void ZUI::RenderText(const std::shared_ptr<ZUIElement>& element)
 {
     auto textEl = std::dynamic_pointer_cast<ZUIText>(element);
-
-    element->Shader()->Activate();
-    element->Shader()->SetMat4("M", element->modelMatrix_);
-    element->Shader()->SetMat4("P", projection_);
-    element->Shader()->SetVec4("color", element->Color());
-
-    zenith::UI()->TextStrategy()->Draw(textEl);
+    if (textEl) {
+        textEl->Shader()->Activate();
+        textEl->Shader()->SetMat4("M", textEl->modelMatrix_);
+        textEl->Shader()->SetMat4("P", projection_);
+        textEl->Shader()->SetVec4("color", textEl->Color());
+        textStrategy_->Draw(textEl);
+    }
 }
 
 void ZUI::CleanUp()
@@ -162,4 +162,34 @@ void ZUI::CleanUp()
     }
 
     textStrategy_.reset();
+}
+
+ZFont ZUI::LoadFont(const std::string& fontPath, unsigned int fontSize)
+{
+    if (textStrategy_) {
+        return textStrategy_->LoadFont(fontPath, fontSize);
+    }
+    return ZFont();
+}
+
+ZFont ZUI::LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize)
+{
+    if (textStrategy_) {
+        return textStrategy_->LoadFont(handle, fontSize);
+    }
+    return ZFont();
+}
+
+void ZUI::LoadFontAsync(const std::string& fontPath, unsigned int fontSize)
+{
+    if (textStrategy_) {
+        textStrategy_->LoadFontAsync(fontPath, fontSize);
+    }
+}
+
+void ZUI::SetFontSize(const std::string& font, unsigned int size)
+{
+    if (textStrategy_) {
+        textStrategy_->SetFontSize(font, size);
+    }
 }

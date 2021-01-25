@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZEngine.hpp"
+#include "ZTexture.hpp"
 
 // Forward Declarations
 class ZGameObject;
@@ -43,6 +44,7 @@ class ZModel;
 class ZMesh2D;
 class ZScene;
 class ZFrustum;
+class ZResourceHandle;
 
 // Class and Data Structure Definitions
 typedef std::map<std::string, ZTexture> ZTextureMap;
@@ -67,6 +69,7 @@ public:
     void Initialize();
     void Load(std::shared_ptr<ZOFTree> root);
     void LoadAsync(std::shared_ptr<ZOFTree> root);
+    void CleanUp();
 
     void SetupShadowDepthPass(std::shared_ptr<ZLight> light, const ZFrustum& frustum);
     void SetupDepthPass();
@@ -78,7 +81,6 @@ public:
     bool HasPBR() const { return hasPBR_; }
     bool HasMotionBlur() const { return hasMotionBlur_; }
 
-    ZGraphicsStrategy* Strategy() { return graphicsStrategy_.get(); }
     ZGraphicsDebug* DebugDrawer() { return debugDrawer_.get(); }
     glm::mat4 LightSpaceMatrix() { return currentLightSpaceMatrix_; }
     ZTexture ShadowBuffer() { return shadowBuffer_; }
@@ -95,13 +97,66 @@ public:
     void AddTexture(const std::string& id, const ZTexture& texture);
     void AddModel(const std::string& id, std::shared_ptr<ZModel> model);
 
-    static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
-
-    void CleanUp();
-
     void HandleShaderReady(const std::shared_ptr<ZEvent>& event);
     void HandleTextureReady(const std::shared_ptr<ZEvent>& event);
     void HandleModelReady(const std::shared_ptr<ZEvent>& event);
+
+    void ClearViewport();
+    void SwapBuffers();
+    void EnableStencilTesting();
+    void EnableDepthTesting();
+    void DisableDepthTesting();
+    void EnableStencilBuffer();
+    void DisableStencilBuffer();
+    void EnableAlphaBlending();
+    void DisableAlphaBlending();
+    void EnableFaceCulling();
+    void DisableFaceCulling();
+    void EnableSeamlessCubemap();
+    void DisableSeamlessCubemap();
+    void EnableMSAA();
+    void DisableMSAA();
+    void CullFrontFaces();
+    void CullBackFaces();
+    void ClearDepth();
+    void BindFramebuffer(const ZBufferData& frameBuffer, bool depth = false);
+    void UnbindFramebuffer();
+    void BlitFramebuffer(const ZBufferData& source, const ZBufferData& destination);
+    ZTexture LoadDefaultTexture();
+    void LoadTextureAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);
+    ZTexture LoadTexture(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
+    ZTexture LoadTexture(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
+    ZTexture LoadEmptyLUT();
+    ZTexture LoadColorTexture(bool multisample = false);
+    ZTexture LoadDepthTexture();
+    void BindTexture(const ZTexture& texture, unsigned int index);
+    ZBufferData LoadColorBuffer(const ZTexture& colorTexture, bool multisample = false);
+    ZBufferData LoadDepthMapBuffer(const ZTexture& depthTexture);
+    ZBufferData LoadCubeMapBuffer();
+    ZTexture LoadCubeMap(const std::vector<std::string>& faces);
+    ZTexture LoadEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal);
+    ZBufferData LoadVertexData(const ZVertex3DDataOptions& options);
+    ZBufferData LoadVertexData(const ZVertex2DDataOptions& options);
+
+    void ResizeColorTexture(const ZTexture& texture, unsigned int width, unsigned int height, bool multisample = false);
+    void ResizeColorBuffer(const ZBufferData& bufferData, unsigned int width, unsigned int height, bool multisample = false);
+    void DeleteBufferData(const ZBufferData& bufferData);
+
+    void EquirectToCubemapAsync(const std::string& equirectHDRPath);
+    ZTexture EquirectToCubemap(const std::string& equirectHDRPath, ZBufferData& bufferData);
+    ZTexture EquirectToCubemap(const ZTexture& hdrTexture, ZBufferData& bufferData);
+
+    ZTexture IrradianceMapFromCubeMap(const ZBufferData& cubemapBufferData, const ZTexture& cubemapTexture);
+    ZTexture PrefilterCubeMap(const ZBufferData& cubemapBufferData, const ZTexture& cubemapTexture);
+    ZTexture BRDFLUT(const ZBufferData& cubemapBufferData);
+
+    void Draw(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
+    void Draw(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip);
+
+    void UpdateBuffer(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData);
+    void UpdateBuffer(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData);
+
+    static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
 
 protected:
 

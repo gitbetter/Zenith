@@ -32,13 +32,23 @@
 // Includes
 // TODO: Conditional include based on graphics implementation
 #include "ZGLGraphicsStrategy.hpp"
-#include "ZUIElement.hpp"
 #include "ZTextStrategy.hpp"
+#include "ZUIElement.hpp"
 #include <vector>
 
 // Forward Declarations
 
 // Class and Data Structure Definitions
+struct ZUITheme {
+    glm::vec4   primaryColor;
+    glm::vec4   secondaryColor;
+    glm::vec4   buttonColor;
+    glm::vec4   textColor;
+    glm::vec4   highlightColor;
+    glm::vec4   selectedColor;
+    ZFont       font;
+};
+
 class ZUI
 {
 
@@ -47,12 +57,16 @@ public:
     ~ZUI() {}
 
     void Initialize();
-    void RegisterFont(const std::string& fontPath);
-    void Render(ZUIElementMap& elements);
-    void RenderElement(const std::shared_ptr<ZUIElement>& element);
     void CleanUp();
 
-    ZTextStrategy* TextStrategy() { return textStrategy_.get(); }
+    void Render(ZUIElementMap& elements);
+    void RenderElement(const std::shared_ptr<ZUIElement>& element);
+    void RegisterFont(const std::string& fontPath, unsigned int fontSize = 64);
+    ZFont LoadFont(const std::string& fontPath, unsigned int fontSize = 64);
+    ZFont LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize = 64);
+    void LoadFontAsync(const std::string& fontPath, unsigned int fontSize = 64);
+    void SetFontSize(const std::string& font, unsigned int size);
+
     std::shared_ptr<ZShader> TextShader() { return textShader_; }
     std::shared_ptr<ZShader> UIShader() { return uiShader_; }
 
