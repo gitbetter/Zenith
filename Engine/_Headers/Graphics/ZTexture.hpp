@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIFactory.hpp
+    ZTexture.hpp
 
-    Created by Adrian Sanchez on 10/03/2019.
+    Created by Adrian Sanchez on 24/01/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -30,35 +30,32 @@
 #pragma once
 
 // Includes
-#include "ZUIElement.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
-//class SomeClass;
+class ZMaterial;
 
 // Class and Data Structure Definitions
-class ZUIFactory
+struct ZTexture
 {
+    unsigned int id;
+    std::string name;
+    std::string type;
+    std::string path;
+    ZTextureWrapping wrapping;
 
-    using ZUICreator = std::shared_ptr<ZUIElement>(ZUIFactory::*)(std::shared_ptr<ZOFNode> root);
+    ZTexture() 
+        : id(0), name(std::string()), type(std::string()), path(std::string()), wrapping(ZTextureWrapping::Repeat)
+    { }
 
-private:
+    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZTextureMap& outPendingTextures);
+    static void Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);
+};
 
-public:
-
-    ZUIFactory();
-    ~ZUIFactory() {}
-
-    ZUIElementMap Load(std::shared_ptr<ZOFTree> data);
-
-    std::shared_ptr<ZUIElement> CreateUIButton(std::shared_ptr<ZOFNode> root);
-    std::shared_ptr<ZUIElement> CreateUIImage(std::shared_ptr<ZOFNode> root);
-    std::shared_ptr<ZUIElement> CreateUIPanel(std::shared_ptr<ZOFNode> root);
-    std::shared_ptr<ZUIElement> CreateUIText(std::shared_ptr<ZOFNode> root);
-    std::shared_ptr<ZUIElement> CreateUICheckbox(std::shared_ptr<ZOFNode> root);
-    std::shared_ptr<ZUIElement> CreateUIListPanel(std::shared_ptr<ZOFNode> root);
-
-protected:
-
-    std::map<std::string, ZUICreator> elementCreators_;
-
+struct ZIBLTexture
+{
+    ZTexture cubeMap;
+    ZTexture irradiance;
+    ZTexture prefiltered;
+    ZTexture brdfLUT;
 };

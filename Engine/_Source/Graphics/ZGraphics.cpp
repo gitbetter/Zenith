@@ -32,7 +32,6 @@
 #include "ZTextureReadyEvent.hpp"
 #include "ZShaderReadyEvent.hpp"
 #include "ZModelReadyEvent.hpp"
-#include "ZGraphicsFactory.hpp"
 #include "ZDomainStrategy.hpp"
 #include "ZGraphicsDebug.hpp"
 #include "ZEventAgent.hpp"
@@ -40,6 +39,7 @@
 #include "ZGraphics.hpp"
 #include "ZDomain.hpp"
 #include "ZShader.hpp"
+#include "ZModel.hpp"
 #include "ZMesh2D.hpp"
 #include "ZScene.hpp"
 #include "ZLight.hpp"
@@ -103,7 +103,9 @@ void ZGraphics::Load(std::shared_ptr<ZOFTree> root)
 {
     ZShaderMap shaders; ZTextureMap textures; ZModelMap models;
 
-    zenith::GraphicsFactory()->CreateAssets(root, textures, shaders, models);
+    ZTexture::Create(root, textures);
+    ZShader::Create(root, shaders);
+    ZModel::Create(root, models);
 
     for (ZTextureMap::iterator it = textures.begin(); it != textures.end(); it++)
     {
@@ -123,7 +125,9 @@ void ZGraphics::Load(std::shared_ptr<ZOFTree> root)
 
 void ZGraphics::LoadAsync(std::shared_ptr<ZOFTree> root)
 {
-    zenith::GraphicsFactory()->CreateAssetsAsync(root, pendingTextures_, pendingShaders_, pendingModels_);
+    ZTexture::CreateAsync(root, pendingTextures_);
+    ZShader::CreateAsync(root, pendingShaders_);
+    ZModel::CreateAsync(root, pendingModels_);
 }
 
 void ZGraphics::SetupShadowDepthPass(std::shared_ptr<ZLight> light, const ZFrustum& frustum)
@@ -217,21 +221,6 @@ void ZGraphics::AddModel(const std::string& id, std::shared_ptr<ZModel> model)
     loadedModels_[id] = model;
 }
 
-void ZGraphics::ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3)
-{
-    glm::vec3 deltaPos1 = v2.position - v1.position;
-    glm::vec3 deltaPos2 = v3.position - v1.position;
-    glm::vec2 deltaUV1 = v2.uv - v1.uv;
-    glm::vec2 deltaUV2 = v3.uv - v1.uv;
-
-    float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-    glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
-    glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
-
-    v1.tangent = tangent; v2.tangent = tangent; v3.tangent = tangent;
-    v1.bitangent = bitangent; v2.bitangent = bitangent; v3.bitangent = bitangent;
-}
-
 void ZGraphics::CleanUp()
 {
     if (graphicsStrategy_) graphicsStrategy_.reset();
@@ -279,4 +268,386 @@ void ZGraphics::HandleModelReady(const std::shared_ptr<ZEvent>& event)
         AddModel(pendingModels_[model], model);
         pendingModels_.erase(model);
     }
+}
+
+void ZGraphics::ClearViewport()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->ClearViewport();
+    }
+}
+
+void ZGraphics::SwapBuffers()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->SwapBuffers();
+    }
+}
+
+void ZGraphics::EnableStencilTesting()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->EnableStencilTesting();
+    }
+}
+
+void ZGraphics::EnableDepthTesting()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->EnableDepthTesting();
+    }
+}
+
+void ZGraphics::DisableDepthTesting()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->DisableDepthTesting();
+    }
+}
+
+void ZGraphics::EnableStencilBuffer()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->EnableStencilBuffer();
+    }
+}
+
+void ZGraphics::DisableStencilBuffer()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->DisableStencilBuffer();
+    }
+}
+
+void ZGraphics::EnableAlphaBlending()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->EnableAlphaBlending();
+    }
+}
+
+void ZGraphics::DisableAlphaBlending()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->DisableAlphaBlending();
+    }
+}
+
+void ZGraphics::EnableFaceCulling()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->EnableFaceCulling();
+    }
+}
+
+void ZGraphics::DisableFaceCulling()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->DisableFaceCulling();
+    }
+}
+
+void ZGraphics::EnableSeamlessCubemap()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->EnableSeamlessCubemap();
+    }
+}
+
+void ZGraphics::DisableSeamlessCubemap()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->DisableSeamlessCubemap();
+    }
+}
+
+void ZGraphics::EnableMSAA()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->EnableMSAA();
+    }
+}
+
+void ZGraphics::DisableMSAA()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->DisableMSAA();
+    }
+}
+
+void ZGraphics::CullFrontFaces()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->CullFrontFaces();
+    }
+}
+
+void ZGraphics::CullBackFaces()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->CullBackFaces();
+    }
+}
+
+void ZGraphics::ClearDepth()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->ClearDepth();
+    }
+}
+
+void ZGraphics::BindFramebuffer(const ZBufferData& frameBuffer, bool depth)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->BindFramebuffer(frameBuffer, depth);
+    }
+}
+
+void ZGraphics::UnbindFramebuffer()
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->UnbindFramebuffer();
+    }
+}
+
+void ZGraphics::BlitFramebuffer(const ZBufferData& source, const ZBufferData& destination)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->BlitFramebuffer(source, destination);
+    }
+}
+
+ZTexture ZGraphics::LoadDefaultTexture()
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadDefaultTexture();
+    }
+    return ZTexture();
+}
+
+void ZGraphics::LoadTextureAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip, bool equirect)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->LoadTextureAsync(path, directory, wrapping, hdr, flip, equirect);
+    }
+}
+
+ZTexture ZGraphics::LoadTexture(const std::string& path, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadTexture(path, directory, wrapping, hdr, flip);
+    }
+    return ZTexture();
+}
+
+ZTexture ZGraphics::LoadTexture(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping, bool hdr, bool flip)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadTexture(handle, wrapping, hdr, flip);
+    }
+    return ZTexture();
+}
+
+ZTexture ZGraphics::LoadEmptyLUT()
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadEmptyLUT();
+    }
+    return ZTexture();
+}
+
+ZTexture ZGraphics::LoadColorTexture(bool multisample)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadColorTexture(multisample);
+    }
+    return ZTexture();
+}
+
+ZTexture ZGraphics::LoadDepthTexture()
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadDepthTexture();
+    }
+    return ZTexture();
+}
+
+void ZGraphics::BindTexture(const ZTexture& texture, unsigned int index)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->BindTexture(texture, index);
+    }
+}
+
+ZBufferData ZGraphics::LoadColorBuffer(const ZTexture& colorTexture, bool multisample)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadColorBuffer(colorTexture, multisample);
+    }
+    return ZBufferData();
+}
+
+ZBufferData ZGraphics::LoadDepthMapBuffer(const ZTexture& depthTexture)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadDepthMapBuffer(depthTexture);
+    }
+    return ZBufferData();
+}
+
+ZBufferData ZGraphics::LoadCubeMapBuffer()
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadCubeMapBuffer();
+    }
+    return ZBufferData();
+}
+
+ZTexture ZGraphics::LoadCubeMap(const std::vector<std::string>& faces)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadCubeMap(faces);
+    }
+    return ZTexture();
+}
+
+ZTexture ZGraphics::LoadEmptyCubeMap(ZCubemapTextureType type)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadEmptyCubeMap(type);
+    }
+    return ZTexture();
+}
+
+ZBufferData ZGraphics::LoadVertexData(const ZVertex3DDataOptions& options)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadVertexData(options);
+    }
+    return ZBufferData();
+}
+
+ZBufferData ZGraphics::LoadVertexData(const ZVertex2DDataOptions& options)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->LoadVertexData(options);
+    }
+    return ZBufferData();
+}
+
+
+void ZGraphics::ResizeColorTexture(const ZTexture& texture, unsigned int width, unsigned int height, bool multisample)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->ResizeColorTexture(texture, width, height, multisample);
+    }
+}
+
+void ZGraphics::ResizeColorBuffer(const ZBufferData& bufferData, unsigned int width, unsigned int height, bool multisample)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->ResizeColorBuffer(bufferData, width, height, multisample);
+    }
+}
+
+void ZGraphics::DeleteBufferData(const ZBufferData& bufferData)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->DeleteBufferData(bufferData);
+    }
+}
+
+
+void ZGraphics::EquirectToCubemapAsync(const std::string& equirectHDRPath)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->EquirectToCubemapAsync(equirectHDRPath);
+    }
+}
+
+ZTexture ZGraphics::EquirectToCubemap(const std::string& equirectHDRPath, ZBufferData& bufferData)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->EquirectToCubemap(equirectHDRPath, bufferData);
+    }
+    return ZTexture();
+}
+
+ZTexture ZGraphics::EquirectToCubemap(const ZTexture& hdrTexture, ZBufferData& bufferData)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->EquirectToCubemap(hdrTexture, bufferData);
+    }
+    return ZTexture();
+}
+
+
+ZTexture ZGraphics::IrradianceMapFromCubeMap(const ZBufferData& cubemapBufferData, const ZTexture& cubemapTexture)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->IrradianceMapFromCubeMap(cubemapBufferData, cubemapTexture);
+    }
+    return ZTexture();
+}
+
+ZTexture ZGraphics::PrefilterCubeMap(const ZBufferData& cubemapBufferData, const ZTexture& cubemapTexture)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->PrefilterCubeMap(cubemapBufferData, cubemapTexture);
+    }
+    return ZTexture();
+}
+
+ZTexture ZGraphics::BRDFLUT(const ZBufferData& cubemapBufferData)
+{
+    if (graphicsStrategy_) {
+        return graphicsStrategy_->BRDFLUT(cubemapBufferData);
+    }
+    return ZTexture();
+}
+
+
+void ZGraphics::Draw(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->Draw(bufferData, vertexData, drawStyle);
+    }
+}
+
+void ZGraphics::Draw(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->Draw(bufferData, vertexData, drawStyle);
+    }
+}
+
+
+void ZGraphics::UpdateBuffer(const ZBufferData& bufferData, const ZVertex2DDataOptions& vertexData)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->UpdateBuffer(bufferData, vertexData);
+    }
+}
+
+void ZGraphics::UpdateBuffer(const ZBufferData& bufferData, const ZVertex3DDataOptions& vertexData)
+{
+    if (graphicsStrategy_) {
+        graphicsStrategy_->UpdateBuffer(bufferData, vertexData);
+    }
+}
+
+
+void ZGraphics::ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3)
+{
+    glm::vec3 deltaPos1 = v2.position - v1.position;
+    glm::vec3 deltaPos2 = v3.position - v1.position;
+    glm::vec2 deltaUV1 = v2.uv - v1.uv;
+    glm::vec2 deltaUV2 = v3.uv - v1.uv;
+
+    float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+    glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+    glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
+
+    v1.tangent = tangent; v2.tangent = tangent; v3.tangent = tangent;
+    v1.bitangent = bitangent; v2.bitangent = bitangent; v3.bitangent = bitangent;
 }

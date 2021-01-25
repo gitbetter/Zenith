@@ -227,7 +227,7 @@ int main(int argc, const char* argv[]) {
     zenith::EventAgent()->AddListener(sceneReadyDelegate, ZSceneReadyEvent::Type);
 
     // Free up window cursor. It is captured by default.
-    zenith::Domain()->Strategy()->ReleaseCursor();
+    zenith::Domain()->ReleaseCursor();
 
     // Create the game and start the main game loop. Nothing beyond this point will execute
     // for the duration of the game.

@@ -31,6 +31,7 @@
 
 // Includes
 #include <glm/glm.hpp>
+#include <functional>
 
 // Forward Declarations
 // class SomeClass;
@@ -44,6 +45,9 @@ public:
     ZDomainStrategy() {}
     virtual ~ZDomainStrategy() {}
 
+    virtual glm::vec2 FramebufferSize() = 0;
+    virtual void* Window() = 0;
+
     virtual void Initialize() = 0;
     virtual void* CreateWindow(int width, int height, bool maximized = true, bool visible = true, void* sharedContext = nullptr) = 0;
     virtual void PollEvents() = 0;
@@ -53,13 +57,16 @@ public:
     virtual void ShowCursor() = 0;
     virtual bool IsCursorCaptured() = 0;
     virtual bool IsCursorHidden() = 0;
-    virtual void Resize(int width, int height) = 0;
-    virtual glm::vec2 FramebufferSize() = 0;
+    virtual void ResizeWindow(int width, int height) = 0;
+    virtual void ResizeFramebuffer(int width, int height) = 0;
     virtual bool IsWindowClosing() = 0;
     virtual void CloseWindow() = 0;
-    virtual void* Context() = 0;
-    virtual void SetContext(void* context) = 0;
-    virtual void DestroyContext(void* context) = 0;
+    virtual void SetWindow(void* window) = 0;
+    virtual void DestroyWindow(void* window) = 0;
+    virtual void WindowResize(int width, int height) = 0;
+    virtual void FramebufferResize(int width, int height) = 0;
+    virtual void OnWindowResized(const std::function<void(int, int)>& callback) = 0;
+    virtual void OnFramebufferResized(const std::function<void(int, int)>& callback) = 0;
     virtual void CleanUp() = 0;
 
 protected:

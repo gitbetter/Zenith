@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZEvent.hpp"
+#include "ZTexture.hpp"
 
 // Forward Declarations
 

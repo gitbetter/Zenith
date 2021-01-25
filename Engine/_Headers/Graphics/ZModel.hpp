@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZMesh3D.hpp"
+#include "ZTexture.hpp"
 #include "ZAABBox.hpp"
 
 // Forward Declarations
@@ -43,6 +44,8 @@ class ZEvent;
 // Class Definitions
 class ZModel : public std::enable_shared_from_this<ZModel>
 {
+
+    using Creator = std::unique_ptr<ZModel>(*)(const glm::vec3&);
 
 private:
 
@@ -88,6 +91,10 @@ public:
     const std::shared_ptr<ZSkeleton> Skeleton() const { return skeleton_; }
     const glm::mat4 GlobalInverseTransform() const { return globalInverseTransform_; }
 
+    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingModels);
+    static void Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap);
+    static std::unique_ptr<ZModel> Create(const std::string& type, const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
+
     static std::unique_ptr<ZModel> NewPlanePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 0.f, 1.0f));
     static std::unique_ptr<ZModel> NewCubePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewSpherePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
@@ -97,6 +104,8 @@ public:
     static std::unique_ptr<ZModel> NewSkybox(const ZTexture& cubeMap, const ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture);
 
 protected:
+
+    static std::map<std::string, Creator> modelCreators_;
 
     void CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
     glm::vec3 CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);

@@ -81,7 +81,7 @@ void ZUIImage::SetImage(const std::string& path)
     {
         ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
         zenith::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
-        zenith::Graphics()->Strategy()->LoadTextureAsync(path, "");
+        zenith::Graphics()->LoadTextureAsync(path, "");
     }
 }
 

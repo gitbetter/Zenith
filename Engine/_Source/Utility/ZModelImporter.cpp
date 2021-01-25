@@ -374,7 +374,7 @@ std::vector<ZTexture> ZModelImporter::LoadMaterialTextures(aiMaterial* mat, aiTe
         }
         else
         {
-            ZTexture texture = zenith::Graphics()->Strategy()->LoadTexture(textureName, directory);
+            ZTexture texture = zenith::Graphics()->LoadTexture(textureName, directory);
             texture.type = typeName;
             texture.path = textureName;
             textures.push_back(texture);

@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZEngine.hpp"
+#include "ZTexture.hpp"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -39,6 +40,21 @@ class ZResourceHandle;
 class ZUIText;
 
 // Class and Data Structure Definitions
+
+struct ZAtlas
+{
+    unsigned int width;
+    unsigned int height;
+    ZTexture texture;
+    std::map<const char, ZCharacter> characterInfo;
+};
+
+struct ZFont
+{
+    std::string name;
+    float size;
+    ZAtlas atlas;
+};
 
 class ZTextStrategy
 {
@@ -49,8 +65,8 @@ public:
     virtual ~ZTextStrategy() {}
 
     virtual void Initialize();
-    virtual void LoadFont(const std::string& fontPath, unsigned int fontSize = 24) = 0;
-    virtual void LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize = 24) = 0;
+    virtual ZFont LoadFont(const std::string& fontPath, unsigned int fontSize = 24) = 0;
+    virtual ZFont LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize = 24) = 0;
     virtual void LoadFontAsync(const std::string& fontPath, unsigned int fontSize = 24) = 0;
     virtual void Draw(std::shared_ptr<ZUIText> textEl) = 0;
     virtual void SetFontSize(const std::string& font, unsigned int size);

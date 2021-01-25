@@ -52,8 +52,8 @@ public:
 
     void Initialize() override;
 
-    void LoadFont(const std::string& fontPath, unsigned int fontSize) override;
-    void LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize) override;
+    ZFont LoadFont(const std::string& fontPath, unsigned int fontSize) override;
+    ZFont LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize) override;
     void LoadFontAsync(const std::string& fontPath, unsigned int fontSize) override;
     void Draw(std::shared_ptr<ZUIText> textEl) override;
 

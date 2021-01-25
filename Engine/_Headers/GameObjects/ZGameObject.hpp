@@ -38,7 +38,9 @@
 // Forward Declarations
 class ZGame;
 class ZScene;
-class ZGOFactory;
+class ZTrigger;
+class ZSkybox;
+class ZGrass;
 struct ZOFNode;
 
 // Class Definitions
@@ -74,13 +76,11 @@ public:
     virtual void PostRender();
 
     void CalculateDerivedData();
-
     virtual std::shared_ptr<ZGameObject> Clone();
     virtual void AddChild(std::shared_ptr<ZGameObject> gameObject);
     virtual void RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse = false);
     bool HasChildren() { return !children_.empty(); }
     virtual bool IsVisible();
-
     virtual void Destroy();
 
     ZScene* Scene() const { return scene_; }
@@ -166,6 +166,13 @@ public:
 
         return go;
     }
+
+    static ZGameObjectMap Load(std::shared_ptr<ZOFTree> data);
+    static std::shared_ptr<ZGameObject> CreateGameObject(std::shared_ptr<ZOFNode> data);
+    static std::shared_ptr<ZLight> CreateLight(std::shared_ptr<ZOFNode> data);
+    static std::shared_ptr<ZTrigger> CreateTrigger(std::shared_ptr<ZOFNode> data);
+    static std::shared_ptr<ZSkybox> CreateSkybox(std::shared_ptr<ZOFNode> data);
+    static std::shared_ptr<ZGrass> CreateGrass(std::shared_ptr<ZOFNode> data);
 
 protected:
 

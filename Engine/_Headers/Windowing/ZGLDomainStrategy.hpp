@@ -42,6 +42,9 @@ class ZGLDomainStrategy : public ZDomainStrategy
 
 private:
 
+    std::function<void(int, int)> windowResizedCallback_;
+    std::function<void(int, int)> framebufferResizedCallback_;
+
     static void GLFWErrorCallback(int id, const char* description);
     static void FrameBufferSizeCallback(GLFWwindow* window, int height, int width);
     static void WindowSizeCallback(GLFWwindow* window, int height, int width);
@@ -50,6 +53,9 @@ public:
 
     ZGLDomainStrategy() {}
     ~ZGLDomainStrategy() {}
+
+    glm::vec2 FramebufferSize() override;
+    void* Window() override;
 
     void Initialize() override;
     void* CreateWindow(int width, int height, bool maximized = true, bool visible = true, void* sharedContext = nullptr) override;
@@ -60,13 +66,16 @@ public:
     void ShowCursor() override;
     bool IsCursorCaptured() override;
     bool IsCursorHidden() override;
-    void Resize(int width, int height) override;
-    glm::vec2 FramebufferSize() override;
+    void ResizeWindow(int width, int height) override;
+    void ResizeFramebuffer(int width, int height) override { };
     void CloseWindow() override;
     bool IsWindowClosing() override;
-    void* Context() override;
-    void SetContext(void* context) override;
-    void DestroyContext(void* context) override;
+    void SetWindow(void* window) override;
+    void DestroyWindow(void* window) override;
+    void WindowResize(int width, int height) override;
+    void FramebufferResize(int width, int height) override;
+    void OnWindowResized(const std::function<void(int, int)>& callback) override;
+    void OnFramebufferResized(const std::function<void(int, int)>& callback) override;
     void CleanUp() override;
 
 };

@@ -48,10 +48,10 @@ void ZGLTextStrategy::Initialize() {
 	zenith::EventAgent()->AddListener(fontLoadedDelegate, ZResourceLoadedEvent::Type);
 }
 
-void ZGLTextStrategy::LoadFont(const std::string& fontPath, unsigned int fontSize) {
+ZFont ZGLTextStrategy::LoadFont(const std::string& fontPath, unsigned int fontSize) {
 	ZResource resource(fontPath, ZResourceType::Font);
 	std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
-	LoadFont(handle, fontSize);
+	return LoadFont(handle, fontSize);
 }
 
 void ZGLTextStrategy::LoadFontAsync(const std::string& fontPath, unsigned int fontSize) {
@@ -60,13 +60,13 @@ void ZGLTextStrategy::LoadFontAsync(const std::string& fontPath, unsigned int fo
 	pendingFonts_[fontPath] = fontSize;
 }
 
-void ZGLTextStrategy::LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize) {
-	if (handle == nullptr) return;
+ZFont ZGLTextStrategy::LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned int fontSize) {
+	if (handle == nullptr) return ZFont();
 
 	FT_Face face;
 	if (FT_New_Memory_Face(ft_, (const FT_Byte *)handle->Buffer(), (FT_Long)handle->Size(), 0, &face)) {
 		zenith::Log("Could not load font at " + handle->Resource().name, ZSeverity::Error);
-		return;
+		return ZFont();
 	}
 
 	FT_Set_Pixel_Sizes(face, 0, fontSize);
@@ -130,6 +130,8 @@ void ZGLTextStrategy::LoadFont(std::shared_ptr<ZResourceHandle> handle, unsigned
 	pendingFonts_.erase(handle->Resource().name);
 
 	FT_Done_Face(face);
+
+	return font;
 }
 
 void ZGLTextStrategy::Draw(std::shared_ptr<ZUIText> textEl)
@@ -141,7 +143,7 @@ void ZGLTextStrategy::Draw(std::shared_ptr<ZUIText> textEl)
 	}
 
 	auto font = loadedFonts_[textEl->font_];
-	zenith::Graphics()->Strategy()->BindTexture(font.atlas.texture, 0);
+	zenith::Graphics()->BindTexture(font.atlas.texture, 0);
 	textEl->options_.shader->SetInt(font.atlas.texture.type + "0", 0);
 
 	auto pos = textEl->Position();
@@ -184,8 +186,8 @@ void ZGLTextStrategy::Draw(std::shared_ptr<ZUIText> textEl)
 		options.vertices.push_back(ZVertex2D(glm::vec2(xpos + w, ypos + h), glm::vec2(character.xOffset + character.bitmapSize.x / font.atlas.width, character.bitmapSize.y / font.atlas.height)));
 	}
 
-	zenith::Graphics()->Strategy()->UpdateBuffer(textEl->bufferData_, options);
-	zenith::Graphics()->Strategy()->Draw(textEl->bufferData_, options, ZMeshDrawStyle::Triangle);
+	zenith::Graphics()->UpdateBuffer(textEl->bufferData_, options);
+	zenith::Graphics()->Draw(textEl->bufferData_, options, ZMeshDrawStyle::Triangle);
 }
 
 void ZGLTextStrategy::HandleFontLoaded(const std::shared_ptr<ZEvent>& event) {

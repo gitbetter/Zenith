@@ -89,10 +89,8 @@ ${ENGINE_SOURCE_DIR}/Graphics/ZMesh.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZPhysicsDebug.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZGraphicsDebug.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZModel.cpp
-${ENGINE_SOURCE_DIR}/Factories/ZGOFactory.cpp
-${ENGINE_SOURCE_DIR}/Factories/ZGraphicsFactory.cpp
+${ENGINE_SOURCE_DIR}/Graphics/ZTexture.cpp
 ${ENGINE_SOURCE_DIR}/Factories/ZPhysicsFactory.cpp
-${ENGINE_SOURCE_DIR}/Factories/ZUIFactory.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/ZEventAgent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/ZEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZCollisionEvent.cpp
@@ -163,10 +161,7 @@ ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZSkyboxReadyEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZSceneReadyEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZWindowResizeEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZScrollEvent.hpp
-${ENGINE_HEADERS_DIR}/Factories/ZGOFactory.hpp
-${ENGINE_HEADERS_DIR}/Factories/ZGraphicsFactory.hpp
 ${ENGINE_HEADERS_DIR}/Factories/ZPhysicsFactory.hpp
-${ENGINE_HEADERS_DIR}/Factories/ZUIFactory.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZGameObject.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZLight.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZParticle.hpp
@@ -184,6 +179,7 @@ ${ENGINE_HEADERS_DIR}/Graphics/ZModel.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZGraphicsDebug.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZPhysicsDebug.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZShader.hpp
+${ENGINE_HEADERS_DIR}/Graphics/ZTexture.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/AbstractGeometry/ZAABBox.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/AbstractGeometry/ZFrustum.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/AbstractGeometry/ZPlane.hpp

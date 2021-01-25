@@ -26,7 +26,10 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZGameObject.hpp"
+#include "ZLight.hpp"
+#include "ZTrigger.hpp"
+#include "ZSkybox.hpp"
+#include "ZGrass.hpp"
 #include "ZGame.hpp"
 #include "ZModel.hpp"
 #include "ZCameraComponent.hpp"
@@ -400,3 +403,81 @@ void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
     properties_.modelMatrix = modelMatrix;
     objectMutexes_.modelMatrix.unlock();
 }
+
+ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data)
+{
+    ZGameObjectMap gameObjects;
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    {
+        std::shared_ptr<ZOFNode> node = it->second;
+        if (node->id.find("ZGO") == 0)
+        {
+            std::shared_ptr<ZGameObject> gameObject = CreateGameObject(node);
+            gameObjects[gameObject->ID()] = gameObject;
+        }
+        else if (node->id.find("ZLT") == 0)
+        {
+            std::shared_ptr<ZLight> light = CreateLight(node);
+            gameObjects[light->ID()] = light;
+        }
+        else if (node->id.find("ZTR") == 0)
+        {
+            std::shared_ptr<ZTrigger> trigger = CreateTrigger(node);
+            gameObjects[trigger->ID()] = trigger;
+        }
+        else if (node->id.find("ZSKY") == 0)
+        {
+            std::shared_ptr<ZSkybox> skybox = CreateSkybox(node);
+            gameObjects[skybox->ID()] = skybox;
+        }
+        else if (node->id.find("ZGR") == 0)
+        {
+            std::shared_ptr<ZGrass> grass = CreateGrass(node);
+            gameObjects[grass->ID()] = grass;
+        }
+    }
+    return gameObjects;
+}
+
+std::shared_ptr<ZGameObject> ZGameObject::CreateGameObject(std::shared_ptr<ZOFNode> data)
+{
+    std::shared_ptr<ZGameObject> gameObject(new ZGameObject);
+    gameObject->Initialize(data);
+
+    for (ZOFChildMap::iterator compIt = data->children.begin(); compIt != data->children.end(); compIt++)
+    {
+        std::shared_ptr<ZOFNode> componentNode = compIt->second;
+        ZComponent::CreateIn(compIt->first, gameObject, componentNode);
+    }
+
+    return gameObject;
+}
+
+std::shared_ptr<ZLight> ZGameObject::CreateLight(std::shared_ptr<ZOFNode> data)
+{
+    std::shared_ptr<ZLight> light(new ZLight);
+    light->Initialize(data);
+    return light;
+}
+
+std::shared_ptr<ZTrigger> ZGameObject::CreateTrigger(std::shared_ptr<ZOFNode> data)
+{
+    std::shared_ptr<ZTrigger> trigger(new ZTrigger);
+    trigger->Initialize(data);
+    return trigger;
+}
+
+std::shared_ptr<ZSkybox> ZGameObject::CreateSkybox(std::shared_ptr<ZOFNode> data)
+{
+    std::shared_ptr<ZSkybox> skybox(new ZSkybox);
+    skybox->Initialize(data);
+    return skybox;
+}
+
+std::shared_ptr<ZGrass> ZGameObject::CreateGrass(std::shared_ptr<ZOFNode> data)
+{
+    std::shared_ptr<ZGrass> grass(new ZGrass);
+    grass->Initialize(data);
+    return grass;
+}
+

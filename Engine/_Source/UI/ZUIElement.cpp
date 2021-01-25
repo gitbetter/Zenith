@@ -27,7 +27,12 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZUIElement.hpp"
+#include "ZUIButton.hpp"
+#include "ZUIImage.hpp"
+#include "ZUIPanel.hpp"
+#include "ZUIText.hpp"
+#include "ZUICheckbox.hpp"
+#include "ZUIListPanel.hpp"
 #include "ZShader.hpp"
 #include "ZUIText.hpp"
 #include "ZDomain.hpp"
@@ -38,6 +43,15 @@
 #include "ZWindowResizeEvent.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
+
+std::map<std::string, ZUIElement::Creator> ZUIElement::elementCreators_ = {
+    { "Button", &ZUIElement::CreateUIButton },
+    { "Image", &ZUIElement::CreateUIImage },
+    { "Panel", &ZUIElement::CreateUIPanel },
+    { "Text", &ZUIElement::CreateUIText },
+    { "Checkbox", &ZUIElement::CreateUICheckbox },
+    { "ListPanel", &ZUIElement::CreateUIListPanel }
+};
 
 ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f)
 {
@@ -57,7 +71,7 @@ void ZUIElement::Initialize() {
         options_.shader = zenith::UI()->UIShader();
     }
     if (options_.texture.id == 0) {
-        options_.texture = zenith::Graphics()->Strategy()->LoadDefaultTexture();
+        options_.texture = zenith::Graphics()->LoadDefaultTexture();
     }
 
     SetRect(options_.rect);
@@ -395,3 +409,86 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZEvent>& event)
         }
     }
 }
+
+ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data)
+{
+    ZUIElementMap uiElements;
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    {
+        std::shared_ptr<ZOFNode> node = it->second;
+        if (zenith::strings::HasUIPrefix(node->id))
+        {
+            std::shared_ptr<ZOFObjectNode> uiNode = std::static_pointer_cast<ZOFObjectNode>(node);
+            ZOFPropertyMap props = uiNode->properties;
+
+            std::shared_ptr<ZUIElement> element;
+
+            if (props.find("type") != props.end() && props["type"]->HasValues())
+            {
+                std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
+                if (elementCreators_.find(typeProp->value) == elementCreators_.end())
+                {
+                    zenith::Log("Could not create a UI component of type " + typeProp->value, ZSeverity::Error); continue;
+                }
+                element = std::shared_ptr<ZUIElement>((elementCreators_[typeProp->value])(uiNode));
+            }
+
+            // Recursively create children if there are any nested UI nodes
+            if (element)
+            {
+                ZUIElementMap uiChildren = Load(uiNode);
+                for (ZUIElementMap::iterator it = uiChildren.begin(); it != uiChildren.end(); it++)
+                {
+                    element->AddChild(it->second);
+                }
+
+                uiElements[uiNode->id] = element;
+            }
+        }
+    }
+    return uiElements;
+}
+
+std::shared_ptr<ZUIElement> ZUIElement::CreateUIButton(std::shared_ptr<ZOFNode> root)
+{
+    std::shared_ptr<ZUIButton> button = std::make_shared<ZUIButton>();
+    button->Initialize(root);
+    return button;
+}
+
+std::shared_ptr<ZUIElement> ZUIElement::CreateUIImage(std::shared_ptr<ZOFNode> root)
+{
+    std::shared_ptr<ZUIImage> image = std::make_shared<ZUIImage>();
+    image->Initialize(root);
+    return image;
+}
+
+std::shared_ptr<ZUIElement> ZUIElement::CreateUIPanel(std::shared_ptr<ZOFNode> root)
+{
+    std::shared_ptr<ZUIPanel> panel = std::make_shared<ZUIPanel>();
+    panel->Initialize(root);
+    return panel;
+}
+
+std::shared_ptr<ZUIElement> ZUIElement::CreateUIText(std::shared_ptr<ZOFNode> root)
+{
+    std::shared_ptr<ZUIText> text = std::make_shared<ZUIText>();
+    text->Initialize(root);
+    return text;
+}
+
+std::shared_ptr<ZUIElement> ZUIElement::CreateUICheckbox(std::shared_ptr<ZOFNode> root)
+{
+    std::shared_ptr<ZUICheckBox> checkbox = std::make_shared<ZUICheckBox>();
+    checkbox->Initialize(root);
+    return checkbox;
+}
+
+std::shared_ptr<ZUIElement> ZUIElement::CreateUIListPanel(std::shared_ptr<ZOFNode> root)
+{
+    std::shared_ptr<ZUIListPanel> list = std::make_shared<ZUIListPanel>();
+    list->Initialize(root);
+    return list;
+}
+
+

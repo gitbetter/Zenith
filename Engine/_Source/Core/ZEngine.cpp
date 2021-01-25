@@ -43,14 +43,9 @@
 #include "ZWavResourceLoader.hpp"
 #include "ZOggResourceLoader.hpp"
 #include "ZEventAgent.hpp"
-#include "ZGOFactory.hpp"
-#include "ZGraphicsFactory.hpp"
-#include "ZUIFactory.hpp"
-#include "ZPhysicsFactory.hpp"
 #include "ZScriptExports.hpp"
 #include "ZLuaScriptManager.hpp"
 #include "ZScriptableProcess.hpp"
-#include "ZLogger.hpp"
 
 #ifdef DEV_BUILD
 #include "ZDevResourceFile.hpp"
@@ -64,6 +59,11 @@ namespace zenith
     namespace
     {
         std::shared_ptr<ZGame> currentGame_ = nullptr;
+
+        std::unique_ptr<ZProcessRunner> processRunner_ = nullptr;
+        std::shared_ptr<ZEventAgent> eventAgent_ = nullptr;
+        std::unique_ptr<ZResourceCache> resourceCache_ = nullptr;
+        std::unique_ptr<ZLuaScriptManager> scriptManager_ = nullptr;
         std::shared_ptr<ZDomain> domain_ = nullptr;
         std::shared_ptr<ZGraphics> graphics_ = nullptr;
         std::shared_ptr<ZInput> input_ = nullptr;
@@ -71,18 +71,8 @@ namespace zenith
         std::shared_ptr<ZPhysics> physics_ = nullptr;
         std::shared_ptr<ZAudio> audio_ = nullptr;
 
-        std::unique_ptr<ZProcessRunner> processRunner_ = nullptr;
-        std::shared_ptr<ZEventAgent> eventAgent_ = nullptr;
-        std::unique_ptr<ZResourceCache> resourceCache_ = nullptr;
-        std::unique_ptr<ZLuaScriptManager> scriptManager_ = nullptr;
-
-        std::unique_ptr<ZGOFactory> gameObjectFactory_ = nullptr;
-        std::unique_ptr<ZGraphicsFactory> graphicsFactory_ = nullptr;
-        std::unique_ptr<ZUIFactory> uiFactory_ = nullptr;
-        std::unique_ptr<ZPhysicsFactory> physicsFactory_ = nullptr;
-
-        std::unique_ptr<ZLogger> logger_(new ZLogger);
         std::unique_ptr<ZIDSequence> idGenerator_(new ZIDSequence);
+
         ZEngineOptions options_;
 
         double deltaTime_ = 0.0;
@@ -96,8 +86,8 @@ namespace zenith
     void Initialize(std::shared_ptr<ZGame> game, int windowWidth, int windowHeight)
     {
         ZDomainOptions options;
-        options.width = windowWidth;
-        options.height = windowHeight;
+        options.windowSize.x = windowWidth;
+        options.windowSize.y = windowHeight;
         Initialize(game, options);
     }
 
@@ -170,13 +160,6 @@ namespace zenith
         audio_ = std::make_shared<ZALAudio>();
         audio_->Initialize();
         /* ===================================== */
-
-        /* ========= Object Factories ============ */
-        gameObjectFactory_.reset(new ZGOFactory);
-        graphicsFactory_.reset(new ZGraphicsFactory);
-        uiFactory_.reset(new ZUIFactory);
-        physicsFactory_.reset(new ZPhysicsFactory);
-        /* ======================================= */
     }
 
     std::shared_ptr<ZGame> Game()
@@ -232,31 +215,6 @@ namespace zenith
     ZLuaScriptManager* ScriptManager()
     {
         return scriptManager_.get();
-    }
-
-    ZGOFactory* GameObjectFactory()
-    {
-        return gameObjectFactory_.get();
-    }
-
-    ZGraphicsFactory* GraphicsFactory()
-    {
-        return graphicsFactory_.get();
-    }
-
-    ZUIFactory* UIFactory()
-    {
-        return uiFactory_.get();
-    }
-
-    ZPhysicsFactory* PhysicsFactory()
-    {
-        return physicsFactory_.get();
-    }
-
-    ZLogger* Logger()
-    {
-        return logger_.get();
     }
 
     ZIDSequence* IDSequence()
@@ -332,12 +290,11 @@ namespace zenith
     {
         lastDeltaTime_ = deltaTime_;
         deltaTime_ = deltaTime;
-        SetFrameMix(glm::abs(deltaTime_ - ((double) UPDATE_STEP_SIZE * (double) MAX_FIXED_UPDATE_ITERATIONS)));
-    }
-
-    void SetFrameMix(float frameMix)
-    {
-        frameMix_ = glm::clamp(frameMix, 0.f, 1.f);
+        frameMix_ = glm::clamp(
+            glm::abs(deltaTime_ - ((double) UPDATE_STEP_SIZE * (double) MAX_FIXED_UPDATE_ITERATIONS)),
+            0.0,
+            1.0
+        );
     }
 
     void LoadZOF(const std::string& zofPath)
@@ -346,35 +303,11 @@ namespace zenith
         resourceCache_->RequestHandle(zofResource);
     }
 
-    void Log(const std::string& text, ZSeverity severity)
-    {
-        ZLogEntry entry;
-        entry.severity = severity;
-        entry.text = text;
-        logger_->AddEntry(entry);
-
-    #ifdef DEV_BUILD
-        switch (severity)
-        {
-        case ZSeverity::Info:
-            std::cout << "\033[1;97m" << "[Info]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
-            break;
-        case ZSeverity::Warning:
-            std::cout << "\033[1;33m" << "[Warning]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
-            break;
-        case ZSeverity::Error:
-            std::cout << "\033[1;91m" << "[Error]: " << __FILE__ << ":" << __LINE__ << ": " << text << "\033[0m" << std::endl;
-            break;
-        }
-    #endif
-    }
-
     void CleanUp()
     {
         processRunner_->AbortAllProcesses(true);
 
         idGenerator_.reset();
-        logger_.reset();
         audio_->CleanUp(); audio_.reset();
         physics_->CleanUp(); physics_.reset();
         ui_->CleanUp(); ui_.reset();

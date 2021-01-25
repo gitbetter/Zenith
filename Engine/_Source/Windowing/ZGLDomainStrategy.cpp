@@ -27,10 +27,7 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZDomain.hpp"
 #include "ZGLDomainStrategy.hpp"
-#include "ZWindowResizeEvent.hpp"
-#include "ZEventAgent.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -70,22 +67,25 @@ void* ZGLDomainStrategy::CreateWindow(int width, int height, bool maximized, boo
 
     if (window == NULL)
     {
-        zenith::Log("Could not create glfw window", ZSeverity::Error);
         glfwTerminate();
+        return nullptr;
     }
+
+    glewExperimental = GL_TRUE;
+    glewInit();
+
+    glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
+    glfwSetWindowUserPointer(window, this);
 
     if (visible)
     {
-        glewExperimental = GL_TRUE;
-        glewInit();
-
-        glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
         glfwSetWindowSizeCallback(window, WindowSizeCallback);
 
     #ifndef EDITOR_ROOT
         CaptureCursor();
     #endif
     }
+
     return window;
 }
 
@@ -130,7 +130,7 @@ bool ZGLDomainStrategy::IsCursorHidden()
     return glfwGetInputMode(glWindow, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN;
 }
 
-void ZGLDomainStrategy::Resize(int width, int height)
+void ZGLDomainStrategy::ResizeWindow(int width, int height)
 {
     GLFWwindow* glWindow = glfwGetCurrentContext();
     glfwSetWindowSize(glWindow, width, height);
@@ -156,27 +156,51 @@ bool ZGLDomainStrategy::IsWindowClosing()
     return glfwWindowShouldClose(glWindow);
 }
 
-void* ZGLDomainStrategy::Context()
+void* ZGLDomainStrategy::Window()
 {
     return glfwGetCurrentContext();
 }
 
-void ZGLDomainStrategy::SetContext(void* context)
+void ZGLDomainStrategy::SetWindow(void* window)
 {
-    GLFWwindow* glWindow = static_cast<GLFWwindow*>(context);
+    GLFWwindow* glWindow = static_cast<GLFWwindow*>(window);
     glfwMakeContextCurrent(glWindow);
 }
 
-void ZGLDomainStrategy::DestroyContext(void* context)
+void ZGLDomainStrategy::DestroyWindow(void* window)
 {
-    GLFWwindow* glWindow = static_cast<GLFWwindow*>(context);
+    GLFWwindow* glWindow = static_cast<GLFWwindow*>(window);
     if (glWindow) glfwDestroyWindow(glWindow);
+}
+
+void ZGLDomainStrategy::OnWindowResized(const std::function<void(int, int)>& callback)
+{
+    windowResizedCallback_ = callback;
+}
+
+void ZGLDomainStrategy::OnFramebufferResized(const std::function<void(int, int)>& callback)
+{
+    framebufferResizedCallback_ = callback;
 }
 
 void ZGLDomainStrategy::CleanUp()
 {
     GLFWwindow* glWindow = glfwGetCurrentContext();
     glfwDestroyWindow(glWindow);
+}
+
+void ZGLDomainStrategy::WindowResize(int width, int height)
+{
+    if (windowResizedCallback_) {
+        windowResizedCallback_(width, height);
+    }
+}
+
+void ZGLDomainStrategy::FramebufferResize(int width, int height)
+{
+    if (framebufferResizedCallback_) {
+        framebufferResizedCallback_(width, height);
+    }
 }
 
 void ZGLDomainStrategy::GLFWErrorCallback(int id, const char* description)
@@ -186,16 +210,17 @@ void ZGLDomainStrategy::GLFWErrorCallback(int id, const char* description)
 
 void ZGLDomainStrategy::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    zenith::Domain()->SetResolution(width, height);
+    ZDomainStrategy* domainStrategyPtr = static_cast<ZDomainStrategy*>(glfwGetWindowUserPointer(window));
+    if (domainStrategyPtr) {
+        domainStrategyPtr->FramebufferResize(width, height);
+    }
     glViewport(0, 0, width, height);
 }
 
 void ZGLDomainStrategy::WindowSizeCallback(GLFWwindow* window, int height, int width)
 {
-    int reswidth, resheight;
-    glfwGetFramebufferSize(window, &reswidth, &resheight);
-    zenith::Domain()->SetResolution(reswidth, resheight);
-
-    std::shared_ptr<ZWindowResizeEvent> windowResizeEvent = std::make_shared<ZWindowResizeEvent>();
-    zenith::EventAgent()->QueueEvent(windowResizeEvent);
+    ZDomainStrategy* domainStrategyPtr = static_cast<ZDomainStrategy*>(glfwGetWindowUserPointer(window));
+    if (domainStrategyPtr) {
+        domainStrategyPtr->WindowResize(width, height);
+    }
 }

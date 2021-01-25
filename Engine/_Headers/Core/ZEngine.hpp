@@ -45,14 +45,9 @@ class ZAudio;
 class ZIDSequence;
 class ZProcessRunner;
 class ZResourceCache;
-class ZGOFactory;
-class ZGraphicsFactory;
-class ZUIFactory;
-class ZPhysicsFactory;
 class ZGame;
 class ZEventAgent;
 class ZLuaScriptManager;
-class ZLogger;
 
 // Definitions
 namespace zenith
@@ -96,12 +91,6 @@ namespace zenith
     extern ZResourceCache* ResourceCache();
     extern ZLuaScriptManager* ScriptManager();
 
-    extern ZGOFactory* GameObjectFactory();
-    extern ZGraphicsFactory* GraphicsFactory();
-    extern ZUIFactory* UIFactory();
-    extern ZPhysicsFactory* PhysicsFactory();
-
-    extern ZLogger* Logger();
     extern ZIDSequence* IDSequence();
     extern ZEngineOptions& Options();
 
@@ -116,14 +105,10 @@ namespace zenith
     extern void Provide(std::shared_ptr<ZUI> ui);
     extern void Provide(std::shared_ptr<ZPhysics> physics);
     extern void Provide(std::shared_ptr<ZAudio> audio);
-    // More provide overloads for different engine subsystems (i.e. audio, animation, etc.)
 
     extern void SetDeltaTime(double deltaTime);
-    extern void SetFrameMix(float frameMix);
 
     extern void LoadZOF(const std::string& zofPath);
-
-    extern void Log(const std::string& text, ZSeverity severity);
 
     extern void CleanUp();
 

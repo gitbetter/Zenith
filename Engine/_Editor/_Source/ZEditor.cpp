@@ -36,8 +36,8 @@
 
 void ZEditor::Initialize() {
 	ZDomainOptions windowOptions;
-	windowOptions.width = 1920;
-	windowOptions.height = 1080;
+	windowOptions.windowSize.x = 1920;
+	windowOptions.windowSize.y = 1080;
 	windowOptions.maximized = false;
 	zenith::Initialize(shared_from_this(), windowOptions);
 

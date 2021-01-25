@@ -28,3 +28,30 @@
 */
 
 #include "ZCollider.hpp"
+#include "btBulletDynamicsCommon.h"
+
+std::map<std::string, ZCollider::Creator> ZCollider::colliderCreators_ = {
+    { "Box", &ZCollider::CreateBoxCollider },
+    { "Sphere", &ZCollider::CreateSphereCollider },
+    { "Capsule", &ZCollider::CreateCapsuleCollider }
+};
+
+std::shared_ptr<ZCollider> ZCollider::Create(const std::string& type, const glm::vec3& size)
+{
+    return (colliderCreators_[type])(size);
+}
+
+std::shared_ptr<ZCollider> ZCollider::CreateBoxCollider(const glm::vec3& extents)
+{
+    return std::make_shared<ZCollider>(new btBoxShape(btVector3(extents[0], extents[1], extents[2])), ZColliderType::Box);
+}
+
+std::shared_ptr<ZCollider> ZCollider::CreateSphereCollider(const glm::vec3& extents)
+{
+    return std::make_shared<ZCollider>(new btSphereShape(extents[0]), ZColliderType::Sphere);
+}
+
+std::shared_ptr<ZCollider> ZCollider::CreateCapsuleCollider(const glm::vec3& extents)
+{
+    return std::make_shared<ZCollider>(new btCapsuleShape(extents[0], extents[1]), ZColliderType::Capsule);
+}
