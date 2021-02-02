@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZGameObject.hpp"
+#include "ZFrustum.hpp"
 
 // Forward Declarations
 // class SomeClass;
@@ -51,14 +52,17 @@ struct ZLSpotProperties
     float exponent;
 };
 
-struct ZLHemisphereProperties
-{
-    glm::vec3 skyColor{ 0.8f };
-    glm::vec3 groundColor{ 0.1f };
-};
-
 class ZLight : public ZGameObject
 {
+
+public:
+
+    ZLightType type;
+    bool enabled;
+    glm::vec3 ambient{ 0.1f };
+    glm::vec3 color{ 0.9f };
+    ZLAttenuationProperties attenuation;
+    ZLSpotProperties spot;
 
 public:
 
@@ -67,23 +71,15 @@ public:
     ~ZLight() {}
 
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-
     std::shared_ptr<ZGameObject> Clone() override;
 
-    ZLightType type;
-    bool enabled;
+    glm::mat4 LightSpaceMatrix() const { return lightspaceMatrix_; }
 
-    glm::vec3 ambient{ 0.1f };
-    glm::vec3 color{ 0.9f };
-    ZLAttenuationProperties attenuation;
-
-    union
-    {
-        ZLSpotProperties spot;
-        ZLHemisphereProperties hemisphere;
-    };
+    void UpdateLightspaceMatrix(const ZFrustum& frustum);
 
 private:
+
+    glm::mat4 lightspaceMatrix_;
 
     static std::map<std::string, ZLightType> lightTypesMap;
 

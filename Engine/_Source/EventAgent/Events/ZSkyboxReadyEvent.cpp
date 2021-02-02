@@ -29,4 +29,4 @@
 
 #include "ZSkyboxReadyEvent.hpp"
 
-const ZEventType ZSkyboxReadyEvent::Type(0x5a788581);
+const ZTypeIdentifier ZSkyboxReadyEvent::Type(TYPE_ID(ZSkyboxReadyEvent));

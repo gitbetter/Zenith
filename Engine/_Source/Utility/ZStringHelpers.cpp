@@ -56,16 +56,9 @@ namespace zenith
             return s;
         }
 
-        bool HasGameObjectPrefix(const std::string& str)
+        bool HasObjectPrefix(const std::string& str, const std::string& prefix)
         {
-            static std::unordered_map<std::string, std::string> goPrefixes{
-                {"ZGO", "ZGO"},
-                {"ZTR", "ZTR"},
-                {"ZLT", "ZLT"},
-                {"ZSKY", "ZSKY"},
-                {"ZGR", "ZGR"}
-            };
-            return goPrefixes.find(str.substr(0, str.find("_"))) != goPrefixes.end();
+            return prefix.find(str.substr(0, str.find("_"))) == 0;
         }
 
         bool HasUIPrefix(const std::string& str)

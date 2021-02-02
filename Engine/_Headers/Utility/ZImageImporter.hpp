@@ -30,7 +30,7 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
+#include "ZCommon.hpp"
 #include "stb_image.hpp"
 
 // Forward Declarations

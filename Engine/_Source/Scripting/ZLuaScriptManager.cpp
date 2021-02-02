@@ -38,11 +38,11 @@ void ZLuaScriptManager::Initialize()
     lua_.set_function("executeString", &ZLuaScriptManager::ExecuteString, (*this));
 }
 
-void ZLuaScriptManager::RegisterEventTypeWithScript(const std::string& key, ZEventType type)
+void ZLuaScriptManager::RegisterEventTypeWithScript(const std::string& key, ZTypeIdentifier type)
 {
-    sol::table eventTypeTable = lua_["ZEventType"];
+    sol::table eventTypeTable = lua_["ZTypeIdentifier"];
     if (!eventTypeTable.valid())
-        eventTypeTable = lua_.create_named_table("ZEventType");
+        eventTypeTable = lua_.create_named_table("ZTypeIdentifier");
 
     eventTypeTable[key] = (double)type;
 }

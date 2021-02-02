@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZUIElement.hpp"
+#include "ZBuffer.hpp"
 
 // Forward Declarations
 // class SomeClass;
@@ -40,9 +41,6 @@ class ZUIText : public ZUIElement
 {
 
     friend class ZUI;
-    friend class ZGLTextStrategy;
-
-private:
 
 public:
 
@@ -53,9 +51,22 @@ public:
     void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
+    const std::string& Text() const { return text_; }
+    const std::string& Font() const { return font_; }
+    float FontScale() const { return fontScale_; }
+    float LineSpacing() const { return lineSpacing_; }
+    bool ShouldWrap() const { return wrapToBounds_; }
+    float MaxWrapBounds() const;
+
     void SetText(const std::string& text) { text_ = text; }
     void SetFontScale(float scale) { fontScale_ = scale; }
     void SetFont(const std::string& font) { font_ = font; }
+    void SetWrap(bool wrap) { wrapToBounds_ = wrap; }
+    void SetLineSpacing(float spacing) { lineSpacing_ = spacing; }
+
+    static std::shared_ptr<ZUIText> Create();
+    static std::shared_ptr<ZUIText> Create(const ZUIElementOptions& options);
+    static std::shared_ptr<ZUIText> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
 
 protected:
 
@@ -64,6 +75,8 @@ protected:
     float fontScale_;
     float lineSpacing_;
     bool wrapToBounds_;
-    ZBufferData bufferData_;
+    ZBuffer::ptr bufferData_;
+
+    void Draw() override;
 
 };

@@ -29,19 +29,14 @@
 
 #include "ZLogger.hpp"
 
-namespace zenith {
-    void Log(const std::string& text, ZSeverity severity)
-    {
-        static ZLogger logger;
-
-        ZLogEntry entry;
-        entry.file = std::string(__FILE__);
-        entry.line = (unsigned int) __LINE__;
-        entry.severity = severity;
-        entry.text = text;
-
-        logger.Log(entry);
-    }
+void ZLogger::Log(const std::string& text, ZSeverity severity, const std::string& file, unsigned int line)
+{
+    ZLogEntry entry;
+    entry.file = file;
+    entry.line = line;
+    entry.severity = severity;
+    entry.text = text;
+    Log(entry);
 }
 
 void ZLogger::Log(const ZLogEntry& entry)

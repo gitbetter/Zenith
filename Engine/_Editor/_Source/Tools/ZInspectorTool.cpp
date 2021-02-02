@@ -28,6 +28,12 @@
  */
 
 #include "ZInspectorTool.hpp"
+#include "ZUIPanel.hpp"
+
+void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+    ZEditorTool::Initialize(scene);
+    container_->SetColor(theme_.secondaryColor);
+}
 
 void ZInspectorTool::Update() {
 

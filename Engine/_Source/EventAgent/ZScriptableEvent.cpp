@@ -27,8 +27,8 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZScriptableEvent.hpp"
-#include "ZLuaScriptManager.hpp"
 
 ZScriptableEvent::CreationFunctions ZScriptableEvent::creationFunctions_;
 
@@ -48,24 +48,23 @@ bool ZScriptableEvent::SetEventData(sol::table data)
     return BuildEventFromScript();
 }
 
-void ZScriptableEvent::RegisterEventTypeWithScript(const std::string& key, ZEventType type)
+void ZScriptableEvent::RegisterEventTypeWithScript(const std::string& key, ZTypeIdentifier type)
 {
-    zenith::ScriptManager()->RegisterEventTypeWithScript(key, type);
+    ZServices::ScriptManager()->RegisterEventTypeWithScript(key, type);
 }
 
-void ZScriptableEvent::AddCreationFunction(ZEventType type, CreateEventForScriptFunctionType creationFunction)
+void ZScriptableEvent::AddCreationFunction(ZTypeIdentifier type, CreateEventForScriptFunctionType creationFunction)
 {
     creationFunctions_[type] = creationFunction;
 }
 
-ZScriptableEvent* ZScriptableEvent::CreateEventFromScript(ZEventType type)
+ZScriptableEvent* ZScriptableEvent::CreateEventFromScript(ZTypeIdentifier type)
 {
     if (creationFunctions_.find(type) == creationFunctions_.end()) return nullptr;
     return creationFunctions_[type]();
 }
 
-void ZScriptableEventDelegate::EventDelegate(const std::shared_ptr<ZEvent>& event)
+void ZScriptableEventDelegate::EventDelegate(const std::shared_ptr<ZScriptableEvent>& event)
 {
-    std::shared_ptr<ZScriptableEvent> scriptEvent = std::static_pointer_cast<ZScriptableEvent>(event);
-    scriptCallback_(scriptEvent->EventData());
+    scriptCallback_(event->EventData());
 }

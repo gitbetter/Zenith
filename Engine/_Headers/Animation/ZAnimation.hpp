@@ -29,7 +29,7 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZModel;

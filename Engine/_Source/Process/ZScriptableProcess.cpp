@@ -27,6 +27,7 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZScriptableProcess.hpp"
 #include "ZLuaScriptManager.hpp"
 
@@ -38,7 +39,7 @@ ZScriptableProcess::~ZScriptableProcess() { dynamicFields_.clear(); }
 
 void ZScriptableProcess::RegisterScriptClass()
 {
-    ZLuaScriptManager* scriptManager = static_cast<ZLuaScriptManager*>(zenith::ScriptManager());
+    std::shared_ptr<ZLuaScriptManager> scriptManager = std::dynamic_pointer_cast<ZLuaScriptManager>(ZServices::ScriptManager());
     sol::state& lua = scriptManager->LuaState();
     lua.new_usertype<ZScriptableProcess>(SCRIPT_PROCESS_NAME,
         "Create", sol::factories(ZScriptableProcess::CreateFromScript),
@@ -84,7 +85,7 @@ bool ZScriptableProcess::BuildCppDataFromScript(const sol::table& obj, const sol
         }
         else
         {
-            zenith::Log("No update() function found on script process", ZSeverity::Error);
+            LOG("No update() function found on script process", ZSeverity::Error);
             return false;
         }
 
@@ -110,7 +111,7 @@ bool ZScriptableProcess::BuildCppDataFromScript(const sol::table& obj, const sol
     }
     else
     {
-        zenith::Log("Script class is not a valid Lua table", ZSeverity::Error);
+        LOG("Script class is not a valid Lua table", ZSeverity::Error);
         return false;
     }
 
@@ -136,7 +137,7 @@ void ZScriptableProcess::ScriptAttachChild(std::shared_ptr<ZScriptableProcess> p
 {
 //std::shared_ptr<ZScriptableProcess> process = child.as<std::shared_ptr<ZScriptableProcess>>();
     if (process) AttachChild(process);
-    else zenith::Log("Child process being attached is not valid", ZSeverity::Error);
+    else LOG("Child process being attached is not valid", ZSeverity::Error);
 }
 
 sol::object ZScriptableProcess::GetDynamic(const std::string& key)

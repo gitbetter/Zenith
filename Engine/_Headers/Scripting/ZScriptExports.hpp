@@ -30,7 +30,7 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
+#include "ZCommon.hpp"
 #include "sol.hpp"
 
 // Forward Declarations
@@ -48,12 +48,12 @@ public:
 
     static bool LoadAndExecuteScriptResource(const std::string& scriptResource);
 
-    static void AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess);
+    static void AttachScriptProcess(const std::shared_ptr<ZScriptableProcess>& scriptProcess, const std::shared_ptr<ZProcessRunner>& processRunner);
 
-    static bool QueueEvent(ZEventType eventType, const sol::table& eventData);
-    static bool TriggerEvent(ZEventType eventType, const sol::table& eventData);
-    static std::shared_ptr<ZScriptableEvent> BuildEvent(ZEventType eventType, const sol::table& eventData);
-    static unsigned long RegisterEventListener(ZEventType eventType, const sol::function& callback);
+    static bool Queue(ZTypeIdentifier eventType, const sol::table& eventData);
+    static bool Trigger(ZTypeIdentifier eventType, const sol::table& eventData);
+    static std::shared_ptr<ZScriptableEvent> BuildEvent(ZTypeIdentifier eventType, const sol::table& eventData);
+    static unsigned long RegisterEventListener(ZTypeIdentifier eventType, const sol::function& callback);
 
     static void Log(const sol::object& string);
 

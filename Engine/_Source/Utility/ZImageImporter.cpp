@@ -27,8 +27,8 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
 #include "ZImageImporter.hpp"
-#include "ZResourceCache.hpp"
 #include "ZResourceExtraData.hpp"
 
 std::mutex ZImageImporter::importerMutex_;
@@ -36,7 +36,7 @@ std::mutex ZImageImporter::importerMutex_;
 std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(const std::string& path, bool hdr, bool flipped)
 {
     ZResource resource(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
-    std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
+    std::shared_ptr<ZResourceHandle> handle = ZServices::ResourceCache()->GetHandle(&resource);
     return LoadImage(handle, hdr, flipped);
 }
 

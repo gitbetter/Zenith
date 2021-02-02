@@ -29,4 +29,4 @@
 
 #include "ZQuitEvent.hpp"
 
-const ZEventType ZQuitEvent::Type(0xbb626a4a);
+const ZTypeIdentifier ZQuitEvent::Type(TYPE_ID(ZQuitEvent));

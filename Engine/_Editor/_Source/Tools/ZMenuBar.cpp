@@ -28,6 +28,13 @@
  */
 
 #include "ZMenuBar.hpp"
+#include "ZUIPanel.hpp"
+
+void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene) {
+    ZEditorTool::Initialize(scene);
+    container_->SetColor(theme_.secondaryColor);
+    container_->SetRect(ZRect(0.f, 0.f, 1.f, 0.35f));
+}
 
 void ZMenuBar::Update() {
 

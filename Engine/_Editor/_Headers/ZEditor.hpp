@@ -38,7 +38,10 @@ public:
     
     ZEditor() : ZGame() { }
     
-    void Initialize() override;
     void CleanUp() override;
+
+protected:
+
+    void Setup() override;
     
 };

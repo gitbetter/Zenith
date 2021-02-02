@@ -42,6 +42,8 @@ public:
     ZMenuBar(const ZUITheme& theme = ZUITheme())
         : ZEditorTool("MenuBar", theme) { }
 
+    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+
 	void Update() override;
 
 };

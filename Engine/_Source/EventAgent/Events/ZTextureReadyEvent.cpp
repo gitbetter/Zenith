@@ -29,4 +29,4 @@
 
 #include "ZTextureReadyEvent.hpp"
 
-const ZEventType ZTextureReadyEvent::Type(0xb8624f70);
+const ZTypeIdentifier ZTextureReadyEvent::Type(TYPE_ID(ZTextureReadyEvent));

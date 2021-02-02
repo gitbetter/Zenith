@@ -27,17 +27,26 @@
  */
 
 #include "ZGrass.hpp"
+#include "ZServices.hpp"
+#include "ZScene.hpp"
+#include "ZAssetStore.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
+#include "ZTextureReadyEvent.hpp"
 
 ZGrass::ZGrass(unsigned int instances) : 
     ZGameObject(), textureId_(std::string()), instanceCount_(instances), windDirection_(1.f), windStrength_(5.f), time_(0.f)
 {
     graphicsComp_ = std::make_shared<ZGraphicsComponent>();
+    ZServices::EventAgent()->Subscribe(this, &ZGrass::HandleTextureReady);
 }
 
 void ZGrass::Initialize()
 {
+    auto shader = ZShader::Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag");
+    graphicsComp_ = std::static_pointer_cast<ZGraphicsComponent>(ZComponent::CreateGraphicsComponent(shared_from_this()));
+    graphicsComp_->Initialize(nullptr, shader);
+
     std::vector<ZInstancedDataOptions> instanceDatas;
     for (unsigned int i = 0; i < cPolygonCount; i++)
     {
@@ -94,7 +103,7 @@ void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
     {
-        zenith::Log("Could not initalize ZGrass", ZSeverity::Error);
+        LOG("Could not initalize ZGrass", ZSeverity::Error);
         return;
     }
 
@@ -136,38 +145,24 @@ void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
         windStrength_ = windStrengthProp->value;
     }
 
-    auto shader = std::make_shared<ZShader>("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/pbr.frag");
-    shader->Initialize();
-    graphicsComp_->Initialize(nullptr, shader);
-    AddComponent(graphicsComp_);
-
     ZGrass::Initialize();
 }
 
-void ZGrass::Render(double deltaTime, ZRenderOp renderOp)
+void ZGrass::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
-    bool hasMaterials = !graphicsComp_->Materials().empty();
-    if (!hasMaterials && zenith::Graphics()->Textures().find(textureId_) != zenith::Graphics()->Textures().end())
-    {
-        auto texture = zenith::Graphics()->Textures()[textureId_];
-        texture.type = "albedo";
-        auto grassMaterial = std::make_shared<ZMaterial>(std::vector<ZTexture>{ texture });
-        graphicsComp_->AddMaterial(grassMaterial);
-    }
+    auto scene = Scene();
+    if (!scene) return;
 
-    if (hasMaterials)
+    time_ += deltaTime;
+    for (auto it = polygons_.begin(); it != polygons_.end(); it++)
     {
-        time_ += deltaTime;
-        for (auto it = polygons_.begin(); it != polygons_.end(); it++)
-        {
-            graphicsComp_->SetModel(*it);
-            auto shader = graphicsComp_->ActiveShader();
-            shader->Activate();
-            shader->SetFloat("timestamp", time_);
-            shader->SetFloat("windStrength", windStrength_);
-            shader->SetVec3("windDirection", windDirection_);
-            ZGameObject::Render(renderOp);
-        }
+        graphicsComp_->SetModel(*it);
+        auto shader = graphicsComp_->ActiveShader();
+        shader->Activate();
+        shader->SetFloat("timestamp", time_);
+        shader->SetFloat("windStrength", windStrength_);
+        shader->SetVec3("windDirection", windDirection_);
+        ZGameObject::Render(deltaTime, shader, renderOp);
     }
 }
 
@@ -196,5 +191,15 @@ void ZGrass::UpdateVertexNormals(std::shared_ptr<ZModel>& model)
             vertexIt->normal = glm::vec3(1.f, 1.f, 0.f);
         }
         meshIt->second->SetVertices(vertices);
+    }
+}
+
+void ZGrass::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
+{
+    if (event->Texture()->name == textureId_)
+    {
+        auto grassMaterial = ZMaterial::Create(std::vector<ZTexture::ptr>{ event->Texture() });
+        graphicsComp_->AddMaterial(grassMaterial);
+        ZServices::EventAgent()->Unsubscribe(this, &ZGrass::HandleTextureReady);
     }
 }

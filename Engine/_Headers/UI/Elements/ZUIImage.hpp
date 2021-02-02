@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZShader;
+class ZTextureReadyEvent;
 
 // Class and Data Structure Definitions
 class ZUIImage : public ZUIElement
@@ -54,8 +55,12 @@ public:
 
     void SetImage(const std::string& path);
 
+    static std::shared_ptr<ZUIImage> Create();
+    static std::shared_ptr<ZUIImage> Create(const ZUIElementOptions& options);
+    static std::shared_ptr<ZUIImage> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
+
 protected:
 
-    void HandleTextureReady(const std::shared_ptr<ZEvent>& event);
+    void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
 
 };

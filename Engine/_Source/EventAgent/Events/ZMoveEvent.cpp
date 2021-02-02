@@ -29,4 +29,4 @@
 
 #include "ZMoveEvent.hpp"
 
-const ZEventType ZMoveEvent::Type(0x5a201dd9);
+const ZTypeIdentifier ZMoveEvent::Type(TYPE_ID(ZMoveEvent));

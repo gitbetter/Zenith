@@ -45,12 +45,12 @@ private:
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
     explicit ZFireEvent(float x = 0.f, float y = 0.f, float z = 0.f, bool done = false) : x_(x), y_(y), z_(z), done_(done) {}
     explicit ZFireEvent(std::istringstream& in) { in >> x_ >> y_ >> z_; }
 
-    const ZEventType& EventType() const override { return Type; };
+    const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZFireEvent>(new ZFireEvent(x_, y_, z_)); }
     void Serialize(std::ostringstream& out) const override { out << x_ << " " << y_ << " " << z_; }
     std::string Name() const override { return "ZFireEvent"; }

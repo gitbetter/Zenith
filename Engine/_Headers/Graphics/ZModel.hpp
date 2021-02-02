@@ -39,7 +39,7 @@ class ZShader;
 struct ZSkeleton;
 struct ZJoint;
 struct ZJointAnimation;
-class ZEvent;
+class ZResourceLoadedEvent;
 
 // Class Definitions
 class ZModel : public std::enable_shared_from_this<ZModel>
@@ -49,6 +49,7 @@ class ZModel : public std::enable_shared_from_this<ZModel>
 
 private:
 
+    std::string id_;
     std::string modelPath_;
     ZMesh3DMap meshes_;
     ZBoneMap bonesMap_;
@@ -69,18 +70,19 @@ private:
 public:
 
     ZModel(ZPrimitiveType primitiveType, const glm::vec3& scale = glm::vec3(1.0f, 0.f, 1.0f));
-    ZModel(const std::string& path = "") : modelPath_(path) {}
+    ZModel(const std::string& path = "");
     virtual ~ZModel() {}
 
     void Initialize();
     void InitializeAsync();
-    virtual void Render(ZShader* shader);
-    virtual void Render(ZShader* shader, const std::vector<std::shared_ptr<ZMaterial>>& materials);
+    virtual void Render(const std::shared_ptr<ZShader>& shader);
+    virtual void Render(const std::shared_ptr<ZShader>& shader, const std::vector<std::shared_ptr<ZMaterial>>& materials);
     virtual void InitializeAABB();
     virtual void UpdateAABB(const glm::mat4& transform);
     void SetInstanceData(const ZInstancedDataOptions& instanceData);
     void BoneTransform(const std::string& anim, double secondsTime);
 
+    const std::string& ID() const { return id_; }
     const std::string& Path() const { return modelPath_; }
     const ZMesh3DMap& Meshes() const { return meshes_; }
     const ZAABBox& AABB() const { return boundingBox_; }
@@ -100,8 +102,8 @@ public:
     static std::unique_ptr<ZModel> NewSpherePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewCylinderPrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
     static std::unique_ptr<ZModel> NewConePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, const std::vector<std::string>& faces = zenith::DEFAULT_SKYBOX_CUBEMAP);
-    static std::unique_ptr<ZModel> NewSkybox(const ZTexture& cubeMap, const ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture);
+    static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, const std::vector<std::string>& faces = DEFAULT_SKYBOX_CUBEMAP);
+    static std::unique_ptr<ZModel> NewSkybox(const std::shared_ptr<ZTexture>& cubeMap, const std::shared_ptr<ZFramebuffer>& bufferData, ZIBLTexture& generatedIBLTexture);
 
 protected:
 
@@ -112,6 +114,8 @@ protected:
     glm::quat CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
     glm::vec3 CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
 
-    void HandleModelLoaded(const std::shared_ptr<ZEvent>& event);
+    void HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
+
+    static ZIDSequence idGenerator_;
 
 };

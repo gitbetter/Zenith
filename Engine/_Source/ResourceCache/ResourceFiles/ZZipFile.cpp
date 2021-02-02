@@ -28,6 +28,7 @@
 */
 
 #include "ZZipFile.hpp"
+#include "ZServices.hpp"
 
 bool ZZipFile::Open()
 {
@@ -35,7 +36,7 @@ bool ZZipFile::Open()
 
     if (!zipFile_)
     {
-        zenith::Log("Failed to open zip file " + fileName_, ZSeverity::Error);
+        LOG("Failed to open zip file " + fileName_, ZSeverity::Error);
         return false;
     }
 
@@ -89,7 +90,7 @@ void ZZipFile::PrintResources() const
     //            int isdir = zip_entry_isdir(zipFile_);
     //            unsigned long long size = zip_entry_size(zipFile_);
     //            unsigned int crc32 = zip_entry_crc32(zipFile_);
-                zenith::Log(name, ZSeverity::Error);
+                LOG(name, ZSeverity::Error);
             }
             zip_entry_close(zipFile_);
         }

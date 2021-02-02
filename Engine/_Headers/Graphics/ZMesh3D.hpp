@@ -43,10 +43,6 @@ class ZMesh3D : public ZMesh
     friend class ZModel;
     friend class ZModelImporter;
 
-private:
-
-    ZVertex3DDataOptions vertexData_;
-
 public:
 
     ZMesh3D(const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
@@ -54,7 +50,7 @@ public:
 
     void Initialize() override;
 
-    void Render(ZShader* shader, ZMaterial* material) override;
+    void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material) override;
 
     void SetInstanceData(const ZInstancedDataOptions& data);
     void SetVertices(const std::vector<ZVertex3D>& data);
@@ -63,4 +59,9 @@ public:
     const ZInstancedDataOptions& InstanceData() const { return vertexData_.instanced; }
     const std::vector<ZVertex3D>& Vertices() const { return vertexData_.vertices; }
     const std::vector<unsigned int>& Indices() const { return vertexData_.indices; }
+
+private:
+
+    ZVertex3DDataOptions vertexData_;
+
 };

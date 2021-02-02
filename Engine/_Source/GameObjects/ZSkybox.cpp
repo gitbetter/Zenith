@@ -27,17 +27,17 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZSkybox.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
-#include "ZEventAgent.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZSkyboxReadyEvent.hpp"
 
 ZSkybox::ZSkybox(const std::string& hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr)
 {
-    properties_.renderPass = ZRenderPass::Sky;
+    properties_.renderOrder = ZRenderOrder::Sky;
 }
 
 void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root)
@@ -46,7 +46,7 @@ void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root)
 
     if (!node)
     {
-        zenith::Log("Could not initalize ZSkybox", ZSeverity::Error);
+        LOG("Could not initalize ZSkybox", ZSeverity::Error);
         return;
     }
 
@@ -64,20 +64,19 @@ void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root)
 
 void ZSkybox::Initialize()
 {
-    ZBufferData cubemapBuffer;
-    ZTexture cubeMap = zenith::Graphics()->EquirectToCubemap(hdrPath_, cubemapBuffer);
+    ZFramebuffer::ptr cubemapBuffer;
+    ZTexture::ptr cubeMap = ZTexture::CreateHDRI(hdrPath_, cubemapBuffer);
     Initialize(cubeMap, cubemapBuffer);
 }
 
 void ZSkybox::InitializeAsync()
 {
-    ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
-    zenith::EventAgent()->AddListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+    ZServices::EventAgent()->Subscribe(this, &ZSkybox::HandleCubemapReady);
 
-    zenith::Graphics()->EquirectToCubemapAsync(hdrPath_);
+    pendingHDRTexture_ = ZTexture::CreateHDRIAsync(hdrPath_);
 }
 
-void ZSkybox::Initialize(const ZTexture& cubeMap, const ZBufferData& bufferData)
+void ZSkybox::Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& bufferData)
 {
     std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 
@@ -87,7 +86,7 @@ void ZSkybox::Initialize(const ZTexture& cubeMap, const ZBufferData& bufferData)
     std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
     skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
-    std::vector<ZTexture> textures = { iblTexture_.cubeMap };
+    std::vector<ZTexture::ptr> textures = { iblTexture_.cubeMap };
     skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
 
     AddComponent(skyboxGraphicsComponent);
@@ -104,27 +103,25 @@ std::shared_ptr<ZGameObject> ZSkybox::Clone()
     return clone;
 }
 
-void ZSkybox::Render(double deltaTime, ZRenderOp renderOp)
+void ZSkybox::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
     if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow)
     {
-        ZGameObject::Render(deltaTime, renderOp);
+        ZGameObject::Render(deltaTime, shader, renderOp);
     }
 }
 
-void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZEvent>& event)
+void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
-    std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
-    if (textureReadyEvent->Texture().path == hdrPath_)
+    if (event->Texture()->path == hdrPath_)
     {
-        ZTexture texture = textureReadyEvent->Texture();
-        ZBufferData bufferData = textureReadyEvent->BufferData();
+        ZTexture::ptr texture = event->Texture();
+        ZFramebuffer::ptr bufferData = event->BufferData();
         Initialize(texture, bufferData);
 
-        ZEventDelegate cubemapReadyDelegate = fastdelegate::MakeDelegate(this, &ZSkybox::HandleCubemapReady);
-        zenith::EventAgent()->RemoveListener(cubemapReadyDelegate, ZTextureReadyEvent::Type);
+        ZServices::EventAgent()->Unsubscribe(this, &ZSkybox::HandleCubemapReady);
 
         std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(std::static_pointer_cast<ZSkybox>(shared_from_this()));
-        zenith::EventAgent()->QueueEvent(skyboxReadyEvent);
+        ZServices::EventAgent()->Queue(skyboxReadyEvent);
     }
 }

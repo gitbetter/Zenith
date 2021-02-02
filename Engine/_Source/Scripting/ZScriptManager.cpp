@@ -27,9 +27,9 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZScriptManager.hpp"
 #include "ZResource.hpp"
-#include "ZResourceCache.hpp"
 
 void ZScriptManager::Load(std::shared_ptr<ZOFTree> zof)
 {
@@ -46,7 +46,7 @@ void ZScriptManager::Load(std::shared_ptr<ZOFTree> zof)
             {
                 std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
                 ZResource scriptResource(prop->value, ZResourceType::Script);
-                zenith::ResourceCache()->GetHandle(&scriptResource);
+                ZServices::ResourceCache()->GetHandle(&scriptResource);
                 scripts_[it->first] = true;
             }
         }
@@ -68,7 +68,7 @@ void ZScriptManager::LoadAsync(std::shared_ptr<ZOFTree> zof)
             {
                 std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
                 ZResource scriptResource(prop->value, ZResourceType::Script);
-                zenith::ResourceCache()->RequestHandle(scriptResource);
+                ZServices::ResourceCache()->RequestHandle(scriptResource);
                 // TODO: Create a ZScriptReadyEvent that we can catch in order to cache the script properly.
                 // Might also want to refactor the scripts into separate ZScript objects where we can store extra
                 // data.

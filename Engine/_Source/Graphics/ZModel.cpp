@@ -27,18 +27,19 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
+#include "ZFramebuffer.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZMesh3D.hpp"
 #include "ZModelImporter.hpp"
 #include "ZAnimation.hpp"
 #include "ZSkeleton.hpp"
-#include "ZResourceCache.hpp"
-#include "ZEventAgent.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZModelReadyEvent.hpp"
 
+ZIDSequence ZModel::idGenerator_("ZMOD");
 
 std::map<std::string, ZModel::Creator> ZModel::modelCreators_ = {
     { "Cube", &ZModel::NewCubePrimitive },
@@ -50,6 +51,7 @@ std::map<std::string, ZModel::Creator> ZModel::modelCreators_ = {
 
 ZModel::ZModel(ZPrimitiveType primitiveType, const glm::vec3& scale) : globalInverseTransform_(glm::mat4(1.f))
 {
+    id_ = idGenerator_.Next();
     switch (primitiveType)
     {
     case ZPrimitiveType::Plane:
@@ -64,6 +66,12 @@ ZModel::ZModel(ZPrimitiveType primitiveType, const glm::vec3& scale) : globalInv
         CreateCone(scale); break;
     }
     Initialize();
+}
+
+ZModel::ZModel(const std::string& path)
+    : modelPath_(path)
+{
+    id_ = idGenerator_.Next();
 }
 
 void ZModel::Initialize()
@@ -81,20 +89,22 @@ void ZModel::Initialize()
 void ZModel::InitializeAsync()
 {
     ZResource modelResource(modelPath_, ZResourceType::Model);
-    zenith::ResourceCache()->RequestHandle(modelResource);
+    ZServices::ResourceCache()->RequestHandle(modelResource);
 
-    ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);
-    zenith::EventAgent()->AddListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+    ZServices::EventAgent()->Subscribe(this, &ZModel::HandleModelLoaded);
 }
 
-void ZModel::Render(ZShader* shader)
+void ZModel::Render(const std::shared_ptr<ZShader>& shader)
 {
-    std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::DefaultMaterial() };
+    std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::CreateDefault() };
     Render(shader, materials);
 }
 
-void ZModel::Render(ZShader* shader, const std::vector<std::shared_ptr<ZMaterial>>& materials)
+void ZModel::Render(const std::shared_ptr<ZShader>& shader, const std::vector<std::shared_ptr<ZMaterial>>& materials)
 {
+    std::vector<std::shared_ptr<ZMaterial>> mats(materials);
+    if (mats.empty()) mats.emplace_back(ZMaterial::Default());
+
     shader->Activate();
     shader->SetBool("rigged", skeleton_ != nullptr);
     if (skeleton_)
@@ -102,21 +112,11 @@ void ZModel::Render(ZShader* shader, const std::vector<std::shared_ptr<ZMaterial
         shader->Use(bones_);
     }
 
-    ZMesh3DMap meshesLeft = meshes_;
-    for (auto materialIt = materials.begin(); materialIt != materials.end(); materialIt++)
-    {
-        if (!(*materialIt)->MeshID().empty())
-        {
-            meshes_[(*materialIt)->MeshID()]->Render(shader, (*materialIt).get());
-            meshesLeft.erase((*materialIt)->MeshID());
-        }
-        else
-        {
-            for (ZMesh3DMap::iterator meshIt = meshesLeft.begin(); meshIt != meshesLeft.end(); meshIt++)
-            {
-                meshIt->second->Render(shader, (*materialIt).get());
-            }
-        }
+    auto materialsIt = mats.begin();
+    for (auto meshesIt = meshes_.begin(); meshesIt != meshes_.end(); meshesIt++) {
+        meshesIt->second->Render(shader, (*materialsIt));
+        if (materialsIt + 1 != mats.end())
+            ++materialsIt;
     }
 }
 
@@ -297,14 +297,13 @@ glm::vec3 ZModel::CalculateInterpolatedPosition(double animationTime, std::share
     return start + (float) factor * delta;
 }
 
-void ZModel::HandleModelLoaded(const std::shared_ptr<ZEvent>& event)
+void ZModel::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
 {
-    std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
-    if (!loaded->Handle()) return;
+    if (!event->Handle()) return;
 
-    std::shared_ptr<ZModelResourceExtraData> extraData = std::static_pointer_cast<ZModelResourceExtraData>(loaded->Handle()->ExtraData());
+    std::shared_ptr<ZModelResourceExtraData> extraData = std::static_pointer_cast<ZModelResourceExtraData>(event->Handle()->ExtraData());
 
-    if (loaded->Handle()->Resource().name == modelPath_)
+    if (event->Handle()->Resource().name == modelPath_)
     {
         meshes_ = extraData->Meshes();
         bonesMap_ = extraData->BoneMap();
@@ -316,11 +315,10 @@ void ZModel::HandleModelLoaded(const std::shared_ptr<ZEvent>& event)
         if (skeleton_ && skeleton_->rootJoint) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
         InitializeAABB();
 
-        ZEventDelegate modelLoadDelegate = fastdelegate::MakeDelegate(this, &ZModel::HandleModelLoaded);
-        zenith::EventAgent()->RemoveListener(modelLoadDelegate, ZResourceLoadedEvent::Type);
+        ZServices::EventAgent()->Unsubscribe(this, &ZModel::HandleModelLoaded);
 
         std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(shared_from_this());
-        zenith::EventAgent()->QueueEvent(modelReadyEvent);
+        ZServices::EventAgent()->Queue(modelReadyEvent);
     }
 }
 
@@ -341,6 +339,7 @@ void ZModel::CreateAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingM
             if (!path.empty())
             {
                 std::shared_ptr<ZModel> model(new ZModel(path));
+                model->id_ = it->first;
                 outPendingModels[model] = it->first;
             }
         }
@@ -370,6 +369,7 @@ void ZModel::Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap)
             if (!path.empty())
             {
                 std::shared_ptr<ZModel> model(new ZModel(path));
+                model->id_ = it->first;
                 model->Initialize();
                 models[it->first] = model;
             }
@@ -589,17 +589,17 @@ void ZModel::CreateCone(const glm::vec3& scale)
  */
 std::unique_ptr<ZModel> ZModel::NewSkybox(ZIBLTexture& generatedIBLTexture, const std::vector<std::string>& faces)
 {
-    generatedIBLTexture.cubeMap = zenith::Graphics()->LoadCubeMap(faces);
+    generatedIBLTexture.cubeMap = ZTexture::CreateCubeMap(faces);
 
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }
 
-std::unique_ptr<ZModel> ZModel::NewSkybox(const ZTexture& cubeMap, const ZBufferData& bufferData, ZIBLTexture& generatedIBLTexture)
+std::unique_ptr<ZModel> ZModel::NewSkybox(const std::shared_ptr<ZTexture>& cubeMap, const std::shared_ptr<ZFramebuffer>& bufferData, ZIBLTexture& generatedIBLTexture)
 {
     generatedIBLTexture.cubeMap = cubeMap;
-    generatedIBLTexture.irradiance = zenith::Graphics()->IrradianceMapFromCubeMap(bufferData, cubeMap);
-    generatedIBLTexture.prefiltered = zenith::Graphics()->PrefilterCubeMap(bufferData, cubeMap);
-    generatedIBLTexture.brdfLUT = zenith::Graphics()->BRDFLUT(bufferData);
+    generatedIBLTexture.irradiance = ZTexture::CreateIrradianceMap(bufferData, cubeMap);
+    generatedIBLTexture.prefiltered = ZTexture::CreatePrefilterMap(bufferData, cubeMap);
+    generatedIBLTexture.brdfLUT = ZTexture::CreateBRDFLUT(bufferData);
 
     return NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
 }

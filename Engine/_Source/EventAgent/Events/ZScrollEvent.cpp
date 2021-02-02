@@ -29,4 +29,4 @@
 
 #include "ZScrollEvent.hpp"
 
-const ZEventType ZScrollEvent::Type(0xf22939c7);
+const ZTypeIdentifier ZScrollEvent::Type(TYPE_ID(ZScrollEvent));

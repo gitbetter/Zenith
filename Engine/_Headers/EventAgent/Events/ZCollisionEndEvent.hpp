@@ -44,11 +44,11 @@ private:
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
     explicit ZCollisionEndEvent(const ZCollisionPair& collisionPair) : collisionPair_(collisionPair) {}
 
-    const ZEventType& EventType() const override { return Type; };
+    const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZCollisionEndEvent>(new ZCollisionEndEvent(collisionPair_)); }
     std::string Name() const override { return "ZCollisionEndEvent"; }
 

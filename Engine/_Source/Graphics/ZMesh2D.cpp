@@ -27,17 +27,16 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZUI.hpp"
+#include "ZServices.hpp"
 #include "ZMesh2D.hpp"
-#include "ZGraphicsStrategy.hpp"
 #include "ZShader.hpp"
 
 void ZMesh2D::Initialize()
 {
-    bufferData_ = zenith::Graphics()->LoadVertexData(vertexData_);
+    bufferData_ = ZBuffer::Create(vertexData_);
 }
 
-void ZMesh2D::Render(ZShader* shader, ZMaterial* material)
+void ZMesh2D::Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material)
 {
     if (material)
     {
@@ -47,7 +46,7 @@ void ZMesh2D::Render(ZShader* shader, ZMaterial* material)
     {
         shader->SetBool("instanced", true);
     }
-    zenith::Graphics()->Draw(bufferData_, vertexData_);
+    ZServices::Graphics()->Draw(bufferData_, vertexData_);
 }
 
 std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad()

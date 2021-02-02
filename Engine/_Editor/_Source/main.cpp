@@ -28,16 +28,15 @@
  */
 
 #include "ZEditor.hpp"
-#include "ZGame.hpp"
-#include "ZScene.hpp"
-#include "ZUI.hpp"
-#include "ZProcessRunner.hpp"
-#include "ZResourceCache.hpp"
 
 int main(int argc, const char * argv[]) {
 	std::shared_ptr<ZEditor> editor = std::make_shared<ZEditor>();
     
-    editor->Initialize();
+    ZGameOptions options;
+    options.domain.windowSize.x = 1920;
+    options.domain.windowSize.y = 1080;
+    options.domain.maximized = false;
+    editor->Initialize(options);
     
     editor->Loop();
     

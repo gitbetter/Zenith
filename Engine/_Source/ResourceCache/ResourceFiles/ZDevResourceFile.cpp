@@ -28,6 +28,7 @@
 */
 
 #include "ZDevResourceFile.hpp"
+#include "ZServices.hpp"
 #include <cppfs/FileIterator.h>
 
 using namespace cppfs;
@@ -37,7 +38,7 @@ bool ZDevResourceFile::Open()
     FileHandle handle = fs::open(fileName_);
     if (!handle.exists() || !handle.isDirectory())
     {
-        zenith::Log("Development resource file is invalid", ZSeverity::Error);
+        LOG("Development resource file is invalid", ZSeverity::Error);
         return false;
     }
 
@@ -87,7 +88,7 @@ void ZDevResourceFile::PrintResources() const
 {
     for (auto it = assetIndices_.begin(), end = assetIndices_.end(); it != end; it++)
     {
-        zenith::Log(assets_[it->second].path(), ZSeverity::Error);
+        LOG(assets_[it->second].path(), ZSeverity::Error);
     }
 }
 

@@ -27,11 +27,9 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZGraphics.hpp"
-#include "ZGraphicsStrategy.hpp"
+#include "ZServices.hpp"
 #include "ZModelImporter.hpp"
 #include "ZResource.hpp"
-#include "ZResourceCache.hpp"
 #include "ZSkeleton.hpp"
 #include "ZAnimation.hpp"
 #include <assimp/Importer.hpp>
@@ -48,7 +46,7 @@ ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& out
 
     // Cache in the model data from the given file
     ZResource resource(modelPath, ZResourceType::Model);
-    std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
+    std::shared_ptr<ZResourceHandle> handle = ZServices::ResourceCache()->GetHandle(&resource);
 
     return LoadModel(handle, outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
 }
@@ -64,7 +62,7 @@ ZMesh3DMap ZModelImporter::LoadModel(const std::shared_ptr<ZResourceHandle>& mod
     // The file might have incomplete data or no nodes to traverse. Handle that.
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
-        zenith::Log(std::string("ZModelImporter Error: ") + import.GetErrorString(), ZSeverity::Error);
+        LOG(std::string("ZModelImporter Error: ") + import.GetErrorString(), ZSeverity::Error);
         return meshes;
     }
 
@@ -349,38 +347,6 @@ void ZModelImporter::LoadAnimations(const aiScene* scene)
         animations[animation->name] = animation;
     }
     currentAnimations_ = animations;
-}
-
-/**
- A helper function that gets all the textures for a specific texture type (i.e. specular, diffuse, height, etc).
-
- @param mat the material with the textures to process.
- @param type the type of texture we're looking for.
- @param typeName the texture type as a string.
- @param directory the directory that supposedly contains the textures. We'll see.
- @return a vector of ZTextures with all the relevant data
- */
-std::vector<ZTexture> ZModelImporter::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::string& directory)
-{
-    std::vector<ZTexture> textures;
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-    {
-        aiString str;
-        mat->GetTexture(type, i, &str);
-        std::string textureName = std::string(str.C_Str());
-        if (zenith::Graphics()->Textures().find(textureName) != zenith::Graphics()->Textures().end())
-        {
-            textures.push_back(zenith::Graphics()->Textures()[textureName]);
-        }
-        else
-        {
-            ZTexture texture = zenith::Graphics()->LoadTexture(textureName, directory);
-            texture.type = typeName;
-            texture.path = textureName;
-            textures.push_back(texture);
-        }
-    }
-    return textures;
 }
 
 /**

@@ -44,12 +44,12 @@ private:
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
     explicit ZScrollEvent(double xOffset, double yOffset) : x_(xOffset), y_(yOffset) {}
     explicit ZScrollEvent(std::istringstream& in) : x_(0), y_(0) {}
 
-    const ZEventType& EventType() const override { return Type; };
+    const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZScrollEvent>(new ZScrollEvent(x_, y_)); }
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZScrollEvent"; }

@@ -30,8 +30,7 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
-#include "ZUI.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 class ZEditorScene;
@@ -46,7 +45,7 @@ public:
 		: name_(name), theme_(theme), visible_(true) { }
 	virtual ~ZEditorTool() { }
     
-	virtual void Initialize();
+	virtual void Initialize(const std::shared_ptr<ZScene>& scene);
 
 	virtual void Update() = 0;
 

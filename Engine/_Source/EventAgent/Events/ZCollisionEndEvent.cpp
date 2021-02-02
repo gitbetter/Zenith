@@ -29,4 +29,4 @@
 
 #include "ZCollisionEndEvent.hpp"
 
-const ZEventType ZCollisionEndEvent::Type(0x1182cfa2);
+const ZTypeIdentifier ZCollisionEndEvent::Type(TYPE_ID(ZCollisionEndEvent));

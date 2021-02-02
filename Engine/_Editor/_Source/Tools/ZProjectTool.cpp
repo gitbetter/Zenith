@@ -28,6 +28,12 @@
  */
 
 #include "ZProjectTool.hpp"
+#include "ZUIPanel.hpp"
+
+void ZProjectTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+    ZEditorTool::Initialize(scene);
+    container_->SetColor(theme_.primaryColor);
+}
 
 void ZProjectTool::Update() {
 

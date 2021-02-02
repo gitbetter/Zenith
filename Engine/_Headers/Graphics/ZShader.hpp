@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZMaterial;
+class ZResourceLoadedEvent;
 
 // Class and Data Structure Definitions
 class ZShader : public std::enable_shared_from_this<ZShader>
@@ -42,6 +43,7 @@ class ZShader : public std::enable_shared_from_this<ZShader>
 private:
 
     unsigned int id_;
+    std::string name_;
 
     std::string vertexShaderPath_;
     std::string pixelShaderPath_;
@@ -59,20 +61,20 @@ private:
     unsigned int CreateProgram(int vShader, int pShader, int gShader);
     void CheckCompileErrors(unsigned int compilationUnit, ZShaderType shaderType, const std::string& shaderSource);
 
-    void HandleShaderCodeLoaded(const std::shared_ptr<ZEvent>& event);
+    void HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
 
 public:
 
-    ZShader(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "")
-        : vertexShaderPath_(vertexShaderPath), pixelShaderPath_(pixelShaderPath), geometryShaderPath_(geomShaderPath), loadedShadersMask_(0)
-    {}
+    ZShader(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "");
     ~ZShader() {}
 
     void Initialize();
     void InitializeAsync();
 
+    unsigned int ID() const { return id_; }
+    const std::string& Name() const { return name_; }
+
     void Activate();
-    unsigned int GetID() const { return id_; }
 
     // Helpers for setting uniforms
     void SetBool(const std::string& name, bool value) const;
@@ -88,11 +90,15 @@ public:
     void SetMat3(const std::string& name, const glm::mat3& value) const;
     void SetMat4(const std::string& name, const glm::mat4& value) const;
 
-    void Use(ZMaterial* material);
+    void Use(const std::shared_ptr<ZMaterial>& material);
     void Use(const ZLightMap& lights);
     void Use(const ZBoneList& bones);
 
     static void CreateAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendingShaders);
     static void Create(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap);
     static std::shared_ptr<ZShader> Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "");
+
+protected:
+
+    static ZIDSequence idGenerator_;
 };

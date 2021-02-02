@@ -28,18 +28,18 @@
  */
 
 #include "ZLight.hpp"
+#include "ZServices.hpp"
 
 std::map<std::string, ZLightType> ZLight::lightTypesMap = {
     {"Directional", ZLightType::Directional},
     {"Point", ZLightType::Point},
-    {"Spot", ZLightType::Spot},
-    {"Hemisphere", ZLightType::Hemisphere}
+    {"Spot", ZLightType::Spot}
 };
 
 ZLight::ZLight(ZLightType lightType) : ZGameObject(glm::vec3(1.f))
 {
     type = lightType; enabled = true;
-    id_ = "ZLT_" + zenith::IDSequence()->Next();
+    id_ = "ZLT_" + idGenerator_.Next();
 }
 
 void ZLight::Initialize(std::shared_ptr<ZOFNode> root)
@@ -49,7 +49,7 @@ void ZLight::Initialize(std::shared_ptr<ZOFNode> root)
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
     {
-        zenith::Log("Could not initalize ZLight", ZSeverity::Error);
+        LOG("Could not initalize ZLight", ZSeverity::Error);
         return;
     }
 
@@ -108,18 +108,6 @@ void ZLight::Initialize(std::shared_ptr<ZOFNode> root)
         std::shared_ptr<ZOFNumber> prop = props["spotExponent"]->Value<ZOFNumber>(0);
         spot.exponent = prop->value;
     }
-
-    if (props.find("hemisphereSky") != props.end() && props["hemisphereSky"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumberList> prop = props["hemisphereSky"]->Value<ZOFNumberList>(0);
-        hemisphere.skyColor = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
-    }
-
-    if (props.find("hemisphereGround") != props.end() && props["hemisphereGround"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumberList> prop = props["hemisphereGround"]->Value<ZOFNumberList>(0);
-        hemisphere.groundColor = glm::vec3(prop->value[0], prop->value[1], prop->value[2]);
-    }
 }
 
 std::shared_ptr<ZGameObject> ZLight::Clone()
@@ -138,8 +126,13 @@ std::shared_ptr<ZGameObject> ZLight::Clone()
 
     if (clone->type == ZLightType::Spot)
         clone->spot = spot;
-    else if (clone->type == ZLightType::Hemisphere)
-        clone->hemisphere = hemisphere;
 
     return clone;
+}
+
+void ZLight::UpdateLightspaceMatrix(const ZFrustum& frustum)
+{
+    glm::mat4 lightP = glm::ortho(-frustum.nearWidth, frustum.nearWidth, -frustum.nearHeight, -frustum.nearHeight, frustum.near, frustum.far);
+    glm::mat4 lightV = glm::lookAt(type == ZLightType::Directional ? glm::eulerAngles(Orientation()) : Position(), glm::vec3(0.f), WORLD_UP);
+    lightspaceMatrix_ = lightP * lightV;
 }

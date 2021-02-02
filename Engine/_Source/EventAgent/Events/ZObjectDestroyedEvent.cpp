@@ -29,4 +29,4 @@
 
 #include "ZObjectDestroyedEvent.hpp"
 
-const ZEventType ZObjectDestroyedEvent::Type(0x9a9908d9);
+const ZTypeIdentifier ZObjectDestroyedEvent::Type(TYPE_ID(ZObjectDestroyedEvent));

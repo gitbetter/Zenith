@@ -29,4 +29,4 @@
 
 #include "ZResourceLoadedEvent.hpp"
 
-const ZEventType ZResourceLoadedEvent::Type(0x350faec5);
+const ZTypeIdentifier ZResourceLoadedEvent::Type(TYPE_ID(ZResourceLoadedEvent));

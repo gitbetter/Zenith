@@ -28,8 +28,7 @@
 */
 
 #include "ZUIListPanel.hpp"
-#include "ZGraphics.hpp"
-#include "ZGraphicsStrategy.hpp"
+#include "ZServices.hpp"
 
 ZUIListPanel::ZUIListPanel(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
@@ -53,7 +52,7 @@ void ZUIListPanel::Initialize(const std::shared_ptr<ZOFNode>& root)
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
     if (node == nullptr)
     {
-        zenith::Log("Could not initalize ZUIElement", ZSeverity::Error);
+        LOG("Could not initalize ZUIElement", ZSeverity::Error);
         return;
     }
 
@@ -74,4 +73,24 @@ void ZUIListPanel::AddChild(const std::shared_ptr<ZUIElement>& element)
     SetSize(glm::vec2(Size().x, glm::max(Size().y, itemHeight_ * children_.size())));
 
     ZUIElement::AddChild(element);
+}
+
+std::shared_ptr<ZUIListPanel> ZUIListPanel::Create()
+{
+    std::shared_ptr<ZUIListPanel> element = std::make_shared<ZUIListPanel>();
+    return element;
+}
+
+std::shared_ptr<ZUIListPanel> ZUIListPanel::Create(const ZUIElementOptions& options)
+{
+    std::shared_ptr<ZUIListPanel> element = std::make_shared<ZUIListPanel>(options);
+    return element;
+}
+
+std::shared_ptr<ZUIListPanel> ZUIListPanel::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
+{
+    auto element = ZUIListPanel::Create(options);
+    element->SetScene(scene);
+    element->Initialize();
+    return element;
 }

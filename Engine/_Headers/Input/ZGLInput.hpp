@@ -53,8 +53,18 @@ public:
 
     void Initialize() override;
     void Update(double deltaTime) override;
+
     void GetCursorPosition(double& x, double& y) override;
     void SetCursorPosition(double& x, double& y) override;
+
+    void PollEvents() override;
+    void RefreshContext() override;
+    void CaptureCursor() override;
+    void ReleaseCursor() override;
+    void HideCursor() override;
+    void ShowCursor() override;
+    bool IsCursorCaptured() override;
+    bool IsCursorHidden() override;
 
 protected:
 

@@ -29,4 +29,4 @@
 
 #include "ZModelReadyEvent.hpp"
 
-const ZEventType ZModelReadyEvent::Type(0xd644b188);
+const ZTypeIdentifier ZModelReadyEvent::Type(TYPE_ID(ZModelReadyEvent));

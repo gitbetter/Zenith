@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(ZENITH_LIB Zenith)
 set(ENGINE_DIRECTORY ${CMAKE_SOURCE_DIR}/Engine)
@@ -196,54 +196,52 @@ if (USER_PROJECT_NAME AND (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${USER_PROJEC
   file(TOUCH ${USER_PROJECT_NAME}/Assets/scene.zof)
   file(TOUCH ${USER_PROJECT_NAME}/Headers/Game.hpp)
   file(WRITE ${USER_PROJECT_NAME}/Source/Game.cpp 
-"#include \"ZGame.hpp\"
+"#include \"ZServices.hpp\"
+#include \"ZGame.hpp\"
 #include \"ZScene.hpp\"
-#include \"ZUI.hpp\"
-#include \"ZEventAgent.hpp\"
 #include \"ZSceneReadyEvent.hpp\"
-#include \"ZDomain.hpp\"
+#include \"ZInput.hpp\"
+#include \"ZAssetStore.hpp\"
 
-void onSceneLoad(std::shared_ptr<ZEvent> event);
+void onSceneLoad(std::shared_ptr<ZSceneReadyEvent> event);
 
 int main(int argc, const char* argv[]) {
     // Create a new game instance
     std::shared_ptr<ZGame> game = std::make_shared<ZGame>();
 
     // Initialize the engine before anything else
-    ZDomainOptions windowOptions;
-    windowOptions.width = 800;
-    windowOptions.height = 600;
-    windowOptions.maximized = false;
-    zenith::Initialize(game, windowOptions);
+    ZGameOptions gameOptions;
+    gameOptions.domain.width = 800;
+    gameOptions.domain.height = 600;
+    gameOptions.domain.maximized = false;
+    game->Initialize(gameOptions);
 
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    zenith::UI()->RegisterFont(\"/Fonts/earth_orbiter/earthorbiter.ttf\");
+    game->AssetStore()->RegisterFont(\"/Fonts/earth_orbiter/earthorbiter.ttf\");
 
     // Load a default scene from the engine
-    zenith::LoadScene({ \"/demo_scene.zof\" });
+    ZScene::LoadIn({ \"/demo_scene.zof\" });
 
     // Register delegate methods for specific UI events
-    ZEventDelegate sceneReadyDelegate(&onSceneLoad);
-    zenith::EventAgent()->AddListener(sceneReadyDelegate, ZSceneReadyEvent::Type);
+    ZServices::EventAgent()->Subscribe(&onSceneLoad);
 
     // Free up window cursor. It is captured by default.
-    zenith::Domain()->ReleaseCursor();
+    ZServices::Input()->ReleaseCursor();
 
     // Create the game and start the main game loop. Nothing beyond this point will execute
     // for the duration of the game.
     game->Loop();
 
     // Make sure to clean up all resources after we're done
-    zenith::CleanUp();
+    game->CleanUp();
 
     return 0;
 }
 
-void onSceneLoad(std::shared_ptr<ZEvent> event)
+void onSceneLoad(std::shared_ptr<ZSceneReadyEvent> event)
 {
-    std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::dynamic_pointer_cast<ZSceneReadyEvent>(event);
-    zenith::Log(\"Scene '\" + sceneReadyEvent->Scene()->Name() + \"' loaded\", ZSeverity::Info);
-    sceneReadyEvent->Scene()->Play();
+    LOG(\"Scene '\" + event->Scene()->Name() + \"' loaded\", ZSeverity::Info);
+    event->Scene()->Play();
 }")
   # Generate user CMakeLists.txt
   file(STRINGS ${CMAKE_SOURCE_DIR}/CMakeLists.user.txt USER_CMAKELISTS)

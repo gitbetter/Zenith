@@ -29,4 +29,4 @@
 
 #include "ZWindowResizeEvent.hpp"
 
-const ZEventType ZWindowResizeEvent::Type(0x8f39d796);
+const ZTypeIdentifier ZWindowResizeEvent::Type(TYPE_ID(ZWindowResizeEvent));

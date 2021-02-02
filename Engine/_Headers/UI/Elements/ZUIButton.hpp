@@ -48,4 +48,8 @@ public:
     void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
+    static std::shared_ptr<ZUIButton> Create();
+    static std::shared_ptr<ZUIButton> Create(const ZUIElementOptions& options);
+    static std::shared_ptr<ZUIButton> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
+
 };

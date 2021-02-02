@@ -31,9 +31,11 @@
 
 // Includes
 #include "ZGameObject.hpp"
+#include "ZFramebuffer.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZTexture;
+class ZTextureReadyEvent;
 
 // Class and Data Structure Definitions
 class ZSkybox : public ZGameObject
@@ -43,7 +45,7 @@ private:
 
     std::string hdrPath_;
 
-    void Initialize(const ZTexture& cubeMap, const ZBufferData& bufferData);
+    void Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& bufferData);
 
 public:
 
@@ -56,7 +58,7 @@ public:
 
     std::shared_ptr<ZGameObject> Clone() override;
 
-    void Render(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
 
     bool IsVisible() override { return true; }
 
@@ -64,8 +66,9 @@ public:
 
 protected:
 
+    std::shared_ptr<ZTexture> pendingHDRTexture_;
     ZIBLTexture iblTexture_;
 
-    void HandleCubemapReady(const std::shared_ptr<ZEvent>& event);
+    void HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& event);
 
 };

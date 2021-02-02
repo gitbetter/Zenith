@@ -27,8 +27,8 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
 #include "ZGLInput.hpp"
-#include "ZEventAgent.hpp"
 #include "ZLookEvent.hpp"
 #include "ZDragEvent.hpp"
 #include "ZMoveEvent.hpp"
@@ -170,11 +170,6 @@ void ZGLInput::Initialize()
     mouseMap_[GLFW_MOUSE_BUTTON_6] = ZMouse::MB6;
     mouseMap_[GLFW_MOUSE_BUTTON_7] = ZMouse::MB7;
     mouseMap_[GLFW_MOUSE_BUTTON_8] = ZMouse::MB8;
-
-    GLFWwindow* windowHandle = glfwGetCurrentContext();
-    glfwSetKeyCallback(windowHandle, &ZGLInput::KeyCallback);
-    glfwSetMouseButtonCallback(windowHandle, &ZGLInput::MouseButtonCallback);
-    glfwSetScrollCallback(windowHandle, &ZGLInput::MouseScrollCallback);
 }
 
 void ZGLInput::Update(double deltaTime)
@@ -184,27 +179,27 @@ void ZGLInput::Update(double deltaTime)
     if (keyPress_[ZKey::W])
     {
         std::shared_ptr<ZMoveEvent> moveEvent(new ZMoveEvent(0.f, 0.f, 1.f));
-        zenith::EventAgent()->TriggerEvent(moveEvent);
+        ZServices::EventAgent()->Trigger(moveEvent);
     }
     if (keyPress_[ZKey::A])
     {
         std::shared_ptr<ZMoveEvent> moveEvent(new ZMoveEvent(-1.f, 0.f, 0.f));
-        zenith::EventAgent()->TriggerEvent(moveEvent);
+        ZServices::EventAgent()->Trigger(moveEvent);
     }
     if (keyPress_[ZKey::S])
     {
         std::shared_ptr<ZMoveEvent> moveEvent(new ZMoveEvent(0.f, 0.f, -1.f));
-        zenith::EventAgent()->TriggerEvent(moveEvent);
+        ZServices::EventAgent()->Trigger(moveEvent);
     }
     if (keyPress_[ZKey::D])
     {
         std::shared_ptr<ZMoveEvent> moveEvent(new ZMoveEvent(1.f, 0.f, 0.f));
-        zenith::EventAgent()->TriggerEvent(moveEvent);
+        ZServices::EventAgent()->Trigger(moveEvent);
     }
     if (keyPress_[ZKey::ESCAPE])
     {
         std::shared_ptr<ZQuitEvent> quitEvent(new ZQuitEvent);
-        zenith::EventAgent()->TriggerEvent(quitEvent);
+        ZServices::EventAgent()->Trigger(quitEvent);
     }
 
     double yaw, pitch;
@@ -224,25 +219,25 @@ void ZGLInput::Update(double deltaTime)
         if (deltaYaw != 0.0 || deltaPitch != 0.0)
         {
             std::shared_ptr<ZDragEvent> dragEvent(new ZDragEvent(deltaYaw, deltaPitch, 0.f));
-            zenith::EventAgent()->TriggerEvent(dragEvent);
+            ZServices::EventAgent()->Trigger(dragEvent);
         }
         else
         {
             std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent(yaw, pitch, 0.f));
-            zenith::EventAgent()->TriggerEvent(fireEvent);
+            ZServices::EventAgent()->Trigger(fireEvent);
         }
     }
     else if (prevMousePress_[ZMouse::LEFT_MB] != mousePress_[ZMouse::LEFT_MB])
     {
         std::shared_ptr<ZFireEvent> fireEvent(new ZFireEvent(yaw, pitch, 0.f, true));
-        zenith::EventAgent()->TriggerEvent(fireEvent);
+        ZServices::EventAgent()->Trigger(fireEvent);
         prevMousePress_[ZMouse::LEFT_MB] = mousePress_[ZMouse::LEFT_MB];
     }
 
     if (deltaYaw != 0.0 || deltaPitch != 0.0)
     {
         std::shared_ptr<ZLookEvent> lookEvent(new ZLookEvent(deltaYaw, deltaPitch));
-        zenith::EventAgent()->TriggerEvent(lookEvent);
+        ZServices::EventAgent()->Trigger(lookEvent);
     }
 
     lastYaw_ = yaw; lastPitch_ = pitch;
@@ -260,18 +255,71 @@ void ZGLInput::SetCursorPosition(double& x, double& y)
     glfwSetCursorPos(windowHandle, x, y);
 }
 
+void ZGLInput::PollEvents()
+{
+    glfwPollEvents();
+}
+
+void ZGLInput::RefreshContext()
+{
+    GLFWwindow* windowHandle = glfwGetCurrentContext();
+    glfwSetKeyCallback(windowHandle, &ZGLInput::KeyCallback);
+    glfwSetMouseButtonCallback(windowHandle, &ZGLInput::MouseButtonCallback);
+    glfwSetScrollCallback(windowHandle, &ZGLInput::MouseScrollCallback);
+
+#ifndef EDITOR_ROOT
+    CaptureCursor();
+#endif
+}
+
+void ZGLInput::CaptureCursor()
+{
+    GLFWwindow* glWindow = glfwGetCurrentContext();
+    glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void ZGLInput::ReleaseCursor()
+{
+    GLFWwindow* glWindow = glfwGetCurrentContext();
+    glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+void ZGLInput::HideCursor()
+{
+    GLFWwindow* glWindow = glfwGetCurrentContext();
+    glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+}
+
+void ZGLInput::ShowCursor()
+{
+    GLFWwindow* glWindow = glfwGetCurrentContext();
+    glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+bool ZGLInput::IsCursorCaptured()
+{
+    GLFWwindow* glWindow = glfwGetCurrentContext();
+    return glfwGetInputMode(glWindow, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
+}
+
+bool ZGLInput::IsCursorHidden()
+{
+    GLFWwindow* glWindow = glfwGetCurrentContext();
+    return glfwGetInputMode(glWindow, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN;
+}
+
 void ZGLInput::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    zenith::Input()->SetKey(keyMap_[key], action != GLFW_RELEASE);
+    ZServices::Input()->SetKey(keyMap_[key], action != GLFW_RELEASE);
 }
 
 void ZGLInput::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    zenith::Input()->SetMouse(mouseMap_[button], action != GLFW_RELEASE);
+    ZServices::Input()->SetMouse(mouseMap_[button], action != GLFW_RELEASE);
 }
 
 void ZGLInput::MouseScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
     std::shared_ptr<ZScrollEvent> scrollEvent(new ZScrollEvent(xOffset, yOffset));
-    zenith::EventAgent()->TriggerEvent(scrollEvent);
+    ZServices::EventAgent()->Trigger(scrollEvent);
 }

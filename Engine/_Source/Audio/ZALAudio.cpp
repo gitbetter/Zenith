@@ -29,13 +29,14 @@
 
 #include "ZALAudio.hpp"
 #include "ZALAudioSource.hpp"
+#include "ZServices.hpp"
 
 bool ZALAudio::Initialize()
 {
     device_ = alcOpenDevice(NULL);
     if (!device_)
     {
-        zenith::Log("Could not initialize OpenAL audio device", ZSeverity::Error);
+        LOG("Could not initialize OpenAL audio device", ZSeverity::Error);
         return false;
     }
 

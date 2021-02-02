@@ -28,14 +28,13 @@
 */
 
 #include "ZUIHelpers.hpp"
-#include "ZDomain.hpp"
 
 glm::vec2 ZUIHelpers::RelativeToAbsoluteCoords(const glm::vec2& coords, const glm::vec2& parentCoords)
 {
     if (parentCoords != glm::vec2(0.f)) {
         return glm::vec2(coords.x * parentCoords.x, coords.y * parentCoords.y);
     }
-    return glm::vec2(coords.x * zenith::Domain()->ResolutionX(), coords.y * zenith::Domain()->ResolutionY());
+    return coords;
 }
 
 ZRect ZUIHelpers::RelativeToAbsoluteRect(const ZRect& rect, const ZRect& parentRect)
@@ -51,7 +50,7 @@ glm::vec2 ZUIHelpers::AbsoluteToRelativeCoords(const glm::vec2& coords, const gl
     if (parentCoords != glm::vec2(0.f)) {
         return glm::vec2(coords.x / parentCoords.x, coords.y / parentCoords.y);
     }
-    return glm::vec2(coords.x / zenith::Domain()->ResolutionX(), coords.y / zenith::Domain()->ResolutionY());
+    return coords;
 }
 
 ZRect ZUIHelpers::AbsoluteToRelativeRect(const ZRect& rect, const ZRect& parentRect)

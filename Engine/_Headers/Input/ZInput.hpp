@@ -49,8 +49,18 @@ public:
 
     inline bool Key(const ZKey& key) { return keyPress_.find(key) != keyPress_.end() && keyPress_[key]; }
     inline bool Mouse(const ZMouse& mouse) { return mousePress_.find(mouse) != mousePress_.end() && mousePress_[mouse]; }
+
     void SetKey(const ZKey& key, bool pressed = false);
     void SetMouse(const ZMouse& mouse, bool pressed = false);
+
+    virtual void PollEvents() = 0;
+    virtual void RefreshContext() = 0;
+    virtual void CaptureCursor() = 0;
+    virtual void ReleaseCursor() = 0;
+    virtual void HideCursor() = 0;
+    virtual void ShowCursor() = 0;
+    virtual bool IsCursorCaptured() = 0;
+    virtual bool IsCursorHidden() = 0;
 
 protected:
 

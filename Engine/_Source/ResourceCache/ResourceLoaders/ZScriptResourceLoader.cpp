@@ -27,12 +27,12 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZScriptResourceLoader.hpp"
-#include "ZLuaScriptManager.hpp"
 
 bool ZScriptResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle)
 {
     if (rawSize <= 0) return false;
-    zenith::ScriptManager()->ExecuteString(rawBuffer);
+    ZServices::ScriptManager()->ExecuteString(rawBuffer);
     return true;
 }

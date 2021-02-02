@@ -29,4 +29,4 @@
 
 #include "ZLookEvent.hpp"
 
-const ZEventType ZLookEvent::Type(0x5f73b043);
+const ZTypeIdentifier ZLookEvent::Type(TYPE_ID(ZLookEvent));

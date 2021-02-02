@@ -113,8 +113,8 @@ struct Material {
   float ao;
 };
 
-uniform sampler2D depthTexture;
-uniform sampler2D shadowTexture;
+uniform sampler2D depthSampler0;
+uniform sampler2D shadowSampler0;
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
@@ -145,7 +145,8 @@ uniform HemisphereLight hemisphereLight;
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
-vec3 FresnelSchlick(float cosTheta, vec3 F0, float roughness);
+vec3 FresnelSchlick(float cosTheta, vec3 F0);
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 
 // Shadow Calculations
 float PCFShadow(vec4 lightSpacePosition);
@@ -165,7 +166,7 @@ void main() {
   vec2 texCoords = hasDisplacement ? ParallaxFromMap() : fs_in.FragUV;
 
   vec4 albedoTexData = texture(albedo, texCoords);
-  vec4 fragAlbedo = isTextured ? vec4(pow(albedoTexData.rgb, vec3(2.2)), albedoTexData.a) : mat.albedo;
+  vec4 fragAlbedo = isTextured ? vec4(pow(albedoTexData.rgb, vec3(0.0)), albedoTexData.a) : mat.albedo;
 
   if (fragAlbedo.a < 0.1)
 	discard;
@@ -186,6 +187,7 @@ void main() {
   for (int i = 0; i < lightCount; i++) {
     if (lights[i].isEnabled) {
       ++contributingLights;
+
       vec3 L = !lights[i].isDirectional ? normalize(lights[i].position - fs_in.FragPos) : normalize(lights[i].direction);
       vec3 H = normalize(V + L);
       vec3 radiance = lights[i].color;
@@ -198,11 +200,11 @@ void main() {
 
       float NDF = DistributionGGX(N, H, fragRoughness);
       float G = GeometrySmith(N, V, L, fragRoughness);
-      vec3 F = FresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0, 0.0);
+      vec3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
 
       vec3 numerator = NDF * G * F;
-      float denominator = 4.0 * max(dot(N, -V), 0.0) * max(dot(N, L), 0.0);
-      vec3 specular = numerator / max(denominator, 0.001);
+      float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+      vec3 specular = numerator / denominator;
 
       vec3 kS = F;
       vec3 kD = vec3(1.0) - kS;
@@ -214,9 +216,7 @@ void main() {
     }
   }
 
-  Lo /= float(contributingLights);
-
-  vec3 F = FresnelSchlick(max(dot(N, V), 0.0), F0, fragRoughness);
+  vec3 F = FresnelSchlickRoughness(max(dot(N, V), 0.0), F0, fragRoughness);
 
   vec3 kS = F;
   vec3 kD = 1.0 - kS;
@@ -273,8 +273,12 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
   return ggx1 * ggx2;
 }
 
-vec3 FresnelSchlick(float cosTheta, vec3 F0, float roughness) {
-  return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+vec3 FresnelSchlick(float cosTheta, vec3 F0) {
+  return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+}
+
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
+  return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 
 float PCFShadow(vec4 lightSpacePosition) {
@@ -288,7 +292,7 @@ float PCFShadow(vec4 lightSpacePosition) {
   float shadow = 0.0;
   float bias = max(0.05 * (1.0 - dot(fs_in.FragNormal, lightSpacePosition.xyz - fs_in.FragPos)), 0.005);  
   for (int i = 0; i < 16; ++i) {
-    float z = texture(shadowTexture, projCoords.xy + poissonDisk[i]).r;
+    float z = texture(shadowSampler0, projCoords.xy + poissonDisk[i]).r;
     shadow += z < (projCoords.z - bias) ? 1.0 : 0.0;
   }
   return shadow / 16.0;
@@ -299,7 +303,7 @@ float GetBlockerDistance(vec3 shadowCoords, float lightSize) {
     float averageBlockerDistance = 0.0;
     float searchWidth = lightSize * (shadowCoords.z - 0.1) / viewPosition.z;
     for (int i = 0; i < 16; i++) {
-      float z = texture(shadowTexture, shadowCoords.xy + poissonDisk[i] * searchWidth).r;
+      float z = texture(shadowSampler0, shadowCoords.xy + poissonDisk[i] * searchWidth).r;
       if (z < (shadowCoords.z - 0.005)) {
         ++blockers;
         averageBlockerDistance += z;
@@ -332,7 +336,7 @@ float PCSSShadow(vec4 lightSpacePosition, float lightSize) {
 	float bias = max(0.05 * (1.0 - dot(fs_in.FragNormal, fs_in.FragPos - lightSpacePosition.xyz)), 0.002);  
     for (int i = 0; i < 32; i++) {
 	  vec2 offset = (rotation * poissonDisk[i]) * radius;
-      float z = texture(shadowTexture, projCoords.xy + offset).r;
+      float z = texture(shadowSampler0, projCoords.xy + offset).r;
       shadow += z < (projCoords.z - bias) ? 1.0 : 0.0;
     }
     return shadow / 32 * 0.85;

@@ -31,6 +31,7 @@
 #include "ZGameObject.hpp"
 #include "ZModel.hpp"
 #include "ZMesh.hpp"
+#include "ZServices.hpp"
 
 ZAnimatorComponent::ZAnimatorComponent()
 {
@@ -54,7 +55,7 @@ void ZAnimatorComponent::Update(double deltaTime)
         else if (currentClip_.state == ZAnimationState::Looping)
         {
             double duration = currentClip_.endTime - currentClip_.startTime;
-            currentClip_.startTime = zenith::SecondsTime();
+            currentClip_.startTime = SECONDS_TIME;
             currentClip_.endTime = currentClip_.startTime + duration;
             currentClip_.currentTime = 0.0;
         }
@@ -77,7 +78,7 @@ void ZAnimatorComponent::Play(const std::string& animationName, bool looping)
     std::shared_ptr<ZGraphicsComponent> graphics = object_->FindComponent<ZGraphicsComponent>();
     if (!graphics)
     {
-        zenith::Log("Could not play animator animation. No graphics component exists for this game object.", ZSeverity::Error);
+        LOG("Could not play animator animation. No graphics component exists for this game object.", ZSeverity::Error);
         return;
     }
 
@@ -95,7 +96,7 @@ void ZAnimatorComponent::Play(const std::string& animationName, bool looping)
             std::shared_ptr<ZAnimation> animation = animations[animationName];
             currentClip_.name = animationName;
             currentClip_.currentTime = 0.0;
-            currentClip_.startTime = zenith::SecondsTime();
+            currentClip_.startTime = SECONDS_TIME;
             currentClip_.endTime = currentClip_.startTime + animation->duration;
             currentClip_.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
         }

@@ -28,3 +28,5 @@
 */
 
 #include "ZEvent.hpp"
+
+const ZTypeIdentifier ZEvent::Type = TYPE_ID(ZEvent);

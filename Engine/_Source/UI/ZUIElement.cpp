@@ -27,6 +27,10 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
+#include "ZScene.hpp"
+#include "ZAssetStore.hpp"
+#include "ZDomain.hpp"
 #include "ZUIButton.hpp"
 #include "ZUIImage.hpp"
 #include "ZUIPanel.hpp"
@@ -35,57 +39,58 @@
 #include "ZUIListPanel.hpp"
 #include "ZShader.hpp"
 #include "ZUIText.hpp"
-#include "ZDomain.hpp"
-#include "ZUI.hpp"
 #include "ZUILayout.hpp"
-#include "ZEventAgent.hpp"
+#include "ZWindowResizeEvent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZWindowResizeEvent.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
-std::map<std::string, ZUIElement::Creator> ZUIElement::elementCreators_ = {
-    { "Button", &ZUIElement::CreateUIButton },
-    { "Image", &ZUIElement::CreateUIImage },
-    { "Panel", &ZUIElement::CreateUIPanel },
-    { "Text", &ZUIElement::CreateUIText },
-    { "Checkbox", &ZUIElement::CreateUICheckbox },
-    { "ListPanel", &ZUIElement::CreateUIListPanel }
-};
+ZIDSequence ZUIElement::idGenerator_("ZUI");
 
 ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f)
 {
-    id_ = "ZUI_" + zenith::IDSequence()->Next();
+    id_ = "ZUI_" + idGenerator_.Next();
     type_ = ZUIElementType::Unknown;
     SetPosition(position); SetSize(scale);
 }
 
 ZUIElement::ZUIElement(const ZUIElementOptions& options) : modelMatrix_(1.f) {
-    id_ = "ZUI_" + zenith::IDSequence()->Next();
+    id_ = "ZUI_" + idGenerator_.Next();
     type_ = ZUIElementType::Unknown;
     options_ = options;
 }
 
 void ZUIElement::Initialize() {
-    if (options_.shader == nullptr) {
-        options_.shader = zenith::UI()->UIShader();
-    }
-    if (options_.texture.id == 0) {
-        options_.texture = zenith::Graphics()->LoadDefaultTexture();
+    auto scene = Scene();
+    if (!scene)
+    {
+        LOG("ZUIElement was not attached to scene during initialization", ZSeverity::Error);
+        return;
     }
 
+    if (options_.texture == nullptr) {
+        options_.texture = ZTexture::CreateDefault();
+    }
+
+    RecalculateProjectionMatrix();
     SetRect(options_.rect);
 
-    ZEventDelegate windowResizeDelegate = fastdelegate::MakeDelegate(this, &ZUIElement::OnWindowResized);
-    zenith::EventAgent()->AddListener(windowResizeDelegate, ZWindowResizeEvent::Type);
+    ZServices::EventAgent()->Subscribe(this, &ZUIElement::OnWindowResized);
 }
 
 void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
 {
-    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
-    if (node == nullptr)
+    auto node = std::static_pointer_cast<ZOFObjectNode>(root);
+    if (!node)
     {
-        zenith::Log("Could not initalize ZUIElement", ZSeverity::Error);
+        LOG("Could not initalize ZUIElement", ZSeverity::Error);
+        return;
+    }
+    auto scene = Scene();
+    if (!scene)
+    {
+        LOG("ZUIElement was not attached to scene during initialization", ZSeverity::Error);
         return;
     }
 
@@ -144,8 +149,8 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
     if (props.find("texture") != props.end() && props["texture"]->HasValues())
     {
         std::shared_ptr<ZOFString> texProp = props["texture"]->Value<ZOFString>(0);
-        if (zenith::Graphics()->Textures().find(texProp->value) != zenith::Graphics()->Textures().end())
-            options_.texture = zenith::Graphics()->Textures()[texProp->value];
+        if (scene->AssetStore()->HasTexture(texProp->value))
+            options_.texture = scene->AssetStore()->GetTexture(texProp->value);
     }
 
     if (props.find("borderWidth") != props.end() && props["borderWidth"]->HasValues())
@@ -183,21 +188,80 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
     Initialize();
 }
 
+void ZUIElement::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+{
+    // Only render the top level elements that are not hidden. The children will
+    // be rendered within the respective parent elements.
+    // TODO: Also only render if the child has the dirty flag set
+    if (options_.hidden) return;
+
+    if (options_.shader == nullptr) {
+        options_.shader = shader;
+    }
+
+    PreRender(deltaTime, shader, renderOp);
+
+    Draw();
+
+    PostRender(deltaTime, shader, renderOp);
+}
+
+void ZUIElement::PreRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+{
+}
+
+void ZUIElement::Draw()
+{
+    std::shared_ptr<ZMesh2D> mesh = ElementShape();
+    options_.shader->Activate();
+
+    options_.texture->Bind(0);
+    options_.shader->SetInt(options_.texture->type + "0", 0);
+
+    options_.shader->SetMat4("M", modelMatrix_);
+    options_.shader->SetMat4("P", projectionMatrix_);
+    options_.shader->SetVec4("color", options_.color);
+    options_.shader->SetVec4("borderColor", glm::vec4(0.f));
+    options_.shader->SetFloat("borderWidth", 0.f);
+    options_.shader->SetFloat("borderRadius", options_.border.radius);
+    options_.shader->SetVec2("resolution", options_.calculatedRect.size);
+    options_.shader->SetFloat("aspectRatio", 1.f);
+
+    if (options_.border.width > 0.f)
+    {
+        float borderWidth = options_.border.width / glm::length(options_.calculatedRect.size);
+        float aspect = options_.rect.size.y / options_.rect.size.x;
+        options_.shader->SetVec4("borderColor", options_.border.color);
+        options_.shader->SetFloat("borderWidth", borderWidth);
+        options_.shader->SetFloat("aspectRatio", aspect);
+    }
+
+    mesh->Render(options_.shader);
+}
+
+void ZUIElement::PostRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+{
+    for (auto it = children_.begin(); it != children_.end(); it++)
+    {
+        it->second->Render(deltaTime, shader, renderOp);
+    }
+}
+
 void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
 { 
     element->SetOpacity(Opacity(), true);
     element->SetTranslationBounds(options_.translationBounds.x, options_.translationBounds.y, options_.translationBounds.z, options_.translationBounds.w);
 
-    element->SetParent(this);
+    element->SetParent(shared_from_this());
+    element->SetScene(Scene());
 
     LayoutChild(element);
 
     children_[element->ID()] = element;
 }
 
-bool ZUIElement::RemoveChild(const std::shared_ptr<ZUIElement>& element)
+void ZUIElement::RemoveChild(const std::shared_ptr<ZUIElement>& element, bool recurse)
 {
-    bool success = false;
     if (children_.find(element->ID()) != children_.end())
     {
         element->RemoveParent();
@@ -205,9 +269,14 @@ bool ZUIElement::RemoveChild(const std::shared_ptr<ZUIElement>& element)
         if (options_.layout) {
             options_.layout->RemoveRect(element->ID());
         }
-        success = true;
     }
-    return success;
+
+    if (recurse) {
+        for (auto it = children_.begin(), end = children_.end(); it != end; it++)
+        {
+            it->second->RemoveChild(element, recurse);
+        }
+    }
 }
 
 void ZUIElement::DoRecursiveChildUpdate(std::function<void(std::shared_ptr<ZUIElement>)> callback)
@@ -224,7 +293,17 @@ void ZUIElement::DoRecursiveChildUpdate(std::function<void(std::shared_ptr<ZUIEl
 
 void ZUIElement::RemoveParent()
 {
-    parent_ = nullptr;
+    parent_.reset();
+}
+
+std::shared_ptr<ZScene> ZUIElement::Scene() const
+{
+    return scene_.lock();
+}
+
+std::shared_ptr<ZUIElement> ZUIElement::Parent() const
+{
+    return parent_.lock();
 }
 
 void ZUIElement::SetRect(const ZRect& rect, const ZRect& relativeTo)
@@ -236,11 +315,17 @@ void ZUIElement::SetRect(const ZRect& rect, const ZRect& relativeTo)
     }
 }
 
-void ZUIElement::SetSize(const glm::vec2& size, const const ZRect& relativeTo)
+void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
 {
+    auto scene = Scene();
+    if (!scene) return;
+
     if (options_.positioning == ZPositioning::Relative) {
         options_.rect.size = size;
-        options_.calculatedRect.size = ZUIHelpers::RelativeToAbsoluteCoords(size, relativeTo.size);
+        options_.calculatedRect.size = ZUIHelpers::RelativeToAbsoluteCoords(
+            size,
+            relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
+        );
     }
     else {
         options_.rect.size = size;
@@ -249,11 +334,19 @@ void ZUIElement::SetSize(const glm::vec2& size, const const ZRect& relativeTo)
     RecalculateModelMatrix();
 }
 
-void ZUIElement::SetPosition(const glm::vec2& position, const const ZRect& relativeTo)
+void ZUIElement::SetPosition(const glm::vec2& position, const ZRect& relativeTo)
 {
+    auto scene = Scene();
+    if (!scene) return;
+
     if (options_.positioning == ZPositioning::Relative) {
+        auto parent = Parent();
+        glm::vec2 offset = parent && !parent->options_.layout ? parent->options_.calculatedRect.position : glm::vec2(0.f);
         options_.rect.position = position;
-        options_.calculatedRect.position = ZUIHelpers::RelativeToAbsoluteCoords(position, relativeTo.size);
+        options_.calculatedRect.position = offset + ZUIHelpers::RelativeToAbsoluteCoords(
+            position,
+            relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
+        );
     }
     else {
         options_.rect.position = position;
@@ -314,6 +407,7 @@ void ZUIElement::Rotate(float angle)
 
 void ZUIElement::Scale(const glm::vec2& factor)
 {
+    options_.rect.size *= factor;
     options_.calculatedRect.size *= factor;
     RecalculateModelMatrix();
 }
@@ -332,7 +426,7 @@ bool ZUIElement::TrySelect(const glm::vec3& position)
         if (!selectedChild)
         {
             std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(id_, position));
-            zenith::EventAgent()->QueueEvent(objectSelectEvent);
+            ZServices::EventAgent()->Queue(objectSelectEvent);
         }
 
         selected = true;
@@ -366,16 +460,21 @@ void ZUIElement::CleanUp()
 
 void ZUIElement::ClampToBounds()
 {
+    auto scene = Scene();
+    if (!scene) return;
+
+    glm::vec2 resolution = scene->Domain()->Resolution();
+
     options_.calculatedRect.position.x = 
         glm::sign(options_.calculatedRect.position.x) *
         glm::clamp(glm::abs(options_.calculatedRect.position.x),
-            options_.translationBounds.x * zenith::Domain()->ResolutionX(),
-            options_.translationBounds.y * zenith::Domain()->ResolutionX());
+            options_.translationBounds.x * resolution.x,
+            options_.translationBounds.y * resolution.x);
     options_.calculatedRect.position.y =
         glm::sign(options_.calculatedRect.position.y) * 
         glm::clamp(glm::abs(options_.calculatedRect.position.y),
-            options_.translationBounds.z * zenith::Domain()->ResolutionY(),
-            options_.translationBounds.w * zenith::Domain()->ResolutionY());
+            options_.translationBounds.z * resolution.y,
+            options_.translationBounds.w * resolution.y);
 }
 
 void ZUIElement::RecalculateModelMatrix()
@@ -386,23 +485,41 @@ void ZUIElement::RecalculateModelMatrix()
     modelMatrix_ = translate * rotate * scale;
 }
 
+void ZUIElement::RecalculateProjectionMatrix()
+{
+    if (auto scene = Scene()) {
+        glm::vec2 resolution = scene->Domain()->Resolution();
+        projectionMatrix_ = glm::ortho(0.f, (float)resolution.x, (float)resolution.y, 0.f);
+    }
+}
+
 void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force)
 {
+    auto scene = Scene();
+    if (!scene) return;
+
     element->SetRect(element->Rect(), options_.calculatedRect);
     if (options_.layout) {
         ZRect rect = options_.layout->GetRect(element->ID(), element->CalculatedRect().size, force);
         if (element->Positioning() == ZPositioning::Relative) {
-            rect = ZUIHelpers::AbsoluteToRelativeRect(rect, options_.calculatedRect);
+            rect = ZUIHelpers::AbsoluteToRelativeRect(
+                rect,
+                options_.calculatedRect == ZRect(0.f) ? ZRect(glm::vec2(0.f), scene->Domain()->Resolution()) : options_.calculatedRect
+            );
         }
         element->SetRect(rect, options_.calculatedRect);
     }
 }
 
-void ZUIElement::OnWindowResized(const std::shared_ptr<ZEvent>& event)
+void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event)
 {
-    if (!parent_ || !parent_->options_.layout) {
-        SetRect(options_.rect, parent_ ? parent_->options_.calculatedRect : ZRect());
+    RecalculateProjectionMatrix();
+
+    auto parent = Parent();
+    if (!parent || !parent->options_.layout) {
+        SetRect(options_.rect, parent ? parent->options_.calculatedRect : ZRect());
     }
+
     if (options_.layout) {
         for (auto it = children_.begin(); it != children_.end(); it++) {
             LayoutChild(it->second, true);
@@ -410,7 +527,7 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZEvent>& event)
     }
 }
 
-ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data)
+ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
 {
     ZUIElementMap uiElements;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
@@ -426,17 +543,15 @@ ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data)
             if (props.find("type") != props.end() && props["type"]->HasValues())
             {
                 std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
-                if (elementCreators_.find(typeProp->value) == elementCreators_.end())
-                {
-                    zenith::Log("Could not create a UI component of type " + typeProp->value, ZSeverity::Error); continue;
-                }
-                element = std::shared_ptr<ZUIElement>((elementCreators_[typeProp->value])(uiNode));
+                element = ZUIElement::Create(typeProp->value);
+                element->SetScene(scene);
+                element->Initialize();
             }
 
             // Recursively create children if there are any nested UI nodes
             if (element)
             {
-                ZUIElementMap uiChildren = Load(uiNode);
+                ZUIElementMap uiChildren = Load(uiNode, scene);
                 for (ZUIElementMap::iterator it = uiChildren.begin(); it != uiChildren.end(); it++)
                 {
                     element->AddChild(it->second);
@@ -449,46 +564,26 @@ ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data)
     return uiElements;
 }
 
-std::shared_ptr<ZUIElement> ZUIElement::CreateUIButton(std::shared_ptr<ZOFNode> root)
+std::shared_ptr<ZUIElement> ZUIElement::Create(const std::string& type)
 {
-    std::shared_ptr<ZUIButton> button = std::make_shared<ZUIButton>();
-    button->Initialize(root);
-    return button;
+    if (type == "Button") {
+        return ZUIButton::Create();
+    }
+    else if (type == "Image") {
+        return ZUIImage::Create();
+    }
+    else if (type == "Panel") {
+        return ZUIPanel::Create();
+    }
+    else if (type == "Text") {
+        return ZUIText::Create();
+    }
+    else if (type == "Checkbox") {
+        return ZUICheckBox::Create();
+    }
+    else if (type == "ListPanel") {
+        return ZUIListPanel::Create();
+    }
+    LOG("Could not create a UI element of type " + type, ZSeverity::Error);
+    return nullptr;
 }
-
-std::shared_ptr<ZUIElement> ZUIElement::CreateUIImage(std::shared_ptr<ZOFNode> root)
-{
-    std::shared_ptr<ZUIImage> image = std::make_shared<ZUIImage>();
-    image->Initialize(root);
-    return image;
-}
-
-std::shared_ptr<ZUIElement> ZUIElement::CreateUIPanel(std::shared_ptr<ZOFNode> root)
-{
-    std::shared_ptr<ZUIPanel> panel = std::make_shared<ZUIPanel>();
-    panel->Initialize(root);
-    return panel;
-}
-
-std::shared_ptr<ZUIElement> ZUIElement::CreateUIText(std::shared_ptr<ZOFNode> root)
-{
-    std::shared_ptr<ZUIText> text = std::make_shared<ZUIText>();
-    text->Initialize(root);
-    return text;
-}
-
-std::shared_ptr<ZUIElement> ZUIElement::CreateUICheckbox(std::shared_ptr<ZOFNode> root)
-{
-    std::shared_ptr<ZUICheckBox> checkbox = std::make_shared<ZUICheckBox>();
-    checkbox->Initialize(root);
-    return checkbox;
-}
-
-std::shared_ptr<ZUIElement> ZUIElement::CreateUIListPanel(std::shared_ptr<ZOFNode> root)
-{
-    std::shared_ptr<ZUIListPanel> list = std::make_shared<ZUIListPanel>();
-    list->Initialize(root);
-    return list;
-}
-
-
