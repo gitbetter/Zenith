@@ -38,7 +38,6 @@
 // Forward Declarations
 class ZGame;
 class ZScene;
-class ZTrigger;
 class ZSkybox;
 class ZGrass;
 struct ZOFNode;
@@ -46,7 +45,7 @@ struct ZOFNode;
 // Class Definitions
 struct ZGameObjectProperties
 {
-    ZRenderPass renderPass;
+    ZRenderOrder renderOrder;
     glm::vec4 position, previousPosition;
     glm::vec3 scale, previousScale;
     glm::quat orientation, previousOrientation;
@@ -54,7 +53,7 @@ struct ZGameObjectProperties
     std::string name;
 };
 
-class ZGameObject : public ZProcess, public std::enable_shared_from_this<ZGameObject>
+class ZGameObject : public ZProcess, public ZRenderable, public std::enable_shared_from_this<ZGameObject>
 {
 
     friend class ZScene;
@@ -71,9 +70,10 @@ public:
     virtual void Initialize(std::shared_ptr<ZOFNode> root);
 
     virtual void PreRender();
-    virtual void Render(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color);
-    virtual void RenderChildren(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color);
+    virtual void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
+    virtual void RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color);
     virtual void PostRender();
+    virtual bool Renderable() override { return true; }
 
     void CalculateDerivedData();
     virtual std::shared_ptr<ZGameObject> Clone();
@@ -83,10 +83,10 @@ public:
     virtual bool IsVisible();
     virtual void Destroy();
 
-    ZScene* Scene() const { return scene_; }
+    std::shared_ptr<ZScene> Scene() const;
+    std::shared_ptr<ZGameObject> Parent() const;
     std::string Name() const { return properties_.name; }
-    ZRenderPass RenderPass() const { return properties_.renderPass; }
-    ZGameObject* Parent() { return parent_; }
+    ZRenderOrder RenderOrder() const { return properties_.renderOrder; }
     virtual ZGameObjectList& Children() { return children_; }
     glm::vec3 Position();
     glm::vec3 Scale();
@@ -105,7 +105,7 @@ public:
     void SetOrientation(const glm::quat& quaternion);
     void SetOrientation(const glm::vec3& euler);
     void SetModelMatrix(const glm::mat4& modelMatrix);
-    void SetRenderPass(ZRenderPass renderPass) { properties_.renderPass = renderPass; }
+    void SetRenderOrder(ZRenderOrder renderOrder) { properties_.renderOrder = renderOrder; }
     void SetName(const std::string& name) { properties_.name = name; }
 
     template<class T>
@@ -167,17 +167,17 @@ public:
         return go;
     }
 
-    static ZGameObjectMap Load(std::shared_ptr<ZOFTree> data);
-    static std::shared_ptr<ZGameObject> CreateGameObject(std::shared_ptr<ZOFNode> data);
-    static std::shared_ptr<ZLight> CreateLight(std::shared_ptr<ZOFNode> data);
-    static std::shared_ptr<ZTrigger> CreateTrigger(std::shared_ptr<ZOFNode> data);
-    static std::shared_ptr<ZSkybox> CreateSkybox(std::shared_ptr<ZOFNode> data);
-    static std::shared_ptr<ZGrass> CreateGrass(std::shared_ptr<ZOFNode> data);
+    static ZGameObjectMap Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene);
+    static std::shared_ptr<ZGameObject> CreateGameObject();
+    static std::shared_ptr<ZCamera> CreateCamera();
+    static std::shared_ptr<ZLight> CreateLight();
+    static std::shared_ptr<ZSkybox> CreateSkybox();
+    static std::shared_ptr<ZGrass> CreateGrass();
 
 protected:
 
-    ZScene* scene_ = nullptr;
-    ZGameObject* parent_ = nullptr;
+    std::weak_ptr<ZScene> scene_;
+    std::weak_ptr<ZGameObject> parent_;
     ZComponentList components_;
     ZGameObjectList children_;
     ZGameObjectProperties properties_;
@@ -189,5 +189,7 @@ protected:
         std::mutex scale;
         std::mutex modelMatrix;
     } objectMutexes_;
+
+    static ZIDSequence idGenerator_;
 
 };

@@ -27,11 +27,10 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZUI.hpp"
+#include "ZServices.hpp"
 #include "ZUIImage.hpp"
 #include "ZShader.hpp"
 #include "ZTextureReadyEvent.hpp"
-#include "ZEventAgent.hpp"
 
 ZUIImage::ZUIImage(const std::string& path, const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
@@ -61,7 +60,7 @@ void ZUIImage::Initialize(const std::shared_ptr<ZOFNode>& root)
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
     if (node == nullptr)
     {
-        zenith::Log("Could not initalize ZUIImage", ZSeverity::Error);
+        LOG("Could not initalize ZUIImage", ZSeverity::Error);
         return;
     }
 
@@ -79,21 +78,38 @@ void ZUIImage::SetImage(const std::string& path)
 {
     if (!path.empty())
     {
-        ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
-        zenith::EventAgent()->AddListener(textureReadyDelegate, ZTextureReadyEvent::Type);
-        zenith::Graphics()->LoadTextureAsync(path, "");
+        ZServices::EventAgent()->Subscribe(this, &ZUIImage::HandleTextureReady);
+        ZTexture::CreateAsync(path, "");
     }
 }
 
-void ZUIImage::HandleTextureReady(const std::shared_ptr<ZEvent>& event)
+void ZUIImage::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
-    std::shared_ptr<ZTextureReadyEvent> textureReadyEvent = std::static_pointer_cast<ZTextureReadyEvent>(event);
-    if (textureReadyEvent->Texture().path == path_)
+    if (event->Texture()->path == path_)
     {
-        options_.texture = textureReadyEvent->Texture();
-        options_.texture.type = "image";
+        options_.texture = event->Texture();
+        options_.texture->type = "image";
 
-        ZEventDelegate textureReadyDelegate = fastdelegate::MakeDelegate(this, &ZUIImage::HandleTextureReady);
-        zenith::EventAgent()->RemoveListener(textureReadyDelegate, ZTextureReadyEvent::Type);
+        ZServices::EventAgent()->Unsubscribe(this, &ZUIImage::HandleTextureReady);
     }
+}
+
+std::shared_ptr<ZUIImage> ZUIImage::Create()
+{
+    std::shared_ptr<ZUIImage> element = std::make_shared<ZUIImage>();
+    return element;
+}
+
+std::shared_ptr<ZUIImage> ZUIImage::Create(const ZUIElementOptions& options)
+{
+    std::shared_ptr<ZUIImage> element = std::make_shared<ZUIImage>(options);
+    return element;
+}
+
+std::shared_ptr<ZUIImage> ZUIImage::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
+{
+    auto element = ZUIImage::Create(options);
+    element->SetScene(scene);
+    element->Initialize();
+    return element;
 }

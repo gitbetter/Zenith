@@ -29,4 +29,4 @@
 
 #include "ZObjectSelectedEvent.hpp"
 
-const ZEventType ZObjectSelectedEvent::Type(0x5d4e2c51);
+const ZTypeIdentifier ZObjectSelectedEvent::Type(TYPE_ID(ZObjectSelectedEvent));

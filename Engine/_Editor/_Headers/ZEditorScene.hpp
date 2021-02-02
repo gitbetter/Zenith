@@ -31,14 +31,15 @@
 
 // Includes
 #include "ZScene.hpp"
-#include "ZUI.hpp"
 
 // Forward Declarations
 class ZEditorTool;
 class ZMenuBar;
 class ZEvent;
 class ZResourceHandle;
+class ZResourceLoadedEvent;
 class ZUIPanel;
+class ZCamera;
 
 // Definitions
 const std::string EDITOR_CONFIG_PATH = "/conf.zof";
@@ -77,8 +78,7 @@ private:
 	void Configure(ZEditorConfig config);
 	void LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree);
 
-	void HandleResourceLoaded(const std::shared_ptr<ZEvent>& event);
-    void HandleSceneLoaded(const std::shared_ptr<ZEvent>& event);
+	void HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
     
 public:
     
@@ -88,7 +88,7 @@ public:
     void Update(double deltaTime) override;
     void CleanUp() override;
     
-    std::shared_ptr<ZGameObject> CreateCamera();
+    std::shared_ptr<ZCamera> CreateCamera();
     std::shared_ptr<ZUIPanel> CreateVerticalRegion(const ZRect& rect, std::shared_ptr<ZUIPanel> parent = nullptr);
     std::shared_ptr<ZUIPanel> CreateHorizontalRegion(const ZRect& rect, std::shared_ptr<ZUIPanel> parent = nullptr);
     void AddTool(const std::shared_ptr<ZEditorTool>& tool, const std::shared_ptr<ZUIPanel>& layoutRegion);

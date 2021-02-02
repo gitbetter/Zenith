@@ -30,57 +30,62 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZTexture;
+class ZTextureReadyEvent;
 
 // Class and Data Structure Definitions
-class ZMaterial
+class ZMaterial : public std::enable_shared_from_this<ZMaterial>
 {
-
-private:
-
-    ZMaterialProperties properties_;
-    std::vector<ZTexture> textures_;
-    std::map<std::string, std::string> pendingTextures_;
-    std::string meshId_;
-    int index_;
-    bool isPBR_ = false, hasDisplacement_ = false;
-
-    void SetMaterialProperty(const std::string& property, float value, ZMaterialProperties& materialProperties);
-    void SetMaterialProperty(const std::string& property, const glm::vec4& value, ZMaterialProperties& materialProperties);
 
 public:
 
-    ZMaterial(int index = 0) { index_ = index; }
+    ZMaterial(int index = 0);
     ZMaterial(const ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
-    ZMaterial(const std::vector<ZTexture>& textures) : ZMaterial(0) { textures_ = textures; }
+    ZMaterial(const std::vector<std::shared_ptr<ZTexture>>& textures);
 
-    void Initialize(std::shared_ptr<ZOFTree> root);
+    void Initialize();
 
-    static std::unique_ptr<ZMaterial> DefaultMaterial();
-
-    void SetMeshID(const std::string& id) { meshId_ = id; }
-    const std::string MeshID() const { return meshId_; }
-
-    void SetProperties(const ZMaterialProperties& properties) { properties_ = properties; }
+    const std::string& ID() const { return id_; }
     const ZMaterialProperties& Properties() const { return properties_; }
-
-    void SetAlpha(float alpha) { properties_.alpha = alpha; }
+    const ZTextureMap& Textures() const { return textures_; }
     float Alpha(float alpha) const { return properties_.alpha; }
-
-    void AddTexture(const ZTexture& texture) { textures_.push_back(texture); }
-    const std::vector<ZTexture>& Textures() const { return textures_; }
-
     int Index() const { return index_; }
-    bool IsPBR() const { return isPBR_; }
+    bool IsPBR() const { return properties_.isPBR; }
     bool IsTextured() const { return !textures_.empty(); }
-    bool HasDisplacement() const { return hasDisplacement_; }
-    void SetPBR(bool pbr = true) { isPBR_ = pbr; }
+    bool HasDisplacement() const { return properties_.hasDisplacement; }
 
-protected:
+    void SetPBR(bool pbr = true) { properties_.isPBR = pbr; }
+    void SetProperties(const ZMaterialProperties& properties) { properties_ = properties; }
+    void SetAlpha(float alpha) { properties_.alpha = alpha; }
+    void SetProperty(const std::string& property, float value);
+    void SetProperty(const std::string& property, const glm::vec4& value);
+    void SetProperty(const std::string& property, bool value);
 
-    void HandleTextureReady(const std::shared_ptr<ZEvent>& event);
+    void AddTexture(const std::string& slot, const std::shared_ptr<ZTexture>& texture) { textures_[slot] = texture; }
+    void AddTexture(const std::string& slot, const std::string& textureId) { pendingTextures_[slot] = textureId; }
+
+    static std::shared_ptr<ZMaterial> Default();
+    static std::shared_ptr<ZMaterial> CreateDefault();
+    static void Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outTextureMap, const ZTextureMap& textureCache);
+    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPendingTextures);
+    static std::shared_ptr<ZMaterial> Create(const ZMaterialProperties& materialProperties);
+    static std::shared_ptr<ZMaterial> Create(const std::vector<std::shared_ptr<ZTexture>>& textures);
+
+private:
+
+    std::string id_;
+    ZMaterialProperties properties_;
+    ZTextureMap textures_;
+    std::unordered_map<std::string, std::string> pendingTextures_;
+    int index_;
+    bool isPBR_ = false;
+    bool hasDisplacement_ = false;
+
+    static ZIDSequence idGenerator_;
+
+    void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
 
 };

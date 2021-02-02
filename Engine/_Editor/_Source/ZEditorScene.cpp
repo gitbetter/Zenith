@@ -27,21 +27,17 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
 #include "ZEditorScene.hpp"
 #include "ZGame.hpp"
-#include "ZPhysics.hpp"
-#include "ZDomain.hpp"
+#include "ZPhysicsUniverse.hpp"
 #include "ZInput.hpp"
-#include "ZGraphics.hpp"
-#include "ZEventAgent.hpp"
-#include "ZResourceCache.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZSceneReadyEvent.hpp"
 #include "ZResourceExtraData.hpp"
-#include "ZGameObject.hpp"
-#include "ZCameraComponent.hpp"
+#include "ZCamera.hpp"
+#include "ZFont.hpp"
 
-#include "ZUI.hpp"
 #include "ZUIVerticalLayout.hpp"
 #include "ZUIHorizontalLayout.hpp"
 #include "ZUIPanel.hpp"
@@ -55,17 +51,12 @@
 #include "ZHierarchyTool.hpp"
 
 void ZEditorScene::Initialize() {
-	ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZEditorScene::HandleResourceLoaded);
-	zenith::EventAgent()->AddListener(resourceLoadedDelegate, ZResourceLoadedEvent::Type);
+	ZServices::EventAgent()->Subscribe(this, &ZEditorScene::HandleResourceLoaded);
 
-	zenith::LoadZOF(EDITOR_CONFIG_PATH);
-	zenith::LoadZOF(EDITOR_OBJECT_TEMPLATES_PATH);
+	ZServices::LoadZOF(EDITOR_CONFIG_PATH);
+	ZServices::LoadZOF(EDITOR_OBJECT_TEMPLATES_PATH);
 
-	zenith::Physics()->Pause();
-
-	zenith::Options().drawCameraDebug = true;
-	zenith::Options().drawPhysicsDebug = true;
-	zenith::Options().drawGrid = true;
+	PhysicsUniverse()->Pause();
 
 	ZScene::Initialize();
 
@@ -73,14 +64,12 @@ void ZEditorScene::Initialize() {
 }
 
 void ZEditorScene::CleanUp() {
-	ZEventDelegate resourceLoadedDelegate = fastdelegate::MakeDelegate(this, &ZEditorScene::HandleResourceLoaded);
-	zenith::EventAgent()->RemoveListener(resourceLoadedDelegate, ZResourceLoadedEvent::Type);
+	ZServices::EventAgent()->Unsubscribe(this, &ZEditorScene::HandleResourceLoaded);
 	ZScene::CleanUp();
 }
 
-std::shared_ptr<ZGameObject> ZEditorScene::CreateCamera() {
-    std::shared_ptr<ZGameObject> camera = std::make_shared<ZGameObject>(glm::vec3(0.f, 15.f, 50.f));
-	camera->AddComponent(std::make_shared<ZCameraComponent>(ZCameraType::Perspective));
+std::shared_ptr<ZCamera> ZEditorScene::CreateCamera() {
+    std::shared_ptr<ZCamera> camera = std::make_shared<ZCamera>(glm::vec3(0.f, 15.f, 50.f), ZCameraType::Perspective);
     AddGameObject(camera);
 	return camera;
 }
@@ -90,8 +79,7 @@ std::shared_ptr<ZUIPanel> ZEditorScene::CreateVerticalRegion(const ZRect& rect, 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = rect;
 	elementOptions.layout = std::make_shared<ZUIVerticalLayout>();
-	std::shared_ptr<ZUIPanel> panel = std::make_shared<ZUIPanel>(elementOptions);
-	panel->Initialize();
+	std::shared_ptr<ZUIPanel> panel = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
 	if (parent) {
 		parent->AddChild(panel);
 	}
@@ -103,8 +91,7 @@ std::shared_ptr<ZUIPanel> ZEditorScene::CreateHorizontalRegion(const ZRect& rect
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = rect;
 	elementOptions.layout = std::make_shared<ZUIHorizontalLayout>();
-	std::shared_ptr<ZUIPanel> panel = std::make_shared<ZUIPanel>(elementOptions);
-	panel->Initialize();
+	std::shared_ptr<ZUIPanel> panel = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
 	if (parent) {
 		parent->AddChild(panel);
 	}
@@ -114,7 +101,7 @@ std::shared_ptr<ZUIPanel> ZEditorScene::CreateHorizontalRegion(const ZRect& rect
 void ZEditorScene::AddTool(const std::shared_ptr<ZEditorTool>& tool, const std::shared_ptr<ZUIPanel>& layoutRegion)
 {
 	tools_.push_back(tool);
-	tool->Initialize();
+	tool->Initialize(shared_from_this());
 	layoutRegion->AddChild(tool->Container());
 }
 
@@ -129,15 +116,14 @@ void ZEditorScene::SetupLayoutPanels() {
 	ZUIElementOptions elementOptions;
 
 	elementOptions.positioning = ZPositioning::Relative;
-	elementOptions.rect = ZRect(0.f, 0.f, 1.0f, 0.05f);
-	topPanel_ = std::make_shared<ZUIPanel>(elementOptions);
-	topPanel_->Initialize();
+	elementOptions.rect = ZRect(0.f, 0.f, 1.0f, 0.07f);
+	topPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
 
 	windowPanel->AddChild(topPanel_);
 
 	/*****************************/
 
-	std::shared_ptr<ZUIPanel> contentPanel = CreateHorizontalRegion(ZRect(0.f, 0.f, 1.0f, .95f), windowPanel);
+	std::shared_ptr<ZUIPanel> contentPanel = CreateHorizontalRegion(ZRect(0.f, 0.f, 1.0f, .93f), windowPanel);
 
 	/************(2)**************/
 
@@ -145,8 +131,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 0.2f, 1.f);
-	leftPanel_ = std::make_shared<ZUIPanel>(elementOptions);
-	leftPanel_->Initialize();
+	leftPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
 
 	contentPanel->AddChild(leftPanel_);
 
@@ -164,8 +149,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 0.7f, 1.0f);
-	centerPanel_ = std::make_shared<ZUIPanel>(elementOptions);
-	centerPanel_->Initialize();
+	centerPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
 
 	sceneContentPanel->AddChild(centerPanel_);
 
@@ -175,8 +159,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 0.3f, 1.0f);
-	rightPanel_ = std::make_shared<ZUIPanel>(elementOptions);
-	rightPanel_->Initialize();
+	rightPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
 
 	sceneContentPanel->AddChild(rightPanel_);
 
@@ -186,8 +169,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 1.0f, .25f);
-	bottomPanel_ = std::make_shared<ZUIPanel>(elementOptions);
-	bottomPanel_->Initialize();
+	bottomPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
 
 	innerContentPanel->AddChild(bottomPanel_);
 
@@ -201,8 +183,8 @@ void ZEditorScene::SetupInitialTools() {
         editorCamera_ = CreateCamera();
 	}
 
-    AddTool(std::make_shared<ZMenuBar>(config_.theme), topPanel_);
 	AddTool(std::make_shared<ZActionBar>(config_.theme), topPanel_);
+	AddTool(std::make_shared<ZMenuBar>(config_.theme), topPanel_);
 	AddTool(std::make_shared<ZSceneTool>(config_.theme), centerPanel_);
 	AddTool(std::make_shared<ZProjectTool>(config_.theme), bottomPanel_);
 	AddTool(std::make_shared<ZConsoleTool>(config_.theme), bottomPanel_);
@@ -241,8 +223,8 @@ void ZEditorScene::Configure(std::shared_ptr<ZOFTree> objectTree) {
 				config.theme.selectedColor = glm::vec4(selectedColorProp->value[0], selectedColorProp->value[1], selectedColorProp->value[2], 1.f);
 			}
 			if (themeDataNode->properties.find("font") != themeDataNode->properties.end()) {
-				config.theme.font.name = themeDataNode->properties["font"]->Value<ZOFString>(0)->value;
-				config.theme.font.size = themeDataNode->properties["font"]->Value<ZOFNumber>(1)->value;
+				config.theme.font = themeDataNode->properties["font"]->Value<ZOFString>(0)->value;
+				config.theme.fontSize = themeDataNode->properties["font"]->Value<ZOFNumber>(1)->value;
 			}
 		}
 	}
@@ -252,9 +234,9 @@ void ZEditorScene::Configure(std::shared_ptr<ZOFTree> objectTree) {
 void ZEditorScene::Configure(ZEditorConfig config) {
 	config_ = config;
 
-	if (!config_.theme.font.name.empty()) {
-		ZResource fontResource(config_.theme.font.name, ZResourceType::Font);
-		zenith::ResourceCache()->RequestHandle(fontResource);
+	if (!config_.theme.font.empty()) {
+		ZResource fontResource(config_.theme.font, ZResourceType::Font);
+		ZServices::ResourceCache()->RequestHandle(fontResource);
 	}
 
 	SetupLayoutPanels();
@@ -262,8 +244,8 @@ void ZEditorScene::Configure(ZEditorConfig config) {
 }
 
 void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
-	gameObjectTemplates_ = ZGameObject::Load(objectTree);
-	uiElementTemplates_ = ZUIElement::Load(objectTree);
+	gameObjectTemplates_ = ZGameObject::Load(objectTree, shared_from_this());
+	uiElementTemplates_ = ZUIElement::Load(objectTree, shared_from_this());
 }
 
 void ZEditorScene::Update(double deltaTime) {
@@ -273,17 +255,16 @@ void ZEditorScene::Update(double deltaTime) {
 	ZScene::Update(deltaTime);
 }
 
-void ZEditorScene::HandleResourceLoaded(const std::shared_ptr<ZEvent>& event) {
-	std::shared_ptr<ZResourceLoadedEvent> loadedEvent = std::static_pointer_cast<ZResourceLoadedEvent>(event);
-	ZResource& resource = loadedEvent->Handle()->Resource();
+void ZEditorScene::HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event) {
+	ZResource& resource = event->Handle()->Resource();
 
 	if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_CONFIG_PATH) {
-		std::shared_ptr<ZZOFResourceExtraData> zofData = std::static_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
+		std::shared_ptr<ZZOFResourceExtraData> zofData = std::static_pointer_cast<ZZOFResourceExtraData>(event->Handle()->ExtraData());
 		Configure(zofData->ObjectTree());
 	} else if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_OBJECT_TEMPLATES_PATH) {
-		std::shared_ptr<ZZOFResourceExtraData> zofData = std::static_pointer_cast<ZZOFResourceExtraData>(loadedEvent->Handle()->ExtraData());
+		std::shared_ptr<ZZOFResourceExtraData> zofData = std::static_pointer_cast<ZZOFResourceExtraData>(event->Handle()->ExtraData());
 		LoadObjectTemplates(zofData->ObjectTree());
-	} else if (resource.type == ZResourceType::Font && resource.name == config_.theme.font.name) {
+	} else if (resource.type == ZResourceType::Font && resource.name == config_.theme.font) {
 		
 	}
 }

@@ -33,7 +33,8 @@
 #include "ZGameObject.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZTextureReadyEvent;
+class ZShader;
 
 // Class and Data Structure Definitions
 class ZGrass : public ZGameObject
@@ -58,7 +59,7 @@ public:
 
     void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Render(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
     bool IsVisible() override { return true; }
 
     void TrimPatch(const glm::vec3& position, const glm::vec3& size);
@@ -66,5 +67,6 @@ public:
 private:
 
     void UpdateVertexNormals(std::shared_ptr<ZModel>& model);
+    void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
 
 };

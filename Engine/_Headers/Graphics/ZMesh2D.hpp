@@ -48,7 +48,7 @@ public:
 
     void Initialize() override;
 
-    void Render(ZShader* shader, ZMaterial* material = nullptr) override;
+    void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material = nullptr) override;
 
     std::vector<ZVertex2D> Vertices() const { return vertexData_.vertices; }
 

@@ -56,10 +56,6 @@ struct ZLogEntry
     { }
 };
 
-namespace zenith {
-    extern void Log(const std::string& text, ZSeverity severity);
-}
-
 class ZLogger
 {
 
@@ -78,6 +74,7 @@ public:
 
     const std::vector<ZLogEntry>& Buffer() const { return logBuffer_; }
 
+    void Log(const std::string& text, ZSeverity severity, const std::string& file, unsigned int line);
     void Log(const ZLogEntry& entry);
     void Clear() { logBuffer_.clear(); }
 

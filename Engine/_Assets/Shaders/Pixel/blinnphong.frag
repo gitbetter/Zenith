@@ -13,12 +13,6 @@ in VS_OUT {
   vec4 FragPosLightSpace;
 } fs_in;
 
-struct HemisphereLight {
-  vec3 position;
-  vec3 skyColor;
-  vec3 groundColor;
-};
-
 struct Light {
   bool isEnabled;
   bool isSpot;
@@ -46,20 +40,19 @@ struct Material {
 
 uniform bool isTextured;
 
-uniform sampler2D shadowTexture;
+uniform sampler2D shadowSampler0;
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 uniform sampler2D albedo;
 
-uniform vec3 viewDirection;
+uniform vec3 viewPosition;
 uniform int materialIndex;  // Single index across the fragments of a single mesh
 
 uniform unsigned int lightCount = 0;
 uniform Light lights[MAX_LOCAL_LIGHTS];
 uniform Material materials[MAX_MATERIALS];
 
-uniform HemisphereLight hemisphereLight;
 // TODO: Consider SSBOs for a varying number of lights
 
 float CalculateShadow(vec4 lightSpacePosition);
@@ -72,8 +65,8 @@ void main() {
   for (int i = 0; i < lightCount; i++) {
     if (!lights[i].isEnabled) continue;
 
-    vec3 lightDirection = lights[i].isDirectional ? lights[i].direction : lights[i].position - fs_in.FragPos;
-    vec3 halfVector = normalize(lightDirection + viewDirection);
+    vec3 lightDirection = lights[i].isDirectional ? normalize(lights[i].direction) : normalize(lights[i].position - fs_in.FragPos);
+    vec3 halfVector = normalize(lightDirection + (viewPosition - fs_in.FragPos));
     float attenunation = 1.0;
 
     if (!lights[i].isDirectional) {
@@ -89,8 +82,6 @@ void main() {
         if (spotCos < lights[i].spotCutoff) attenunation = 0.0;
         else attenunation *= pow(spotCos, lights[i].spotExponent);
       }
-    } else {
-      halfVector = lights[i].direction;
     }
 
     float diffuse = max(0.0, dot(fs_in.FragNormal, lightDirection));
@@ -116,10 +107,6 @@ void main() {
   float shadow = CalculateShadow(fs_in.FragPosLightSpace);
   vec3 color = min(materials[materialIndex].emission + albd.rgb + (1.0 - shadow) * (scatteredLight + reflectedLight), vec3(1.0));
 
-  vec3 hemisphereLightDirection = normalize(hemisphereLight.position - fs_in.FragPos);
-  float a = dot(fs_in.FragNormal, hemisphereLightDirection) * 0.5 + 0.5;
-  color += mix(hemisphereLight.groundColor, hemisphereLight.skyColor, a);
-
   FragColor = vec4(color, albd.a);
 }
 
@@ -132,10 +119,10 @@ float CalculateShadow(vec4 lightSpacePosition) {
 
   // Some PCF to soften out the shadows
   float shadow = 0.0;
-  vec2 texelSize = 1.0 / textureSize(shadowTexture, 0);
+  vec2 texelSize = 1.0 / textureSize(shadowSampler0, 0);
   for (int x = -1; x <= 1; ++x) {
     for (int y = -1; y <= 1; ++y) {
-      float pcfDepth = texture(shadowTexture, projCoords.xy + vec2(x, y) * texelSize).r;
+      float pcfDepth = texture(shadowSampler0, projCoords.xy + vec2(x, y) * texelSize).r;
       float bias = 0.005;
       shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
     }

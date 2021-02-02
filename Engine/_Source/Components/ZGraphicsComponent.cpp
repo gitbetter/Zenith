@@ -28,22 +28,23 @@
 */
 
 #include "ZGraphicsComponent.hpp"
-#include "ZDomain.hpp"
-#include "ZCameraComponent.hpp"
+#include "ZServices.hpp"
+#include "ZAssetStore.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZScene.hpp"
 #include "ZSkybox.hpp"
+#include "ZCamera.hpp"
 #include "ZOFTree.hpp"
 
 ZGraphicsComponent::ZGraphicsComponent() : ZComponent(), highlightColor_(0.f), isBillboard_(false)
 {
-    id_ = "ZCGraphics_" + zenith::IDSequence()->Next();
+    id_ = "ZCGraphics_" + idGenerator_.Next();
 }
 
 ZGraphicsComponent::~ZGraphicsComponent()
 {
-    shaders_.clear();
+    shadersIds_.clear();
     materials_.clear();
 }
 
@@ -67,7 +68,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
     {
-        zenith::Log("Could not initalize ZGraphicsComponent", ZSeverity::Error);
+        LOG("Could not initalize ZGraphicsComponent", ZSeverity::Error);
         return;
     }
 
@@ -88,10 +89,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     if (props.find("highlightShader") != props.end() && props["highlightShader"]->HasValues())
     {
         std::shared_ptr<ZOFString> hShaderProp = props["highlightShader"]->Value<ZOFString>(0);
-        if (zenith::Graphics()->Shaders().find(hShaderProp->value) != zenith::Graphics()->Shaders().end())
-        {
-            highlightShader_ = zenith::Graphics()->Shaders()[hShaderProp->value];
-        }
+        highlightShaderId_ = hShaderProp->value;
     }
 
     if (props.find("shaders") != props.end() && props["shaders"]->HasValues())
@@ -99,7 +97,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         std::shared_ptr<ZOFStringList> shadersProp = props["shaders"]->Value<ZOFStringList>(0);
         for (std::string id : shadersProp->value)
         {
-            shaders_.push_back(id);
+            shadersIds_.push_back(id);
         }
     }
 
@@ -138,26 +136,21 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         }
     }
 
-    // If there are any material subcomponents for this graphics component, we parse them with this loop
-    for (ZOFChildMap::iterator matIt = node->children.begin(); matIt != node->children.end(); matIt++)
+    if (props.find("materials") != props.end() && props["materials"]->HasValues())
     {
-        if (matIt->first == "Material")
+        std::shared_ptr<ZOFStringList> materialsProp = props["materials"]->Value<ZOFStringList>(0);
+        for (const std::string& id : materialsProp->value)
         {
-// TODO: Move material creation out of graphics component.
-// We should be able to reuse materials across different objects.
-            std::shared_ptr<ZMaterial> material = std::make_shared<ZMaterial>();
-            material->Initialize(matIt->second);
-            materials_.push_back(material);
+            materialIds_.push_back(id);
         }
     }
-    if (materials_.empty()) materials_.push_back(ZMaterial::DefaultMaterial());
 }
 
 std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
 {
     std::shared_ptr<ZGraphicsComponent> clone = std::make_shared<ZGraphicsComponent>();
     clone->activeShaderIndex_ = activeShaderIndex_;
-    clone->shaders_ = shaders_;
+    clone->shadersIds_ = shadersIds_;
     clone->model_ = model_;
     clone->modelObject_ = modelObject_;
     clone->currentShaderObject_ = currentShaderObject_;
@@ -169,95 +162,105 @@ std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
     return clone;
 }
 
-void ZGraphicsComponent::Render(ZRenderOp renderOp)
+void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
     if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
 
-    std::shared_ptr<ZCameraComponent> cameraComp = gameCamera_->FindComponent<ZCameraComponent>();
-
     glm::mat4 modelMatrix = object_->Scene()->TopMatrix();
-    glm::mat4 projectionMatrix = cameraComp->ProjectionMatrix();
-    glm::mat4 viewMatrix = cameraComp->ViewMatrix();
+    glm::mat4 projectionMatrix = gameCamera_->ProjectionMatrix();
+    glm::mat4 viewMatrix = gameCamera_->ViewMatrix();
 
-    std::shared_ptr<ZShader> shader;
-    if (renderOp == ZRenderOp::Shadow)
-    {
-        shader = zenith::Graphics()->ShadowShader();
-    }
-    else if (renderOp == ZRenderOp::Depth)
-    {
-        shader = zenith::Graphics()->DepthShader();
-    }
-    else
-    {
-        shader = ActiveShader();
-    }
+    auto activeShader = ActiveShader();
+    if (!activeShader) activeShader = shader;
 
     // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
-    zenith::Graphics()->EnableStencilBuffer();
-    zenith::Graphics()->EnableAlphaBlending();
+    ZServices::Graphics()->EnableStencilBuffer();
+    ZServices::Graphics()->EnableAlphaBlending();
 
-    if (shader)
+    if (activeShader)
     {
-        shader->Use(gameLights_);
+        activeShader->Use(gameLights_);
 
-        if (renderOp == ZRenderOp::Color)
-        {
-            zenith::Graphics()->BindTexture(zenith::Graphics()->DepthBuffer(), 0);
-            zenith::Graphics()->BindTexture(zenith::Graphics()->ShadowBuffer(), 1);
-            shader->SetInt("depthTexture", 0);
-            shader->SetInt("shadowTexture", 1);
+        if (renderOp == ZRenderOp::Post) {
+            activeShader->SetMat4("previousViewProjection", object_->Scene()->PreviousViewProjection());
+            activeShader->SetMat4("inverseViewProjection", glm::inverse(object_->Scene()->ViewProjection()));
+            activeShader->SetBool("useMotionBlur", ZServices::Graphics()->HasMotionBlur());
         }
 
-        shader->SetMat4("P", projectionMatrix);
-        shader->SetMat4("V", viewMatrix);
-        shader->SetMat4("M", modelMatrix);
-        shader->SetMat4("ViewProjection", object_->Scene()->ViewProjection());
-        shader->SetMat4("P_lightSpace", zenith::Graphics()->LightSpaceMatrix());
-        shader->SetVec3("viewPosition", gameCamera_->Position());
-        shader->SetBool("instanced", false);
+        activeShader->SetMat4("P", projectionMatrix);
+        activeShader->SetMat4("V", viewMatrix);
+        activeShader->SetMat4("M", modelMatrix);
+        activeShader->SetMat4("ViewProjection", object_->Scene()->ViewProjection());
+        activeShader->SetVec3("viewPosition", gameCamera_->Position());
+        activeShader->SetBool("instanced", false);
+
+        if (!gameLights_.empty()) {
+            // TODO: Defer this computation or choose light based on id for forward rendering
+            activeShader->SetMat4("P_lightSpace", gameLights_.begin()->second->LightSpaceMatrix());
+        }
 
         if (object_->Scene()->Skybox() != nullptr)
         {
-            zenith::Graphics()->BindTexture(object_->Scene()->Skybox()->IBLTexture().irradiance, 3);
-            shader->SetInt("irradianceMap", 3);
-            zenith::Graphics()->BindTexture(object_->Scene()->Skybox()->IBLTexture().prefiltered, 4);
-            shader->SetInt("prefilterMap", 4);
-            zenith::Graphics()->BindTexture(object_->Scene()->Skybox()->IBLTexture().brdfLUT, 5);
-            shader->SetInt("brdfLUT", 5);
+            object_->Scene()->Skybox()->IBLTexture().irradiance->Bind(3);
+            activeShader->SetInt("irradianceMap", 3);
+            object_->Scene()->Skybox()->IBLTexture().prefiltered->Bind(4);
+            activeShader->SetInt("prefilterMap", 4);
+            object_->Scene()->Skybox()->IBLTexture().brdfLUT->Bind(5);
+            activeShader->SetInt("brdfLUT", 5);
         }
 
-        modelObject_->Render(shader.get(), materials_);
+        modelObject_->Render(activeShader, Materials());
     }
 
-    zenith::Graphics()->DisableAlphaBlending();
+    ZServices::Graphics()->DisableAlphaBlending();
     DrawOutlineIfEnabled(modelMatrix, object_->Scene()->ViewProjection());
 }
 
 std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader()
 {
     if (currentShaderObject_) return currentShaderObject_;
-    if (shaders_.empty()) return nullptr;
 
-    if (zenith::Graphics()->Shaders().find(shaders_[activeShaderIndex_]) != zenith::Graphics()->Shaders().end())
-    {
-        currentShaderObject_ = zenith::Graphics()->Shaders()[shaders_[activeShaderIndex_]];
-        return currentShaderObject_;
-    }
-    return nullptr;
+    auto scene = object_->Scene();
+    if (!scene || shadersIds_.empty()) return nullptr;
+
+    currentShaderObject_ = scene->AssetStore()->GetShader(shadersIds_[activeShaderIndex_]);
+    return currentShaderObject_;
 }
 
 std::shared_ptr<ZModel> ZGraphicsComponent::Model()
 {
     if (modelObject_) return modelObject_;
+    
+    auto scene = object_->Scene();
+    if (!scene) return nullptr;
 
-    if (zenith::Graphics()->Models().find(model_) != zenith::Graphics()->Models().end())
+    if (scene->AssetStore()->HasModel(model_))
     {
-        modelObject_ = zenith::Graphics()->Models()[model_];
+        modelObject_ = scene->AssetStore()->GetModel(model_);
         modelObject_->SetInstanceData(instanceData_);
         return modelObject_;
     }
     return nullptr;
+}
+
+const std::vector<std::shared_ptr<ZMaterial>>& ZGraphicsComponent::Materials()
+{
+    if (materialIds_.empty()) return materials_;
+
+    auto it = materialIds_.begin();
+    while (it != materialIds_.end())
+    {
+        if (object_->Scene() && object_->Scene()->AssetStore()->HasMaterial(*it))
+        {
+            auto material = object_->Scene()->AssetStore()->GetMaterial(*it);
+            AddMaterial(material);
+            it = materialIds_.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+    return materials_;
 }
 
 void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material)
@@ -268,8 +271,13 @@ void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material)
 
 void ZGraphicsComponent::SetOutline(const glm::vec4& color)
 {
-    if (highlightShader_ == nullptr)
-    {
+    auto scene = object_->Scene();
+    if (!scene) return;
+
+    if (scene->AssetStore()->HasShader(highlightShaderId_)) {
+        highlightShader_ = scene->AssetStore()->GetShader(highlightShaderId_);
+    }
+    else {
         highlightShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/outline.frag"));
         highlightShader_->Initialize();
     }
@@ -286,7 +294,7 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm:
 {
     if (highlightShader_ == nullptr) return;
 
-    zenith::Graphics()->DisableStencilBuffer();
+    ZServices::Graphics()->DisableStencilBuffer();
     highlightShader_->Activate();
 
     glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.03f, 1.03f, 1.03f));
@@ -295,9 +303,9 @@ void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm:
     highlightShader_->SetMat4("M", highlightModelMatrix);
     highlightShader_->SetVec4("color", highlightColor_);
 
-    modelObject_->Render(highlightShader_.get(), materials_);
+    modelObject_->Render(highlightShader_, Materials());
 
-    zenith::Graphics()->EnableStencilBuffer();
+    ZServices::Graphics()->EnableStencilBuffer();
 }
 
 void ZGraphicsComponent::ClearOutline()

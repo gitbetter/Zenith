@@ -27,55 +27,69 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
+#include "ZScene.hpp"
 #include "ZGame.hpp"
+#include "ZQuitEvent.hpp"
 #include "ZDomain.hpp"
-#include "ZGraphics.hpp"
-#include "ZGraphicsStrategy.hpp"
-#include "ZProcessRunner.hpp"
+#include "ZInput.hpp"
 
-#include <chrono>
 using namespace std;
 
-ZGame::ZGame() : activeScene_(0) {}
+ZGame::ZGame() : ZBase(), activeScene_(0) {}
+
+void ZGame::Setup()
+{
+    ZServices::EventAgent()->Subscribe(this, &ZGame::HandleQuit);
+}
+
+void ZGame::CleanUp()
+{
+    ZServices::EventAgent()->Unsubscribe(this, &ZGame::HandleQuit);
+    ZBase::CleanUp();
+}
 
 void ZGame::Loop()
 {
-    zenith::Log("Zenith is about to loop...", ZSeverity::Info);
+    LOG("Zenith is about to loop...", ZSeverity::Info);
 
-    double previousTime = zenith::SecondsTime();
+    double previousTime = SECONDS_TIME;
 
     while (Running())
     {
-        double currentTime = zenith::SecondsTime();
+        double currentTime = SECONDS_TIME;
         deltaTime_ = currentTime - previousTime;
         previousTime = currentTime;
 
-        zenith::ProcessRunner()->UpdateTick(deltaTime_);
+        ZServices::ProcessRunner()->UpdateTick(deltaTime_);
 
-        zenith::Graphics()->SwapBuffers();
+        Domain()->SwapBuffers();
 
-        zenith::Domain()->PollEvents();
+        ZServices::Input()->PollEvents();
     }
 }
 
 bool ZGame::Running()
 {
-    return !zenith::Domain()->IsWindowClosing();
+    return !Domain()->IsClosing();
 }
 
-void ZGame::AddScene(std::shared_ptr<ZScene> scene)
+void ZGame::AddScene(const std::shared_ptr<ZScene>& scene)
 {
     activeScene_ = scenes_.size();
     scenes_.push_back(scene);
-    zenith::ProcessRunner()->AttachProcess(scene, ZPriority::High);
+    scene->SetGameSystems(gameSystems_);
+    scene->SetGameConfig(gameOptions_);
+    ZServices::ProcessRunner()->AttachProcess(scene, ZPriority::High);
 }
 
-void ZGame::RemoveScene(std::shared_ptr<ZScene> scene)
+void ZGame::RemoveScene(const std::shared_ptr<ZScene>& scene)
 {
     auto it = std::find(scenes_.begin(), scenes_.end(), scene);
     if (it != scenes_.end())
     {
         scenes_.erase(it);
+        scene->SetGameSystems(ZGameSystems());
     }
 }
 
@@ -85,4 +99,9 @@ void ZGame::SetActiveScene(unsigned int index)
     if (!scenes_.empty() && scenes_[activeScene_]->IsAlive())
         scenes_[activeScene_]->Abort();
     activeScene_ = index;
+}
+
+void ZGame::HandleQuit(const std::shared_ptr<ZQuitEvent>& event)
+{
+    ZServices::Input()->ReleaseCursor();
 }

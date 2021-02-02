@@ -30,7 +30,7 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
+#include "ZCommon.hpp"
 
 // Class and Data Structure Definitions
 namespace zenith

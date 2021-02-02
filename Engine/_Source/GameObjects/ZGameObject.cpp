@@ -26,21 +26,23 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
 #include "ZLight.hpp"
-#include "ZTrigger.hpp"
 #include "ZSkybox.hpp"
 #include "ZGrass.hpp"
+#include "ZCamera.hpp"
 #include "ZGame.hpp"
+#include "ZScene.hpp"
 #include "ZModel.hpp"
-#include "ZCameraComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZScriptComponent.hpp"
 #include "ZAnimatorComponent.hpp"
 #include "ZRigidBody.hpp"
 #include "ZOFTree.hpp"
 #include "ZIDSequence.hpp"
-#include "ZEventAgent.hpp"
 #include "ZObjectDestroyedEvent.hpp"
+
+ZIDSequence ZGameObject::idGenerator_("ZGO");
 
 ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation)
 {
@@ -48,8 +50,8 @@ ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation
     properties_.previousScale = properties_.scale = glm::vec3(1.f, 1.f, 1.f);
     properties_.previousOrientation = properties_.orientation = orientation;
     properties_.modelMatrix = glm::mat4(1.f);
-    properties_.renderPass = ZRenderPass::Static;
-    id_ = "ZGO_" + zenith::IDSequence()->Next();
+    properties_.renderOrder = ZRenderOrder::Static;
+    id_ = "ZGO_" + idGenerator_.Next();
     CalculateDerivedData();
 }
 
@@ -58,7 +60,7 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root)
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
     {
-        zenith::Log("Could not initalize ZGameObject", ZSeverity::Error);
+        LOG("Could not initalize ZGameObject", ZSeverity::Error);
         return;
     }
 
@@ -92,31 +94,34 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root)
 
 void ZGameObject::PreRender()
 {
-    scene_->PushMatrix(scene_->TopMatrix() * properties_.modelMatrix);
+    auto scene = Scene();
+    if (!scene) return;
+
+    scene->PushMatrix(scene->TopMatrix() * properties_.modelMatrix);
 }
 
-void ZGameObject::Render(double deltaTime, ZRenderOp renderOp)
+void ZGameObject::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
-    std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
-    std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
-    if (zenith::Options().drawCameraDebug && cameraComp && scene_->ActiveCamera().get() != this)
+    auto scene = Scene();
+    if (!scene) return;
+
+    if (std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>())
     {
-        cameraComp->Render();
-    }
-    if (graphicsComp)
-    {
-        graphicsComp->SetGameLights(scene_->GameLights());
-        graphicsComp->SetGameCamera(scene_->ActiveCamera());
-        graphicsComp->Render(renderOp);
+        graphicsComp->SetGameLights(scene->GameLights());
+        graphicsComp->SetGameCamera(scene->ActiveCamera());
+        graphicsComp->Render(deltaTime, shader, renderOp);
     }
 }
 
 void ZGameObject::PostRender()
 {
-    scene_->PopMatrix();
+    auto scene = Scene();
+    if (!scene) return;
+
+    scene->PopMatrix();
 }
 
-void ZGameObject::RenderChildren(double deltaTime, ZRenderOp renderOp)
+void ZGameObject::RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
     ZGameObjectList::reverse_iterator it = children_.rbegin(), end = children_.rend();
     for (; it != end; it++)
@@ -125,9 +130,9 @@ void ZGameObject::RenderChildren(double deltaTime, ZRenderOp renderOp)
         go->PreRender();
         if (go->IsVisible())
         {
-            go->Render(deltaTime, renderOp);
+            go->Render(deltaTime, shader, renderOp);
         }
-        go->RenderChildren(renderOp);
+        go->RenderChildren(deltaTime, shader, renderOp);
         go->PostRender();
     }
 }
@@ -152,7 +157,8 @@ void ZGameObject::CalculateDerivedData()
     objectMutexes_.modelMatrix.unlock();
 
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
-    if (graphicsComp) graphicsComp->Model()->UpdateAABB(properties_.modelMatrix);
+    if (graphicsComp)
+        graphicsComp->Model()->UpdateAABB(properties_.modelMatrix);
 }
 
 std::shared_ptr<ZGameObject> ZGameObject::Clone()
@@ -184,9 +190,9 @@ void ZGameObject::AddChild(std::shared_ptr<ZGameObject> gameObject)
 {
     if (std::find(children_.begin(), children_.end(), gameObject) == children_.end())
     {
-        if (!gameObject->scene_) gameObject->scene_ = scene_;
-        if (gameObject->parent_) gameObject->parent_->RemoveChild(gameObject);
-        gameObject->parent_ = this;
+        if (!gameObject->Scene()) gameObject->scene_ = scene_;
+        if (auto parent = gameObject->Parent()) parent->RemoveChild(gameObject);
+        gameObject->parent_ = shared_from_this();
         children_.push_back(gameObject);
     }
 }
@@ -196,7 +202,7 @@ void ZGameObject::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recu
     ZGameObjectList::iterator it = std::find(children_.begin(), children_.end(), gameObject);
     if (it != children_.end())
     {
-        gameObject->parent_ = nullptr;
+        gameObject->parent_.reset();
         children_.erase(it);
     }
 
@@ -211,17 +217,14 @@ void ZGameObject::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recu
 
 bool ZGameObject::IsVisible()
 {
-    std::shared_ptr<ZGameObject> camera = scene_->ActiveCamera();
-    std::shared_ptr<ZCameraComponent> activeCameraComp = camera->FindComponent<ZCameraComponent>();
+    auto scene = Scene();
+    if (!scene) return false;
+
+    std::shared_ptr<ZCamera> activeCamera = scene->ActiveCamera();
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
-    std::shared_ptr<ZCameraComponent> cameraComp = FindComponent<ZCameraComponent>();
-    if (cameraComp)
+    if (activeCamera && graphicsComp && graphicsComp->Model())
     {
-        return activeCameraComp->Frustum().Contains(cameraComp->Frustum());
-    }
-    else if (activeCameraComp && graphicsComp && graphicsComp->Model())
-    {
-        return activeCameraComp->Frustum().Contains(graphicsComp->Model()->AABB());
+        return activeCamera->Frustum().Contains(graphicsComp->Model()->AABB());
     }
     return false;
 }
@@ -236,7 +239,17 @@ void ZGameObject::Destroy()
         comp->CleanUp();
 
     std::shared_ptr<ZObjectDestroyedEvent> destroyEvent(new ZObjectDestroyedEvent(shared_from_this()));
-    zenith::EventAgent()->TriggerEvent(destroyEvent);
+    ZServices::EventAgent()->Trigger(destroyEvent);
+}
+
+std::shared_ptr<ZScene> ZGameObject::Scene() const
+{
+    return scene_.lock();
+}
+
+std::shared_ptr<ZGameObject> ZGameObject::Parent() const
+{
+    return parent_.lock();
 }
 
 glm::vec3 ZGameObject::Position()
@@ -404,80 +417,76 @@ void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
     objectMutexes_.modelMatrix.unlock();
 }
 
-ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data)
+ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
 {
     ZGameObjectMap gameObjects;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         std::shared_ptr<ZOFNode> node = it->second;
-        if (node->id.find("ZGO") == 0)
+        std::shared_ptr<ZGameObject> gameObject;
+        if (zenith::strings::HasObjectPrefix(node->id, "ZGO"))
         {
-            std::shared_ptr<ZGameObject> gameObject = CreateGameObject(node);
+            gameObject = CreateGameObject();
+        }
+        else if (zenith::strings::HasObjectPrefix(node->id, "ZLT"))
+        {
+            gameObject = CreateLight();
+        }
+        else if (zenith::strings::HasObjectPrefix(node->id, "ZCAM"))
+        {
+            gameObject = CreateCamera();
+        }
+        else if (zenith::strings::HasObjectPrefix(node->id, "ZSKY"))
+        {
+            gameObject = CreateSkybox();
+        }
+        else if (zenith::strings::HasObjectPrefix(node->id, "ZGR"))
+        {
+            gameObject = CreateGrass();
+        }
+
+        if (gameObject) {
             gameObjects[gameObject->ID()] = gameObject;
-        }
-        else if (node->id.find("ZLT") == 0)
-        {
-            std::shared_ptr<ZLight> light = CreateLight(node);
-            gameObjects[light->ID()] = light;
-        }
-        else if (node->id.find("ZTR") == 0)
-        {
-            std::shared_ptr<ZTrigger> trigger = CreateTrigger(node);
-            gameObjects[trigger->ID()] = trigger;
-        }
-        else if (node->id.find("ZSKY") == 0)
-        {
-            std::shared_ptr<ZSkybox> skybox = CreateSkybox(node);
-            gameObjects[skybox->ID()] = skybox;
-        }
-        else if (node->id.find("ZGR") == 0)
-        {
-            std::shared_ptr<ZGrass> grass = CreateGrass(node);
-            gameObjects[grass->ID()] = grass;
+            gameObject->scene_ = scene;
+            gameObject->Initialize(node);
+
+            for (ZOFChildMap::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++)
+            {
+                std::shared_ptr<ZOFNode> componentNode = compIt->second;
+                ZComponent::CreateIn(compIt->first, gameObject, componentNode);
+            }
         }
     }
     return gameObjects;
 }
 
-std::shared_ptr<ZGameObject> ZGameObject::CreateGameObject(std::shared_ptr<ZOFNode> data)
+std::shared_ptr<ZGameObject> ZGameObject::CreateGameObject()
 {
     std::shared_ptr<ZGameObject> gameObject(new ZGameObject);
-    gameObject->Initialize(data);
-
-    for (ZOFChildMap::iterator compIt = data->children.begin(); compIt != data->children.end(); compIt++)
-    {
-        std::shared_ptr<ZOFNode> componentNode = compIt->second;
-        ZComponent::CreateIn(compIt->first, gameObject, componentNode);
-    }
-
     return gameObject;
 }
 
-std::shared_ptr<ZLight> ZGameObject::CreateLight(std::shared_ptr<ZOFNode> data)
+std::shared_ptr<ZCamera> ZGameObject::CreateCamera()
+{
+    std::shared_ptr<ZCamera> camera(new ZCamera);
+    return camera;
+}
+
+std::shared_ptr<ZLight> ZGameObject::CreateLight()
 {
     std::shared_ptr<ZLight> light(new ZLight);
-    light->Initialize(data);
     return light;
 }
 
-std::shared_ptr<ZTrigger> ZGameObject::CreateTrigger(std::shared_ptr<ZOFNode> data)
-{
-    std::shared_ptr<ZTrigger> trigger(new ZTrigger);
-    trigger->Initialize(data);
-    return trigger;
-}
-
-std::shared_ptr<ZSkybox> ZGameObject::CreateSkybox(std::shared_ptr<ZOFNode> data)
+std::shared_ptr<ZSkybox> ZGameObject::CreateSkybox()
 {
     std::shared_ptr<ZSkybox> skybox(new ZSkybox);
-    skybox->Initialize(data);
     return skybox;
 }
 
-std::shared_ptr<ZGrass> ZGameObject::CreateGrass(std::shared_ptr<ZOFNode> data)
+std::shared_ptr<ZGrass> ZGameObject::CreateGrass()
 {
     std::shared_ptr<ZGrass> grass(new ZGrass);
-    grass->Initialize(data);
     return grass;
 }
 

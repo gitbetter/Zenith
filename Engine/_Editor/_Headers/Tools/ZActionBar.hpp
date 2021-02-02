@@ -43,7 +43,7 @@ public:
   ZActionBar(const ZUITheme& theme = ZUITheme())
       : ZEditorTool("Actions", theme) { }
 
-  void Initialize() override;
+  void Initialize(const std::shared_ptr<ZScene>& scene) override;
 
   void Update() override;
 

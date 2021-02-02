@@ -29,4 +29,4 @@
 
 #include "ZScriptReadyEvent.hpp"
 
-const ZEventType ZScriptReadyEvent::Type(0xb59b7cc2);
+const ZTypeIdentifier ZScriptReadyEvent::Type(TYPE_ID(ZScriptReadyEvent));

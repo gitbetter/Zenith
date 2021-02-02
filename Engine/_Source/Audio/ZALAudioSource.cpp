@@ -30,6 +30,7 @@
 #include "ZALAudioSource.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZResourceHandle.hpp"
+#include "ZServices.hpp"
 #include "al.h"
 
 ZALAudioSource::ZALAudioSource(std::shared_ptr<ZResourceHandle> resource) : ZAudioSource(resource)
@@ -62,7 +63,7 @@ void ZALAudioSource::Initialize()
     alGenSources(1, &source_);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error generating audio source", ZSeverity::Error);
+        LOG("Error generating audio source", ZSeverity::Error);
         return;
     }
 
@@ -70,7 +71,7 @@ void ZALAudioSource::Initialize()
     alGenBuffers(1, &sampleBuffer_);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error generating audio buffer", ZSeverity::Error);
+        LOG("Error generating audio buffer", ZSeverity::Error);
         return;
     }
 
@@ -78,7 +79,7 @@ void ZALAudioSource::Initialize()
     alBufferData(sampleBuffer_, format, resourceHandle_->Buffer(), resourceHandle_->Size(), extra->WavFormatDesc()->samplesPerSec);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error setting up audio buffer data", ZSeverity::Error);
+        LOG("Error setting up audio buffer data", ZSeverity::Error);
         return;
     }
 
@@ -86,7 +87,7 @@ void ZALAudioSource::Initialize()
     alSourcei(source_, AL_BUFFER, sampleBuffer_);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error attaching audio buffer data to audio source", ZSeverity::Error);
+        LOG("Error attaching audio buffer data to audio source", ZSeverity::Error);
         return;
     }
 
@@ -115,7 +116,7 @@ void ZALAudioSource::Play(int volume, bool looping)
     alSourcePlay(source_);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error playing audio source", ZSeverity::Error);
+        LOG("Error playing audio source", ZSeverity::Error);
     }
 }
 
@@ -129,7 +130,7 @@ void ZALAudioSource::Pause()
     alSourcePause(source_);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error pausing audio source", ZSeverity::Error);
+        LOG("Error pausing audio source", ZSeverity::Error);
     }
 }
 
@@ -143,7 +144,7 @@ void ZALAudioSource::Stop()
     alSourceStop(source_);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error stopping audio source", ZSeverity::Error);
+        LOG("Error stopping audio source", ZSeverity::Error);
     }
 }
 
@@ -157,7 +158,7 @@ void ZALAudioSource::Resume()
     alSourcePlay(source_);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error resuming audio source", ZSeverity::Error);
+        LOG("Error resuming audio source", ZSeverity::Error);
     }
 }
 
@@ -172,7 +173,7 @@ void ZALAudioSource::TogglePause()
     alGetSourcei(source_, AL_SOURCE_STATE, &state);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error toggling pause on audio source", ZSeverity::Error);
+        LOG("Error toggling pause on audio source", ZSeverity::Error);
         return;
     }
 
@@ -191,7 +192,7 @@ bool ZALAudioSource::IsPlaying()
     alGetSourcei(source_, AL_SOURCE_STATE, &state);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error getting audio source state", ZSeverity::Error);
+        LOG("Error getting audio source state", ZSeverity::Error);
         return false;
     }
 
@@ -209,7 +210,7 @@ void ZALAudioSource::SetVolume(int volume)
     alSourcef(source_, AL_GAIN, glm::clamp((float) volume / 100.f, 0.f, 100.f));
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error setting audio source volume", ZSeverity::Error);
+        LOG("Error setting audio source volume", ZSeverity::Error);
         return;
     }
 }
@@ -224,7 +225,7 @@ float ZALAudioSource::Progress() const
     alGetSourcei(source_, AL_BYTE_OFFSET, &byteOffset);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
-        zenith::Log("Error getting audio source playback progress", ZSeverity::Error);
+        LOG("Error getting audio source playback progress", ZSeverity::Error);
         return -1.f;
     }
 

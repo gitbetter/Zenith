@@ -27,13 +27,13 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZShader.hpp"
 #include "ZMaterial.hpp"
 #include "ZResource.hpp"
-#include "ZResourceCache.hpp"
 #include "ZSkeleton.hpp"
+#include "ZTexture.hpp"
 #include "ZResourceLoadedEvent.hpp"
-#include "ZEventAgent.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZShaderReadyEvent.hpp"
 #include "ZOFTree.hpp"
@@ -45,6 +45,14 @@
 
 // TODO: Make ZShader an interface, and rework this specific implementation as ZGLShader
 // which derives from the ZShader interface
+
+ZIDSequence ZShader::idGenerator_("ZSH");
+
+ZShader::ZShader(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath)
+    : vertexShaderPath_(vertexShaderPath), pixelShaderPath_(pixelShaderPath), geometryShaderPath_(geomShaderPath), loadedShadersMask_(0)
+{
+    name_ = "ZSH_" + idGenerator_.Next();
+}
 
 void ZShader::Initialize()
 {
@@ -64,8 +72,7 @@ void ZShader::InitializeAsync()
     GetShaderCode(pixelShaderPath_, ZShaderType::Pixel, true);
     GetShaderCode(geometryShaderPath_, ZShaderType::Geometry, true);
 
-    ZEventDelegate shaderCodeLoadDelegate = fastdelegate::MakeDelegate(this, &ZShader::HandleShaderCodeLoaded);
-    zenith::EventAgent()->AddListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
+    ZServices::EventAgent()->Subscribe(this, &ZShader::HandleShaderCodeLoaded);
 }
 
 /**
@@ -116,11 +123,11 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
         ZResource shaderResource(shaderPath, type);
         if (async)
         {
-            zenith::ResourceCache()->RequestHandle(shaderResource);
+            ZServices::ResourceCache()->RequestHandle(shaderResource);
         }
         else
         {
-            std::shared_ptr<ZResourceHandle> shaderHandle = zenith::ResourceCache()->GetHandle(&shaderResource);
+            std::shared_ptr<ZResourceHandle> shaderHandle = ZServices::ResourceCache()->GetHandle(&shaderResource);
             if (shaderHandle)
             {               
                 shaderCode = std::string((char*) shaderHandle->Buffer());
@@ -203,7 +210,7 @@ void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderType shade
     {
         if (isShader) { glGetShaderInfoLog(compilationUnit, 1024, NULL, infoLog); }
         else { glGetProgramInfoLog(compilationUnit, 1024, NULL, infoLog); }
-        zenith::Log("Shader Compilation Error: (" + std::to_string(compilationUnit) + ") " + std::string(infoLog) + "\n" + shaderSource, ZSeverity::Error);
+        LOG("Shader Compilation Error: (" + std::to_string(compilationUnit) + ") " + std::string(infoLog) + "\n" + shaderSource, ZSeverity::Error);
     }
 }
 
@@ -272,7 +279,7 @@ void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const
     glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
-void ZShader::Use(ZMaterial* material)
+void ZShader::Use(const std::shared_ptr<ZMaterial>& material)
 {
     Activate();
 
@@ -300,11 +307,11 @@ void ZShader::Use(ZMaterial* material)
     // We start the external texture indices at 4 due to the depth, shadow and PBR irradiance maps, which are set internally
     // and should not be overriden
     unsigned int startIndex = 6;
-    for (unsigned int i = 0, j = material->Textures().size(); i < j; i++)
+    for (auto const& [key, val] : material->Textures())
     {
-        ZTexture texture = material->Textures()[i];
-        SetInt(texture.type, i + startIndex);
-        zenith::Graphics()->BindTexture(texture, i + startIndex);
+        val->Bind(startIndex);
+        SetInt(key, startIndex);
+        ++startIndex;
     }
 }
 
@@ -350,11 +357,6 @@ void ZShader::Use(const ZLightMap& lights)
             SetFloat("lights[" + std::to_string(i) + "].exponent", light->spot.exponent);
             SetVec3("lights[" + std::to_string(i) + "].position", light->Position());
             break;
-        case ZLightType::Hemisphere:
-            SetVec3("hemisphereLight.position", light->Position());
-            SetVec3("hemisphereLight.skyColor", light->hemisphere.skyColor);
-            SetVec3("hemisphereLight.groundColor", light->hemisphere.groundColor);
-            break;
         default: break;
         }
         ++i;
@@ -372,31 +374,30 @@ void ZShader::Use(const ZBoneList& bones)
     }
 }
 
-void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZEvent>& event)
+void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
 {
-    std::shared_ptr<ZResourceLoadedEvent> loaded = std::static_pointer_cast<ZResourceLoadedEvent>(event);
-    if (!loaded->Handle()) return;
+    if (!event->Handle()) return;
 
-    std::shared_ptr<ZShaderResourceExtraData> extraData = std::static_pointer_cast<ZShaderResourceExtraData>(loaded->Handle()->ExtraData());
+    std::shared_ptr<ZShaderResourceExtraData> extraData = std::static_pointer_cast<ZShaderResourceExtraData>(event->Handle()->ExtraData());
 
-    switch (loaded->Handle()->Resource().type)
+    switch (event->Handle()->Resource().type)
     {
     case ZResourceType::VertexShader:
-        if (loaded->Handle()->Resource().name == vertexShaderPath_ && (loadedShadersMask_ & 1) == 0)
+        if (event->Handle()->Resource().name == vertexShaderPath_ && (loadedShadersMask_ & 1) == 0)
         {
             loadedShadersMask_ |= 1;
             vertexShaderCode_ = extraData->Code();
         }
         break;
     case ZResourceType::PixelShader:
-        if (loaded->Handle()->Resource().name == pixelShaderPath_ && (loadedShadersMask_ & (1 << 1)) == 0)
+        if (event->Handle()->Resource().name == pixelShaderPath_ && (loadedShadersMask_ & (1 << 1)) == 0)
         {
             loadedShadersMask_ |= 1 << 1;
             pixelShaderCode_ = extraData->Code();
         }
         break;
     case ZResourceType::GeometryShader:
-        if (loaded->Handle()->Resource().name == geometryShaderPath_ && (loadedShadersMask_ & (1 << 2)) == 0)
+        if (event->Handle()->Resource().name == geometryShaderPath_ && (loadedShadersMask_ & (1 << 2)) == 0)
         {
             loadedShadersMask_ |= 1 << 2;
             geometryShaderCode_ = extraData->Code();
@@ -407,13 +408,12 @@ void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZEvent>& event)
 
     if (loadedShadersMask_ == 3 || loadedShadersMask_ == 7)
     {
-        ZEventDelegate shaderCodeLoadDelegate = fastdelegate::MakeDelegate(this, &ZShader::HandleShaderCodeLoaded);
-        zenith::EventAgent()->RemoveListener(shaderCodeLoadDelegate, ZResourceLoadedEvent::Type);
+        ZServices::EventAgent()->Unsubscribe(this, &ZShader::HandleShaderCodeLoaded);
 
         Compile();
 
         std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
-        zenith::EventAgent()->QueueEvent(shaderReadyEvent);
+        ZServices::EventAgent()->Queue(shaderReadyEvent);
     }
 }
 
@@ -438,6 +438,7 @@ void ZShader::CreateAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendin
             }
 
             std::shared_ptr<ZShader> shader(new ZShader(vertexPath, pixelPath, geometryPath));
+            shader->name_ = it->first;
             outPendingShaders[shader] = it->first;
         }
     }
@@ -469,7 +470,9 @@ void ZShader::Create(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap)
                 else if (it->second->id == "geometry") geometryPath = str->value;
             }
 
-            shaders[it->first] = ZShader::Create(vertexPath, pixelPath, geometryPath);
+            auto shader = ZShader::Create(vertexPath, pixelPath, geometryPath);
+            shader->name_ = it->first;
+            shaders[it->first] = shader;
         }
     }
     outShaderMap = shaders;

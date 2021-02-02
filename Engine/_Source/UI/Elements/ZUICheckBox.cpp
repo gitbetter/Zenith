@@ -27,11 +27,10 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZUICheckBox.hpp"
-#include "ZEventAgent.hpp"
 #include "ZShader.hpp"
 #include "ZUIImage.hpp"
-#include "ZUI.hpp"
 #include "ZFireEvent.hpp"
 
 ZUICheckBox::ZUICheckBox(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
@@ -48,11 +47,11 @@ void ZUICheckBox::Initialize() {
     ZUIElement::Initialize();
 
     checkImage_ = std::make_shared<ZUIImage>("/Textures/UI/checkmark.png", glm::vec2(0.f) + Size(), Size());
+    checkImage_->SetScene(Scene());
     checkImage_->Initialize();
     AddChild(checkImage_);
 
-    ZEventDelegate fireDelegate = fastdelegate::MakeDelegate(this, &ZUICheckBox::HandleMousePress);
-    zenith::EventAgent()->AddListener(fireDelegate, ZFireEvent::Type);
+    ZServices::EventAgent()->Subscribe(this, &ZUICheckBox::HandleMousePress);
 }
 
 void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -62,7 +61,7 @@ void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
     if (node == nullptr)
     {
-        zenith::Log("Could not initalize ZUICheckbox", ZSeverity::Error); return;
+        LOG("Could not initalize ZUICheckbox", ZSeverity::Error); return;
     }
 
     ZOFPropertyMap props = node->properties;
@@ -74,10 +73,15 @@ void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
     }
 }
 
-void ZUICheckBox::HandleMousePress(const std::shared_ptr<ZEvent>& event)
+void ZUICheckBox::CleanUp()
 {
-    std::shared_ptr<ZFireEvent> fireEvent = std::static_pointer_cast<ZFireEvent>(event);
-    if (fireEvent->Done() && TrySelect(glm::vec3(fireEvent->X(), fireEvent->Y(), fireEvent->Z())))
+    ZUIElement::CleanUp();
+    ZServices::EventAgent()->Unsubscribe(this, &ZUICheckBox::HandleMousePress);
+}
+
+void ZUICheckBox::HandleMousePress(const std::shared_ptr<ZFireEvent>& event)
+{
+    if (event->Done() && TrySelect(glm::vec3(event->X(), event->Y(), event->Z())))
     {
         checked_ = !checked_;
         if (checked_)
@@ -89,4 +93,24 @@ void ZUICheckBox::HandleMousePress(const std::shared_ptr<ZEvent>& event)
             checkImage_->Hide();
         }
     }
+}
+
+std::shared_ptr<ZUICheckBox> ZUICheckBox::Create()
+{
+    std::shared_ptr<ZUICheckBox> element = std::make_shared<ZUICheckBox>();
+    return element;
+}
+
+std::shared_ptr<ZUICheckBox> ZUICheckBox::Create(const ZUIElementOptions& options)
+{
+    std::shared_ptr<ZUICheckBox> element = std::make_shared<ZUICheckBox>(options);
+    return element;
+}
+
+std::shared_ptr<ZUICheckBox> ZUICheckBox::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
+{
+    auto element = ZUICheckBox::Create(options);
+    element->SetScene(scene);
+    element->Initialize();
+    return element;
 }

@@ -59,7 +59,7 @@ using CreateEventForScriptFunctionType = ZScriptableEvent* (*)();
 class ZScriptableEvent : public ZEvent
 {
 
-    using CreationFunctions = std::map<ZEventType, CreateEventForScriptFunctionType>;
+    using CreationFunctions = std::map<ZTypeIdentifier, CreateEventForScriptFunctionType>;
 
 private:
 
@@ -67,16 +67,16 @@ private:
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
     ZScriptableEvent() {}
 
     sol::table EventData();
     bool SetEventData(sol::table data);
 
-    static void RegisterEventTypeWithScript(const std::string& key, ZEventType type);
-    static void AddCreationFunction(ZEventType type, CreateEventForScriptFunctionType creationFunction);
-    static ZScriptableEvent* CreateEventFromScript(ZEventType type);
+    static void RegisterEventTypeWithScript(const std::string& key, ZTypeIdentifier type);
+    static void AddCreationFunction(ZTypeIdentifier type, CreateEventForScriptFunctionType creationFunction);
+    static ZScriptableEvent* CreateEventFromScript(ZTypeIdentifier type);
 
 protected:
 
@@ -92,21 +92,25 @@ class ZScriptableEventDelegate
 
 private:
 
-    ZEventType eventType_;
+    ZTypeIdentifier eventType_;
     sol::function scriptCallback_;
+    std::shared_ptr<ZEventDelegate> delegate_;
 
 public:
 
-    explicit ZScriptableEventDelegate(ZEventType eventType, const sol::function& scriptCallback)
+    explicit ZScriptableEventDelegate(ZTypeIdentifier eventType, const sol::function& scriptCallback)
         : eventType_(eventType), scriptCallback_(scriptCallback)
     {}
     ~ZScriptableEventDelegate() {}
 
-    ZEventDelegate Delegate()
+    std::shared_ptr<ZEventDelegate> Delegate()
     {
-        return fastdelegate::MakeDelegate(this, &ZScriptableEventDelegate::EventDelegate);
+        if (!delegate_) {
+            delegate_ = std::make_shared<ZMemberEventDelegate<ZScriptableEventDelegate, ZScriptableEvent>>(this, &ZScriptableEventDelegate::EventDelegate);
+        }
+        return delegate_;
     }
 
-    void EventDelegate(const std::shared_ptr<ZEvent>& event);
+    void EventDelegate(const std::shared_ptr<ZScriptableEvent>& event);
 
 };

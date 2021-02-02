@@ -27,49 +27,50 @@
  */
 
 #include "ZSceneRoot.hpp"
-#include "ZPhysics.hpp"
-#include "ZGraphicsDebug.hpp"
+#include "ZServices.hpp"
+#include "ZPhysicsUniverse.hpp"
+#include "ZScene.hpp"
 
 ZSceneRoot::ZSceneRoot(const std::string& name) : ZGameObject(name)
 {
     std::shared_ptr<ZGameObject> staticGroup = std::make_shared<ZGameObject>("StaticGroup");
-    staticGroup->SetRenderPass(ZRenderPass::Static);
+    staticGroup->SetRenderOrder(ZRenderOrder::Static);
     children_.push_back(staticGroup);
 
     std::shared_ptr<ZGameObject> dynamicGroup = std::make_shared<ZGameObject>("DynamicGroup");
-    dynamicGroup->SetRenderPass(ZRenderPass::Dynamic);
+    dynamicGroup->SetRenderOrder(ZRenderOrder::Dynamic);
     children_.push_back(dynamicGroup);
 
     std::shared_ptr<ZGameObject> skyGroup = std::make_shared<ZGameObject>("SkyGroup");
-    skyGroup->SetRenderPass(ZRenderPass::Sky);
+    skyGroup->SetRenderOrder(ZRenderOrder::Sky);
     children_.push_back(skyGroup);
 
     std::shared_ptr<ZGameObject> invisibleGroup = std::make_shared<ZGameObject>("InvisibleGroup");
-    invisibleGroup->SetRenderPass(ZRenderPass::Invisible);
+    invisibleGroup->SetRenderOrder(ZRenderOrder::Invisible);
     children_.push_back(invisibleGroup);
 
     std::shared_ptr<ZGameObject> uiGroup = std::make_shared<ZGameObject>("UIGroup");
-    skyGroup->SetRenderPass(ZRenderPass::Sky);
+    skyGroup->SetRenderOrder(ZRenderOrder::Sky);
     children_.push_back(uiGroup);
 }
 
 void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject)
 {
-    ZRenderPass pass = gameObject->RenderPass();
-    if (pass >= children_.size() || !children_[pass])
+    ZRenderOrder order = gameObject->RenderOrder();
+    if (order >= children_.size() || !children_[order])
     {
-        zenith::Log("The child being added has a non-extant render pass", ZSeverity::Error);
+        LOG("The child being added has a non-extant render pass", ZSeverity::Error);
         return;
     }
 
-    children_[pass]->AddChild(gameObject);
+    children_[order]->AddChild(gameObject);
 
     if (std::find(publicChildren_.begin(), publicChildren_.end(), gameObject) == publicChildren_.end())
     {
         publicChildren_.push_back(gameObject);
     }
 
-    gameObject->parent_ = this;
+    gameObject->parent_ = shared_from_this();
 }
 
 void ZSceneRoot::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse)
@@ -85,25 +86,33 @@ void ZSceneRoot::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recur
         publicChildren_.erase(it);
 }
 
-void ZSceneRoot::RenderChildren(double deltaTime, ZRenderOp renderOp)
+void ZSceneRoot::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
-    if (zenith::Options().drawGrid)
-        zenith::Graphics()->DebugDrawer()->DrawGrid(glm::vec4(0.75f, 0.75f, 0.75f, 1.f));
+    RenderChildren(deltaTime, shader, renderOp);
+}
 
-    for (int pass = ZRenderPass::First; pass < ZRenderPass::Last; pass++)
+void ZSceneRoot::RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+{
+    auto scene = Scene();
+    if (!scene) return;
+
+    if (scene->GameConfig().graphics.drawGrid)
+        ZServices::Graphics()->DebugDrawGrid(scene, glm::vec4(0.75f, 0.75f, 0.75f, 1.f));
+
+    for (int pass = ZRenderOrder::First; pass < ZRenderOrder::Last; pass++)
     {
         switch (pass)
         {
-        case ZRenderPass::Static:
-        case ZRenderPass::Dynamic:
-        case ZRenderPass::Sky:
-        case ZRenderPass::UI:
-            children_[pass]->RenderChildren(deltaTime, renderOp);
+        case ZRenderOrder::Static:
+        case ZRenderOrder::Dynamic:
+        case ZRenderOrder::Sky:
+        case ZRenderOrder::UI:
+            children_[pass]->RenderChildren(deltaTime, shader, renderOp);
             break;
         default: break;
         }
     }
 
-    if (zenith::Options().drawPhysicsDebug)
-        zenith::Physics()->DebugDraw();
+    if (scene->GameConfig().graphics.drawPhysicsDebug)
+        scene->PhysicsUniverse()->DebugDraw(scene);
 }

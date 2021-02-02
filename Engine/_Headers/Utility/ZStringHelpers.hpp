@@ -36,8 +36,9 @@ namespace zenith
     namespace strings
     {
         extern std::string FormatStringGlobals(const std::string& str);
-        extern bool HasGameObjectPrefix(const std::string& str);
+        extern bool HasObjectPrefix(const std::string& str, const std::string& prefix);
         extern bool HasUIPrefix(const std::string& str);
         extern bool HasSuffix(const std::string& str, const std::string& suffix);
+        extern std::string StripFileExtension(const std::string& str);
     }
 }

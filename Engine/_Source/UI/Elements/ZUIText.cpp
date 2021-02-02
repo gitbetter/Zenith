@@ -28,12 +28,11 @@
 */
 
 #include "ZUIText.hpp"
-#include "ZUI.hpp"
-#include "ZGraphics.hpp"
-#include "ZGraphicsStrategy.hpp"
-#include "ZTextStrategy.hpp"
+#include "ZServices.hpp"
+#include "ZScene.hpp"
+#include "ZAssetStore.hpp"
 #include "ZShader.hpp"
-#include "ZDomain.hpp"
+#include "ZFont.hpp"
 
 ZUIText::ZUIText(const std::string& text, const std::string& font, float fontSize, const glm::vec2& position, const glm::vec2& scale)
     : ZUIElement(position, scale), font_(font), text_(text), fontScale_(fontSize), wrapToBounds_(false)
@@ -54,9 +53,11 @@ void ZUIText::Initialize() {
 
     ZVertex2DDataOptions options;
     options.numVertices = 4;
-    bufferData_ = zenith::Graphics()->LoadVertexData(options);
+    bufferData_ = ZBuffer::Create(options);
 
-    options_.shader = zenith::UI()->TextShader();
+    if (auto scene = Scene()) {
+        options_.shader = scene->AssetStore()->TextShader();
+    }
 }
 
 void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -66,7 +67,7 @@ void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
     std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
     if (node == nullptr)
     {
-        zenith::Log("Could not initalize ZUIElement", ZSeverity::Error);
+        LOG("Could not initalize ZUIElement", ZSeverity::Error);
         return;
     }
 
@@ -100,4 +101,53 @@ void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
         std::shared_ptr<ZOFNumber> lineSpacingProp = props["lineSpacing"]->Value<ZOFNumber>(0);
         lineSpacing_ = lineSpacingProp->value;
     }
+}
+
+void ZUIText::Draw()
+{
+    auto scene = Scene();
+    if (!scene) return;
+
+    options_.shader->Activate();
+    options_.shader->SetMat4("M", projectionMatrix_);
+    options_.shader->SetMat4("P", projectionMatrix_);
+    options_.shader->SetVec4("color", options_.color);
+
+    if (!scene->AssetStore()->HasFont(font_)) {
+        LOG("The font " + font_ + " has not been loaded.", ZSeverity::Warning);
+        return;
+    }
+
+    auto font = scene->AssetStore()->GetFont(font_);
+    font->Atlas().texture->Bind(0);
+    options_.shader->SetInt(font->Atlas().texture->type + "0", 0);
+
+    ZServices::Graphics()->DrawText(bufferData_, options_.calculatedRect.position, text_, font,
+        fontScale_, lineSpacing_, wrapToBounds_ ? MaxWrapBounds() : 0.f);
+}
+
+float ZUIText::MaxWrapBounds() const
+{
+    auto parent = Parent();
+    return parent ? Position().x + parent->Size().x * 2.f : Position().x + Size().x;
+}
+
+std::shared_ptr<ZUIText> ZUIText::Create()
+{
+    std::shared_ptr<ZUIText> element = std::make_shared<ZUIText>();
+    return element;
+}
+
+std::shared_ptr<ZUIText> ZUIText::Create(const ZUIElementOptions& options)
+{
+    std::shared_ptr<ZUIText> element = std::make_shared<ZUIText>(options);
+    return element;
+}
+
+std::shared_ptr<ZUIText> ZUIText::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
+{
+    auto element = ZUIText::Create(options);
+    element->SetScene(scene);
+    element->Initialize();
+    return element;
 }

@@ -30,12 +30,89 @@
 #pragma once
 
 // Includes
-#include "ZEngine.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
 //class SomeClass;
 
 // Class and Data Structure Definitions
+class ZEventDelegate {
+
+public:
+
+    void operator()(const std::shared_ptr<ZEvent>& event) const {
+        Call(event);
+    }
+    bool operator==(const ZEventDelegate& other) const {
+        return IsEqualTo(other);
+    }
+    bool operator!=(const ZEventDelegate& other) const {
+        return !IsEqualTo(other);
+    }
+
+protected:
+
+    virtual void Call(const std::shared_ptr<ZEvent>& event) const = 0;
+    virtual bool IsEqualTo(const ZEventDelegate& other) const = 0;
+
+};
+
+template<class T, class EventType>
+class ZMemberEventDelegate : public ZEventDelegate {
+
+public:
+
+    using MemberFunction = void (T::*)(const std::shared_ptr<EventType>&);
+
+    ZMemberEventDelegate(T* instance, MemberFunction func)
+        : instance_(instance), func_(func)
+    { }
+
+    void Call(const std::shared_ptr<ZEvent>& event) const override {
+        (instance_->*func_)(std::dynamic_pointer_cast<EventType>(event));
+    }
+
+    bool IsEqualTo(const ZEventDelegate& other) const  override {
+        if (ZMemberEventDelegate const* otherMemberDelegate = dynamic_cast<ZMemberEventDelegate const*>(&other)) {
+            return otherMemberDelegate->instance_ == instance_ && otherMemberDelegate->func_ == func_;
+        }
+        return false;
+    }
+
+protected:
+
+    T* instance_;
+    MemberFunction func_;
+
+};
+
+template<class EventType>
+class ZGlobalEventDelegate : public ZEventDelegate {
+
+public:
+
+    using GlobalFunction = void (*)(const std::shared_ptr<EventType>&);
+
+    ZGlobalEventDelegate(GlobalFunction func) : func_(func)
+    { }
+
+    void Call(const std::shared_ptr<ZEvent>& event) const override {
+        (*func_)(std::dynamic_pointer_cast<EventType>(event));
+    }
+
+    bool IsEqualTo(const ZEventDelegate& other) const  override {
+        if (ZGlobalEventDelegate const* otherMemberDelegate = dynamic_cast<ZGlobalEventDelegate const*>(&other)) {
+            return otherMemberDelegate->func_ == func_;
+        }
+        return false;
+    }
+
+protected:
+
+    GlobalFunction func_;
+
+};
+
 class ZEvent
 {
 
@@ -45,10 +122,12 @@ private:
 
 public:
 
+    static const ZTypeIdentifier Type;
+
     explicit ZEvent(const float timeStamp = 0.f) : timeStamp_(timeStamp) {}
     virtual ~ZEvent() {}
 
-    virtual const ZEventType& EventType() const = 0;
+    virtual const ZTypeIdentifier& EventType() const { return Type; }
     virtual float TimeStamp() const { return timeStamp_; }
     virtual void SetTimeStamp(float timestamp) { timeStamp_ = timestamp; }
     virtual void Serialize(std::ostringstream& out) const {}

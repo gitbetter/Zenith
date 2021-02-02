@@ -14,9 +14,7 @@ ZGO_GROUND
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:
-		Material
-			:albedo ZTEX_05:
-		^
+		:materials [ZMAT_01]:
 	^
 ^
 ZGO_12
@@ -36,9 +34,7 @@ ZGO_12
         :activeShader 0:
         :shaders [ZSH_01]:
         :model ZMOD_01 [1.0, 1.0, 1.0]:
-        Material
-            :albedo ZTEX_01:
-        ^
+		:materials [ZMAT_02]:
     ^
     AnimatorComponent ^
 ^
@@ -47,21 +43,19 @@ ZGR_MEADOW
 	:scale [1.0, 1.0, 1.0]:
 	:texture ZTEX_GRASS:
 	:shader ZSH_01:
-	:instances 50000.0:
+	:instances 10000.0:
 	:spacingStyle Random:
 	:windDirection [1.0, 0.0, 0.0]:
 	:windStrength 1.5:
 ^
-ZGO_09
+ZCAM_01
 	:position [-5.0, 15.0, 50.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
-	CameraComponent
-        :primary Yes:
-		:speed 20.0:
-		:type Perspective:
-		:movementStyle Follow:
-	^
+	:primary Yes:
+	:speed 20.0:
+	:type Perspective:
+	:movementStyle Follow:
 ^
 ZTR_17
     :position [3.0, 10.0, 3.0]:
@@ -72,9 +66,9 @@ ZTR_17
 
 ZLT_01
   :type Directional:
-  :orientation [120.0, 38.0, 33.0]:
-  :ambient [0.1, 0.1, 0.1]:
-  :color [0.1, 0.1, 0.1]:
+  :orientation [10.0, -10.0, 10.0]:
+  :ambient [0.2, 0.2, 0.2]:
+  :color [1.0, 1.0, 1.0]:
 ^
 
 # UI
@@ -121,10 +115,21 @@ ZTEX_05
 ^
 ZTEX_GRASS
 	:path "/Textures/Grass/albedo.png":
+	:type albedo:
 ^
 
 # Models
 
 ZMOD_01
 	:path "/Models/wolf.dae":
+^
+
+# Materials
+
+ZMAT_01
+	:albedo ZTEX_05:
+^
+
+ZMAT_02
+	:albedo ZTEX_01:
 ^

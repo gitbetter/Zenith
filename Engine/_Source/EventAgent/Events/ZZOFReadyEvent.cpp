@@ -29,4 +29,4 @@
 
 #include "ZZOFReadyEvent.hpp"
 
-const ZEventType ZZOFReadyEvent::Type(0xe45f75f4);
+const ZTypeIdentifier ZZOFReadyEvent::Type(TYPE_ID(ZZOFReadyEvent));

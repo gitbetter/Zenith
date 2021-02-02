@@ -40,12 +40,12 @@ class ZSoundReadyEvent : public ZEvent
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
     explicit ZSoundReadyEvent() {}
     explicit ZSoundReadyEvent(std::istringstream& in) {}
 
-    const ZEventType& EventType() const override { return Type; };
+    const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZSoundReadyEvent>(new ZSoundReadyEvent); }
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZSoundReadyEvent"; }

@@ -27,9 +27,8 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZResourceLoadTask.hpp"
-#include "ZProcessRunner.hpp"
-#include "ZEventAgent.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZOFParser.hpp"
@@ -38,11 +37,11 @@
 
 void ZResourceLoadTask::Run()
 {
-    std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource_);
+    std::shared_ptr<ZResourceHandle> handle = ZServices::ResourceCache()->GetHandle(&resource_);
 
     if (!handle)
     {
-        zenith::Log("Could not find resource at path " + resource_.name, ZSeverity::Error);
+        LOG("Could not find resource at path " + resource_.name, ZSeverity::Error);
     }
 
     switch (resource_.type)
@@ -108,11 +107,5 @@ void ZResourceLoadTask::Run()
     }
 
     std::shared_ptr<ZResourceLoadedEvent> loadedEvent = std::make_shared<ZResourceLoadedEvent>(handle);
-    zenith::EventAgent()->QueueEvent(loadedEvent);
-}
-
-void ZResourceLoadTask::Start()
-{
-    std::shared_ptr<ZResourceLoadTask> thisPtr = shared_from_this();
-    zenith::ProcessRunner()->AttachProcess(thisPtr);
+    ZServices::EventAgent()->Queue(loadedEvent);
 }

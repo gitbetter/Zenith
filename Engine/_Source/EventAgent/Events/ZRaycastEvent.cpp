@@ -29,4 +29,4 @@
 
 #include "ZRaycastEvent.hpp"
 
-const ZEventType ZRaycastEvent::Type(0x76b4ed5e);
+const ZTypeIdentifier ZRaycastEvent::Type(TYPE_ID(ZRaycastEvent));

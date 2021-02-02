@@ -31,9 +31,10 @@
 
 // Includes
 #include "ZEvent.hpp"
-#include "ZTexture.hpp"
 
 // Forward Declarations
+class ZTexture;
+class ZFramebuffer;
 
 // Class and Data Structure Definitions
 class ZTextureReadyEvent : public ZEvent
@@ -41,23 +42,23 @@ class ZTextureReadyEvent : public ZEvent
 
 private:
 
-    ZTexture texture_;
-    ZBufferData bufferData_;
+    std::shared_ptr<ZTexture> texture_;
+    std::shared_ptr<ZFramebuffer> bufferData_;
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
-    explicit ZTextureReadyEvent(const ZTexture& texture) : texture_(texture) {}
-    explicit ZTextureReadyEvent(const ZTexture& texture, const ZBufferData& bufferData) : texture_(texture), bufferData_(bufferData) {}
+    explicit ZTextureReadyEvent(const std::shared_ptr<ZTexture>& texture) : texture_(texture) {}
+    explicit ZTextureReadyEvent(const std::shared_ptr<ZTexture>& texture, const std::shared_ptr<ZFramebuffer>& bufferData) : texture_(texture), bufferData_(bufferData) {}
     explicit ZTextureReadyEvent(std::istringstream& in) {}
 
-    const ZEventType& EventType() const override { return Type; };
+    const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZTextureReadyEvent>(new ZTextureReadyEvent(texture_)); }
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZTextureReadyEvent"; }
 
-    ZTexture Texture() { return texture_; }
-    ZBufferData BufferData() { return bufferData_; }
+    std::shared_ptr<ZTexture> Texture() { return texture_; }
+    std::shared_ptr<ZFramebuffer> BufferData() { return bufferData_; }
 
 };

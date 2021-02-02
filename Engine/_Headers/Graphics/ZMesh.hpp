@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZProcess.hpp"
+#include "ZBuffer.hpp"
 
 // Forward Declarations
 class ZShader;
@@ -43,13 +44,15 @@ public:
 
     virtual ~ZMesh() {}
 
-    virtual void Render(ZShader* shader, ZMaterial* material) = 0;
+    virtual void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material) = 0;
     virtual void Initialize() = 0;
     virtual ZMeshDrawStyle DrawStyle() const { return drawStyle_; };
 
 protected:
 
-    ZBufferData bufferData_;
+    ZBuffer::ptr bufferData_;
     ZMeshDrawStyle drawStyle_;
+
+    static ZIDSequence idGenerator_;
 
 };

@@ -28,3 +28,5 @@
 */
 
 #include "ZMesh.hpp"
+
+ZIDSequence ZMesh::idGenerator_("ZMSH");

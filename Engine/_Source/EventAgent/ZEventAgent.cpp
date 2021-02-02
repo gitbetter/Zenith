@@ -28,6 +28,7 @@
 */
 
 #include "ZEventAgent.hpp"
+#include "ZServices.hpp"
 
 void ZEventAgent::Initialize()
 {
@@ -35,23 +36,23 @@ void ZEventAgent::Initialize()
     scriptableEventAgent_.reset(new ZScriptableEventAgent);
 }
 
-bool ZEventAgent::AddListener(const ZEventDelegate& eventDelegate, const ZEventType& type)
+bool ZEventAgent::Subscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate, const ZTypeIdentifier& type)
 {
     EventListenerList& listeners = eventListeners_[activeListeners_][type];
     for (auto it = listeners.begin(); it != listeners.end(); it++)
     {
         if (eventDelegate == (*it))
         {
-            zenith::Log("Attempted to register the same delegate twice for event " + std::to_string(type), ZSeverity::Warning);
+            LOG("Attempted to register the same delegate twice for event " + std::to_string(type), ZSeverity::Warning);
             return false;
         }
     }
 
-    listeners.push_back(eventDelegate);
+    listeners.emplace_back(eventDelegate);
     return true;
 }
 
-bool ZEventAgent::RemoveListener(const ZEventDelegate& eventDelegate, const ZEventType& type)
+bool ZEventAgent::Unsubscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate, const ZTypeIdentifier& type)
 {
     bool success = false;
     auto findIt = eventListeners_[activeListeners_].find(type);
@@ -72,7 +73,7 @@ bool ZEventAgent::RemoveListener(const ZEventDelegate& eventDelegate, const ZEve
     return success;
 }
 
-bool ZEventAgent::TriggerEvent(const std::shared_ptr<ZEvent>& event)
+bool ZEventAgent::Trigger(const std::shared_ptr<ZEvent>& event)
 {
     bool processed = false;
     auto findIt = eventListeners_[activeListeners_].find(event->EventType());
@@ -81,9 +82,8 @@ bool ZEventAgent::TriggerEvent(const std::shared_ptr<ZEvent>& event)
         const EventListenerList& listeners = findIt->second;
         for (auto it = listeners.begin(); it != listeners.end(); it++)
         {
-            ZEventDelegate delegate = (*it);
-            event->SetTimeStamp(zenith::SecondsTime());
-            delegate(event);
+            event->SetTimeStamp(SECONDS_TIME);
+            (*it)->operator()(event);
             processed = true;
         }
     }
@@ -91,19 +91,19 @@ bool ZEventAgent::TriggerEvent(const std::shared_ptr<ZEvent>& event)
     return processed;
 }
 
-bool ZEventAgent::QueueEvent(const std::shared_ptr<ZEvent>& event)
+bool ZEventAgent::Queue(const std::shared_ptr<ZEvent>& event)
 {
     assert(activeQueue_ >= 0 && activeQueue_ < NUM_EVENT_QUEUES);
     auto findIt = eventListeners_[activeListeners_].find(event->EventType());
     if (findIt != eventListeners_[activeListeners_].end())
     {
-        eventQueues_[activeQueue_].push_back(event);
+        eventQueues_[activeQueue_].emplace_back(event);
         return true;
     }
     return false;
 }
 
-bool ZEventAgent::AbortEvent(const ZEventType& eventType, bool allOfType)
+bool ZEventAgent::Cancel(const ZTypeIdentifier& eventType, bool allOfType)
 {
     assert(activeQueue_ >= 0 && activeQueue_ < NUM_EVENT_QUEUES);
 
@@ -132,7 +132,7 @@ bool ZEventAgent::AbortEvent(const ZEventType& eventType, bool allOfType)
 void ZEventAgent::Update(double deltaTime)
 {
     constexpr float floatMax = std::numeric_limits<float>::max();
-    float currentTime = zenith::SecondsTime();
+    float currentTime = SECONDS_TIME;
     const float maxTime = ((updateTimeoutMax_ == floatMax) ? floatMax : currentTime + updateTimeoutMax_);
 
     int listenersToProcess = activeListeners_;
@@ -147,7 +147,7 @@ void ZEventAgent::Update(double deltaTime)
     {
         std::shared_ptr<ZEvent> event = eventQueues_[queueToProcess].front();
         eventQueues_[queueToProcess].pop_front();
-        const ZEventType& eventType = event->EventType();
+        const ZTypeIdentifier& eventType = event->EventType();
 
         auto findIt = eventListeners_[listenersToProcess].find(eventType);
         if (findIt != eventListeners_[listenersToProcess].end())
@@ -155,12 +155,12 @@ void ZEventAgent::Update(double deltaTime)
             const EventListenerList& listeners = findIt->second;
             for (auto it = listeners.begin(); it != listeners.end(); it++)
             {
-                event->SetTimeStamp(zenith::SecondsTime());
-                (*it)(event);
+                event->SetTimeStamp(SECONDS_TIME);
+                (*it)->operator()(event);
             }
         }
 
-        currentTime = zenith::SecondsTime();
+        currentTime = SECONDS_TIME;
         if (updateTimeoutMax_ != floatMax && currentTime >= maxTime)
         {
             break;
@@ -174,7 +174,7 @@ void ZEventAgent::Update(double deltaTime)
         {
             std::shared_ptr<ZEvent> event = eventQueues_[queueToProcess].back();
             eventQueues_[queueToProcess].pop_back();
-            eventQueues_[activeQueue_].push_front(event);
+            eventQueues_[activeQueue_].emplace_front(event);
         }
     }
 
@@ -202,7 +202,7 @@ ZScriptableEventAgent::~ZScriptableEventAgent()
     listeners_.clear();
 }
 
-void ZScriptableEventAgent::AddListener(ZScriptableEventDelegate* listener)
+void ZScriptableEventAgent::Subscribe(ZScriptableEventDelegate* listener)
 {
     listeners_.insert(listener);
 }

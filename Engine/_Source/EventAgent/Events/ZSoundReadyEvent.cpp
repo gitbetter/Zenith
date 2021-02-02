@@ -29,4 +29,4 @@
 
 #include "ZSoundReadyEvent.hpp"
 
-const ZEventType ZSoundReadyEvent::Type(0x85f68e40);
+const ZTypeIdentifier ZSoundReadyEvent::Type(TYPE_ID(ZSoundReadyEvent));

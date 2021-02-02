@@ -27,55 +27,53 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "ZServices.hpp"
 #include "ZScriptExports.hpp"
 #include "ZResource.hpp"
 #include "ZLuaScriptManager.hpp"
-#include "ZProcessRunner.hpp"
 #include "ZScriptableProcess.hpp"
-#include "ZResourceCache.hpp"
 #include "ZScriptableEvent.hpp"
-#include "ZEventAgent.hpp"
 
 bool ZInternalScriptExports::LoadAndExecuteScriptResource(const std::string& scriptResource)
 {
     ZResource resource(scriptResource, ZResourceType::Script);
-    std::shared_ptr<ZResourceHandle> handle = zenith::ResourceCache()->GetHandle(&resource);
+    std::shared_ptr<ZResourceHandle> handle = ZServices::ResourceCache()->GetHandle(&resource);
     return handle != nullptr;
 }
 
-void ZInternalScriptExports::AttachScriptProcess(std::shared_ptr<ZScriptableProcess> scriptProcess)
+void ZInternalScriptExports::AttachScriptProcess(const std::shared_ptr<ZScriptableProcess>& scriptProcess, const std::shared_ptr<ZProcessRunner>& processRunner)
 {
-    if (scriptProcess)
+    if (scriptProcess && processRunner)
     {
-        zenith::ProcessRunner()->AttachProcess(scriptProcess, ZPriority::Low);
+        processRunner->AttachProcess(scriptProcess, ZPriority::Low);
     }
     else
     {
-        zenith::Log("Could not find 'process' object in script to attach", ZSeverity::Error);
+        LOG("Could not find 'scriptProcess' or 'processRunner' object in script to attach", ZSeverity::Error);
     }
 }
 
-bool ZInternalScriptExports::QueueEvent(ZEventType eventType, const sol::table& eventData)
+bool ZInternalScriptExports::Queue(ZTypeIdentifier eventType, const sol::table& eventData)
 {
     std::shared_ptr<ZScriptableEvent> event(BuildEvent(eventType, eventData));
     if (event)
     {
-        return zenith::EventAgent()->QueueEvent(event);
+        return ZServices::EventAgent()->Queue(event);
     }
     return false;
 }
 
-bool ZInternalScriptExports::TriggerEvent(ZEventType eventType, const sol::table& eventData)
+bool ZInternalScriptExports::Trigger(ZTypeIdentifier eventType, const sol::table& eventData)
 {
     std::shared_ptr<ZScriptableEvent> event(BuildEvent(eventType, eventData));
     if (event)
     {
-        return zenith::EventAgent()->TriggerEvent(event);
+        return ZServices::EventAgent()->Trigger(event);
     }
     return false;
 }
 
-std::shared_ptr<ZScriptableEvent> ZInternalScriptExports::BuildEvent(ZEventType eventType, const sol::table& eventData)
+std::shared_ptr<ZScriptableEvent> ZInternalScriptExports::BuildEvent(ZTypeIdentifier eventType, const sol::table& eventData)
 {
     std::shared_ptr<ZScriptableEvent> event(ZScriptableEvent::CreateEventFromScript(eventType));
     if (!event) return nullptr;
@@ -83,18 +81,18 @@ std::shared_ptr<ZScriptableEvent> ZInternalScriptExports::BuildEvent(ZEventType 
     return event;
 }
 
-unsigned long ZInternalScriptExports::RegisterEventListener(ZEventType eventType, const sol::function& callback)
+unsigned long ZInternalScriptExports::RegisterEventListener(ZTypeIdentifier eventType, const sol::function& callback)
 {
     if (callback.valid())
     {
         ZScriptableEventDelegate* listener = new ZScriptableEventDelegate(eventType, callback);
-        zenith::EventAgent()->Scriptable()->AddListener(listener);
-        zenith::EventAgent()->AddListener(listener->Delegate(), eventType);
+        ZServices::EventAgent()->Scriptable()->Subscribe(listener);
+        //ZServices::EventAgent()->Subscribe(listener->Delegate(), eventType);
         unsigned long handle = reinterpret_cast<unsigned long>(listener);
         return handle;
     }
 
-    zenith::Log("Could not register the script event delegate using an invalid callback", ZSeverity::Error);
+    LOG("Could not register the script event delegate using an invalid callback", ZSeverity::Error);
     return 0;
 }
 
@@ -102,22 +100,22 @@ void ZInternalScriptExports::Log(const sol::object& obj)
 {
     if (obj.is<std::string>())
     {
-        zenith::Log(obj.as<std::string>(), ZSeverity::Error);
+        LOG(obj.as<std::string>(), ZSeverity::Error);
     }
     else
     {
-        zenith::Log("<Sol Type " + std::to_string((int) obj.get_type()) + ">", ZSeverity::Error);
+        LOG("<Sol Type " + std::to_string((int) obj.get_type()) + ">", ZSeverity::Error);
     }
 }
 
 void ZScriptExports::Register()
 {
-    ZLuaScriptManager* scriptManager = static_cast<ZLuaScriptManager*>(zenith::ScriptManager());
+    std::shared_ptr<ZLuaScriptManager> scriptManager = std::dynamic_pointer_cast<ZLuaScriptManager>(ZServices::ScriptManager());
     sol::state& lua = scriptManager->LuaState();
     lua["LoadAndExecuteScriptResource"] = ZInternalScriptExports::LoadAndExecuteScriptResource;
     lua["AttachProcess"] = ZInternalScriptExports::AttachScriptProcess;
-    lua["QueueEvent"] = ZInternalScriptExports::QueueEvent;
-    lua["TriggerEvent"] = ZInternalScriptExports::TriggerEvent;
+    lua["Queue"] = ZInternalScriptExports::Queue;
+    lua["Trigger"] = ZInternalScriptExports::Trigger;
     lua["RegisterEventListener"] = ZInternalScriptExports::RegisterEventListener;
     lua["Log"] = ZInternalScriptExports::Log;
 }

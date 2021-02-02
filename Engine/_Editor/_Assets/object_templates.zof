@@ -32,15 +32,13 @@ ZGO_PLANE
 		:model Plane [1.0, 1.0, 1.0]:
 	^
 ^
-ZGO_CAMERA
+ZCAM_CAMERA
 	:position [-5.0, 15.0, 50.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
-	CameraComponent
-		:speed 20.0:
-		:type Perspective:
-		:movementStyle Follow:
-	^
+	:speed 20.0:
+	:type Perspective:
+	:movementStyle Follow:
 ^
 ZLT_LIGHT
   :type Directional:

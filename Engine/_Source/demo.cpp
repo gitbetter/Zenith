@@ -1,59 +1,55 @@
 #include "ZGame.hpp"
+#include "ZServices.hpp"
 #include "ZScene.hpp"
-#include "ZUI.hpp"
 #include "ZEventAgent.hpp"
 #include "ZSceneReadyEvent.hpp"
-#include "ZDomain.hpp"
-#include "ZScene.hpp"
-#include "ZCameraComponent.hpp"
-#include "ZGameObject.hpp"
+#include "ZAssetStore.hpp"
+#include "ZCamera.hpp"
 
-void onSceneLoad(const std::shared_ptr<ZEvent>& event);
+void onSceneLoad(const std::shared_ptr<ZSceneReadyEvent>& event);
 
 int main(int argc, const char* argv[]) {
     // Create a new game instance
     std::shared_ptr<ZGame> game = std::make_shared<ZGame>();
 
     // Initialize the engine before anything else
-    ZDomainOptions windowOptions;
-    windowOptions.width = 800;
-    windowOptions.height = 600;
-    windowOptions.maximized = false;
-    zenith::Initialize(game, windowOptions);
+    ZGameOptions options;
+    options.domain.windowSize.x = 800;
+    options.domain.windowSize.y = 600;
+    options.domain.maximized = false;
+    game->Initialize(options);
 
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    zenith::UI()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
+    game->AssetStore()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
+
+    // Register delegate methods for specific builtin events
+    ZServices::EventAgent()->Subscribe(&onSceneLoad);
 
     // Load a default scene from the engine
-    zenith::LoadScene<ZScene>(std::initializer_list<std::string>({ "/demo_scene.zof" }));
-
-    // Register delegate methods for specific UI events
-    ZEventDelegate sceneReadyDelegate(&onSceneLoad);
-    zenith::EventAgent()->AddListener(sceneReadyDelegate, ZSceneReadyEvent::Type);
+    ZScene::LoadIn<ZScene>(game, std::initializer_list<std::string>({ "/demo_scene.zof" }));
 
     // Create the game and start the main game loop. Nothing beyond this point will execute
     // for the duration of the game.
-    game->RunGameLoop();
+    game->Loop();
 
     // Make sure to clean up all resources after we're done
-    zenith::CleanUp();
+    game->CleanUp();
 
     return 0;
 }
 
-void onSceneLoad(const std::shared_ptr<ZEvent>& event)
+void onSceneLoad(const std::shared_ptr<ZSceneReadyEvent>& event)
 {
-    std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::dynamic_pointer_cast<ZSceneReadyEvent>(event);
-    zenith::Log("Scene '" + sceneReadyEvent->Scene()->Name() + "' loaded", ZSeverity::Info);
-    auto scene = sceneReadyEvent->Scene();
+    LOG("Scene '" + event->Scene()->Name() + "' loaded", ZSeverity::Info);
+    auto scene = event->Scene();
 
     if (scene)
     {
-        auto cameraComp = scene->ActiveCamera()->FindComponent<ZCameraComponent>();
-        if (cameraComp)
+        auto camera = scene->ActiveCamera();
+        if (camera)
         {
-            cameraComp->EnableDefaultMovement();
-            cameraComp->EnableDefaultLook();
+            camera->EnableDefaultMovement();
+            camera->EnableDefaultLook();
         }
         scene->Play();
     }

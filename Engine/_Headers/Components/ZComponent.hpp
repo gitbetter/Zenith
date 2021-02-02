@@ -59,7 +59,6 @@ public:
     ZGameObject* Object() { return object_; }
 
     static std::shared_ptr<ZComponent> CreateGraphicsComponent(const std::shared_ptr<ZGameObject>& gameObject);
-    static std::shared_ptr<ZComponent> CreateCameraComponent(const std::shared_ptr<ZGameObject>& gameObject);
     static std::shared_ptr<ZComponent> CreatePhysicsComponent(const std::shared_ptr<ZGameObject>& gameObject);
     static std::shared_ptr<ZComponent> CreateAnimatorComponent(const std::shared_ptr<ZGameObject>& gameObject);
     static void CreateIn(const std::string& type, const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
@@ -68,6 +67,7 @@ protected:
 
     ZGameObject* object_;
 
+    static ZIDSequence idGenerator_;
     static std::map<std::string, Creator> componentCreators_;
 
 };

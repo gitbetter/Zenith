@@ -45,7 +45,7 @@ private:
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
     explicit ZRaycastEvent(const glm::vec3& origin = glm::vec3(0.f), const glm::vec3& direction = glm::vec3(0.f)) : origin_(origin), direction_(direction) {}
     explicit ZRaycastEvent(std::istringstream& in)
@@ -54,7 +54,7 @@ public:
         in >> direction_.x; in >> direction_.y; in >> direction_.z;
     }
 
-    const ZEventType& EventType() const override { return Type; };
+    const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZRaycastEvent>(new ZRaycastEvent(origin_, direction_)); }
     void Serialize(std::ostringstream& out) const override
     {

@@ -35,6 +35,7 @@
 // Forward Declarations
 class ZShader;
 class ZUIImage;
+class ZFireEvent;
 
 // Class and Data Structure Definitions
 class ZUICheckBox : public ZUIElement
@@ -53,12 +54,17 @@ public:
 
     void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    void CleanUp() override;
 
     bool Checked() const { return checked_; }
     void SetChecked(bool checked = true) { checked_ = checked; }
 
+    static std::shared_ptr<ZUICheckBox> Create();
+    static std::shared_ptr<ZUICheckBox> Create(const ZUIElementOptions& options);
+    static std::shared_ptr<ZUICheckBox> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
+
 protected:
 
-    void HandleMousePress(const std::shared_ptr<ZEvent>& event);
+    void HandleMousePress(const std::shared_ptr<ZFireEvent>& event);
 
 };

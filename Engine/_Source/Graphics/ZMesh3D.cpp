@@ -27,6 +27,7 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
 #include "ZMesh3D.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
@@ -36,7 +37,7 @@ ZMesh3D::ZMesh3D(const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyl
     : vertexData_(vertexData)
 {
     drawStyle_ = drawStyle;
-    id_ = "ZMSH3D_" + zenith::IDSequence()->Next();
+    id_ = "ZMSH3D_" + idGenerator_.Next();
 }
 
 ZMesh3D::~ZMesh3D()
@@ -47,10 +48,10 @@ ZMesh3D::~ZMesh3D()
 
 void ZMesh3D::Initialize()
 {
-    bufferData_ = zenith::Graphics()->LoadVertexData(vertexData_);
+    bufferData_ = ZBuffer::Create(vertexData_);
 }
 
-void ZMesh3D::Render(ZShader* shader, ZMaterial* material)
+void ZMesh3D::Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material)
 {
     shader->Use(material);
     auto data = vertexData_;
@@ -63,29 +64,29 @@ void ZMesh3D::Render(ZShader* shader, ZMaterial* material)
         }
         materialProps.tiling = 1.f;
         material->SetProperties(materialProps);
-        zenith::Graphics()->UpdateBuffer(bufferData_, data);
+        bufferData_->Update(data);
     }
     if (vertexData_.instanced.count > 1)
     {
         shader->SetBool("instanced", true);
     }
-    zenith::Graphics()->Draw(bufferData_, data, drawStyle_);
+    ZServices::Graphics()->Draw(bufferData_, data, drawStyle_);
 }
 
 void ZMesh3D::SetInstanceData(const ZInstancedDataOptions& data)
 {
     vertexData_.instanced = data;
-    zenith::Graphics()->UpdateBuffer(bufferData_, vertexData_);
+    bufferData_->Update(vertexData_);
 }
 
 void ZMesh3D::SetVertices(const std::vector<ZVertex3D>& vertices)
 {
     vertexData_.vertices = vertices;
-    zenith::Graphics()->UpdateBuffer(bufferData_, vertexData_);
+    bufferData_->Update(vertexData_);
 }
 
 void ZMesh3D::SetIndices(const std::vector<unsigned int>& indices)
 {
     vertexData_.indices = indices;
-    zenith::Graphics()->UpdateBuffer(bufferData_, vertexData_);
+    bufferData_->Update(vertexData_);
 }

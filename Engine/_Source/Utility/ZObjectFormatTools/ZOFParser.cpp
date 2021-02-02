@@ -28,6 +28,8 @@
 */
 
 #include "ZOFParser.hpp"
+#include "ZServices.hpp"
+#include <filesystem>
 
 std::shared_ptr<ZOFTree> ZOFParser::Parse(const std::string& contents)
 {
@@ -84,18 +86,18 @@ std::string ZOFParser::Scan()
 void ZOFParser::Match(const std::string& token)
 {
     if (token == currentToken_) currentToken_ = Scan();
-    else zenith::Log("[ZOFParse Error]: Expected " + token + ", but instead got " + currentToken_, ZSeverity::Error);
+    else LOG("[ZOFParse Error]: Expected " + token + ", but instead got " + currentToken_, ZSeverity::Error);
 }
 
 void ZOFParser::Match(const std::regex& pattern)
 {
     if (std::regex_match(currentToken_, pattern)) currentToken_ = Scan();
-    else zenith::Log("[ZOFParse Error]: Token " + currentToken_ + " is malformed", ZSeverity::Error);
+    else LOG("[ZOFParse Error]: Token " + currentToken_ + " is malformed", ZSeverity::Error);
 }
 
 void ZOFParser::HandleParseError(std::shared_ptr<ZOFNode> node)
 {
-    zenith::Log("[ZOFParse Error]: Unexpected token " + currentToken_, ZSeverity::Error);
+    LOG("[ZOFParse Error]: Unexpected token " + currentToken_, ZSeverity::Error);
     node->Clear();
 }
 

@@ -30,12 +30,12 @@
 #include "ZActionBar.hpp"
 #include "ZUIPanel.hpp"
 #include "ZEditorScene.hpp"
-#include "ZUI.hpp"
 #include "ZUIHorizontalLayout.hpp"
 
-void ZActionBar::Initialize() {
-    ZEditorTool::Initialize();
+void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
+    ZEditorTool::Initialize(scene);
     container_->SetColor(theme_.primaryColor);
+    container_->SetRect(ZRect(0.f, 0.35f, 1.f, 0.65f));
 }
 
 void ZActionBar::Update() {

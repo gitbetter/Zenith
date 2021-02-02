@@ -30,12 +30,14 @@
 #pragma once
 
 // Includes
-#include "ZScene.hpp"
+#include "ZBase.hpp"
 
 // Forward Declarations
+class ZQuitEvent;
+class ZScene;
 
 // Class and Data Structure Definitions
-class ZGame
+class ZGame : public ZBase
 {
 
 protected:
@@ -51,15 +53,20 @@ public:
     ZGame();
     virtual ~ZGame() {};
 
-    virtual void Initialize() {}
-    virtual void CleanUp() {}
+    virtual void CleanUp() override;
 
     std::shared_ptr<ZScene> ActiveScene() { return !(scenes_.empty()) ? scenes_[activeScene_] : nullptr; }
     void SetActiveScene(unsigned int index);
 
     void Loop();
     bool Running();
-    void AddScene(std::shared_ptr<ZScene> scene);
-    void RemoveScene(std::shared_ptr<ZScene> scene);
+    void AddScene(const std::shared_ptr<ZScene>& scene);
+    void RemoveScene(const std::shared_ptr<ZScene>& scene);
+
+    void HandleQuit(const std::shared_ptr<ZQuitEvent>& event);
+
+protected:
+
+    virtual void Setup() override;
 
 };

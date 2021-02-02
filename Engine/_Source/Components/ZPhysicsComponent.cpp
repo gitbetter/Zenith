@@ -28,21 +28,23 @@
  */
 
 #include "ZPhysicsComponent.hpp"
+#include "ZScene.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsFactory.hpp"
-#include "ZPhysics.hpp"
+#include "ZPhysicsUniverse.hpp"
 #include "ZOFTree.hpp"
 #include "ZBulletRigidBody.hpp"
+#include "ZServices.hpp"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent()
 {
-    id_ = "ZCPhysics_" + zenith::IDSequence()->Next();
+    id_ = "ZCPhysics_" + idGenerator_.Next();
 }
 
 void ZPhysicsComponent::Initialize()
 {
     ZComponent::Initialize();
-    if (body_) zenith::Physics()->AddRigidBody(body_);
+    if (body_) object_->Scene()->PhysicsUniverse()->AddRigidBody(body_);
 }
 
 void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
@@ -50,12 +52,13 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
     {
-        zenith::Log("Could not initalize ZPhysicsComponent", ZSeverity::Error);
+        LOG("Could not initalize ZPhysicsComponent", ZSeverity::Error);
         return;
     }
 
     btScalar mass = -1., damping = 1., angularDamping = 1., restitution = 0.;
-    std::string type = "", shape = "";
+    ZPhysicsBodyType type = ZPhysicsBodyType::Static;
+    std::string shape = "";
     bool gravity = false;
     std::vector<float> size, origin, offset, rotation;
 
@@ -70,9 +73,16 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     if (props.find("type") != props.end() && props["type"]->HasValues())
     {
         std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
-        type = typeProp->value;
-        if (type == "Static") mass = 0.f;
-        else object_->SetRenderPass(ZRenderPass::Dynamic);
+
+        if (typeProp->value == "Static") mass = 0.f;
+        else object_->SetRenderOrder(ZRenderOrder::Dynamic);
+
+        if (typeProp->value == "Dynamic") type = ZPhysicsBodyType::Dynamic;
+        else if (typeProp->value == "Static") type = ZPhysicsBodyType::Static;
+        else if (typeProp->value == "Kinematic") type = ZPhysicsBodyType::Kinematic;
+        else if (typeProp->value == "Trigger") type = ZPhysicsBodyType::Trigger;
+        else if (typeProp->value == "Character") type = ZPhysicsBodyType::Character;
+        else if (typeProp->value == "Particle") type = ZPhysicsBodyType::Particle;
     }
 
     if (props.find("damping") != props.end() && props["damping"]->HasValues())
@@ -155,7 +165,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     body_->SetColliderOffset(offs);
 }
 
-void ZPhysicsComponent::Initialize(const std::string& bodyType, const std::string& colliderType, float mass, const glm::vec3& position, const glm::vec3& size, const glm::quat& rotation)
+void ZPhysicsComponent::Initialize(ZPhysicsBodyType bodyType, const std::string& colliderType, float mass, const glm::vec3& position, const glm::vec3& size, const glm::quat& rotation)
 {
     std::shared_ptr<ZCollider> collider;
     if (!colliderType.empty())
@@ -164,19 +174,12 @@ void ZPhysicsComponent::Initialize(const std::string& bodyType, const std::strin
     }
     else
     {
-        zenith::Log("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZSeverity::Warning);
+        LOG("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZSeverity::Warning);
         collider = ZCollider::Create("Box", size);
     }
 
-    ZPhysicsBodyType type;
-    if (bodyType == "Dynamic") type = ZPhysicsBodyType::Dynamic;
-    else if (bodyType == "Static") type = ZPhysicsBodyType::Static;
-    else if (bodyType == "Kinematic") type = ZPhysicsBodyType::Kinematic;
-    else if (bodyType == "Trigger") type = ZPhysicsBodyType::Trigger;
-    else if (bodyType == "Character") type = ZPhysicsBodyType::Character;
-    else if (bodyType == "Particle") type = ZPhysicsBodyType::Particle;
-
-    body_ = std::make_shared<ZBulletRigidBody>(type, collider, mass, position, size, rotation);
+    body_ = std::make_shared<ZBulletRigidBody>(bodyType, collider, mass, position, size, rotation);
+    body_->Initialize();
     body_->SetGameObject(object_);
 }
 
@@ -202,7 +205,7 @@ std::shared_ptr<ZComponent> ZPhysicsComponent::Clone()
 void ZPhysicsComponent::CleanUp()
 {
     ZComponent::CleanUp();
-    zenith::Physics()->RemoveRigidBody(body_);
+    object_->Scene()->PhysicsUniverse()->RemoveRigidBody(body_);
 }
 
 void ZPhysicsComponent::DisableCollisionResponse()

@@ -31,7 +31,6 @@
 
 // Includes
 #include "ZGameObject.hpp"
-#include "ZGraphics.hpp"
 
 // Forward Declarations
 class ZGraphicsComponent;
@@ -53,7 +52,7 @@ public:
     void Initialize() override;
 
     void Update(double deltaTime) override;
-    void Render(double deltaTime, ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
 
     float Age() { return age_; }
     bool Active() { return active_; }

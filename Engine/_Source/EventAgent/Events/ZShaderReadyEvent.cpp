@@ -29,4 +29,4 @@
 
 #include "ZShaderReadyEvent.hpp"
 
-const ZEventType ZShaderReadyEvent::Type(0xb7c88580);
+const ZTypeIdentifier ZShaderReadyEvent::Type(TYPE_ID(ZShaderReadyEvent));

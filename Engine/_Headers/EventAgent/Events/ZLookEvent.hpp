@@ -44,12 +44,12 @@ private:
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
     explicit ZLookEvent(float yaw = 0.f, float pitch = 0.f) : yaw_(yaw), pitch_(pitch) {}
     explicit ZLookEvent(std::istringstream& in) { in >> yaw_; in >> pitch_; }
 
-    const ZEventType& EventType() const override { return Type; };
+    const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZLookEvent>(new ZLookEvent(yaw_, pitch_)); }
     void Serialize(std::ostringstream& out) const override { out << pitch_ << " " << yaw_; }
     std::string Name() const override { return "ZLookEvent"; }

@@ -27,14 +27,15 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "ZGraphicsComponent.hpp"
-#include "ZCameraComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZAnimatorComponent.hpp"
 #include "ZGameObject.hpp"
+#include "ZServices.hpp"
+
+ZIDSequence ZComponent::idGenerator_("ZCOMP");
 
 std::map<std::string, ZComponent::Creator> ZComponent::componentCreators_ = {
     { "GraphicsComponent", &ZComponent::CreateGraphicsComponent },
-    { "CameraComponent", &ZComponent::CreateCameraComponent },
     { "PhysicsComponent", &ZComponent::CreatePhysicsComponent },
     { "AnimatorComponent", &ZComponent::CreateAnimatorComponent }
 };
@@ -43,13 +44,6 @@ std::map<std::string, ZComponent::Creator> ZComponent::componentCreators_ = {
 std::shared_ptr<ZComponent> ZComponent::CreateGraphicsComponent(const std::shared_ptr<ZGameObject>& gameObject)
 {
     std::shared_ptr<ZGraphicsComponent> comp(new ZGraphicsComponent);
-    gameObject->AddComponent(comp);
-    return comp;
-}
-
-std::shared_ptr<ZComponent> ZComponent::CreateCameraComponent(const std::shared_ptr<ZGameObject>& gameObject)
-{
-    std::shared_ptr<ZCameraComponent> comp(new ZCameraComponent);
     gameObject->AddComponent(comp);
     return comp;
 }
@@ -82,6 +76,6 @@ void ZComponent::CreateIn(const std::string& type, const std::shared_ptr<ZGameOb
     }
     else
     {
-        zenith::Log("Component " + type + " is not available for creation", ZSeverity::Warning);
+        LOG("Component " + type + " is not available for creation", ZSeverity::Warning);
     }
 }

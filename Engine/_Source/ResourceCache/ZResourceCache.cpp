@@ -30,6 +30,7 @@
 #include "ZResourceCache.hpp"
 #include "ZDefaultResourceLoader.hpp"
 #include "ZResourceLoadTask.hpp"
+#include "ZServices.hpp"
 
 ZResourceCache::ZResourceCache(const unsigned int sizeInMb)
 {
@@ -71,7 +72,7 @@ void ZResourceCache::RegisterResourceFile(std::shared_ptr<ZResourceFile> file)
     }
     else
     {
-        zenith::Log("Could not open resource file " + file->Name(), ZSeverity::Error);
+        LOG("Could not open resource file " + file->Name(), ZSeverity::Error);
     }
 }
 
@@ -139,7 +140,7 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::Load(ZResource* resource)
 
     if (!loader)
     {
-        zenith::Log("Default resource loader not found!", ZSeverity::Error);
+        LOG("Default resource loader not found!", ZSeverity::Error);
         return handle;
     }
 

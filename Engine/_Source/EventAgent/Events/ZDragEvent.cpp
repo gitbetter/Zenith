@@ -29,4 +29,4 @@
 
 #include "ZDragEvent.hpp"
 
-const ZEventType ZDragEvent::Type(0xc135f5ba);
+const ZTypeIdentifier ZDragEvent::Type(TYPE_ID(ZDragEvent));

@@ -45,12 +45,12 @@ private:
 
 public:
 
-    static const ZEventType Type;
+    static const ZTypeIdentifier Type;
 
     explicit ZShaderReadyEvent(std::shared_ptr<ZShader> shader) : shader_(shader) {}
     explicit ZShaderReadyEvent(std::istringstream& in) {}
 
-    const ZEventType& EventType() const override { return Type; };
+    const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZShaderReadyEvent>(new ZShaderReadyEvent(shader_)); }
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZShaderReadyEvent"; }

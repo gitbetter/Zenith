@@ -29,4 +29,4 @@
 
 #include "ZFireEvent.hpp"
 
-const ZEventType ZFireEvent::Type(0x0b97a9d6);
+const ZTypeIdentifier ZFireEvent::Type(TYPE_ID(ZFireEvent));

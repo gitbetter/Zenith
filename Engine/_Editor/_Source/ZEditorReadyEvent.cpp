@@ -29,4 +29,4 @@
 
 #include "ZEditorReadyEvent.hpp"
 
-const ZEventType ZEditorReadyEvent::Type(0xb303fc21);
+const ZTypeIdentifier ZEditorReadyEvent::Type(TYPE_ID(ZEditorReadyEvent));

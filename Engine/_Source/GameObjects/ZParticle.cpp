@@ -48,10 +48,10 @@ void ZParticle::Initialize()
 void ZParticle::Update(double deltaTime)
 {
     ZGameObject::Update(deltaTime);
-    age_ -= zenith::UPDATE_STEP_SIZE;
+    age_ -= UPDATE_STEP_SIZE;
 }
 
-void ZParticle::Render(double deltaTime, ZRenderOp renderOp)
+void ZParticle::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
 // TODO: Render a particle as a quad that rotates with the camera
 }

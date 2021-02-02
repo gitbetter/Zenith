@@ -30,14 +30,14 @@
 #pragma once
 
 // Includes
-#include "ZConcurrentProcess.hpp"
+#include "ZConcurrentWorker.hpp"
 #include "ZResourceCache.hpp"
 
 // Forward Declarations
 //class SomeClass;
 
 // Class and Data Structure Definitions
-class ZResourceLoadTask : public ZConcurrentProcess, public std::enable_shared_from_this<ZResourceLoadTask>
+class ZResourceLoadTask : public ZConcurrentWorker
 {
 
 private:
@@ -46,10 +46,8 @@ private:
 
 public:
 
-    ZResourceLoadTask(const ZResource& resource) : ZConcurrentProcess(), resource_(resource) {}
+    ZResourceLoadTask(const ZResource& resource) : ZConcurrentWorker(), resource_(resource) {}
     ~ZResourceLoadTask() {}
-
-    void Start();
 
 protected:
 

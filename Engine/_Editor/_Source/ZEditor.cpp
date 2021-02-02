@@ -27,27 +27,20 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZServices.hpp"
 #include "ZEditor.hpp"
 #include "ZEditorScene.hpp"
-#include "ZResourceCache.hpp"
-#include "ZUI.hpp"
-
+#include "ZAssetStore.hpp"
 #include "ZDevResourceFile.hpp"
 
-void ZEditor::Initialize() {
-	ZDomainOptions windowOptions;
-	windowOptions.windowSize.x = 1920;
-	windowOptions.windowSize.y = 1080;
-	windowOptions.maximized = false;
-	zenith::Initialize(shared_from_this(), windowOptions);
+void ZEditor::Setup() {
+	ZServices::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(EDITOR_ROOT) + "/_Assets")));
 
-	zenith::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(EDITOR_ROOT) + "/_Assets")));
+	AssetStore()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
 
-	zenith::UI()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
-
-	zenith::LoadScene<ZEditorScene>();
+	ZScene::LoadIn<ZEditorScene>(shared_from_this());
 }
 
 void ZEditor::CleanUp() {
-	zenith::CleanUp();
+	ZGame::CleanUp();
 }

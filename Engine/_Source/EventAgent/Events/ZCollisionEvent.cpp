@@ -29,4 +29,4 @@
 
 #include "ZCollisionEvent.hpp"
 
-const ZEventType ZCollisionEvent::Type(0x1febc531);
+const ZTypeIdentifier ZCollisionEvent::Type(TYPE_ID(ZCollisionEvent));

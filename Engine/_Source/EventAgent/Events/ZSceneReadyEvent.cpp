@@ -29,4 +29,4 @@
 
 #include "ZSceneReadyEvent.hpp"
 
-const ZEventType ZSceneReadyEvent::Type(0xf938c59f);
+const ZTypeIdentifier ZSceneReadyEvent::Type(TYPE_ID(ZSceneReadyEvent));

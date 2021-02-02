@@ -41,7 +41,6 @@
 const unsigned int NUM_EVENT_QUEUES = 2;
 const unsigned int NUM_LISTENER_QUEUES = 2;
 
-
 class ZScriptableEventAgent
 {
 
@@ -55,7 +54,7 @@ private:
 public:
 
     ~ZScriptableEventAgent();
-    void AddListener(ZScriptableEventDelegate* listener);
+    void Subscribe(ZScriptableEventDelegate* listener);
     void DestroyListener(ZScriptableEventDelegate* listener);
 
 };
@@ -63,8 +62,8 @@ public:
 class ZEventAgent : public ZProcess
 {
 
-    typedef std::list<ZEventDelegate> EventListenerList;
-    typedef std::map<ZEventType, EventListenerList> EventListenerMap;
+    typedef std::list<std::shared_ptr<ZEventDelegate>> EventListenerList;
+    typedef std::map<ZTypeIdentifier, EventListenerList> EventListenerMap;
     typedef std::list<std::shared_ptr<ZEvent>> EventQueue;
 
 private:
@@ -78,17 +77,57 @@ private:
 
 public:
 
-    ZEventAgent() : activeQueue_(0), activeListeners_(0), updateTimeoutMax_(zenith::UPDATE_STEP_SIZE * 2.f) {}
+    ZEventAgent() : activeQueue_(0), activeListeners_(0), updateTimeoutMax_(UPDATE_STEP_SIZE * 2.f) {}
     ~ZEventAgent() {}
 
     void Initialize() override;
     void Update(double deltaTime) override;
 
-    bool AddListener(const ZEventDelegate& eventDelegate, const ZEventType& type);
-    bool RemoveListener(const ZEventDelegate& eventDelegate, const ZEventType& type);
-    bool TriggerEvent(const std::shared_ptr<ZEvent>& event);
-    bool QueueEvent(const std::shared_ptr<ZEvent>& event);
-    bool AbortEvent(const ZEventType& eventType, bool allOfType = false);
+    bool Subscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate, const ZTypeIdentifier& type);
+    bool Unsubscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate, const ZTypeIdentifier& type);
+    bool Trigger(const std::shared_ptr<ZEvent>& event);
+    bool Queue(const std::shared_ptr<ZEvent>& event);
+    bool Cancel(const ZTypeIdentifier& eventType, bool allOfType = false);
+
+    template<typename T, typename EventType>
+    bool Subscribe(T* instance, void (T::*func)(const std::shared_ptr<EventType>&)) {
+        if (!std::is_base_of<ZEvent, EventType>::value)
+            return false;
+        return Subscribe(
+            std::make_shared<ZMemberEventDelegate<T, EventType>>(instance, func),
+            EventType::Type
+        );
+    }
+
+    template<typename EventType>
+    bool Subscribe(void (*func)(const std::shared_ptr<EventType>&)) {
+        if (!std::is_base_of<ZEvent, EventType>::value)
+            return false;
+        return Subscribe(
+            std::make_shared<ZGlobalEventDelegate<EventType>>(func),
+            EventType::Type
+        );
+    }
+
+    template<typename T, typename EventType>
+    bool Unsubscribe(T* instance, void (T::*func)(const std::shared_ptr<EventType>&)) {
+        if (!std::is_base_of<ZEvent, EventType>::value)
+            return false;
+        return Unsubscribe(
+            std::make_shared<ZMemberEventDelegate<T, EventType>>(instance, func),
+            EventType::Type
+        );
+    }
+
+    template<typename EventType>
+    bool Unsubscribe(void (*func)(const std::shared_ptr<EventType>&)) {
+        if (!std::is_base_of<ZEvent, EventType>::value)
+            return false;
+        return Unsubscribe(
+            std::make_shared<ZGlobalEventDelegate<EventType>>(instance, func),
+            EventType::Type
+        );
+    }
 
     ZScriptableEventAgent* Scriptable() const { return scriptableEventAgent_.get(); }
 
