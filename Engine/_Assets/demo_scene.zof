@@ -57,10 +57,6 @@ ZCAM_01
 	:type Perspective:
 	:movementStyle Follow:
 ^
-ZTR_17
-    :position [3.0, 10.0, 3.0]:
-    :scale [5.0, 5.0, 5.0]:
-^
 
 # Lights
 
@@ -68,24 +64,7 @@ ZLT_01
   :type Directional:
   :orientation [10.0, -10.0, 10.0]:
   :ambient [0.2, 0.2, 0.2]:
-  :color [1.0, 1.0, 1.0]:
-^
-
-# UI
-
-ZUI_01
-	:type Panel:
-	:position [0.0, 0.0]:
-	:scale [100.0, 7.0]:
-	:color [0.141, 0.145, 0.165, 1.0]:
-	ZUI_02
-		:type Text:
-		:position [5.0, 30.0]:
-		:scale [1.0, 1.0]:
-		:color [1.0, 1.0, 1.0, 1.0]:
-		:text "Zenith":
-		:font "earthorbiter" 32.0:
-	^
+  :color [2.0, 1.0, 1.0]:
 ^
 
 # Skybox

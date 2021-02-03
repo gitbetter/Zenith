@@ -44,3 +44,5 @@ void ZParticleSystem::Update(double deltaTime)
 // pick randmly from the list of provided particles rules to create the particle.
 // Make sure emissionRate time has elapsed before the previous emission to emit a new particle.
 }
+
+DEFINE_OBJECT_CREATORS(ZParticleSystem)

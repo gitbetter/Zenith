@@ -240,7 +240,8 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot)
 
 void ZScene::CreateSceneRoot(const std::string& name)
 {
-    root_ = std::make_shared<ZSceneRoot>(name);
+    root_ = ZSceneRoot::Create();
+    root_->SetName(name);
     root_->scene_ = shared_from_this();
 }
 
@@ -249,7 +250,7 @@ void ZScene::CreateUICanvas()
     ZUIElementOptions elementOptions;
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
-    canvas_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
+    canvas_ = ZUIPanel::Create(elementOptions, shared_from_this());
     canvas_->Hide();
 }
 

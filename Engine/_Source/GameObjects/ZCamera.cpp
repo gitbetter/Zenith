@@ -34,7 +34,8 @@
 #include "ZOFTree.hpp"
 #include "ZDomain.hpp"
 
-ZCamera::ZCamera(const glm::vec3& position, ZCameraType type) : ZGameObject(position)
+ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, ZCameraType type)
+    : ZGameObject(position, orientation)
 {
     cameraType_ = type;
     zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
@@ -158,7 +159,8 @@ void ZCamera::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, Z
 
 std::shared_ptr<ZGameObject> ZCamera::Clone()
 {
-    std::shared_ptr<ZCamera> clone = std::make_shared<ZCamera>(cameraType_);
+    std::shared_ptr<ZCamera> clone = ZCamera::Create();
+    clone->cameraType_ = cameraType_;
     clone->isPrimary_ = isPrimary_;
     clone->movementSpeed_ = movementSpeed_;
     clone->lookSensitivity_ = lookSensitivity_;
@@ -280,3 +282,5 @@ glm::mat4 ZCamera::ViewMatrix()
     //glm::vec3 interpolatedUp = PreviousUp() * (1.f - frameMix_) + Up() * frameMix_;
     return glm::lookAt(Position(), Position() + Front(), Up());
 }
+
+DEFINE_OBJECT_CREATORS(ZCamera)

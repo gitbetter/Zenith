@@ -50,9 +50,7 @@ public:
     void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
-    static std::shared_ptr<ZUIPanel> Create();
-    static std::shared_ptr<ZUIPanel> Create(const ZUIElementOptions& options);
-    static std::shared_ptr<ZUIPanel> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
+    DECLARE_UI_CREATORS(ZUIPanel)
 
 protected:
 

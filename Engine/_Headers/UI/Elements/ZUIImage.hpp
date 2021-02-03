@@ -55,9 +55,7 @@ public:
 
     void SetImage(const std::string& path);
 
-    static std::shared_ptr<ZUIImage> Create();
-    static std::shared_ptr<ZUIImage> Create(const ZUIElementOptions& options);
-    static std::shared_ptr<ZUIImage> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
+    DECLARE_UI_CREATORS(ZUIImage)
 
 protected:
 

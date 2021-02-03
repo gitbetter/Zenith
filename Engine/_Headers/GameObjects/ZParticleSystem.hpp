@@ -54,7 +54,8 @@ private:
 
 public:
 
-    ZParticleSystem() {}
+    ZParticleSystem(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)))
+        : ZGameObject(position, orientation) { }
     ZParticleSystem(std::initializer_list<ZParticleRule> rules);
     ~ZParticleSystem() {}
 
@@ -64,6 +65,8 @@ public:
     bool Alive() { return isAlive_; }
 
     void Update(double deltaTime) override;
+
+    DECLARE_OBJECT_CREATORS(ZParticleSystem)
 
 protected:
 

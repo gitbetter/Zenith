@@ -40,20 +40,10 @@ class ZShader;
 class ZGrass : public ZGameObject
 {
 
-private:
-
-    static constexpr unsigned int const& cPolygonCount = 3;
-
-    std::shared_ptr<ZGraphicsComponent> graphicsComp_;
-    std::string textureId_;
-    unsigned int instanceCount_;
-    std::vector<std::shared_ptr<ZModel>> polygons_;
-    glm::vec3 windDirection_;
-    float windStrength_;
-    float time_;
-
 public:
 
+    ZGrass(const glm::vec3& position, const glm::quat& orientation)
+        : ZGameObject(position, orientation) { }
     ZGrass(unsigned int instances = 0);
     ~ZGrass() {}
 
@@ -64,7 +54,19 @@ public:
 
     void TrimPatch(const glm::vec3& position, const glm::vec3& size);
 
+    DECLARE_OBJECT_CREATORS(ZGrass)
+
 private:
+
+    static constexpr unsigned int const& cPolygonCount = 3;
+
+    std::shared_ptr<ZGraphicsComponent> graphicsComp_;
+    std::string textureId_;
+    unsigned int instanceCount_ = 0;
+    std::vector<std::shared_ptr<ZModel>> polygons_;
+    glm::vec3 windDirection_;
+    float windStrength_;
+    float time_;
 
     void UpdateVertexNormals(std::shared_ptr<ZModel>& model);
     void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
