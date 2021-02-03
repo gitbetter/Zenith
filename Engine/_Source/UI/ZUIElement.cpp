@@ -545,7 +545,7 @@ ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_
                 std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
                 element = ZUIElement::Create(typeProp->value);
                 element->SetScene(scene);
-                element->Initialize();
+                element->Initialize(uiNode);
             }
 
             // Recursively create children if there are any nested UI nodes

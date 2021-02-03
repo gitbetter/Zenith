@@ -64,9 +64,7 @@ public:
     void SetWrap(bool wrap) { wrapToBounds_ = wrap; }
     void SetLineSpacing(float spacing) { lineSpacing_ = spacing; }
 
-    static std::shared_ptr<ZUIText> Create();
-    static std::shared_ptr<ZUIText> Create(const ZUIElementOptions& options);
-    static std::shared_ptr<ZUIText> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
+    DECLARE_UI_CREATORS(ZUIText)
 
 protected:
 

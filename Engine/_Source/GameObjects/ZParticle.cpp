@@ -55,3 +55,5 @@ void ZParticle::Render(double deltaTime, const std::shared_ptr<ZShader>& shader,
 {
 // TODO: Render a particle as a quad that rotates with the camera
 }
+
+DEFINE_OBJECT_CREATORS(ZParticle)

@@ -29,6 +29,36 @@
 
 #pragma once
 
+#define DECLARE_OBJECT_CREATORS(Type)\
+static std::shared_ptr<Type> Create();\
+static std::shared_ptr<Type> Create(const glm::vec3& position, const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const std::shared_ptr<ZScene>& scene = nullptr);\
+static std::shared_ptr<Type> Create(const std::shared_ptr<ZOFNode>& root, const std::shared_ptr<ZScene>& scene = nullptr);
+
+#define DEFINE_OBJECT_CREATORS(Type)\
+std::shared_ptr<Type> Type::Create()\
+{\
+    std::shared_ptr<Type> obj = std::make_shared<Type>();\
+    return obj;\
+}\
+std::shared_ptr<Type> Type::Create(const glm::vec3& position, const glm::quat& orientation, const std::shared_ptr<ZScene>& scene)\
+{\
+    std::shared_ptr<Type> obj = std::make_shared<Type>(position, orientation);\
+    if (scene) {\
+        obj->scene_ = scene;\
+    }\
+    obj->Initialize();\
+    return obj;\
+}\
+std::shared_ptr<Type> Type::Create(const std::shared_ptr<ZOFNode>& root, const std::shared_ptr<ZScene>& scene)\
+{\
+    std::shared_ptr<Type> obj = std::make_shared<Type>();\
+    if (scene) {\
+        obj->scene_ = scene;\
+    }\
+    obj->Initialize(root);\
+    return obj;\
+}
+
 // Includes
 #include "ZProcess.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -168,11 +198,8 @@ public:
     }
 
     static ZGameObjectMap Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene);
-    static std::shared_ptr<ZGameObject> CreateGameObject();
-    static std::shared_ptr<ZCamera> CreateCamera();
-    static std::shared_ptr<ZLight> CreateLight();
-    static std::shared_ptr<ZSkybox> CreateSkybox();
-    static std::shared_ptr<ZGrass> CreateGrass();
+
+    DECLARE_OBJECT_CREATORS(ZGameObject)
 
 protected:
 

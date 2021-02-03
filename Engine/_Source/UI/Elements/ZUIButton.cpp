@@ -50,22 +50,4 @@ void ZUIButton::Initialize(const std::shared_ptr<ZOFNode>& root)
     ZUIElement::Initialize(root);
 }
 
-std::shared_ptr<ZUIButton> ZUIButton::Create()
-{
-    std::shared_ptr<ZUIButton> element = std::make_shared<ZUIButton>();
-    return element;
-}
-
-std::shared_ptr<ZUIButton> ZUIButton::Create(const ZUIElementOptions& options)
-{
-    std::shared_ptr<ZUIButton> element = std::make_shared<ZUIButton>(options);
-    return element;
-}
-
-std::shared_ptr<ZUIButton> ZUIButton::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
-{
-    auto element = ZUIButton::Create(options);
-    element->SetScene(scene);
-    element->Initialize();
-    return element;
-}
+DEFINE_UI_CREATORS(ZUIButton)

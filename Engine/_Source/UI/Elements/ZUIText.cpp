@@ -132,22 +132,4 @@ float ZUIText::MaxWrapBounds() const
     return parent ? Position().x + parent->Size().x * 2.f : Position().x + Size().x;
 }
 
-std::shared_ptr<ZUIText> ZUIText::Create()
-{
-    std::shared_ptr<ZUIText> element = std::make_shared<ZUIText>();
-    return element;
-}
-
-std::shared_ptr<ZUIText> ZUIText::Create(const ZUIElementOptions& options)
-{
-    std::shared_ptr<ZUIText> element = std::make_shared<ZUIText>(options);
-    return element;
-}
-
-std::shared_ptr<ZUIText> ZUIText::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
-{
-    auto element = ZUIText::Create(options);
-    element->SetScene(scene);
-    element->Initialize();
-    return element;
-}
+DEFINE_UI_CREATORS(ZUIText)

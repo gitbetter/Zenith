@@ -49,22 +49,4 @@ void ZUIPanel::Initialize(const std::shared_ptr<ZOFNode>& root)
     ZUIElement::Initialize(root);
 }
 
-std::shared_ptr<ZUIPanel> ZUIPanel::Create()
-{
-    std::shared_ptr<ZUIPanel> element = std::make_shared<ZUIPanel>();
-    return element;
-}
-
-std::shared_ptr<ZUIPanel> ZUIPanel::Create(const ZUIElementOptions& options)
-{
-    std::shared_ptr<ZUIPanel> element = std::make_shared<ZUIPanel>(options);
-    return element;
-}
-
-std::shared_ptr<ZUIPanel> ZUIPanel::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
-{
-    auto element = ZUIPanel::Create(options);
-    element->SetScene(scene);
-    element->Initialize();
-    return element;
-}
+DEFINE_UI_CREATORS(ZUIPanel)

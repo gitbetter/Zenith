@@ -94,22 +94,4 @@ void ZUIImage::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& eve
     }
 }
 
-std::shared_ptr<ZUIImage> ZUIImage::Create()
-{
-    std::shared_ptr<ZUIImage> element = std::make_shared<ZUIImage>();
-    return element;
-}
-
-std::shared_ptr<ZUIImage> ZUIImage::Create(const ZUIElementOptions& options)
-{
-    std::shared_ptr<ZUIImage> element = std::make_shared<ZUIImage>(options);
-    return element;
-}
-
-std::shared_ptr<ZUIImage> ZUIImage::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
-{
-    auto element = ZUIImage::Create(options);
-    element->SetScene(scene);
-    element->Initialize();
-    return element;
-}
+DEFINE_UI_CREATORS(ZUIImage)

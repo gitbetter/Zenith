@@ -29,6 +29,26 @@
 
 #pragma once
 
+#define DECLARE_UI_CREATORS(Type)\
+static std::shared_ptr<Type> Create();\
+static std::shared_ptr<Type> Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene = nullptr);
+
+#define DEFINE_UI_CREATORS(Type)\
+std::shared_ptr<Type> Type::Create()\
+{\
+    std::shared_ptr<Type> element = std::make_shared<Type>();\
+    return element;\
+}\
+std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene)\
+{\
+    std::shared_ptr<Type> element = std::make_shared<Type>(options);\
+    if (scene) {\
+        element->SetScene(scene);\
+        element->Initialize();\
+    }\
+    return element;\
+}
+
 // Includes
 #include "ZRenderable.hpp"
 #include "ZMesh2D.hpp"

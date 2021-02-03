@@ -59,9 +59,7 @@ public:
     bool Checked() const { return checked_; }
     void SetChecked(bool checked = true) { checked_ = checked; }
 
-    static std::shared_ptr<ZUICheckBox> Create();
-    static std::shared_ptr<ZUICheckBox> Create(const ZUIElementOptions& options);
-    static std::shared_ptr<ZUICheckBox> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
+    DECLARE_UI_CREATORS(ZUICheckBox)
 
 protected:
 

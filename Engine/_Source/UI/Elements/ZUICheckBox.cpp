@@ -95,22 +95,4 @@ void ZUICheckBox::HandleMousePress(const std::shared_ptr<ZFireEvent>& event)
     }
 }
 
-std::shared_ptr<ZUICheckBox> ZUICheckBox::Create()
-{
-    std::shared_ptr<ZUICheckBox> element = std::make_shared<ZUICheckBox>();
-    return element;
-}
-
-std::shared_ptr<ZUICheckBox> ZUICheckBox::Create(const ZUIElementOptions& options)
-{
-    std::shared_ptr<ZUICheckBox> element = std::make_shared<ZUICheckBox>(options);
-    return element;
-}
-
-std::shared_ptr<ZUICheckBox> ZUICheckBox::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
-{
-    auto element = ZUICheckBox::Create(options);
-    element->SetScene(scene);
-    element->Initialize();
-    return element;
-}
+DEFINE_UI_CREATORS(ZUICheckBox)

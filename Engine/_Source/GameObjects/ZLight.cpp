@@ -29,6 +29,7 @@
 
 #include "ZLight.hpp"
 #include "ZServices.hpp"
+#include "ZScene.hpp"
 
 std::map<std::string, ZLightType> ZLight::lightTypesMap = {
     {"Directional", ZLightType::Directional},
@@ -112,8 +113,8 @@ void ZLight::Initialize(std::shared_ptr<ZOFNode> root)
 
 std::shared_ptr<ZGameObject> ZLight::Clone()
 {
-    std::shared_ptr<ZLight> clone = std::make_shared<ZLight>(type);
-
+    std::shared_ptr<ZLight> clone = ZLight::Create();
+    clone->type = type;
     clone->id_ = id_;
     clone->enabled = enabled;
     clone->ambient = ambient;
@@ -136,3 +137,5 @@ void ZLight::UpdateLightspaceMatrix(const ZFrustum& frustum)
     glm::mat4 lightV = glm::lookAt(type == ZLightType::Directional ? glm::eulerAngles(Orientation()) : Position(), glm::vec3(0.f), WORLD_UP);
     lightspaceMatrix_ = lightP * lightV;
 }
+
+DEFINE_OBJECT_CREATORS(ZLight)

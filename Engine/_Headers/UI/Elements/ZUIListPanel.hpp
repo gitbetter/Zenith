@@ -57,9 +57,7 @@ public:
 
     void AddChild(const std::shared_ptr<ZUIElement>& element) override;
 
-    static std::shared_ptr<ZUIListPanel> Create();
-    static std::shared_ptr<ZUIListPanel> Create(const ZUIElementOptions& options);
-    static std::shared_ptr<ZUIListPanel> CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options);
+    DECLARE_UI_CREATORS(ZUIListPanel)
 
 protected:
 

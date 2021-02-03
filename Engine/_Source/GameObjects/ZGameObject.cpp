@@ -426,29 +426,27 @@ ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::share
         std::shared_ptr<ZGameObject> gameObject;
         if (zenith::strings::HasObjectPrefix(node->id, "ZGO"))
         {
-            gameObject = CreateGameObject();
+            gameObject = ZGameObject::Create(node, scene);
         }
         else if (zenith::strings::HasObjectPrefix(node->id, "ZLT"))
         {
-            gameObject = CreateLight();
+            gameObject = ZLight::Create(node, scene);
         }
         else if (zenith::strings::HasObjectPrefix(node->id, "ZCAM"))
         {
-            gameObject = CreateCamera();
+            gameObject = ZCamera::Create(node, scene);
         }
         else if (zenith::strings::HasObjectPrefix(node->id, "ZSKY"))
         {
-            gameObject = CreateSkybox();
+            gameObject = ZSkybox::Create(node, scene);
         }
         else if (zenith::strings::HasObjectPrefix(node->id, "ZGR"))
         {
-            gameObject = CreateGrass();
+            gameObject = ZGrass::Create(node, scene);
         }
 
         if (gameObject) {
             gameObjects[gameObject->ID()] = gameObject;
-            gameObject->scene_ = scene;
-            gameObject->Initialize(node);
 
             for (ZOFChildMap::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++)
             {
@@ -460,33 +458,4 @@ ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::share
     return gameObjects;
 }
 
-std::shared_ptr<ZGameObject> ZGameObject::CreateGameObject()
-{
-    std::shared_ptr<ZGameObject> gameObject(new ZGameObject);
-    return gameObject;
-}
-
-std::shared_ptr<ZCamera> ZGameObject::CreateCamera()
-{
-    std::shared_ptr<ZCamera> camera(new ZCamera);
-    return camera;
-}
-
-std::shared_ptr<ZLight> ZGameObject::CreateLight()
-{
-    std::shared_ptr<ZLight> light(new ZLight);
-    return light;
-}
-
-std::shared_ptr<ZSkybox> ZGameObject::CreateSkybox()
-{
-    std::shared_ptr<ZSkybox> skybox(new ZSkybox);
-    return skybox;
-}
-
-std::shared_ptr<ZGrass> ZGameObject::CreateGrass()
-{
-    std::shared_ptr<ZGrass> grass(new ZGrass);
-    return grass;
-}
-
+DEFINE_OBJECT_CREATORS(ZGameObject)

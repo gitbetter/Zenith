@@ -75,22 +75,4 @@ void ZUIListPanel::AddChild(const std::shared_ptr<ZUIElement>& element)
     ZUIElement::AddChild(element);
 }
 
-std::shared_ptr<ZUIListPanel> ZUIListPanel::Create()
-{
-    std::shared_ptr<ZUIListPanel> element = std::make_shared<ZUIListPanel>();
-    return element;
-}
-
-std::shared_ptr<ZUIListPanel> ZUIListPanel::Create(const ZUIElementOptions& options)
-{
-    std::shared_ptr<ZUIListPanel> element = std::make_shared<ZUIListPanel>(options);
-    return element;
-}
-
-std::shared_ptr<ZUIListPanel> ZUIListPanel::CreateIn(const std::shared_ptr<ZScene>& scene, const ZUIElementOptions& options)
-{
-    auto element = ZUIListPanel::Create(options);
-    element->SetScene(scene);
-    element->Initialize();
-    return element;
-}
+DEFINE_UI_CREATORS(ZUIListPanel)

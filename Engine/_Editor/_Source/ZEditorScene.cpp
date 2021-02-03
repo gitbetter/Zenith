@@ -69,7 +69,9 @@ void ZEditorScene::CleanUp() {
 }
 
 std::shared_ptr<ZCamera> ZEditorScene::CreateCamera() {
-    std::shared_ptr<ZCamera> camera = std::make_shared<ZCamera>(glm::vec3(0.f, 15.f, 50.f), ZCameraType::Perspective);
+
+    std::shared_ptr<ZCamera> camera = ZCamera::Create(glm::vec3(0.f, 15.f, 50.f), glm::vec3(0.f), shared_from_this());
+	camera->SetType(ZCameraType::Perspective);
     AddGameObject(camera);
 	return camera;
 }
@@ -79,7 +81,7 @@ std::shared_ptr<ZUIPanel> ZEditorScene::CreateVerticalRegion(const ZRect& rect, 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = rect;
 	elementOptions.layout = std::make_shared<ZUIVerticalLayout>();
-	std::shared_ptr<ZUIPanel> panel = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
+	std::shared_ptr<ZUIPanel> panel = ZUIPanel::Create(elementOptions, shared_from_this());
 	if (parent) {
 		parent->AddChild(panel);
 	}
@@ -91,7 +93,7 @@ std::shared_ptr<ZUIPanel> ZEditorScene::CreateHorizontalRegion(const ZRect& rect
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = rect;
 	elementOptions.layout = std::make_shared<ZUIHorizontalLayout>();
-	std::shared_ptr<ZUIPanel> panel = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
+	std::shared_ptr<ZUIPanel> panel = ZUIPanel::Create(elementOptions, shared_from_this());
 	if (parent) {
 		parent->AddChild(panel);
 	}
@@ -117,7 +119,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 1.0f, 0.07f);
-	topPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
+	topPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
 	windowPanel->AddChild(topPanel_);
 
@@ -131,7 +133,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 0.2f, 1.f);
-	leftPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
+	leftPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
 	contentPanel->AddChild(leftPanel_);
 
@@ -149,7 +151,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 0.7f, 1.0f);
-	centerPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
+	centerPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
 	sceneContentPanel->AddChild(centerPanel_);
 
@@ -159,7 +161,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 0.3f, 1.0f);
-	rightPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
+	rightPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
 	sceneContentPanel->AddChild(rightPanel_);
 
@@ -169,7 +171,7 @@ void ZEditorScene::SetupLayoutPanels() {
 
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 1.0f, .25f);
-	bottomPanel_ = ZUIPanel::CreateIn(shared_from_this(), elementOptions);
+	bottomPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
 	innerContentPanel->AddChild(bottomPanel_);
 

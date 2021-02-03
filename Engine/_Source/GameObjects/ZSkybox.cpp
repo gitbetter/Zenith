@@ -94,7 +94,7 @@ void ZSkybox::Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& 
 
 std::shared_ptr<ZGameObject> ZSkybox::Clone()
 {
-    std::shared_ptr<ZSkybox> clone = std::make_shared<ZSkybox>();
+    std::shared_ptr<ZSkybox> clone = ZSkybox::Create();
     clone->id_ = id_;
     clone->hdrPath_ = hdrPath_;
     clone->iblTexture_ = iblTexture_;
@@ -125,3 +125,5 @@ void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& even
         ZServices::EventAgent()->Queue(skyboxReadyEvent);
     }
 }
+
+DEFINE_OBJECT_CREATORS(ZSkybox)

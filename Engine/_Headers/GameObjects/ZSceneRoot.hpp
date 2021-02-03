@@ -44,8 +44,9 @@ private:
 
 public:
 
-    ZSceneRoot() : ZGameObject("Root") {}
-    ZSceneRoot(const std::string& name);
+    ZSceneRoot(const glm::vec3& position, const glm::quat& orientation)
+        : ZGameObject(position, orientation) { }
+    ZSceneRoot(const std::string& name = "Root");
 
     ZGameObjectList& Children() override { return publicChildren_; }
 
@@ -55,5 +56,7 @@ public:
     void RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
     bool Renderable() override { return !children_.empty(); }
     bool IsVisible() override { return true; }
+
+    DECLARE_OBJECT_CREATORS(ZSceneRoot)
 
 };

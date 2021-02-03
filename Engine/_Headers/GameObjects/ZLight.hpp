@@ -34,7 +34,7 @@
 #include "ZFrustum.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZScene;
 
 // Class and Data Structure Definitions
 
@@ -64,18 +64,20 @@ public:
     ZLAttenuationProperties attenuation;
     ZLSpotProperties spot;
 
-public:
-
-    ZLight() : type(ZLightType::Point), enabled(true) {}
+    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)))
+        : ZGameObject(position, orientation), type(ZLightType::Point), enabled(true) { }
     ZLight(ZLightType lightType);
     ~ZLight() {}
 
+    void Initialize() override { ZGameObject::Initialize(); }
     void Initialize(std::shared_ptr<ZOFNode> root) override;
     std::shared_ptr<ZGameObject> Clone() override;
 
     glm::mat4 LightSpaceMatrix() const { return lightspaceMatrix_; }
 
     void UpdateLightspaceMatrix(const ZFrustum& frustum);
+
+    DECLARE_OBJECT_CREATORS(ZLight)
 
 private:
 

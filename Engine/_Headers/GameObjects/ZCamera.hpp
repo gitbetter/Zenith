@@ -42,36 +42,11 @@ class ZMoveEvent;
 class ZCamera : public ZGameObject
 {
 
-private:
-
-    bool isPrimary_ = false;
-    bool movementEnabled_ = true;
-    bool lookEnabled_ = true;
-    float movementSpeed_ = 25.f;
-    float lookSensitivity_ = 0.1f;
-    float zoom_ = 45.0f;
-    float zoomSpeed_ = 5.0f;
-    float nearClippingPlane_ = 0.01f;
-    float farClippingPlane_ = 1000.0f;
-    float cameraDamping_ = 0.02f;
-    ZCameraType cameraType_;
-    ZCameraMovementStyle movementStyle_;
-    ZFrustum frustum_;
-    glm::vec3 pitchVelocity_, yawVelocity_;
-    glm::quat pitch_, yaw_;
-
-    double currentDeltaTime_ = 0.0;
-    double lastDeltaTime_ = 0.0;
-    float frameMix_ = 0.f;
-
-    void HandleMove(const std::shared_ptr<ZMoveEvent>& event);
-    void HandleLook(const std::shared_ptr<ZLookEvent>& event);
-
 public:
 
-    ZCamera(const glm::vec3& position = glm::vec3(0.f), ZCameraType type = ZCameraType::Orthographic);
+    ZCamera(const glm::vec3& position = glm::vec3(0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), ZCameraType type = ZCameraType::Orthographic);
     ZCamera::ZCamera(ZCameraType type) 
-        : ZCamera(glm::vec3(0.f), type)
+        : ZCamera(glm::vec3(0.f), glm::quat(glm::vec3(0.f)), type)
     { }
     ~ZCamera() {}
 
@@ -107,5 +82,32 @@ public:
     void DisableDefaultLook() { lookEnabled_ = false; }
 
     void UpdateCameraOrientation();
+
+    DECLARE_OBJECT_CREATORS(ZCamera)
+
+private:
+
+    bool isPrimary_ = false;
+    bool movementEnabled_ = true;
+    bool lookEnabled_ = true;
+    float movementSpeed_ = 25.f;
+    float lookSensitivity_ = 0.1f;
+    float zoom_ = 45.0f;
+    float zoomSpeed_ = 5.0f;
+    float nearClippingPlane_ = 0.01f;
+    float farClippingPlane_ = 1000.0f;
+    float cameraDamping_ = 0.02f;
+    ZCameraType cameraType_;
+    ZCameraMovementStyle movementStyle_;
+    ZFrustum frustum_;
+    glm::vec3 pitchVelocity_, yawVelocity_;
+    glm::quat pitch_, yaw_;
+
+    double currentDeltaTime_ = 0.0;
+    double lastDeltaTime_ = 0.0;
+    float frameMix_ = 0.f;
+
+    void HandleMove(const std::shared_ptr<ZMoveEvent>& event);
+    void HandleLook(const std::shared_ptr<ZLookEvent>& event);
 
 };

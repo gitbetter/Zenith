@@ -59,7 +59,7 @@ void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject)
     ZRenderOrder order = gameObject->RenderOrder();
     if (order >= children_.size() || !children_[order])
     {
-        LOG("The child being added has a non-extant render pass", ZSeverity::Error);
+        LOG("The child being added has a non-extant render order", ZSeverity::Warning);
         return;
     }
 
@@ -116,3 +116,5 @@ void ZSceneRoot::RenderChildren(double deltaTime, const std::shared_ptr<ZShader>
     if (scene->GameConfig().graphics.drawPhysicsDebug)
         scene->PhysicsUniverse()->DebugDraw(scene);
 }
+
+DEFINE_OBJECT_CREATORS(ZSceneRoot)

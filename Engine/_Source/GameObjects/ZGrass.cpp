@@ -203,3 +203,5 @@ void ZGrass::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event
         ZServices::EventAgent()->Unsubscribe(this, &ZGrass::HandleTextureReady);
     }
 }
+
+DEFINE_OBJECT_CREATORS(ZGrass)
