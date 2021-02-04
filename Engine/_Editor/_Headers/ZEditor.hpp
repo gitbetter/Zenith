@@ -32,16 +32,26 @@
 // Includes
 #include "ZGame.hpp"
 
+class ZEditorScene;
+class ZSceneReadyEvent;
+
 class ZEditor : public ZGame, public std::enable_shared_from_this<ZEditor> {
     
 public:
     
-    ZEditor() : ZGame() { }
+    ZEditor() : ZGame("Editor") { }
     
     void CleanUp() override;
 
 protected:
 
+    std::shared_ptr<ZGame> project_ = nullptr;
+    std::shared_ptr<ZEditorScene> editorScene_ = nullptr;
+
     void Setup() override;
+
+    void CreateDefaultProject();
+
+    void HandleSceneLoaded(const std::shared_ptr<ZSceneReadyEvent>& event);
     
 };

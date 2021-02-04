@@ -201,12 +201,19 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
 
         if (object_->Scene()->Skybox() != nullptr)
         {
-            object_->Scene()->Skybox()->IBLTexture().irradiance->Bind(3);
-            activeShader->SetInt("irradianceMap", 3);
-            object_->Scene()->Skybox()->IBLTexture().prefiltered->Bind(4);
-            activeShader->SetInt("prefilterMap", 4);
-            object_->Scene()->Skybox()->IBLTexture().brdfLUT->Bind(5);
-            activeShader->SetInt("brdfLUT", 5);
+            ZIBLTexture iblTexture = object_->Scene()->Skybox()->IBLTexture();
+            if (iblTexture.irradiance) {
+                iblTexture.irradiance->Bind(3);
+                activeShader->SetInt("irradianceMap", 3);
+            }
+            if (iblTexture.prefiltered) {
+                iblTexture.prefiltered->Bind(4);
+                activeShader->SetInt("prefilterMap", 4);
+            }
+            if (iblTexture.brdfLUT) {
+                iblTexture.brdfLUT->Bind(5);
+                activeShader->SetInt("brdfLUT", 5);
+            }
         }
 
         modelObject_->Render(activeShader, Materials());

@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZGameObject;
+class ZUIImage;
 
 // Definitions
 class ZSceneTool : public ZEditorTool {
@@ -42,7 +43,14 @@ public:
 
 	ZSceneTool(const ZUITheme& theme = ZUITheme())
         : ZEditorTool("Scene", theme) { }
+
+    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+    void OnProjectSceneChanged() override;
     
 	void Update() override;
+
+private:
+
+    std::shared_ptr<ZUIImage> sceneDisplay_ = nullptr;
 
 };

@@ -33,6 +33,7 @@
 
 bool ZALAudio::Initialize()
 {
+    // TODO: Move audio device managment to a more central location
     device_ = alcOpenDevice(NULL);
     if (!device_)
     {

@@ -48,7 +48,7 @@ public:
     glm::vec2 WindowSize() const { return options_.windowSize; }
     glm::vec2 Resolution() const { return options_.resolution; }
     double Aspect() const { return options_.resolution.x / options_.resolution.y; }
-    bool Visible() const { return options_.visible; }
+    bool Visible() const { return !options_.offline; }
     bool Maximized() const { return options_.maximized; }
 
     virtual glm::vec2 FramebufferSize() = 0;
@@ -60,6 +60,7 @@ public:
     virtual bool IsClosing() = 0;
     virtual void Close() = 0;
     virtual void SetWindow(void* window) = 0;
+    virtual void SetAsCurrent() = 0;
     virtual void Destroy() = 0;
     virtual void WindowResize(int width, int height) = 0;
     virtual void FramebufferResize(int width, int height) = 0;

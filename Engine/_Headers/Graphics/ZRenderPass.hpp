@@ -55,7 +55,9 @@ public:
     virtual ~ZRenderPass() { }
 
     void Initialize();
-    void Perform(double deltaTime);
+    void Perform(double deltaTime, const std::shared_ptr<ZFramebuffer>& target = nullptr);
+
+    std::shared_ptr<ZFramebuffer> Framebuffer() { return framebuffer_; }
 
     void SetSize(const glm::vec2& size) { if (!fixedSize_) size_ = size; }
     void SetIsSizeFixed(bool fixed) { fixedSize_ = fixed; }

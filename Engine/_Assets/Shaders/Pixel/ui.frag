@@ -14,7 +14,7 @@ uniform float aspectRatio = 1.0;
 uniform float borderWidth = 0.0;
 uniform float borderRadius = 0.0;
 
-uniform sampler2D image;
+uniform sampler2D colorSampler0;
 
 void main() {
     // Calculate border radius distance and discard fragment if not within bounds
@@ -30,10 +30,11 @@ void main() {
 
     if (fs_in.FragUV.x < maxX && fs_in.FragUV.x > minX &&
         fs_in.FragUV.y < maxY && fs_in.FragUV.y > minY) {
-        vec4 texColor = texture(image, fs_in.FragUV);
-        if (texColor.a < 0.1)
+        vec4 texColor = texture(colorSampler0, fs_in.FragUV);
+        vec4 outColor = color * texColor;
+        if (outColor.a < 0.1)
             discard;
-        FragColor = color * texColor;
+        FragColor = outColor;
     } else {
         FragColor = borderColor;
     }

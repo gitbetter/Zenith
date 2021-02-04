@@ -83,12 +83,19 @@ void ZUIImage::SetImage(const std::string& path)
     }
 }
 
+void ZUIImage::SetImage(const std::shared_ptr<ZTexture>& texture)
+{
+    if (texture)
+    {
+        SetTexture(texture);
+    }
+}
+
 void ZUIImage::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
     if (event->Texture()->path == path_)
     {
-        options_.texture = event->Texture();
-        options_.texture->type = "image";
+        SetImage(event->Texture());
 
         ZServices::EventAgent()->Unsubscribe(this, &ZUIImage::HandleTextureReady);
     }

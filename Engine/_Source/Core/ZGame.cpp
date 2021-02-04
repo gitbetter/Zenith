@@ -36,11 +36,55 @@
 
 using namespace std;
 
-ZGame::ZGame() : ZBase(), activeScene_(0) {}
+ZGame::ZGame(const std::string& name) : ZBase(), activeScene_(0), name_(name) {}
+
+void ZGame::Provide(const std::shared_ptr<ZDomain>& domain)
+{
+    ZBase::Provide(domain);
+    UpdateSceneSystems();
+}
+
+void ZGame::Provide(const std::shared_ptr<ZPhysicsUniverse>& physics)
+{
+    ZBase::Provide(physics);
+    UpdateSceneSystems();
+}
+
+void ZGame::Provide(const std::shared_ptr<ZAudio>& audio)
+{
+    ZBase::Provide(audio);
+    UpdateSceneSystems();
+}
+
+void ZGame::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
+{
+    ZBase::Provide(assetStore);
+    UpdateSceneSystems();
+}
+
+void ZGame::Configure(const ZGameOptions& options)
+{
+    ZBase::Configure(options);
+    UpdateSceneConfig();
+}
 
 void ZGame::Setup()
 {
     ZServices::EventAgent()->Subscribe(this, &ZGame::HandleQuit);
+}
+
+void ZGame::UpdateSceneSystems()
+{
+    for (auto scene : scenes_) {
+        scene->SetGameSystems(gameSystems_);
+    }
+}
+
+void ZGame::UpdateSceneConfig()
+{
+    for (auto scene : scenes_) {
+        scene->SetGameConfig(gameOptions_);
+    }
 }
 
 void ZGame::CleanUp()
@@ -53,20 +97,29 @@ void ZGame::Loop()
 {
     LOG("Zenith is about to loop...", ZSeverity::Info);
 
-    double previousTime = SECONDS_TIME;
-
     while (Running())
     {
-        double currentTime = SECONDS_TIME;
-        deltaTime_ = currentTime - previousTime;
-        previousTime = currentTime;
-
-        ZServices::ProcessRunner()->UpdateTick(deltaTime_);
-
-        Domain()->SwapBuffers();
-
-        ZServices::Input()->PollEvents();
+        Tick();
     }
+}
+
+void ZGame::Tick()
+{
+    if (previousTime_ == 0.0)
+        previousTime_ = SECONDS_TIME;
+
+    double currentTime = SECONDS_TIME;
+    deltaTime_ = currentTime - previousTime_;
+    previousTime_ = currentTime;
+
+    ZServices::ProcessRunner()->UpdateTick(deltaTime_);
+
+    Domain()->SwapBuffers();
+
+    ZServices::Input()->PollEvents();
+
+    if (onUpdateTickCallback_)
+        onUpdateTickCallback_();
 }
 
 bool ZGame::Running()
@@ -104,4 +157,9 @@ void ZGame::SetActiveScene(unsigned int index)
 void ZGame::HandleQuit(const std::shared_ptr<ZQuitEvent>& event)
 {
     ZServices::Input()->ReleaseCursor();
+}
+
+std::shared_ptr<ZGame> ZGame::Create(const std::string& name)
+{
+    return std::make_shared<ZGame>(name);
 }

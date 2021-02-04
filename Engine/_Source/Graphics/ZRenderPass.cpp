@@ -60,7 +60,7 @@ void ZRenderPass::Initialize()
     }
 }
 
-void ZRenderPass::Perform(double deltaTime)
+void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZFramebuffer>& target)
 {
     if (!root_->Renderable()) return;
 
@@ -73,8 +73,10 @@ void ZRenderPass::Perform(double deltaTime)
     else {
         framebuffer_->Bind();
     }
+
     ZServices::Graphics()->ClearViewport();
     ZServices::Graphics()->UpdateViewport(size_);
+
     if (renderOp_ == ZRenderOp::Depth || renderOp_ == ZRenderOp::Shadow) {
         ZServices::Graphics()->ClearDepth();
     }
@@ -102,8 +104,8 @@ void ZRenderPass::Perform(double deltaTime)
 
     // TODO: Use a better method to determine when to blit the current renderpass
     // framebuffer onto the default framebuffer
-    if (renderOp_ == ZRenderOp::Post || renderOp_ == ZRenderOp::UI) {
-        framebuffer_->Blit();
+    if (renderOp_ == ZRenderOp::UI) {
+        framebuffer_->Blit(target);
     }
 }
 
@@ -116,6 +118,7 @@ void ZRenderPass::BindDependencies()
     for (auto dep : dependencies_) {
         dep->framebuffer_->Attachment()->Bind(index);
         switch (dep->renderOp_) {
+        case ZRenderOp::Post:
         case ZRenderOp::Color:
             shader_->SetInt(std::string("colorSampler") + std::to_string(colorAttachments++), index);
             break;

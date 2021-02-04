@@ -42,6 +42,7 @@ class ZRenderer3D;
 class ZRenderer2D;
 class ZUIPanel;
 class ZRaycastEvent;
+class ZFramebuffer;
 class ZObjectDestroyedEvent;
 class ZResourceLoadedEvent;
 class ZWindowResizeEvent;
@@ -81,6 +82,7 @@ public:
     glm::mat4& ViewProjection() { return viewProjection_; }
     glm::mat4& PreviousViewProjection() { return previousViewProjection_; }
     ZPlayState& PlayState() { return playState_; }
+    std::shared_ptr<ZTexture> TargetTexture();
     std::shared_ptr<ZPhysicsUniverse> PhysicsUniverse() const { return gameSystems_.physics; }
     std::shared_ptr<ZDomain> Domain() const { return gameSystems_.domain; }
     std::shared_ptr<ZAudio> Audio() const { return gameSystems_.audio; }
@@ -152,6 +154,7 @@ protected:
 
     std::shared_ptr<ZRenderer3D> renderer3D_ = nullptr;
     std::shared_ptr<ZRenderer2D> renderer2D_ = nullptr;
+    std::shared_ptr<ZFramebuffer> targetBuffer_ = nullptr;
 
     // TODO: Create a light manager class to handle the scene lights
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
@@ -170,6 +173,8 @@ protected:
     glm::mat4 viewProjection_, previousViewProjection_;
     std::list<glm::mat4> matrixStack_;
 
+    void SetupRenderers();
+    void SetupTargetDrawBuffer();
     void SetupRenderPasses();
     void LoadSceneData(const std::shared_ptr<ZOFTree>& objectTree);
     void ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree);

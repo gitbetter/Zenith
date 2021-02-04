@@ -54,6 +54,8 @@ public:
     ZTexture();
     virtual ~ZTexture() = default;
 
+    virtual void Initialize();
+
     virtual void LoadAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);
     virtual void Load(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
 

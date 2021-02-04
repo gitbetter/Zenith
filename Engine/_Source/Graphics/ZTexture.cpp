@@ -41,6 +41,10 @@ std::map<std::string, ZTextureWrapping> ZGLTexture::pendingTextureWrappings_;
 ZTexture::ZTexture()
     : id(0), name(std::string()), type(std::string()), path(std::string()), wrapping(ZTextureWrapping::Repeat)
 {
+}
+
+void ZTexture::Initialize()
+{
     ZServices::EventAgent()->Subscribe(this, &ZTexture::HandleTextureLoaded);
 }
 
@@ -107,6 +111,7 @@ void ZTexture::CreateAsync(std::shared_ptr<ZOFTree> data, ZTextureIDMap& outPend
     for (auto it = outPendingTextures.begin(); it != outPendingTextures.end(); it++)
     {
         it->first->LoadAsync(it->second, "", it->first->wrapping);
+        it->first->Initialize();
     }
 }
 
@@ -155,6 +160,7 @@ ZTexture::ptr ZTexture::Create(const std::string& filename, const std::string& d
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->Load(filename, directory, wrapping, hdr, flip);
     return texture;
 }
@@ -163,6 +169,7 @@ ZTexture::ptr ZTexture::Create(std::shared_ptr<ZResourceHandle> handle, ZTexture
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->Load(handle, wrapping, hdr, flip);
     return texture;
 }
@@ -171,6 +178,7 @@ ZTexture::ptr ZTexture::CreateEmptyLUT()
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadEmptyLUT();
     return texture;
 }
@@ -180,6 +188,7 @@ ZTexture::ptr ZTexture::CreateColor(const glm::vec2& size, bool multisample)
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
     texture->LoadColor(size, multisample);
+    texture->Initialize();
     return texture;
 }
 
@@ -188,6 +197,7 @@ ZTexture::ptr ZTexture::CreateDepth(const glm::vec2& size)
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
     texture->LoadDepth(size);
+    texture->Initialize();
     return texture;
 }
 
@@ -204,6 +214,7 @@ ZTexture::ptr ZTexture::CreateCubeMap(const std::vector<std::string>& faces)
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadCubeMap(faces);
     return texture;
 }
@@ -212,6 +223,7 @@ ZTexture::ptr ZTexture::CreateCubeMap(const ZTexture::ptr& hdrTexture, std::shar
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadCubeMap(hdrTexture, bufferData);
     return texture;
 }
@@ -220,6 +232,7 @@ ZTexture::ptr ZTexture::CreateEmptyCubeMap(ZCubemapTextureType type)
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadEmptyCubeMap(type);
     return texture;
 }
@@ -228,6 +241,7 @@ ZTexture::ptr ZTexture::CreateAsync(const std::string& filename, const std::stri
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadAsync(filename, directory, wrapping, hdr, flip, equirect);
     return texture;
 }
@@ -236,6 +250,7 @@ ZTexture::ptr ZTexture::CreateHDRIAsync(const std::string& hdriPath)
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadHDRIAsync(hdriPath);
     return texture;
 }
@@ -244,6 +259,7 @@ ZTexture::ptr ZTexture::CreateHDRI(const std::string& hdriPath, std::shared_ptr<
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadHDRI(hdriPath, bufferData);
     return texture;
 }
@@ -252,6 +268,7 @@ ZTexture::ptr ZTexture::CreateIrradianceMap(const std::shared_ptr<ZFramebuffer>&
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadIrradianceMap(cubemapBufferData, cubemapTexture);
     return texture;
 }
@@ -260,6 +277,7 @@ ZTexture::ptr ZTexture::CreatePrefilterMap(const std::shared_ptr<ZFramebuffer>& 
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadPrefilterCubeMap(cubemapBufferData, cubemapTexture);
     return texture;
 }
@@ -268,6 +286,7 @@ ZTexture::ptr ZTexture::CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubem
 {
     // TODO: Switch on contant, variable or define to choose implementation
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
     texture->LoadBRDFLUT(cubemapBufferData);
     return texture;
 }
@@ -283,6 +302,8 @@ void ZTexture::HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedEvent>& 
         return;
     if (resource.name != path)
         return;
+
+    ZServices::EventAgent()->Unsubscribe(this, &ZTexture::HandleTextureLoaded);
 
     std::shared_ptr<ZTextureResourceExtraData> textureData = std::static_pointer_cast<ZTextureResourceExtraData>(event->Handle()->ExtraData());
 
@@ -302,5 +323,4 @@ void ZTexture::HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedEvent>& 
         textureReadyEvent = std::make_shared<ZTextureReadyEvent>(shared_from_this());
     }
     ZServices::EventAgent()->Queue(textureReadyEvent);
-    ZServices::EventAgent()->Unsubscribe(this, &ZTexture::HandleTextureLoaded);
 }

@@ -38,10 +38,6 @@
 class ZRenderer2D
 {
 
-private:
-
-    std::vector<ZRenderPass::ptr> passes_;
-
 public:
 
     ZRenderer2D() = default;
@@ -49,8 +45,15 @@ public:
 
     const std::vector<ZRenderPass::ptr>& Passes() const { return passes_; }
 
+    void SetTarget(const std::shared_ptr<ZFramebuffer>& target) { target_ = target; }
+
     void Render(double deltaTime);
 
     void AddPass(const ZRenderPass::ptr & pass);
+
+private:
+
+    std::vector<ZRenderPass::ptr> passes_;
+    std::shared_ptr<ZFramebuffer> target_ = nullptr;
 
 };

@@ -287,7 +287,7 @@ enum class ZRenderOp
 
 enum class ZPlayState
 {
-    Playing, Paused, NotStarted
+    NotStarted, Loading, Ready, Playing, Paused
 };
 
 enum class ZPhysicsBodyType
@@ -491,7 +491,7 @@ struct ZDomainOptions
     glm::vec2 windowSize;
     glm::vec2 resolution;
     bool maximized = true;
-    bool visible = true;
+    bool offline = false;
 };
 
 struct ZGraphicsOptions

@@ -52,13 +52,38 @@ struct ZEditorConfig {
 };
 
 class ZEditorScene : public ZScene {
+    
+public:
+    
+    ZEditorScene() : ZScene("EditorScene"), editorOpen_(true) { }
+    
+    void Initialize() override;
+    void Update(double deltaTime) override;
+    void CleanUp() override;
+    
+	ZGameObjectMap& ObjectTemplates() { return gameObjectTemplates_; }
+	ZUIElementMap& UITemplates() { return uiElementTemplates_; }
+    ZEditorConfig& Config() { return config_; }
+    ZGameObjectMap& SelectedObjects() { return selectedObjects_; }
+	std::shared_ptr<ZGameObject> EditorCamera() { return editorCamera_; }
+    ZSceneSnapshot& LastSceneSnapshot() { return lastSceneSnapshot_; }
+    std::shared_ptr<ZScene> ActiveProjectScene() { return activeProjectScene_; }
+
+    void SetSceneSnapshot(ZSceneSnapshot& snapshot) { lastSceneSnapshot_ = snapshot; }
+    void SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene);
+
+    void AddTool(const std::shared_ptr<ZEditorTool>& tool, const std::shared_ptr<ZUIPanel>& layoutRegion);
+
+    std::shared_ptr<ZCamera> CreateCamera();
+    std::shared_ptr<ZUIPanel> CreateVerticalRegion(const ZRect& rect, std::shared_ptr<ZUIPanel> parent = nullptr);
+    std::shared_ptr<ZUIPanel> CreateHorizontalRegion(const ZRect& rect, std::shared_ptr<ZUIPanel> parent = nullptr);
 
 private:
 
-	ZGameObjectMap                              gameObjectTemplates_;
-	ZUIElementMap                               uiElementTemplates_;
+    ZGameObjectMap                              gameObjectTemplates_;
+    ZUIElementMap                               uiElementTemplates_;
 
-	ZEditorConfig                               config_;
+    ZEditorConfig                               config_;
     bool                                        editorOpen_;
     ZGameObjectMap                              selectedObjects_;
 
@@ -68,38 +93,17 @@ private:
     std::shared_ptr<ZUIPanel>                   centerPanel_;
     std::shared_ptr<ZUIPanel>                   rightPanel_;
     std::shared_ptr<ZUIPanel>                   bottomPanel_;
-	std::vector<std::shared_ptr<ZEditorTool>>   tools_;
+    std::vector<std::shared_ptr<ZEditorTool>>   tools_;
     ZSceneSnapshot                              lastSceneSnapshot_;
 
-    
+    std::shared_ptr<ZScene>                     activeProjectScene_;
+
     void SetupLayoutPanels();
     void SetupInitialTools();
-	void Configure(std::shared_ptr<ZOFTree> objectTree);
-	void Configure(ZEditorConfig config);
-	void LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree);
+    void Configure(std::shared_ptr<ZOFTree> objectTree);
+    void Configure(ZEditorConfig config);
+    void LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree);
 
-	void HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
-    
-public:
-    
-    ZEditorScene() : ZScene(), editorOpen_(true) { }
-    
-    void Initialize() override;
-    void Update(double deltaTime) override;
-    void CleanUp() override;
-    
-    std::shared_ptr<ZCamera> CreateCamera();
-    std::shared_ptr<ZUIPanel> CreateVerticalRegion(const ZRect& rect, std::shared_ptr<ZUIPanel> parent = nullptr);
-    std::shared_ptr<ZUIPanel> CreateHorizontalRegion(const ZRect& rect, std::shared_ptr<ZUIPanel> parent = nullptr);
-    void AddTool(const std::shared_ptr<ZEditorTool>& tool, const std::shared_ptr<ZUIPanel>& layoutRegion);
-    
-	ZGameObjectMap& ObjectTemplates() { return gameObjectTemplates_; }
-	ZUIElementMap& UITemplates() { return uiElementTemplates_; }
-    ZEditorConfig& Config() { return config_; }
-    ZGameObjectMap& SelectedObjects() { return selectedObjects_; }
-	std::shared_ptr<ZGameObject> EditorCamera() { return editorCamera_; }
-    ZSceneSnapshot& LastSceneSnapshot() { return lastSceneSnapshot_; }
-
-    void SetSceneSnapshot(ZSceneSnapshot& snapshot) { lastSceneSnapshot_ = snapshot; }
+    void HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
     
 };

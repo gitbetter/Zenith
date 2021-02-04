@@ -45,28 +45,48 @@ protected:
     // TODO: Store this information in a scene manager class
     unsigned int activeScene_ = 0;
     std::vector<std::shared_ptr<ZScene>> scenes_;
-    double deltaTime_ = 0.0;
 
+    std::string name_;
+    double previousTime_ = 0.0;
+    double deltaTime_ = 0.0;
+    std::function<void()> onUpdateTickCallback_;
 
 public:
 
-    ZGame();
+    ZGame(const std::string& name = "Untitled");
     virtual ~ZGame() {};
+
+    void Provide(const std::shared_ptr<ZDomain>& domain) override;
+    void Provide(const std::shared_ptr<ZPhysicsUniverse>& physics) override;
+    void Provide(const std::shared_ptr<ZAudio>& audio) override;
+    void Provide(const std::shared_ptr<ZAssetStore>& store) override;
+    void Configure(const ZGameOptions& options) override;
 
     virtual void CleanUp() override;
 
     std::shared_ptr<ZScene> ActiveScene() { return !(scenes_.empty()) ? scenes_[activeScene_] : nullptr; }
+    const std::string& Name() const { return name_; }
+
     void SetActiveScene(unsigned int index);
+    void SetName(const std::string& name) { name_ = name; }
+
+    void OnUpdateTick(const std::function<void()>& onTick) { onUpdateTickCallback_ = onTick; }
 
     void Loop();
+    void Tick();
     bool Running();
     void AddScene(const std::shared_ptr<ZScene>& scene);
     void RemoveScene(const std::shared_ptr<ZScene>& scene);
 
     void HandleQuit(const std::shared_ptr<ZQuitEvent>& event);
 
+    static std::shared_ptr<ZGame> Create(const std::string& name = "Untitled");
+
 protected:
 
     virtual void Setup() override;
+
+    void UpdateSceneSystems();
+    void UpdateSceneConfig();
 
 };

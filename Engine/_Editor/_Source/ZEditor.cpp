@@ -32,15 +32,57 @@
 #include "ZEditorScene.hpp"
 #include "ZAssetStore.hpp"
 #include "ZDevResourceFile.hpp"
+#include "ZSceneReadyEvent.hpp"
 
 void ZEditor::Setup() {
+    ZGame::Setup();
+
 	ZServices::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(EDITOR_ROOT) + "/_Assets")));
 
 	AssetStore()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
 
-	ZScene::LoadIn<ZEditorScene>(shared_from_this());
+    ZServices::EventAgent()->Subscribe(this, &ZEditor::HandleSceneLoaded);
+
+    CreateDefaultProject();
+
+	editorScene_ = ZScene::LoadIn<ZEditorScene>(shared_from_this());
+}
+
+void ZEditor::CreateDefaultProject()
+{
+	project_ = ZGame::Create();
+    ZGameOptions options;
+    options.domain.windowSize.x = 1920;
+    options.domain.windowSize.y = 1080;
+    options.domain.maximized = false;
+    options.domain.offline = true;
+    options.graphics.drawCameraDebug = true;
+    options.graphics.drawGrid = true;
+    options.graphics.drawPhysicsDebug = true;
+    project_->Initialize(options);
+
+    ZScene::LoadIn<ZScene>(project_, std::initializer_list<std::string>({ "/demo_scene.zof" }));
+
+    OnUpdateTick([this]() {
+        if (project_->ActiveScene() != editorScene_->ActiveProjectScene())
+            editorScene_->SetActiveProjectScene(project_->ActiveScene());
+        project_->Tick();
+    });
+}
+
+void ZEditor::HandleSceneLoaded(const std::shared_ptr<ZSceneReadyEvent>& event)
+{
+    LOG("Scene '" + event->Scene()->Name() + "' loaded", ZSeverity::Info);
+    auto scene = event->Scene();
+
+    if (scene)
+    {
+        scene->Play();
+    }
 }
 
 void ZEditor::CleanUp() {
+    if (project_)
+        project_->CleanUp();
 	ZGame::CleanUp();
 }
