@@ -1,6 +1,6 @@
 # Zenith
 
-Zenith is an extensible, **C++ based game engine** replete with **PBR**, built in **UI functionality**, **Lua scripting** and a **custom object format (.zof)**. The project is currently in an inception period but there are many other features and additions that I will implement as time passes. Keep reading to get started.
+Zenith is an extensible, **C++ based game engine** replete with **PBR**, built in **UI functionality**, **Lua scripting** and a **custom object format (.zof)**. The project is currently under development so none of these features are guaranteed to be stable yet. There are many other features and additions that I will implement as time passes. Keep reading to get started.
 
 ### WIP
 
@@ -25,11 +25,11 @@ or using your favorite Git desktop GUI client. Zenith uses LFS to store certain 
 
 ## Building and Running
 
-Make sure that you have met the requirements above. There is currently no way to build the project without CMake, and you might be left out in the cold if you try to run on any Linux distro or older Windows/OSX versions, as these have not yet been tested. Use the provided build tool (`build.ps1` on Windows, `build.sh` on macOS) to generate project files and build the engine. Check out the [Building](https://github.com/gitbetter/Zenith/wiki/Building) page for the full run down on the provided build tool.
+Make sure that you have met the requirements above. There is currently no way to build the project without CMake, and you might be left out in the cold if you try to run on any Linux distro or older Windows/OSX versions, as these have not yet been tested. Use the provided build tool (`build.ps1` on Windows, `build.sh` on macOS) to generate project files and build the engine. Check out the [Building](https://github.com/gitbetter/Zenith/wiki/Building) page for the full rundown on the provided build tool.
 
 ## Overview
 
-Take a look at the **[Zenith Wiki](https://github.com/gitbetter/Zenith/wiki)** for more info, but keep in mind that it is not  an authoritative API reference. To that end, perusing the headers and source files is a much better idea. In case you're wondering why the project size is so large, most if it resides in the Assets.zip file, which contains some hefty demo textures, but they are by no means required for the engine to run properly, and you are free to play with your own assets if you have any laying around. Stay tuned for more developments.
+Take a look at the **[Zenith Wiki](https://github.com/gitbetter/Zenith/wiki)** for more info, but keep in mind that it is not an authoritative API reference. To that end, perusing the headers and source files is a much better idea. In case you're wondering why the project size is so large, most if it resides in the Assets directory, which contains some hefty demo textures, but they are by no means required for the engine to run properly, and you are free to play with your own assets if you have any laying around. Stay tuned for more developments.
 
 ## License
 Zenith is available under the GNU General Public License, and therefore anyone is free to fork the project and modify it to their hearts content as long as they maintain attributions to the original author of the project.
