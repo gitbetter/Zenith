@@ -37,3 +37,9 @@ void ZEditorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
 	elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
 	container_ = ZUIPanel::Create(elementOptions, scene);
 }
+
+void ZEditorTool::SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene)
+{
+	activeProjectScene_ = activeScene;
+	OnProjectSceneChanged();
+}

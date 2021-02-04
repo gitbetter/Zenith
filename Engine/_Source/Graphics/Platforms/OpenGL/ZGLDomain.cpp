@@ -36,7 +36,7 @@
 
 void ZGLDomain::Initialize()
 {
-    CreateWindow(options_.windowSize.x, options_.windowSize.y, options_.maximized, options_.visible);
+    CreateWindow(options_.windowSize.x, options_.windowSize.y, options_.maximized, !options_.offline);
     if (!window_) {
         LOG("Could not create glfw window", ZSeverity::Error);
         return;
@@ -86,7 +86,7 @@ void ZGLDomain::CreateWindow(int width, int height, bool maximized, bool visible
     if (sharedContext == nullptr)
     {
         window = glfwCreateWindow(width, height, "Zenith", NULL, NULL);
-        glfwMakeContextCurrent(window);
+        if (visible) glfwMakeContextCurrent(window);
     }
     else
     {
@@ -116,13 +116,13 @@ void ZGLDomain::CreateWindow(int width, int height, bool maximized, bool visible
 
 void ZGLDomain::ResizeWindow(int width, int height)
 {
-    GLFWwindow* glWindow = glfwGetCurrentContext();
+    GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);
     glfwSetWindowSize(glWindow, width, height);
 }
 
 glm::vec2 ZGLDomain::FramebufferSize()
 {
-    GLFWwindow* glWindow = glfwGetCurrentContext();
+    GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);
     int width, height;
     glfwGetFramebufferSize(glWindow, &width, &height);
     return glm::vec2(width, height);
@@ -142,9 +142,13 @@ bool ZGLDomain::IsClosing()
 
 void ZGLDomain::SetWindow(void* window)
 {
-    GLFWwindow* glWindow = static_cast<GLFWwindow*>(window);
-    glfwMakeContextCurrent(glWindow);
     window_ = window;
+}
+
+void ZGLDomain::SetAsCurrent()
+{
+    GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);
+    glfwMakeContextCurrent(glWindow);
 }
 
 void ZGLDomain::Destroy()

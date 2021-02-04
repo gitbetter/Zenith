@@ -33,14 +33,11 @@
 #include "ZRenderPass.hpp"
 
 // Forward Declarations
+class ZFramebuffer;
 
 // Class and Data Structure Definitions
 class ZRenderer3D
 {
-
-private:
-
-    std::vector<ZRenderPass::ptr> passes_;
 
 public:
 
@@ -49,8 +46,15 @@ public:
 
     const std::vector<ZRenderPass::ptr>& Passes() const { return passes_; }
 
+    void SetTarget(const std::shared_ptr<ZFramebuffer>& target) { target_ = target; }
+
     void Render(double deltaTime);
 
     void AddPass(const ZRenderPass::ptr& pass);
+
+private:
+
+    std::vector<ZRenderPass::ptr> passes_;
+    std::shared_ptr<ZFramebuffer> target_ = nullptr;
 
 };

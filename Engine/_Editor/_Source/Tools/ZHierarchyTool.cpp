@@ -28,6 +28,12 @@
  */
 
 #include "ZHierarchyTool.hpp"
+#include "ZUIPanel.hpp"
+
+void ZHierarchyTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+    ZEditorTool::Initialize(scene);
+    container_->SetColor(theme_.secondaryColor);
+}
 
 void ZHierarchyTool::Update() {
 

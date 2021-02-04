@@ -20,7 +20,7 @@ uniform mat4 P_lightSpace;
 
 // Grass animation uniforms
 uniform float objectHeight = 1.0;
-uniform float timestamp = 1.0;
+uniform float timestamp = 0.0;
 uniform vec3 windDirection = vec3(1.0, 0.0, 0.0);
 uniform float windStrength = 5.0;
 uniform bool instanced = false;
@@ -39,15 +39,16 @@ void main()
         norm = normalize(norm * objectHeight + translation.xyz);
     }
     mat4 m = (instanced ? instanceM : M);
+    vec4 posWorld = m * pos;
     vec3 T = normalize(mat3(m) * tangent);
     vec3 B = normalize(mat3(m) * bitangent);
     vec3 N = normalize(mat3(m) * norm);
     vs_out.FragNormal = N;
-    vs_out.FragPos = vec3(m * pos);
+    vs_out.FragPos = vec3(posWorld);
     vs_out.FragTBN = mat3(T, B, N);
     vs_out.FragUV = texCoords;
     vs_out.FragPosLightSpace = P_lightSpace * vec4(vs_out.FragPos, 1.0);
-    gl_Position = ViewProjection * m * pos;
+    gl_Position = ViewProjection * posWorld;
 }
 
 vec4 CalculateTranslation(vec4 position, float time, vec3 windDirection, float windStrength)

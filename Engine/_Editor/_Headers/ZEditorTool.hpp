@@ -35,6 +35,7 @@
 // Forward Declarations
 class ZEditorScene;
 class ZUIPanel;
+class ZUIScene;
 
 // Definitions
 class ZEditorTool {
@@ -49,11 +50,16 @@ public:
 
 	virtual void Update() = 0;
 
+	virtual void OnProjectSceneChanged() {}
+
 	std::shared_ptr<ZUIPanel> Container() const { return container_; }
+
+	void SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene);
 	
 protected:
 
-	std::shared_ptr<ZUIPanel> container_;
+	std::shared_ptr<ZScene>                     activeProjectScene_;
+	std::shared_ptr<ZUIPanel>                   container_;
 	std::string name_;
 	ZUITheme theme_;
 	bool visible_;

@@ -153,16 +153,27 @@ void ZGrass::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZR
     auto scene = Scene();
     if (!scene) return;
 
+    auto activeShader = graphicsComp_->ActiveShader();
+    if (!activeShader) activeShader = shader;
+    activeShader->Activate();
+
     time_ += deltaTime;
+    if (scene->PlayState() == ZPlayState::Playing) {
+        activeShader->SetFloat("timestamp", time_);
+    }
+    else {
+        activeShader->SetFloat("timestamp", 0.f);
+    }
+    activeShader->SetFloat("windStrength", windStrength_);
+    activeShader->SetVec3("windDirection", windDirection_);
+
+    graphicsComp_->SetGameLights(scene->GameLights());
+    graphicsComp_->SetGameCamera(scene->ActiveCamera());
+
     for (auto it = polygons_.begin(); it != polygons_.end(); it++)
     {
         graphicsComp_->SetModel(*it);
-        auto shader = graphicsComp_->ActiveShader();
-        shader->Activate();
-        shader->SetFloat("timestamp", time_);
-        shader->SetFloat("windStrength", windStrength_);
-        shader->SetVec3("windDirection", windDirection_);
-        ZGameObject::Render(deltaTime, shader, renderOp);
+        graphicsComp_->Render(deltaTime, activeShader, renderOp);
     }
 }
 

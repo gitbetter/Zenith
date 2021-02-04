@@ -32,6 +32,7 @@
 #include "ZAssetStore.hpp"
 #include "ZRenderer3D.hpp"
 #include "ZRenderer2D.hpp"
+#include "ZFramebuffer.hpp"
 #include "ZGame.hpp"
 #include "ZLight.hpp"
 #include "ZSkybox.hpp"
@@ -57,9 +58,8 @@
 #include "ZWindowResizeEvent.hpp"
 #include "ZStringHelpers.hpp"
 
-ZScene::ZScene(const std::string& name) : name_(name), playState_(ZPlayState::NotStarted)
+ZScene::ZScene(const std::string& name) : name_(name), playState_(ZPlayState::Loading)
 {
-
 }
 
 ZScene::ZScene(std::initializer_list<std::string> zofPaths) : ZScene()
@@ -70,6 +70,7 @@ ZScene::ZScene(std::initializer_list<std::string> zofPaths) : ZScene()
     {
         pendingSceneDefinitions_[path] = true;
     }
+    playState_ = ZPlayState::NotStarted;
 }
 
 void ZScene::Initialize()
@@ -91,12 +92,26 @@ void ZScene::Initialize()
         ZServices::LoadZOF(it->first);
     }
 
-    renderer3D_ = std::make_shared<ZRenderer3D>();
-    renderer2D_ = std::make_shared<ZRenderer2D>();
-
+    SetupRenderers();
     SetupRenderPasses();
 
     ZProcess::Initialize();
+}
+
+void ZScene::SetupRenderers()
+{
+    renderer3D_ = std::make_shared<ZRenderer3D>();
+    renderer2D_ = std::make_shared<ZRenderer2D>();
+    if (gameConfig_.domain.offline) {
+        SetupTargetDrawBuffer();
+    }
+}
+
+void ZScene::SetupTargetDrawBuffer()
+{
+    targetBuffer_ = ZFramebuffer::CreateColor(gameSystems_.domain->Resolution());
+    renderer3D_->SetTarget(targetBuffer_);
+    renderer2D_->SetTarget(targetBuffer_);
 }
 
 void ZScene::SetupRenderPasses()
@@ -134,6 +149,7 @@ void ZScene::SetupRenderPasses()
         );
     renderer3D_->AddPass(postPass);
 
+    canvas_->SetTexture(postPass->Framebuffer()->Attachment());
     ZRenderPass::ptr uiPass = std::make_shared<ZRenderPass>(
         canvas_, gameSystems_.assetStore->UIShader(), ZRenderOp::UI, gameSystems_.domain->Resolution()
         );
@@ -142,12 +158,15 @@ void ZScene::SetupRenderPasses()
 
 void ZScene::Update(double deltaTime)
 {
-    if (playState_ != ZPlayState::NotStarted)
+    if (playState_ == ZPlayState::Playing || playState_ == ZPlayState::Paused)
     {
         UpdateViewProjectionMatrices();
         UpdateLightspaceMatrices();
         renderer3D_->Render(deltaTime);
         renderer2D_->Render(deltaTime);
+    }
+    else if (playState_ == ZPlayState::Loading) {
+        CheckPendingObjects();
     }
 }
 
@@ -165,7 +184,7 @@ void ZScene::Pause()
 
 void ZScene::Stop()
 {
-    playState_ = ZPlayState::NotStarted;
+    playState_ = ZPlayState::Ready;
     gameSystems_.physics->Pause();
 }
 
@@ -250,8 +269,8 @@ void ZScene::CreateUICanvas()
     ZUIElementOptions elementOptions;
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+    elementOptions.color = glm::vec4(1.f);
     canvas_ = ZUIPanel::Create(elementOptions, shared_from_this());
-    canvas_->Hide();
 }
 
 void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately)
@@ -345,9 +364,6 @@ void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element)
     {
         canvas_->AddChild(element);
         uiElements_[element->ID()] = element;
-
-        if (canvas_->Hidden())
-            canvas_->Show();
     }
 }
 
@@ -412,6 +428,13 @@ void ZScene::PopMatrix()
     sceneMutexes_.matrixStack.lock();
     if (!matrixStack_.empty()) matrixStack_.pop_back();
     sceneMutexes_.matrixStack.unlock();
+}
+
+std::shared_ptr<ZTexture> ZScene::TargetTexture()
+{
+    if (targetBuffer_)
+        return targetBuffer_->Attachment();
+    return nullptr;
 }
 
 void ZScene::SetDefaultSkybox()
@@ -484,9 +507,11 @@ void ZScene::UnregisterLoadDelegates()
 
 void ZScene::CheckPendingObjects()
 {
+    std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
     if (pendingSceneObjects_.empty())
     {
         UnregisterLoadDelegates();
+        playState_ = ZPlayState::Ready;
         std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::make_shared<ZSceneReadyEvent>(shared_from_this());
         ZServices::EventAgent()->Queue(sceneReadyEvent);
     }
@@ -511,6 +536,7 @@ void ZScene::HandleZOFReady(const std::shared_ptr<ZResourceLoadedEvent>& event)
         std::shared_ptr<ZZOFResourceExtraData> extraData = std::static_pointer_cast<ZZOFResourceExtraData>(event->Handle()->ExtraData());
         LoadSceneData(extraData->ObjectTree());
         pendingSceneDefinitions_.erase(event->Handle()->Resource().name);
+        playState_ = ZPlayState::Loading;
     }
 
     if (pendingSceneDefinitions_.empty())
@@ -528,7 +554,6 @@ void ZScene::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event
     {
         pendingSceneObjects_.erase(it);
     }
-    CheckPendingObjects();
 }
 
 void ZScene::HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event)
@@ -540,7 +565,6 @@ void ZScene::HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event)
     {
         pendingSceneObjects_.erase(it);
     }
-    CheckPendingObjects();
 }
 
 void ZScene::HandleSkyboxReady(const std::shared_ptr<ZSkyboxReadyEvent>& event)
@@ -552,7 +576,6 @@ void ZScene::HandleSkyboxReady(const std::shared_ptr<ZSkyboxReadyEvent>& event)
     {
         pendingSceneObjects_.erase(it);
     }
-    CheckPendingObjects();
 }
 
 void ZScene::HandleModelReady(const std::shared_ptr<ZModelReadyEvent>& event)
@@ -564,7 +587,6 @@ void ZScene::HandleModelReady(const std::shared_ptr<ZModelReadyEvent>& event)
     {
         pendingSceneObjects_.erase(it);
     }
-    CheckPendingObjects();
 }
 
 void ZScene::HandleObjectDestroyed(const std::shared_ptr<ZObjectDestroyedEvent>& event)

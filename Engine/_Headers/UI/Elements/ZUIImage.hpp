@@ -54,6 +54,7 @@ public:
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     void SetImage(const std::string& path);
+    void SetImage(const std::shared_ptr<ZTexture>& texture);
 
     DECLARE_UI_CREATORS(ZUIImage)
 

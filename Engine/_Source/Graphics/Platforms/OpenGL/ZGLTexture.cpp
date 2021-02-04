@@ -245,6 +245,7 @@ void ZGLTexture::LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferD
 
 void ZGLTexture::LoadDefault()
 {
+    type = "color";
     GLubyte textureData[] = { 255, 255, 255, 255 };
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);

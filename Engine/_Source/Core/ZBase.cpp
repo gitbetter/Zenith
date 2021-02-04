@@ -121,6 +121,11 @@ void ZBase::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
     gameSystems_.assetStore->Initialize();
 }
 
+void ZBase::Configure(const ZGameOptions& options)
+{
+    gameOptions_ = options;
+}
+
 void ZBase::CleanUp()
 {
     gameSystems_.assetStore.reset();

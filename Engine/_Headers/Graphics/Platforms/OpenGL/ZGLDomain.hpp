@@ -62,6 +62,7 @@ public:
     void Close() override;
     bool IsClosing() override;
     void SetWindow(void* window) override;
+    void SetAsCurrent() override;
     void Destroy() override;
     void WindowResize(int width, int height) override;
     void FramebufferResize(int width, int height) override;

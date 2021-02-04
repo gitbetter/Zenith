@@ -216,7 +216,7 @@ void ZUIElement::Draw()
     options_.shader->Activate();
 
     options_.texture->Bind(0);
-    options_.shader->SetInt(options_.texture->type + "0", 0);
+    options_.shader->SetInt(options_.texture->type + "Sampler0", 0);
 
     options_.shader->SetMat4("M", modelMatrix_);
     options_.shader->SetMat4("P", projectionMatrix_);
@@ -508,6 +508,10 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
             );
         }
         element->SetRect(rect, options_.calculatedRect);
+    }
+
+    for (auto it = element->children_.begin(); it != element->children_.end(); it++) {
+        element->LayoutChild(it->second, true);
     }
 }
 

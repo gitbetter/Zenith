@@ -28,6 +28,26 @@
  */
 
 #include "ZSceneTool.hpp"
+#include "ZUIPanel.hpp"
+#include "ZUIImage.hpp"
+#include "ZScene.hpp"
+
+void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+    ZEditorTool::Initialize(scene);
+    ZUIElementOptions displayOptions;
+    displayOptions.positioning = ZPositioning::Relative;
+    displayOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+    displayOptions.color = glm::vec4(1.f);
+    sceneDisplay_ = ZUIImage::Create(displayOptions, scene);
+    container_->AddChild(sceneDisplay_);
+}
+
+void ZSceneTool::OnProjectSceneChanged()
+{
+    if (activeProjectScene_) {
+        sceneDisplay_->SetImage(activeProjectScene_->TargetTexture());
+    }
+}
 
 void ZSceneTool::Update() {
 
