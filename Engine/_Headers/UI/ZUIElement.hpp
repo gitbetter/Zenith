@@ -78,6 +78,7 @@ struct ZUIElementOptions
     bool                                     hidden{ false };
     bool                                     enabled{ true };
     bool                                     selected{ false };
+    bool                                     flipped{ false };
     ZPositioning                             positioning{ ZPositioning::Absolute };
     ZRect                                    calculatedRect{ 0.f, 0.f, 1.f, 1.f };
     float                                    orientation{ 0.f };
@@ -112,6 +113,7 @@ public:
     bool                                Enabled() const { return options_.enabled; }
     bool                                Hidden() const { return  options_.hidden; }
     bool                                Selected() const { return  options_.selected; }
+    bool                                Flipped() const { return options_.flipped; }
     ZPositioning                        Positioning() const { return options_.positioning; }
     glm::vec2                           Position() const { return options_.rect.position; }
     glm::vec2                           Size() const { return options_.rect.size; }
@@ -145,6 +147,7 @@ public:
     void                                SetLayout(const std::shared_ptr<ZUILayout>& layout) { options_.layout = layout; }
     void                                SetParent(std::shared_ptr<ZUIElement> parent) { parent_ = parent; }
     void                                SetScene(const std::shared_ptr<ZScene> scene) { scene_ = scene; }
+    void                                SetFlipped(bool flipped);
 
     void                                ResetModelMatrix() { modelMatrix_ = glm::mat4(1.f); }
     void                                Translate(const glm::vec2& translation);
@@ -167,7 +170,7 @@ public:
     virtual std::shared_ptr<ZMesh2D>    ElementShape();
 
     bool                                TrySelect(const glm::vec3& position);
-    bool                                Contains(const glm::vec3& point);
+    bool                                Contains(const glm::vec2& point);
 
     void                                CleanUp() override;
 

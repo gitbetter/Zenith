@@ -34,7 +34,7 @@ void ZRenderer2D::Render(double deltaTime)
 {
     ZServices::Graphics()->EnableAlphaBlending();
     for (auto pass : passes_) {
-        pass->Perform(deltaTime, target_);
+        pass->Perform(deltaTime, scene_, target_);
     }
     ZServices::Graphics()->DisableAlphaBlending();
 }

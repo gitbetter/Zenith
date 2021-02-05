@@ -79,8 +79,7 @@ void ZGLTexture::LoadHDRIAsync(const std::string& hdriPath)
 
 void ZGLTexture::LoadHDRI(const std::string& hdriPath, std::shared_ptr<ZFramebuffer>& bufferData)
 {
-    ZTexture::ptr hdrTexture = ZTexture::CreateDefault();
-    hdrTexture->Load(hdriPath, "", ZTextureWrapping::EdgeClamp, true, true);
+    ZTexture::ptr hdrTexture = ZTexture::Create(hdriPath, "", ZTextureWrapping::EdgeClamp, true, true);
     LoadCubeMap(hdrTexture, bufferData);
 }
 
@@ -101,13 +100,13 @@ void ZGLTexture::LoadCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZF
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    std::shared_ptr<ZShader> equirectToCubemapShader = std::make_shared<ZShader>("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/equirect_to_cube.frag");
-    equirectToCubemapShader->Initialize();
+    std::shared_ptr<ZShader> equirectToCubemapShader = ZShader::Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/equirect_to_cube.frag");
     equirectToCubemapShader->Activate();
-    equirectToCubemapShader->SetInt("equirectangularMap", 1);
     equirectToCubemapShader->SetMat4("P", captureProjection);
 
     hdrTexture->Bind(1);
+    equirectToCubemapShader->SetInt("equirectangularMap", 1);
+
     bufferData->Bind();
     ZServices::Graphics()->UpdateViewport(glm::vec2(CUBE_MAP_SIZE, CUBE_MAP_SIZE));
     for (unsigned int i = 0; i < 6; i++)
@@ -141,13 +140,13 @@ void ZGLTexture::LoadIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapB
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    std::shared_ptr<ZShader> irradianceShader = std::make_shared<ZShader>("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/irradiance.frag");
-    irradianceShader->Initialize();
+    std::shared_ptr<ZShader> irradianceShader = ZShader::Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/irradiance.frag");
     irradianceShader->Activate();
-    irradianceShader->SetInt("environmentMap", 1);
     irradianceShader->SetMat4("P", captureProjection);
 
     cubemapTexture->Bind(1);
+    irradianceShader->SetInt("environmentMap", 1);
+
     cubemapBufferData->Bind();
     cubemapBufferData->BindRenderbuffer();
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, IRRADIANCE_MAP_SIZE, IRRADIANCE_MAP_SIZE);
@@ -180,14 +179,14 @@ void ZGLTexture::LoadPrefilterCubeMap(const std::shared_ptr<ZFramebuffer>& cubem
     };
 
     std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
-    std::shared_ptr<ZShader> prefilterShader = std::make_shared<ZShader>("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/prefilter_convolution.frag");
-    prefilterShader->Initialize();
+    std::shared_ptr<ZShader> prefilterShader = ZShader::Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/prefilter_convolution.frag");
     prefilterShader->Activate();
-    prefilterShader->SetInt("environmentMap", 1);
     prefilterShader->SetMat4("P", captureProjection);
     prefilterShader->SetFloat("resolution", PREFILTER_MAP_SIZE);
 
     cubemapTexture->Bind(1);
+    prefilterShader->SetInt("environmentMap", 1);
+
     cubemapBufferData->Bind();
 
     unsigned int maxMipLevels = 6;
@@ -225,17 +224,16 @@ void ZGLTexture::LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferD
         ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
     };
     ZBuffer::ptr quadBufferData = ZBuffer::Create(options);
-    ZShader brdfLUTShader("/Shaders/Vertex/brdf_lut.vert", "/Shaders/Pixel/brdf_lut.frag");
-    brdfLUTShader.Initialize();
-    brdfLUTShader.Activate();
+    auto brdfLUTShader = ZShader::Create("/Shaders/Vertex/brdf_lut.vert", "/Shaders/Pixel/brdf_lut.frag");
+    brdfLUTShader->Activate();
 
     cubemapBufferData->Bind();
     cubemapBufferData->BindRenderbuffer();
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, LUT_SIZE, LUT_SIZE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
 
-    ZServices::Graphics()->UpdateViewport(glm::vec2(LUT_SIZE, LUT_SIZE));
     ZServices::Graphics()->ClearViewport();
+    ZServices::Graphics()->UpdateViewport(glm::vec2(LUT_SIZE, LUT_SIZE));
 
     ZServices::Graphics()->Draw(quadBufferData, options);
 

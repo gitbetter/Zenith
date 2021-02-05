@@ -116,7 +116,7 @@ void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustu
 void ZGraphics::DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::vec4& color)
 {
     std::vector<std::pair<glm::vec3, glm::vec3>> linePoints;
-    int numGridLines = 200, gridCellSize = 1;
+    int numGridLines = 400, gridCellSize = 1;
     for (int i = -numGridLines / 2, j = numGridLines / 2; i < j; i += (gridCellSize * 2))
     {
         linePoints.push_back(std::make_pair<glm::vec3, glm::vec3>(glm::vec3(-(float)numGridLines / 2.f, 0.f, (float)i), glm::vec3((float)numGridLines / 2.f, 0.f, (float)i)));

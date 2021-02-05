@@ -32,7 +32,7 @@
 void ZRenderer3D::Render(double deltaTime)
 {
     for (auto pass : passes_) {
-        pass->Perform(deltaTime, target_);
+        pass->Perform(deltaTime, scene_, target_);
     }
 }
 

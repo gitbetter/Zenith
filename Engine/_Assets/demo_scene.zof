@@ -67,12 +67,6 @@ ZLT_01
   :color [2.0, 1.0, 1.0]:
 ^
 
-# Skybox
-
-ZSKY_01
-    :hdr "/Skyboxes/DefaultHDR/sky.hdr":
-^
-
 # Shaders
 
 ZSH_01

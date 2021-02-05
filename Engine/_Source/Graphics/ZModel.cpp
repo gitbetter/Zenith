@@ -96,7 +96,7 @@ void ZModel::InitializeAsync()
 
 void ZModel::Render(const std::shared_ptr<ZShader>& shader)
 {
-    std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::CreateDefault() };
+    std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::Default() };
     Render(shader, materials);
 }
 

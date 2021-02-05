@@ -33,6 +33,7 @@
 #include "ZRenderPass.hpp"
 
 // Forward Declarations
+class ZScene;
 
 // Class and Data Structure Definitions
 class ZRenderer2D
@@ -40,7 +41,7 @@ class ZRenderer2D
 
 public:
 
-    ZRenderer2D() = default;
+    ZRenderer2D(const std::shared_ptr<ZScene>& scene) : scene_(scene) { };
     ~ZRenderer2D() = default;
 
     const std::vector<ZRenderPass::ptr>& Passes() const { return passes_; }
@@ -55,5 +56,6 @@ private:
 
     std::vector<ZRenderPass::ptr> passes_;
     std::shared_ptr<ZFramebuffer> target_ = nullptr;
+    std::shared_ptr<ZScene> scene_ = nullptr;
 
 };

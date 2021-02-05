@@ -70,7 +70,7 @@ void ZUIElement::Initialize() {
     }
 
     if (options_.texture == nullptr) {
-        options_.texture = ZTexture::CreateDefault();
+        options_.texture = ZTexture::Default();
     }
 
     RecalculateProjectionMatrix();
@@ -382,6 +382,12 @@ void ZUIElement::SetOpacity(float opacity, bool relativeToAlpha)
     }
 }
 
+void ZUIElement::SetFlipped(bool flipped)
+{
+    options_.flipped = flipped;
+    RecalculateProjectionMatrix();
+}
+
 void ZUIElement::Translate(const glm::vec2& translation)
 {
     options_.calculatedRect.position += translation;
@@ -434,11 +440,11 @@ bool ZUIElement::TrySelect(const glm::vec3& position)
     return selected;
 }
 
-bool ZUIElement::Contains(const glm::vec3& point)
+bool ZUIElement::Contains(const glm::vec2& point)
 {
-    return point.x >= options_.calculatedRect.position.x - options_.calculatedRect.size.x &&
+    return point.x >= options_.calculatedRect.position.x &&
         point.x <= options_.calculatedRect.position.x + options_.calculatedRect.size.x &&
-        point.y >= options_.calculatedRect.position.y - options_.calculatedRect.size.y &&
+        point.y >= options_.calculatedRect.position.y &&
         point.y <= options_.calculatedRect.position.y + options_.calculatedRect.size.y;
 }
 
@@ -489,7 +495,9 @@ void ZUIElement::RecalculateProjectionMatrix()
 {
     if (auto scene = Scene()) {
         glm::vec2 resolution = scene->Domain()->Resolution();
-        projectionMatrix_ = glm::ortho(0.f, (float)resolution.x, (float)resolution.y, 0.f);
+        projectionMatrix_ = options_.flipped ?
+            glm::ortho(0.f, (float)resolution.x, 0.f, (float)resolution.y) :
+            glm::ortho(0.f, (float)resolution.x, (float)resolution.y, 0.f);
     }
 }
 

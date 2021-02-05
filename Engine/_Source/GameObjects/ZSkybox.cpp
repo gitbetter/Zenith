@@ -65,7 +65,10 @@ void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root)
 void ZSkybox::Initialize()
 {
     ZFramebuffer::ptr cubemapBuffer;
-    ZTexture::ptr cubeMap = ZTexture::CreateHDRI(hdrPath_, cubemapBuffer);
+    ZTexture::ptr cubeMap;
+    if (!hdrPath_.empty()) {
+        cubeMap = ZTexture::CreateHDRI(hdrPath_, cubemapBuffer);
+    }
     Initialize(cubeMap, cubemapBuffer);
 }
 
@@ -80,14 +83,13 @@ void ZSkybox::Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& 
 {
     std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
 
-    std::shared_ptr<ZShader> skyboxShader(new ZShader("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag"));
-    skyboxShader->Initialize();
+    std::shared_ptr<ZShader> skyboxShader = ZShader::Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag");
 
     std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
     skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
 
     std::vector<ZTexture::ptr> textures = { iblTexture_.cubeMap };
-    skyboxGraphicsComponent->AddMaterial(std::make_shared<ZMaterial>(textures));
+    skyboxGraphicsComponent->AddMaterial(ZMaterial::Create(textures));
 
     AddComponent(skyboxGraphicsComponent);
 }

@@ -78,8 +78,9 @@ void ZUIImage::SetImage(const std::string& path)
 {
     if (!path.empty())
     {
+        path_ = path;
         ZServices::EventAgent()->Subscribe(this, &ZUIImage::HandleTextureReady);
-        ZTexture::CreateAsync(path, "");
+        pendingTexture_ = ZTexture::CreateAsync(path, "");
     }
 }
 

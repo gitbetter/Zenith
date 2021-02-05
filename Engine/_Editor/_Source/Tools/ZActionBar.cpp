@@ -28,7 +28,11 @@
  */
 
 #include "ZActionBar.hpp"
+#include "ZServices.hpp"
 #include "ZUIPanel.hpp"
+#include "ZUIButton.hpp"
+#include "ZUIImage.hpp"
+#include "ZCamera.hpp"
 #include "ZEditorScene.hpp"
 #include "ZUIHorizontalLayout.hpp"
 
@@ -36,8 +40,54 @@ void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
     container_->SetColor(theme_.primaryColor);
     container_->SetRect(ZRect(0.f, 0.35f, 1.f, 0.65f));
+
+    ZUIElementOptions listOptions;
+    listOptions.positioning = ZPositioning::Relative;
+    listOptions.rect = ZRect(0.005f, 0.f, 0.2f, 1.0f);
+    ZUILayoutOptions layoutOptions;
+    layoutOptions.itemSpacing = 10.f;
+    layoutOptions.verticalAlign = ZAlignment::Middle;
+    listOptions.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
+    auto actionButtonList = ZUIPanel::Create(listOptions, scene);
+
+    playButton_ = CreateActionButton("/Images/play_icon.png", scene);
+    pauseButton_ = CreateActionButton("/Images/pause_icon.png", scene);
+    stopButton_ = CreateActionButton("/Images/stop_icon.png", scene);
+    actionButtonList->AddChild(playButton_);
+    actionButtonList->AddChild(pauseButton_);
+    actionButtonList->AddChild(stopButton_);
+
+    container_->AddChild(actionButtonList);
 }
 
 void ZActionBar::Update() {
+    if (playButton_->Clicked()) {
+        activeProjectScene_->Play();
+        activeProjectScene_->ActiveCamera()->EnableDefaultLook();
+        activeProjectScene_->ActiveCamera()->EnableDefaultMovement();
+        ZServices::Input()->CaptureCursor();
+    }
+    if (stopButton_->Clicked()) {
+        activeProjectScene_->Stop();
+    }
+    if (pauseButton_->Clicked()) {
+        activeProjectScene_->Pause();
+    }
+}
 
+std::shared_ptr<ZUIButton> ZActionBar::CreateActionButton(const std::string& iconPath, const std::shared_ptr<ZScene>& scene)
+{
+    ZUIElementOptions buttonOptions;
+    buttonOptions.positioning = ZPositioning::Relative;
+    buttonOptions.rect = ZRect(0.f, 0.f, 0.09f, 0.7f);
+    auto button = ZUIButton::Create(buttonOptions, scene);
+    ZUIElementOptions iconOptions;
+    iconOptions.positioning = ZPositioning::Relative;
+    iconOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+    iconOptions.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+    auto icon = ZUIImage::Create(iconOptions, scene);
+    icon->SetImage(iconPath);
+    button->AddChild(icon);
+
+    return button;
 }

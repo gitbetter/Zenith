@@ -38,6 +38,7 @@ void ZEventAgent::Initialize()
 
 bool ZEventAgent::Subscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate, const ZTypeIdentifier& type)
 {
+    std::lock_guard<std::mutex> listenersLock(mutexes_.listeners);
     EventListenerList& listeners = eventListeners_[activeListeners_][type];
     for (auto it = listeners.begin(); it != listeners.end(); it++)
     {
@@ -47,7 +48,6 @@ bool ZEventAgent::Subscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate
             return false;
         }
     }
-
     listeners.emplace_back(eventDelegate);
     return true;
 }
@@ -55,17 +55,21 @@ bool ZEventAgent::Subscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate
 bool ZEventAgent::Unsubscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate, const ZTypeIdentifier& type)
 {
     bool success = false;
-    auto findIt = eventListeners_[activeListeners_].find(type);
-    if (findIt != eventListeners_[activeListeners_].end())
+
     {
-        EventListenerList& listeners = findIt->second;
-        for (auto it = listeners.begin(); it != listeners.end(); it++)
+        std::lock_guard<std::mutex> listenersLock(mutexes_.listeners);
+        auto findIt = eventListeners_[activeListeners_].find(type);
+        if (findIt != eventListeners_[activeListeners_].end())
         {
-            if ((*it) == eventDelegate)
+            EventListenerList& listeners = findIt->second;
+            for (auto it = listeners.begin(); it != listeners.end(); it++)
             {
-                listeners.erase(it);
-                success = true;
-                break;
+                if ((*it) == eventDelegate)
+                {
+                    listeners.erase(it);
+                    success = true;
+                    break;
+                }
             }
         }
     }
@@ -76,15 +80,19 @@ bool ZEventAgent::Unsubscribe(const std::shared_ptr<ZEventDelegate>& eventDelega
 bool ZEventAgent::Trigger(const std::shared_ptr<ZEvent>& event)
 {
     bool processed = false;
-    auto findIt = eventListeners_[activeListeners_].find(event->EventType());
-    if (findIt != eventListeners_[activeListeners_].end())
+
     {
-        const EventListenerList& listeners = findIt->second;
-        for (auto it = listeners.begin(); it != listeners.end(); it++)
+        std::lock_guard<std::mutex> listenersLock(mutexes_.listeners);
+        auto findIt = eventListeners_[activeListeners_].find(event->EventType());
+        if (findIt != eventListeners_[activeListeners_].end())
         {
-            event->SetTimeStamp(SECONDS_TIME);
-            (*it)->operator()(event);
-            processed = true;
+            const EventListenerList& listeners = findIt->second;
+            for (auto it = listeners.begin(); it != listeners.end(); it++)
+            {
+                event->SetTimeStamp(SECONDS_TIME);
+                (*it)->operator()(event);
+                processed = true;
+            }
         }
     }
 
@@ -94,34 +102,43 @@ bool ZEventAgent::Trigger(const std::shared_ptr<ZEvent>& event)
 bool ZEventAgent::Queue(const std::shared_ptr<ZEvent>& event)
 {
     assert(activeQueue_ >= 0 && activeQueue_ < NUM_EVENT_QUEUES);
-    auto findIt = eventListeners_[activeListeners_].find(event->EventType());
-    if (findIt != eventListeners_[activeListeners_].end())
+    bool success = false;
+
     {
-        eventQueues_[activeQueue_].emplace_back(event);
-        return true;
+        std::lock_guard<std::mutex> listenersLock(mutexes_.listeners);
+        auto findIt = eventListeners_[activeListeners_].find(event->EventType());
+        if (findIt != eventListeners_[activeListeners_].end())
+        {
+            eventQueues_[activeQueue_].emplace_back(event);
+            success = true;
+        }
     }
-    return false;
+
+    return success;
 }
 
 bool ZEventAgent::Cancel(const ZTypeIdentifier& eventType, bool allOfType)
 {
     assert(activeQueue_ >= 0 && activeQueue_ < NUM_EVENT_QUEUES);
-
     bool success = false;
-    auto findIt = eventListeners_[activeListeners_].find(eventType);
-    if (findIt != eventListeners_[activeListeners_].end())
+
     {
-        EventQueue eventQueue = eventQueues_[activeQueue_];
-        auto it = eventQueue.begin();
-        while (it != eventQueue.end())
+        std::lock_guard<std::mutex> listenersLock(mutexes_.listeners);
+        auto findIt = eventListeners_[activeListeners_].find(eventType);
+        if (findIt != eventListeners_[activeListeners_].end())
         {
-            auto thisIt = it;
-            ++it;
-            if ((*thisIt)->EventType() == eventType)
+            EventQueue eventQueue = eventQueues_[activeQueue_];
+            auto it = eventQueue.begin();
+            while (it != eventQueue.end())
             {
-                eventQueue.erase(thisIt);
-                success = true;
-                if (!allOfType) break;
+                auto thisIt = it;
+                ++it;
+                if ((*thisIt)->EventType() == eventType)
+                {
+                    eventQueue.erase(thisIt);
+                    success = true;
+                    if (!allOfType) break;
+                }
             }
         }
     }
@@ -185,10 +202,14 @@ void ZEventAgent::Update(double deltaTime)
 
 void ZEventAgent::CleanUp()
 {
-    for (int i = 0; i < NUM_LISTENER_QUEUES; i++)
     {
-        eventListeners_[i].clear();
+        std::lock_guard<std::mutex> listenersLock(mutexes_.listeners);
+        for (int i = 0; i < NUM_LISTENER_QUEUES; i++)
+        {
+            eventListeners_[i].clear();
+        }
     }
+
     scriptableEventAgent_.reset();
 }
 

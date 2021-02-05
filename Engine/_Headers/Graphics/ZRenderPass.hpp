@@ -55,7 +55,7 @@ public:
     virtual ~ZRenderPass() { }
 
     void Initialize();
-    void Perform(double deltaTime, const std::shared_ptr<ZFramebuffer>& target = nullptr);
+    void Perform(double deltaTime, const std::shared_ptr<ZScene>& scene, const std::shared_ptr<ZFramebuffer>& target = nullptr);
 
     std::shared_ptr<ZFramebuffer> Framebuffer() { return framebuffer_; }
 
@@ -75,5 +75,6 @@ protected:
     bool fixedSize_ = false;
 
     void BindDependencies();
+    void PreparePostProcessing(const std::shared_ptr<ZScene>& scene);
 
 };

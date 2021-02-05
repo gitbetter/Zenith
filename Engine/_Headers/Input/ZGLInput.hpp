@@ -54,8 +54,8 @@ public:
     void Initialize() override;
     void Update(double deltaTime) override;
 
-    void GetCursorPosition(double& x, double& y) override;
-    void SetCursorPosition(double& x, double& y) override;
+    glm::vec2 GetCursorPosition() override;
+    void SetCursorPosition(const glm::vec2& position) override;
 
     void PollEvents() override;
     void RefreshContext() override;

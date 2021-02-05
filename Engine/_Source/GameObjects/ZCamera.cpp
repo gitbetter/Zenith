@@ -44,7 +44,6 @@ ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, ZCamer
     yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
     pitchVelocity_ = glm::vec3(0.f);
     yawVelocity_ = glm::vec3(0.f);
-    frustum_ = ZFrustum(zoom_, 1.f, nearClippingPlane_, farClippingPlane_);
     id_ = "ZCAM_" + idGenerator_.Next();
 }
 
@@ -55,6 +54,8 @@ void ZCamera::Initialize()
 
     DisableDefaultMovement();
     DisableDefaultLook();
+
+    frustum_ = ZFrustum(zoom_, 1.f, nearClippingPlane_, farClippingPlane_);
 
     ZGameObject::Initialize();
 }
@@ -205,6 +206,7 @@ void ZCamera::UpdateCameraOrientation()
         yaw_ = glm::quat(yawVelocity_ * (float)currentDeltaTime_);
         SetOrientation(glm::normalize(pitch_ * Orientation() * yaw_));
     }
+    frustum_.Recalculate(Position(), Position() + Front(), Up());
 }
 
 void ZCamera::Move(float z, float x, bool useWorldFront)
