@@ -35,6 +35,7 @@
 // Forward Declarations
 class ZShader;
 class ZTextureReadyEvent;
+class ZTexture;
 
 // Class and Data Structure Definitions
 class ZUIImage : public ZUIElement
@@ -43,6 +44,7 @@ class ZUIImage : public ZUIElement
 private:
 
     std::string path_;
+    std::shared_ptr<ZTexture> pendingTexture_;
 
 public:
 

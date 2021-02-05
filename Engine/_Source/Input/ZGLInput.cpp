@@ -243,16 +243,18 @@ void ZGLInput::Update(double deltaTime)
     lastYaw_ = yaw; lastPitch_ = pitch;
 }
 
-void ZGLInput::GetCursorPosition(double& x, double& y)
+glm::vec2 ZGLInput::GetCursorPosition()
 {
     GLFWwindow* windowHandle = glfwGetCurrentContext();
+    double x, y;
     glfwGetCursorPos(windowHandle, &x, &y);
+    return glm::vec2(x, y);
 }
 
-void ZGLInput::SetCursorPosition(double& x, double& y)
+void ZGLInput::SetCursorPosition(const glm::vec2& position)
 {
     GLFWwindow* windowHandle = glfwGetCurrentContext();
-    glfwSetCursorPos(windowHandle, x, y);
+    glfwSetCursorPos(windowHandle, position.x, position.y);
 }
 
 void ZGLInput::PollEvents()

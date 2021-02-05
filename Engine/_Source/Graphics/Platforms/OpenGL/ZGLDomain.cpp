@@ -149,6 +149,7 @@ void ZGLDomain::SetAsCurrent()
 {
     GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);
     glfwMakeContextCurrent(glWindow);
+    ZServices::Input()->RefreshContext();
 }
 
 void ZGLDomain::Destroy()

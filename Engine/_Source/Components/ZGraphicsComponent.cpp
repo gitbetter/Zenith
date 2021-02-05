@@ -181,11 +181,7 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
     {
         activeShader->Use(gameLights_);
 
-        if (renderOp == ZRenderOp::Post) {
-            activeShader->SetMat4("previousViewProjection", object_->Scene()->PreviousViewProjection());
-            activeShader->SetMat4("inverseViewProjection", glm::inverse(object_->Scene()->ViewProjection()));
-            activeShader->SetBool("useMotionBlur", ZServices::Graphics()->HasMotionBlur());
-        }
+        activeShader->SetBool("useMotionBlur", false);
 
         activeShader->SetMat4("P", projectionMatrix);
         activeShader->SetMat4("V", viewMatrix);

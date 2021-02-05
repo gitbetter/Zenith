@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZUIPanel;
+class ZUIButton;
 
 // Definitions
 class ZActionBar : public ZEditorTool {
@@ -46,5 +47,11 @@ public:
   void Initialize(const std::shared_ptr<ZScene>& scene) override;
 
   void Update() override;
+
+protected:
+
+    std::shared_ptr<ZUIButton> playButton_, pauseButton_, stopButton_;
+
+    std::shared_ptr<ZUIButton> CreateActionButton(const std::string& iconPath, const std::shared_ptr<ZScene>& scene);
 
 };

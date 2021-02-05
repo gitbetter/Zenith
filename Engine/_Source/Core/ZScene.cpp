@@ -100,8 +100,8 @@ void ZScene::Initialize()
 
 void ZScene::SetupRenderers()
 {
-    renderer3D_ = std::make_shared<ZRenderer3D>();
-    renderer2D_ = std::make_shared<ZRenderer2D>();
+    renderer3D_ = std::make_shared<ZRenderer3D>(shared_from_this());
+    renderer2D_ = std::make_shared<ZRenderer2D>(shared_from_this());
     if (gameConfig_.domain.offline) {
         SetupTargetDrawBuffer();
     }
@@ -138,7 +138,7 @@ void ZScene::SetupRenderPasses()
     renderer3D_->AddPass(depthPass);
 
     ZRenderPass::ptr colorPass = std::make_shared<ZRenderPass>(
-        root_, gameSystems_.assetStore->DepthShader(), ZRenderOp::Color, gameSystems_.domain->Resolution(),
+        root_, gameSystems_.assetStore->PBRShader(), ZRenderOp::Color, gameSystems_.domain->Resolution(),
         true, shadowPass, depthPass
         );
     renderer3D_->AddPass(colorPass);
@@ -364,6 +364,9 @@ void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element)
     {
         canvas_->AddChild(element);
         uiElements_[element->ID()] = element;
+
+        if (canvas_->Texture() != ZTexture::Default())
+            canvas_->SetTexture(ZTexture::Default());
     }
 }
 

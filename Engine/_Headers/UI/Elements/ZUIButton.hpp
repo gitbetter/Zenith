@@ -48,6 +48,14 @@ public:
     void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
+    bool Clicked();
+    bool Pressed();
+    bool Released();
+
     DECLARE_UI_CREATORS(ZUIButton)
+
+protected:
+
+    bool activated_ = false;
 
 };

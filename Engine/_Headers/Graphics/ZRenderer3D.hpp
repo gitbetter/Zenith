@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZFramebuffer;
+class ZScene;
 
 // Class and Data Structure Definitions
 class ZRenderer3D
@@ -41,7 +42,7 @@ class ZRenderer3D
 
 public:
 
-    ZRenderer3D() = default;
+    ZRenderer3D(const std::shared_ptr<ZScene>& scene) : scene_(scene) { };
     ~ZRenderer3D() = default;
 
     const std::vector<ZRenderPass::ptr>& Passes() const { return passes_; }
@@ -56,5 +57,6 @@ private:
 
     std::vector<ZRenderPass::ptr> passes_;
     std::shared_ptr<ZFramebuffer> target_ = nullptr;
+    std::shared_ptr<ZScene> scene_ = nullptr;
 
 };

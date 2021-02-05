@@ -94,6 +94,8 @@ public:
     static ptr CreatePrefilterMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture);
     static ptr CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferData);
 
+    static ptr Default();
+
 private:
 
     static std::map<std::string, ZTextureWrapping> pendingTextureWrappings_;

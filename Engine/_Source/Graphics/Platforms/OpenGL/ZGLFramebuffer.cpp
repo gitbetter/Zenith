@@ -94,7 +94,7 @@ void ZGLFramebuffer::LoadCubeMap()
 
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
     glBindRenderbuffer(GL_RENDERBUFFER, rboId_);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, CUBE_MAP_SIZE, CUBE_MAP_SIZE);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size_.x, size_.y);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboId_);
 }
 

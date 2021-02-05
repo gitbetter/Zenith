@@ -66,15 +66,6 @@ class ZEventAgent : public ZProcess
     typedef std::map<ZTypeIdentifier, EventListenerList> EventListenerMap;
     typedef std::list<std::shared_ptr<ZEvent>> EventQueue;
 
-private:
-
-    std::unique_ptr<ZScriptableEventAgent> scriptableEventAgent_;
-
-    EventListenerMap eventListeners_[NUM_LISTENER_QUEUES];
-    EventQueue eventQueues_[NUM_EVENT_QUEUES];
-    int activeQueue_, activeListeners_;
-    float updateTimeoutMax_;
-
 public:
 
     ZEventAgent() : activeQueue_(0), activeListeners_(0), updateTimeoutMax_(UPDATE_STEP_SIZE * 2.f) {}
@@ -132,5 +123,18 @@ public:
     ZScriptableEventAgent* Scriptable() const { return scriptableEventAgent_.get(); }
 
     void CleanUp() override;
+
+private:
+
+    std::unique_ptr<ZScriptableEventAgent> scriptableEventAgent_;
+
+    EventListenerMap eventListeners_[NUM_LISTENER_QUEUES];
+    EventQueue eventQueues_[NUM_EVENT_QUEUES];
+    int activeQueue_, activeListeners_;
+    float updateTimeoutMax_;
+
+    struct {
+        std::mutex listeners;
+    } mutexes_;
 
 };

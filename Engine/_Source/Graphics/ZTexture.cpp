@@ -291,6 +291,12 @@ ZTexture::ptr ZTexture::CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubem
     return texture;
 }
 
+ZTexture::ptr ZTexture::Default()
+{
+    static ZTexture::ptr defaultTexture = CreateDefault();
+    return defaultTexture;
+}
+
 void ZTexture::HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
 {
     if (!event->Handle()) return;

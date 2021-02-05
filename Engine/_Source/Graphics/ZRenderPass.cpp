@@ -32,6 +32,7 @@
 #include "ZFramebuffer.hpp"
 #include "ZShader.hpp"
 #include "ZMesh2D.hpp"
+#include "ZScene.hpp"
 #include "ZRenderable.hpp"
 
 ZRenderPass::ZRenderPass(const std::shared_ptr<ZRenderable>& root, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp,
@@ -60,7 +61,7 @@ void ZRenderPass::Initialize()
     }
 }
 
-void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZFramebuffer>& target)
+void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene, const std::shared_ptr<ZFramebuffer>& target)
 {
     if (!root_->Renderable()) return;
 
@@ -88,6 +89,7 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZFramebuffer>&
     BindDependencies();
 
     if (renderOp_ == ZRenderOp::Post) {
+        PreparePostProcessing(scene);
         screenQuad_->Render(shader_);
     }
     else {
@@ -131,4 +133,11 @@ void ZRenderPass::BindDependencies()
         }
         ++index;
     }
+}
+
+void ZRenderPass::PreparePostProcessing(const std::shared_ptr<ZScene>& scene)
+{
+    shader_->SetMat4("previousViewProjection", scene->PreviousViewProjection());
+    shader_->SetMat4("inverseViewProjection", glm::inverse(scene->ViewProjection()));
+    shader_->SetBool("useMotionBlur", ZServices::Graphics()->HasMotionBlur());
 }

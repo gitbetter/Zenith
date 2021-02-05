@@ -33,6 +33,7 @@
 #include "ZAssetStore.hpp"
 #include "ZDevResourceFile.hpp"
 #include "ZSceneReadyEvent.hpp"
+#include "ZSkybox.hpp"
 
 void ZEditor::Setup() {
     ZGame::Setup();
@@ -56,7 +57,6 @@ void ZEditor::CreateDefaultProject()
     options.domain.windowSize.y = 1080;
     options.domain.maximized = false;
     options.domain.offline = true;
-    options.graphics.drawCameraDebug = true;
     options.graphics.drawGrid = true;
     options.graphics.drawPhysicsDebug = true;
     project_->Initialize(options);
@@ -77,7 +77,7 @@ void ZEditor::HandleSceneLoaded(const std::shared_ptr<ZSceneReadyEvent>& event)
 
     if (scene)
     {
-        scene->Play();
+        scene->Pause();
     }
 }
 
