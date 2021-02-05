@@ -2,9 +2,9 @@
 
 Zenith is an extensible, **C++ based game engine** replete with **PBR**, built in **UI functionality**, **Lua scripting** and a **custom object format (.zof)**. The project is currently under development so none of these features are guaranteed to be stable yet. There are many other features and additions that I will implement as time passes. Keep reading to get started.
 
-### WIP
+### Current Status
 
-![Short Zenith Demo](zenith.gif)
+![Short Zenith Demo](zenith_editor.gif)
 
 ## Requirements
 
@@ -35,4 +35,4 @@ Take a look at the **[Zenith Wiki](https://github.com/gitbetter/Zenith/wiki)** f
 Zenith is available under the GNU General Public License, and therefore anyone is free to fork the project and modify it to their hearts content as long as they maintain attributions to the original author of the project.
 
 ## Contributing
-If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master, as it is easier for me to integrate changes selectively if need be. If you have any inquiries or particularly nice ideas, feel free to contact me at adrian@pervasivesense.com
+If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master, as it is easier for me to integrate changes selectively if need be. If you have any inquiries or particularly nice ideas, feel free to contact me via [my Twitter](https://twitter.com/AdrianS43153229)
