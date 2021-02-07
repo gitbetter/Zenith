@@ -100,6 +100,8 @@ void ZGame::Loop()
     while (Running())
     {
         Tick();
+
+        ZServices::Input()->PollEvents();
     }
 }
 
@@ -114,12 +116,11 @@ void ZGame::Tick()
 
     ZServices::ProcessRunner()->UpdateTick(deltaTime_);
 
-    Domain()->SwapBuffers();
-
-    ZServices::Input()->PollEvents();
-
     if (onUpdateTickCallback_)
         onUpdateTickCallback_();
+
+    if (!gameOptions_.domain.offline)
+        Domain()->SwapBuffers();
 }
 
 bool ZGame::Running()

@@ -39,15 +39,6 @@ struct GLFWwindow;
 class ZGLDomain : public ZDomain
 {
 
-private:
-
-    std::function<void(int, int)> windowResizedCallback_;
-    std::function<void(int, int)> framebufferResizedCallback_;
-
-    static void GLFWErrorCallback(int id, const char* description);
-    static void FrameBufferSizeCallback(GLFWwindow* window, int height, int width);
-    static void WindowSizeCallback(GLFWwindow* window, int height, int width);
-
 public:
 
     ZGLDomain(const ZDomainOptions& options) : ZDomain(options) {}
@@ -58,20 +49,25 @@ public:
     void Initialize() override;
     void SwapBuffers() override;
     void ResizeWindow(int width, int height) override;
-    void ResizeFramebuffer(int width, int height) override { };
+    void ResizeFramebuffer(int width, int height) override;
     void Close() override;
     bool IsClosing() override;
     void SetWindow(void* window) override;
     void SetAsCurrent() override;
     void Destroy() override;
-    void WindowResize(int width, int height) override;
-    void FramebufferResize(int width, int height) override;
     void OnWindowResized(const std::function<void(int, int)>& callback) override;
     void OnFramebufferResized(const std::function<void(int, int)>& callback) override;
     void CleanUp() override;
 
 protected:
 
+    std::function<void(int, int)> windowResizedCallback_;
+    std::function<void(int, int)> framebufferResizedCallback_;
+
     void CreateWindow(int width, int height, bool maximized = true, bool visible = true, void* sharedContext = nullptr) override;
+
+    static void GLFWErrorCallback(int id, const char* description);
+    static void FrameBufferSizeCallback(GLFWwindow* window, int height, int width);
+    static void WindowSizeCallback(GLFWwindow* window, int height, int width);
 
 };

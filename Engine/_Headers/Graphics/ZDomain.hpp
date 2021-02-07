@@ -62,8 +62,6 @@ public:
     virtual void SetWindow(void* window) = 0;
     virtual void SetAsCurrent() = 0;
     virtual void Destroy() = 0;
-    virtual void WindowResize(int width, int height) = 0;
-    virtual void FramebufferResize(int width, int height) = 0;
     virtual void OnWindowResized(const std::function<void(int, int)>& callback) = 0;
     virtual void OnFramebufferResized(const std::function<void(int, int)>& callback) = 0;
     virtual void CleanUp() = 0;

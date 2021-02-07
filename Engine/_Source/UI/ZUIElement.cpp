@@ -485,7 +485,11 @@ void ZUIElement::ClampToBounds()
 
 void ZUIElement::RecalculateModelMatrix()
 {
-    glm::mat4 scale = glm::scale(glm::mat4(1.f), glm::vec3(options_.calculatedRect.size * 0.5f, 0.f));
+    // By default we want to draw with the top left as (0, 0), so we use an identity vector to flip since openGL coordinates
+    // begin at the bottom left and by default textures must be flipped to orient correctly. This might
+    // do better as a global vector that changes based on the graphics implementation
+    glm::vec3 flipVector = options_.flipped ? glm::vec3(1.f) : glm::vec3(1.f, -1.f, 1.f);
+    glm::mat4 scale = glm::scale(glm::mat4(1.f), glm::vec3(options_.calculatedRect.size * 0.5f, 0.f) * flipVector);
     glm::mat4 rotate = glm::rotate(glm::mat4(1.f), options_.orientation, glm::vec3(0.f, 0.f, 1.f));
     glm::mat4 translate = glm::translate(glm::mat4(1.f), glm::vec3(options_.calculatedRect.position + options_.calculatedRect.size * 0.5f, 0.f));
     modelMatrix_ = translate * rotate * scale;
@@ -495,9 +499,7 @@ void ZUIElement::RecalculateProjectionMatrix()
 {
     if (auto scene = Scene()) {
         glm::vec2 resolution = scene->Domain()->Resolution();
-        projectionMatrix_ = options_.flipped ?
-            glm::ortho(0.f, (float)resolution.x, 0.f, (float)resolution.y) :
-            glm::ortho(0.f, (float)resolution.x, (float)resolution.y, 0.f);
+        projectionMatrix_ = glm::ortho(0.f, (float)resolution.x, (float)resolution.y, 0.f, -1.f, 1.f);
     }
 }
 

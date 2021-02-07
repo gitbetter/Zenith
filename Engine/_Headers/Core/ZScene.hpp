@@ -40,7 +40,7 @@ class ZCamera;
 class ZUIElement;
 class ZRenderer3D;
 class ZRenderer2D;
-class ZUIPanel;
+class ZUICanvas;
 class ZRaycastEvent;
 class ZFramebuffer;
 class ZObjectDestroyedEvent;
@@ -159,7 +159,7 @@ protected:
     // TODO: Create a light manager class to handle the scene lights
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
     std::shared_ptr<ZGameObject> root_ = nullptr;
-    std::shared_ptr<ZUIPanel> canvas_ = nullptr;
+    std::shared_ptr<ZUICanvas> canvas_ = nullptr;
     std::shared_ptr<ZCamera> activeCamera_ = nullptr;
     std::shared_ptr<ZCamera> primaryCamera_ = nullptr;
 

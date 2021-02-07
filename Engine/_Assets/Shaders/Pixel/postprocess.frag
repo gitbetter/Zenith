@@ -8,7 +8,7 @@ uniform mat4 previousViewProjection;
 uniform mat4 inverseViewProjection;
 uniform sampler2D colorSampler0;
 uniform sampler2D depthSampler0;
-uniform bool useMotionBlur;
+uniform bool useMotionBlur = false;
 
 const int NUM_VELOCITY_SAMPLES = 8;
 

@@ -57,9 +57,9 @@ void ZGLGraphics::Initialize()
     drawingStylesMap_[ZMeshDrawStyle::Quads] = GL_QUADS;
 }
 
-void ZGLGraphics::ClearViewport()
+void ZGLGraphics::ClearViewport(const glm::vec4& clearColor)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glStencilMask(0x00);
 }

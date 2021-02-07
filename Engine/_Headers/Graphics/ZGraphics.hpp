@@ -54,7 +54,7 @@ public:
 
     // Platform Graphics
     virtual void Initialize() = 0;
-    virtual void ClearViewport() = 0; 
+    virtual void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f)) = 0;
     virtual void UpdateViewport(const glm::vec2& size, const glm::vec2& position = glm::vec2(0.f)) = 0;
     virtual void EnableStencilTesting() = 0;
     virtual void EnableDepthTesting() = 0;

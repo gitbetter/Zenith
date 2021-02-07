@@ -496,11 +496,12 @@ struct ZDomainOptions
 
 struct ZGraphicsOptions
 {
-    bool hasPBR = true;
-    bool hasMotionBlur = false;
-    bool drawPhysicsDebug = false;
-    bool drawCameraDebug = false;
-    bool drawGrid = false;
+    glm::vec4 clearColor{ 0.f, 0.f, 0.f, 1.f };
+    bool hasPBR{ true };
+    bool hasMotionBlur{ false };
+    bool drawPhysicsDebug{ false };
+    bool drawCameraDebug{ false };
+    bool drawGrid{ false };
 };
 
 struct ZGameOptions

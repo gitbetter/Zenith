@@ -75,7 +75,7 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
         framebuffer_->Bind();
     }
 
-    ZServices::Graphics()->ClearViewport();
+    ZServices::Graphics()->ClearViewport(scene->GameConfig().graphics.clearColor);
     ZServices::Graphics()->UpdateViewport(size_);
 
     if (renderOp_ == ZRenderOp::Depth || renderOp_ == ZRenderOp::Shadow) {
@@ -106,7 +106,7 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
 
     // TODO: Use a better method to determine when to blit the current renderpass
     // framebuffer onto the default framebuffer
-    if (renderOp_ == ZRenderOp::UI) {
+    if (renderOp_ == ZRenderOp::UI || renderOp_ == ZRenderOp::Post) {
         framebuffer_->Blit(target);
     }
 }
@@ -137,7 +137,8 @@ void ZRenderPass::BindDependencies()
 
 void ZRenderPass::PreparePostProcessing(const std::shared_ptr<ZScene>& scene)
 {
+    bool useMotionBlur = ZServices::Graphics()->HasMotionBlur();
     shader_->SetMat4("previousViewProjection", scene->PreviousViewProjection());
     shader_->SetMat4("inverseViewProjection", glm::inverse(scene->ViewProjection()));
-    shader_->SetBool("useMotionBlur", ZServices::Graphics()->HasMotionBlur());
+    shader_->SetBool("useMotionBlur", useMotionBlur);
 }

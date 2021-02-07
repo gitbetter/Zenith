@@ -40,7 +40,7 @@
 #include "ZPhysicsUniverse.hpp"
 #include "ZDomain.hpp"
 #include "ZUIText.hpp"
-#include "ZUIPanel.hpp"
+#include "ZUICanvas.hpp"
 #include "ZUIElement.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
@@ -270,7 +270,7 @@ void ZScene::CreateUICanvas()
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     elementOptions.color = glm::vec4(1.f);
-    canvas_ = ZUIPanel::Create(elementOptions, shared_from_this());
+    canvas_ = ZUICanvas::Create(elementOptions, shared_from_this());
 }
 
 void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately)
@@ -365,8 +365,9 @@ void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element)
         canvas_->AddChild(element);
         uiElements_[element->ID()] = element;
 
-        if (canvas_->Texture() != ZTexture::Default())
+        if (canvas_->Texture() != ZTexture::Default()) {
             canvas_->SetTexture(ZTexture::Default());
+        }
     }
 }
 
@@ -496,7 +497,8 @@ void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree)
         }
     }
 
-    if (!hasSkybox) SetDefaultSkybox();
+    if (!hasSkybox && gameConfig_.graphics.clearColor == glm::vec4(0.f, 0.f, 0.f, 1.f))
+        SetDefaultSkybox();
 }
 
 void ZScene::UnregisterLoadDelegates()
@@ -650,7 +652,7 @@ void ZScene::CleanUp()
 
     skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;
 
-    ZServices::Graphics()->ClearViewport();
+    ZServices::Graphics()->ClearViewport(gameConfig_.graphics.clearColor);
 }
 
 void ZScene::Finish()

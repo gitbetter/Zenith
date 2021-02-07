@@ -181,8 +181,6 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
     {
         activeShader->Use(gameLights_);
 
-        activeShader->SetBool("useMotionBlur", false);
-
         activeShader->SetMat4("P", projectionMatrix);
         activeShader->SetMat4("V", viewMatrix);
         activeShader->SetMat4("M", modelMatrix);

@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMesh2D.cpp
+    ZUICanvas.hpp
 
-    Created by Adrian Sanchez on 06/02/2019.
+    Created by Adrian Sanchez on 05/02/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,38 +27,26 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZServices.hpp"
-#include "ZMesh2D.hpp"
-#include "ZShader.hpp"
+#include "ZUICanvas.hpp"
 
-void ZMesh2D::Initialize()
+ZUICanvas::ZUICanvas(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
-    bufferData_ = ZBuffer::Create(vertexData_);
+    type_ = ZUIElementType::Button;
 }
 
-void ZMesh2D::Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material)
+ZUICanvas::ZUICanvas(const ZUIElementOptions& options) : ZUIElement(options)
 {
-    if (material)
-    {
-        shader->Use(material);
-    }
-    if (vertexData_.instanced.count > 1)
-    {
-        shader->SetBool("instanced", true);
-    }
-    ZServices::Graphics()->Draw(bufferData_, vertexData_, ZMeshDrawStyle::TriangleFan);
+    type_ = ZUIElementType::Button;
 }
 
-std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad()
+void ZUICanvas::Initialize()
 {
-    ZVertex2DDataOptions options;
-    options.vertices = std::vector<ZVertex2D>{
-        ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f)),
-        ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f)),
-        ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
-        ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f))
-    };
-    std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(options);
-    mesh->Initialize();
-    return mesh;
+    ZUIElement::Initialize();
 }
+
+void ZUICanvas::Initialize(const std::shared_ptr<ZOFNode>& root)
+{
+    ZUIElement::Initialize(root);
+}
+
+DEFINE_UI_CREATORS(ZUICanvas)

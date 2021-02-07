@@ -120,6 +120,13 @@ void ZGLDomain::ResizeWindow(int width, int height)
     glfwSetWindowSize(glWindow, width, height);
 }
 
+void ZGLDomain::ResizeFramebuffer(int width, int height)
+{
+    if (framebufferResizedCallback_) {
+        framebufferResizedCallback_(width, height);
+    }
+}
+
 glm::vec2 ZGLDomain::FramebufferSize()
 {
     GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);
@@ -174,20 +181,6 @@ void ZGLDomain::CleanUp()
     Destroy();
 }
 
-void ZGLDomain::WindowResize(int width, int height)
-{
-    if (windowResizedCallback_) {
-        windowResizedCallback_(width, height);
-    }
-}
-
-void ZGLDomain::FramebufferResize(int width, int height)
-{
-    if (framebufferResizedCallback_) {
-        framebufferResizedCallback_(width, height);
-    }
-}
-
 void ZGLDomain::GLFWErrorCallback(int id, const char* description)
 {
     LOG(description, ZSeverity::Error);
@@ -195,17 +188,19 @@ void ZGLDomain::GLFWErrorCallback(int id, const char* description)
 
 void ZGLDomain::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    ZDomain* domainStrategyPtr = static_cast<ZDomain*>(glfwGetWindowUserPointer(window));
-    if (domainStrategyPtr) {
-        domainStrategyPtr->FramebufferResize(width, height);
+    ZGLDomain* domainPtr = static_cast<ZGLDomain*>(glfwGetWindowUserPointer(window));
+    if (domainPtr) {
+        if (domainPtr->framebufferResizedCallback_)
+            domainPtr->framebufferResizedCallback_(width, height);
     }
     glViewport(0, 0, width, height);
 }
 
 void ZGLDomain::WindowSizeCallback(GLFWwindow* window, int height, int width)
 {
-    ZDomain* domainStrategyPtr = static_cast<ZDomain*>(glfwGetWindowUserPointer(window));
-    if (domainStrategyPtr) {
-        domainStrategyPtr->WindowResize(width, height);
+    ZGLDomain* domainPtr = static_cast<ZGLDomain*>(glfwGetWindowUserPointer(window));
+    if (domainPtr) {
+        if (domainPtr->windowResizedCallback_)
+            domainPtr->windowResizedCallback_(width, height);
     }
 }

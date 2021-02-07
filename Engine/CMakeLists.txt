@@ -22,6 +22,7 @@ ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIListPanel.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIPanel.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIImage.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIButton.cpp
+${ENGINE_SOURCE_DIR}/UI/Elements/ZUICanvas.cpp
 ${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIHorizontalLayout.cpp
 ${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIVerticalLayout.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptManager.cpp
@@ -235,6 +236,7 @@ ${ENGINE_HEADERS_DIR}/Scripting/ZScriptExports.hpp
 ${ENGINE_HEADERS_DIR}/Scripting/ZScriptManager.hpp
 ${ENGINE_HEADERS_DIR}/UI/ZUILayout.hpp
 ${ENGINE_HEADERS_DIR}/UI/ZUIElement.hpp
+${ENGINE_HEADERS_DIR}/UI/Elements/ZUICanvas.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIButton.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUICheckBox.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIImage.hpp
