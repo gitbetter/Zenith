@@ -1,7 +1,7 @@
 #version 450 core
 
-const int MAX_LOCAL_LIGHTS = 25;
-const int MAX_MATERIALS = 25;
+const int MAX_LOCAL_LIGHTS = 4;
+const int MAX_MATERIALS = 4;
 
 const float PI = 3.14159265359;
 

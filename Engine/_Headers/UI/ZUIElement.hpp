@@ -80,6 +80,7 @@ struct ZUIElementOptions
     bool                                     selected{ false };
     bool                                     flipped{ false };
     ZPositioning                             positioning{ ZPositioning::Absolute };
+    ZPositioning                             scaling{ ZPositioning::Absolute };
     ZRect                                    calculatedRect{ 0.f, 0.f, 1.f, 1.f };
     float                                    orientation{ 0.f };
     ZRect                                    rect{ 0.f, 0.f, 0.f, 0.f };
@@ -115,6 +116,7 @@ public:
     bool                                Selected() const { return  options_.selected; }
     bool                                Flipped() const { return options_.flipped; }
     ZPositioning                        Positioning() const { return options_.positioning; }
+    ZPositioning                        Scaling() const { return options_.scaling; }
     glm::vec2                           Position() const { return options_.rect.position; }
     glm::vec2                           Size() const { return options_.rect.size; }
     ZRect                               Rect() const { return options_.rect; }
@@ -134,6 +136,7 @@ public:
     std::shared_ptr<ZScene>             Scene() const;
 
     void                                SetPositioning(const ZPositioning& positioning) { options_.positioning = positioning; }
+    void                                SetScaling(const ZPositioning& scaling) { options_.scaling = scaling; }
     void                                SetRect(const ZRect& rect, const ZRect& relativeTo = ZRect());
     void                                SetSize(const glm::vec2& size, const ZRect& relativeTo = ZRect());
     void                                SetPosition(const glm::vec2& position, const ZRect& relativeTo = ZRect());

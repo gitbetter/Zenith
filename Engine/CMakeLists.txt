@@ -23,6 +23,7 @@ ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIPanel.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIImage.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIButton.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUICanvas.cpp
+${ENGINE_SOURCE_DIR}/UI/Elements/ZUIInputField.cpp
 ${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIHorizontalLayout.cpp
 ${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIVerticalLayout.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptManager.cpp
@@ -243,6 +244,7 @@ ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIImage.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIText.hpp
+${ENGINE_HEADERS_DIR}/UI/Elements/ZUIInputField.hpp
 ${ENGINE_HEADERS_DIR}/UI/Layouts/ZUIHorizontalLayout.hpp
 ${ENGINE_HEADERS_DIR}/UI/Layouts/ZUIVerticalLayout.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZUIHelpers.hpp

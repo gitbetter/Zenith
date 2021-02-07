@@ -1,7 +1,7 @@
 #version 450 core
 
-const int MAX_LOCAL_LIGHTS = 25;
-const int MAX_MATERIALS = 25;
+const int MAX_LOCAL_LIGHTS = 4;
+const int MAX_MATERIALS = 4;
 
 out vec4 FragColor;
 
@@ -38,20 +38,18 @@ struct Material {
   float shininess;
 };
 
-uniform bool isTextured;
-
-uniform sampler2D shadowSampler0;
-uniform samplerCube irradianceMap;
-uniform samplerCube prefilterMap;
-uniform sampler2D brdfLUT;
-uniform sampler2D albedo;
-
-uniform vec3 viewPosition;
-uniform int materialIndex;  // Single index across the fragments of a single mesh
-
 uniform unsigned int lightCount = 0;
 uniform Light lights[MAX_LOCAL_LIGHTS];
 uniform Material materials[MAX_MATERIALS];
+
+uniform vec3 viewPosition;
+uniform int materialIndex;
+
+uniform bool isTextured;
+
+uniform sampler2D shadowSampler0;
+uniform sampler2D albedo;
+
 
 // TODO: Consider SSBOs for a varying number of lights
 
@@ -60,6 +58,8 @@ float CalculateShadow(vec4 lightSpacePosition);
 void main() {
   vec3 scatteredLight = vec3(0.0);
   vec3 reflectedLight = vec3(0.0);
+
+  vec3 norm = normalize(fs_in.FragNormal);
 
   // Regular Blinn-Phong over multiple lights, if present and enabled
   for (int i = 0; i < lightCount; i++) {
@@ -84,9 +84,8 @@ void main() {
       }
     }
 
-    float diffuse = max(0.0, dot(fs_in.FragNormal, lightDirection));
-    float specular = max(0.0, dot(fs_in.FragNormal, halfVector));
-    specular = (diffuse == 0.0) ? 0.0 : pow(specular, materials[materialIndex].shininess);
+    float diffuse = max(0.0, dot(norm, lightDirection));
+    float specular = pow(max(0.0, dot(norm, halfVector)), materials[materialIndex].shininess);
 
     scatteredLight += lights[i].ambient * materials[materialIndex].ambient * attenunation +
                       lights[i].color * materials[materialIndex].diffuse * diffuse * attenunation;

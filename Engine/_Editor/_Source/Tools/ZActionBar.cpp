@@ -43,6 +43,7 @@ void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
 
     ZUIElementOptions listOptions;
     listOptions.positioning = ZPositioning::Relative;
+    listOptions.scaling = ZPositioning::Relative;
     listOptions.rect = ZRect(0.005f, 0.f, 0.2f, 1.0f);
     ZUILayoutOptions layoutOptions;
     layoutOptions.itemSpacing = 10.f;
@@ -79,10 +80,11 @@ std::shared_ptr<ZUIButton> ZActionBar::CreateActionButton(const std::string& ico
 {
     ZUIElementOptions buttonOptions;
     buttonOptions.positioning = ZPositioning::Relative;
-    buttonOptions.rect = ZRect(0.f, 0.f, 0.09f, 0.7f);
+    buttonOptions.rect = ZRect(0.f, 0.f, 30.0f, 30.0f);
     auto button = ZUIButton::Create(buttonOptions, scene);
     ZUIElementOptions iconOptions;
     iconOptions.positioning = ZPositioning::Relative;
+    iconOptions.scaling = ZPositioning::Relative;
     iconOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     iconOptions.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
     auto icon = ZUIImage::Create(iconOptions, scene);

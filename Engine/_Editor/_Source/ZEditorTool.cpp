@@ -34,6 +34,7 @@
 void ZEditorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
 	ZUIElementOptions elementOptions;
 	elementOptions.positioning = ZPositioning::Relative;
+	elementOptions.scaling = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
 	container_ = ZUIPanel::Create(elementOptions, scene);
 }

@@ -79,6 +79,7 @@ std::shared_ptr<ZCamera> ZEditorScene::CreateCamera() {
 std::shared_ptr<ZUIPanel> ZEditorScene::CreateVerticalRegion(const ZRect& rect, std::shared_ptr<ZUIPanel> parent) {
     ZUIElementOptions elementOptions;
     elementOptions.positioning = ZPositioning::Relative;
+    elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = rect;
     elementOptions.layout = std::make_shared<ZUIVerticalLayout>();
     std::shared_ptr<ZUIPanel> panel = ZUIPanel::Create(elementOptions, shared_from_this());
@@ -91,6 +92,7 @@ std::shared_ptr<ZUIPanel> ZEditorScene::CreateVerticalRegion(const ZRect& rect, 
 std::shared_ptr<ZUIPanel> ZEditorScene::CreateHorizontalRegion(const ZRect& rect, std::shared_ptr<ZUIPanel> parent) {
     ZUIElementOptions elementOptions;
     elementOptions.positioning = ZPositioning::Relative;
+    elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = rect;
     elementOptions.layout = std::make_shared<ZUIHorizontalLayout>();
     std::shared_ptr<ZUIPanel> panel = ZUIPanel::Create(elementOptions, shared_from_this());
@@ -127,6 +129,7 @@ void ZEditorScene::SetupLayoutPanels() {
     ZUIElementOptions elementOptions;
 
     elementOptions.positioning = ZPositioning::Relative;
+    elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.0f, 0.07f);
     topPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
@@ -141,6 +144,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions = ZUIElementOptions();
 
     elementOptions.positioning = ZPositioning::Relative;
+    elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.2f, 1.f);
     leftPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
@@ -159,6 +163,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions = ZUIElementOptions();
 
     elementOptions.positioning = ZPositioning::Relative;
+    elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.7f, 1.0f);
     centerPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
@@ -169,6 +174,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions = ZUIElementOptions();
 
     elementOptions.positioning = ZPositioning::Relative;
+    elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.3f, 1.0f);
     rightPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
@@ -179,6 +185,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions = ZUIElementOptions();
 
     elementOptions.positioning = ZPositioning::Relative;
+    elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.0f, .25f);
     bottomPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 

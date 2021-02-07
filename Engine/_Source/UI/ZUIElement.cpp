@@ -104,6 +104,12 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
         options_.positioning = positioningProp->value == "Relative" ? ZPositioning::Relative : ZPositioning::Absolute;
     }
 
+    if (props.find("scaling") != props.end() && props["scaling"]->HasValues())
+    {
+        std::shared_ptr<ZOFString> scalingProp = props["scaling"]->Value<ZOFString>(0);
+        options_.scaling = scalingProp->value == "Relative" ? ZPositioning::Relative : ZPositioning::Absolute;
+    }
+
     if (props.find("scale") != props.end() && props["scale"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
@@ -319,7 +325,7 @@ void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
     auto scene = Scene();
     if (!scene) return;
 
-    if (options_.positioning == ZPositioning::Relative) {
+    if (options_.scaling == ZPositioning::Relative) {
         options_.rect.size = size;
         options_.calculatedRect.size = ZUIHelpers::RelativeToAbsoluteCoords(
             size,
@@ -511,9 +517,15 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
     if (options_.layout) {
         ZRect rect = options_.layout->GetRect(element->ID(), element->CalculatedRect().size, force);
         if (element->Positioning() == ZPositioning::Relative) {
-            rect = ZUIHelpers::AbsoluteToRelativeRect(
-                rect,
-                options_.calculatedRect == ZRect(0.f) ? ZRect(glm::vec2(0.f), scene->Domain()->Resolution()) : options_.calculatedRect
+            rect.position = ZUIHelpers::AbsoluteToRelativeCoords(
+                rect.position,
+                options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : options_.calculatedRect.size
+            );
+        }
+        if (element->Scaling() == ZPositioning::Relative) {
+            rect.size = ZUIHelpers::AbsoluteToRelativeCoords(
+                rect.size,
+                options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : options_.calculatedRect.size
             );
         }
         element->SetRect(rect, options_.calculatedRect);

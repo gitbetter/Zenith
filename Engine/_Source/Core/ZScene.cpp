@@ -268,6 +268,7 @@ void ZScene::CreateUICanvas()
 {
     ZUIElementOptions elementOptions;
     elementOptions.positioning = ZPositioning::Relative;
+    elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     elementOptions.color = glm::vec4(1.f);
     canvas_ = ZUICanvas::Create(elementOptions, shared_from_this());
@@ -525,7 +526,9 @@ void ZScene::CheckPendingObjects()
 void ZScene::HandleWindowResize(const std::shared_ptr<ZWindowResizeEvent>& event)
 {
     glm::vec2 newResolution = gameSystems_.domain->Resolution();
-    targetBuffer_->Resize(newResolution.x, newResolution.y);
+    if (targetBuffer_) {
+        targetBuffer_->Resize(newResolution.x, newResolution.y);
+    }
     for (auto pass : renderer3D_->Passes()) {
         pass->SetSize(newResolution);
     }
