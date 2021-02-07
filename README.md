@@ -34,7 +34,7 @@ Make sure that you have met the requirements above. There is currently no way to
 Take a look at the **[Zenith Wiki](https://github.com/gitbetter/Zenith/wiki)** for more info, but keep in mind that it is not an authoritative API reference. To that end, perusing the headers and source files is a much better idea. In case you're wondering why the project size is so large, most if it resides in the Assets directory, which contains some hefty demo textures, but they are by no means required for the engine to run properly, and you are free to play with your own assets if you have any laying around. Stay tuned for more developments.
 
 ## License
-Zenith is available under the GNU General Public License, and therefore anyone is free to fork the project and modify it to their hearts content as long as they maintain attributions to the original author of the project.
+Zenith is available under the MIT License, and therefore anyone is free to fork the project and modify it to their hearts content as long as they maintain attributions to the original author of the project.
 
 ## Contributing
 If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master, as it is easier for me to integrate changes selectively if need be. If you have any inquiries or particularly nice ideas, feel free to contact me via [my Twitter](https://twitter.com/AdrianS43153229)
