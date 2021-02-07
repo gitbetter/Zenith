@@ -76,12 +76,12 @@ void ZGraphics::DrawText(const std::shared_ptr<ZBuffer>& bufferData, const glm::
 
         if (w == 0 || h == 0) continue;
 
-        options.vertices.push_back(ZVertex2D(glm::vec2(xpos, ypos), glm::vec2(character.xOffset, 0)));
-        options.vertices.push_back(ZVertex2D(glm::vec2(xpos + w, ypos), glm::vec2(character.xOffset + character.bitmapSize.x / font->Atlas().width, 0)));
-        options.vertices.push_back(ZVertex2D(glm::vec2(xpos, ypos + h), glm::vec2(character.xOffset, character.bitmapSize.y / font->Atlas().height)));
-        options.vertices.push_back(ZVertex2D(glm::vec2(xpos + w, ypos), glm::vec2(character.xOffset + character.bitmapSize.x / font->Atlas().width, 0)));
-        options.vertices.push_back(ZVertex2D(glm::vec2(xpos, ypos + h), glm::vec2(character.xOffset, character.bitmapSize.y / font->Atlas().height)));
-        options.vertices.push_back(ZVertex2D(glm::vec2(xpos + w, ypos + h), glm::vec2(character.xOffset + character.bitmapSize.x / font->Atlas().width, character.bitmapSize.y / font->Atlas().height)));
+        options.vertices.push_back(ZVertex2D(xpos, ypos, character.xOffset, 0));
+        options.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / font->Atlas().width, 0));
+        options.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / font->Atlas().height));
+        options.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / font->Atlas().width, 0));
+        options.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / font->Atlas().height));
+        options.vertices.push_back(ZVertex2D(xpos + w, ypos + h, character.xOffset + character.bitmapSize.x / font->Atlas().width, character.bitmapSize.y / font->Atlas().height));
     }
 
     bufferData->Update(options);
@@ -134,7 +134,7 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
 {
     if (!scene) return;
 
-    auto VPMatrix = scene->ViewProjection();
+    const auto& VPMatrix = scene->ViewProjection();
     auto debugShader = scene->AssetStore()->DebugShader();
 
     debugShader->Activate();

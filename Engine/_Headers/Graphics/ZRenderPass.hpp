@@ -68,7 +68,7 @@ protected:
     std::shared_ptr<ZShader> shader_;
     glm::vec2 size_;
     std::shared_ptr<ZFramebuffer> framebuffer_, multisampledFramebuffer_;
-    std::shared_ptr<ZMesh2D> screenQuad_;
+    std::shared_ptr<ZMesh2D> screenTri_;
     std::vector<ZRenderPass::ptr> dependencies_;
     ZRenderOp renderOp_;
     bool multisample_ = false;

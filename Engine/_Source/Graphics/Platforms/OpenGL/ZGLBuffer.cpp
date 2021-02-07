@@ -141,30 +141,26 @@ void ZGLBuffer::Load(const ZVertex2DDataOptions& options)
     }
 
     // Vertex position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*)0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*)0);
     glEnableVertexAttribArray(0);
-
-    // Vertex texture coordinates attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ZVertex2D), (void*)offsetof(ZVertex2D, uv));
-    glEnableVertexAttribArray(1);
 
     // Instanced translation data
     glBindBuffer(GL_ARRAY_BUFFER, ivbo_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * options.instanced.count, options.instanced.translations.empty() ? NULL : &options.instanced.translations[0], GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-    glEnableVertexAttribArray(5);
 
+    glVertexAttribDivisor(1, 1);
     glVertexAttribDivisor(2, 1);
     glVertexAttribDivisor(3, 1);
     glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -174,7 +170,7 @@ void ZGLBuffer::Update(const ZVertex3DDataOptions& vertexData)
 {
     glBindVertexArray(vao_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-    glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(ZVertex3D), &vertexData.vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(ZVertex3D), &vertexData.vertices[0], GL_DYNAMIC_DRAW);
     if (vertexData.instanced.count > 1)
     {
         glBindBuffer(GL_ARRAY_BUFFER, ivbo_);

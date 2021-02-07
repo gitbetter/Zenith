@@ -48,14 +48,14 @@
 
 ZIDSequence ZUIElement::idGenerator_("ZUI");
 
-ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f)
+ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f), projectionMatrix_(1.f)
 {
     id_ = "ZUI_" + idGenerator_.Next();
     type_ = ZUIElementType::Unknown;
     SetPosition(position); SetSize(scale);
 }
 
-ZUIElement::ZUIElement(const ZUIElementOptions& options) : modelMatrix_(1.f) {
+ZUIElement::ZUIElement(const ZUIElementOptions& options) : modelMatrix_(1.f), projectionMatrix_(1.f) {
     id_ = "ZUI_" + idGenerator_.Next();
     type_ = ZUIElementType::Unknown;
     options_ = options;
@@ -73,8 +73,8 @@ void ZUIElement::Initialize() {
         options_.texture = ZTexture::Default();
     }
 
-    RecalculateProjectionMatrix();
     SetRect(options_.rect);
+    RecalculateProjectionMatrix();
 
     ZServices::EventAgent()->Subscribe(this, &ZUIElement::OnWindowResized);
 }
@@ -192,7 +192,6 @@ void ZUIElement::Render(double deltaTime, const std::shared_ptr<ZShader>& shader
 {
     // Only render the top level elements that are not hidden. The children will
     // be rendered within the respective parent elements.
-    // TODO: Also only render if the child has the dirty flag set
     if (options_.hidden) return;
 
     if (options_.shader == nullptr) {

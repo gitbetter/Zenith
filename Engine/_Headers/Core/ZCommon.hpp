@@ -448,10 +448,11 @@ struct ZVertex3D
 
 struct ZVertex2D
 {
-    glm::vec2 position;
-    glm::vec2 uv;
+    glm::vec4 vertex;
 
-    ZVertex2D(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& uv = glm::vec2(0.f)) : position(position), uv(uv) {}
+    ZVertex2D(float x = 0.f, float y = 0.f, float u = 0.f, float v = 0.f)
+        : vertex(x, y, u, v)
+    {}
 };
 
 struct ZCharacter

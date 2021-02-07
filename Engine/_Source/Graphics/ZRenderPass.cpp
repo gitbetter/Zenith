@@ -44,7 +44,7 @@ void ZRenderPass::Initialize()
 {
     switch (renderOp_) {
     case ZRenderOp::Post:
-        screenQuad_ = ZMesh2D::NewQuad();
+        screenTri_ = ZMesh2D::NewScreenTriangle();
     case ZRenderOp::UI:
     case ZRenderOp::Color:
         if (multisample_)
@@ -90,7 +90,7 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
 
     if (renderOp_ == ZRenderOp::Post) {
         PreparePostProcessing(scene);
-        screenQuad_->Render(shader_);
+        screenTri_->Render(shader_);
     }
     else {
         root_->Render(deltaTime, shader_, renderOp_);
@@ -107,6 +107,7 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
     // TODO: Use a better method to determine when to blit the current renderpass
     // framebuffer onto the default framebuffer
     if (renderOp_ == ZRenderOp::UI || renderOp_ == ZRenderOp::Post) {
+        if (target) target->Resize(size_.x, size_.y);
         framebuffer_->Blit(target);
     }
 }

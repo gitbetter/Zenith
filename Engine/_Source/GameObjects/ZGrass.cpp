@@ -65,9 +65,9 @@ void ZGrass::Initialize()
     {
         for (unsigned int j = 0; j < length; j++)
         {
-            auto x = -(length * 0.25f) + i * 0.5f + (-2 + std::rand() % 4);
-            auto z = -(length * 0.25f) + j * 0.5f + (-2 + std::rand() % 4);
-            auto translation = glm::vec3(x, 1.5f, z);
+            auto x = -(length * 0.75f) + i + (-2 + std::rand() % 4);
+            auto z = -(length * 0.75f) + j + (-2 + std::rand() % 4);
+            auto translation = Position() + glm::vec3(x, 1.5f, z);
             auto scale = Scale();
             for (unsigned int k = 0; k < cPolygonCount; k++)
             {

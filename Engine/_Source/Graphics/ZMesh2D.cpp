@@ -46,17 +46,30 @@ void ZMesh2D::Render(const std::shared_ptr<ZShader>& shader, const std::shared_p
     {
         shader->SetBool("instanced", true);
     }
-    ZServices::Graphics()->Draw(bufferData_, vertexData_, ZMeshDrawStyle::TriangleFan);
+    ZServices::Graphics()->Draw(bufferData_, vertexData_, drawStyle_);
 }
 
 std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad()
 {
     ZVertex2DDataOptions options;
     options.vertices = std::vector<ZVertex2D>{
-        ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f)),
-        ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f)),
-        ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
-        ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f))
+        ZVertex2D(-1.f, 1.f, 0.f, 1.f),
+        ZVertex2D(-1.f, -1.f, 0.f, 0.f),
+        ZVertex2D(1.f, -1.f, 1.f, 0.f),
+        ZVertex2D(1.f, 1.f, 1.f, 1.f)
+    };
+    std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(options, ZMeshDrawStyle::TriangleFan);
+    mesh->Initialize();
+    return mesh;
+}
+
+std::shared_ptr<ZMesh2D> ZMesh2D::NewScreenTriangle()
+{
+    ZVertex2DDataOptions options;
+    options.vertices = std::vector<ZVertex2D>{
+        ZVertex2D(-1.f, -1.f, 0.f, 0.f),
+        ZVertex2D(3.f, -1.f, 2.f, 0.f),
+        ZVertex2D(-1.f, 3.f, 0.f, 2.f)
     };
     std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(options);
     mesh->Initialize();

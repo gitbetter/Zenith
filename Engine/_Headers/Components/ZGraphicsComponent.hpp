@@ -43,10 +43,10 @@ public:
     void ClearOutline();
 
     void SetGameLights(const ZLightMap& lights) { gameLights_ = lights; }
-    void SetGameCamera(std::shared_ptr<ZCamera> camera) { gameCamera_ = camera; }
-    void SetModel(std::shared_ptr<ZModel> model);
+    void SetGameCamera(const std::shared_ptr<ZCamera>& camera) { gameCamera_ = camera; }
+    void SetModel(const std::shared_ptr<ZModel>& model);
 
-    void AddMaterial(std::shared_ptr<ZMaterial> material);
+    void AddMaterial(const std::shared_ptr<ZMaterial>& material);
 
 protected:
 

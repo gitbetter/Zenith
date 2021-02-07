@@ -218,10 +218,10 @@ void ZGLTexture::LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferD
 
     ZVertex2DDataOptions options;
     options.vertices = std::vector<ZVertex2D>{
-        ZVertex2D(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f)),
-        ZVertex2D(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 0.f)),
-        ZVertex2D(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f)),
-        ZVertex2D(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f)),
+        ZVertex2D(-1.f, 1.f, 0.f, 1.f),
+        ZVertex2D(-1.f, -1.f, 0.f, 0.f),
+        ZVertex2D(1.f, 1.f, 1.f, 1.f),
+        ZVertex2D(1.f, -1.f, 1.f, 0.f),
     };
     ZBuffer::ptr quadBufferData = ZBuffer::Create(options);
     auto brdfLUTShader = ZShader::Create("/Shaders/Vertex/brdf_lut.vert", "/Shaders/Pixel/brdf_lut.frag");

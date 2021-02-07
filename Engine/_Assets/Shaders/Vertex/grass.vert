@@ -54,8 +54,7 @@ void main()
 vec4 CalculateTranslation(vec4 position, float time, vec3 windDirection, float windStrength)
 {
     vec3 windTranslation = windDirection * windStrength;
-    vec4 pos = vec4(position.xyz + windTranslation * sin(time * rand(vec2(instanceM[3][0], instanceM[3][2]))), 1.0);
-    return pos;
+    return vec4(position.xyz + windTranslation * sin(time * rand(vec2(instanceM[3][0], instanceM[3][2]))), 1.0);
 }
 
 float rand(vec2 co)

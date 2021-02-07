@@ -44,7 +44,7 @@ void ZEditor::Setup() {
 
     ZServices::EventAgent()->Subscribe(this, &ZEditor::HandleSceneLoaded);
 
-    CreateDefaultProject();
+    CreateDefaultProject(); // for testing
 
 	editorScene_ = ZScene::LoadIn<ZEditorScene>(shared_from_this());
 }

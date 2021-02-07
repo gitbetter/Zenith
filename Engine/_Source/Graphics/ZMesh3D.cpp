@@ -54,23 +54,19 @@ void ZMesh3D::Initialize()
 void ZMesh3D::Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material)
 {
     shader->Use(material);
-    auto data = vertexData_;
     auto materialProps = material->Properties();
     if (materialProps.tiling > 1)
     {
-        for (auto it = data.vertices.begin(); it != data.vertices.end(); it++)
+        for (auto it = vertexData_.vertices.begin(); it != vertexData_.vertices.end(); it++)
         {
             it->uv *= materialProps.tiling;
         }
         materialProps.tiling = 1.f;
         material->SetProperties(materialProps);
-        bufferData_->Update(data);
+        bufferData_->Update(vertexData_);
     }
-    if (vertexData_.instanced.count > 1)
-    {
-        shader->SetBool("instanced", true);
-    }
-    ZServices::Graphics()->Draw(bufferData_, data, drawStyle_);
+    shader->SetBool("instanced", vertexData_.instanced.count > 1);
+    ZServices::Graphics()->Draw(bufferData_, vertexData_, drawStyle_);
 }
 
 void ZMesh3D::SetInstanceData(const ZInstancedDataOptions& data)

@@ -43,7 +43,9 @@ private:
 public:
 
     ZMesh2D() {}
-    ZMesh2D(const ZVertex2DDataOptions& vertexData) : vertexData_(vertexData) {}
+    ZMesh2D(const ZVertex2DDataOptions& vertexData, const ZMeshDrawStyle& drawStyle = ZMeshDrawStyle::Triangle)
+        : ZMesh(drawStyle), vertexData_(vertexData)
+    { }
     ~ZMesh2D() {}
 
     void Initialize() override;
@@ -53,8 +55,10 @@ public:
     std::vector<ZVertex2D> Vertices() const { return vertexData_.vertices; }
 
     static std::shared_ptr<ZMesh2D> NewQuad();
+    static std::shared_ptr<ZMesh2D> NewScreenTriangle();
 
 protected:
 
     ZVertex2DDataOptions vertexData_;
+
 };

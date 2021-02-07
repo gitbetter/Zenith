@@ -141,11 +141,6 @@ void ZCamera::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, Z
 {
     lastDeltaTime_ = currentDeltaTime_;
     currentDeltaTime_ = deltaTime;
-    frameMix_ = glm::clamp(
-        glm::abs(currentDeltaTime_ - lastDeltaTime_),
-        0.0,
-        1.0
-    );
 
     UpdateCameraOrientation();
 
@@ -219,7 +214,6 @@ void ZCamera::Move(float z, float x, bool useWorldFront)
     {
         zoom_ += zoomSpeed_ * z * velocity;
     }
-    frustum_.Recalculate(Position(), Position() + Front(), Up());
 }
 
 void ZCamera::HandleMove(const std::shared_ptr<ZMoveEvent>& event)
@@ -242,7 +236,6 @@ void ZCamera::Look(float pitch, float yaw)
         yaw_ = glm::angleAxis(glm::radians(yaw * lookSensitivity_), glm::vec3(0.f, 1.f, 0.f));
         SetOrientation(glm::normalize(pitch_ * Orientation() * yaw_));
     }
-    frustum_.Recalculate(Position(), Position() + Front(), Up());
 }
 
 void ZCamera::HandleLook(const std::shared_ptr<ZLookEvent>& event)
@@ -280,8 +273,6 @@ glm::mat4 ZCamera::ProjectionMatrix()
 
 glm::mat4 ZCamera::ViewMatrix()
 {
-    //glm::vec3 interpolatedFront = PreviousFront() * (1.f - frameMix_) + Front() * frameMix_;
-    //glm::vec3 interpolatedUp = PreviousUp() * (1.f - frameMix_) + Up() * frameMix_;
     return glm::lookAt(Position(), Position() + Front(), Up());
 }
 

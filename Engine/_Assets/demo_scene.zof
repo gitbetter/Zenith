@@ -39,11 +39,11 @@ ZGO_12
     AnimatorComponent ^
 ^
 ZGR_MEADOW
-	:position [0.0, 0.0, 0.0]:
-	:scale [1.0, 1.0, 1.0]:
+	:position [35.0, 0.0, 40.0]:
+	:scale [1.2, 1.2, 1.2]:
 	:texture ZTEX_GRASS:
 	:shader ZSH_01:
-	:instances 10000.0:
+	:instances 30000.0:
 	:spacingStyle Random:
 	:windDirection [1.0, 0.0, 0.0]:
 	:windStrength 1.5:

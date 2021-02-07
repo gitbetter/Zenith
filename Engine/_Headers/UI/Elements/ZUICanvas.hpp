@@ -49,6 +49,8 @@ public:
 
     bool                                Renderable() override { return !options_.hidden && !children_.empty(); }
 
+    std::shared_ptr<ZMesh2D>            ElementShape() override;
+
     DECLARE_UI_CREATORS(ZUICanvas)
 
 };

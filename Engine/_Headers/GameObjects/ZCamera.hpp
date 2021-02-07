@@ -105,7 +105,6 @@ private:
 
     double currentDeltaTime_ = 0.0;
     double lastDeltaTime_ = 0.0;
-    float frameMix_ = 0.f;
 
     void HandleMove(const std::shared_ptr<ZMoveEvent>& event);
     void HandleLook(const std::shared_ptr<ZLookEvent>& event);

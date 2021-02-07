@@ -49,4 +49,10 @@ void ZUICanvas::Initialize(const std::shared_ptr<ZOFNode>& root)
     ZUIElement::Initialize(root);
 }
 
+std::shared_ptr<ZMesh2D> ZUICanvas::ElementShape()
+{
+    static std::shared_ptr<ZMesh2D> mesh = ZMesh2D::NewScreenTriangle();
+    return mesh;
+}
+
 DEFINE_UI_CREATORS(ZUICanvas)

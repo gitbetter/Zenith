@@ -42,6 +42,9 @@ class ZMesh : public ZProcess
 
 public:
 
+    ZMesh(const ZMeshDrawStyle& drawStyle = ZMeshDrawStyle::Triangle)
+        : drawStyle_(drawStyle)
+    { }
     virtual ~ZMesh() {}
 
     virtual void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material) = 0;

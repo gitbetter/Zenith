@@ -264,7 +264,7 @@ const std::vector<std::shared_ptr<ZMaterial>>& ZGraphicsComponent::Materials()
     return materials_;
 }
 
-void ZGraphicsComponent::AddMaterial(std::shared_ptr<ZMaterial> material)
+void ZGraphicsComponent::AddMaterial(const std::shared_ptr<ZMaterial>& material)
 {
     if (!material) return;
     materials_.push_back(material);
@@ -285,7 +285,7 @@ void ZGraphicsComponent::SetOutline(const glm::vec4& color)
     highlightColor_ = color;
 }
 
-void ZGraphicsComponent::SetModel(std::shared_ptr<ZModel> model)
+void ZGraphicsComponent::SetModel(const std::shared_ptr<ZModel>& model)
 {
     modelObject_ = model;
     instanceData_ = modelObject_->InstanceData();
