@@ -59,10 +59,11 @@ void ZGLFont::Load(const std::shared_ptr<ZResourceHandle>& handle, unsigned int 
 			continue;
 		}
 
-		atlas_.width += face->glyph->bitmap.width;
+		atlas_.width += face->glyph->bitmap.width + 3; // Add an extra few pixels to avoid sampling pixels from previous glyph
 		atlas_.height = std::max(atlas_.height, face->glyph->bitmap.rows);
 	}
 
+	atlas_.texture = ZTexture::Create();
 	atlas_.texture->type = "atlas";
 	atlas_.texture->path = fileName;
 
@@ -92,12 +93,12 @@ void ZGLFont::Load(const std::shared_ptr<ZResourceHandle>& handle, unsigned int 
 		character.bitmapSize.y = face->glyph->bitmap.rows;
 		character.bitmapPos.x = face->glyph->bitmap_left;
 		character.bitmapPos.y = face->glyph->bitmap_top;
-		character.xOffset = (float)x / atlas_.width;
+		character.xOffset = (double)x / atlas_.width;
 		atlas_.characterInfo[c] = character;
 
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, face->glyph->bitmap.width, face->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 
-		x += face->glyph->bitmap.width;
+		x += face->glyph->bitmap.width + 3; // Add an extra few pixels to avoid sampling pixels from previous glyph
 	}
 
 	FT_Done_Face(face);

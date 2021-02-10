@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZInput.cpp
+    ZInputKeyEvent.cpp
 
-    Created by Adrian Sanchez on 28/01/2019.
-    Copyright Â© 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 02/08/2021.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,25 +27,35 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZInput.hpp"
-#include "ZServices.hpp"
-#include "ZInputButtonEvent.hpp"
-#include "ZInputKeyEvent.hpp"
+#pragma once
 
-void ZInput::SetKey(const ZKey& key, bool pressed)
+// Includes
+#include "ZEvent.hpp"
+
+// Forward Declarations
+
+// Class and Data Structure Definitions
+class ZInputKeyEvent : public ZEvent
 {
-    prevKeyPress_[key] = keyPress_[key];
-    keyPress_[key] = pressed;
 
-    auto keyEvent = std::make_shared<ZInputKeyEvent>(key, pressed);
-    ZServices::EventAgent()->Trigger(keyEvent);
-}
+public:
 
-void ZInput::SetMouse(const ZMouse& mouse, bool pressed)
-{
-    prevMousePress_[mouse] = mousePress_[mouse];
-    mousePress_[mouse] = pressed;
+    static const ZTypeIdentifier Type;
 
-    auto buttonEvent = std::make_shared<ZInputButtonEvent>(mouse, pressed);
-    ZServices::EventAgent()->Trigger(buttonEvent);
-}
+    explicit ZInputKeyEvent(const ZKey& key, bool pressed) : key_(key), pressed_(pressed) {}
+    explicit ZInputKeyEvent(std::istringstream& in) {}
+
+    const ZTypeIdentifier& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZInputKeyEvent>(new ZInputKeyEvent(key_, pressed_)); }
+    void Serialize(std::ostringstream& out) const override {}
+    std::string Name() const override { return "ZInputKeyEvent"; }
+
+    const ZKey& Key() const { return key_; }
+    bool Pressed() const { return pressed_; }
+
+protected:
+
+    ZKey key_;
+    bool pressed_;
+
+};

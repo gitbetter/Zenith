@@ -78,6 +78,7 @@ public:
 
     static void Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);
     static void CreateAsync(std::shared_ptr<ZOFTree> data, ZTextureIDMap& outPendingTextures);
+    static ptr Create();
     static ptr Create(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
     static ptr Create(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
     static ptr CreateAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);

@@ -28,11 +28,20 @@
  */
 
 #include "ZInspectorTool.hpp"
+#include "ZUIInputField.hpp"
 #include "ZUIPanel.hpp"
 
 void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
     container_->SetColor(theme_.secondaryColor);
+    ZUIElementOptions fieldOptions;
+    fieldOptions.positioning = ZPositioning::Relative;
+    fieldOptions.scaling = ZPositioning::Relative;
+    fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
+    fieldOptions.maxSize = glm::vec2(0.f, 30.f);
+    auto inputField = ZUIInputField::Create(fieldOptions, scene);
+    container_->AddChild(inputField);
+    inputField->SetLabel("Name");
 }
 
 void ZInspectorTool::Update() {

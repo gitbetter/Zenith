@@ -82,8 +82,9 @@ struct ZUIElementOptions
     ZPositioning                             positioning{ ZPositioning::Absolute };
     ZPositioning                             scaling{ ZPositioning::Absolute };
     ZRect                                    calculatedRect{ 0.f, 0.f, 1.f, 1.f };
-    float                                    orientation{ 0.f };
     ZRect                                    rect{ 0.f, 0.f, 0.f, 0.f };
+    float                                    orientation{ 0.f };
+    glm::vec2                                maxSize{ 0.f, 0.f };
     glm::vec4                                translationBounds{ 0.f, 1.f, 0.f, 1.f };
     glm::vec4                                color{ 0.0f };
     float                                    opacity{ 1.f };
@@ -216,12 +217,16 @@ protected:
     virtual void                        Draw();
     virtual void                        PostRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color);
 
+    void                                LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force = false);
+
+    virtual void                        OnRectChanged() { };
+
 private:
 
+    void                                ClampToMaxSize();
     void                                ClampToBounds();
     void                                RecalculateModelMatrix();
     void                                RecalculateProjectionMatrix();
-    void                                LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force = false);
     void                                OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event);
 
 };

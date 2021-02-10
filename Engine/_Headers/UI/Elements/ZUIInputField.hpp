@@ -33,6 +33,10 @@
 #include "ZUIElement.hpp"
 
 // Forward Declarations
+class ZUIPanel;
+class ZUIText;
+class ZInputKeyEvent;
+class ZInputButtonEvent;
 
 // Class and Data Structure Definitions
 class ZUIInputField : public ZUIElement
@@ -42,17 +46,43 @@ class ZUIInputField : public ZUIElement
 
 public:
 
-    ZUIInputField(const std::string& placeholder = "", const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.1f));
-    ZUIInputField(const ZUIElementOptions& options, const std::string& placeholder = "");
+    ZUIInputField(const std::string& label = "", const std::string& placeholder = "", const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.1f));
+    ZUIInputField(const ZUIElementOptions& options, const std::string& label = "", const std::string& placeholder = "");
     ~ZUIInputField() {}
 
     void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+
+    const std::string& Placeholder() const { return placeholder_; }
+    const std::string& Label() const { return label_; }
+    const std::string& Text() const { return text_; }
+    bool Focused() const { return focused_; }
+
+    void SetPlaceholder(const std::string& placeholder) { placeholder_ = placeholder; }
+    void SetLabel(const std::string& label);
+    void SetText(const std::string& text);
+    void SetFocused(bool focused);
 
     DECLARE_UI_CREATORS(ZUIInputField)
 
 protected:
 
     std::string placeholder_;
+    std::string label_;
+    std::string text_;
+    bool focused_ = false;
+
+    std::shared_ptr<ZUIPanel> field_;
+    std::shared_ptr<ZUIText> fieldText_;
+    std::shared_ptr<ZUIText> labelText_;
+
+    void CreateField();
+    void CreateLabelField(const std::string& text);
+    void DestroyLabelField();
+
+    void ProcessKey(const ZKey& key);
+
+    void HandleKeyPressed(const std::shared_ptr<ZInputKeyEvent>& event);
+    void HandleButtonPressed(const std::shared_ptr<ZInputButtonEvent>& event);
 
 };

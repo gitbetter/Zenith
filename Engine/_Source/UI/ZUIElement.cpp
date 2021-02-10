@@ -230,15 +230,11 @@ void ZUIElement::Draw()
     options_.shader->SetFloat("borderWidth", 0.f);
     options_.shader->SetFloat("borderRadius", options_.border.radius);
     options_.shader->SetVec2("resolution", options_.calculatedRect.size);
-    options_.shader->SetFloat("aspectRatio", 1.f);
 
     if (options_.border.width > 0.f)
     {
-        float borderWidth = options_.border.width / glm::length(options_.calculatedRect.size);
-        float aspect = options_.rect.size.y / options_.rect.size.x;
         options_.shader->SetVec4("borderColor", options_.border.color);
-        options_.shader->SetFloat("borderWidth", borderWidth);
-        options_.shader->SetFloat("aspectRatio", aspect);
+        options_.shader->SetFloat("borderWidth", options_.border.width);
     }
 
     mesh->Render(options_.shader);
@@ -318,6 +314,7 @@ void ZUIElement::SetRect(const ZRect& rect, const ZRect& relativeTo)
     if (options_.layout) {
         options_.layout->SetDimensions(options_.calculatedRect);
     }
+    OnRectChanged();
 }
 
 void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
@@ -336,6 +333,7 @@ void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
         options_.rect.size = size;
         options_.calculatedRect.size = options_.rect.size;
     }
+    ClampToMaxSize();
     RecalculateModelMatrix();
 }
 
@@ -420,6 +418,7 @@ void ZUIElement::Scale(const glm::vec2& factor)
 {
     options_.rect.size *= factor;
     options_.calculatedRect.size *= factor;
+    ClampToMaxSize();
     RecalculateModelMatrix();
 }
 
@@ -466,6 +465,18 @@ void ZUIElement::CleanUp()
     {
         it->second->CleanUp();
         RemoveChild(it->second);
+    }
+}
+
+void ZUIElement::ClampToMaxSize()
+{
+    if (options_.maxSize.x > 0) {
+        options_.calculatedRect.size.x =
+            glm::clamp(options_.calculatedRect.size.x, 0.f, options_.maxSize.x);
+    }
+    if (options_.maxSize.y > 0) {
+        options_.calculatedRect.size.y =
+            glm::clamp(options_.calculatedRect.size.y, 0.f, options_.maxSize.y);
     }
 }
 
@@ -545,10 +556,8 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& even
         SetRect(options_.rect, parent ? parent->options_.calculatedRect : ZRect());
     }
 
-    if (options_.layout) {
-        for (auto it = children_.begin(); it != children_.end(); it++) {
-            LayoutChild(it->second, true);
-        }
+    for (auto it = children_.begin(); it != children_.end(); it++) {
+        LayoutChild(it->second, true);
     }
 }
 

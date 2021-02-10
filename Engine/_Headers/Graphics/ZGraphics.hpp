@@ -75,12 +75,11 @@ public:
     virtual void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
     virtual void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
 
-    void DrawText(const std::shared_ptr<ZBuffer>& bufferData, const glm::vec2& position, const std::string& text, const std::shared_ptr<ZFont>& font, float fontScale = 1.f, float lineSpacing = 1.f, float maxWrap = 0.f);
     void DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustum, const glm::vec4& color);
     void DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::vec4& color);
     void DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::vec3& from, const glm::vec3& to, const glm::vec4& color);
 
-    // Vertex3D
+    // TODO: Move this into the Vertex3D struct/class
     static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
 
 protected:

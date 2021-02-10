@@ -42,6 +42,7 @@
 void ZAssetStore::Initialize()
 {
     InitializeShaders();
+    InitializeFonts();
 
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleShaderReady);
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleTextureReady);
@@ -65,6 +66,12 @@ void ZAssetStore::InitializeShaders()
     postShader_->Initialize();
     uiShader_->Initialize();
     textShader_->Initialize();
+}
+
+void ZAssetStore::InitializeFonts()
+{
+    auto arialDefault = ZFont::Create("/Fonts/arial/arial.ttf", 64.f);
+    AddFont(arialDefault->Name(), arialDefault);
 }
 
 void ZAssetStore::Load(std::shared_ptr<ZOFTree> root)

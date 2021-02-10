@@ -42,52 +42,6 @@
 #include "ZFont.hpp"
 #include "ZAssetStore.hpp"
 
-void ZGraphics::DrawText(const std::shared_ptr<ZBuffer>& bufferData, const glm::vec2& position, const std::string& text, const std::shared_ptr<ZFont>& font, float fontScale, float lineSpacing, float maxWrap)
-{
-    auto pos = position;
-    float x = pos.x, y = pos.y;
-
-    ZVertex2DDataOptions options;
-    options.vertices.reserve(text.size() * 6);
-    for (auto c = text.begin(); c != text.end(); c++)
-    {
-        ZCharacter character = font->Atlas().characterInfo[*c];
-
-        float one_over_font_size = 1.f / font->Size();
-
-        float atlasH = font->Atlas().height * 0.5f * fontScale * one_over_font_size;
-        float w = character.bitmapSize.x * fontScale * one_over_font_size;
-        float h = character.bitmapSize.y * fontScale * one_over_font_size;
-        float xpos = x + character.bitmapPos.x * fontScale * one_over_font_size;
-        float ypos = (y + atlasH) - character.bitmapPos.y * fontScale * one_over_font_size;
-
-        x += character.advance.x * fontScale * one_over_font_size;
-        y += character.advance.y * fontScale * one_over_font_size;
-
-        if (maxWrap > 0.f)
-        {
-            auto maxX = maxWrap - w * 2.f;
-            if (x > maxX)
-            {
-                y += std::floor(x / maxX) * (atlasH + lineSpacing);
-                x = pos.x;
-            }
-        }
-
-        if (w == 0 || h == 0) continue;
-
-        options.vertices.push_back(ZVertex2D(xpos, ypos, character.xOffset, 0));
-        options.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / font->Atlas().width, 0));
-        options.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / font->Atlas().height));
-        options.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / font->Atlas().width, 0));
-        options.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / font->Atlas().height));
-        options.vertices.push_back(ZVertex2D(xpos + w, ypos + h, character.xOffset + character.bitmapSize.x / font->Atlas().width, character.bitmapSize.y / font->Atlas().height));
-    }
-
-    bufferData->Update(options);
-    Draw(bufferData, options, ZMeshDrawStyle::Triangle);
-}
-
 // TODO: Pass pointer to scene to this method
 void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustum, const glm::vec4& color)
 {

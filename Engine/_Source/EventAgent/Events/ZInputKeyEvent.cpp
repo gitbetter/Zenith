@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZInput.cpp
+    ZInputKeyEvent.cpp
 
-    Created by Adrian Sanchez on 28/01/2019.
-    Copyright Â© 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 02/08/2021.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,25 +27,6 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZInput.hpp"
-#include "ZServices.hpp"
-#include "ZInputButtonEvent.hpp"
 #include "ZInputKeyEvent.hpp"
 
-void ZInput::SetKey(const ZKey& key, bool pressed)
-{
-    prevKeyPress_[key] = keyPress_[key];
-    keyPress_[key] = pressed;
-
-    auto keyEvent = std::make_shared<ZInputKeyEvent>(key, pressed);
-    ZServices::EventAgent()->Trigger(keyEvent);
-}
-
-void ZInput::SetMouse(const ZMouse& mouse, bool pressed)
-{
-    prevMousePress_[mouse] = mousePress_[mouse];
-    mousePress_[mouse] = pressed;
-
-    auto buttonEvent = std::make_shared<ZInputButtonEvent>(mouse, pressed);
-    ZServices::EventAgent()->Trigger(buttonEvent);
-}
+const ZTypeIdentifier ZInputKeyEvent::Type(TYPE_ID(ZInputKeyEvent));

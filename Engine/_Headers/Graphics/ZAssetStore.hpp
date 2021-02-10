@@ -123,5 +123,6 @@ private:
     ZMaterialIDMap pendingMaterials_;
 
     void InitializeShaders();
+    void InitializeFonts();
 
 };

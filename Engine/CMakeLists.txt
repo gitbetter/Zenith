@@ -123,6 +123,8 @@ ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZSkyboxReadyEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZSceneReadyEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZWindowResizeEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZScrollEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZInputKeyEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZInputButtonEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/ZScriptableEvent.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZAudio.cpp
@@ -172,6 +174,8 @@ ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZSkyboxReadyEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZSceneReadyEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZWindowResizeEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZScrollEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZInputKeyEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZInputButtonEvent.hpp
 ${ENGINE_HEADERS_DIR}/Factories/ZPhysicsFactory.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZGameObject.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZLight.hpp

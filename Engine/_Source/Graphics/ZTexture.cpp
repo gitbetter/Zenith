@@ -155,6 +155,13 @@ void ZTexture::Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap)
     outTextureMap = textures;
 }
 
+ZTexture::ptr ZTexture::Create()
+{
+    // TODO: Switch on contant, variable or define to choose implementation
+    ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
+    return texture;
+}
 
 ZTexture::ptr ZTexture::Create(const std::string& filename, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip)
 {

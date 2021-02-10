@@ -33,31 +33,34 @@
 #include "ZAssetStore.hpp"
 #include "ZShader.hpp"
 #include "ZFont.hpp"
+#include "ZBuffer.hpp"
+#include "ZDomain.hpp"
 
 ZUIText::ZUIText(const std::string& text, const std::string& font, float fontSize, const glm::vec2& position, const glm::vec2& scale)
-    : ZUIElement(position, scale), font_(font), text_(text), fontScale_(fontSize), wrapToBounds_(false)
+    : ZUIElement(position, scale), fontName_(font), text_(text), fontScale_(fontSize), lineSpacing_(0.f), wrapToBounds_(false)
 {
     options_.enabled = false;
     type_ = ZUIElementType::Text;
 }
 
 ZUIText::ZUIText(const ZUIElementOptions& options, const std::string& text, const std::string& font, float fontSize)
-    : ZUIElement(options), font_(font), text_(text), fontScale_(fontSize), wrapToBounds_(false)
+    : ZUIElement(options), fontName_(font), text_(text), fontScale_(fontSize), lineSpacing_(0.f), wrapToBounds_(false)
 {
     options_.enabled = false;
     type_ = ZUIElementType::Text;
 }
 
 void ZUIText::Initialize() {
-    ZUIElement::Initialize();
-
     ZVertex2DDataOptions options;
     options.numVertices = 4;
     bufferData_ = ZBuffer::Create(options);
 
     if (auto scene = Scene()) {
         options_.shader = scene->AssetStore()->TextShader();
+        if (fontName_.empty()) fontName_ = "arial";
     }
+
+    ZUIElement::Initialize();
 }
 
 void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -76,7 +79,7 @@ void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
     if (props.find("font") != props.end() && props["font"]->HasValues())
     {
         std::shared_ptr<ZOFString> fontProp = props["font"]->Value<ZOFString>(0);
-        font_ = fontProp->value;
+        fontName_ = fontProp->value;
         if (props["font"]->ValueCount() > 1)
         {
             std::shared_ptr<ZOFNumber> fontSizeProp = props["font"]->Value<ZOFNumber>(1);
@@ -103,33 +106,131 @@ void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
     }
 }
 
+std::shared_ptr<ZFont> ZUIText::Font()
+{
+    if (font_) return font_;
+
+    auto scene = Scene();
+    if (!scene) return nullptr;
+
+    if (!scene->AssetStore()->HasFont(fontName_)) {
+        LOG("The font " + fontName_ + " has not been loaded.", ZSeverity::Warning);
+        return nullptr;
+    }
+    font_ = scene->AssetStore()->GetFont(fontName_);
+    RecalculateBufferData();
+    return font_;
+}
+
 void ZUIText::Draw()
 {
     auto scene = Scene();
     if (!scene) return;
 
+    auto font = Font();
+    if (!font) return;
+
+    if (text_.empty()) return;
+
     options_.shader->Activate();
-    options_.shader->SetMat4("M", projectionMatrix_);
     options_.shader->SetMat4("P", projectionMatrix_);
     options_.shader->SetVec4("color", options_.color);
 
-    if (!scene->AssetStore()->HasFont(font_)) {
-        LOG("The font " + font_ + " has not been loaded.", ZSeverity::Warning);
-        return;
-    }
-
-    auto font = scene->AssetStore()->GetFont(font_);
     font->Atlas().texture->Bind(0);
     options_.shader->SetInt(font->Atlas().texture->type + "0", 0);
 
-    ZServices::Graphics()->DrawText(bufferData_, options_.calculatedRect.position, text_, font,
-        fontScale_, lineSpacing_, wrapToBounds_ ? MaxWrapBounds() : 0.f);
+    ZServices::Graphics()->Draw(bufferData_, textVertexData_, ZMeshDrawStyle::Triangle);;
+}
+
+void ZUIText::OnRectChanged()
+{
+    RecalculateBufferData();
+}
+
+void ZUIText::RecalculateBufferData()
+{
+    if (text_.empty() || !font_) return;
+
+    auto pos = options_.calculatedRect.position;
+    float x = pos.x, y = pos.y;
+
+    float maxWrap = wrapToBounds_ ? MaxWrapBounds() : 0.f;
+
+    textVertexData_ = ZVertex2DDataOptions();
+    textVertexData_.vertices.reserve(text_.size() * 6);
+    for (auto c = text_.begin(); c != text_.end(); c++)
+    {
+        ZCharacter character = font_->Atlas().characterInfo[*c];
+
+        float oneOverFontScale = 1.f / font_->Size();
+
+        float atlasH = font_->Atlas().height * oneOverFontScale * fontScale_;
+        float w = character.bitmapSize.x * oneOverFontScale * fontScale_;
+        float h = character.bitmapSize.y * oneOverFontScale * fontScale_;
+        float xpos = x + character.bitmapPos.x * oneOverFontScale * fontScale_;
+        float ypos = (y + atlasH * 1.25f) - character.bitmapPos.y * oneOverFontScale * fontScale_;
+
+        x += character.advance.x * oneOverFontScale * fontScale_;
+        y += character.advance.y * oneOverFontScale * fontScale_;
+
+        if (maxWrap > 0.f)
+        {
+            auto maxX = maxWrap - w * 2.f;
+            if (x > maxX)
+            {
+                y += std::floor(x / maxX) * (atlasH + lineSpacing_);
+                x = pos.x;
+            }
+        }
+
+        if (w == 0 || h == 0) continue;
+
+        textVertexData_.vertices.push_back(ZVertex2D(xpos, ypos, character.xOffset, 0));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / font_->Atlas().width, 0));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / font_->Atlas().height));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / font_->Atlas().width, 0));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / font_->Atlas().height));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos + h, character.xOffset + character.bitmapSize.x / font_->Atlas().width, character.bitmapSize.y / font_->Atlas().height));
+    }
+
+    bufferData_->Update(textVertexData_);
 }
 
 float ZUIText::MaxWrapBounds() const
 {
     auto parent = Parent();
     return parent ? Position().x + parent->Size().x * 2.f : Position().x + Size().x;
+}
+
+void ZUIText::SetText(const std::string& text)
+{
+    text_ = text;
+    RecalculateBufferData();
+}
+
+void ZUIText::SetFontScale(float scale)
+{
+    fontScale_ = scale;
+    RecalculateBufferData();
+}
+
+void ZUIText::SetFont(const std::string& font)
+{
+    if (font.empty()) return;
+    fontName_ = font;
+    font_ = nullptr;
+}
+
+void ZUIText::SetWrap(bool wrap)
+{
+    wrapToBounds_ = wrap;
+    RecalculateBufferData();
+}
+
+void ZUIText::SetLineSpacing(float spacing)
+{
+    lineSpacing_ = spacing;
+    RecalculateBufferData();
 }
 
 DEFINE_UI_CREATORS(ZUIText)
