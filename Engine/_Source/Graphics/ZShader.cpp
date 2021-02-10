@@ -56,18 +56,15 @@ ZShader::ZShader(const std::string& vertexShaderPath, const std::string& pixelSh
 
 void ZShader::Initialize()
 {
-    // Get the shader sources
     vertexShaderCode_ = GetShaderCode(vertexShaderPath_, ZShaderType::Vertex);
     pixelShaderCode_ = GetShaderCode(pixelShaderPath_, ZShaderType::Pixel);
     geometryShaderCode_ = GetShaderCode(geometryShaderPath_, ZShaderType::Geometry);
 
-    // Compile the shader from the sources
-    Compile();
+    PreProcess();
 }
 
 void ZShader::InitializeAsync()
 {
-    // Get the shader sources
     GetShaderCode(vertexShaderPath_, ZShaderType::Vertex, true);
     GetShaderCode(pixelShaderPath_, ZShaderType::Pixel, true);
     GetShaderCode(geometryShaderPath_, ZShaderType::Geometry, true);
@@ -84,15 +81,12 @@ void ZShader::InitializeAsync()
 */
 void ZShader::Compile()
 {
-// Compile the shaders
     int vShader = CompileShader(vertexShaderCode_, ZShaderType::Vertex);
     int pShader = CompileShader(pixelShaderCode_, ZShaderType::Pixel);
     int gShader = CompileShader(geometryShaderCode_, ZShaderType::Geometry);
 
-    // Create the shader program and link the shaders
     id_ = CreateProgram(vShader, pShader, gShader);
 
-    // Clean up. Easy peazy.
     glDeleteShader(vShader);
     glDeleteShader(pShader);
     if (gShader != -1) glDeleteShader(gShader);
@@ -137,6 +131,36 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
     return shaderCode;
 }
 
+void ZShader::PreProcess()
+{
+    ProcessIncludes(vertexShaderCode_);
+    ProcessIncludes(geometryShaderCode_);
+    ProcessIncludes(pixelShaderCode_);
+    Compile();
+}
+
+void ZShader::ProcessIncludes(std::string& shaderCode)
+{
+    std::vector<size_t> includePositions;
+    size_t pos = shaderCode.find("#include", 0);
+    while (pos != std::string::npos) {
+        includePositions.push_back(pos);
+        pos = shaderCode.find("#include", pos + 1);
+    }
+    std::regex includeRegex("^#include\\s+\"(\\S+)\".*$");
+    std::smatch match;
+    for (auto it = includePositions.rbegin(); it != includePositions.rend(); it++) {
+        size_t start = *it;
+        size_t end = shaderCode.find(NEWLINE, *it);
+        std::string includeLine = shaderCode.substr(start, (end - start));
+        if (std::regex_search(includeLine, match, includeRegex)) {
+            std::string includePath = (match[1].str().front() != '/' ? "/" : "") + match[1].str();
+            std::string includeContents = GetShaderCode(includePath, ZShaderType::Other);
+            shaderCode = shaderCode.replace(start, (end - start), includeContents);
+        }
+    }
+}
+
 /**
     Compiles the shader using the provided shader code and outputs the shader ID.
 
@@ -160,7 +184,7 @@ int ZShader::CompileShader(const std::string& shaderCode, ZShaderType shaderType
         case ZShaderType::Geometry:
             shader = glCreateShader(GL_GEOMETRY_SHADER);
             break;
-        default: return -1; // The shader is not supported, so return immediately
+        default: return -1;
         }
         const char* shaderCode_cstr = shaderCode.c_str();
         glShaderSource(shader, 1, &shaderCode_cstr, NULL);
@@ -210,7 +234,7 @@ void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderType shade
     {
         if (isShader) { glGetShaderInfoLog(compilationUnit, 1024, NULL, infoLog); }
         else { glGetProgramInfoLog(compilationUnit, 1024, NULL, infoLog); }
-        LOG("Shader Compilation Error: (" + std::to_string(compilationUnit) + ") " + std::string(infoLog) + "\n" + shaderSource, ZSeverity::Error);
+        LOG("Shader Compilation Error: (" + std::to_string(compilationUnit) + ") " + std::string(infoLog) + NEWLINE + shaderSource, ZSeverity::Error);
     }
 }
 
@@ -410,7 +434,7 @@ void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>
     {
         ZServices::EventAgent()->Unsubscribe(this, &ZShader::HandleShaderCodeLoaded);
 
-        Compile();
+        PreProcess();
 
         std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
         ZServices::EventAgent()->Queue(shaderReadyEvent);

@@ -36,6 +36,7 @@
 #include "ZScriptManager.hpp"
 #include "ZGraphics.hpp"
 #include "ZInput.hpp"
+#include "ZLogger.hpp"
 
 // Forward Declarations
 class ZProcessRunner;

@@ -1,12 +1,10 @@
 #version 450 core
 
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
 out vec4 FragColor;
 
-in VS_OUT {
-  vec4 FragLocalPos;
-  vec4 FragPos;
-  vec2 FragUV;
-} fs_in;
+in VertexOutput vout;
 
 uniform vec4 color;
 uniform vec4 borderColor;
@@ -18,7 +16,7 @@ uniform sampler2D colorSampler0;
 
 void main() {
     // Calculate border radius distance and discard fragment if not within bounds
-    vec2 pos = (abs(fs_in.FragUV - 0.5) + 0.5) * resolution;
+    vec2 pos = (abs(vout.FragUV - 0.5) + 0.5) * resolution;
     vec2 arc_cpt = max(pos - resolution + borderRadius, 0.0);
     if (length(arc_cpt) > borderRadius)
         discard;
@@ -30,7 +28,7 @@ void main() {
 
     if (pos.x < maxX && pos.x > minX &&
         pos.y < maxY && pos.y > minY) {
-        vec4 texColor = texture(colorSampler0, fs_in.FragUV);
+        vec4 texColor = texture(colorSampler0, vout.FragUV);
         vec4 outColor = color * texColor;
         if (outColor.a < 0.1)
             discard;

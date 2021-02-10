@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZProcess.hpp"
+#include "ZOFTree.hpp"
 
 // Forward Declarations
 class ZGame;

@@ -1,13 +1,11 @@
 #version 450 core
 
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
 layout (location = 0) in vec4 vertex;
 layout (location = 1) in mat4 instanceM;
 
-out VS_OUT {
-  vec4 FragLocalPos;
-  vec4 FragPos;
-  vec2 FragUV;
-} vs_out;
+out VertexOutput vout;
 
 uniform mat4 M;
 uniform mat4 P;
@@ -19,8 +17,8 @@ void main()
     if (instanced) {
         m = instanceM;
     }
-    vs_out.FragLocalPos = vec4(vertex.xy, 0.0, 1.0);
-    vs_out.FragPos = m * vs_out.FragLocalPos;
-    vs_out.FragUV = vertex.zw;
-    gl_Position = P * vs_out.FragPos;
+    vout.FragLocalPos = vec4(vertex.xy, 0.0, 1.0);
+    vout.FragPos = m * vout.FragLocalPos;
+    vout.FragUV = vertex.zw;
+    gl_Position = P * vout.FragPos;
 }

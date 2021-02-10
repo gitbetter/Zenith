@@ -30,6 +30,7 @@
 #pragma once
 
 // Includes
+#include "ZCommon.hpp"
 #include <memory>
 #include <string>
 #include <vector>
@@ -62,7 +63,7 @@ struct ZOFNode
 
     virtual std::string ToString()
     {
-        std::string objString = (root == nullptr) ? "\n" : "";
+        std::string objString = (root == nullptr) ? std::string(1, NEWLINE) : "";
         ZOFChildMap::iterator it = children.begin();
         for (; it != children.end(); it++) objString += it->second->ToString();
         return objString;
@@ -113,7 +114,7 @@ struct ZOFPropertyNode : public ZOFNode
         std::string propString = "\t:" + id;
         for (std::shared_ptr<ZOFAbstractTerminal> val : values) propString += val->ToString();
         propString += ZOFNode::ToString();
-        propString += ":\n";
+        propString += ":" + NEWLINE;
         return propString;
     }
 };
@@ -129,11 +130,11 @@ struct ZOFObjectNode : public ZOFNode
 
     std::string ToString() override
     {
-        std::string objString = id + "\n";
+        std::string objString = id + NEWLINE;
         for (ZOFPropertyMap::iterator it = properties.begin(); it != properties.end(); it++)
             objString += it->second->ToString();
         objString += ZOFNode::ToString();
-        objString += "-\n";
+        objString += "-" + NEWLINE;
         return objString;
     }
 };

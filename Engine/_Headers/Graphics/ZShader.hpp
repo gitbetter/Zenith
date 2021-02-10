@@ -56,10 +56,15 @@ private:
     unsigned short loadedShadersMask_;
 
     std::string GetShaderCode(const std::string& shaderPath, ZShaderType shaderType, bool async = false);
+
+    void PreProcess();
+    void ProcessIncludes(std::string& shaderCode);
+
     void Compile();
     int CompileShader(const std::string& shaderCode, ZShaderType shaderType);
-    unsigned int CreateProgram(int vShader, int pShader, int gShader);
     void CheckCompileErrors(unsigned int compilationUnit, ZShaderType shaderType, const std::string& shaderSource);
+
+    unsigned int CreateProgram(int vShader, int pShader, int gShader);
 
     void HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
 

@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZCommon.hpp"
+#include "ZOFTree.hpp"
 
 // Forward Declarations
 

@@ -1,13 +1,15 @@
 #version 450 core
 
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
 out vec4 FragColor;
 
-in vec3 localPos;
+in VertexOutput vout;
 
 uniform samplerCube cubemap;
 
 void main() {
-  vec3 envColor = textureLod(cubemap, localPos, 1.2).rgb;
+  vec3 envColor = textureLod(cubemap, vout.FragLocalPos.xyz, 1.2).rgb;
 
   envColor = envColor / (envColor + vec3(1.0));
   envColor = pow(envColor, vec3(1.0/2.2));

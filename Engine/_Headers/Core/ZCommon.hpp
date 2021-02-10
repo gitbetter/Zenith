@@ -58,8 +58,6 @@
 #include <thread>
 #include <mutex>
 #include <filesystem>
-#include "ZOFTree.hpp"
-#include "ZLogger.hpp"
 #include "ZIDSequence.hpp"
 #include "ZStringHelpers.hpp"
 
@@ -779,6 +777,12 @@ struct ZUITheme {
     std::string                  font;
     float                        fontSize;
 };
+
+#if defined _WIN64 || defined _WIN32
+#define NEWLINE (char)'\r\n'
+#else
+#define NEWLINE (char)'\n'
+#endif
 
 #define ID_FROM_STRING(str) std::hash<std::string>{}(str)
 #define TYPE_ID(type) ID_FROM_STRING(#type)

@@ -54,8 +54,8 @@ std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::
 #include "ZMesh2D.hpp"
 #include "ZTexture.hpp"
 #include "ZProcess.hpp"
-#include "ZStringHelpers.hpp"
 #include "ZUIHelpers.hpp"
+#include "ZOFTree.hpp"
 
 // Forward Declarations
 class ZScene;

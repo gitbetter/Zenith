@@ -63,14 +63,13 @@ std::shared_ptr<Type> Type::Create(const std::shared_ptr<ZOFNode>& root, const s
 #include "ZProcess.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZProcessRunner.hpp"
-#include "ZStringHelpers.hpp"
+#include "ZOFTree.hpp"
 
 // Forward Declarations
 class ZGame;
 class ZScene;
 class ZSkybox;
 class ZGrass;
-struct ZOFNode;
 
 // Class Definitions
 struct ZGameObjectProperties
