@@ -43,15 +43,21 @@ public:
 
     enum { TOP, BOTTOM, LEFT, RIGHT, NEAR, FAR, NUMPLANES };
 
+    ZBasis basis;
     ZPlane planes[NUMPLANES];
     glm::vec3 corners[8];
+    glm::vec3 nearCenter, farCenter, center;
+    glm::vec3 position;
     float near, far, ratio, fov, tang;
     float nearWidth, nearHeight, farWidth, farHeight;
 
     ZFrustum() {}
     ZFrustum(float fov, float ratio, float near, float far);
 
-    void Recalculate(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up);
+    void SetBasis(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up);
+
+    void Recalculate();
+
     bool Contains(const glm::vec3& point);
     bool Contains(const glm::vec3& center, float radius);
     bool Contains(const ZAABBox& box);

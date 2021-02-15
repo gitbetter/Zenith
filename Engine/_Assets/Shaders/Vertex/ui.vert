@@ -18,7 +18,7 @@ void main()
         m = instanceM;
     }
     vout.FragLocalPos = vec4(vertex.xy, 0.0, 1.0);
-    vout.FragPos = m * vout.FragLocalPos;
+    vout.FragWorldPos = m * vout.FragLocalPos;
     vout.FragUV = vertex.zw;
-    gl_Position = P * vout.FragPos;
+    gl_Position = P * vout.FragWorldPos;
 }

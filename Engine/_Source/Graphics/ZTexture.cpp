@@ -208,6 +208,14 @@ ZTexture::ptr ZTexture::CreateDepth(const glm::vec2& size)
     return texture;
 }
 
+ZTexture::ptr ZTexture::CreateDepthArray(const glm::vec2& size, int layers)
+{
+    // TODO: Switch on contant, variable or define to choose implementation
+    ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->LoadDepthArray(size, layers);
+    return texture;
+}
+
 
 ZTexture::ptr ZTexture::CreateDefault()
 {

@@ -42,7 +42,7 @@ public:
 
     glm::vec3 minimum, maximum;
 
-    ZAABBox() : minimum(0.f), maximum(0.f) {}
+    ZAABBox() : minimum(std::numeric_limits<float>::max()), maximum(std::numeric_limits<float>::min()) {}
     ZAABBox(const glm::vec3& min, const glm::vec3& max) : minimum(min), maximum(max) {}
 
 };

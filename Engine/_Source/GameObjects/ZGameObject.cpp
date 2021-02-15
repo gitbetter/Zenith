@@ -78,7 +78,7 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root)
     if (props.find("orientation") != props.end() && props["orientation"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> ornProp = props["orientation"]->Value<ZOFNumberList>(0);
-        properties_.orientation = glm::quat(glm::vec3(ornProp->value[0], ornProp->value[1], ornProp->value[2]));
+        properties_.orientation = glm::quat(glm::vec3(glm::radians(ornProp->value[0]), glm::radians(ornProp->value[1]), glm::radians(ornProp->value[2])));
         properties_.previousOrientation = properties_.orientation;
     }
 

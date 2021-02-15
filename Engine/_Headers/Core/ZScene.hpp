@@ -114,6 +114,9 @@ public:
     void PushMatrix(const glm::mat4& matrix);
     void PopMatrix();
 
+    void UpdateViewProjectionMatrices();
+    void UpdateLightspaceMatrices();
+
     template <class T, typename... Args>
     static std::shared_ptr<T> Load(Args&&... args)
     {
@@ -182,8 +185,6 @@ protected:
     void CheckPendingObjects();
     void CreateSceneRoot(const std::string& name);
     void CreateUICanvas();
-    void UpdateViewProjectionMatrices();
-    void UpdateLightspaceMatrices();
     void UnregisterLoadDelegates();
 
     void HandleWindowResize(const std::shared_ptr<ZWindowResizeEvent>& event);

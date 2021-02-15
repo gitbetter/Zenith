@@ -14,8 +14,9 @@ layout (location = 7) in mat4 instanceM;
 out VertexOutput vout;
 
 uniform mat4 M;
+uniform mat4 V;
 uniform mat4 ViewProjection;
-uniform mat4 P_lightSpace;
+uniform mat4 ViewProjectionLightSpace[NUM_SHADOW_CASCADES];
 uniform mat4 Bones[MAX_BONES];
 uniform bool rigged = false;
 uniform bool instanced = false;
@@ -37,8 +38,11 @@ void main()
         vout.FragNormal = mat3(boneTransform) * vout.FragNormal;
         pos = boneTransform * pos;
     }
-    vout.FragPos = m * pos;
+    vout.FragWorldPos = m * pos;
+    vout.FragViewPos = V * vout.FragWorldPos;
     vout.FragUV = texCoords;
-    vout.FragPosLightSpace = P_lightSpace * vout.FragPos;
-    gl_Position = ViewProjection * vout.FragPos;
+    for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
+        vout.FragPosLightSpace[i] = ViewProjectionLightSpace[i] * vout.FragWorldPos;
+    }
+    gl_Position = ViewProjection * vout.FragWorldPos;
 }

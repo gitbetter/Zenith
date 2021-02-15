@@ -80,6 +80,7 @@ public:
     const std::string& Name() const { return name_; }
 
     void Activate();
+    void Validate();
 
     // Helpers for setting uniforms
     void SetBool(const std::string& name, bool value) const;
@@ -94,6 +95,8 @@ public:
     void SetMat2(const std::string& name, const glm::mat2& value) const;
     void SetMat3(const std::string& name, const glm::mat3& value) const;
     void SetMat4(const std::string& name, const glm::mat4& value) const;
+    void SetFloatList(const std::string& name, const std::vector<float>& value) const;
+    void SetMat4List(const std::string& name, const std::vector<glm::mat4>& value) const;
 
     void Use(const std::shared_ptr<ZMaterial>& material);
     void Use(const ZLightMap& lights);

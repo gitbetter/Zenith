@@ -12,8 +12,9 @@ layout (location = 7) in mat4 instanceM;
 out VertexOutput vout;
 
 uniform mat4 M;
+uniform mat4 V;
 uniform mat4 ViewProjection;
-uniform mat4 P_lightSpace;
+uniform mat4 ViewProjectionLightSpace[NUM_SHADOW_CASCADES];
 
 // Grass animation uniforms
 uniform float objectHeight = 1.0;
@@ -35,15 +36,18 @@ void main()
         norm = normalize(norm * objectHeight + translation.xyz);
     }
     mat4 m = (instanced ? instanceM : M);
-    vout.FragPos = m * pos;
+    vout.FragWorldPos = m * pos;
     vec3 T = normalize(mat3(m) * tangent);
     vec3 B = normalize(mat3(m) * bitangent);
     vec3 N = normalize(mat3(m) * norm);
+    vout.FragViewPos = V * vout.FragWorldPos;
     vout.FragNormal = N;
     vout.FragTBN = mat3(T, B, N);
     vout.FragUV = texCoords;
-    vout.FragPosLightSpace = P_lightSpace * vout.FragPos;
-    gl_Position = ViewProjection * vout.FragPos;
+    for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
+        vout.FragPosLightSpace[i] = ViewProjectionLightSpace[i] * vout.FragWorldPos;
+    }
+    gl_Position = ViewProjection * vout.FragWorldPos;
 }
 
 vec4 CalculateTranslation(vec4 position, float time, vec3 windDirection, float windStrength)

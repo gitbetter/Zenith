@@ -8,7 +8,7 @@ layout (location = 1) out vec4 FragDepth;
 in VertexOutput vout;
 
 uniform sampler2D depthSampler0;
-uniform sampler2D shadowSampler0;
+uniform sampler2DArray shadowArraySampler0;
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
@@ -31,6 +31,7 @@ uniform int materialIndex;
 uniform int lightCount = 0;
 uniform Light lights[MAX_LOCAL_LIGHTS];
 uniform PBRMaterial materials[MAX_MATERIALS];
+uniform float shadowFarPlanes[NUM_SHADOW_CASCADES];
 
 // TODO: Consider SSBOs for a varying number of lights
 
@@ -50,9 +51,11 @@ void main() {
   float fragAO = isTextured ? texture(ao, texCoords).r : mat.ao;
 
   vec3 N = isTextured ? NormalFromMap(texCoords, vout.FragTBN, normal) : normalize(vout.FragNormal);
-  vec3 V = normalize(viewPosition - vout.FragPos.xyz);
+  vec3 V = normalize(viewPosition - vout.FragWorldPos.xyz);
   vec3 R = reflect(-V, N);
-  float shadow = PCSSShadow(vout, viewPosition, 1 / 25.0, shadowSampler0); // TODO: Light size should be a uniform
+
+  // TODO: Light size should be a uniform
+  float shadow = PCSSShadow(vout, GetCascadeIndex(vout.FragViewPos.xyz, shadowFarPlanes), viewPosition, 1 / 25.0, shadowArraySampler0);
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, vec3(fragAlbedo), fragMetallic);
@@ -62,12 +65,12 @@ void main() {
     if (lights[i].isEnabled) {
       ++contributingLights;
 
-      vec3 L = !lights[i].isDirectional ? normalize(lights[i].position - vout.FragPos.xyz) : normalize(lights[i].direction);
+      vec3 L = !lights[i].isDirectional ? normalize(lights[i].position - vout.FragWorldPos.xyz) : normalize(lights[i].direction);
       vec3 H = normalize(V + L);
       vec3 radiance = lights[i].color;
 
       if (!lights[i].isDirectional) {
-        float dist = length(lights[i].position - vout.FragPos.xyz);
+        float dist = length(lights[i].position - vout.FragWorldPos.xyz);
         float attenuation = 1.0 / max(dist * dist, 0.001);
         radiance = lights[i].color * attenuation;
       }
@@ -112,5 +115,5 @@ void main() {
   color = pow(color, vec3(1.0/2.2));
 
   FragColor = vec4(color, fragAlbedo.a);
-  FragDepth = vec4(vec3(vout.FragPos.z), 1.0);
+  FragDepth = vec4(vec3(vout.FragWorldPos.z), 1.0);
 }

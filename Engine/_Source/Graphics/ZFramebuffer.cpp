@@ -47,6 +47,17 @@ ZFramebuffer::ptr ZFramebuffer::CreateDepth(const glm::vec2& size)
     return framebuffer;
 }
 
+ZFramebuffer::ptr ZFramebuffer::CreateShadow(const glm::vec2& size, unsigned int cascades)
+{
+    // TODO: Switch on contant, variable or define to choose implementation
+    auto framebuffer = std::make_shared<ZGLFramebuffer>();
+    framebuffer->LoadDepth(size);
+    auto attachment = ZTexture::CreateDepthArray(size, cascades);
+    attachment->type = "shadowArray";
+    framebuffer->AddAttachment(attachment);
+    return framebuffer;
+}
+
 ZFramebuffer::ptr ZFramebuffer::CreateCubeMap()
 {
     // TODO: Switch on contant, variable or define to choose implementation

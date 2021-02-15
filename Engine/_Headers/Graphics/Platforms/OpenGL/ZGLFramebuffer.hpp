@@ -40,15 +40,18 @@ class ZGLFramebuffer : public ZFramebuffer
 
 public:
 
-    void LoadColor(const glm::vec2& size, const ZTexture::ptr& colorTexture, bool multisample = false) override;
-    void LoadDepth(const glm::vec2& size, const ZTexture::ptr& depthTexture) override;
+    void LoadColor(const glm::vec2& size, const ZTexture::ptr& colorTexture = nullptr, bool multisample = false) override;
+    void LoadDepth(const glm::vec2& size, const ZTexture::ptr& depthTexture = nullptr) override;
     void LoadCubeMap() override;
 
     void Bind() override;
+    void BindAttachment(unsigned int attachmentIndex = 0) override;
+    void BindAttachmentLayer(unsigned int layer) override;
     void BindRenderbuffer() override;
-    void Resize(unsigned int width, unsigned int height, bool multisample = false) override;
+    void Resize(unsigned int width, unsigned int height) override;
     void Unbind() override;
     void UnbindRenderbuffer() override;
     void Blit(const ZFramebuffer::ptr& destination = nullptr) override;
+    void Delete() override;
 
 };

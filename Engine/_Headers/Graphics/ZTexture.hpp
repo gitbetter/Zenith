@@ -46,10 +46,11 @@ public:
 
     using ptr = std::shared_ptr<ZTexture>;
 
-    unsigned int id;
+    unsigned int id = 0;
     std::string name;
     std::string type;
     std::string path;
+    bool multisampled = false;
     ZTextureWrapping wrapping;
 
     ZTexture();
@@ -59,9 +60,6 @@ public:
 
     virtual void LoadAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);
     virtual void Load(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
-
-    virtual void Resize(unsigned int width, unsigned int height, bool multisample = false) = 0;
-    virtual void Bind(unsigned int index) = 0;
 
     virtual void LoadDefault() = 0;
     virtual void LoadCubeMap(const std::vector<std::string>& faces) = 0;
@@ -76,6 +74,11 @@ public:
     virtual void LoadEmptyLUT() = 0;
     virtual void LoadColor(const glm::vec2& size, bool multisample = false) = 0;
     virtual void LoadDepth(const glm::vec2& size) = 0;
+    virtual void LoadDepthArray(const glm::vec2& size, int layers) = 0;
+
+    virtual void Resize(unsigned int width, unsigned int height) = 0;
+    virtual void Bind(unsigned int index) = 0;
+    virtual void Delete() = 0;
 
     static void Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);
     static void CreateAsync(std::shared_ptr<ZOFTree> data, ZTextureIDMap& outPendingTextures);
@@ -87,6 +90,7 @@ public:
     static ptr CreateEmptyLUT();
     static ptr CreateColor(const glm::vec2& size, bool multisample = false);
     static ptr CreateDepth(const glm::vec2& size);
+    static ptr CreateDepthArray(const glm::vec2& size, int layers);
     static ptr CreateCubeMap(const std::vector<std::string>& faces);
     static ptr CreateCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZFramebuffer>& bufferData);
     static ptr CreateEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal);

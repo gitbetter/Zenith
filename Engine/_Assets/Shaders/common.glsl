@@ -1,6 +1,7 @@
 const int MAX_LOCAL_LIGHTS = 4;
 const int MAX_MATERIALS = 4;
 const int MAX_BONES = 100;
+const int NUM_SHADOW_CASCADES = 4;	// TODO: This is fixed but it might be worthwhile to make it adaptable to the scene
 const float PI = 3.14159265359;
 
 vec2 poissonDisk[64] = vec2[]( 
@@ -104,11 +105,12 @@ struct PBRMaterial {
 
 struct VertexOutput {
   vec4 FragLocalPos;
-  vec4 FragPos;
-  vec4 FragPosLightSpace;
+  vec4 FragWorldPos;
+  vec4 FragViewPos;
   vec3 FragNormal;
   vec2 FragUV;
   mat3 FragTBN;
+  vec4 FragPosLightSpace[NUM_SHADOW_CASCADES];
 };
 
 float Random(vec4 co) {
@@ -117,6 +119,11 @@ float Random(vec4 co) {
 
 float Random(vec2 co) {
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float LinearizeDepth(float depth, float near, float far) {
+	float z = depth * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near - z * (far - near));
 }
 
 float GeometrySchlickGGX(float NdotV, float roughness) {
@@ -190,30 +197,56 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness) {
   return normalize(sampleVec);
 }
 
-float PCFShadow(VertexOutput vout, sampler2D shadowMap) {
-  vec3 projCoords = vout.FragPosLightSpace.xyz / vout.FragPosLightSpace.w;
-  if (projCoords.z > 1.0)
-    return 0.0;
-
-  projCoords = projCoords * 0.5 + 0.5;
-
-  // PCF
-  float shadow = 0.0;
-  float bias = max(0.05 * (1.0 - dot(vout.FragNormal, vout.FragPosLightSpace.xyz - vout.FragPos.xzy)), 0.005);  
-  for (int i = 0; i < 16; ++i) {
-    float z = texture(shadowMap, projCoords.xy + poissonDisk[i]).r;
-    shadow += z < (projCoords.z - bias) ? 1.0 : 0.0;
-  }
-  return shadow / 16.0;
+int GetCascadeIndex(vec3 position, float farPlanes[NUM_SHADOW_CASCADES]) {
+    int index = 0;
+    for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
+        if (abs(position.z) < farPlanes[i]) {
+            index = i; break;
+        }
+    }
+    return index;
 }
 
-float GetBlockerDistance(vec3 shadowCoords, vec3 viewPosition, float lightSize, sampler2D shadowMap) {
+float PCFShadow(VertexOutput vout, int cascade, vec3 lightDir, sampler2DArray shadowMap) {
+    // perform perspective divide
+	vec3 projCoords = vout.FragPosLightSpace[cascade].xyz / vout.FragPosLightSpace[cascade].w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, vec3(projCoords.xy, cascade)).r;
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // calculate bias (based on depth map resolution and slope)
+    vec3 normal = normalize(vout.FragNormal);
+    float bias = max(0.002 * (1.0 - dot(normal, lightDir)), 0.0002);
+
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0).xy;
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, vec3(projCoords.xy + vec2(x, y) * texelSize, cascade)).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }    
+    }
+    shadow /= 9.0;
+    
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+        
+    return shadow;
+}
+
+float GetBlockerDistance(vec3 shadowCoords, int cascade, vec3 viewPosition, float lightSize, sampler2DArray shadowMap) {
     int blockers = 0;
     float averageBlockerDistance = 0.0;
     float searchWidth = lightSize * (shadowCoords.z - 0.1) / viewPosition.z;
     for (int i = 0; i < 16; i++) {
-      float z = texture(shadowMap, shadowCoords.xy + poissonDisk[i] * searchWidth).r;
-      if (z < (shadowCoords.z - 0.005)) {
+      float z = texture(shadowMap, vec3(shadowCoords.xy + poissonDisk[i] * searchWidth, cascade)).r;
+      if (z < (shadowCoords.z - 0.002)) {
         ++blockers;
         averageBlockerDistance += z;
       }
@@ -223,14 +256,12 @@ float GetBlockerDistance(vec3 shadowCoords, vec3 viewPosition, float lightSize, 
     else return -1;
 }
 
-float PCSSShadow(VertexOutput vout, vec3 viewPosition, float lightSize, sampler2D shadowMap) {
-    vec3 projCoords = vout.FragPosLightSpace.xyz / vout.FragPosLightSpace.w;
-    if (projCoords.z > 1.0)
-      return 0.0;
+float PCSSShadow(VertexOutput vout, int cascade, vec3 viewPosition, float lightSize, sampler2DArray shadowMap) {
+    vec3 projCoords = vout.FragPosLightSpace[cascade].xyz / vout.FragPosLightSpace[cascade].w;
 
     projCoords = projCoords * 0.5 + 0.5;
 
-    float blockerDistance = GetBlockerDistance(projCoords, viewPosition, lightSize, shadowMap);
+    float blockerDistance = GetBlockerDistance(projCoords, cascade, viewPosition, lightSize, shadowMap);
     if (blockerDistance == -1)
       return 0.0;
 
@@ -240,20 +271,24 @@ float PCSSShadow(VertexOutput vout, vec3 viewPosition, float lightSize, sampler2
 
     // PCF
 	float shadow = 0.0;
-	float theta = Random(vec4(projCoords.xy, vout.FragPos.xy));
+	float theta = Random(vec4(projCoords.xy, vout.FragWorldPos.xy));
 	mat2 rotation = mat2(vec2(cos(theta), sin(theta)), vec2(-sin(theta), cos(theta)));
-	float bias = max(0.05 * (1.0 - dot(vout.FragNormal, vout.FragPos.xyz - vout.FragPosLightSpace.xyz)), 0.002);  
-    for (int i = 0; i < 32; i++) {
+	float bias = max(0.002 * (1.0 - dot(vout.FragNormal, viewPosition)), 0.0002);  
+    for (int i = 0; i < 16; i++) {
 	  vec2 offset = (rotation * poissonDisk[i]) * radius;
-      float z = texture(shadowMap, projCoords.xy + offset).r;
-      shadow += z < (projCoords.z - bias) ? 1.0 : 0.0;
+      float pcssDepth = texture(shadowMap, vec3(projCoords.xy + offset, cascade)).r;
+      shadow += projCoords.z - bias > pcssDepth ? 1.0 : 0.0;
     }
-    return shadow / 32 * 0.85;
+
+	if (projCoords.z > 1.0)
+      return 0.0;
+
+    return shadow / 16 * 0.85;
 }
 
 vec2 ParallaxUVFromMap(VertexOutput vout, vec3 viewPosition, float heightScale, sampler2D heightMap) {
   mat3 TBN = transpose(vout.FragTBN);
-  vec3 viewDir = normalize(TBN * viewPosition - TBN * vout.FragPos.xyz);
+  vec3 viewDir = normalize(TBN * viewPosition - TBN * vout.FragWorldPos.xyz);
 
   const float minLayers = 16.0;
   const float maxLayers = 128.0;

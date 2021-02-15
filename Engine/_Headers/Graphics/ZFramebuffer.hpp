@@ -42,9 +42,11 @@ class ZFramebuffer
 protected:
 
     glm::vec2 size_;
-    unsigned int id_;
-    unsigned int rboId_;
-    ZTexture::ptr attachment_;
+    unsigned int id_ = 0;
+    unsigned int rboId_ = 0;
+    unsigned int boundAttachment_ = 0;
+    std::vector<ZTexture::ptr> attachments_;
+    bool multisampled_ = false;
 
 public:
 
@@ -56,21 +58,28 @@ public:
     unsigned int ID() const { return id_; }
     unsigned int RBID() const { return rboId_; }
     glm::vec2 Size() const { return size_; }
-    ZTexture::ptr Attachment() { return attachment_; }
+    ZTexture::ptr BoundAttachment() const { return attachments_[boundAttachment_]; }
+    std::vector<ZTexture::ptr> Attachments() const { return attachments_; }
 
-    virtual void LoadColor(const glm::vec2& size, const ZTexture::ptr& colorTexture, bool multisample = false) = 0;
-    virtual void LoadDepth(const glm::vec2& size, const ZTexture::ptr& depthTexture) = 0;
+    void AddAttachment(const ZTexture::ptr& attachment) { attachments_.push_back(attachment); }
+
+    virtual void LoadColor(const glm::vec2& size, const ZTexture::ptr& colorTexture = nullptr, bool multisample = false) = 0;
+    virtual void LoadDepth(const glm::vec2& size, const ZTexture::ptr& depthTexture = nullptr) = 0;
     virtual void LoadCubeMap() = 0;
 
     virtual void Bind() = 0;
+    virtual void BindAttachment(unsigned int attachmentIndex = 0) = 0;
+    virtual void BindAttachmentLayer(unsigned int layer) = 0;
     virtual void BindRenderbuffer() = 0;
-    virtual void Resize(unsigned int width, unsigned int height, bool multisample = false) = 0;
+    virtual void Resize(unsigned int width, unsigned int height) = 0;
     virtual void Unbind() = 0;
     virtual void UnbindRenderbuffer() = 0;
     virtual void Blit(const ZFramebuffer::ptr& destination = nullptr) = 0;
+    virtual void Delete() = 0;
 
     static ZFramebuffer::ptr CreateColor(const glm::vec2& size, bool multisample = false);
     static ZFramebuffer::ptr CreateDepth(const glm::vec2& size);
+    static ZFramebuffer::ptr CreateShadow(const glm::vec2& size, unsigned int cascades = 1);
     static ZFramebuffer::ptr CreateCubeMap();
 
 };

@@ -170,12 +170,14 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
     glm::mat4 projectionMatrix = gameCamera_->ProjectionMatrix();
     glm::mat4 viewMatrix = gameCamera_->ViewMatrix();
 
-    auto activeShader = ActiveShader();
-    if (!activeShader) activeShader = shader;
+    auto activeShader = shader;
+    if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) {
+        activeShader = ActiveShader() ? ActiveShader() : shader;
+    }
 
     // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
     ZServices::Graphics()->EnableStencilBuffer();
-    ZServices::Graphics()->EnableAlphaBlending();
+    //ZServices::Graphics()->EnableAlphaBlending();
 
     if (activeShader)
     {
@@ -188,25 +190,27 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
         activeShader->SetVec3("viewPosition", gameCamera_->Position());
         activeShader->SetBool("instanced", false);
 
-        if (!gameLights_.empty()) {
+        if (!gameLights_.empty() && renderOp != ZRenderOp::Shadow) {
             // TODO: Defer this computation or choose light based on id for forward rendering
-            activeShader->SetMat4("P_lightSpace", gameLights_.begin()->second->LightSpaceMatrix());
+            auto light = gameLights_.begin()->second;
+            activeShader->SetMat4List("ViewProjectionLightSpace", light->LightSpaceMatrices());
+            activeShader->SetFloatList("shadowFarPlanes", light->ShadowFarPlaneSplits());
         }
 
         if (object_->Scene()->Skybox() != nullptr)
         {
             ZIBLTexture iblTexture = object_->Scene()->Skybox()->IBLTexture();
             if (iblTexture.irradiance) {
-                iblTexture.irradiance->Bind(3);
-                activeShader->SetInt("irradianceMap", 3);
+                iblTexture.irradiance->Bind(0);
+                activeShader->SetInt("irradianceMap", 0);
             }
             if (iblTexture.prefiltered) {
-                iblTexture.prefiltered->Bind(4);
-                activeShader->SetInt("prefilterMap", 4);
+                iblTexture.prefiltered->Bind(1);
+                activeShader->SetInt("prefilterMap", 1);
             }
             if (iblTexture.brdfLUT) {
-                iblTexture.brdfLUT->Bind(5);
-                activeShader->SetInt("brdfLUT", 5);
+                iblTexture.brdfLUT->Bind(2);
+                activeShader->SetInt("brdfLUT", 2);
             }
         }
 

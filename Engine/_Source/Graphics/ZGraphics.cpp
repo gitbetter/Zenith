@@ -42,7 +42,6 @@
 #include "ZFont.hpp"
 #include "ZAssetStore.hpp"
 
-// TODO: Pass pointer to scene to this method
 void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustum, const glm::vec4& color)
 {
     std::vector<std::pair<glm::vec3, glm::vec3>> linePoints = {
@@ -60,13 +59,43 @@ void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustu
         std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[3]), glm::vec3(frustum.corners[7]))
     };
 
-    for (std::pair<glm::vec3, glm::vec3> points : linePoints)
+    for (const auto& points : linePoints)
     {
         DebugDrawLine(scene, points.first, points.second, color);
     }
 }
 
-// TODO: Pass pointer to scene to this method
+void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZAABBox& aabb, const glm::vec4& color)
+{
+    auto cornerTLB = glm::vec3(aabb.minimum.x, aabb.maximum.y, aabb.minimum.z);
+    auto cornerTRB = glm::vec3(aabb.maximum.x, aabb.maximum.y, aabb.minimum.z);
+    auto cornerBRB = glm::vec3(aabb.maximum.x, aabb.minimum.y, aabb.minimum.z);
+    auto cornerBLB = glm::vec3(aabb.minimum.x, aabb.minimum.y, aabb.minimum.z);
+    auto cornerTLF = glm::vec3(aabb.minimum.x, aabb.maximum.y, aabb.maximum.z);
+    auto cornerTRF = glm::vec3(aabb.maximum.x, aabb.maximum.y, aabb.maximum.z);
+    auto cornerBRF = glm::vec3(aabb.maximum.x, aabb.minimum.y, aabb.maximum.z);
+    auto cornerBLF = glm::vec3(aabb.minimum.x, aabb.minimum.y, aabb.maximum.z);
+    std::vector<std::pair<glm::vec3, glm::vec3>> linePoints = {
+        { cornerTLB, cornerTRB },
+        { cornerTRB, cornerBRB },
+        { cornerBRB, cornerBLB },
+        { cornerBLB, cornerTLB },
+        { cornerTLF, cornerTRF },
+        { cornerTRF, cornerBRF },
+        { cornerBRF, cornerBLF },
+        { cornerBLF, cornerTLF },
+        { cornerTLB, cornerTLF },
+        { cornerTRB, cornerTRF },
+        { cornerBRB, cornerBRF },
+        { cornerBLB, cornerBLF }
+    };
+
+    for (const auto& points : linePoints)
+    {
+        DebugDrawLine(scene, points.first, points.second, color);
+    }
+}
+
 void ZGraphics::DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::vec4& color)
 {
     std::vector<std::pair<glm::vec3, glm::vec3>> linePoints;
@@ -77,7 +106,7 @@ void ZGraphics::DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::v
         linePoints.push_back(std::make_pair<glm::vec3, glm::vec3>(glm::vec3((float)i, 0.f, -(float)numGridLines / 2.f), glm::vec3((float)i, 0.f, (float)numGridLines / 2.f)));
     }
 
-    for (std::pair<glm::vec3, glm::vec3> points : linePoints)
+    for (const auto& points : linePoints)
     {
         DebugDrawLine(scene, points.first, points.second, color);
     }

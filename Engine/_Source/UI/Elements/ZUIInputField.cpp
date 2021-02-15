@@ -36,12 +36,12 @@
 #include "ZServices.hpp"
 
 ZUIInputField::ZUIInputField(const std::string& label, const std::string& placeholder, const glm::vec2& position, const glm::vec2& scale)
-    : ZUIElement(position, scale), label_(label), placeholder_(placeholder)
+    : ZUIElement(position, scale), label_(label), placeholder_(placeholder), textColor_(1.f), labelTextColor_(1.f), fieldPadding_(0.02f, 0.f)
 {
 }
 
 ZUIInputField::ZUIInputField(const ZUIElementOptions& options, const std::string& label, const std::string& placeholder)
-    : ZUIElement(options), label_(label), placeholder_(placeholder)
+    : ZUIElement(options), label_(label), placeholder_(placeholder), textColor_(1.f), labelTextColor_(1.f), fieldPadding_(0.02f, 0.f)
 {
 }
 
@@ -92,30 +92,95 @@ void ZUIInputField::Initialize(const std::shared_ptr<ZOFNode>& root)
 void ZUIInputField::SetLabel(const std::string& label)
 {
     labelText_->SetText(label);
-    float labelWidth = label.empty() ? 0.f : 0.3f;
+    float labelWidth = label.empty() ? 0.f : labelWidth_;
     labelText_->SetRect(ZRect(0.f, 0.f, labelWidth, 1.f), options_.calculatedRect);
     field_->SetRect(ZRect(0.f, 0.f, 1.f - labelWidth, 1.f), options_.calculatedRect);
+}
+
+void ZUIInputField::SetLabelWidth(float width)
+{
+    labelWidth_ = width;
+    if (labelText_) {
+        labelText_->SetRect(ZRect(0.f, 0.f, labelWidth_, 1.f), options_.calculatedRect);
+        field_->SetRect(ZRect(0.f, 0.f, 1.f - labelWidth_, 1.f), options_.calculatedRect);
+    }
 }
 
 void ZUIInputField::SetText(const std::string& text)
 {
     text_ = text;
-    fieldText_->SetText(text_);
+    if (fieldText_) {
+        fieldText_->SetText(text_);
+    }
+}
+
+void ZUIInputField::SetTextColor(const glm::vec4& color)
+{
+    textColor_ = color;
+    if (fieldText_) {
+        fieldText_->SetColor(textColor_);
+    }
+}
+
+void ZUIInputField::SetLabelTextColor(const glm::vec4& color)
+{
+    labelTextColor_ = color;
+    if (labelText_) {
+        labelText_->SetColor(labelTextColor_);
+    }
+}
+
+void ZUIInputField::SetHighlightBorder(const ZUIBorder& border)
+{
+    highlightBorder_ = border;
+    if (focused_) {
+        field_->SetBorder(highlightBorder_);
+    }
 }
 
 void ZUIInputField::SetFocused(bool focused)
 {
     focused_ = focused;
     if (focused_) {
-        ZUIBorder border;
-        border.color = glm::vec4(0.203f, 0.537f, 0.921f, 1.f); // TODO: Set this border elsewhere.. should be configured more flexibly
-        border.width = 1.f;
-        field_->SetBorder(border);
+        field_->SetBorder(highlightBorder_);
     }
     else {
-        ZUIBorder border = field_->Border();
+        ZUIBorder border = highlightBorder_;
         border.width = 0.f;
         field_->SetBorder(border);
+    }
+}
+
+void ZUIInputField::SetBackground(const ZTexture::ptr& texture)
+{
+    if (field_) {
+        field_->SetTexture(texture);
+    }
+}
+
+void ZUIInputField::SetBackground(const glm::vec4& color)
+{
+    if (field_) {
+        field_->SetColor(color);
+    }
+}
+
+void ZUIInputField::SetFontSize(float size)
+{
+    fontSize_ = size;
+    if (labelText_) {
+        labelText_->SetFontScale(fontSize_);
+    }
+    if (fieldText_) {
+        fieldText_->SetFontScale(fontSize_);
+    }
+}
+
+void ZUIInputField::SetFieldPadding(const glm::vec2& padding)
+{
+    fieldPadding_ = padding;
+    if (fieldText_) {
+        fieldText_->SetRect(ZRect(fieldPadding_.x * 2.f, fieldPadding_.y * 2.f, 1.f - fieldPadding_.x, 1.f - fieldPadding_.y));
     }
 }
 
@@ -127,11 +192,11 @@ void ZUIInputField::CreateLabelField(const std::string& text)
     ZUIElementOptions textOptions;
     textOptions.positioning = ZPositioning::Relative;
     textOptions.scaling = ZPositioning::Relative;
-    textOptions.rect = ZRect(0.f, 0.f, text.empty() ? 0.f : 0.3f, 1.f);
-    textOptions.color = glm::vec4(1.f);
+    textOptions.rect = ZRect(0.f, 0.f, text.empty() ? 0.f : labelWidth_, 1.f);
+    textOptions.color = labelTextColor_;
     labelText_ = ZUIText::Create(textOptions, scene);
     labelText_->SetText(text);
-    labelText_->SetFontScale(16.f);
+    labelText_->SetFontScale(fontSize_);
 
     AddChild(labelText_);
 }
@@ -144,7 +209,7 @@ void ZUIInputField::CreateField()
     ZUIElementOptions fieldOptions;
     fieldOptions.positioning = ZPositioning::Relative;
     fieldOptions.scaling = ZPositioning::Relative;
-    fieldOptions.rect = ZRect(0.f, 0.f, 1.f - labelText_->Rect().size.x, 1.f);
+    fieldOptions.rect = ZRect(0.f, 0.f, 1.f - labelWidth_, 1.f);
     fieldOptions.color = glm::vec4(options_.color + 0.3f);
     fieldOptions.color.a = 1.f;
     field_ = ZUIPanel::Create(fieldOptions, scene);
@@ -152,10 +217,10 @@ void ZUIInputField::CreateField()
     ZUIElementOptions fieldTextOptions;
     fieldTextOptions.positioning = ZPositioning::Relative;
     fieldTextOptions.scaling = ZPositioning::Relative;
-    fieldTextOptions.rect = ZRect(0.02f, 0.f, 0.98f, 1.f);
-    fieldTextOptions.color = glm::vec4(1.f);
+    fieldTextOptions.rect = ZRect(fieldPadding_.x * 2.f, fieldPadding_.y * 2.f, 1.f - fieldPadding_.x, 1.f - fieldPadding_.y);
+    fieldTextOptions.color = textColor_;
     fieldText_ = ZUIText::Create(fieldTextOptions, scene);
-    fieldText_->SetFontScale(16.f);
+    fieldText_->SetFontScale(fontSize_);
 
     field_->AddChild(fieldText_);
 

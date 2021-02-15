@@ -42,6 +42,10 @@ void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     auto inputField = ZUIInputField::Create(fieldOptions, scene);
     container_->AddChild(inputField);
     inputField->SetLabel("Name");
+    ZUIBorder highlight;
+    highlight.color = glm::vec4(0.454f, 0.854f, 0.945f, 1.f);
+    highlight.width = 1.f;
+    inputField->SetHighlightBorder(highlight);
 }
 
 void ZInspectorTool::Update() {

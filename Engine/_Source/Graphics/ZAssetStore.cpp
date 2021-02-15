@@ -52,7 +52,7 @@ void ZAssetStore::Initialize()
 
 void ZAssetStore::InitializeShaders()
 {
-    pbrShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/pbr.frag"));
+    pbrShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"));
     debugShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/debug.vert", "/Shaders/Pixel/debug.frag"));
     shadowShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/depth.frag"));
     depthShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/depth.frag"));
@@ -113,11 +113,18 @@ void ZAssetStore::Load(std::shared_ptr<ZOFTree> root)
 
 void ZAssetStore::LoadAsync(std::shared_ptr<ZOFTree> root)
 {
+    ZMaterialMap loadedMaterials;
+
     ZFont::CreateAsync(root, pendingFonts_);
     ZTexture::CreateAsync(root, pendingTextures_);
     ZShader::CreateAsync(root, pendingShaders_);
     ZModel::CreateAsync(root, pendingModels_);
-    ZMaterial::CreateAsync(root, pendingMaterials_);
+    ZMaterial::CreateAsync(root, pendingMaterials_, loadedMaterials);
+
+    for (ZMaterialMap::iterator it = loadedMaterials.begin(); it != loadedMaterials.end(); it++)
+    {
+        AddMaterial(it->first, it->second);
+    }
 }
 
 void ZAssetStore::RegisterFont(const std::string& fontPath, unsigned int fontSize)

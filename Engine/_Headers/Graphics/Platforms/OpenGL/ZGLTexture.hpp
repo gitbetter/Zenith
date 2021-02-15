@@ -44,21 +44,23 @@ public:
     ZGLTexture() : ZTexture()
     { }
 
-    virtual void Bind(unsigned int index) override;
-    virtual void Resize(unsigned int width, unsigned int height, bool multisample = false) override;
+    void Bind(unsigned int index) override;
+    void Resize(unsigned int width, unsigned int height) override;
+    void Delete() override;
 
-    virtual void LoadDefault() override;
-    virtual void LoadCubeMap(const std::vector<std::string>& faces) override;
-    virtual void LoadCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZFramebuffer>& bufferData) override;
-    virtual void LoadEmptyCubeMap(ZCubemapTextureType textureType = ZCubemapTextureType::Normal) override;
-    virtual void LoadHDRIAsync(const std::string& hdriPath) override;
-    virtual void LoadHDRI(const std::string& hdriPath, std::shared_ptr<ZFramebuffer>& bufferData) override;
-    virtual void LoadIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture) override;
-    virtual void LoadPrefilterCubeMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture) override;
-    virtual void LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferData) override;
-    virtual void Load(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true)override;
-    virtual void LoadEmptyLUT() override;
-    virtual void LoadColor(const glm::vec2& size, bool multisample = false) override;
-    virtual void LoadDepth(const glm::vec2& size) override;
+    void LoadDefault() override;
+    void LoadCubeMap(const std::vector<std::string>& faces) override;
+    void LoadCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZFramebuffer>& bufferData) override;
+    void LoadEmptyCubeMap(ZCubemapTextureType textureType = ZCubemapTextureType::Normal) override;
+    void LoadHDRIAsync(const std::string& hdriPath) override;
+    void LoadHDRI(const std::string& hdriPath, std::shared_ptr<ZFramebuffer>& bufferData) override;
+    void LoadIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture) override;
+    void LoadPrefilterCubeMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture) override;
+    void LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferData) override;
+    void Load(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true)override;
+    void LoadEmptyLUT() override;
+    void LoadColor(const glm::vec2& size, bool multisample = false) override;
+    void LoadDepth(const glm::vec2& size) override;
+    void LoadDepthArray(const glm::vec2& size, int layers) override;
 
 };

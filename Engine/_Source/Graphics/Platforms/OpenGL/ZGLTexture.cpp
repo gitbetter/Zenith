@@ -41,15 +41,24 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void ZGLTexture::Resize(unsigned int width, unsigned int height, bool multisample)
+// TODO: Store texture format in texture class
+
+void ZGLTexture::Resize(unsigned int width, unsigned int height)
 {
-    GLenum target = multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+    GLenum target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+    if (type.find("Array") != std::string::npos) {
+        target = GL_TEXTURE_2D_ARRAY;
+    }
 
     glBindTexture(target, id);
 
-    if (multisample)
+    if (multisampled)
     {
         glTexImage2DMultisample(target, 4, GL_RGB, width, height, GL_TRUE);
+    }
+    else if (type.find("shadowArray") != std::string::npos)
+    {
+        glTexImage3D(target, 0, GL_DEPTH_COMPONENT, width, height, NUM_SHADOW_CASCADES, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     }
     else
     {
@@ -59,6 +68,13 @@ void ZGLTexture::Resize(unsigned int width, unsigned int height, bool multisampl
     glBindTexture(target, 0);
 }
 
+void ZGLTexture::Delete()
+{
+    if (id > 0) {
+        glDeleteTextures(1, &id);
+    }
+}
+
 void ZGLTexture::Bind(unsigned int index)
 {
     glActiveTexture(GL_TEXTURE0 + index);
@@ -66,6 +82,10 @@ void ZGLTexture::Bind(unsigned int index)
     {
         glBindTexture(GL_TEXTURE_CUBE_MAP, id);
     }
+    else if (type.find("Array") != std::string::npos)
+    {
+        glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+    } 
     else
     {
         glBindTexture(GL_TEXTURE_2D, id);
@@ -243,6 +263,10 @@ void ZGLTexture::LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferD
 
 void ZGLTexture::LoadDefault()
 {
+    if (id > 0) {
+        Delete();
+    }
+
     type = "color";
     GLubyte textureData[] = { 255, 255, 255, 255 };
     glGenTextures(1, &id);
@@ -257,6 +281,10 @@ void ZGLTexture::LoadDefault()
 
 void ZGLTexture::LoadCubeMap(const std::vector<std::string>& faces)
 {
+    if (id > 0) {
+        Delete();
+    }
+
     type = "cubemap";
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
@@ -293,6 +321,10 @@ void ZGLTexture::LoadCubeMap(const std::vector<std::string>& faces)
 
 void ZGLTexture::LoadEmptyCubeMap(ZCubemapTextureType textureType)
 {
+    if (id > 0) {
+        Delete();
+    }
+
     type = "cubemap";
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
@@ -333,6 +365,10 @@ void ZGLTexture::LoadEmptyCubeMap(ZCubemapTextureType textureType)
 
 void ZGLTexture::Load(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping, bool hdr, bool flip)
 {
+    if (id > 0) {
+        Delete();
+    }
+
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
 
@@ -385,6 +421,10 @@ void ZGLTexture::Load(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping 
 
 void ZGLTexture::LoadEmptyLUT()
 {
+    if (id > 0) {
+        Delete();
+    }
+
     type = "lut";
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
@@ -398,8 +438,13 @@ void ZGLTexture::LoadEmptyLUT()
 
 void ZGLTexture::LoadColor(const glm::vec2& size, bool multisample)
 {
+    if (id > 0) {
+        Delete();
+    }
+
     type = "color";
-    GLenum target = multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+    multisampled = multisample;
+    GLenum target = multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 
     glGenTextures(1, &id);
     glBindTexture(target, id);
@@ -422,17 +467,41 @@ void ZGLTexture::LoadColor(const glm::vec2& size, bool multisample)
 
 void ZGLTexture::LoadDepth(const glm::vec2& size)
 {
+    if (id > 0) {
+        Delete();
+    }
+
     type = "depth";
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     float borderColor[] = { 1.f, 1.f, 1.f, 1.f };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void ZGLTexture::LoadDepthArray(const glm::vec2& size, int layers)
+{
+    if (id > 0) {
+        Delete();
+    }
+
+    type = "depthArray";
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);   // GL_LINEAR will enabled PCF depth comparison on hardware if used with sampler2DArrayShadow in fragment shader
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   // GL_LINEAR will enabled PCF depth comparison on hardware if used with sampler2DArrayShadow in fragment shader
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    float borderColor[] = { 1.f, 1.f, 1.f, 1.f };
+    glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, borderColor);
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, size.x, size.y, layers, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }

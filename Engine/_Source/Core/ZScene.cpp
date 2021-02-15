@@ -122,34 +122,31 @@ void ZScene::SetupRenderPasses()
 
     // TODO: Possible performance penalty here. Color and depth information might be better computed in 
     // a single render pass using multiple render targets.
-
-    // Render pass #1: Shadow
-    // TODO: Support more shadow casting lights!
-    ZRenderPass::ptr shadowPass = std::make_shared<ZRenderPass>(
-        root_, gameSystems_.assetStore->ShadowShader(), ZRenderOp::Shadow, glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
-        );
-    shadowPass->SetIsSizeFixed(true);
-    renderer3D_->AddPass(shadowPass);
-
     ZRenderPass::ptr depthPass = std::make_shared<ZRenderPass>(
         root_, gameSystems_.assetStore->DepthShader(), ZRenderOp::Depth, glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
         );
     depthPass->SetIsSizeFixed(true);
     renderer3D_->AddPass(depthPass);
 
+    ZRenderPass::ptr shadowPass = std::make_shared<ZRenderPass>(
+        root_, gameSystems_.assetStore->ShadowShader(), ZRenderOp::Shadow, glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
+        );
+    shadowPass->SetIsSizeFixed(true);
+    renderer3D_->AddPass(shadowPass);
+
     ZRenderPass::ptr colorPass = std::make_shared<ZRenderPass>(
         root_, gameSystems_.assetStore->PBRShader(), ZRenderOp::Color, gameSystems_.domain->Resolution(),
-        true, shadowPass, depthPass
+        true, depthPass, shadowPass
         );
     renderer3D_->AddPass(colorPass);
 
     ZRenderPass::ptr postPass = std::make_shared<ZRenderPass>(
         root_, gameSystems_.assetStore->PostShader(), ZRenderOp::Post, gameSystems_.domain->Resolution(),
-        false, colorPass, depthPass
+        false, colorPass, depthPass, shadowPass
         );
     renderer3D_->AddPass(postPass);
 
-    canvas_->SetTexture(postPass->Framebuffer()->Attachment());
+    canvas_->SetTexture(postPass->Framebuffer()->BoundAttachment());
     ZRenderPass::ptr uiPass = std::make_shared<ZRenderPass>(
         canvas_, gameSystems_.assetStore->UIShader(), ZRenderOp::UI, gameSystems_.domain->Resolution()
         );
@@ -203,10 +200,10 @@ void ZScene::UpdateViewProjectionMatrices()
 
 void ZScene::UpdateLightspaceMatrices()
 {
-    if (gameLights_.empty()) return;
+    if (gameLights_.empty() || !activeCamera_->Moving()) return;
     ZFrustum frustum = activeCamera_->Frustum();
     for (auto it = gameLights_.begin(); it != gameLights_.end(); it++) {
-        it->second->UpdateLightspaceMatrix(frustum);
+        it->second->UpdateLightspaceMatrices(frustum);
     }
 }
 
@@ -438,7 +435,7 @@ void ZScene::PopMatrix()
 std::shared_ptr<ZTexture> ZScene::TargetTexture()
 {
     if (targetBuffer_)
-        return targetBuffer_->Attachment();
+        return targetBuffer_->BoundAttachment();
     return nullptr;
 }
 

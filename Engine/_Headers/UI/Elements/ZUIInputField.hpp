@@ -50,39 +50,56 @@ public:
     ZUIInputField(const ZUIElementOptions& options, const std::string& label = "", const std::string& placeholder = "");
     ~ZUIInputField() {}
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    void                                Initialize() override;
+    void                                Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
-    const std::string& Placeholder() const { return placeholder_; }
-    const std::string& Label() const { return label_; }
-    const std::string& Text() const { return text_; }
-    bool Focused() const { return focused_; }
+    const std::string&                  Placeholder() const { return placeholder_; }
+    const std::string&                  Label() const { return label_; }
+    const float                         LabelWidth() const { return labelWidth_; }
+    const std::string&                  Text() const { return text_; }
+    const glm::vec4&                    TextColor() const { return textColor_; }
+    const glm::vec2&                    FieldPadding() const { return fieldPadding_; }
+    bool                                Focused() const { return focused_; }
 
-    void SetPlaceholder(const std::string& placeholder) { placeholder_ = placeholder; }
-    void SetLabel(const std::string& label);
-    void SetText(const std::string& text);
-    void SetFocused(bool focused);
+    void                                SetPlaceholder(const std::string& placeholder) { placeholder_ = placeholder; }
+    void                                SetLabel(const std::string& label);
+    void                                SetLabelWidth(float width);
+    void                                SetText(const std::string& text);
+    void                                SetTextColor(const glm::vec4& color);
+    void                                SetLabelTextColor(const glm::vec4& color);
+    void                                SetHighlightBorder(const ZUIBorder& border);
+    void                                SetFocused(bool focused);
+    void                                SetBackground(const ZTexture::ptr& texture);
+    void                                SetBackground(const glm::vec4& color);
+    void                                SetFontSize(float size);
+    void                                SetFieldPadding(const glm::vec2& padding);
 
     DECLARE_UI_CREATORS(ZUIInputField)
 
 protected:
 
-    std::string placeholder_;
-    std::string label_;
-    std::string text_;
-    bool focused_ = false;
+    std::string                         placeholder_;
+    std::string                         label_;
+    std::string                         text_;
+    glm::vec4                           textColor_;
+    glm::vec4                           labelTextColor_;
+    glm::vec2                           fieldPadding_;
+    ZUIBorder                           highlightBorder_;
+    float                               labelWidth_ = 0.25f;
+    float                               fontSize_ = 16.f;
+    bool                                focused_ = false;
 
-    std::shared_ptr<ZUIPanel> field_;
-    std::shared_ptr<ZUIText> fieldText_;
-    std::shared_ptr<ZUIText> labelText_;
+    std::shared_ptr<ZUIPanel>           field_;
+    std::shared_ptr<ZUIText>            fieldText_;
+    std::shared_ptr<ZUIText>            labelText_;
 
-    void CreateField();
-    void CreateLabelField(const std::string& text);
-    void DestroyLabelField();
+    void                                CreateField();
+    void                                CreateLabelField(const std::string& text);
+    void                                DestroyLabelField();
 
-    void ProcessKey(const ZKey& key);
+    void                                ProcessKey(const ZKey& key);
 
-    void HandleKeyPressed(const std::shared_ptr<ZInputKeyEvent>& event);
-    void HandleButtonPressed(const std::shared_ptr<ZInputButtonEvent>& event);
+    void                                HandleKeyPressed(const std::shared_ptr<ZInputKeyEvent>& event);
+    void                                HandleButtonPressed(const std::shared_ptr<ZInputButtonEvent>& event);
 
 };

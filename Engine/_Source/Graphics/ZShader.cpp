@@ -243,6 +243,19 @@ void ZShader::Activate()
     glUseProgram(id_);
 }
 
+void ZShader::Validate()
+{
+    glValidateProgram(id_);
+    GLint status;
+    glGetProgramiv(id_, GL_VALIDATE_STATUS, &status);
+    if (status == GL_FALSE) {
+        int length = 0;
+        char log[1000];
+        glGetProgramInfoLog(id_, 1000, &length, log);
+        LOG(std::string(log), ZSeverity::Info);
+    }
+}
+
 void ZShader::SetBool(const std::string& name, bool value) const
 {
     glUniform1i(glGetUniformLocation(id_, name.c_str()), (int) value);
@@ -303,6 +316,20 @@ void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const
     glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
+void ZShader::SetFloatList(const std::string& name, const std::vector<float>& value) const
+{
+    for (int i = 0; i < value.size(); i++) {
+        SetFloat(name + "[" + std::to_string(i) + "]", value[i]);
+    }
+}
+
+void ZShader::SetMat4List(const std::string& name, const std::vector<glm::mat4>& value) const
+{
+    for (int i = 0; i < value.size(); i++) {
+        SetMat4(name + "[" + std::to_string(i) + "]", value[i]);
+    }
+}
+
 void ZShader::Use(const std::shared_ptr<ZMaterial>& material)
 {
     Activate();
@@ -312,25 +339,27 @@ void ZShader::Use(const std::shared_ptr<ZMaterial>& material)
     SetBool("hasDisplacement", material->HasDisplacement());
     // TODO: Move this elsewhere for configurability
     SetFloat("heightScale", 0.01f);
-    SetVec4("materials[" + std::to_string(material->Index()) + "].albedo", material->Properties().albedo);
+
+    std::string shaderMaterial = "materials[" + std::to_string(material->Index()) + "]";
+    SetVec4(shaderMaterial + ".albedo", material->Properties().albedo);
     if (material->IsPBR())
     {
-        SetFloat("materials[" + std::to_string(material->Index()) + "].metallic", material->Properties().metallic);
-        SetFloat("materials[" + std::to_string(material->Index()) + "].roughness", material->Properties().roughness);
-        SetFloat("materials[" + std::to_string(material->Index()) + "].ao", material->Properties().ao);
+        SetFloat(shaderMaterial + ".metallic", material->Properties().metallic);
+        SetFloat(shaderMaterial + ".roughness", material->Properties().roughness);
+        SetFloat(shaderMaterial + ".ao", material->Properties().ao);
     }
     else
     {
-        SetFloat("materials[" + std::to_string(material->Index()) + "].emission", material->Properties().emission);
-        SetFloat("materials[" + std::to_string(material->Index()) + "].diffuse", material->Properties().diffuse);
-        SetFloat("materials[" + std::to_string(material->Index()) + "].ambient", material->Properties().ambient);
-        SetFloat("materials[" + std::to_string(material->Index()) + "].specular", material->Properties().specular);
-        SetFloat("materials[" + std::to_string(material->Index()) + "].shininess", material->Properties().shininess);
+        SetFloat(shaderMaterial + ".emission", material->Properties().emission);
+        SetFloat(shaderMaterial + ".diffuse", material->Properties().diffuse);
+        SetFloat(shaderMaterial + ".ambient", material->Properties().ambient);
+        SetFloat(shaderMaterial + ".specular", material->Properties().specular);
+        SetFloat(shaderMaterial + ".shininess", material->Properties().shininess);
     }
 
-    // We start the external texture indices at 4 due to the depth, shadow and PBR irradiance maps, which are set internally
+    // We start the external texture indices at 6 due to the depth, shadow and PBR irradiance maps, which are set internally
     // and should not be overriden
-    unsigned int startIndex = 6;
+    unsigned int startIndex = 7;
     for (auto const& [key, val] : material->Textures())
     {
         val->Bind(startIndex);
@@ -349,37 +378,38 @@ void ZShader::Use(const ZLightMap& lights)
     for (auto it = lights.begin(); it != lights.end(); it++)
     {
         std::shared_ptr<ZLight> light = it->second;
+        std::string shaderLight = "lights[" + std::to_string(i) + "]";
         switch (light->type)
         {
         case ZLightType::Directional:
-            SetBool("lights[" + std::to_string(i) + "].isEnabled", light->enabled);
-            SetBool("lights[" + std::to_string(i) + "].isDirectional", true);
-            SetVec3("lights[" + std::to_string(i) + "].ambient", light->ambient);
-            SetVec3("lights[" + std::to_string(i) + "].color", light->color);
-            SetVec3("lights[" + std::to_string(i) + "].direction", glm::eulerAngles(light->Orientation()));
-            SetVec3("lights[" + std::to_string(i) + "].position", light->Position());
+            SetBool(shaderLight + ".isEnabled", light->enabled);
+            SetBool(shaderLight + ".isDirectional", true);
+            SetVec3(shaderLight + ".ambient", light->ambient);
+            SetVec3(shaderLight + ".color", light->color);
+            SetVec3(shaderLight + ".direction", glm::eulerAngles(light->Orientation()));
+            SetVec3(shaderLight + ".position", light->Position());
             break;
         case ZLightType::Point:
-            SetBool("lights[" + std::to_string(i) + "].isEnabled", light->enabled);
-            SetVec3("lights[" + std::to_string(i) + "].ambient", light->ambient);
-            SetVec3("lights[" + std::to_string(i) + "].color", light->color);
-            SetFloat("lights[" + std::to_string(i) + "].constantAttenuation", light->attenuation.constant);
-            SetFloat("lights[" + std::to_string(i) + "].linearAttenuation", light->attenuation.linear);
-            SetFloat("lights[" + std::to_string(i) + "].quadraticAttenuation", light->attenuation.quadratic);
-            SetVec3("lights[" + std::to_string(i) + "].position", light->Position());
+            SetBool(shaderLight + ".isEnabled", light->enabled);
+            SetVec3(shaderLight + ".ambient", light->ambient);
+            SetVec3(shaderLight + ".color", light->color);
+            SetFloat(shaderLight + ".constantAttenuation", light->attenuation.constant);
+            SetFloat(shaderLight + ".linearAttenuation", light->attenuation.linear);
+            SetFloat(shaderLight + ".quadraticAttenuation", light->attenuation.quadratic);
+            SetVec3(shaderLight + ".position", light->Position());
             break;
         case ZLightType::Spot:
-            SetBool("lights[" + std::to_string(i) + "].isEnabled", light->enabled);
-            SetBool("lights[" + std::to_string(i) + "].isSpot", true);
-            SetVec3("lights[" + std::to_string(i) + "].ambient", light->ambient);
-            SetVec3("lights[" + std::to_string(i) + "].color", light->color);
-            SetFloat("lights[" + std::to_string(i) + "].constantAttenuation", light->attenuation.constant);
-            SetFloat("lights[" + std::to_string(i) + "].linearAttenuation", light->attenuation.linear);
-            SetFloat("lights[" + std::to_string(i) + "].quadraticAttenuation", light->attenuation.quadratic);
-            SetVec3("lights[" + std::to_string(i) + "].coneDirection", light->spot.coneDirection);
-            SetFloat("lights[" + std::to_string(i) + "].cutoff", light->spot.cutoff);
-            SetFloat("lights[" + std::to_string(i) + "].exponent", light->spot.exponent);
-            SetVec3("lights[" + std::to_string(i) + "].position", light->Position());
+            SetBool(shaderLight + ".isEnabled", light->enabled);
+            SetBool(shaderLight + ".isSpot", true);
+            SetVec3(shaderLight + ".ambient", light->ambient);
+            SetVec3(shaderLight + ".color", light->color);
+            SetFloat(shaderLight + ".constantAttenuation", light->attenuation.constant);
+            SetFloat(shaderLight + ".linearAttenuation", light->attenuation.linear);
+            SetFloat(shaderLight + ".quadraticAttenuation", light->attenuation.quadratic);
+            SetVec3(shaderLight + ".coneDirection", light->spot.coneDirection);
+            SetFloat(shaderLight + ".cutoff", light->spot.cutoff);
+            SetFloat(shaderLight + ".exponent", light->spot.exponent);
+            SetVec3(shaderLight + ".position", light->Position());
             break;
         default: break;
         }

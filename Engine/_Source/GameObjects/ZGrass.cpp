@@ -65,10 +65,10 @@ void ZGrass::Initialize()
     {
         for (unsigned int j = 0; j < length; j++)
         {
+            auto scale = Scale();
             auto x = -(length * 0.75f) + i + (-2 + std::rand() % 4);
             auto z = -(length * 0.75f) + j + (-2 + std::rand() % 4);
-            auto translation = Position() + glm::vec3(x, 1.5f, z);
-            auto scale = Scale();
+            auto translation = Position() + glm::vec3(x, scale.y * 2.f, z);
             for (unsigned int k = 0; k < cPolygonCount; k++)
             {
                 auto rotation = glm::quat(glm::vec3(-90.f, (k == 2 ? 135.f : k * 45.f), 0.f));

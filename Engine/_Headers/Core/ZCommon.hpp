@@ -62,8 +62,6 @@
 #include "ZStringHelpers.hpp"
 
 constexpr unsigned int BONES_PER_VERTEX = 4;
-constexpr float DEFAULT_X_RESOLUTION = 2560.f;
-constexpr float DEFAULT_Y_RESOLUTION = 1600.f;
 constexpr float UPDATE_STEP_SIZE = 0.017f;
 constexpr int MAX_FIXED_UPDATE_ITERATIONS = 24;
 constexpr unsigned int SHADOW_MAP_SIZE = 4096;
@@ -83,6 +81,8 @@ const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP{
     "/Skyboxes/Default/back.png",
 };
 const std::string DEFAULT_HDR_CUBEMAP = "/Skyboxes/DefaultHDR/sky.hdr";
+constexpr unsigned int NUM_SHADOW_CASCADES = 4;
+const float EPSILON = glm::epsilon<float>();
 
 enum ZKey
 {
@@ -592,9 +592,10 @@ struct ZMaterialProperties
 
     ZMaterialProperties()
     {
+        isPBR = false; hasDisplacement = false;
         albedo = glm::vec4(1.f, 1.f, 1.f, 1.f);
-        alpha = 1.f; emission = 0.f; diffuse = 0.f;
-        ambient = 0.f; specular = 0.f; shininess = 0.f;
+        alpha = 1.f; emission = 0.f; diffuse = 0.8f;
+        ambient = 0.2f; specular = 0.5f; shininess = 48.f;
         tiling = 1.f;
     }
 };
@@ -690,6 +691,7 @@ struct ZGraphicsOptions
     bool hasMotionBlur{ false };
     bool drawPhysicsDebug{ false };
     bool drawCameraDebug{ false };
+    bool drawAABBDebug{ false };
     bool drawGrid{ false };
 };
 
@@ -765,6 +767,10 @@ struct ZRect
     inline bool operator!=(const ZRect& other) const {
         return !((*this) == other);
     }
+};
+
+struct ZBasis {
+    glm::vec3 x, y, z;
 };
 
 struct ZUITheme {

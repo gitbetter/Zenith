@@ -71,7 +71,7 @@ public:
     static std::shared_ptr<ZMaterial> Default();
     static std::shared_ptr<ZMaterial> CreateDefault();
     static void Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outTextureMap, const ZTextureMap& textureCache);
-    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPendingTextures);
+    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPendingTextures, ZMaterialMap& outMaterials);
     static std::shared_ptr<ZMaterial> Create(const ZMaterialProperties& materialProperties);
     static std::shared_ptr<ZMaterial> Create(const std::vector<std::shared_ptr<ZTexture>>& textures);
 
