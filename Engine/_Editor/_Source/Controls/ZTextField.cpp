@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZInspectorTool.cpp
- 
-    Created by Adrian Sanchez on 18/05/19.
+    ZTextField.cpp
+
+    Created by Adrian Sanchez on 02/15/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -27,17 +27,29 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZInspectorTool.hpp"
 #include "ZTextField.hpp"
-#include "ZUIPanel.hpp"
+#include "ZUIInputField.hpp"
 
-void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
-    ZEditorTool::Initialize(scene);
-    container_->SetColor(theme_.secondaryColor);
-    auto inputField = ZTextField::Create("Name", scene, theme_);
-    container_->AddChild(inputField->Control());
+void ZTextField::Initialize(const std::shared_ptr<ZScene>& scene)
+{
 }
 
-void ZInspectorTool::Update() {
+void ZTextField::Update()
+{
+}
 
+std::shared_ptr<ZTextField> ZTextField::Create(const std::string& label, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
+{
+    auto textField = std::make_shared<ZTextField>(theme);
+
+    ZUIElementOptions fieldOptions;
+    fieldOptions.positioning = ZPositioning::Relative;
+    fieldOptions.scaling = ZPositioning::Relative;
+    fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
+    fieldOptions.maxSize = glm::vec2(0.f, 30.f);
+    textField->control_ = ZUIInputField::Create(fieldOptions, scene);
+    textField->control_->SetLabel("Name");
+    textField->control_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+
+    return textField;
 }

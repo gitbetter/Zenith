@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZInspectorTool.cpp
+    ZTextField.hpp
  
-    Created by Adrian Sanchez on 18/05/19.
+    Created by Adrian Sanchez on 02/15/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -27,17 +27,29 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZInspectorTool.hpp"
-#include "ZTextField.hpp"
-#include "ZUIPanel.hpp"
+#pragma once
 
-void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
-    ZEditorTool::Initialize(scene);
-    container_->SetColor(theme_.secondaryColor);
-    auto inputField = ZTextField::Create("Name", scene, theme_);
-    container_->AddChild(inputField->Control());
-}
+// Includes
+#include "ZEditorControl.hpp"
+#include "ZUIInputField.hpp"
 
-void ZInspectorTool::Update() {
+ // Forward Declarations
+class ZUIScene;
 
-}
+// Definitions
+class ZTextField : public ZEditorControl<ZUIInputField> {
+
+public:
+
+    ZTextField(const ZUITheme& theme = ZUITheme())
+        : ZEditorControl(theme)
+    { }
+    ~ZTextField() {}
+
+    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+
+    void Update() override;
+
+    static std::shared_ptr<ZTextField> Create(const std::string& label = "", const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
+
+};

@@ -7,10 +7,12 @@ set(EDITOR_SOURCES
 ${EDITOR_SOURCES_DIR}/ZEditor.cpp
 ${EDITOR_SOURCES_DIR}/ZEditorScene.cpp
 ${EDITOR_SOURCES_DIR}/ZEditorTool.cpp
+${EDITOR_SOURCES_DIR}/ZEditorControl.cpp
 ${EDITOR_SOURCES_DIR}/ZEditorReadyEvent.cpp
 ${EDITOR_HEADERS_DIR}/ZEditor.hpp
 ${EDITOR_HEADERS_DIR}/ZEditorScene.hpp
 ${EDITOR_HEADERS_DIR}/ZEditorTool.hpp
+${EDITOR_HEADERS_DIR}/ZEditorControl.hpp
 ${EDITOR_HEADERS_DIR}/ZEditorReadyEvent.hpp
 ${EDITOR_HEADERS_DIR}/Tools/ZConsoleTool.hpp
 ${EDITOR_HEADERS_DIR}/Tools/ZHierarchyTool.hpp
@@ -22,6 +24,7 @@ ${EDITOR_HEADERS_DIR}/Tools/ZProjectTool.hpp
 ${EDITOR_HEADERS_DIR}/Tools/ZSceneTool.hpp
 ${EDITOR_HEADERS_DIR}/Tools/ZMenuBar.hpp
 ${EDITOR_HEADERS_DIR}/Tools/ZActionBar.hpp
+${EDITOR_HEADERS_DIR}/Controls/ZTextField.hpp
 ${EDITOR_SOURCES_DIR}/Tools/ZConsoleTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZHierarchyTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZInspectorTool.cpp
@@ -32,12 +35,14 @@ ${EDITOR_SOURCES_DIR}/Tools/ZProjectTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZSceneTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZMenuBar.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZActionBar.cpp
+${EDITOR_SOURCES_DIR}/Controls/ZTextField.cpp
 ${EDITOR_SOURCES_DIR}/main.cpp
 )
 
 SET(EDITOR_INCLUDES
 ${EDITOR_HEADERS_DIR}
 ${EDITOR_HEADERS_DIR}/Tools
+${EDITOR_HEADERS_DIR}/Controls
 )
 
 file(GLOB_RECURSE EDITOR_ASSETS "${ENGINE_DIRECTORY}/_Editor/_Assets/*")

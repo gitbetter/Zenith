@@ -32,6 +32,7 @@
 // Includes
 #include <random>
 #include <string>
+#include <atomic>
 
 // Forward Declarations
 // class SomeClass;
@@ -39,20 +40,20 @@
 // Class and Data Structure Definitions
 class ZIDSequence
 {
-private:
-
-    std::mt19937 generator_;
 
 public:
+    
+    static unsigned int MaxIDCount;
 
-    ZIDSequence() {}
     ZIDSequence(const std::string& seed);
     ~ZIDSequence() {}
 
     // TODO: Use a random number generator to sample from a
     // list of tokens and use a few tokens as the prefix
-    std::string Next() { return std::to_string(generator_() % 100000); }
+    std::string Next() { return std::to_string((currentId_++) % MaxIDCount); }
 
-protected:
+private:
+
+    std::atomic_uint currentId_;
 
 };

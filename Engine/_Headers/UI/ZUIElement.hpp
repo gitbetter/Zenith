@@ -71,6 +71,12 @@ struct ZUIBorder
     float width{ 0.f };
     float radius{ 0.f };
     glm::vec4 color{ 0.f };
+
+    ZUIBorder() 
+    { }
+    ZUIBorder(const glm::vec4& color, float width, float radius)
+        : width(width), radius(radius), color(color)
+    { }
 };
 
 struct ZUIElementOptions
@@ -104,7 +110,7 @@ public:
 
     ZUIElement(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
     ZUIElement(const ZUIElementOptions& options);
-    virtual ~ZUIElement() {}
+    virtual ~ZUIElement();
 
     virtual void                        Initialize() override;
     virtual void                        Initialize(const std::shared_ptr<ZOFNode>& root);

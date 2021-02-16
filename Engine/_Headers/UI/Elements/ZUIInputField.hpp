@@ -50,29 +50,29 @@ public:
     ZUIInputField(const ZUIElementOptions& options, const std::string& label = "", const std::string& placeholder = "");
     ~ZUIInputField() {}
 
-    void                                Initialize() override;
-    void                                Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    virtual void                                Initialize() override;
+    virtual void                                Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
-    const std::string&                  Placeholder() const { return placeholder_; }
-    const std::string&                  Label() const { return label_; }
-    const float                         LabelWidth() const { return labelWidth_; }
-    const std::string&                  Text() const { return text_; }
-    const glm::vec4&                    TextColor() const { return textColor_; }
-    const glm::vec2&                    FieldPadding() const { return fieldPadding_; }
-    bool                                Focused() const { return focused_; }
+    const std::string&                          Placeholder() const { return placeholder_; }
+    const std::string&                          Label() const { return label_; }
+    const float                                 LabelWidth() const { return labelWidth_; }
+    const std::string&                          Text() const { return text_; }
+    const glm::vec4&                            TextColor() const { return textColor_; }
+    const glm::vec2&                            FieldPadding() const { return fieldPadding_; }
+    bool                                        Focused() const { return focused_; }
 
-    void                                SetPlaceholder(const std::string& placeholder) { placeholder_ = placeholder; }
-    void                                SetLabel(const std::string& label);
-    void                                SetLabelWidth(float width);
-    void                                SetText(const std::string& text);
-    void                                SetTextColor(const glm::vec4& color);
-    void                                SetLabelTextColor(const glm::vec4& color);
-    void                                SetHighlightBorder(const ZUIBorder& border);
-    void                                SetFocused(bool focused);
-    void                                SetBackground(const ZTexture::ptr& texture);
-    void                                SetBackground(const glm::vec4& color);
-    void                                SetFontSize(float size);
-    void                                SetFieldPadding(const glm::vec2& padding);
+    void                                        SetPlaceholder(const std::string& placeholder) { placeholder_ = placeholder; }
+    void                                        SetLabel(const std::string& label);
+    void                                        SetLabelWidth(float width);
+    void                                        SetText(const std::string& text);
+    void                                        SetTextColor(const glm::vec4& color);
+    void                                        SetLabelTextColor(const glm::vec4& color);
+    void                                        SetHighlightBorder(const ZUIBorder& border);
+    void                                        SetFocused(bool focused);
+    void                                        SetBackground(const ZTexture::ptr& texture);
+    void                                        SetBackground(const glm::vec4& color);
+    void                                        SetFontSize(float size);
+    void                                        SetFieldPadding(const glm::vec2& padding);
 
     DECLARE_UI_CREATORS(ZUIInputField)
 

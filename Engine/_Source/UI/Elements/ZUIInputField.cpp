@@ -195,7 +195,8 @@ void ZUIInputField::CreateLabelField(const std::string& text)
     textOptions.rect = ZRect(0.f, 0.f, text.empty() ? 0.f : labelWidth_, 1.f);
     textOptions.color = labelTextColor_;
     labelText_ = ZUIText::Create(textOptions, scene);
-    labelText_->SetText(text);
+    if (!text.empty())
+        labelText_->SetText(text);
     labelText_->SetFontScale(fontSize_);
 
     AddChild(labelText_);
@@ -214,6 +215,8 @@ void ZUIInputField::CreateField()
     fieldOptions.color.a = 1.f;
     field_ = ZUIPanel::Create(fieldOptions, scene);
 
+    AddChild(field_);
+
     ZUIElementOptions fieldTextOptions;
     fieldTextOptions.positioning = ZPositioning::Relative;
     fieldTextOptions.scaling = ZPositioning::Relative;
@@ -223,8 +226,6 @@ void ZUIInputField::CreateField()
     fieldText_->SetFontScale(fontSize_);
 
     field_->AddChild(fieldText_);
-
-    AddChild(field_);
 }
 
 void ZUIInputField::DestroyLabelField()

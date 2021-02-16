@@ -54,6 +54,7 @@ void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
     playButton_ = CreateActionButton("/Images/play_icon.png", scene);
     pauseButton_ = CreateActionButton("/Images/pause_icon.png", scene);
     stopButton_ = CreateActionButton("/Images/stop_icon.png", scene);
+
     actionButtonList->AddChild(playButton_);
     actionButtonList->AddChild(pauseButton_);
     actionButtonList->AddChild(stopButton_);

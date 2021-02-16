@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZInspectorTool.cpp
- 
-    Created by Adrian Sanchez on 18/05/19.
+	ZEditorControl.cpp
+
+	Created by Adrian Sanchez on 02/15/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -27,17 +27,4 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZInspectorTool.hpp"
-#include "ZTextField.hpp"
-#include "ZUIPanel.hpp"
-
-void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
-    ZEditorTool::Initialize(scene);
-    container_->SetColor(theme_.secondaryColor);
-    auto inputField = ZTextField::Create("Name", scene, theme_);
-    container_->AddChild(inputField->Control());
-}
-
-void ZInspectorTool::Update() {
-
-}
+#include "ZEditorControl.hpp"

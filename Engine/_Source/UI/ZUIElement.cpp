@@ -61,6 +61,11 @@ ZUIElement::ZUIElement(const ZUIElementOptions& options) : modelMatrix_(1.f), pr
     options_ = options;
 }
 
+ZUIElement::~ZUIElement()
+{
+    CleanUp();
+}
+
 void ZUIElement::Initialize() {
     auto scene = Scene();
     if (!scene)
@@ -463,9 +468,9 @@ void ZUIElement::CleanUp()
     ZUIElementMap childrenCopy(children_);
     for (auto it = childrenCopy.begin(); it != childrenCopy.end(); it++)
     {
-        it->second->CleanUp();
         RemoveChild(it->second);
     }
+    ZServices::EventAgent()->Unsubscribe(this, &ZUIElement::OnWindowResized);
 }
 
 void ZUIElement::ClampToMaxSize()
