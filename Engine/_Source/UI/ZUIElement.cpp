@@ -451,10 +451,7 @@ bool ZUIElement::TrySelect(const glm::vec3& position)
 
 bool ZUIElement::Contains(const glm::vec2& point)
 {
-    return point.x >= options_.calculatedRect.position.x &&
-        point.x <= options_.calculatedRect.position.x + options_.calculatedRect.size.x &&
-        point.y >= options_.calculatedRect.position.y &&
-        point.y <= options_.calculatedRect.position.y + options_.calculatedRect.size.y;
+    return options_.calculatedRect.Contains(point);
 }
 
 std::shared_ptr<ZMesh2D> ZUIElement::ElementShape()

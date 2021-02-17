@@ -30,12 +30,10 @@
 #include "ZTextField.hpp"
 #include "ZUIInputField.hpp"
 
-void ZTextField::Initialize(const std::shared_ptr<ZScene>& scene)
+void ZTextField::SetValue(const std::string& val)
 {
-}
-
-void ZTextField::Update()
-{
+    value_ = val;
+    control_->SetText(val);
 }
 
 std::shared_ptr<ZTextField> ZTextField::Create(const std::string& label, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
@@ -48,8 +46,10 @@ std::shared_ptr<ZTextField> ZTextField::Create(const std::string& label, const s
     fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
     fieldOptions.maxSize = glm::vec2(0.f, 30.f);
     textField->control_ = ZUIInputField::Create(fieldOptions, scene);
-    textField->control_->SetLabel("Name");
+    textField->control_->SetLabel(label);
+    textField->control_->SetCharacterFilter([](char c) { return true; });
     textField->control_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+    textField->Initialize(scene);
 
     return textField;
 }

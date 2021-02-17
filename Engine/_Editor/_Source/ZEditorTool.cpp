@@ -39,6 +39,11 @@ void ZEditorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
 	container_ = ZUIPanel::Create(elementOptions, scene);
 }
 
+void ZEditorTool::CleanUp()
+{
+	container_->CleanUp();
+}
+
 void ZEditorTool::SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene)
 {
 	activeProjectScene_ = activeScene;

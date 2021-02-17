@@ -144,6 +144,7 @@ void ZUIText::Draw()
 
 void ZUIText::OnRectChanged()
 {
+    ZUIElement::OnRectChanged();
     RecalculateBufferData();
 }
 

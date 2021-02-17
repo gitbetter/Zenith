@@ -30,6 +30,7 @@
 #include "ZUIButton.hpp"
 #include "ZServices.hpp"
 #include "ZShader.hpp"
+#include "ZUIClicker.hpp"
 
 ZUIButton::ZUIButton(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
@@ -44,6 +45,7 @@ ZUIButton::ZUIButton(const ZUIElementOptions& options) : ZUIElement(options)
 void ZUIButton::Initialize()
 {
     ZUIElement::Initialize();
+    clicker_ = std::make_shared<ZUIClicker>();
 }
 
 void ZUIButton::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -53,23 +55,17 @@ void ZUIButton::Initialize(const std::shared_ptr<ZOFNode>& root)
 
 bool ZUIButton::Clicked()
 {
-    bool activated = activated_;
-    bool pressed = Pressed();
-    return !activated && pressed;
+    return clicker_->Clicked(options_.calculatedRect);
 }
 
 bool ZUIButton::Pressed()
 {
-    activated_ = Contains(ZServices::Input()->GetCursorPosition()) &&
-        ZServices::Input()->Mouse(ZMouse::LEFT_MB);
-    return activated_;
+    return clicker_->Pressed(options_.calculatedRect);
 }
 
 bool ZUIButton::Released()
 {
-    bool activated = activated_;
-    bool pressed = Pressed();
-    return activated && !pressed;
+    return clicker_->Released(options_.calculatedRect);
 }
 
 DEFINE_UI_CREATORS(ZUIButton)

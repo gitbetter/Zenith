@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIButton.hpp
+    ZUIScrubber.hpp
 
-    Created by Adrian Sanchez on 06/02/2019.
+    Created by Adrian Sanchez on 02/16/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -30,34 +30,39 @@
 #pragma once
 
 // Includes
-#include "ZUIElement.hpp"
+#include "ZUIClicker.hpp"
+#include "ZServices.hpp"
 
 // Forward Declarations
-class ZShader;
-class ZUIClicker;
 
 // Class and Data Structure Definitions
-class ZUIButton : public ZUIElement
+class ZUIScrubber : public ZUIClicker
 {
 
 public:
 
-    ZUIButton(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
-    ZUIButton(const ZUIElementOptions& options);
-    ~ZUIButton() {}
+    ZUIScrubber() : ZUIClicker()  { }
+    ~ZUIScrubber() { }
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    template<typename T>
+    T Scrub(const ZRect& rect) {
+        auto cursorXPos = ZServices::Input()->GetCursorPosition().x;
+        if (!scrubbing_ && Clicked(rect)) {
+            currentXPos_ = cursorXPos;
+            scrubbing_ = true;
+        }
+        if (scrubbing_ && Released(rect)) {
+            scrubbing_ = false;
+        }
+        return scrubbing_ ? sensitivity_ * static_cast<T>(cursorXPos - currentXPos_) : 0;
+    }
 
-    bool Clicked();
-    bool Pressed();
-    bool Released();
-
-    DECLARE_UI_CREATORS(ZUIButton)
+    void SetSensitivity(float sensitivity) { sensitivity_ = sensitivity; }
 
 protected:
 
-    bool activated_ = false;
-    std::shared_ptr<ZUIClicker> clicker_ = nullptr;
+    unsigned int currentXPos_ = 0;
+    bool scrubbing_ = false;
+    float sensitivity_ = 1.f;
 
 };

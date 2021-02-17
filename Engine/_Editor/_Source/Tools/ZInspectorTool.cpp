@@ -28,16 +28,25 @@
  */
 
 #include "ZInspectorTool.hpp"
-#include "ZTextField.hpp"
+#include "ZFloatField.hpp"
 #include "ZUIPanel.hpp"
 
 void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
     container_->SetColor(theme_.secondaryColor);
-    auto inputField = ZTextField::Create("Name", scene, theme_);
-    container_->AddChild(inputField->Control());
+    AddControl(ZFloatField::Create("Value", scene, theme_));
 }
 
-void ZInspectorTool::Update() {
+void ZInspectorTool::Update()
+{
+    for (auto control : controls_) {
+        control->Update();
+    }
+}
 
+void ZInspectorTool::CleanUp()
+{
+    for (auto control : controls_) {
+        control->CleanUp();
+    }
 }

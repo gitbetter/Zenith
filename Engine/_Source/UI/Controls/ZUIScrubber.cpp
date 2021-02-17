@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIButton.hpp
+    ZUIScrubber.hpp
 
-    Created by Adrian Sanchez on 06/02/2019.
+    Created by Adrian Sanchez on 02/16/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,37 +27,4 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-// Includes
-#include "ZUIElement.hpp"
-
-// Forward Declarations
-class ZShader;
-class ZUIClicker;
-
-// Class and Data Structure Definitions
-class ZUIButton : public ZUIElement
-{
-
-public:
-
-    ZUIButton(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
-    ZUIButton(const ZUIElementOptions& options);
-    ~ZUIButton() {}
-
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
-
-    bool Clicked();
-    bool Pressed();
-    bool Released();
-
-    DECLARE_UI_CREATORS(ZUIButton)
-
-protected:
-
-    bool activated_ = false;
-    std::shared_ptr<ZUIClicker> clicker_ = nullptr;
-
-};
+#include "ZUIScrubber.hpp"

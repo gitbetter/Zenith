@@ -37,18 +37,20 @@
 class ZUIScene;
 
 // Definitions
-class ZTextField : public ZEditorControl<ZUIInputField> {
+class ZTextField : public ZTypedEditorControl<ZUIInputField, std::string> {
 
 public:
 
     ZTextField(const ZUITheme& theme = ZUITheme())
-        : ZEditorControl(theme)
+        : ZTypedEditorControl(theme)
     { }
     ~ZTextField() {}
 
-    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+    void Initialize(const std::shared_ptr<ZScene>& scene) override { }
 
-    void Update() override;
+    void Update() override { }
+
+    void SetValue(const std::string& val) override;
 
     static std::shared_ptr<ZTextField> Create(const std::string& label = "", const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
 

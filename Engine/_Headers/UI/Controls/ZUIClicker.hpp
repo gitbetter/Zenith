@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIButton.hpp
+    ZUIClicker.hpp
 
-    Created by Adrian Sanchez on 06/02/2019.
+    Created by Adrian Sanchez on 02/16/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -30,34 +30,25 @@
 #pragma once
 
 // Includes
-#include "ZUIElement.hpp"
+#include "ZCommon.hpp"
 
 // Forward Declarations
-class ZShader;
-class ZUIClicker;
 
 // Class and Data Structure Definitions
-class ZUIButton : public ZUIElement
+class ZUIClicker
 {
 
 public:
 
-    ZUIButton(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
-    ZUIButton(const ZUIElementOptions& options);
-    ~ZUIButton() {}
+    ZUIClicker() { }
+    ~ZUIClicker() { }
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
-
-    bool Clicked();
-    bool Pressed();
-    bool Released();
-
-    DECLARE_UI_CREATORS(ZUIButton)
+    bool Clicked(const ZRect& rect);
+    bool Pressed(const ZRect& rect, bool inRect = true);
+    bool Released(const ZRect& rect);
 
 protected:
 
     bool activated_ = false;
-    std::shared_ptr<ZUIClicker> clicker_ = nullptr;
 
 };

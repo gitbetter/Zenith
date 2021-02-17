@@ -65,6 +65,9 @@ void ZEditorScene::Initialize() {
 
 void ZEditorScene::CleanUp() {
     ZServices::EventAgent()->Unsubscribe(this, &ZEditorScene::HandleResourceLoaded);
+    for (auto tool : tools_) {
+        tool->CleanUp();
+    }
     ZScene::CleanUp();
 }
 

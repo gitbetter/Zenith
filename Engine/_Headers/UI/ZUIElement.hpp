@@ -223,9 +223,9 @@ protected:
     virtual void                        Draw();
     virtual void                        PostRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color);
 
-    void                                LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force = false);
-
     virtual void                        OnRectChanged() { };
+
+    void                                LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force = false);
 
 private:
 

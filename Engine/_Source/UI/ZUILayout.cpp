@@ -30,6 +30,15 @@
 #include "ZUILayout.hpp"
 #include "ZUIElement.hpp"
 
+ZUILayout::ZUILayout(ZRect dimensions, float itemSpacing, glm::vec2 itemSize, ZAlignment hAlign, ZAlignment vAlign)
+{
+    options_.dimensions = dimensions;
+    options_.itemSpacing = itemSpacing;
+    options_.defaultItemSize = itemSize;
+    options_.horizontalAlign = hAlign;
+    options_.verticalAlign = vAlign;
+}
+
 ZRect ZUILayout::GetRect(const std::string& element, const glm::vec2& size, bool force)
 {
     auto it = std::find_if(calculatedRects_.begin(), calculatedRects_.end(),

@@ -31,6 +31,9 @@
 
 // Includes
 #include "ZEditorTool.hpp"
+#include "ZEditorControl.hpp"
+
+// Forward Declarations
 
 class ZInspectorTool : public ZEditorTool {
 
@@ -42,5 +45,19 @@ public:
     void Initialize(const std::shared_ptr<ZScene>& scene) override;
 
 	void Update() override;
+
+    void CleanUp() override;
+
+    template<typename T>
+    typename std::enable_if<std::is_base_of<ZEditorControl, T>::value>::type
+    AddControl(const std::shared_ptr<T>& control)
+    {
+        container_->AddChild(control->Control());
+        controls_.push_back(control);
+    }
+
+protected:
+
+    std::vector<std::shared_ptr<ZEditorControl>> controls_;
 
 };

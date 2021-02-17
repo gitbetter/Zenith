@@ -112,6 +112,9 @@ void ZUIInputField::SetText(const std::string& text)
     if (fieldText_) {
         fieldText_->SetText(text_);
     }
+    if (onInputChangedCallback_) {
+        onInputChangedCallback_(text_);
+    }
 }
 
 void ZUIInputField::SetTextColor(const glm::vec4& color)
@@ -244,8 +247,12 @@ void ZUIInputField::ProcessKey(const ZKey& key)
         if (!newText.empty()) newText.pop_back();
     }
     else {
-        if (PRINTABLE_KEY_CODE.find(key) != PRINTABLE_KEY_CODE.end())
-            newText += PRINTABLE_KEY_CODE.at(key);
+        if (PRINTABLE_KEY_CODE.find(key) != PRINTABLE_KEY_CODE.end()) {
+            char c = PRINTABLE_KEY_CODE.at(key);
+            if (filter_ && filter_(c)) {
+                newText += PRINTABLE_KEY_CODE.at(key);
+            }
+        }
     }
     SetText(newText);
 }

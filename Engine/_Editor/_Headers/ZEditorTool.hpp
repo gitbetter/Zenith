@@ -52,6 +52,8 @@ public:
 
 	virtual void OnProjectSceneChanged() {}
 
+	virtual void CleanUp();
+
 	std::shared_ptr<ZUIPanel> Container() const { return container_; }
 
 	void SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene);

@@ -26,6 +26,8 @@ ${ENGINE_SOURCE_DIR}/UI/Elements/ZUICanvas.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIInputField.cpp
 ${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIHorizontalLayout.cpp
 ${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIVerticalLayout.cpp
+${ENGINE_SOURCE_DIR}/UI/Controls/ZUIScrubber.cpp
+${ENGINE_SOURCE_DIR}/UI/Controls/ZUIClicker.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptManager.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptExports.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZLuaScriptManager.cpp
@@ -251,6 +253,8 @@ ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIText.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIInputField.hpp
 ${ENGINE_HEADERS_DIR}/UI/Layouts/ZUIHorizontalLayout.hpp
 ${ENGINE_HEADERS_DIR}/UI/Layouts/ZUIVerticalLayout.hpp
+${ENGINE_HEADERS_DIR}/UI/Controls/ZUIScrubber.hpp
+${ENGINE_HEADERS_DIR}/UI/Controls/ZUIClicker.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZUIHelpers.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZStringHelpers.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZEasing.hpp
@@ -1132,6 +1136,7 @@ ${ENGINE_HEADERS_DIR}/Scripting
 ${ENGINE_HEADERS_DIR}/UI
 ${ENGINE_HEADERS_DIR}/UI/Elements
 ${ENGINE_HEADERS_DIR}/UI/Layouts
+${ENGINE_HEADERS_DIR}/UI/Controls
 ${ENGINE_HEADERS_DIR}/Utility
 ${ENGINE_HEADERS_DIR}/Utility/ZObjectFormatTools
 ${ENGINE_HEADERS_DIR}/Windowing

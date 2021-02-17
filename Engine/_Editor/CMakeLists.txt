@@ -25,6 +25,8 @@ ${EDITOR_HEADERS_DIR}/Tools/ZSceneTool.hpp
 ${EDITOR_HEADERS_DIR}/Tools/ZMenuBar.hpp
 ${EDITOR_HEADERS_DIR}/Tools/ZActionBar.hpp
 ${EDITOR_HEADERS_DIR}/Controls/ZTextField.hpp
+${EDITOR_HEADERS_DIR}/Controls/ZIntField.hpp
+${EDITOR_HEADERS_DIR}/Controls/ZFloatField.hpp
 ${EDITOR_SOURCES_DIR}/Tools/ZConsoleTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZHierarchyTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZInspectorTool.cpp
@@ -36,6 +38,8 @@ ${EDITOR_SOURCES_DIR}/Tools/ZSceneTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZMenuBar.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZActionBar.cpp
 ${EDITOR_SOURCES_DIR}/Controls/ZTextField.cpp
+${EDITOR_SOURCES_DIR}/Controls/ZIntField.cpp
+${EDITOR_SOURCES_DIR}/Controls/ZFloatField.cpp
 ${EDITOR_SOURCES_DIR}/main.cpp
 )
 

@@ -56,6 +56,8 @@ public:
 
     ZUILayout() { }
     ZUILayout(const ZUILayoutOptions& options) : options_(options) { }
+    ZUILayout(ZRect dimensions, float itemSpacing, glm::vec2 itemSize = glm::vec2(0.f),
+        ZAlignment hAlign = ZAlignment::Left, ZAlignment vAlign = ZAlignment::Top);
 
     virtual ~ZUILayout() { }
 

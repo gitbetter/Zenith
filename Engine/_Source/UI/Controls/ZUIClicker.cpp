@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIButton.hpp
+    ZUIClicker.hpp
 
-    Created by Adrian Sanchez on 06/02/2019.
+    Created by Adrian Sanchez on 02/16/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,37 +27,26 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZUIClicker.hpp"
+#include "ZServices.hpp"
 
-// Includes
-#include "ZUIElement.hpp"
-
-// Forward Declarations
-class ZShader;
-class ZUIClicker;
-
-// Class and Data Structure Definitions
-class ZUIButton : public ZUIElement
+bool ZUIClicker::Clicked(const ZRect& rect)
 {
+    bool activated = activated_;
+    bool pressed = Pressed(rect);
+    return !activated && pressed;
+}
 
-public:
+bool ZUIClicker::Pressed(const ZRect& rect, bool inRect)
+{
+    activated_ = (inRect ? rect.Contains(ZServices::Input()->GetCursorPosition()) : true) &&
+        ZServices::Input()->Mouse(ZMouse::LEFT_MB);
+    return activated_;
+}
 
-    ZUIButton(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
-    ZUIButton(const ZUIElementOptions& options);
-    ~ZUIButton() {}
-
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
-
-    bool Clicked();
-    bool Pressed();
-    bool Released();
-
-    DECLARE_UI_CREATORS(ZUIButton)
-
-protected:
-
-    bool activated_ = false;
-    std::shared_ptr<ZUIClicker> clicker_ = nullptr;
-
-};
+bool ZUIClicker::Released(const ZRect& rect)
+{
+    bool activated = activated_;
+    bool pressed = Pressed(rect, false);
+    return activated && !pressed;
+}
