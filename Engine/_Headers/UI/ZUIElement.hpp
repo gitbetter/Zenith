@@ -117,7 +117,7 @@ public:
 
     void                                Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
     bool                                Renderable() override { return !options_.hidden; }
-
+    ZUIElementType                      Type() const { return type_; }
     bool                                Enabled() const { return options_.enabled; }
     bool                                Hidden() const { return  options_.hidden; }
     bool                                Selected() const { return  options_.selected; }
@@ -139,6 +139,7 @@ public:
     const std::shared_ptr<ZUILayout>&   Layout() const { return options_.layout; }
     glm::mat4                           ModelMatrix() const { return modelMatrix_; }
     glm::mat4                           ProjectionMatrix() const { return projectionMatrix_; }
+    ZUIElementOptions                   Options() const { return options_; }
     std::shared_ptr<ZUIElement>         Parent() const;
     std::shared_ptr<ZScene>             Scene() const;
 
@@ -226,6 +227,7 @@ protected:
     virtual void                        OnRectChanged() { };
 
     void                                LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force = false);
+    void                                LayoutChildren(const std::shared_ptr<ZUIElement>& element, bool force = false);
 
 private:
 

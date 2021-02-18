@@ -46,30 +46,23 @@ class ZUIInputField : public ZUIElement
 
 public:
 
-    ZUIInputField(const std::string& label = "", const std::string& placeholder = "", const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.1f));
-    ZUIInputField(const ZUIElementOptions& options, const std::string& label = "", const std::string& placeholder = "");
+    ZUIInputField(const std::string& placeholder = "", const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.1f));
+    ZUIInputField(const ZUIElementOptions& options, const std::string& placeholder = "");
     ~ZUIInputField() {}
 
     virtual void                                Initialize() override;
     virtual void                                Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     const std::string&                          Placeholder() const { return placeholder_; }
-    const std::string&                          Label() const { return label_; }
-    const float                                 LabelWidth() const { return labelWidth_; }
     const std::string&                          Text() const { return text_; }
     const glm::vec4&                            TextColor() const { return textColor_; }
     const glm::vec2&                            FieldPadding() const { return fieldPadding_; }
     bool                                        Focused() const { return focused_; }
-    const std::shared_ptr<ZUIText>              LabelField() const { return labelText_; }
     const std::shared_ptr<ZUIText>              TextField() const { return fieldText_; }
-    const std::shared_ptr<ZUIPanel>             BackgroundPanel() const { return field_; }
 
     void                                        SetPlaceholder(const std::string& placeholder) { placeholder_ = placeholder; }
-    void                                        SetLabel(const std::string& label);
-    void                                        SetLabelWidth(float width);
     void                                        SetText(const std::string& text);
     void                                        SetTextColor(const glm::vec4& color);
-    void                                        SetLabelTextColor(const glm::vec4& color);
     void                                        SetHighlightBorder(const ZUIBorder& border);
     void                                        SetFocused(bool focused);
     void                                        SetBackground(const ZTexture::ptr& texture);
@@ -85,25 +78,18 @@ public:
 protected:
 
     std::string                             placeholder_;
-    std::string                             label_;
     std::string                             text_;
     glm::vec4                               textColor_;
-    glm::vec4                               labelTextColor_;
     glm::vec2                               fieldPadding_;
     ZUIBorder                               highlightBorder_;
-    float                                   labelWidth_ = 0.25f;
-    float                                   fontSize_ = 16.f;
+    float                                   fontSize_ = 14.f;
     bool                                    focused_ = false;
     std::function<bool(char)>               filter_ = nullptr;
     std::function<void(const std::string&)> onInputChangedCallback_ = nullptr;
 
-    std::shared_ptr<ZUIPanel>               field_;
     std::shared_ptr<ZUIText>                fieldText_;
-    std::shared_ptr<ZUIText>                labelText_;
 
-    void                                    CreateField();
-    void                                    CreateLabelField(const std::string& text);
-    void                                    DestroyLabelField();
+    void                                    CreateTextArea();
 
     void                                    ProcessKey(const ZKey& key);
 

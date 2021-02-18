@@ -61,6 +61,8 @@ public:
 
     virtual ~ZUILayout() { }
 
+    const std::vector<ZUICalculatedLayoutEntry>& Rects() const { return calculatedRects_; }
+
     void SetDimensions(const ZRect& rect);
 
     ZRect GetRect(const std::string& element, const glm::vec2& size, bool force = false);

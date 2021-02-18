@@ -24,10 +24,12 @@ ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIImage.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIButton.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUICanvas.cpp
 ${ENGINE_SOURCE_DIR}/UI/Elements/ZUIInputField.cpp
+${ENGINE_SOURCE_DIR}/UI/Elements/ZUILabeledElement.cpp
 ${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIHorizontalLayout.cpp
 ${ENGINE_SOURCE_DIR}/UI/Layouts/ZUIVerticalLayout.cpp
 ${ENGINE_SOURCE_DIR}/UI/Controls/ZUIScrubber.cpp
 ${ENGINE_SOURCE_DIR}/UI/Controls/ZUIClicker.cpp
+${ENGINE_SOURCE_DIR}/UI/Controls/ZUIHoverer.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptManager.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptExports.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZLuaScriptManager.cpp
@@ -251,10 +253,12 @@ ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIListPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIPanel.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIText.hpp
 ${ENGINE_HEADERS_DIR}/UI/Elements/ZUIInputField.hpp
+${ENGINE_HEADERS_DIR}/UI/Elements/ZUILabeledElement.hpp
 ${ENGINE_HEADERS_DIR}/UI/Layouts/ZUIHorizontalLayout.hpp
 ${ENGINE_HEADERS_DIR}/UI/Layouts/ZUIVerticalLayout.hpp
 ${ENGINE_HEADERS_DIR}/UI/Controls/ZUIScrubber.hpp
 ${ENGINE_HEADERS_DIR}/UI/Controls/ZUIClicker.hpp
+${ENGINE_HEADERS_DIR}/UI/Controls/ZUIHoverer.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZUIHelpers.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZStringHelpers.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZEasing.hpp

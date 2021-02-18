@@ -255,6 +255,8 @@ void ZUIElement::PostRender(double deltaTime, const std::shared_ptr<ZShader>& sh
 
 void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
 { 
+    children_[element->ID()] = element;
+
     element->SetOpacity(Opacity(), true);
     element->SetTranslationBounds(options_.translationBounds.x, options_.translationBounds.y, options_.translationBounds.z, options_.translationBounds.w);
 
@@ -262,8 +264,6 @@ void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
     element->SetScene(Scene());
 
     LayoutChild(element);
-
-    children_[element->ID()] = element;
 }
 
 void ZUIElement::RemoveChild(const std::shared_ptr<ZUIElement>& element, bool recurse)
@@ -544,8 +544,30 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
         element->SetRect(rect, options_.calculatedRect);
     }
 
-    for (auto it = element->children_.begin(); it != element->children_.end(); it++) {
-        element->LayoutChild(it->second, true);
+    LayoutChildren(element, true);
+}
+
+void ZUIElement::LayoutChildren(const std::shared_ptr<ZUIElement>& element, bool force)
+{
+    // If there's a layout for the given element we want to traverse the children in order of the calculated rects
+    // in the layout object, otherwise we might update the rect for an element and miss updating dependent rects
+    // in the layout if those objects were already traversed.
+    if (element->options_.layout) {
+        std::vector<std::shared_ptr<ZUIElement>> layoutList;
+        for (auto it = element->options_.layout->Rects().begin(); it != element->options_.layout->Rects().end(); it++) {
+            auto elIt = element->children_.find((*it).id);
+            if (elIt != element->children_.end()) {
+                layoutList.push_back(elIt->second);
+            }
+        }
+        for (auto it = layoutList.begin(); it != layoutList.end(); it++) {
+            element->LayoutChild((*it), force);
+        }
+    }
+    else {
+        for (auto it = element->children_.begin(); it != element->children_.end(); it++) {
+            element->LayoutChild(it->second, force);
+        }
     }
 }
 

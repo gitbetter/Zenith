@@ -50,5 +50,6 @@ public:
 protected:
 
     bool activated_ = false;
+    bool mouseDown_ = false;
 
 };

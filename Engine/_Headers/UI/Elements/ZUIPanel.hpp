@@ -33,7 +33,6 @@
 #include "ZUIElement.hpp"
 
 // Forward Declarations
-class ZShader;
 class ZScene;
 
 // Class and Data Structure Definitions

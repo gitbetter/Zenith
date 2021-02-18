@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIClicker.hpp
+    ZUIHoverer.hpp
 
-    Created by Adrian Sanchez on 02/16/2021.
+    Created by Adrian Sanchez on 02/17/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,27 +27,30 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZUIClicker.hpp"
+#include "ZUIHoverer.hpp"
 #include "ZServices.hpp"
 
-bool ZUIClicker::Clicked(const ZRect& rect)
+bool ZUIHoverer::Entered(const ZRect& rect)
 {
-    bool previouslyActivated = activated_;
-    bool previousMouseDown = mouseDown_;
-    activated_ = Pressed(rect);
-    return !previouslyActivated && !previousMouseDown && activated_;
+    bool previouslyActivated = rect == activatedRect_;
+    activated_ = Hover(rect);
+    bool entered = !previouslyActivated && activated_;
+    if (entered)
+        activatedRect_ = rect;
+    return entered;
 }
 
-bool ZUIClicker::Pressed(const ZRect& rect, bool inRect)
+bool ZUIHoverer::Hover(const ZRect& rect)
 {
-    mouseDown_ = ZServices::Input()->Mouse(ZMouse::LEFT_MB);
-    return (inRect ? rect.Contains(ZServices::Input()->GetCursorPosition()) : true) && mouseDown_;
+    return rect.Contains(ZServices::Input()->GetCursorPosition());
 }
 
-bool ZUIClicker::Released(const ZRect& rect)
+bool ZUIHoverer::Exited(const ZRect& rect)
 {
-    bool previouslyActivated = activated_;
-    bool previousMouseDown = mouseDown_;
-    activated_ = Pressed(rect, false);
-    return previouslyActivated && previousMouseDown && !activated_;
+    bool previouslyActivated = rect == activatedRect_;
+    activated_ = Hover(rect);
+    bool exited = previouslyActivated && !activated_;
+    if (exited)
+        activatedRect_ = ZRect(0.f);
+    return exited;
 }

@@ -28,13 +28,21 @@
  */
 
 #include "ZInspectorTool.hpp"
-#include "ZFloatField.hpp"
+#include "ZVec3Field.hpp"
 #include "ZUIPanel.hpp"
 
 void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
     container_->SetColor(theme_.secondaryColor);
-    AddControl(ZFloatField::Create("Value", scene, theme_));
+
+    ZUIElementOptions fieldOptions;
+    fieldOptions.positioning = ZPositioning::Relative;
+    fieldOptions.scaling = ZPositioning::Relative;
+    fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
+    fieldOptions.maxSize = glm::vec2(0.f, 20.f);
+    fieldOptions.color = glm::vec4(0.4f, 0.4f, 0.4f, 1.f);
+
+    AddControl(ZVec3Field::Create("Position", fieldOptions, scene, theme_));
 }
 
 void ZInspectorTool::Update()

@@ -31,15 +31,17 @@
 
 // Includes
 #include "ZEditorControl.hpp"
-#include "ZUIInputField.hpp"
+#include "ZUILabeledElement.hpp"
 
  // Forward Declarations
 class ZUIScene;
 class ZUIScrubber;
+class ZUIHoverer;
 class ZWindowResizeEvent;
+class ZUIInputField;
 
 // Definitions
-class ZFloatField : public ZTypedEditorControl<ZUIInputField, float> {
+class ZFloatField : public ZTypedEditorControl<ZUILabeledElement, float> {
 
 public:
 
@@ -56,11 +58,13 @@ public:
 
     void SetValue(const float& val) override;
 
-    static std::shared_ptr<ZFloatField> Create(const std::string& label = "", const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
+    static std::shared_ptr<ZFloatField> Create(const std::string& label = "", const ZUIElementOptions& options = ZUIElementOptions(), const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
 
 protected:
 
-    std::shared_ptr<ZUIScrubber> scrubber_;
+    std::shared_ptr<ZUIInputField> inputField_ = nullptr;
+    std::shared_ptr<ZUIScrubber> scrubber_ = nullptr;
+    std::shared_ptr<ZUIHoverer> hoverer_ = nullptr;
     float lastValue_ = 0;
 
 };

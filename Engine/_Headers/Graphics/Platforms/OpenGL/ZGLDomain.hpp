@@ -34,6 +34,7 @@
 
 // Forward Declarations
 struct GLFWwindow;
+struct GLFWcursor;
 
 // Class and Data Structure Definitions
 class ZGLDomain : public ZDomain
@@ -55,14 +56,18 @@ public:
     void SetWindow(void* window) override;
     void SetAsCurrent() override;
     void Destroy() override;
+    void SetCursor(const ZCursor& cursor) override;
     void OnWindowResized(const std::function<void(int, int)>& callback) override;
     void OnFramebufferResized(const std::function<void(int, int)>& callback) override;
     void CleanUp() override;
 
 protected:
 
+    std::vector<GLFWcursor*> glCursors_;
     std::function<void(int, int)> windowResizedCallback_;
     std::function<void(int, int)> framebufferResizedCallback_;
+
+    static std::unordered_map<ZSystemCursorType, int> cursorTypeMap_;
 
     void CreateWindow(int width, int height, bool maximized = true, bool visible = true, void* sharedContext = nullptr) override;
 

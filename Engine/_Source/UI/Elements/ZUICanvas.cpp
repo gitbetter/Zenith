@@ -31,12 +31,12 @@
 
 ZUICanvas::ZUICanvas(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
-    type_ = ZUIElementType::Button;
+    type_ = ZUIElementType::Canvas;
 }
 
 ZUICanvas::ZUICanvas(const ZUIElementOptions& options) : ZUIElement(options)
 {
-    type_ = ZUIElementType::Button;
+    type_ = ZUIElementType::Canvas;
 }
 
 void ZUICanvas::Initialize()

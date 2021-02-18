@@ -62,6 +62,7 @@ public:
     virtual void SetWindow(void* window) = 0;
     virtual void SetAsCurrent() = 0;
     virtual void Destroy() = 0;
+    virtual void SetCursor(const ZCursor& cursor) = 0;
     virtual void OnWindowResized(const std::function<void(int, int)>& callback) = 0;
     virtual void OnFramebufferResized(const std::function<void(int, int)>& callback) = 0;
     virtual void CleanUp() = 0;
@@ -71,6 +72,7 @@ public:
 protected:
 
     void* window_ = nullptr;
+    std::vector<ZCursor> cursors_;
     ZDomainOptions options_;
 
     virtual void CreateWindow(int width, int height, bool maximized = true, bool visible = true, void* sharedContext = nullptr) = 0;

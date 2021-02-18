@@ -430,7 +430,8 @@ class ZLight;
 class ZAssetStore;
 struct ZAnimation;
 struct ZBone;
-struct ZTexture;
+class ZTexture;
+struct ZCursor;
 
 using ZGameObjectMap = std::map<std::string, std::shared_ptr<ZGameObject>>;
 using ZLightMap = std::map<std::string, std::shared_ptr<ZLight>>;
@@ -520,7 +521,7 @@ enum class ZPrimitiveType
 
 enum class ZUIElementType
 {
-    Button, CheckBox, Image, ListPanel, Panel, Text, Unknown
+    Canvas, Button, CheckBox, Image, InputField, ListPanel, Panel, Text, Unknown
 };
 
 enum class ZShaderType
@@ -563,6 +564,11 @@ enum class ZAlignment
 enum class ZPositioning
 {
     Absolute, Relative
+};
+
+enum class ZSystemCursorType
+{
+    Arrow, Caret, Crosshair, Hand, HorizontalResize, VerticalResize
 };
 
 struct ZMaterialProperties
@@ -788,6 +794,13 @@ struct ZUITheme {
     glm::vec4                    selectedColor;
     std::string                  font;
     float                        fontSize;
+};
+
+struct ZCursor {
+    ZSystemCursorType type;
+    ZCursor(const ZSystemCursorType& type)
+        : type(type)
+    { }
 };
 
 #if defined _WIN64 || defined _WIN32

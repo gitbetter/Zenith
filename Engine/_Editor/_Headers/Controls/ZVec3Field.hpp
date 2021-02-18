@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZIntField.hpp
+    ZVec3Field.hpp
  
-    Created by Adrian Sanchez on 02/15/21.
+    Created by Adrian Sanchez on 02/17/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -36,35 +36,32 @@
  // Forward Declarations
 class ZUIScene;
 class ZUIScrubber;
-class ZUIHoverer;
 class ZWindowResizeEvent;
-class ZUIInputField;
+class ZFloatField;
 
 // Definitions
-class ZIntField : public ZTypedEditorControl<ZUILabeledElement, int> {
+class ZVec3Field : public ZTypedEditorControl<ZUILabeledElement, glm::vec3> {
 
 public:
 
-    ZIntField(const ZUITheme& theme = ZUITheme())
+    ZVec3Field(const ZUITheme& theme = ZUITheme())
         : ZTypedEditorControl(theme)
-    {
-        value_ = 0;
-    }
-    ~ZIntField() {}
+    { }
+    ~ZVec3Field() {}
 
-    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+    void Initialize(const std::shared_ptr<ZScene>& scene) override { }
 
     void Update() override;
 
-    void SetValue(const int& val) override;
+    void SetValue(const glm::vec3& val) override;
 
-    static std::shared_ptr<ZIntField> Create(const std::string& label = "", const ZUIElementOptions& options = ZUIElementOptions(), const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
+    static std::shared_ptr<ZVec3Field> Create(const std::string& label = "", const ZUIElementOptions& options = ZUIElementOptions(), const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
 
 protected:
 
-    std::shared_ptr<ZUIInputField> inputField_ = nullptr;
-    std::shared_ptr<ZUIScrubber> scrubber_ = nullptr;
-    std::shared_ptr<ZUIHoverer> hoverer_ = nullptr;
-    int lastValue_ = 0;
+    std::shared_ptr<ZFloatField> xInputField_ = nullptr;
+    std::shared_ptr<ZFloatField> yInputField_ = nullptr;
+    std::shared_ptr<ZFloatField> zInputField_ = nullptr;
+    glm::vec3 lastValue_{ 0.f };
 
 };

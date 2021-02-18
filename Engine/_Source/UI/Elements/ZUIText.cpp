@@ -155,24 +155,45 @@ void ZUIText::RecalculateBufferData()
     auto pos = options_.calculatedRect.position;
     float x = pos.x, y = pos.y;
 
+    float oneOverFontScale = 1.f / font_->Size();
+    float fontSize = oneOverFontScale * fontScale_;
     float maxWrap = wrapToBounds_ ? MaxWrapBounds() : 0.f;
+    std::string text = text_;
+    // If no wrapping is enabled we simulate banner scrolling by removing
+    // characters from the beginning of the original string if the total width
+    // of the text is greater than our container width.
+    if (!wrapToBounds_) {
+        float width = 0.0f;
+        auto it = text.rbegin();
+        while (it != text.rend())
+        {
+            ZCharacter character = font_->Atlas().characterInfo[*it];
+            width += character.advance.x * fontSize;
+            if (width >= options_.calculatedRect.size.x)
+                break;
+            ++it;
+        }
+        if (it != text.rend()) {
+            text = std::string(it.base(), text.end());
+        }
+    }
+
+    if (text.empty()) return;
 
     textVertexData_ = ZVertex2DDataOptions();
-    textVertexData_.vertices.reserve(text_.size() * 6);
-    for (auto c = text_.begin(); c != text_.end(); c++)
+    textVertexData_.vertices.reserve(text.size() * 6);
+    for (auto c = text.begin(); c != text.end(); c++)
     {
         ZCharacter character = font_->Atlas().characterInfo[*c];
 
-        float oneOverFontScale = 1.f / font_->Size();
+        float atlasH = font_->Atlas().height * fontSize;
+        float w = character.bitmapSize.x * fontSize;
+        float h = character.bitmapSize.y * fontSize;
+        float xpos = x + character.bitmapPos.x * fontSize;
+        float ypos = (y + atlasH) - character.bitmapPos.y * fontSize;
 
-        float atlasH = font_->Atlas().height * oneOverFontScale * fontScale_;
-        float w = character.bitmapSize.x * oneOverFontScale * fontScale_;
-        float h = character.bitmapSize.y * oneOverFontScale * fontScale_;
-        float xpos = x + character.bitmapPos.x * oneOverFontScale * fontScale_;
-        float ypos = (y + atlasH * 1.25f) - character.bitmapPos.y * oneOverFontScale * fontScale_;
-
-        x += character.advance.x * oneOverFontScale * fontScale_;
-        y += character.advance.y * oneOverFontScale * fontScale_;
+        x += character.advance.x * fontSize;
+        y += character.advance.y * fontSize;
 
         if (maxWrap > 0.f)
         {

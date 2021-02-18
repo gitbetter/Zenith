@@ -30,15 +30,19 @@
 #include "ZFloatField.hpp"
 #include "ZUIInputField.hpp"
 #include "ZUIScrubber.hpp"
+#include "ZUIHoverer.hpp"
 #include "ZUIText.hpp"
 #include "ZServices.hpp"
+#include "ZScene.hpp"
+#include "ZDomain.hpp"
 #include "ZWindowResizeEvent.hpp"
 
 void ZFloatField::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     scrubber_ = std::make_shared<ZUIScrubber>();
     scrubber_->SetSensitivity(0.001f);
-    control_->OnInputChanged([this](const std::string& newVal) {
+    hoverer_ = std::make_shared<ZUIHoverer>();
+    inputField_->OnInputChanged([this](const std::string& newVal) {
         try {
             value_ = std::stof(newVal);
         }
@@ -50,8 +54,11 @@ void ZFloatField::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZFloatField::Update()
 {
+    auto labelRect = control_->LabelField()->CalculatedRect();
+    auto elementRect = control_->Element()->CalculatedRect();
+
     if (scrubber_) {
-        float scrubbedVal = scrubber_->Scrub<float>(control_->LabelField()->CalculatedRect());
+        float scrubbedVal = scrubber_->Scrub<float>(labelRect);
         if (scrubbedVal != 0) {
             SetValue(lastValue_ + scrubbedVal);
         }
@@ -59,28 +66,35 @@ void ZFloatField::Update()
             lastValue_ = value_;
         }
     }
+    
+    if (hoverer_->Entered(labelRect)) {
+        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::HorizontalResize));
+    }
+    else if (hoverer_->Entered(elementRect)) {
+        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
+    }
+    else if (hoverer_->Exited(labelRect) || hoverer_->Exited(elementRect)) {
+        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
+    }
 }
 
 void ZFloatField::SetValue(const float& val)
 {
     value_ = val;
-    control_->SetText(std::to_string(value_));
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(4) << value_;
+    inputField_->SetText(stream.str());
 }
 
-std::shared_ptr<ZFloatField> ZFloatField::Create(const std::string& label, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
+std::shared_ptr<ZFloatField> ZFloatField::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
 {
-    auto intField = std::make_shared<ZFloatField>(theme);
+    auto floatField = std::make_shared<ZFloatField>(theme);
 
-    ZUIElementOptions fieldOptions;
-    fieldOptions.positioning = ZPositioning::Relative;
-    fieldOptions.scaling = ZPositioning::Relative;
-    fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
-    fieldOptions.maxSize = glm::vec2(0.f, 30.f);
-    intField->control_ = ZUIInputField::Create(fieldOptions, scene);
-    intField->control_->SetLabel(label);
-    intField->control_->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '.' || c == '-'; });
-    intField->control_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
-    intField->Initialize(scene);
+    floatField->inputField_ = ZUIInputField::Create(options, scene);
+    floatField->inputField_->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '.' || c == '-'; });
+    floatField->inputField_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+    floatField->control_ = ZUILabeledElement::Create(label, floatField->inputField_);
+    floatField->Initialize(scene);
 
-    return intField;
+    return floatField;
 }

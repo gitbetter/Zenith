@@ -30,6 +30,9 @@
 #include "ZIntField.hpp"
 #include "ZUIInputField.hpp"
 #include "ZUIScrubber.hpp"
+#include "ZUIHoverer.hpp"
+#include "ZScene.hpp"
+#include "ZDomain.hpp"
 #include "ZUIText.hpp"
 #include "ZServices.hpp"
 #include "ZWindowResizeEvent.hpp"
@@ -38,7 +41,8 @@ void ZIntField::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     scrubber_ = std::make_shared<ZUIScrubber>();
     scrubber_->SetSensitivity(0.1f);
-    control_->OnInputChanged([this](const std::string& newVal) {
+    hoverer_ = std::make_shared<ZUIHoverer>();
+    inputField_->OnInputChanged([this](const std::string& newVal) {
         try {
             value_ = std::stoi(newVal);
         }
@@ -50,8 +54,11 @@ void ZIntField::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZIntField::Update()
 {
+    auto labelRect = control_->LabelField()->CalculatedRect();
+    auto elementRect = control_->Element()->CalculatedRect();
+
     if (scrubber_) {
-        int scrubbedVal = scrubber_->Scrub<int>(control_->LabelField()->CalculatedRect());
+        int scrubbedVal = scrubber_->Scrub<int>(labelRect);
         if (scrubbedVal != 0) {
             SetValue(lastValue_ + scrubbedVal);
         }
@@ -59,27 +66,32 @@ void ZIntField::Update()
             lastValue_ = value_;
         }
     }
+
+    if (hoverer_->Entered(labelRect)) {
+        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::HorizontalResize));
+    }
+    else if (hoverer_->Entered(elementRect)) {
+        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
+    }
+    else if (hoverer_->Exited(labelRect) || hoverer_->Exited(elementRect)) {
+        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
+    }
 }
 
 void ZIntField::SetValue(const int& val)
 {
     value_ = val;
-    control_->SetText(std::to_string(value_));
+    inputField_->SetText(std::to_string(value_));
 }
 
-std::shared_ptr<ZIntField> ZIntField::Create(const std::string& label, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
+std::shared_ptr<ZIntField> ZIntField::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
 {
     auto intField = std::make_shared<ZIntField>(theme);
 
-    ZUIElementOptions fieldOptions;
-    fieldOptions.positioning = ZPositioning::Relative;
-    fieldOptions.scaling = ZPositioning::Relative;
-    fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
-    fieldOptions.maxSize = glm::vec2(0.f, 30.f);
-    intField->control_ = ZUIInputField::Create(fieldOptions, scene);
-    intField->control_->SetLabel(label);
-    intField->control_->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '-'; });
-    intField->control_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+    intField->inputField_ = ZUIInputField::Create(options, scene);
+    intField->inputField_->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '-'; });
+    intField->inputField_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+    intField->control_ = ZUILabeledElement::Create(label, intField->inputField_);
     intField->Initialize(scene);
 
     return intField;

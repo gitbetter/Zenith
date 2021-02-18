@@ -29,26 +29,41 @@
 
 #include "ZTextField.hpp"
 #include "ZUIInputField.hpp"
+#include "ZUIHoverer.hpp"
+#include "ZScene.hpp"
+#include "ZDomain.hpp"
+
+void ZTextField::Initialize(const std::shared_ptr<ZScene>& scene)
+{
+    hoverer_ = std::make_shared<ZUIHoverer>();
+}
+
+void ZTextField::Update()
+{
+    auto elementRect = control_->Element()->CalculatedRect();
+
+    if (hoverer_->Entered(elementRect)) {
+        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
+    }
+    else if (hoverer_->Exited(elementRect)) {
+        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
+    }
+}
 
 void ZTextField::SetValue(const std::string& val)
 {
     value_ = val;
-    control_->SetText(val);
+    inputField_->SetText(val);
 }
 
-std::shared_ptr<ZTextField> ZTextField::Create(const std::string& label, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
+std::shared_ptr<ZTextField> ZTextField::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
 {
     auto textField = std::make_shared<ZTextField>(theme);
 
-    ZUIElementOptions fieldOptions;
-    fieldOptions.positioning = ZPositioning::Relative;
-    fieldOptions.scaling = ZPositioning::Relative;
-    fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
-    fieldOptions.maxSize = glm::vec2(0.f, 30.f);
-    textField->control_ = ZUIInputField::Create(fieldOptions, scene);
-    textField->control_->SetLabel(label);
-    textField->control_->SetCharacterFilter([](char c) { return true; });
-    textField->control_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+    textField->inputField_ = ZUIInputField::Create(options, scene);
+    textField->inputField_->SetCharacterFilter([](char c) { return true; });
+    textField->inputField_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+    textField->control_ = ZUILabeledElement::Create(label, textField->inputField_);
     textField->Initialize(scene);
 
     return textField;

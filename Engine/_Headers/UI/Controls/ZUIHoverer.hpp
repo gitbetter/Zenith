@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIClicker.hpp
+    ZUIHoverer.hpp
 
-    Created by Adrian Sanchez on 02/16/2021.
+    Created by Adrian Sanchez on 02/17/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,27 +27,29 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZUIClicker.hpp"
-#include "ZServices.hpp"
+#pragma once
 
-bool ZUIClicker::Clicked(const ZRect& rect)
-{
-    bool previouslyActivated = activated_;
-    bool previousMouseDown = mouseDown_;
-    activated_ = Pressed(rect);
-    return !previouslyActivated && !previousMouseDown && activated_;
-}
+// Includes
+#include "ZCommon.hpp"
 
-bool ZUIClicker::Pressed(const ZRect& rect, bool inRect)
-{
-    mouseDown_ = ZServices::Input()->Mouse(ZMouse::LEFT_MB);
-    return (inRect ? rect.Contains(ZServices::Input()->GetCursorPosition()) : true) && mouseDown_;
-}
+// Forward Declarations
 
-bool ZUIClicker::Released(const ZRect& rect)
+// Class and Data Structure Definitions
+class ZUIHoverer
 {
-    bool previouslyActivated = activated_;
-    bool previousMouseDown = mouseDown_;
-    activated_ = Pressed(rect, false);
-    return previouslyActivated && previousMouseDown && !activated_;
-}
+
+public:
+
+    ZUIHoverer() { }
+    ~ZUIHoverer() { }
+
+    bool Entered(const ZRect& rect);
+    bool Hover(const ZRect& rect);
+    bool Exited(const ZRect& rect);
+
+protected:
+
+    bool activated_ = false;
+    ZRect activatedRect_;
+
+};
