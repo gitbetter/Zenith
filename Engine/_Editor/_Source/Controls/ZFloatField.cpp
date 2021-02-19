@@ -55,7 +55,7 @@ void ZFloatField::Initialize(const std::shared_ptr<ZScene>& scene)
 void ZFloatField::Update()
 {
     auto labelRect = control_->LabelField()->CalculatedRect();
-    auto elementRect = control_->Element()->CalculatedRect();
+    auto elementRect = inputField_->CalculatedRect();
 
     if (scrubber_) {
         float scrubbedVal = scrubber_->Scrub<float>(labelRect);

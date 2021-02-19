@@ -37,7 +37,6 @@
 class ZUIScene;
 class ZUIScrubber;
 class ZUIHoverer;
-class ZWindowResizeEvent;
 class ZUIInputField;
 
 // Definitions

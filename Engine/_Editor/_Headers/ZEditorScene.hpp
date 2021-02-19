@@ -46,8 +46,7 @@ const std::string EDITOR_CONFIG_PATH = "/conf.zof";
 const std::string EDITOR_OBJECT_TEMPLATES_PATH = "/object_templates.zof";
 
 struct ZEditorConfig {
-    std::string fontPath;
-    float fontSize;
+    glm::vec4 sizeLimits{ 0.f };
     ZUITheme theme;
 };
 

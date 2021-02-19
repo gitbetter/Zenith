@@ -37,6 +37,7 @@
 #include "ZResourceExtraData.hpp"
 #include "ZCamera.hpp"
 #include "ZFont.hpp"
+#include "ZDomain.hpp"
 
 #include "ZUIVerticalLayout.hpp"
 #include "ZUIHorizontalLayout.hpp"
@@ -149,6 +150,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.2f, 1.f);
+    elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 2.5f, 0.f);
     leftPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
     contentPanel->AddChild(leftPanel_);
@@ -168,6 +170,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.7f, 1.0f);
+    elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 5.f, 0.f);
     centerPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
     sceneContentPanel->AddChild(centerPanel_);
@@ -179,6 +182,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.3f, 1.0f);
+    elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 2.5f, 0.f);
     rightPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
     sceneContentPanel->AddChild(rightPanel_);
@@ -217,6 +221,12 @@ void ZEditorScene::Configure(std::shared_ptr<ZOFTree> objectTree) {
     ZEditorConfig config;
     if (objectTree->children.find("CONFIG") != objectTree->children.end()) {
         std::shared_ptr<ZOFObjectNode> configDataNode = std::static_pointer_cast<ZOFObjectNode>(objectTree->children["CONFIG"]);
+
+        if (configDataNode->properties.find("editorSizeLimits") != configDataNode->properties.end()) {
+            std::shared_ptr<ZOFNumberList> sizeLimitsProp = configDataNode->properties["editorSizeLimits"]->Value<ZOFNumberList>(0);
+            config.sizeLimits = glm::vec4(sizeLimitsProp->value[0], sizeLimitsProp->value[1], sizeLimitsProp->value[2], sizeLimitsProp->value[3]);
+        }
+
         if (configDataNode->children.find("THEME") != configDataNode->children.end()) {
             std::shared_ptr<ZOFObjectNode> themeDataNode = std::static_pointer_cast<ZOFObjectNode>(configDataNode->children["THEME"]);
             if (themeDataNode->properties.find("primaryColor") != themeDataNode->properties.end()) {
@@ -259,6 +269,11 @@ void ZEditorScene::Configure(ZEditorConfig config) {
         ZResource fontResource(config_.theme.font, ZResourceType::Font);
         ZServices::ResourceCache()->RequestHandle(fontResource);
     }
+
+    Domain()->SetSizeLimits(
+        glm::vec2(config.sizeLimits.x, config.sizeLimits.y),
+        glm::vec2(config.sizeLimits.z, config.sizeLimits.w)
+    );
 
     SetupLayoutPanels();
     SetupInitialTools();

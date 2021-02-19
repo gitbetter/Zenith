@@ -36,7 +36,6 @@
  // Forward Declarations
 class ZUIScene;
 class ZUIScrubber;
-class ZWindowResizeEvent;
 class ZFloatField;
 
 // Definitions

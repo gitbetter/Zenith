@@ -162,23 +162,32 @@ void ZUIText::RecalculateBufferData()
     // If no wrapping is enabled we simulate banner scrolling by removing
     // characters from the beginning of the original string if the total width
     // of the text is greater than our container width.
-    if (!wrapToBounds_) {
-        float width = 0.0f;
-        auto it = text.rbegin();
-        while (it != text.rend())
-        {
-            ZCharacter character = font_->Atlas().characterInfo[*it];
-            width += character.advance.x * fontSize;
-            if (width >= options_.calculatedRect.size.x)
-                break;
-            ++it;
-        }
-        if (it != text.rend()) {
-            text = std::string(it.base(), text.end());
-        }
+    float width = 0.0f;
+    auto it = text.rbegin();
+    while (it != text.rend())
+    {
+        ZCharacter character = font_->Atlas().characterInfo[*it];
+        width += character.advance.x * fontSize;
+        if (width >= options_.calculatedRect.size.x)
+            break;
+        ++it;
+    }
+    if (it != text.rend() && !wrapToBounds_) {
+        text = std::string(it.base(), text.end());
     }
 
     if (text.empty()) return;
+
+    switch (alignment_) {
+    case ZAlignment::Middle:
+        x += glm::clamp(options_.calculatedRect.size.x - width, 0.f, options_.calculatedRect.size.x) / 2.f;
+        break;
+    case ZAlignment::Right:
+        x += glm::clamp(options_.calculatedRect.size.x - width, 0.f, options_.calculatedRect.size.x);
+        break;
+    default:
+        break;
+    }
 
     textVertexData_ = ZVertex2DDataOptions();
     textVertexData_.vertices.reserve(text.size() * 6);
@@ -252,6 +261,12 @@ void ZUIText::SetWrap(bool wrap)
 void ZUIText::SetLineSpacing(float spacing)
 {
     lineSpacing_ = spacing;
+    RecalculateBufferData();
+}
+
+void ZUIText::SetAlignment(ZAlignment alignment)
+{
+    alignment_ = alignment;
     RecalculateBufferData();
 }
 

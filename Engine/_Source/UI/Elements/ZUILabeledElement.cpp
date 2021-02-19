@@ -95,6 +95,13 @@ void ZUILabeledElement::SetLabelFontSize(float size)
     }
 }
 
+void ZUILabeledElement::SetLabelTextAlignment(ZAlignment alignment)
+{
+    if (labelText_) {
+        labelText_->SetAlignment(alignment);
+    }
+}
+
 void ZUILabeledElement::SetLabelTextColor(const glm::vec4& color)
 {
     labelTextColor_ = color;

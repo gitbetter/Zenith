@@ -40,7 +40,7 @@ void ZTextField::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZTextField::Update()
 {
-    auto elementRect = control_->Element()->CalculatedRect();
+    auto elementRect = inputField_->CalculatedRect();
 
     if (hoverer_->Entered(elementRect)) {
         control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));

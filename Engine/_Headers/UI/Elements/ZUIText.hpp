@@ -56,6 +56,7 @@ public:
     float FontScale() const { return fontScale_; }
     float LineSpacing() const { return lineSpacing_; }
     bool ShouldWrap() const { return wrapToBounds_; }
+    ZAlignment Alignment() const { return alignment_; }
     float MaxWrapBounds() const;
 
     void SetText(const std::string& text);
@@ -63,6 +64,7 @@ public:
     void SetFont(const std::string& font);
     void SetWrap(bool wrap);
     void SetLineSpacing(float spacing);
+    void SetAlignment(ZAlignment alignment);
 
     DECLARE_UI_CREATORS(ZUIText)
 
@@ -73,6 +75,7 @@ protected:
     float fontScale_;
     float lineSpacing_;
     bool wrapToBounds_;
+    ZAlignment alignment_;
     std::shared_ptr<ZFont> font_;
     std::shared_ptr<ZBuffer> bufferData_;
     ZVertex2DDataOptions textVertexData_;

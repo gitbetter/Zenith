@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZFloatField.hpp
+    ZVec4Field.hpp
  
-    Created by Adrian Sanchez on 02/15/21.
+    Created by Adrian Sanchez on 02/18/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -36,34 +36,32 @@
  // Forward Declarations
 class ZUIScene;
 class ZUIScrubber;
-class ZUIHoverer;
-class ZUIInputField;
+class ZFloatField;
 
 // Definitions
-class ZFloatField : public ZTypedEditorControl<ZUILabeledElement, float> {
+class ZVec4Field : public ZTypedEditorControl<ZUILabeledElement, glm::vec4> {
 
 public:
 
-    ZFloatField(const ZUITheme& theme = ZUITheme())
+    ZVec4Field(const ZUITheme& theme = ZUITheme())
         : ZTypedEditorControl(theme)
-    {
-        value_ = 0;
-    }
-    ~ZFloatField() {}
+    { }
+    ~ZVec4Field() {}
 
-    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+    void Initialize(const std::shared_ptr<ZScene>& scene) override { }
 
     void Update() override;
 
-    void SetValue(const float& val) override;
+    void SetValue(const glm::vec4& val) override;
 
-    static std::shared_ptr<ZFloatField> Create(const std::string& label = "", const ZUIElementOptions& options = ZUIElementOptions(), const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
+    static std::shared_ptr<ZVec4Field> Create(const std::string& label = "", const ZUIElementOptions& options = ZUIElementOptions(), const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
 
 protected:
 
-    std::shared_ptr<ZUIInputField> inputField_ = nullptr;
-    std::shared_ptr<ZUIScrubber> scrubber_ = nullptr;
-    std::shared_ptr<ZUIHoverer> hoverer_ = nullptr;
-    float lastValue_ = 0;
+    std::shared_ptr<ZFloatField> xInputField_ = nullptr;
+    std::shared_ptr<ZFloatField> yInputField_ = nullptr;
+    std::shared_ptr<ZFloatField> zInputField_ = nullptr;
+    std::shared_ptr<ZFloatField> wInputField_ = nullptr;
+    glm::vec4 lastValue_{ 0.f };
 
 };

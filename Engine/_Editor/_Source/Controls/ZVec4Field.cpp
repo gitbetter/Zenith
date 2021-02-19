@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZVec3Field.hpp
+    ZVec4Field.hpp
 
-    Created by Adrian Sanchez on 02/17/21.
+    Created by Adrian Sanchez on 02/18/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -27,7 +27,7 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZVec3Field.hpp"
+#include "ZVec4Field.hpp"
 #include "ZServices.hpp"
 #include "ZFloatField.hpp"
 #include "ZUIScrubber.hpp"
@@ -35,25 +35,27 @@
 #include "ZUIPanel.hpp"
 #include "ZUIHorizontalLayout.hpp"
 
-void ZVec3Field::Update()
+void ZVec4Field::Update()
 {
     xInputField_->Update();
     yInputField_->Update();
     zInputField_->Update();
-    value_ = glm::vec3(xInputField_->Value(), yInputField_->Value(), zInputField_->Value());
+    wInputField_->Update();
+    value_ = glm::vec4(xInputField_->Value(), yInputField_->Value(), zInputField_->Value(), wInputField_->Value());
 }
 
-void ZVec3Field::SetValue(const glm::vec3& val)
+void ZVec4Field::SetValue(const glm::vec4& val)
 {
     value_ = val;
     xInputField_->SetValue(val.x);
     yInputField_->SetValue(val.y);
     zInputField_->SetValue(val.z);
+    wInputField_->SetValue(val.w);
 }
 
-std::shared_ptr<ZVec3Field> ZVec3Field::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
+std::shared_ptr<ZVec4Field> ZVec4Field::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
 {
-    auto vec3Field = std::make_shared<ZVec3Field>(theme);
+    auto vec4Field = std::make_shared<ZVec4Field>(theme);
 
     ZUIElementOptions fieldOptions = options;
     fieldOptions.color = glm::vec4(0.f);
@@ -66,27 +68,32 @@ std::shared_ptr<ZVec3Field> ZVec3Field::Create(const std::string& label, const Z
     fieldOptions = ZUIElementOptions();
     fieldOptions.positioning = ZPositioning::Relative;
     fieldOptions.scaling = ZPositioning::Relative;
-    fieldOptions.rect = ZRect(0.f, 0.f, 0.33f, 1.f);
+    fieldOptions.rect = ZRect(0.f, 0.f, 0.25f, 1.f);
     fieldOptions.color = options.color;
 
-    vec3Field->xInputField_ = ZFloatField::Create("X", fieldOptions, scene, theme);
-    vec3Field->xInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
-    vec3Field->xInputField_->Control()->SetLabelFontSize(13.f);
-    container->AddChild(vec3Field->xInputField_->Control());
+    vec4Field->xInputField_ = ZFloatField::Create("X", fieldOptions, scene, theme);
+    vec4Field->xInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
+    vec4Field->xInputField_->Control()->SetLabelFontSize(13.f);
+    container->AddChild(vec4Field->xInputField_->Control());
 
-    vec3Field->yInputField_ = ZFloatField::Create("Y", fieldOptions, scene, theme);
-    vec3Field->yInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
-    vec3Field->yInputField_->Control()->SetLabelFontSize(13.f);
-    container->AddChild(vec3Field->yInputField_->Control());
+    vec4Field->yInputField_ = ZFloatField::Create("Y", fieldOptions, scene, theme);
+    vec4Field->yInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
+    vec4Field->yInputField_->Control()->SetLabelFontSize(13.f);
+    container->AddChild(vec4Field->yInputField_->Control());
 
-    vec3Field->zInputField_ = ZFloatField::Create("Z", fieldOptions, scene, theme);
-    vec3Field->zInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
-    vec3Field->zInputField_->Control()->SetLabelFontSize(13.f);
-    container->AddChild(vec3Field->zInputField_->Control());
+    vec4Field->zInputField_ = ZFloatField::Create("Z", fieldOptions, scene, theme);
+    vec4Field->zInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
+    vec4Field->zInputField_->Control()->SetLabelFontSize(13.f);
+    container->AddChild(vec4Field->zInputField_->Control());
 
-    vec3Field->control_ = ZUILabeledElement::Create(label, container);
+    vec4Field->wInputField_ = ZFloatField::Create("W", fieldOptions, scene, theme);
+    vec4Field->wInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
+    vec4Field->wInputField_->Control()->SetLabelFontSize(13.f);
+    container->AddChild(vec4Field->wInputField_->Control());
 
-    vec3Field->Initialize(scene);
+    vec4Field->control_ = ZUILabeledElement::Create(label, container);
 
-    return vec3Field;
+    vec4Field->Initialize(scene);
+
+    return vec4Field;
 }

@@ -28,7 +28,13 @@
  */
 
 #include "ZInspectorTool.hpp"
+#include "ZFloatField.hpp"
+#include "ZTextField.hpp"
+#include "ZIntField.hpp"
 #include "ZVec3Field.hpp"
+#include "ZVec4Field.hpp"
+#include "ZRectField.hpp"
+#include "ZBoolField.hpp"
 #include "ZUIPanel.hpp"
 
 void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
@@ -38,11 +44,23 @@ void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZUIElementOptions fieldOptions;
     fieldOptions.positioning = ZPositioning::Relative;
     fieldOptions.scaling = ZPositioning::Relative;
-    fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
     fieldOptions.maxSize = glm::vec2(0.f, 20.f);
     fieldOptions.color = glm::vec4(0.4f, 0.4f, 0.4f, 1.f);
 
-    AddControl(ZVec3Field::Create("Position", fieldOptions, scene, theme_));
+    fieldOptions.rect = ZRect(0.05f, 0.05f, 0.9f, 0.05f);
+    AddControl(ZTextField::Create("Text", fieldOptions, scene, theme_));
+    fieldOptions.rect = ZRect(0.05f, 0.075f, 0.9f, 0.05f);
+    AddControl(ZIntField::Create("Int", fieldOptions, scene, theme_));
+    fieldOptions.rect = ZRect(0.05f, 0.1f, 0.9f, 0.05f);
+    AddControl(ZFloatField::Create("Float", fieldOptions, scene, theme_));
+    fieldOptions.rect = ZRect(0.05f, 0.125f, 0.9f, 0.05f);
+    AddControl(ZVec3Field::Create("Vec3", fieldOptions, scene, theme_));
+    fieldOptions.rect = ZRect(0.05f, 0.15f, 0.9f, 0.05f);
+    AddControl(ZVec4Field::Create("Vec4", fieldOptions, scene, theme_));
+    fieldOptions.rect = ZRect(0.05f, 0.175f, 0.9f, 0.05f);
+    AddControl(ZRectField::Create("Rect", fieldOptions, scene, theme_));
+    fieldOptions.rect = ZRect(0.05f, 0.2f, 0.9f, 0.05f);
+    AddControl(ZBoolField::Create("And Bool", fieldOptions, scene, theme_));
 }
 
 void ZInspectorTool::Update()

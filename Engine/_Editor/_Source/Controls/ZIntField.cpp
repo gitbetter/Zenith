@@ -35,7 +35,6 @@
 #include "ZDomain.hpp"
 #include "ZUIText.hpp"
 #include "ZServices.hpp"
-#include "ZWindowResizeEvent.hpp"
 
 void ZIntField::Initialize(const std::shared_ptr<ZScene>& scene)
 {
@@ -55,7 +54,7 @@ void ZIntField::Initialize(const std::shared_ptr<ZScene>& scene)
 void ZIntField::Update()
 {
     auto labelRect = control_->LabelField()->CalculatedRect();
-    auto elementRect = control_->Element()->CalculatedRect();
+    auto elementRect = inputField_->CalculatedRect();
 
     if (scrubber_) {
         int scrubbedVal = scrubber_->Scrub<int>(labelRect);

@@ -136,6 +136,17 @@ void ZGLDomain::ResizeFramebuffer(int width, int height)
     }
 }
 
+void ZGLDomain::SetSizeLimits(const glm::vec2& min, const glm::vec2& max)
+{
+    if (GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_)) {
+        int minX = min.x <= 1.f ? GLFW_DONT_CARE : min.x;
+        int minY = min.y <= 1.f ? GLFW_DONT_CARE : min.y;
+        int maxX = max.x <= 1.f ? GLFW_DONT_CARE : max.x;
+        int maxY = max.y <= 1.f ? GLFW_DONT_CARE : max.y;
+        glfwSetWindowSizeLimits(glWindow, minX, minY, maxX, maxY);
+    }
+}
+
 glm::vec2 ZGLDomain::FramebufferSize()
 {
     GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);

@@ -338,7 +338,7 @@ void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
         options_.rect.size = size;
         options_.calculatedRect.size = options_.rect.size;
     }
-    ClampToMaxSize();
+    ClampToSizeLimits();
     RecalculateModelMatrix();
 }
 
@@ -423,7 +423,7 @@ void ZUIElement::Scale(const glm::vec2& factor)
 {
     options_.rect.size *= factor;
     options_.calculatedRect.size *= factor;
-    ClampToMaxSize();
+    ClampToSizeLimits();
     RecalculateModelMatrix();
 }
 
@@ -470,8 +470,16 @@ void ZUIElement::CleanUp()
     ZServices::EventAgent()->Unsubscribe(this, &ZUIElement::OnWindowResized);
 }
 
-void ZUIElement::ClampToMaxSize()
+void ZUIElement::ClampToSizeLimits()
 {
+    if (options_.minSize.x > 0) {
+        options_.calculatedRect.size.x =
+            glm::clamp(options_.calculatedRect.size.x, options_.minSize.x, std::numeric_limits<float>::max());
+    }
+    if (options_.minSize.y > 0) {
+        options_.calculatedRect.size.y =
+            glm::clamp(options_.calculatedRect.size.y, options_.minSize.y, std::numeric_limits<float>::max());
+    }
     if (options_.maxSize.x > 0) {
         options_.calculatedRect.size.x =
             glm::clamp(options_.calculatedRect.size.x, 0.f, options_.maxSize.x);
@@ -540,6 +548,11 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
                 rect.size,
                 options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : options_.calculatedRect.size
             );
+            // We want to lock the relative position of the rect if it is already at its minimum size
+            if (element->options_.calculatedRect.size.x <= element->options_.minSize.x
+                || element->options_.calculatedRect.size.y <= element->options_.minSize.y) {
+                rect.size = element->options_.rect.size;
+            }
         }
         element->SetRect(rect, options_.calculatedRect);
     }

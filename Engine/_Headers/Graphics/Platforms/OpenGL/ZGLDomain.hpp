@@ -51,6 +51,7 @@ public:
     void SwapBuffers() override;
     void ResizeWindow(int width, int height) override;
     void ResizeFramebuffer(int width, int height) override;
+    void SetSizeLimits(const glm::vec2& min, const glm::vec2& max) override;
     void Close() override;
     bool IsClosing() override;
     void SetWindow(void* window) override;

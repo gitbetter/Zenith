@@ -90,7 +90,8 @@ struct ZUIElementOptions
     ZRect                                    calculatedRect{ 0.f, 0.f, 1.f, 1.f };
     ZRect                                    rect{ 0.f, 0.f, 0.f, 0.f };
     float                                    orientation{ 0.f };
-    glm::vec2                                maxSize{ 0.f, 0.f };
+    glm::vec2                                maxSize{ 0.f };
+    glm::vec2                                minSize{ 0.f };
     glm::vec4                                translationBounds{ 0.f, 1.f, 0.f, 1.f };
     glm::vec4                                color{ 0.0f };
     float                                    opacity{ 1.f };
@@ -231,7 +232,7 @@ protected:
 
 private:
 
-    void                                ClampToMaxSize();
+    void                                ClampToSizeLimits();
     void                                ClampToBounds();
     void                                RecalculateModelMatrix();
     void                                RecalculateProjectionMatrix();

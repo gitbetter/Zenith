@@ -56,6 +56,7 @@ public:
     void                                        SetLabelWidth(float width);
     void                                        SetLabelTextColor(const glm::vec4& color);
     void                                        SetLabelFontSize(float size);
+    void                                        SetLabelTextAlignment(ZAlignment alignment);
 
     static std::shared_ptr<ZUILabeledElement>   Create(const std::string& label, const std::shared_ptr<ZUIElement>& element);
 
@@ -63,8 +64,8 @@ protected:
 
     std::string                             label_;
     glm::vec4                               labelTextColor_ = glm::vec4(1.f);
-    float                                   labelWidth_ = 0.25f;
-    float                                   labelFontSize_ = 16.f;
+    float                                   labelWidth_ = 0.3f;
+    float                                   labelFontSize_ = 14.f;
 
     std::shared_ptr<ZUIText>                labelText_;
     std::shared_ptr<ZUIElement>             element_;
