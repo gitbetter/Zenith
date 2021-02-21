@@ -83,6 +83,7 @@ const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP{
 const std::string DEFAULT_HDR_CUBEMAP = "/Skyboxes/DefaultHDR/sky.hdr";
 constexpr unsigned int NUM_SHADOW_CASCADES = 4;
 const float EPSILON = glm::epsilon<float>();
+const float PI = glm::pi<float>();
 
 enum ZKey
 {
@@ -432,6 +433,8 @@ struct ZAnimation;
 struct ZBone;
 class ZTexture;
 struct ZCursor;
+struct ZVertex3D;
+struct ZVertex2D;
 
 using ZGameObjectMap = std::map<std::string, std::shared_ptr<ZGameObject>>;
 using ZLightMap = std::map<std::string, std::shared_ptr<ZLight>>;
@@ -458,6 +461,8 @@ using ZBoneMap = std::map<std::string, unsigned int>;
 using ZBoneList = std::vector<std::shared_ptr<ZBone>>;
 using ZTimedUpdateCallback = std::function<void(float)>;
 using ZTypeIdentifier = unsigned long;
+using ZVertex3DList = std::vector<ZVertex3D>;
+using ZVertex2DList = std::vector<ZVertex2D>;
 
 enum ZPriority
 {
@@ -501,7 +506,7 @@ enum class ZLightType
 
 enum class ZColliderType
 {
-    None, Box, Sphere, Capsule
+    None, Box, Sphere, Capsule, Cylinder, Cone
 };
 
 enum class ZCubemapTextureType
@@ -621,10 +626,11 @@ struct ZVertex3D
         for (unsigned int i = 0; i < BONES_PER_VERTEX; i++) boneWeights[i] = 0.f;
     }
 
-    ZVertex3D(const glm::vec3& position, const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f)) : ZVertex3D()
+    ZVertex3D(const glm::vec3& position, const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f), const glm::vec2& uv = glm::vec2(0.f)) : ZVertex3D()
     {
         this->position = position;
         this->normal = normal;
+        this->uv = uv;
     }
 
     void AddBoneData(unsigned int boneID, float weight)
@@ -639,6 +645,38 @@ struct ZVertex3D
             }
         }
     }
+
+    static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3)
+    {
+        glm::vec3 deltaPos1 = v2.position - v1.position;
+        glm::vec3 deltaPos2 = v3.position - v1.position;
+        glm::vec2 deltaUV1 = v2.uv - v1.uv;
+        glm::vec2 deltaUV2 = v3.uv - v1.uv;
+
+        float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+        glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
+        glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
+
+        v1.tangent = tangent; v2.tangent = tangent; v3.tangent = tangent;
+        v1.bitangent = bitangent; v2.bitangent = bitangent; v3.bitangent = bitangent;
+    }
+
+    static glm::vec3 ComputeFaceNormal(const ZVertex3D& v1, const ZVertex3D& v2, const ZVertex3D& v3)
+    {
+        glm::vec3 normal(0.f);
+
+        glm::vec3 e1 = v1.position - v2.position;
+        glm::vec3 e2 = v1.position - v3.position;
+
+        glm::vec3 e1crosse2 = glm::cross(e1, e2);
+
+        if (glm::length(e1crosse2) > EPSILON)
+        {
+            normal = glm::normalize(e1crosse2);
+        }
+
+        return normal;
+    }
 };
 
 struct ZVertex2D
@@ -648,6 +686,21 @@ struct ZVertex2D
     ZVertex2D(float x = 0.f, float y = 0.f, float u = 0.f, float v = 0.f)
         : vertex(x, y, u, v)
     {}
+
+    static ZVertex2DList GenerateUnitCircleVertices(int segments)
+    {
+        float sectorStep = 2 * PI / segments;
+        float sectorAngle;  // radian
+
+        ZVertex2DList vertices;
+        for (int i = 0; i <= segments; ++i)
+        {
+            sectorAngle = i * sectorStep;
+            vertices.emplace_back(cos(sectorAngle), sin(sectorAngle));
+        }
+
+        return vertices;
+    }
 };
 
 struct ZCharacter
@@ -715,14 +768,14 @@ struct ZInstancedDataOptions
 
 struct ZVertex3DDataOptions
 {
-    std::vector<ZVertex3D> vertices;
+    ZVertex3DList vertices;
     std::vector<unsigned int> indices;
     ZInstancedDataOptions instanced;
 };
 
 struct ZVertex2DDataOptions
 {
-    std::vector<ZVertex2D> vertices;
+    ZVertex2DList vertices;
     unsigned int numVertices;
     ZInstancedDataOptions instanced;
 };

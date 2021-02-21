@@ -30,7 +30,7 @@
 #pragma once
 
 // Includes
-#include "ZPlane.hpp"
+#include "ZAbstractPlane.hpp"
 #include "ZAABBox.hpp"
 
 // Forward Declarations
@@ -44,7 +44,7 @@ public:
     enum { TOP, BOTTOM, LEFT, RIGHT, NEAR, FAR, NUMPLANES };
 
     ZBasis basis;
-    ZPlane planes[NUMPLANES];
+    ZAbstractPlane planes[NUMPLANES];
     glm::vec3 corners[8];
     glm::vec3 nearCenter, farCenter, center;
     glm::vec3 position;

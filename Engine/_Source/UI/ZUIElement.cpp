@@ -29,6 +29,7 @@
 
 #include "ZServices.hpp"
 #include "ZScene.hpp"
+#include "ZMesh.hpp"
 #include "ZAssetStore.hpp"
 #include "ZDomain.hpp"
 #include "ZUIButton.hpp"
@@ -43,6 +44,7 @@
 #include "ZWindowResizeEvent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZWindowResizeEvent.hpp"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 

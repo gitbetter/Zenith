@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMesh3D.hpp
+    ZPlane.hpp
 
-    Created by Adrian Sanchez on 1/25/19.
+    Created by Adrian Sanchez on 02/19/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
@@ -30,38 +30,28 @@
 #pragma once
 
 // Includes
-#include "ZMesh.hpp"
-#include "ZMaterial.hpp"
+#include "ZModel.hpp"
 
 // Forward Declarations
-class ZShader;
 
 // Class Definitions
-class ZMesh3D : public ZMesh
+class ZPlane : public ZModel
 {
-
-    friend class ZModel;
-    friend class ZModelImporter;
 
 public:
 
-    ZMesh3D(const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
-    ~ZMesh3D();
+    ZPlane(const glm::vec2& size = glm::vec2(1.f))
+        : ZModel(), size_(size)
+    { };
+    virtual ~ZPlane() {}
 
     void Initialize() override;
+    void Initialize(const std::shared_ptr<ZOFNode>& data) override;
 
-    void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material) override;
+    static std::shared_ptr<ZPlane> Create(const glm::vec2& size);
 
-    void SetInstanceData(const ZInstancedDataOptions& data);
-    void SetVertices(const std::vector<ZVertex3D>& data);
-    void SetIndices(const std::vector<unsigned int>& data);
+protected:
 
-    const ZInstancedDataOptions& InstanceData() const { return vertexData_.instanced; }
-    const std::vector<ZVertex3D>& Vertices() const { return vertexData_.vertices; }
-    const std::vector<unsigned int>& Indices() const { return vertexData_.indices; }
-
-private:
-
-    ZVertex3DDataOptions vertexData_;
+    glm::vec2 size_;
 
 };

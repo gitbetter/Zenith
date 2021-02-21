@@ -27,10 +27,11 @@
  */
 
 #include "ZGrass.hpp"
+#include "ZMaterial.hpp"
 #include "ZServices.hpp"
 #include "ZScene.hpp"
 #include "ZAssetStore.hpp"
-#include "ZModel.hpp"
+#include "ZPlane.hpp"
 #include "ZShader.hpp"
 #include "ZTextureReadyEvent.hpp"
 
@@ -50,8 +51,7 @@ void ZGrass::Initialize()
     std::vector<ZInstancedDataOptions> instanceDatas;
     for (unsigned int i = 0; i < cPolygonCount; i++)
     {
-        auto model = std::make_shared<ZModel>(ZPrimitiveType::Plane);
-        model->Initialize();
+        std::shared_ptr<ZModel> model = ZPlane::Create(glm::vec2(1.f));
         UpdateVertexNormals(model);
         polygons_.push_back(model);
 

@@ -8,11 +8,14 @@ ZGO_GROUND
 	PhysicsComponent
 		:type Static:
 		:restitution 0.4:
-		:collider Box [3.18, 0.32, 3.18]:
 	^
+    ColliderComponent
+        :shape Box:
+        :extents [10.0, 0.1, 10.0]:
+    ^
 	GraphicsComponent
 		:activeShader 0:
-		:model Cube [1.0, 1.0, 1.0]:
+		:model ZMOD_02:
 		:materials [ZMAT_01]:
 	^
 ^
@@ -26,12 +29,15 @@ ZGO_12
         :damping 0.0 0.5:
         :restitution 0.4:
         :hasGravity Yes:
-        :collider Box [0.25, 0.53, 0.44]:
-        :colliderOffset [0.0, -0.1, 0.02]:
+    ^
+    ColliderComponent
+        :shape Box:
+        :extents [0.1, 0.3, 0.2]:
+        :offset [0.0, 0.08, 0.0]:
     ^
     GraphicsComponent
         :activeShader 0:
-        :model ZMOD_01 [1.0, 1.0, 1.0]:
+        :model ZMOD_01:
 		:materials [ZMAT_02]:
     ^
     AnimatorComponent ^
@@ -46,12 +52,35 @@ ZGO_13
         :damping 0.0 0.5:
         :restitution 0.4:
         :hasGravity Yes:
-        :collider Box [0.55, 0.55, 0.55]:
-        :colliderOffset [0.0, 0.0, 0.0]:
+    ^
+    ColliderComponent
+        :shape Box:
+        :extents [0.3, 0.3, 0.3]:
     ^
     GraphicsComponent
         :activeShader 0:
-        :model Cube [1.0, 1.0, 1.0]:
+        :model ZMOD_02:
+		:materials [ZMAT_01]:
+    ^
+^
+ZGO_23
+    :position [-1.6, 1.0, 0.5]:
+    :scale [0.2, 0.2, 0.2]:
+    :orientation [-90.0, 0.0, 0.0]:
+    PhysicsComponent
+        :type Dynamic:
+        :mass 10.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ColliderComponent
+        :shape Sphere:
+        :extents [0.2, 0.0, 0.0]:
+    ^
+    GraphicsComponent
+        :activeShader 0:
+        :model ZMOD_03:
 		:materials [ZMAT_01]:
     ^
 ^
@@ -103,6 +132,18 @@ ZTEX_GRASS
 
 ZMOD_01
 	:path "/Models/wolf.dae":
+^
+
+ZMOD_02
+    :type Cube:
+    :size [1.0, 1.0, 1.0]:
+^
+
+ZMOD_03
+    :type Sphere:
+    :radius 1.0:
+    :isSmooth Yes:
+    :segments [32.0, 32.0]:
 ^
 
 # Materials

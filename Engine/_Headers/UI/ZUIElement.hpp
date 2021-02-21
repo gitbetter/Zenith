@@ -51,7 +51,6 @@ std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::
 
 // Includes
 #include "ZRenderable.hpp"
-#include "ZMesh2D.hpp"
 #include "ZTexture.hpp"
 #include "ZProcess.hpp"
 #include "ZUIHelpers.hpp"

@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZMesh2D.hpp
+    ZCube.hpp
 
-    Created by Adrian Sanchez on 06/02/2019.
+    Created by Adrian Sanchez on 02/19/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
@@ -30,35 +30,28 @@
 #pragma once
 
 // Includes
-#include "ZMesh.hpp"
+#include "ZModel.hpp"
 
 // Forward Declarations
-class ZShader;
 
-// Class and Data Structure Definitions
-class ZMesh2D : ZMesh
+// Class Definitions
+class ZCube : public ZModel
 {
-private:
 
 public:
 
-    ZMesh2D() {}
-    ZMesh2D(const ZVertex2DDataOptions& vertexData, const ZMeshDrawStyle& drawStyle = ZMeshDrawStyle::Triangle)
-        : ZMesh(drawStyle), vertexData_(vertexData)
-    { }
-    ~ZMesh2D() {}
+    ZCube(const glm::vec3& size = glm::vec3(0.f))
+        : ZModel(), size_(size)
+    { };
+    virtual ~ZCube() {}
 
     void Initialize() override;
+    void Initialize(const std::shared_ptr<ZOFNode>& data) override;
 
-    void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material = nullptr) override;
-
-    std::vector<ZVertex2D> Vertices() const { return vertexData_.vertices; }
-
-    static std::shared_ptr<ZMesh2D> NewQuad();
-    static std::shared_ptr<ZMesh2D> NewScreenTriangle();
+    static std::shared_ptr<ZCube> Create(const glm::vec3& size);
 
 protected:
 
-    ZVertex2DDataOptions vertexData_;
+    glm::vec3 size_;
 
 };

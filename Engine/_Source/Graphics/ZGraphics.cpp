@@ -28,19 +28,11 @@
 */
 
 #include "ZServices.hpp"
-#include "ZWindowResizeEvent.hpp"
-#include "ZTextureReadyEvent.hpp"
-#include "ZShaderReadyEvent.hpp"
-#include "ZModelReadyEvent.hpp"
-#include "ZFontReadyEvent.hpp"
-#include "ZGameObject.hpp"
-#include "ZShader.hpp"
-#include "ZModel.hpp"
-#include "ZMesh2D.hpp"
+#include "ZBuffer.hpp"
 #include "ZScene.hpp"
-#include "ZLight.hpp"
-#include "ZFont.hpp"
+#include "ZFrustum.hpp"
 #include "ZAssetStore.hpp"
+#include "ZShader.hpp"
 
 void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustum, const glm::vec4& color)
 {
@@ -125,26 +117,11 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
     debugShader->SetVec4("color", color);
 
     ZVertex3DDataOptions options;
-    options.vertices = std::vector<ZVertex3D>{
+    options.vertices = ZVertex3DList{
       ZVertex3D(from), ZVertex3D(to)
     };
 
     ZBuffer::ptr bufferData = ZBuffer::Create(options);
     Draw(bufferData, options, ZMeshDrawStyle::Line);
     bufferData->Delete();
-}
-
-void ZGraphics::ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3)
-{
-    glm::vec3 deltaPos1 = v2.position - v1.position;
-    glm::vec3 deltaPos2 = v3.position - v1.position;
-    glm::vec2 deltaUV1 = v2.uv - v1.uv;
-    glm::vec2 deltaUV2 = v3.uv - v1.uv;
-
-    float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-    glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
-    glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
-
-    v1.tangent = tangent; v2.tangent = tangent; v3.tangent = tangent;
-    v1.bitangent = bitangent; v2.bitangent = bitangent; v3.bitangent = bitangent;
 }

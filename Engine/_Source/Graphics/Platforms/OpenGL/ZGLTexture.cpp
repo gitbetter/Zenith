@@ -30,7 +30,7 @@
 #include "ZGLTexture.hpp"
 #include "ZFramebuffer.hpp"
 #include "ZServices.hpp"
-#include "ZModel.hpp"
+#include "ZCube.hpp"
 #include "ZShader.hpp"
 #include "ZBuffer.hpp"
 #include "ZResourceExtraData.hpp"
@@ -119,7 +119,7 @@ void ZGLTexture::LoadCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZF
         glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
     };
 
-    std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+    std::shared_ptr<ZCube> cube = ZCube::Create(glm::vec3(1.f, 1.f, 1.f));
     std::shared_ptr<ZShader> equirectToCubemapShader = ZShader::Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/equirect_to_cube.frag");
     equirectToCubemapShader->Activate();
     equirectToCubemapShader->SetMat4("P", captureProjection);
@@ -159,7 +159,7 @@ void ZGLTexture::LoadIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapB
         glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
     };
 
-    std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+    std::shared_ptr<ZCube> cube = ZCube::Create(glm::vec3(1.f, 1.f, 1.f));
     std::shared_ptr<ZShader> irradianceShader = ZShader::Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/irradiance.frag");
     irradianceShader->Activate();
     irradianceShader->SetMat4("P", captureProjection);
@@ -198,7 +198,7 @@ void ZGLTexture::LoadPrefilterCubeMap(const std::shared_ptr<ZFramebuffer>& cubem
         glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
     };
 
-    std::unique_ptr<ZModel> cube = ZModel::NewCubePrimitive(glm::vec3(1.f, 1.f, 1.f));
+    std::shared_ptr<ZCube> cube = ZCube::Create(glm::vec3(1.f, 1.f, 1.f));
     std::shared_ptr<ZShader> prefilterShader = ZShader::Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/prefilter_convolution.frag");
     prefilterShader->Activate();
     prefilterShader->SetMat4("P", captureProjection);
@@ -237,7 +237,7 @@ void ZGLTexture::LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferD
     LoadEmptyLUT();
 
     ZVertex2DDataOptions options;
-    options.vertices = std::vector<ZVertex2D>{
+    options.vertices = ZVertex2DList{
         ZVertex2D(-1.f, 1.f, 0.f, 1.f),
         ZVertex2D(-1.f, -1.f, 0.f, 0.f),
         ZVertex2D(1.f, 1.f, 1.f, 1.f),

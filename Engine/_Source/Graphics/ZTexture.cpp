@@ -306,6 +306,16 @@ ZTexture::ptr ZTexture::CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubem
     return texture;
 }
 
+ZIBLTexture ZTexture::CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const std::shared_ptr<ZTexture>& cubemap)
+{
+    ZIBLTexture generatedIBLTexture;
+    generatedIBLTexture.cubeMap = cubemap;
+    generatedIBLTexture.irradiance = ZTexture::CreateIrradianceMap(bufferData, cubemap);
+    generatedIBLTexture.prefiltered = ZTexture::CreatePrefilterMap(bufferData, cubemap);
+    generatedIBLTexture.brdfLUT = ZTexture::CreateBRDFLUT(bufferData);
+    return generatedIBLTexture;
+}
+
 ZTexture::ptr ZTexture::Default()
 {
     static ZTexture::ptr defaultTexture = CreateDefault();

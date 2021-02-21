@@ -37,6 +37,7 @@
 class ZResourceHandle;
 class ZFramebuffer;
 class ZResourceLoadedEvent;
+struct ZIBLTexture;
 
 // Class and Data Structure Definitions
 class ZTexture : public std::enable_shared_from_this<ZTexture>
@@ -99,6 +100,7 @@ public:
     static ptr CreateIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture);
     static ptr CreatePrefilterMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture);
     static ptr CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferData);
+    static ZIBLTexture CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const std::shared_ptr<ZTexture>& cubemap);
 
     static ptr Default();
 

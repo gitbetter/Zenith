@@ -74,12 +74,12 @@ void ZFrustum::Recalculate()
     }
     center /= 8;
 
-    planes[NEAR] = ZPlane(corners[0], corners[0], corners[2]);
-    planes[FAR] = ZPlane(corners[5], corners[4], corners[7]);
-    planes[TOP] = ZPlane(corners[1], corners[0], corners[4]);
-    planes[BOTTOM] = ZPlane(corners[3], corners[2], corners[6]);
-    planes[LEFT] = ZPlane(corners[0], corners[3], corners[7]);
-    planes[RIGHT] = ZPlane(corners[2], corners[1], corners[6]);
+    planes[NEAR] = ZAbstractPlane(corners[0], corners[0], corners[2]);
+    planes[FAR] = ZAbstractPlane(corners[5], corners[4], corners[7]);
+    planes[TOP] = ZAbstractPlane(corners[1], corners[0], corners[4]);
+    planes[BOTTOM] = ZAbstractPlane(corners[3], corners[2], corners[6]);
+    planes[LEFT] = ZAbstractPlane(corners[0], corners[3], corners[7]);
+    planes[RIGHT] = ZAbstractPlane(corners[2], corners[1], corners[6]);
 }
 
 bool ZFrustum::Contains(const glm::vec3& point)

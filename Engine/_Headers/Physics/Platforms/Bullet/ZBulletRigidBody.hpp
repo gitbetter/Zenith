@@ -41,9 +41,9 @@ class ZBulletRigidBody : public ZRigidBody
 
 public:
 
-    ZBulletRigidBody() { colliderOffset_ = glm::vec3(0.f); type_ = ZPhysicsBodyType::Dynamic; }
+    ZBulletRigidBody() { type_ = ZPhysicsBodyType::Dynamic; }
     ZBulletRigidBody(void* bodyPtr) : ZBulletRigidBody() { ptr_ = bodyPtr; }
-    ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, const glm::vec3& origin, const glm::vec3& scale, const glm::quat& rotation);
+    ZBulletRigidBody(ZPhysicsBodyType type, float mass, const glm::vec3& origin, const glm::vec3& scale, const glm::quat& rotation);
     ~ZBulletRigidBody() {}
 
     void Initialize() override;
@@ -70,5 +70,6 @@ public:
     void ApplyForceAtPoint(const glm::vec3& force, const glm::vec3& point) override;
     void ApplyTorque(const glm::vec3& torque) override;
     void DisableContactResponse() override;
+    void AddCollider(const std::shared_ptr<ZCollider> collider) override;
 
 };

@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZCollider.cpp
+    ZBulletCollider.cpp
 
-    Created by Adrian Sanchez on 16/04/2019.
+    Created by Adrian Sanchez on 02/20/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -28,28 +28,28 @@
 */
 
 #include "ZBulletCollider.hpp"
+#include "btBulletDynamicsCommon.h"
 
-std::shared_ptr<ZCollider> ZCollider::Create(const std::string& type, const glm::vec3& extents, const glm::vec3& offset)
+void ZBulletCollider::Initialize()
 {
-    std::shared_ptr<ZCollider> collider = nullptr;
-    if (type == "Box") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Box, extents, offset);
+    switch (type_) {
+    case ZColliderType::Box:
+        ptr_ = new btBoxShape(btVector3(extents_.x, extents_.y, extents_.z));
+        break;
+    case ZColliderType::Sphere:
+        ptr_ = new btSphereShape(extents_.x);
+        break;
+    case ZColliderType::Capsule:
+        ptr_ = new btCapsuleShape(extents_.x, extents_.y);
+        break;
+    case ZColliderType::Cylinder:
+        ptr_ = new btCylinderShape(btVector3(extents_.x, extents_.y, extents_.z));
+        break;
+    case ZColliderType::Cone:
+        ptr_ = new btConeShape(extents_.x, extents_.y);
+        break;
+    case ZColliderType::None:
+        ptr_ = new btEmptyShape();
+    default: break;
     }
-    else if (type == "Sphere") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Sphere, extents, offset);
-    }
-    else if (type == "Capsule") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Capsule, extents, offset);
-    }
-    else if (type == "Cylinder") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Cylinder, extents, offset);
-    }
-    else if (type == "Cone") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Cone, extents, offset);
-    }
-    else {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::None, extents, offset);
-    }
-    collider->Initialize();
-    return collider;
 }

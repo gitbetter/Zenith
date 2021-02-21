@@ -158,7 +158,7 @@ void ZGameObject::CalculateDerivedData()
 
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     if (graphicsComp)
-        graphicsComp->Model()->UpdateAABB(properties_.modelMatrix);
+        graphicsComp->UpdateAABB(properties_.modelMatrix);
 }
 
 std::shared_ptr<ZGameObject> ZGameObject::Clone()
@@ -224,7 +224,7 @@ bool ZGameObject::IsVisible()
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     if (activeCamera && graphicsComp && graphicsComp->Model())
     {
-        return activeCamera->Frustum().Contains(graphicsComp->Model()->AABB());
+        return activeCamera->Frustum().Contains(graphicsComp->AABB());
     }
     return false;
 }

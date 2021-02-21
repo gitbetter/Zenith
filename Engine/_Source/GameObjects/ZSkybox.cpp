@@ -29,8 +29,9 @@
 
 #include "ZServices.hpp"
 #include "ZSkybox.hpp"
-#include "ZModel.hpp"
+#include "ZCube.hpp"
 #include "ZShader.hpp"
+#include "ZMaterial.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZSkyboxReadyEvent.hpp"
@@ -81,15 +82,14 @@ void ZSkybox::InitializeAsync()
 
 void ZSkybox::Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& bufferData)
 {
-    std::shared_ptr<ZModel> skybox = ZModel::NewSkybox(cubeMap, bufferData, iblTexture_);
+    iblTexture_ = ZTexture::CreateIBL(bufferData, cubeMap);
 
-    std::shared_ptr<ZShader> skyboxShader = ZShader::Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag");
-
-    std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent(new ZGraphicsComponent);
-    skyboxGraphicsComponent->Initialize(skybox, skyboxShader);
-
-    std::vector<ZTexture::ptr> textures = { iblTexture_.cubeMap };
-    skyboxGraphicsComponent->AddMaterial(ZMaterial::Create(textures));
+    std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent = std::make_shared<ZGraphicsComponent>();
+    skyboxGraphicsComponent->Initialize(
+        ZCube::Create(glm::vec3(1.f, 1.f, 1.f)),
+        ZShader::Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")
+    );
+    skyboxGraphicsComponent->AddMaterial(ZMaterial::Create({ iblTexture_.cubeMap }));
 
     AddComponent(skyboxGraphicsComponent);
 }

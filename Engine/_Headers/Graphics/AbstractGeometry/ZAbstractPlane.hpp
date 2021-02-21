@@ -6,7 +6,7 @@
         /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
         \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-        ZPlane.cpp
+        ZAbstractPlane.hpp
 
         Created by Adrian Sanchez on 18/04/2019.
         Copyright � 2019 Pervasive Sense. All rights reserved.
@@ -27,27 +27,28 @@
     along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZPlane.hpp"
+#pragma once
 
-ZPlane::ZPlane(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3)
+// Includes
+#include "ZCommon.hpp"
+
+// Forward Declarations
+
+// Class and Data Structure Definitions
+class ZAbstractPlane
 {
-    glm::vec3 e2 = p2 - p1, e1 = p3 - p1;
-    normal = glm::normalize(glm::cross(e2, e1));
-    center = normal * glm::dot(p1, normal);
-}
 
-float ZPlane::Distance(const glm::vec3& point)
-{
-    return glm::length(glm::dot(point, glm::normalize(normal)) - center);
-}
+public:
 
-glm::vec3 ZPlane::Intersection(const ZPlane& a, const ZPlane& b)
-{
-    float f = -glm::dot(normal, glm::cross(a.normal, b.normal));
+    glm::vec3 center;
+    glm::vec3 normal;
 
-    glm::vec3 v1(center * glm::cross(a.normal, b.normal));
-    glm::vec3 v2(a.center * glm::cross(b.normal, normal));
-    glm::vec3 v3(b.center * glm::cross(normal, a.normal));
+    ZAbstractPlane() {}
+    ZAbstractPlane(const glm::vec3& c, const glm::vec3& n) : center(c), normal(n) {}
+    ZAbstractPlane(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3);
 
-    return (v1 + v2 + v3) / f;
-}
+    float Distance(const glm::vec3& point);
+    glm::vec3 Intersection(const ZAbstractPlane& a, const ZAbstractPlane& b);
+
+};
+

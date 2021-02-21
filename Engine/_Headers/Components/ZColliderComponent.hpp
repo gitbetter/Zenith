@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUICanvas.hpp
+    ZColliderComponent.hpp
 
-    Created by Adrian Sanchez on 05/02/2021.
+    Created by Adrian Sanchez on 02/20/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,33 +27,34 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZUICanvas.hpp"
-#include "ZMesh.hpp"
+#pragma once
 
-ZUICanvas::ZUICanvas(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
+// Includes
+#include "ZComponent.hpp"
+
+// Forward Declarations
+class ZCollider;
+
+// Class and Data Structure Definitions
+class ZColliderComponent : public ZComponent
 {
-    type_ = ZUIElementType::Canvas;
-}
 
-ZUICanvas::ZUICanvas(const ZUIElementOptions& options) : ZUIElement(options)
-{
-    type_ = ZUIElementType::Canvas;
-}
+public:
 
-void ZUICanvas::Initialize()
-{
-    ZUIElement::Initialize();
-}
+    ZColliderComponent() {}
+    ~ZColliderComponent() {}
 
-void ZUICanvas::Initialize(const std::shared_ptr<ZOFNode>& root)
-{
-    ZUIElement::Initialize(root);
-}
+    void Initialize(std::shared_ptr<ZOFNode> root) override;
 
-std::shared_ptr<ZMesh2D> ZUICanvas::ElementShape()
-{
-    static std::shared_ptr<ZMesh2D> mesh = ZMesh2D::NewScreenTriangle();
-    return mesh;
-}
+    void Update(double deltaTime) override;
 
-DEFINE_UI_CREATORS(ZUICanvas)
+    std::shared_ptr<ZComponent> Clone() override;
+
+protected:
+
+    std::shared_ptr<ZCollider> collider_ = nullptr;
+    bool added_ = false;
+
+    void AddColliderIfNecessary();
+
+};

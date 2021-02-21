@@ -81,9 +81,6 @@ public:
     void DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::vec4& color);
     void DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::vec3& from, const glm::vec3& to, const glm::vec4& color);
 
-    // TODO: Move this into the Vertex3D struct/class
-    static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
-
 protected:
 
     ZGraphicsOptions options_;

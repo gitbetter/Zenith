@@ -30,7 +30,7 @@
 #pragma once
 
 // Includes
-#include "ZMesh3D.hpp"
+#include "ZMesh.hpp"
 #include "ZTexture.hpp"
 #include "ZAABBox.hpp"
 
@@ -47,7 +47,38 @@ class ZModel : public std::enable_shared_from_this<ZModel>
 
     using Creator = std::unique_ptr<ZModel>(*)(const glm::vec3&);
 
-private:
+public:
+
+    ZModel(const std::string& path = "");
+    virtual ~ZModel() {}
+
+    virtual void Initialize();
+    virtual void Initialize(const std::shared_ptr<ZOFNode>& data);
+    virtual void InitializeAsync();
+
+    virtual void Render(const std::shared_ptr<ZShader>& shader);
+    virtual void Render(const std::shared_ptr<ZShader>& shader, const std::vector<std::shared_ptr<ZMaterial>>& materials);
+
+    const std::string& ID() const { return id_; }
+    const std::string& Path() const { return modelPath_; }
+    const ZMesh3DMap& Meshes() const { return meshes_; }
+    const ZBoneList& Bones() const { return bones_; }
+    const ZBoneMap& BonesMap() const { return bonesMap_; }
+    const ZAnimationMap& Animations() const { return animations_; }
+    const ZInstancedDataOptions& InstanceData() const { return instanceData_; }
+    const std::shared_ptr<ZSkeleton> Skeleton() const { return skeleton_; }
+    const glm::mat4 GlobalInverseTransform() const { return globalInverseTransform_; }
+
+    void SetInstanceData(const ZInstancedDataOptions& instanceData);
+    void BoneTransform(const std::string& anim, double secondsTime);
+
+    static void Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap);
+    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingModels, ZModelMap& outModelMap);
+
+    static std::shared_ptr<ZModel> Create(const std::string& type, const std::shared_ptr<ZOFNode>& data = nullptr);
+    static std::shared_ptr<ZModel> CreateExternal(const std::string& path, bool async = false);
+
+protected:
 
     std::string id_;
     std::string modelPath_;
@@ -56,58 +87,10 @@ private:
     ZBoneList bones_;
     ZAnimationMap animations_;
     std::shared_ptr<ZSkeleton> skeleton_;
-    ZAABBox boundingBox_;
     ZInstancedDataOptions instanceData_;
-
     glm::mat4 globalInverseTransform_;
 
-    void CreatePlane(const glm::vec3& scale);
-    void CreateCube(const glm::vec3& scale);
-    void CreateSphere(const glm::vec3& scale);
-    void CreateCylinder(const glm::vec3& scale);
-    void CreateCone(const glm::vec3& scale);
-
-public:
-
-    ZModel(ZPrimitiveType primitiveType, const glm::vec3& scale = glm::vec3(1.0f, 0.f, 1.0f));
-    ZModel(const std::string& path = "");
-    virtual ~ZModel() {}
-
-    void Initialize();
-    void InitializeAsync();
-    virtual void Render(const std::shared_ptr<ZShader>& shader);
-    virtual void Render(const std::shared_ptr<ZShader>& shader, const std::vector<std::shared_ptr<ZMaterial>>& materials);
-    virtual void InitializeAABB();
-    virtual void UpdateAABB(const glm::mat4& transform);
-    void SetInstanceData(const ZInstancedDataOptions& instanceData);
-    void BoneTransform(const std::string& anim, double secondsTime);
-
-    const std::string& ID() const { return id_; }
-    const std::string& Path() const { return modelPath_; }
-    const ZMesh3DMap& Meshes() const { return meshes_; }
-    const ZAABBox& AABB() const { return boundingBox_; }
-    const ZBoneList& Bones() const { return bones_; }
-    const ZBoneMap& BonesMap() const { return bonesMap_; }
-    const ZAnimationMap& Animations() const { return animations_; }
-    const ZInstancedDataOptions& InstanceData() const { return instanceData_; }
-    const std::shared_ptr<ZSkeleton> Skeleton() const { return skeleton_; }
-    const glm::mat4 GlobalInverseTransform() const { return globalInverseTransform_; }
-
-    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingModels);
-    static void Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap);
-    static std::unique_ptr<ZModel> Create(const std::string& type, const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
-
-    static std::unique_ptr<ZModel> NewPlanePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 0.f, 1.0f));
-    static std::unique_ptr<ZModel> NewCubePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewSpherePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewCylinderPrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewConePrimitive(const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f));
-    static std::unique_ptr<ZModel> NewSkybox(ZIBLTexture& generatedIBLTexture, const std::vector<std::string>& faces = DEFAULT_SKYBOX_CUBEMAP);
-    static std::unique_ptr<ZModel> NewSkybox(const std::shared_ptr<ZTexture>& cubeMap, const std::shared_ptr<ZFramebuffer>& bufferData, ZIBLTexture& generatedIBLTexture);
-
-protected:
-
-    static std::map<std::string, Creator> modelCreators_;
+    static ZIDSequence idGenerator_;
 
     void CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
     glm::vec3 CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
@@ -115,7 +98,5 @@ protected:
     glm::vec3 CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
 
     void HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
-
-    static ZIDSequence idGenerator_;
 
 };

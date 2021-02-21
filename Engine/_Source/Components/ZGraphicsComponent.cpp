@@ -54,6 +54,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_p
     {
         modelObject_ = model;
         instanceData_ = modelObject_->InstanceData();
+        SetupAABB();
     }
     if (shader)
     {
@@ -121,19 +122,6 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         {
             model_ = nameProp->value;
         }
-        else
-        {
-            if (props["model"]->ValueCount() > 1)
-            {
-                std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);
-                modelObject_ = ZModel::Create(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
-            }
-            else
-            {
-                modelObject_ = ZModel::Create(nameProp->value);
-            }
-            modelObject_->SetInstanceData(instanceData_);
-        }
     }
 
     if (props.find("materials") != props.end() && props["materials"]->HasValues())
@@ -177,7 +165,7 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
 
     // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
     ZServices::Graphics()->EnableStencilBuffer();
-    //ZServices::Graphics()->EnableAlphaBlending();
+    ZServices::Graphics()->EnableAlphaBlending();
 
     if (activeShader)
     {
@@ -243,6 +231,7 @@ std::shared_ptr<ZModel> ZGraphicsComponent::Model()
     {
         modelObject_ = scene->AssetStore()->GetModel(model_);
         modelObject_->SetInstanceData(instanceData_);
+        SetupAABB();
         return modelObject_;
     }
     return nullptr;
@@ -293,6 +282,36 @@ void ZGraphicsComponent::SetModel(const std::shared_ptr<ZModel>& model)
 {
     modelObject_ = model;
     instanceData_ = modelObject_->InstanceData();
+    SetupAABB();
+}
+
+void ZGraphicsComponent::SetupAABB()
+{
+    glm::vec3 min(0.f), max(0.f);
+
+    auto it = modelObject_->Meshes().cbegin(), end = modelObject_->Meshes().cend();
+    for (; it != end; it++)
+    {
+        const ZVertex3DList& vertices = it->second->Vertices();
+        for (int i = 0; i < vertices.size(); i++)
+        {
+            if (vertices[i].position.x < min.x) min.x = vertices[i].position.x;
+            if (vertices[i].position.x < min.y) min.y = vertices[i].position.y;
+            if (vertices[i].position.x < min.z) min.z = vertices[i].position.z;
+            if (vertices[i].position.x > max.x) max.x = vertices[i].position.x;
+            if (vertices[i].position.x > max.y) max.y = vertices[i].position.y;
+            if (vertices[i].position.x > max.z) max.z = vertices[i].position.z;
+        }
+    }
+
+    boundingBox_.minimum = min;
+    boundingBox_.maximum = max;
+}
+
+void ZGraphicsComponent::UpdateAABB(const glm::mat4& transform)
+{
+    boundingBox_.minimum = transform * glm::vec4(boundingBox_.minimum, 1.f);
+    boundingBox_.maximum = transform * glm::vec4(boundingBox_.maximum, 1.f);
 }
 
 void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm::mat4& viewProjection)

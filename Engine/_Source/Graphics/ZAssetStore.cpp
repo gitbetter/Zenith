@@ -33,6 +33,7 @@
 #include "ZShader.hpp"
 #include "ZModel.hpp"
 #include "ZFont.hpp"
+#include "ZMaterial.hpp"
 #include "ZShaderReadyEvent.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZModelReadyEvent.hpp"
@@ -48,6 +49,7 @@ void ZAssetStore::Initialize()
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleTextureReady);
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleModelReady);
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleMaterialReady);
+    ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleFontReady);
 }
 
 void ZAssetStore::InitializeShaders()
@@ -113,13 +115,18 @@ void ZAssetStore::Load(std::shared_ptr<ZOFTree> root)
 
 void ZAssetStore::LoadAsync(std::shared_ptr<ZOFTree> root)
 {
-    ZMaterialMap loadedMaterials;
+    ZMaterialMap loadedMaterials; ZModelMap loadedModels;
 
     ZFont::CreateAsync(root, pendingFonts_);
     ZTexture::CreateAsync(root, pendingTextures_);
     ZShader::CreateAsync(root, pendingShaders_);
-    ZModel::CreateAsync(root, pendingModels_);
+    ZModel::CreateAsync(root, pendingModels_, loadedModels);
     ZMaterial::CreateAsync(root, pendingMaterials_, loadedMaterials);
+
+    for (ZModelMap::iterator it = loadedModels.begin(); it != loadedModels.end(); it++)
+    {
+        AddModel(it->first, it->second);
+    }
 
     for (ZMaterialMap::iterator it = loadedMaterials.begin(); it != loadedMaterials.end(); it++)
     {
@@ -297,6 +304,7 @@ void ZAssetStore::CleanUp()
         textShader_.reset();
     }
 
+    ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleFontReady);
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleShaderReady);
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleTextureReady);
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleModelReady);

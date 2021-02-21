@@ -29,6 +29,7 @@
 #include "ZGraphicsComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZAnimatorComponent.hpp"
+#include "ZColliderComponent.hpp"
 #include "ZGameObject.hpp"
 #include "ZServices.hpp"
 
@@ -37,27 +38,35 @@ ZIDSequence ZComponent::idGenerator_("ZCOMP");
 std::map<std::string, ZComponent::Creator> ZComponent::componentCreators_ = {
     { "GraphicsComponent", &ZComponent::CreateGraphicsComponent },
     { "PhysicsComponent", &ZComponent::CreatePhysicsComponent },
-    { "AnimatorComponent", &ZComponent::CreateAnimatorComponent }
+    { "AnimatorComponent", &ZComponent::CreateAnimatorComponent },
+    { "ColliderComponent", &ZComponent::CreateColliderComponent },
 };
 
 
 std::shared_ptr<ZComponent> ZComponent::CreateGraphicsComponent(const std::shared_ptr<ZGameObject>& gameObject)
 {
-    std::shared_ptr<ZGraphicsComponent> comp(new ZGraphicsComponent);
+    std::shared_ptr<ZGraphicsComponent> comp = std::make_shared<ZGraphicsComponent>();
     gameObject->AddComponent(comp);
     return comp;
 }
 
 std::shared_ptr<ZComponent> ZComponent::CreatePhysicsComponent(const std::shared_ptr<ZGameObject>& gameObject)
 {
-    std::shared_ptr<ZPhysicsComponent> comp(new ZPhysicsComponent);
+    std::shared_ptr<ZPhysicsComponent> comp = std::make_shared<ZPhysicsComponent>();
     gameObject->AddComponent(comp);
     return comp;
 }
 
 std::shared_ptr<ZComponent> ZComponent::CreateAnimatorComponent(const std::shared_ptr<ZGameObject>& gameObject)
 {
-    std::shared_ptr<ZAnimatorComponent> comp(new ZAnimatorComponent);
+    std::shared_ptr<ZAnimatorComponent> comp = std::make_shared<ZAnimatorComponent>();
+    gameObject->AddComponent(comp);
+    return comp;
+}
+
+std::shared_ptr<ZComponent> ZComponent::CreateColliderComponent(const std::shared_ptr<ZGameObject>& gameObject)
+{
+    std::shared_ptr<ZColliderComponent> comp = std::make_shared<ZColliderComponent>();
     gameObject->AddComponent(comp);
     return comp;
 }

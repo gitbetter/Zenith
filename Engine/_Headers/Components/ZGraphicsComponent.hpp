@@ -10,11 +10,13 @@
 // Includes
 #include "ZComponent.hpp"
 #include "ZRenderable.hpp"
+#include "ZAABBox.hpp"
 
 // Forward Declarations
 class ZModel;
 class ZShader;
 class ZCamera;
+class ZMaterial;
 struct ZOFNode;
 
 // Class and Data Structure Definitions
@@ -38,6 +40,7 @@ public:
     std::shared_ptr<ZShader> ActiveShader();
     std::shared_ptr<ZModel> Model();
     const std::vector<std::shared_ptr<ZMaterial>>& Materials();
+    const ZAABBox& AABB() const { return boundingBox_; }
 
     void SetOutline(const glm::vec4& color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
     void ClearOutline();
@@ -48,9 +51,13 @@ public:
 
     void AddMaterial(const std::shared_ptr<ZMaterial>& material);
 
+    void UpdateAABB(const glm::mat4& transform);
+
 protected:
 
+    std::string model_;
     std::shared_ptr<ZModel> modelObject_ = nullptr;
+    int activeShaderIndex_ = -1;
     std::shared_ptr<ZShader> currentShaderObject_ = nullptr;
     std::vector<std::shared_ptr<ZMaterial>> materials_;
     std::string highlightShaderId_;
@@ -61,10 +68,12 @@ protected:
     std::shared_ptr<ZCamera> gameCamera_ = nullptr;
     std::vector<std::string> shadersIds_;
     std::vector<std::string> materialIds_;
-    std::string model_;
-    int activeShaderIndex_ = -1;
+    // TODO: Implement billboarding in component
     bool isBillboard_;
 
+    ZAABBox boundingBox_;
+
+    void SetupAABB();
     void DrawOutlineIfEnabled(const glm::mat4& model, const glm::mat4& viewProjection);
 
 };

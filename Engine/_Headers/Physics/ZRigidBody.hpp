@@ -67,18 +67,16 @@ public:
     virtual void SetLinearDamping(float damping) = 0;
     virtual void SetAngularDamping(float damping) = 0;
     virtual void SetRestitution(float restitution) = 0;
-    virtual void SetColliderOffset(const glm::vec3& offset) { colliderOffset_ = offset; }
     virtual void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
     virtual void SetPosition(const glm::vec3& position) = 0;
     virtual void SetRotation(const glm::quat& rotation) = 0;
     virtual void SetScale(const glm::vec3& scale) = 0;
+    virtual void AddCollider(const std::shared_ptr<ZCollider> collider) = 0;
 
 protected:
 
     void* ptr_ = nullptr;
     ZGameObject* gameObject_ = nullptr;
-    std::shared_ptr<ZCollider> collider_;
-    glm::vec3 colliderOffset_;
     ZPhysicsBodyType type_;
 
 };

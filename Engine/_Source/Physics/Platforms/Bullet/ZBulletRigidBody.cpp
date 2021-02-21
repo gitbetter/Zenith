@@ -30,16 +30,14 @@
 #include "ZBulletRigidBody.hpp"
 #include "btBulletDynamicsCommon.h"
 
-ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZCollider> collider, float mass, const glm::vec3& origin, const glm::vec3& scale, const glm::quat& rotation) : ZBulletRigidBody()
+ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, float mass, const glm::vec3& origin, const glm::vec3& scale, const glm::quat& rotation) : ZBulletRigidBody()
 {
-    btCollisionShape* coll = static_cast<btCollisionShape*>(collider->Get());
+    btCompoundShape* coll = new btCompoundShape();
+    coll->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
 
-    btTransform transform;
-    transform.setIdentity();
+    btTransform transform; transform.setIdentity();
     transform.setOrigin(btVector3(origin.x, origin.y, origin.z));
     transform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-
-    coll->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
 
     btVector3 localInertia(0, 0, 0);
     if (mass > 0.f) coll->calculateLocalInertia(mass, localInertia);
@@ -50,7 +48,8 @@ ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, std::shared_ptr<ZColli
 
     ptr_ = bodyPtr;
     type_ = type;
-    collider_ = collider;
+
+    AddCollider(ZCollider::Create("Empty", glm::vec3(0.f)));
 }
 
 void ZBulletRigidBody::Initialize()
@@ -80,7 +79,7 @@ glm::mat4 ZBulletRigidBody::TransformMatrix()
         body->getMotionState()->getWorldTransform(transform);
     }
     transform.getOpenGLMatrix(glm::value_ptr(modelMatrix));
-    modelMatrix = glm::translate(modelMatrix, colliderOffset_);
+
     return modelMatrix;
 }
 
@@ -138,6 +137,17 @@ void ZBulletRigidBody::DisableContactResponse()
     body->setCollisionFlags(body->getCollisionFlags() | btRigidBody::CF_NO_CONTACT_RESPONSE);
 }
 
+void ZBulletRigidBody::AddCollider(const std::shared_ptr<ZCollider> collider)
+{
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body || !body->getCollisionShape()) return;
+
+    glm::vec3 offset = collider->Offset();
+    btCompoundShape* coll = static_cast<btCompoundShape*>(body->getCollisionShape());
+    btTransform t; t.setIdentity(); t.setOrigin(btVector3(offset.x, offset.y, offset.z));
+    coll->addChildShape(t, static_cast<btCollisionShape*>(collider->Get()));
+}
+
 std::shared_ptr<ZRigidBody> ZBulletRigidBody::Clone()
 {
     glm::vec3 position = Position();
@@ -145,13 +155,12 @@ std::shared_ptr<ZRigidBody> ZBulletRigidBody::Clone()
     glm::vec3 scale = Scale();
     float mass = 1.f / InverseMass();
 
-    std::shared_ptr<ZBulletRigidBody> clone = std::make_shared<ZBulletRigidBody>(type_, collider_, mass, position, scale, rotation);
+    std::shared_ptr<ZBulletRigidBody> clone = std::make_shared<ZBulletRigidBody>(type_, mass, position, scale, rotation);
 
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     btRigidBody* clonedBody = static_cast<btRigidBody*>(clone->ptr_);
     clonedBody->setCollisionFlags(body->getCollisionFlags());
 
-    clone->colliderOffset_ = colliderOffset_;
     return clone;
 }
 

@@ -31,7 +31,7 @@
 #include "ZServices.hpp"
 #include "ZFramebuffer.hpp"
 #include "ZShader.hpp"
-#include "ZMesh2D.hpp"
+#include "ZMesh.hpp"
 #include "ZScene.hpp"
 #include "ZRenderable.hpp"
 
