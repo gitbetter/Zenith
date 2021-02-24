@@ -44,9 +44,9 @@ class ZCamera : public ZGameObject
 
 public:
 
-    ZCamera(const glm::vec3& position = glm::vec3(0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), ZCameraType type = ZCameraType::Orthographic);
+    ZCamera(const glm::vec3& position = glm::vec3(0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f), ZCameraType type = ZCameraType::Orthographic);
     ZCamera::ZCamera(ZCameraType type) 
-        : ZCamera(glm::vec3(0.f), glm::quat(glm::vec3(0.f)), type)
+        : ZCamera(glm::vec3(0.f), glm::quat(glm::vec3(0.f)), glm::vec3(1.f), type)
     { }
     ~ZCamera() {}
 

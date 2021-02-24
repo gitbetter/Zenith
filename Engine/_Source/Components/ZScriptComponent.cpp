@@ -28,9 +28,17 @@
 */
 
 #include "ZScriptComponent.hpp"
+#include "ZGameObject.hpp"
+
+ZScriptComponent::ZScriptComponent()
+{
+    id_ = "ZCOMP_SCRIPT_" + idGenerator_.Next();
+}
 
 std::shared_ptr<ZComponent> ZScriptComponent::Clone()
 {
     std::shared_ptr<ZScriptComponent> clone = std::make_shared<ZScriptComponent>();
     return clone;
 }
+
+DEFINE_COMPONENT_CREATORS(ZScriptComponent)

@@ -40,7 +40,7 @@ class ZScriptComponent : public ZComponent
 
 public:
 
-    ZScriptComponent() {}
+    ZScriptComponent();
     ~ZScriptComponent() {}
 
     void Initialize(std::shared_ptr<ZOFNode> root) override {}
@@ -48,6 +48,8 @@ public:
     std::shared_ptr<ZComponent> Clone() override;
 
     void Update(double deltaTime) override {}
+
+    DECLARE_COMPONENT_CREATORS(ZScriptComponent)
 
 protected:
 

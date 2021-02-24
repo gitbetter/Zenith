@@ -3,13 +3,13 @@
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
+   /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-   ZPhysicsUniverse.hpp
+    ZTransformGizmo.hpp
 
-   Created by Adrian Sanchez on 14/02/2019.
-   Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 02/20/21.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
 
@@ -29,36 +29,37 @@
 
 #pragma once
 
-// Includes
-#include "ZProcess.hpp"
+ // Includes
+#include "ZEditorGizmo.hpp"
 
 // Forward Declarations
-class ZRigidBody;
+class ZScene;
+class ZGameObject;
 
-// Class and Data Structure Definitions
-class ZPhysicsUniverse : public ZProcess
+// Definitions
+class ZTransformGizmo : public ZEditorGizmo
 {
-
 public:
 
-    virtual ~ZPhysicsUniverse() {}
+    ZTransformGizmo() 
+        : ZEditorGizmo()
+    { }
+    virtual ~ZTransformGizmo() { }
 
-    virtual void Initialize() override;
+    void Initialize(const std::shared_ptr<ZScene>& scene) override;
 
-    virtual void Update(double deltaTime) override;
+    void Update() override;
 
-    virtual void CleanUp() override;
+    void CleanUp() override;
 
-    virtual void AddRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
-
-    virtual void RemoveRigidBody(std::shared_ptr<ZRigidBody> body) = 0;
-
-    virtual ZRaycastHitResult Raycast(const glm::vec3& start, const glm::vec3& direction, float t = 100.f) = 0;
-
-    virtual void DebugDraw(const std::shared_ptr<ZScene>& scene) = 0;
+    void OnProjectSceneChanged() override;
 
 protected:
 
-    ZCollisionPairs previousTickCollisionPairs_;
+    std::shared_ptr<ZScene> previousActiveProjectScene_ = nullptr;
+
+    std::array<std::shared_ptr<ZGameObject>, 3> axisArrows_;
+
+    std::shared_ptr<ZGameObject> CreateAxisArrow(const glm::vec3& axis);
 
 };

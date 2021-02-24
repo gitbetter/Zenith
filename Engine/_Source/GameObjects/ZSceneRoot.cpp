@@ -50,13 +50,13 @@ ZSceneRoot::ZSceneRoot(const std::string& name) : ZGameObject(name)
     children_.push_back(invisibleGroup);
 
     std::shared_ptr<ZGameObject> uiGroup = std::make_shared<ZGameObject>("UIGroup");
-    skyGroup->SetRenderOrder(ZRenderOrder::Sky);
+    uiGroup->SetRenderOrder(ZRenderOrder::UI);
     children_.push_back(uiGroup);
 }
 
 void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject)
 {
-    ZRenderOrder order = gameObject->RenderOrder();
+    int order = static_cast<int>(gameObject->RenderOrder());
     if (order >= children_.size() || !children_[order])
     {
         LOG("The child being added has a non-extant render order", ZSeverity::Warning);
@@ -99,17 +99,16 @@ void ZSceneRoot::RenderChildren(double deltaTime, const std::shared_ptr<ZShader>
     if (scene->GameConfig().graphics.drawGrid)
         ZServices::Graphics()->DebugDrawGrid(scene, glm::vec4(0.75f, 0.75f, 0.75f, 1.f));
 
-    for (int pass = ZRenderOrder::First; pass < ZRenderOrder::Last; pass++)
+    for (int pass = static_cast<int>(ZRenderOrder::First); pass < static_cast<int>(ZRenderOrder::Last); pass++)
     {
-        switch (pass)
-        {
-        case ZRenderOrder::Static:
-        case ZRenderOrder::Dynamic:
-        case ZRenderOrder::Sky:
-        case ZRenderOrder::UI:
-            children_[pass]->RenderChildren(deltaTime, shader, renderOp);
-            break;
-        default: break;
+        if (pass == static_cast<int>(ZRenderOrder::UI)) {
+            ZServices::Graphics()->DisableDepthTesting();
+        }
+
+        children_[pass]->RenderChildren(deltaTime, shader, renderOp);
+
+        if (pass == static_cast<int>(ZRenderOrder::UI)) {
+            ZServices::Graphics()->EnableDepthTesting();
         }
     }
 

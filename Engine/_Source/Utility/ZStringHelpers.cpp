@@ -61,17 +61,28 @@ namespace zenith
             return prefix.find(str.substr(0, str.find("_"))) == 0;
         }
 
+        bool HasComponentPrefix(const std::string& str)
+        {
+            return HasObjectPrefix(str, "ZCOMP");
+        }
+
         bool HasUIPrefix(const std::string& str)
         {
-            static std::unordered_map<std::string, std::string> uiPrefixes{
-                {"ZUI", "ZUI"}
-            };
-            return uiPrefixes.find(str.substr(0, str.find("_"))) != uiPrefixes.end();
+            return HasObjectPrefix(str, "ZUI");
         }
 
         bool HasSuffix(const std::string& str, const std::string& suffix)
         {
             return suffix.size() <= str.size() && std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
+        }
+
+        std::string StripObjectPrefix(const std::string& str)
+        {
+            return str.substr(str.find_first_of("_")+1);
+        }
+        std::string StripIDSuffix(const std::string& str)
+        {
+            return str.substr(0, str.find_last_of("_"));
         }
     }
 }

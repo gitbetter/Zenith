@@ -45,6 +45,7 @@
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZSceneRoot.hpp"
+#include "ZComponent.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZTextureReadyEvent.hpp"
@@ -212,7 +213,6 @@ ZSceneSnapshot ZScene::Snapshot()
     ZSceneSnapshot snapshot;
     std::shared_ptr<ZScene> sceneClone = std::make_shared<ZScene>(name_);
 
-    sceneClone->matrixStack_ = matrixStack_;
     sceneClone->viewProjection_ = viewProjection_;
     sceneClone->previousViewProjection_ = previousViewProjection_;
     sceneClone->playState_ = playState_;
@@ -235,7 +235,6 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot)
 {
     CreateSceneRoot(name_);
 
-    matrixStack_ = snapshot.scene->matrixStack_;
     viewProjection_ = snapshot.scene->viewProjection_;
     previousViewProjection_ = snapshot.scene->previousViewProjection_;
     playState_ = snapshot.scene->playState_;
@@ -258,7 +257,7 @@ void ZScene::CreateSceneRoot(const std::string& name)
 {
     root_ = ZSceneRoot::Create();
     root_->SetName(name);
-    root_->scene_ = shared_from_this();
+    root_->SetScene(shared_from_this());
 }
 
 void ZScene::CreateUICanvas()
@@ -283,7 +282,7 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImme
 {
     if (gameObject != nullptr)
     {
-        gameObject->scene_ = shared_from_this();
+        gameObject->SetScene(shared_from_this());
         if (auto camera = std::dynamic_pointer_cast<ZCamera>(gameObject))
         {
             if (camera->IsPrimary()) primaryCamera_ = camera;
@@ -303,11 +302,16 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImme
             gameObjects_.insert({ gameObject->ID(), gameObject });
         }
 
-        root_->AddChild(gameObject);
+        if (!gameObject->Parent())
+            root_->AddChild(gameObject);
 
         if (runImmediately) {
             for (auto comp : gameObject->components_)
                 ZServices::ProcessRunner()->AttachProcess(comp);
+        }
+
+        for (auto child : gameObject->Children()) {
+            AddGameObject(child);
         }
     }
 }
@@ -330,9 +334,16 @@ void ZScene::RemoveGameObject(std::shared_ptr<ZGameObject> gameObject)
         }
 
         gameObjects_.erase(gameObject->ID());
-        root_->RemoveChild(gameObject, true);
+        if (auto parent = gameObject->Parent()) {
+            if (parent == root_)
+                root_->RemoveChild(gameObject, true);
+        }
         gameObject->parent_.reset();
-        gameObject->scene_.reset();
+        gameObject->SetScene(nullptr);
+
+        for (auto child : gameObject->Children()) {
+            RemoveGameObject(child);
+        }
     }
 }
 
@@ -406,30 +417,6 @@ std::shared_ptr<ZUIElement> ZScene::FindUIElement(const std::string& id)
         }
     }
     return nullptr;
-}
-
-glm::mat4 ZScene::TopMatrix()
-{
-    glm::mat4 M;
-    sceneMutexes_.matrixStack.lock();
-    if (matrixStack_.empty()) M = glm::mat4(1.f);
-    else M = matrixStack_.back();
-    sceneMutexes_.matrixStack.unlock();
-    return M;
-}
-
-void ZScene::PushMatrix(const glm::mat4& matrix)
-{
-    sceneMutexes_.matrixStack.lock();
-    matrixStack_.push_back(matrix);
-    sceneMutexes_.matrixStack.unlock();
-}
-
-void ZScene::PopMatrix()
-{
-    sceneMutexes_.matrixStack.lock();
-    if (!matrixStack_.empty()) matrixStack_.pop_back();
-    sceneMutexes_.matrixStack.unlock();
 }
 
 std::shared_ptr<ZTexture> ZScene::TargetTexture()
@@ -603,36 +590,22 @@ void ZScene::HandleObjectDestroyed(const std::shared_ptr<ZObjectDestroyedEvent>&
 
 void ZScene::HandleRaycastEvent(const std::shared_ptr<ZRaycastEvent>& event)
 {
-    if (event->Origin().z == 0.f)
-    { // Handle screen to world raycasting (i.e. mouse picking)
-        std::shared_ptr<ZCamera> camera = ActiveCamera();
-        if (camera)
-        {
-            glm::mat4 InverseProjection = glm::inverse(camera->ProjectionMatrix());
-            glm::mat4 InverseView = glm::inverse(camera->ViewMatrix());
+    glm::mat4 InverseViewProjection = glm::inverse(ViewProjection());
 
-            glm::vec4 rayStart(event->Origin().x * 2.f - 1.f, -event->Origin().y * 2.f + 1.f, -1.f, 1.f);
-            glm::vec4 rayEnd(event->Origin().x * 2.f - 1.f, -event->Origin().y * 2.f + 1.f, 0.f, 1.f);
+    glm::vec4 rayStartNDC(event->Origin().x * 2.f - 1.f, -event->Origin().y * 2.f + 1.f, -1.f, 1.f);
+    glm::vec4 rayEndNDC(event->Origin().x * 2.f - 1.f, -event->Origin().y * 2.f + 1.f, 0.f, 1.f);
 
-            glm::vec4 rayStartCamera = InverseProjection * rayStart; rayStartCamera /= rayStartCamera.w;
-            glm::vec4 rayStartWorld = InverseView * rayStartCamera; rayStartWorld /= rayStartWorld.w;
-            glm::vec4 rayEndCamera = InverseProjection * rayEnd; rayEndCamera /= rayEndCamera.w;
-            glm::vec4 rayEndWorld = InverseView * rayEndCamera; rayEndWorld /= rayEndWorld.w;
+    glm::vec4 rayStart = InverseViewProjection * rayStartNDC; rayStart /= rayStart.w;
+    glm::vec4 rayEnd = InverseViewProjection * rayEndNDC; rayEnd /= rayEnd.w;
 
-            glm::vec3 rayDir = glm::normalize(glm::vec3(rayEndWorld - rayStartWorld));
+    glm::vec3 rayDir = glm::normalize(glm::vec3(rayEnd - rayStart));
 
-            ZRaycastHitResult hitResult = gameSystems_.physics->Raycast(rayStartWorld, rayDir);
-            if (hitResult.hasHit)
-            {
-                // TODO: Rename to ZObjectRayHit event or something similar
-                std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(hitResult.objectHit->ID(), hitResult.hitPosition));
-                ZServices::EventAgent()->Trigger(objectSelectEvent);
-            }
-        }
-    }
-    else
+    ZRaycastHitResult hitResult = gameSystems_.physics->Raycast(rayStart, rayDir);
+    if (hitResult.hasHit)
     {
-        // Handle general 3D raycasting
+        // TODO: Rename to ZObjectRayHit event or something similar
+        std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(hitResult.objectHit->ID(), hitResult.hitPosition));
+        ZServices::EventAgent()->Trigger(objectSelectEvent);
     }
 }
 

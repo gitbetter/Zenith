@@ -79,6 +79,7 @@ public:
 
     virtual void Resize(unsigned int width, unsigned int height) = 0;
     virtual void Bind(unsigned int index) = 0;
+    virtual void Unbind() = 0;
     virtual void Delete() = 0;
 
     static void Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);

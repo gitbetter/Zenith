@@ -85,9 +85,9 @@ void ZBulletPhysicsUniverse::RemoveRigidBody(std::shared_ptr<ZRigidBody> body)
     dynamicsWorld_->removeRigidBody(ptr);
 }
 
-ZRaycastHitResult ZBulletPhysicsUniverse::Raycast(const glm::vec3& start, const glm::vec3& direction)
+ZRaycastHitResult ZBulletPhysicsUniverse::Raycast(const glm::vec3& start, const glm::vec3& direction, float t)
 {
-    glm::vec3 end = direction * 1000.f;
+    glm::vec3 end = direction * t;
     btCollisionWorld::ClosestRayResultCallback rayCallback(
         btVector3(start.x, start.y, start.z),
         btVector3(end.x, end.y, end.z)

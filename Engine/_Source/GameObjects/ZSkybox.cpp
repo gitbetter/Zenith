@@ -84,14 +84,13 @@ void ZSkybox::Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& 
 {
     iblTexture_ = ZTexture::CreateIBL(bufferData, cubeMap);
 
-    std::shared_ptr<ZGraphicsComponent> skyboxGraphicsComponent = std::make_shared<ZGraphicsComponent>();
+    auto skyboxGraphicsComponent = ZGraphicsComponent::CreateIn(shared_from_this());
+    skyboxGraphicsComponent->DisableAABB();
     skyboxGraphicsComponent->Initialize(
         ZCube::Create(glm::vec3(1.f, 1.f, 1.f)),
         ZShader::Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")
     );
     skyboxGraphicsComponent->AddMaterial(ZMaterial::Create({ iblTexture_.cubeMap }));
-
-    AddComponent(skyboxGraphicsComponent);
 }
 
 std::shared_ptr<ZGameObject> ZSkybox::Clone()

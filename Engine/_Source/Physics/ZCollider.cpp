@@ -29,27 +29,10 @@
 
 #include "ZBulletCollider.hpp"
 
-std::shared_ptr<ZCollider> ZCollider::Create(const std::string& type, const glm::vec3& extents, const glm::vec3& offset)
+std::shared_ptr<ZCollider> ZCollider::Create(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset)
 {
     std::shared_ptr<ZCollider> collider = nullptr;
-    if (type == "Box") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Box, extents, offset);
-    }
-    else if (type == "Sphere") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Sphere, extents, offset);
-    }
-    else if (type == "Capsule") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Capsule, extents, offset);
-    }
-    else if (type == "Cylinder") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Cylinder, extents, offset);
-    }
-    else if (type == "Cone") {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::Cone, extents, offset);
-    }
-    else {
-        collider = std::make_shared<ZBulletCollider>(ZColliderType::None, extents, offset);
-    }
+    collider = std::make_shared<ZBulletCollider>(type, extents, offset);
     collider->Initialize();
     return collider;
 }

@@ -6,7 +6,7 @@
    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZSceneTool.cpp
+    ZEditorTool.cpp
  
     Created by Adrian Sanchez on 18/05/19.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -27,42 +27,19 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZSceneTool.hpp"
-#include "ZUIPanel.hpp"
-#include "ZUIImage.hpp"
-#include "ZDomain.hpp"
+#include "ZEditorTool.hpp"
 #include "ZScene.hpp"
-#include "ZTransformGizmo.hpp"
+#include "ZUIPanel.hpp"
 
-void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
-    ZEditorTool::Initialize(scene);
-    container_->SetColor(glm::vec4(1.f));
-    SetupGizmos(scene);
+void ZEditorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+	ZUIElementOptions elementOptions;
+	elementOptions.positioning = ZPositioning::Relative;
+	elementOptions.scaling = ZPositioning::Relative;
+	elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+	container_ = ZUIPanel::Create(elementOptions, scene);
 }
 
-void ZSceneTool::OnProjectSceneChanged()
+void ZEditorTool::CleanUp()
 {
-    if (activeProjectScene_) {
-        container_->SetTexture(activeProjectScene_->TargetTexture());
-        for (auto gizmo : gizmos_) {
-            gizmo->SetActiveProjectScene(activeProjectScene_);
-        }
-    }
-}
-
-void ZSceneTool::Update()
-{
-
-}
-
-
-void ZSceneTool::AddGizmo(const std::shared_ptr<ZEditorGizmo>& gizmo, const std::shared_ptr<ZScene>& scene)
-{
-    gizmos_.push_back(gizmo);
-    gizmo->Initialize(scene);
-}
-
-void ZSceneTool::SetupGizmos(const std::shared_ptr<ZScene>& scene)
-{
-    AddGizmo(std::make_shared<ZTransformGizmo>(), scene);
+	container_->CleanUp();
 }

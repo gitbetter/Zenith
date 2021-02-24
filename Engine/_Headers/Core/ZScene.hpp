@@ -110,10 +110,6 @@ public:
     std::shared_ptr<ZUIElement> FindUIElement(const std::string& id);
     void RemoveUIElement(std::shared_ptr<ZUIElement> element);
 
-    glm::mat4 TopMatrix();
-    void PushMatrix(const glm::mat4& matrix);
-    void PopMatrix();
-
     void UpdateViewProjectionMatrices();
     void UpdateLightspaceMatrices();
 
@@ -146,7 +142,6 @@ protected:
 
     struct
     {
-        std::mutex matrixStack;
         std::mutex pendingObjects;
     } sceneMutexes_;
 
@@ -175,7 +170,6 @@ protected:
     ZGameOptions gameConfig_;
 
     glm::mat4 viewProjection_, previousViewProjection_;
-    std::list<glm::mat4> matrixStack_;
 
     void SetupRenderers();
     void SetupTargetDrawBuffer();

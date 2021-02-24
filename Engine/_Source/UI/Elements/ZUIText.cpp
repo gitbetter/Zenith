@@ -133,11 +133,12 @@ void ZUIText::Draw()
     if (text_.empty()) return;
 
     options_.shader->Activate();
+    options_.shader->ClearAttachments();
+
     options_.shader->SetMat4("P", projectionMatrix_);
     options_.shader->SetVec4("color", options_.color);
 
-    font->Atlas().texture->Bind(0);
-    options_.shader->SetInt(font->Atlas().texture->type + "0", 0);
+    options_.shader->BindAttachment(font->Atlas().texture->type + "0", font->Atlas().texture);
 
     ZServices::Graphics()->Draw(bufferData_, textVertexData_, ZMeshDrawStyle::Triangle);;
 }

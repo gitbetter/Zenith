@@ -33,6 +33,16 @@
 #include "ZGameObject.hpp"
 #include "ZPhysicsComponent.hpp"
 
+ZColliderComponent::ZColliderComponent()
+{
+    id_ = "ZCOMP_COLLIDER_" + idGenerator_.Next();
+}
+
+void ZColliderComponent::Initialize(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset)
+{
+    collider_ = ZCollider::Create(type, extents, offset);
+}
+
 void ZColliderComponent::Initialize(std::shared_ptr<ZOFNode> root)
 {
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
@@ -65,7 +75,23 @@ void ZColliderComponent::Initialize(std::shared_ptr<ZOFNode> root)
         offset = glm::vec3(offsetProp->value[0], offsetProp->value[1], offsetProp->value[2]);
     }
 
-    collider_ = ZCollider::Create(shape, extents, offset);
+    ZColliderType type = ZColliderType::None;
+    if (shape == "Box") {
+        type = ZColliderType::Box;
+    }
+    else if (shape == "Sphere") {
+        type = ZColliderType::Sphere;
+    }
+    else if (shape == "Capsule") {
+        type = ZColliderType::Capsule;
+    }
+    else if (shape == "Cylinder") {
+        type = ZColliderType::Cylinder;
+    }
+    else if (shape == "Cone") {
+        type = ZColliderType::Cone;
+    }
+    Initialize(type, extents, offset);
 }
 
 void ZColliderComponent::Update(double deltaTime)
@@ -88,3 +114,5 @@ void ZColliderComponent::AddColliderIfNecessary()
         }
     }
 }
+
+DEFINE_COMPONENT_CREATORS(ZColliderComponent)

@@ -5,15 +5,15 @@ ZSCENE :name "Demo": ^
 ZGO_GROUND
 	:position [0.0, 0.0, 0.0]:
 	:scale [10.0, 0.1, 10.0]:
-	PhysicsComponent
-		:type Static:
+	ZCOMP_PHYSICS
+		:type Kinematic:
 		:restitution 0.4:
 	^
-    ColliderComponent
+    ZCOMP_COLLIDER
         :shape Box:
-        :extents [10.0, 0.1, 10.0]:
+        :extents [1.0, 1.0, 1.0]:
     ^
-	GraphicsComponent
+	ZCOMP_GRAPHICS
 		:activeShader 0:
 		:model ZMOD_02:
 		:materials [ZMAT_01]:
@@ -23,62 +23,61 @@ ZGO_12
     :position [0.3, 0.5, -0.8]:
     :scale [0.6, 0.6, 0.6]:
     :orientation [-90.0, 0.0, 0.0]:
-    PhysicsComponent
+    ZCOMP_PHYSICS
         :type Dynamic:
-        :mass 20.0:
+        :mass 1.0:
         :damping 0.0 0.5:
         :restitution 0.4:
         :hasGravity Yes:
     ^
-    ColliderComponent
+    ZCOMP_COLLIDER
         :shape Box:
-        :extents [0.1, 0.3, 0.2]:
-        :offset [0.0, 0.08, 0.0]:
+        :extents [0.3, 0.3, 0.3]:
     ^
-    GraphicsComponent
+    ZCOMP_GRAPHICS
         :activeShader 0:
         :model ZMOD_01:
 		:materials [ZMAT_02]:
     ^
-    AnimatorComponent ^
+    ZCOMP_ANIMATOR ^
 ^
 ZGO_13
     :position [-7.6, 2.0, 0.5]:
     :scale [0.3, 0.3, 0.3]:
     :orientation [0.0, 0.0, 0.0]:
-    PhysicsComponent
+    ZCOMP_PHYSICS
         :type Dynamic:
-        :mass 10.0:
+        :mass 1.0:
         :damping 0.0 0.5:
         :restitution 0.4:
         :hasGravity Yes:
     ^
-    ColliderComponent
+    ZCOMP_COLLIDER
         :shape Box:
-        :extents [0.3, 0.3, 0.3]:
+        :extents [1.0, 1.0, 1.0]:
     ^
-    GraphicsComponent
+    ZCOMP_GRAPHICS
         :activeShader 0:
         :model ZMOD_02:
 		:materials [ZMAT_01]:
     ^
 ^
 ZGO_23
-    :position [-1.6, 1.0, 0.5]:
+    :position [-1.6, 50.0, 0.5]:
     :scale [0.2, 0.2, 0.2]:
     :orientation [-90.0, 0.0, 0.0]:
-    PhysicsComponent
+    ZCOMP_PHYSICS
         :type Dynamic:
-        :mass 10.0:
-        :damping 0.0 0.5:
-        :restitution 0.4:
+        :mass 1.0:
+        :damping 0.5 0.5:
+        :restitution 0.8:
         :hasGravity Yes:
     ^
-    ColliderComponent
+    ZCOMP_COLLIDER_01
         :shape Sphere:
-        :extents [0.2, 0.0, 0.0]:
+        :extents [1.0, 1.0, 1.0]:
     ^
-    GraphicsComponent
+    ZCOMP_GRAPHICS
         :activeShader 0:
         :model ZMOD_03:
 		:materials [ZMAT_01]:

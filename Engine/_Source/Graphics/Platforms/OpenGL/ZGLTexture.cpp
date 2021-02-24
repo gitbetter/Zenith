@@ -90,6 +90,25 @@ void ZGLTexture::Bind(unsigned int index)
     {
         glBindTexture(GL_TEXTURE_2D, id);
     }
+    index_ = index;
+}
+
+void ZGLTexture::Unbind()
+{
+    glActiveTexture(GL_TEXTURE0 + index_);
+    if (type == "cubemap" || type == "irradiance" || type == "prefilter")
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
+    }
+    else if (type.find("Array") != std::string::npos)
+    {
+        glBindTexture(GL_TEXTURE_2D_ARRAY, NULL);
+    }
+    else
+    {
+        glBindTexture(GL_TEXTURE_2D, NULL);
+    }
+    index_ = 0;
 }
 
 void ZGLTexture::LoadHDRIAsync(const std::string& hdriPath)
@@ -124,8 +143,7 @@ void ZGLTexture::LoadCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZF
     equirectToCubemapShader->Activate();
     equirectToCubemapShader->SetMat4("P", captureProjection);
 
-    hdrTexture->Bind(1);
-    equirectToCubemapShader->SetInt("equirectangularMap", 1);
+    equirectToCubemapShader->BindAttachment("equirectangularMap", hdrTexture);
 
     bufferData->Bind();
     ZServices::Graphics()->UpdateViewport(glm::vec2(CUBE_MAP_SIZE, CUBE_MAP_SIZE));
@@ -164,8 +182,7 @@ void ZGLTexture::LoadIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapB
     irradianceShader->Activate();
     irradianceShader->SetMat4("P", captureProjection);
 
-    cubemapTexture->Bind(1);
-    irradianceShader->SetInt("environmentMap", 1);
+    irradianceShader->BindAttachment("environmentMap", cubemapTexture);
 
     cubemapBufferData->Bind();
     cubemapBufferData->BindRenderbuffer();
@@ -204,8 +221,7 @@ void ZGLTexture::LoadPrefilterCubeMap(const std::shared_ptr<ZFramebuffer>& cubem
     prefilterShader->SetMat4("P", captureProjection);
     prefilterShader->SetFloat("resolution", PREFILTER_MAP_SIZE);
 
-    cubemapTexture->Bind(1);
-    prefilterShader->SetInt("environmentMap", 1);
+    prefilterShader->BindAttachment("environmentMap", cubemapTexture);
 
     cubemapBufferData->Bind();
 

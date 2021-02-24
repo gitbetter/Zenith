@@ -96,6 +96,8 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
         ZServices::Graphics()->UpdateViewport(size_);
 
         shader_->Activate();
+        shader_->ClearAttachments();
+
         BindDependencies();
 
         if (renderOp_ == ZRenderOp::Post) {
@@ -103,6 +105,7 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
         }
 
         if (renderOp_ == ZRenderOp::Post) {
+            shader_->BindAttachments();
             screenTri_->Render(shader_);
         }
         else if (renderOp_ == ZRenderOp::Shadow) {
@@ -142,13 +145,10 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
 void ZRenderPass::BindDependencies()
 {
     std::unordered_map<std::string, unsigned int> attachmentCount;
-    unsigned int index = 3;
     for (const auto& dep : dependencies_) {
         for (const auto& attachment : dep->framebuffer_->Attachments()) {
-            attachment->Bind(index);
-            std::string shaderAttachment = attachment->type + "Sampler" + std::to_string(attachmentCount[attachment->type]++);
-            shader_->SetInt(shaderAttachment, index);
-            ++index;
+            std::string uniformName = attachment->type + "Sampler" + std::to_string(attachmentCount[attachment->type]++);
+            shader_->AddAttachment(uniformName, attachment);
         }
     }
 }

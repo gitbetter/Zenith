@@ -35,6 +35,7 @@
 // Forward Declarations
 class ZGameObject;
 class ZUIImage;
+class ZEditorGizmo;
 
 // Definitions
 class ZSceneTool : public ZEditorTool {
@@ -52,5 +53,9 @@ public:
 private:
 
     std::shared_ptr<ZUIImage> sceneDisplay_ = nullptr;
+    std::vector<std::shared_ptr<ZEditorGizmo>> gizmos_;
+
+    void SetupGizmos(const std::shared_ptr<ZScene>& scene);
+    void AddGizmo(const std::shared_ptr<ZEditorGizmo>& gizmo, const std::shared_ptr<ZScene>& scene);
 
 };

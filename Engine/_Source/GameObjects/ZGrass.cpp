@@ -33,19 +33,19 @@
 #include "ZAssetStore.hpp"
 #include "ZPlane.hpp"
 #include "ZShader.hpp"
+#include "ZGraphicsComponent.hpp"
 #include "ZTextureReadyEvent.hpp"
 
 ZGrass::ZGrass(unsigned int instances) : 
     ZGameObject(), textureId_(std::string()), instanceCount_(instances), windDirection_(1.f), windStrength_(5.f), time_(0.f)
 {
-    graphicsComp_ = std::make_shared<ZGraphicsComponent>();
     ZServices::EventAgent()->Subscribe(this, &ZGrass::HandleTextureReady);
 }
 
 void ZGrass::Initialize()
 {
     auto shader = ZShader::Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag");
-    graphicsComp_ = std::static_pointer_cast<ZGraphicsComponent>(ZComponent::CreateGraphicsComponent(shared_from_this()));
+    graphicsComp_ = std::static_pointer_cast<ZGraphicsComponent>(ZGraphicsComponent::CreateIn(shared_from_this()));
     graphicsComp_->Initialize(nullptr, shader);
 
     std::vector<ZInstancedDataOptions> instanceDatas;

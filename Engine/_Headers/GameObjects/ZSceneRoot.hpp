@@ -44,8 +44,8 @@ private:
 
 public:
 
-    ZSceneRoot(const glm::vec3& position, const glm::quat& orientation)
-        : ZGameObject(position, orientation) { }
+    ZSceneRoot(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
+        : ZGameObject(position, orientation, scale) { }
     ZSceneRoot(const std::string& name = "Root");
 
     ZGameObjectList& Children() override { return publicChildren_; }

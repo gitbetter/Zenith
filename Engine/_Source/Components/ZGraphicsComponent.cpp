@@ -39,7 +39,7 @@
 
 ZGraphicsComponent::ZGraphicsComponent() : ZComponent(), highlightColor_(0.f), isBillboard_(false)
 {
-    id_ = "ZCGraphics_" + idGenerator_.Next();
+    id_ = "ZCOMP_GRAPHICS_" + idGenerator_.Next();
 }
 
 ZGraphicsComponent::~ZGraphicsComponent()
@@ -52,9 +52,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_p
 {
     if (model)
     {
-        modelObject_ = model;
-        instanceData_ = modelObject_->InstanceData();
-        SetupAABB();
+        SetModel(model);
     }
     if (shader)
     {
@@ -64,8 +62,6 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_p
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
 {
-    ZComponent::Initialize();
-
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
     {
@@ -154,14 +150,19 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
 {
     if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
 
-    glm::mat4 modelMatrix = object_->Scene()->TopMatrix();
+    glm::mat4 modelMatrix = object_->ModelMatrix();
     glm::mat4 projectionMatrix = gameCamera_->ProjectionMatrix();
     glm::mat4 viewMatrix = gameCamera_->ViewMatrix();
 
     auto activeShader = shader;
+    auto attachments = shader->Attachments();
     if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) {
-        activeShader = ActiveShader() ? ActiveShader() : shader;
+        if (ActiveShader()) {
+            activeShader = ActiveShader();
+        }
     }
+    activeShader->ClearAttachments();
+    activeShader->SetAttachments(attachments);
 
     // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
     ZServices::Graphics()->EnableStencilBuffer();
@@ -169,6 +170,8 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
 
     if (activeShader)
     {
+        activeShader->BindAttachments();
+
         activeShader->Use(gameLights_);
 
         activeShader->SetMat4("P", projectionMatrix);
@@ -189,16 +192,13 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
         {
             ZIBLTexture iblTexture = object_->Scene()->Skybox()->IBLTexture();
             if (iblTexture.irradiance) {
-                iblTexture.irradiance->Bind(0);
-                activeShader->SetInt("irradianceMap", 0);
+                activeShader->BindAttachment("irradianceMap", iblTexture.irradiance);
             }
             if (iblTexture.prefiltered) {
-                iblTexture.prefiltered->Bind(1);
-                activeShader->SetInt("prefilterMap", 1);
+                activeShader->BindAttachment("prefilterMap", iblTexture.prefiltered);
             }
             if (iblTexture.brdfLUT) {
-                iblTexture.brdfLUT->Bind(2);
-                activeShader->SetInt("brdfLUT", 2);
+                activeShader->BindAttachment("brdfLUT", iblTexture.brdfLUT);
             }
         }
 
@@ -287,7 +287,10 @@ void ZGraphicsComponent::SetModel(const std::shared_ptr<ZModel>& model)
 
 void ZGraphicsComponent::SetupAABB()
 {
-    glm::vec3 min(0.f), max(0.f);
+    if (!hasAABB_) return;
+
+    glm::vec3 min(std::numeric_limits<float>::max());
+    glm::vec3 max(std::numeric_limits<float>::min());
 
     auto it = modelObject_->Meshes().cbegin(), end = modelObject_->Meshes().cend();
     for (; it != end; it++)
@@ -296,22 +299,28 @@ void ZGraphicsComponent::SetupAABB()
         for (int i = 0; i < vertices.size(); i++)
         {
             if (vertices[i].position.x < min.x) min.x = vertices[i].position.x;
-            if (vertices[i].position.x < min.y) min.y = vertices[i].position.y;
-            if (vertices[i].position.x < min.z) min.z = vertices[i].position.z;
+            if (vertices[i].position.y < min.y) min.y = vertices[i].position.y;
+            if (vertices[i].position.z < min.z) min.z = vertices[i].position.z;
             if (vertices[i].position.x > max.x) max.x = vertices[i].position.x;
-            if (vertices[i].position.x > max.y) max.y = vertices[i].position.y;
-            if (vertices[i].position.x > max.z) max.z = vertices[i].position.z;
+            if (vertices[i].position.y > max.y) max.y = vertices[i].position.y;
+            if (vertices[i].position.z > max.z) max.z = vertices[i].position.z;
         }
     }
 
-    boundingBox_.minimum = min;
-    boundingBox_.maximum = max;
+    localBoundingBox_.minimum = min;
+    localBoundingBox_.maximum = max;
+
+    auto transform = object_ ? object_->ModelMatrix() : glm::mat4(1.f);
+    boundingBox_.minimum = transform * glm::vec4(min, 1.f);
+    boundingBox_.maximum = transform * glm::vec4(max, 1.f);
 }
 
 void ZGraphicsComponent::UpdateAABB(const glm::mat4& transform)
 {
-    boundingBox_.minimum = transform * glm::vec4(boundingBox_.minimum, 1.f);
-    boundingBox_.maximum = transform * glm::vec4(boundingBox_.maximum, 1.f);
+    if (!hasAABB_) return;
+
+    boundingBox_.minimum = transform * glm::vec4(localBoundingBox_.minimum, 1.f);
+    boundingBox_.maximum = transform * glm::vec4(localBoundingBox_.maximum, 1.f);
 }
 
 void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm::mat4& viewProjection)
@@ -336,3 +345,5 @@ void ZGraphicsComponent::ClearOutline()
 {
     if (highlightShader_ != nullptr) highlightShader_ = nullptr;
 }
+
+DEFINE_COMPONENT_CREATORS(ZGraphicsComponent)

@@ -57,7 +57,7 @@ void ZEditor::CreateDefaultProject()
     options.domain.windowSize.y = 1080;
     options.domain.maximized = false;
     options.domain.offline = true;
-    options.graphics.drawPhysicsDebug = true;
+    options.graphics.drawAABBDebug = true;
     project_->Initialize(options);
 
     ZScene::LoadIn<ZScene>(project_, std::initializer_list<std::string>({ "/demo_scene.zof" }));

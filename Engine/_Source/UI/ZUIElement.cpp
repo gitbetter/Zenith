@@ -226,9 +226,9 @@ void ZUIElement::Draw()
 {
     std::shared_ptr<ZMesh2D> mesh = ElementShape();
     options_.shader->Activate();
+    options_.shader->ClearAttachments();
 
-    options_.texture->Bind(0);
-    options_.shader->SetInt(options_.texture->type + "Sampler0", 0);
+    options_.shader->BindAttachment(options_.texture->type + "Sampler0", options_.texture);
 
     options_.shader->SetMat4("M", modelMatrix_);
     options_.shader->SetMat4("P", projectionMatrix_);

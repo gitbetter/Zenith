@@ -45,15 +45,18 @@ public:
     ZPhysicsComponent();
     ~ZPhysicsComponent() {}
 
-    void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Initialize(ZPhysicsBodyType bodyType, float mass);
+    void Initialize(ZPhysicsBodyType bodyType, float mass, bool hasGravityInfluence = false);
 
     std::shared_ptr<ZComponent> Clone() override;
 
     void Update(double deltaTime) override;
 
     void CleanUp() override;
+
+    void SetLinearDamping(float damping);
+    void SetAngularDamping(float damping);
+    void SetRestitution(float restitution);
 
     void AddCollider(const std::shared_ptr<ZCollider>& collider);
     void DisableCollisionResponse();
@@ -64,8 +67,11 @@ public:
 
     std::shared_ptr<ZRigidBody> RigidBody() { return body_; }
 
+    DECLARE_COMPONENT_CREATORS(ZPhysicsComponent)
+
 protected:
 
     std::shared_ptr<ZRigidBody> body_;
+    bool inUniverse_ = false;
 
 };

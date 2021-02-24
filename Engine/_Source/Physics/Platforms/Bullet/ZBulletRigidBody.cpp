@@ -33,7 +33,7 @@
 ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, float mass, const glm::vec3& origin, const glm::vec3& scale, const glm::quat& rotation) : ZBulletRigidBody()
 {
     btCompoundShape* coll = new btCompoundShape();
-    coll->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
+    coll->setLocalScaling(btVector3(scale.x, scale.y, scale.z));
 
     btTransform transform; transform.setIdentity();
     transform.setOrigin(btVector3(origin.x, origin.y, origin.z));
@@ -49,7 +49,7 @@ ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, float mass, const glm:
     ptr_ = bodyPtr;
     type_ = type;
 
-    AddCollider(ZCollider::Create("Empty", glm::vec3(0.f)));
+    AddCollider(ZCollider::Create(ZColliderType::None, glm::vec3(0.f)));
 }
 
 void ZBulletRigidBody::Initialize()
@@ -140,12 +140,14 @@ void ZBulletRigidBody::DisableContactResponse()
 void ZBulletRigidBody::AddCollider(const std::shared_ptr<ZCollider> collider)
 {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
-    if (!body || !body->getCollisionShape()) return;
+    if (!body) return;
 
     glm::vec3 offset = collider->Offset();
     btCompoundShape* coll = static_cast<btCompoundShape*>(body->getCollisionShape());
+    btCollisionShape* childColl = static_cast<btCollisionShape*>(collider->Get());
     btTransform t; t.setIdentity(); t.setOrigin(btVector3(offset.x, offset.y, offset.z));
-    coll->addChildShape(t, static_cast<btCollisionShape*>(collider->Get()));
+    childColl->setLocalScaling(coll->getLocalScaling());
+    coll->addChildShape(t, childColl);
 }
 
 std::shared_ptr<ZRigidBody> ZBulletRigidBody::Clone()
@@ -232,12 +234,26 @@ void ZBulletRigidBody::SetGameObject(ZGameObject* gameObject)
     body->setUserPointer(gameObject);
 }
 
+void ZBulletRigidBody::SetTransformMatrix(const glm::mat4& matrix)
+{
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body) return;
+
+    btTransform transform; transform.setIdentity();
+
+    transform.setFromOpenGLMatrix(glm::value_ptr(matrix));
+   
+    body->setWorldTransform(transform);
+    body->getMotionState()->setWorldTransform(transform);
+    body->activate();
+}
+
 void ZBulletRigidBody::SetPosition(const glm::vec3& position)
 {
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
 
-    btTransform newTransform;
+    btTransform newTransform; newTransform.setIdentity();
     if (body->getMotionState())
     {
         body->getMotionState()->getWorldTransform(newTransform);
@@ -254,7 +270,7 @@ void ZBulletRigidBody::SetRotation(const glm::quat& rotation)
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
 
-    btTransform newTransform;
+    btTransform newTransform; newTransform.setIdentity();
     if (body->getMotionState())
     {
         body->getMotionState()->getWorldTransform(newTransform);
@@ -266,4 +282,15 @@ void ZBulletRigidBody::SetRotation(const glm::quat& rotation)
     body->activate();
 }
 
-void ZBulletRigidBody::SetScale(const glm::vec3& scale) {}
+void ZBulletRigidBody::SetScale(const glm::vec3& scale)
+{
+    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
+    if (!body || !body->getCollisionShape()) return;
+
+    btCompoundShape* coll = static_cast<btCompoundShape*>(body->getCollisionShape());
+    coll->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
+    for (int i = 0; i < coll->getNumChildShapes(); i++) {
+        btCollisionShape* childColl = coll->getChildShape(i);
+        childColl->setLocalScaling(btVector3(scale[0], scale[1], scale[2]));
+    }
+}

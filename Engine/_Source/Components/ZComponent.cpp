@@ -36,52 +36,41 @@
 ZIDSequence ZComponent::idGenerator_("ZCOMP");
 
 std::map<std::string, ZComponent::Creator> ZComponent::componentCreators_ = {
-    { "GraphicsComponent", &ZComponent::CreateGraphicsComponent },
-    { "PhysicsComponent", &ZComponent::CreatePhysicsComponent },
-    { "AnimatorComponent", &ZComponent::CreateAnimatorComponent },
-    { "ColliderComponent", &ZComponent::CreateColliderComponent },
+    { "GRAPHICS", &ZComponent::CreateGraphicsComponent },
+    { "PHYSICS", &ZComponent::CreatePhysicsComponent },
+    { "ANIMATOR", &ZComponent::CreateAnimatorComponent },
+    { "COLLIDER", &ZComponent::CreateColliderComponent },
 };
 
 
-std::shared_ptr<ZComponent> ZComponent::CreateGraphicsComponent(const std::shared_ptr<ZGameObject>& gameObject)
+std::shared_ptr<ZComponent> ZComponent::CreateGraphicsComponent(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data)
 {
-    std::shared_ptr<ZGraphicsComponent> comp = std::make_shared<ZGraphicsComponent>();
-    gameObject->AddComponent(comp);
-    return comp;
+    return ZGraphicsComponent::CreateIn(gameObject, data);
 }
 
-std::shared_ptr<ZComponent> ZComponent::CreatePhysicsComponent(const std::shared_ptr<ZGameObject>& gameObject)
+std::shared_ptr<ZComponent> ZComponent::CreatePhysicsComponent(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data)
 {
-    std::shared_ptr<ZPhysicsComponent> comp = std::make_shared<ZPhysicsComponent>();
-    gameObject->AddComponent(comp);
-    return comp;
+    return ZPhysicsComponent::CreateIn(gameObject, data);
 }
 
-std::shared_ptr<ZComponent> ZComponent::CreateAnimatorComponent(const std::shared_ptr<ZGameObject>& gameObject)
+std::shared_ptr<ZComponent> ZComponent::CreateAnimatorComponent(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data)
 {
-    std::shared_ptr<ZAnimatorComponent> comp = std::make_shared<ZAnimatorComponent>();
-    gameObject->AddComponent(comp);
-    return comp;
+    return ZAnimatorComponent::CreateIn(gameObject, data);
 }
 
-std::shared_ptr<ZComponent> ZComponent::CreateColliderComponent(const std::shared_ptr<ZGameObject>& gameObject)
+std::shared_ptr<ZComponent> ZComponent::CreateColliderComponent(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data)
 {
-    std::shared_ptr<ZColliderComponent> comp = std::make_shared<ZColliderComponent>();
-    gameObject->AddComponent(comp);
-    return comp;
+    return ZColliderComponent::CreateIn(gameObject, data);
 }
 
-void ZComponent::CreateIn(const std::string& type, const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data)
+void ZComponent::CreateIn(const std::string& id, const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data)
 {
+    using namespace zenith::strings;
+    std::string type = StripIDSuffix(StripObjectPrefix(id));
     if (componentCreators_.find(type) != componentCreators_.end())
     {
-        std::shared_ptr<ZComponent> comp = (componentCreators_[type])(gameObject);
-        if (data) {
-            comp->Initialize(data);
-        }
-        else {
-            comp->Initialize();
-        }
+        std::shared_ptr<ZComponent> comp = (componentCreators_[type])(gameObject, data);
+        comp->id_ = id;
     }
     else
     {

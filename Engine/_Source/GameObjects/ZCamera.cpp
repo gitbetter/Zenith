@@ -34,8 +34,8 @@
 #include "ZOFTree.hpp"
 #include "ZDomain.hpp"
 
-ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, ZCameraType type)
-    : ZGameObject(position, orientation)
+ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale, ZCameraType type)
+    : ZGameObject(position, orientation, scale)
 {
     cameraType_ = type;
     zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;

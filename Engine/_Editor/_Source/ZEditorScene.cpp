@@ -64,17 +64,24 @@ void ZEditorScene::Initialize() {
     Play();
 }
 
+void ZEditorScene::Update(double deltaTime) {
+    for (std::shared_ptr<ZEditorEntity> entity : entities_) {
+        entity->Update();
+    }
+    ZScene::Update(deltaTime);
+}
+
 void ZEditorScene::CleanUp() {
     ZServices::EventAgent()->Unsubscribe(this, &ZEditorScene::HandleResourceLoaded);
-    for (auto tool : tools_) {
-        tool->CleanUp();
+    for (std::shared_ptr<ZEditorEntity> entity : entities_) {
+        entity->CleanUp();
     }
     ZScene::CleanUp();
 }
 
 std::shared_ptr<ZCamera> ZEditorScene::CreateCamera() {
 
-    std::shared_ptr<ZCamera> camera = ZCamera::Create(glm::vec3(0.f, 15.f, 50.f), glm::vec3(0.f), shared_from_this());
+    std::shared_ptr<ZCamera> camera = ZCamera::Create(glm::vec3(0.f, 15.f, 50.f), glm::vec3(0.f), glm::vec3(1.f), shared_from_this());
     camera->SetType(ZCameraType::Perspective);
     AddGameObject(camera);
     return camera;
@@ -109,14 +116,14 @@ std::shared_ptr<ZUIPanel> ZEditorScene::CreateHorizontalRegion(const ZRect& rect
 void ZEditorScene::SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene)
 {
     activeProjectScene_ = activeScene;
-    for (auto tool : tools_) {
-        tool->SetActiveProjectScene(activeProjectScene_);
+    for (std::shared_ptr<ZEditorEntity> entity : entities_) {
+        entity->SetActiveProjectScene(activeProjectScene_);
     }
 }
 
 void ZEditorScene::AddTool(const std::shared_ptr<ZEditorTool>& tool, const std::shared_ptr<ZUIPanel>& layoutRegion)
 {
-    tools_.push_back(tool);
+    entities_.push_back(tool);
     tool->Initialize(shared_from_this());
     tool->SetActiveProjectScene(activeProjectScene_);
     layoutRegion->AddChild(tool->Container());
@@ -282,13 +289,6 @@ void ZEditorScene::Configure(ZEditorConfig config) {
 void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
     gameObjectTemplates_ = ZGameObject::Load(objectTree, shared_from_this());
     uiElementTemplates_ = ZUIElement::Load(objectTree, shared_from_this());
-}
-
-void ZEditorScene::Update(double deltaTime) {
-    for (std::shared_ptr<ZEditorTool> tool : tools_) {
-        tool->Update();
-    }
-    ZScene::Update(deltaTime);
 }
 
 void ZEditorScene::HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event) {

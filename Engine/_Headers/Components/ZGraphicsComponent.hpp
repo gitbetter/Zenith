@@ -40,6 +40,7 @@ public:
     std::shared_ptr<ZShader> ActiveShader();
     std::shared_ptr<ZModel> Model();
     const std::vector<std::shared_ptr<ZMaterial>>& Materials();
+    bool AABBEnabled() const { return hasAABB_; }
     const ZAABBox& AABB() const { return boundingBox_; }
 
     void SetOutline(const glm::vec4& color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
@@ -50,8 +51,12 @@ public:
     void SetModel(const std::shared_ptr<ZModel>& model);
 
     void AddMaterial(const std::shared_ptr<ZMaterial>& material);
-
+    
+    void EnableAABB() { hasAABB_ = true; }
     void UpdateAABB(const glm::mat4& transform);
+    void DisableAABB() { hasAABB_ = false; }
+
+    DECLARE_COMPONENT_CREATORS(ZGraphicsComponent)
 
 protected:
 
@@ -70,7 +75,9 @@ protected:
     std::vector<std::string> materialIds_;
     // TODO: Implement billboarding in component
     bool isBillboard_;
+    bool hasAABB_ = true;
 
+    ZAABBox localBoundingBox_;
     ZAABBox boundingBox_;
 
     void SetupAABB();

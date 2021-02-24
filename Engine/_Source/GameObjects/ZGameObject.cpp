@@ -36,6 +36,7 @@
 #include "ZModel.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZScriptComponent.hpp"
+#include "ZGraphicsComponent.hpp"
 #include "ZAnimatorComponent.hpp"
 #include "ZRigidBody.hpp"
 #include "ZOFTree.hpp"
@@ -44,12 +45,12 @@
 
 ZIDSequence ZGameObject::idGenerator_("ZGO");
 
-ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation)
+ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
 {
     properties_.previousPosition = properties_.position = glm::vec4(position, 1.f);
-    properties_.previousScale = properties_.scale = glm::vec3(1.f, 1.f, 1.f);
     properties_.previousOrientation = properties_.orientation = orientation;
-    properties_.modelMatrix = glm::mat4(1.f);
+    properties_.previousScale = properties_.scale = scale;
+    properties_.modelMatrix = properties_.localModelMatrix = glm::mat4(1.f);
     properties_.renderOrder = ZRenderOrder::Static;
     id_ = "ZGO_" + idGenerator_.Next();
     CalculateDerivedData();
@@ -71,33 +72,22 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root)
     if (props.find("position") != props.end() && props["position"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
-        properties_.position = glm::vec4(posProp->value[0], posProp->value[1], posProp->value[2], 1.f);
-        properties_.previousPosition = properties_.position;
+        properties_.previousPosition = properties_.position = glm::vec4(posProp->value[0], posProp->value[1], posProp->value[2], 1.f);
     }
 
     if (props.find("orientation") != props.end() && props["orientation"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> ornProp = props["orientation"]->Value<ZOFNumberList>(0);
-        properties_.orientation = glm::quat(glm::vec3(glm::radians(ornProp->value[0]), glm::radians(ornProp->value[1]), glm::radians(ornProp->value[2])));
-        properties_.previousOrientation = properties_.orientation;
+        properties_.previousOrientation = properties_.orientation = glm::quat(glm::vec3(glm::radians(ornProp->value[0]), glm::radians(ornProp->value[1]), glm::radians(ornProp->value[2])));
     }
 
     if (props.find("scale") != props.end() && props["scale"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-        properties_.scale = glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]);
-        properties_.previousScale = properties_.scale;
+        properties_.previousScale = properties_.scale = glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]);
     }
 
     CalculateDerivedData();
-}
-
-void ZGameObject::PreRender()
-{
-    auto scene = Scene();
-    if (!scene) return;
-
-    scene->PushMatrix(scene->TopMatrix() * properties_.modelMatrix);
 }
 
 void ZGameObject::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
@@ -110,15 +100,12 @@ void ZGameObject::Render(double deltaTime, const std::shared_ptr<ZShader>& shade
         graphicsComp->SetGameLights(scene->GameLights());
         graphicsComp->SetGameCamera(scene->ActiveCamera());
         graphicsComp->Render(deltaTime, shader, renderOp);
+
+        if (scene->GameConfig().graphics.drawAABBDebug && graphicsComp->AABBEnabled())
+        {
+            ZServices::Graphics()->DebugDraw(scene, graphicsComp->AABB(), glm::vec4(1.f));
+        }
     }
-}
-
-void ZGameObject::PostRender()
-{
-    auto scene = Scene();
-    if (!scene) return;
-
-    scene->PopMatrix();
 }
 
 void ZGameObject::RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
@@ -152,19 +139,12 @@ void ZGameObject::CalculateDerivedData()
     glm::mat4 scale = glm::scale(glm::mat4(1.f), properties_.scale);
     objectMutexes_.scale.unlock();
 
-    objectMutexes_.modelMatrix.lock();
-    properties_.modelMatrix = translation * rotation * scale;
-    objectMutexes_.modelMatrix.unlock();
-
-    std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
-    if (graphicsComp)
-        graphicsComp->UpdateAABB(properties_.modelMatrix);
+    SetLocalModelMatrix(translation * rotation * scale);
 }
 
 std::shared_ptr<ZGameObject> ZGameObject::Clone()
 {
     std::shared_ptr<ZGameObject> clone = std::make_shared<ZGameObject>();
-    clone->id_ = id_;
     clone->properties_ = properties_;
     clone->scene_ = scene_;
     clone->parent_ = parent_;
@@ -190,10 +170,19 @@ void ZGameObject::AddChild(std::shared_ptr<ZGameObject> gameObject)
 {
     if (std::find(children_.begin(), children_.end(), gameObject) == children_.end())
     {
-        if (!gameObject->Scene()) gameObject->scene_ = scene_;
-        if (auto parent = gameObject->Parent()) parent->RemoveChild(gameObject);
-        gameObject->parent_ = shared_from_this();
         children_.push_back(gameObject);
+
+        if (auto parent = gameObject->Parent())
+            parent->RemoveChild(gameObject);
+        gameObject->parent_ = shared_from_this();
+
+        if (auto scene = Scene())
+            scene->AddGameObject(gameObject);
+
+        if (!properties_.active)
+            gameObject->SetActive(properties_.active);
+
+        gameObject->SetModelMatrix(properties_.modelMatrix * gameObject->properties_.localModelMatrix);
     }
 }
 
@@ -224,7 +213,7 @@ bool ZGameObject::IsVisible()
     std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
     if (activeCamera && graphicsComp && graphicsComp->Model())
     {
-        return activeCamera->Frustum().Contains(graphicsComp->AABB());
+        return (!graphicsComp->AABBEnabled() || activeCamera->Frustum().Contains(graphicsComp->AABB())) && properties_.active;
     }
     return false;
 }
@@ -357,6 +346,16 @@ glm::vec3 ZGameObject::PreviousRight()
     return prev;
 }
 
+void ZGameObject::SetScene(const std::shared_ptr<ZScene>& scene)
+{
+    if (!scene)
+        scene_.reset();
+    else 
+        scene_ = scene;
+    for (auto object : children_)
+        object->SetScene(scene);
+}
+
 void ZGameObject::SetPosition(const glm::vec3& position)
 {
     objectMutexes_.position.lock();
@@ -364,21 +363,16 @@ void ZGameObject::SetPosition(const glm::vec3& position)
     properties_.position = glm::vec4(position, 1.f);
     objectMutexes_.position.unlock();
 
-    std::shared_ptr<ZPhysicsComponent> physicsComp = FindComponent<ZPhysicsComponent>();
-    if (physicsComp)
-        physicsComp->RigidBody()->SetPosition(properties_.position);
-
     CalculateDerivedData();
 }
 
 void ZGameObject::SetScale(const glm::vec3& scale)
 {
-    // TODO: set the btRigidBody local scaling in the
-    // physics component, if there is one
     objectMutexes_.scale.lock();
     properties_.previousScale = properties_.scale;
     properties_.scale = scale;
     objectMutexes_.scale.unlock();
+
     CalculateDerivedData();
 }
 
@@ -388,10 +382,6 @@ void ZGameObject::SetOrientation(const glm::quat& quaternion)
     properties_.previousOrientation = properties_.orientation;
     properties_.orientation = quaternion;
     objectMutexes_.orientation.unlock();
-
-    std::shared_ptr<ZPhysicsComponent> physicsComp = FindComponent<ZPhysicsComponent>();
-    if (physicsComp)
-        physicsComp->RigidBody()->SetRotation(properties_.orientation);
 
     CalculateDerivedData();
 }
@@ -403,11 +393,19 @@ void ZGameObject::SetOrientation(const glm::vec3& euler)
     properties_.orientation = glm::quat(euler);
     objectMutexes_.orientation.unlock();
 
-    std::shared_ptr<ZPhysicsComponent> physicsComp = FindComponent<ZPhysicsComponent>();
-    if (physicsComp)
-        physicsComp->RigidBody()->SetRotation(properties_.orientation);
-
     CalculateDerivedData();
+}
+
+void ZGameObject::SetLocalModelMatrix(const glm::mat4& modelMatrix)
+{
+    objectMutexes_.localModelMatrix.lock();
+    properties_.localModelMatrix = modelMatrix;
+    objectMutexes_.localModelMatrix.unlock();
+
+    if (auto parent = Parent())
+        SetModelMatrix(parent->ModelMatrix() * properties_.localModelMatrix);
+    else
+        SetModelMatrix(properties_.localModelMatrix);
 }
 
 void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
@@ -415,32 +413,47 @@ void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
     objectMutexes_.modelMatrix.lock();
     properties_.modelMatrix = modelMatrix;
     objectMutexes_.modelMatrix.unlock();
+
+    if (auto graphicsComp = FindComponent<ZGraphicsComponent>())
+        graphicsComp->UpdateAABB(properties_.modelMatrix);
+
+    for (auto child : children_) {
+        child->SetModelMatrix(properties_.modelMatrix * child->properties_.localModelMatrix);
+    }
+}
+
+void ZGameObject::SetActive(bool active)
+{
+    properties_.active = active;
+    for (auto object : children_)
+        object->SetActive(active);
 }
 
 ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
 {
+    using namespace zenith::strings;
     ZGameObjectMap gameObjects;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         std::shared_ptr<ZOFNode> node = it->second;
         std::shared_ptr<ZGameObject> gameObject;
-        if (zenith::strings::HasObjectPrefix(node->id, "ZGO"))
+        if (HasObjectPrefix(node->id, "ZGO"))
         {
             gameObject = ZGameObject::Create(node, scene);
         }
-        else if (zenith::strings::HasObjectPrefix(node->id, "ZLT"))
+        else if (HasObjectPrefix(node->id, "ZLT"))
         {
             gameObject = ZLight::Create(node, scene);
         }
-        else if (zenith::strings::HasObjectPrefix(node->id, "ZCAM"))
+        else if (HasObjectPrefix(node->id, "ZCAM"))
         {
             gameObject = ZCamera::Create(node, scene);
         }
-        else if (zenith::strings::HasObjectPrefix(node->id, "ZSKY"))
+        else if (HasObjectPrefix(node->id, "ZSKY"))
         {
             gameObject = ZSkybox::Create(node, scene);
         }
-        else if (zenith::strings::HasObjectPrefix(node->id, "ZGR"))
+        else if (HasObjectPrefix(node->id, "ZGR"))
         {
             gameObject = ZGrass::Create(node, scene);
         }
@@ -450,8 +463,10 @@ ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::share
 
             for (ZOFChildMap::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++)
             {
-                std::shared_ptr<ZOFNode> componentNode = compIt->second;
-                ZComponent::CreateIn(compIt->first, gameObject, componentNode);
+                if (HasComponentPrefix(compIt->first)) {
+                    std::shared_ptr<ZOFNode> componentNode = compIt->second;
+                    ZComponent::CreateIn(compIt->first, gameObject, componentNode);
+                }
             }
         }
     }

@@ -45,6 +45,7 @@ public:
     { }
 
     void Bind(unsigned int index) override;
+    void Unbind() override;
     void Resize(unsigned int width, unsigned int height) override;
     void Delete() override;
 
@@ -62,5 +63,9 @@ public:
     void LoadColor(const glm::vec2& size, bool multisample = false) override;
     void LoadDepth(const glm::vec2& size) override;
     void LoadDepthArray(const glm::vec2& size, int layers) override;
+
+protected:
+
+    unsigned int index_ = 0;
 
 };

@@ -41,14 +41,17 @@ class ZColliderComponent : public ZComponent
 
 public:
 
-    ZColliderComponent() {}
+    ZColliderComponent();
     ~ZColliderComponent() {}
 
+    void Initialize(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset = glm::vec3(0.f));
     void Initialize(std::shared_ptr<ZOFNode> root) override;
 
     void Update(double deltaTime) override;
 
     std::shared_ptr<ZComponent> Clone() override;
+
+    DECLARE_COMPONENT_CREATORS(ZColliderComponent)
 
 protected:
 

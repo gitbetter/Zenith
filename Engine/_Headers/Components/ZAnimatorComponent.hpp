@@ -53,6 +53,8 @@ public:
 
     std::shared_ptr<ZComponent> Clone() override;
 
+    DECLARE_COMPONENT_CREATORS(ZAnimatorComponent)
+
 protected:
 
     ZAnimationClip currentClip_;

@@ -54,7 +54,7 @@ public:
 
     void RemoveRigidBody(std::shared_ptr<ZRigidBody> body) override;
 
-    ZRaycastHitResult Raycast(const glm::vec3& start, const glm::vec3& direction) override;
+    ZRaycastHitResult Raycast(const glm::vec3& start, const glm::vec3& direction, float t = 100.f) override;
 
     void DebugDraw(const std::shared_ptr<ZScene>& scene) override;
 

@@ -76,8 +76,8 @@ public:
     virtual void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
     virtual void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
 
-    void DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustum, const glm::vec4& color);
-    void DebugDraw(const std::shared_ptr<ZScene>& scene, ZAABBox& aabb, const glm::vec4& color);
+    void DebugDraw(const std::shared_ptr<ZScene>& scene, const ZFrustum& frustum, const glm::vec4& color);
+    void DebugDraw(const std::shared_ptr<ZScene>& scene, const ZAABBox& aabb, const glm::vec4& color);
     void DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::vec4& color);
     void DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::vec3& from, const glm::vec3& to, const glm::vec4& color);
 

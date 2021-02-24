@@ -357,14 +357,9 @@ void ZShader::Use(const std::shared_ptr<ZMaterial>& material)
         SetFloat(shaderMaterial + ".shininess", material->Properties().shininess);
     }
 
-    // We start the external texture indices at 6 due to the depth, shadow and PBR irradiance maps, which are set internally
-    // and should not be overriden
-    unsigned int startIndex = 7;
     for (auto const& [key, val] : material->Textures())
     {
-        val->Bind(startIndex);
-        SetInt(key, startIndex);
-        ++startIndex;
+        BindAttachment(key, val);
     }
 }
 
@@ -469,6 +464,29 @@ void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>
         std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
         ZServices::EventAgent()->Queue(shaderReadyEvent);
     }
+}
+
+void ZShader::BindAttachments()
+{
+    for (const auto& [key, val] : attachments_) {
+        BindAttachment(key, val);
+    }
+}
+
+void ZShader::BindAttachment(const std::string& uniformName, const std::shared_ptr<ZTexture>& attachment)
+{
+    attachment->Bind(attachmentIndex_);
+    SetInt(uniformName, attachmentIndex_);
+    ++attachmentIndex_;
+}
+
+void ZShader::ClearAttachments()
+{
+    for (const auto& [key, val] : attachments_) {
+        val->Unbind();
+    }
+    attachments_.clear();
+    attachmentIndex_ = 0;
 }
 
 void ZShader::CreateAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendingShaders)

@@ -49,8 +49,8 @@ private:
 
 public:
 
-    ZSkybox(const glm::vec3& position, const glm::quat& orientation)
-        : ZGameObject(position, orientation) { }
+    ZSkybox(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
+        : ZGameObject(position, orientation, scale) { }
     ZSkybox(const std::string& hdr = "");
     ~ZSkybox() {}
 

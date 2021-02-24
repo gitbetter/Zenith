@@ -34,7 +34,7 @@
 #include "ZAssetStore.hpp"
 #include "ZShader.hpp"
 
-void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustum, const glm::vec4& color)
+void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, const ZFrustum& frustum, const glm::vec4& color)
 {
     std::vector<std::pair<glm::vec3, glm::vec3>> linePoints = {
         std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[0]), glm::vec3(frustum.corners[1])),
@@ -57,7 +57,7 @@ void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustu
     }
 }
 
-void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZAABBox& aabb, const glm::vec4& color)
+void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, const ZAABBox& aabb, const glm::vec4& color)
 {
     auto cornerTLB = glm::vec3(aabb.minimum.x, aabb.maximum.y, aabb.minimum.z);
     auto cornerTRB = glm::vec3(aabb.maximum.x, aabb.maximum.y, aabb.minimum.z);

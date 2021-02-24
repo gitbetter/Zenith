@@ -64,8 +64,8 @@ public:
     ZLAttenuationProperties attenuation;
     ZLSpotProperties spot;
 
-    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)))
-        : ZGameObject(position, orientation), type(ZLightType::Point), enabled(true) { }
+    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f))
+        : ZGameObject(position, orientation, scale), type(ZLightType::Point), enabled(true) { }
     ZLight(ZLightType lightType);
     ~ZLight() {}
 

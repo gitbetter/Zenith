@@ -29,6 +29,26 @@
 
 #pragma once
 
+#define DECLARE_COMPONENT_CREATORS(Type)\
+static std::shared_ptr<Type> Create();\
+static std::shared_ptr<Type> CreateIn(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
+
+#define DEFINE_COMPONENT_CREATORS(Type)\
+std::shared_ptr<Type> Type::Create()\
+{\
+    std::shared_ptr<Type> comp = std::make_shared<Type>();\
+    return comp;\
+}\
+std::shared_ptr<Type> Type::CreateIn(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data)\
+{\
+    std::shared_ptr<Type> comp = std::make_shared<Type>();\
+    gameObject->AddComponent(comp);\
+    if (data) {\
+        comp->Initialize(data);\
+    }\
+    return comp;\
+}
+
 // Includes
 #include "ZIDSequence.hpp"
 #include "ZProcess.hpp"
@@ -43,7 +63,7 @@ class ZComponent : public ZProcess
 
     friend class ZGameObject;
 
-    using Creator = std::shared_ptr<ZComponent>(*)(const std::shared_ptr<ZGameObject>&);
+    using Creator = std::shared_ptr<ZComponent>(*)(const std::shared_ptr<ZGameObject>&, const std::shared_ptr<ZOFNode>&);
 
 public:
 
@@ -58,12 +78,12 @@ public:
 
     ZGameObject* Object() { return object_; }
 
-    static std::shared_ptr<ZComponent> CreateGraphicsComponent(const std::shared_ptr<ZGameObject>& gameObject);
-    static std::shared_ptr<ZComponent> CreatePhysicsComponent(const std::shared_ptr<ZGameObject>& gameObject);
-    static std::shared_ptr<ZComponent> CreateAnimatorComponent(const std::shared_ptr<ZGameObject>& gameObject);
-    static std::shared_ptr<ZComponent> CreateColliderComponent(const std::shared_ptr<ZGameObject>& gameObject);
+    static std::shared_ptr<ZComponent> CreateGraphicsComponent(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
+    static std::shared_ptr<ZComponent> CreatePhysicsComponent(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
+    static std::shared_ptr<ZComponent> CreateAnimatorComponent(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
+    static std::shared_ptr<ZComponent> CreateColliderComponent(const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
 
-    static void CreateIn(const std::string& type, const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
+    static void CreateIn(const std::string& id, const std::shared_ptr<ZGameObject>& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
 
 protected:
 

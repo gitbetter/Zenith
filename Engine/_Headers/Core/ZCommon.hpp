@@ -41,6 +41,7 @@
 #include <glm/gtx/norm.hpp>
 #include <iostream>
 #include <initializer_list>
+#include <array>
 #include <vector>
 #include <string>
 #include <map>
@@ -63,7 +64,7 @@
 
 constexpr unsigned int BONES_PER_VERTEX = 4;
 constexpr float UPDATE_STEP_SIZE = 0.017f;
-constexpr int MAX_FIXED_UPDATE_ITERATIONS = 24;
+constexpr int MAX_FIXED_UPDATE_ITERATIONS = 4;
 constexpr unsigned int SHADOW_MAP_SIZE = 4096;
 constexpr unsigned int CUBE_MAP_SIZE = 2048;
 constexpr unsigned int IRRADIANCE_MAP_SIZE = 32;
@@ -435,6 +436,8 @@ class ZTexture;
 struct ZCursor;
 struct ZVertex3D;
 struct ZVertex2D;
+class ZColliderComponent;
+class ZScriptComponent;
 
 using ZGameObjectMap = std::map<std::string, std::shared_ptr<ZGameObject>>;
 using ZLightMap = std::map<std::string, std::shared_ptr<ZLight>>;
@@ -469,9 +472,9 @@ enum ZPriority
     FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority
 };
 
-enum ZRenderOrder
+enum class ZRenderOrder
 {
-    First, Invisible = First, Static, Dynamic, Sky, UI, Last
+    First = 0, Invisible = First, Static, Dynamic, Sky, UI, Last
 };
 
 enum class ZRenderOp
@@ -486,7 +489,7 @@ enum class ZPlayState
 
 enum class ZPhysicsBodyType
 {
-    Dynamic = 1, Static = 2, Kinematic = 4, Trigger = 8, Character = 16, Particle = 32, All = -1
+    Dynamic = 1, Static = 2, Kinematic = 4, Particle = 8, Trigger = 16, Character = 32, All = -1
 };
 
 enum class ZCameraType
@@ -854,6 +857,20 @@ struct ZCursor {
     ZCursor(const ZSystemCursorType& type)
         : type(type)
     { }
+};
+
+// TODO: Is there a better way we can write this type trait?
+template<typename T>
+struct is_multiple_components_supported {
+    static constexpr bool value = false;
+};
+template<>
+struct is_multiple_components_supported<ZColliderComponent> {
+    static constexpr bool value = true;
+};
+template<>
+struct is_multiple_components_supported<ZScriptComponent> {
+    static constexpr bool value = true;
 };
 
 #if defined _WIN64 || defined _WIN32

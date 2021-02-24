@@ -52,7 +52,7 @@ public:
     const glm::vec3& Extents() const { return extents_; }
     const glm::vec3& Offset() const { return offset_; }
 
-    static std::shared_ptr<ZCollider> Create(const std::string& type, const glm::vec3& extents, const glm::vec3& offset = glm::vec3(0.f));
+    static std::shared_ptr<ZCollider> Create(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset = glm::vec3(0.f));
 
 protected:
 

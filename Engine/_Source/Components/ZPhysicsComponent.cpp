@@ -38,14 +38,7 @@
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent()
 {
-    id_ = "ZCPhysics_" + idGenerator_.Next();
-}
-
-void ZPhysicsComponent::Initialize()
-{
-    ZComponent::Initialize();
-    if (body_)
-        object_->Scene()->PhysicsUniverse()->AddRigidBody(body_);
+    id_ = "ZCOMP_PHYSICS_" + idGenerator_.Next();
 }
 
 void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
@@ -57,7 +50,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         return;
     }
 
-    btScalar mass = -1., damping = 1., angularDamping = 1., restitution = 0.;
+    btScalar mass = -1.f, damping = 1.f, angularDamping = 1.f, restitution = 0.f;
     ZPhysicsBodyType type = ZPhysicsBodyType::Static;
     bool gravity = false;
 
@@ -106,30 +99,37 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
 
     if (mass < 0) mass = 0.0;
 
-    Initialize(type, mass);
+    Initialize(type, mass, gravity);
 
-    if (gravity)
-    {
-        glm::vec3 gravityForce(0.f, -30.f, 0.f);
-        if (gravity) body_->SetGravity(gravityForce);
-    }
-    body_->SetLinearDamping(damping);
-    body_->SetAngularDamping(angularDamping);
-    body_->SetRestitution(restitution);
+    SetLinearDamping(damping);
+    SetAngularDamping(angularDamping);
+    SetRestitution(restitution);
 }
 
-void ZPhysicsComponent::Initialize(ZPhysicsBodyType bodyType, float mass)
+void ZPhysicsComponent::Initialize(ZPhysicsBodyType bodyType, float mass, bool hasGravityInfluence)
 {
     body_ = std::make_shared<ZBulletRigidBody>(bodyType, mass, object_->Position(), object_->Scale(), object_->Orientation());
     body_->Initialize();
     body_->SetGameObject(object_);
+    if (hasGravityInfluence)
+    {
+        body_->SetGravity(glm::vec3(0.f, -9.8f, 0.f));
+    }
 }
 
 void ZPhysicsComponent::Update(double deltaTime)
 {
     assert(object_ != nullptr && body_ != nullptr);
 
-    // Don't update static rigid bodies, since the physics engine cannot affect them
+    if (!inUniverse_ && object_->Scene()) {
+        object_->Scene()->PhysicsUniverse()->AddRigidBody(body_);
+        inUniverse_ = true;
+    }
+
+    if (body_->Type() == ZPhysicsBodyType::Trigger)
+        body_->SetTransformMatrix(object_->ModelMatrix());
+
+    // Don't update static rigid bodies with the physic engine, since the physics engine cannot affect them
     if (body_->InverseMass() == 0.0) return;
 
     glm::mat4 M = body_->TransformMatrix();
@@ -151,6 +151,24 @@ void ZPhysicsComponent::CleanUp()
     if (object_ && body_) {
         object_->Scene()->PhysicsUniverse()->RemoveRigidBody(body_);
     }
+}
+
+void ZPhysicsComponent::SetLinearDamping(float damping)
+{
+    assert(body_ != nullptr);
+    body_->SetLinearDamping(damping);
+}
+
+void ZPhysicsComponent::SetAngularDamping(float damping)
+{
+    assert(body_ != nullptr);
+    body_->SetAngularDamping(damping);
+}
+
+void ZPhysicsComponent::SetRestitution(float restitution)
+{
+    assert(body_ != nullptr);
+    body_->SetRestitution(restitution);
 }
 
 void ZPhysicsComponent::AddCollider(const std::shared_ptr<ZCollider>& collider)
@@ -188,3 +206,5 @@ bool ZPhysicsComponent::HasFiniteMass()
     assert(body_ != nullptr);
     return body_->InverseMass() != 0.0;
 }
+
+DEFINE_COMPONENT_CREATORS(ZPhysicsComponent)

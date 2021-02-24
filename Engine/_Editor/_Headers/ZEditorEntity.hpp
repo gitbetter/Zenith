@@ -3,12 +3,12 @@
   ______     ______     __   __     __     ______   __  __
  /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
  \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-   /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
+   /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZEditorTool.cpp
+    ZEditorEntity.hpp
  
-    Created by Adrian Sanchez on 18/05/19.
+    Created by Adrian Sanchez on 02/21/21.
     Copyright © 2019 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
@@ -27,25 +27,32 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZEditorTool.hpp"
-#include "ZScene.hpp"
-#include "ZUIPanel.hpp"
+#pragma once
 
-void ZEditorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
-	ZUIElementOptions elementOptions;
-	elementOptions.positioning = ZPositioning::Relative;
-	elementOptions.scaling = ZPositioning::Relative;
-	elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
-	container_ = ZUIPanel::Create(elementOptions, scene);
-}
+// Includes
+#include "ZCommon.hpp"
 
-void ZEditorTool::CleanUp()
-{
-	container_->CleanUp();
-}
+// Forward Declarations
+class ZScene;
 
-void ZEditorTool::SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene)
-{
-	activeProjectScene_ = activeScene;
-	OnProjectSceneChanged();
-}
+class ZEditorEntity {
+    
+public:
+    
+    ZEditorEntity() { }
+    
+    virtual void Initialize(const std::shared_ptr<ZScene>& scene) = 0;
+
+    virtual void Update() = 0;
+
+    virtual void CleanUp() = 0;
+
+    virtual void OnProjectSceneChanged() {}
+
+    void SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene);
+
+protected:
+
+    std::shared_ptr<ZScene>                     activeProjectScene_;
+    
+};
