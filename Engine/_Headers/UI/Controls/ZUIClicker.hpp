@@ -40,16 +40,21 @@ class ZUIClicker
 
 public:
 
-    ZUIClicker() { }
+    ZUIClicker(const ZMouse& button = ZMouse::LEFT_MB)
+        : button_(button)
+    { }
     ~ZUIClicker() { }
 
     bool Clicked(const ZRect& rect);
     bool Pressed(const ZRect& rect, bool inRect = true);
     bool Released(const ZRect& rect);
 
+    void WrapToBounds(bool wrap = true) { wrapToBounds_ = wrap; }
+
 protected:
 
     bool activated_ = false;
-    bool mouseDown_ = false;
+    bool wrapToBounds_ = false;
+    ZMouse button_;
 
 };

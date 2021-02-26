@@ -52,13 +52,22 @@ public:
 
     void CleanUp() override;
 
-    void OnProjectSceneChanged() override;
+    void TryActivate(const ZRect& viewportRect) override;
+
+    void Manipulate(const ZRect& viewportRect) override;
+
+    void Deactivate() override;
 
 protected:
 
     std::shared_ptr<ZScene> previousActiveProjectScene_ = nullptr;
-
     std::array<std::shared_ptr<ZGameObject>, 3> axisArrows_;
+    int selectedAxis_ = -1;
+    glm::vec3 previousAxisPoint_{ 0.f };
+    glm::vec2 previousCursorPos_{ 0.f };
+    float sensitivity_ = 0.3f;
+
+    void OnProjectSceneChanged() override;
 
     std::shared_ptr<ZGameObject> CreateAxisArrow(const glm::vec3& axis);
 

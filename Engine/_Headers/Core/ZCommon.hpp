@@ -400,7 +400,7 @@ const std::unordered_map<ZKey, char> PRINTABLE_KEY_CODE{
     {ZKey::KP_EQUAL, '='}
 };
 
-enum ZMouse
+enum class ZMouse
 {
     LEFT_MB,
     RIGHT_MB,

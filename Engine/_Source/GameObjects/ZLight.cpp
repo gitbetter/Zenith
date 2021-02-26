@@ -160,17 +160,12 @@ void ZLight::UpdateLightspaceMatrices(const ZFrustum& frustum)
             lightspaceRegion_ = ZAABBox();
             for (const auto& corner : splitFrustum.corners) {
                 auto transformedCorner = glm::vec4(corner, 1.0) * lightV;
-                lightspaceRegion_.minimum.x = glm::min(lightspaceRegion_.minimum.x, transformedCorner.x);
-                lightspaceRegion_.minimum.y = glm::min(lightspaceRegion_.minimum.y, transformedCorner.y);
-                lightspaceRegion_.minimum.z = glm::min(lightspaceRegion_.minimum.z, transformedCorner.z);
-                lightspaceRegion_.maximum.x = glm::max(lightspaceRegion_.maximum.x, transformedCorner.x);
-                lightspaceRegion_.maximum.y = glm::max(lightspaceRegion_.maximum.y, transformedCorner.y);
-                lightspaceRegion_.maximum.z = glm::max(lightspaceRegion_.maximum.z, transformedCorner.z);
+                lightspaceRegion_ = ZAABBox::Union(lightspaceRegion_, transformedCorner);
             }
 
             glm::vec3 extents = glm::vec3(glm::abs(lightspaceRegion_.maximum.x - lightspaceRegion_.minimum.x),
-                glm::abs(lightspaceRegion_.maximum.y - lightspaceRegion_.minimum.y),
-                glm::abs(lightspaceRegion_.maximum.z - lightspaceRegion_.minimum.z)) * 0.5f;
+                                          glm::abs(lightspaceRegion_.maximum.y - lightspaceRegion_.minimum.y),
+                                          glm::abs(lightspaceRegion_.maximum.z - lightspaceRegion_.minimum.z)) * 0.5f;
 
             lightspaceMatrices_.push_back(glm::ortho(-extents.x, extents.x, -extents.y, extents.y, -extents.z, extents.z) * lightV);
         }

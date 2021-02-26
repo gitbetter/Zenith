@@ -68,6 +68,7 @@ public:
     const ZInstancedDataOptions& InstanceData() const { return instanceData_; }
     const std::shared_ptr<ZSkeleton> Skeleton() const { return skeleton_; }
     const glm::mat4 GlobalInverseTransform() const { return globalInverseTransform_; }
+    const ZAABBox& Bounds() const { return bounds_; }
 
     void SetInstanceData(const ZInstancedDataOptions& instanceData);
     void BoneTransform(const std::string& anim, double secondsTime);
@@ -89,9 +90,11 @@ protected:
     std::shared_ptr<ZSkeleton> skeleton_;
     ZInstancedDataOptions instanceData_;
     glm::mat4 globalInverseTransform_;
+    ZAABBox bounds_;
 
     static ZIDSequence idGenerator_;
 
+    void ComputeBounds();
     void CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
     glm::vec3 CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
     glm::quat CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);

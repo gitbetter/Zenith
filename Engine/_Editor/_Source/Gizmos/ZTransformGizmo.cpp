@@ -28,6 +28,7 @@
  */
 
 #include "ZTransformGizmo.hpp"
+#include "ZServices.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsUniverse.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -37,12 +38,13 @@
 #include "ZScene.hpp"
 #include "ZMaterial.hpp"
 #include "ZShader.hpp"
+#include "ZCamera.hpp"
 
 void ZTransformGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
 {
-    gizmo_ = std::make_shared<ZGameObject>();
+    ZEditorGizmo::Initialize(scene);
+
     gizmo_->SetName("TransformGizmo");
-    gizmo_->SetRenderOrder(ZRenderOrder::UI);
 
     axisArrows_[0] = CreateAxisArrow(glm::vec3(1.f, 0.f, 0.f));
     axisArrows_[1] = CreateAxisArrow(glm::vec3(0.f, 1.f, 0.f));
@@ -52,14 +54,18 @@ void ZTransformGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
         gizmo_->AddChild(arrow);
     }
     
-    gizmo_->SetScale(glm::vec3(0.25f));
     gizmo_->SetOrientation(glm::vec3(0.f, 0.f, glm::radians(90.f)));
-    gizmo_->SetPosition(glm::vec3(0.f, 0.5f, -1.f));
 }
 
 void ZTransformGizmo::Update()
 {
+    if (!activeProjectScene_) return;
 
+    if (auto cam = activeProjectScene_->ActiveCamera()) {
+        auto cameraDist = (glm::length(gizmo_->Position() - activeProjectScene_->ActiveCamera()->Position()));
+        auto worldSize = (2.f * glm::tan(cam->Frustum().fov * 0.5f)) * cameraDist;
+        gizmo_->SetScale(glm::vec3(worldSize * 0.05f));
+    }
 }
 
 void ZTransformGizmo::CleanUp()
@@ -74,6 +80,29 @@ void ZTransformGizmo::CleanUp()
     axisArrows_.fill(nullptr);
 }
 
+void ZTransformGizmo::TryActivate(const ZRect& viewportRect)
+{
+    auto cursorPos = ZServices::Input()->GetCursorPosition() - viewportRect.position;
+    auto ray = activeProjectScene_->ScreenPointToWorldRay(cursorPos, viewportRect.size);
+
+    for (int i = 0; i < 3; i++) {
+        for (auto child : axisArrows_[i]->Children()) {
+            auto graphics = child->FindComponent<ZGraphicsComponent>();
+            auto aabb = graphics->AABB();
+            if (aabb.Intersects(ray)) {
+                auto axisRay = ZRay(gizmo_->Position(), glm::eulerAngles(axisArrows_[i]->Orientation()));
+                previousAxisPoint_ = axisRay.ClosestPointTo(ray);
+                previousCursorPos_ = cursorPos;
+                active_ = true;
+                selectedAxis_ = i;
+                return;
+            }
+        }
+    }
+
+    Deactivate();
+}
+
 void ZTransformGizmo::OnProjectSceneChanged()
 {
     if (previousActiveProjectScene_) {
@@ -81,6 +110,35 @@ void ZTransformGizmo::OnProjectSceneChanged()
     }
     previousActiveProjectScene_ = activeProjectScene_;
     activeProjectScene_->AddGameObject(gizmo_);
+}
+
+void ZTransformGizmo::Manipulate(const ZRect& viewportRect)
+{
+    if (active_) {
+        auto cursorPos = ZServices::Input()->GetCursorPosition() - viewportRect.position;
+        auto ray = activeProjectScene_->ScreenPointToWorldRay(cursorPos, viewportRect.size);
+
+        auto cursorDelta = glm::abs(cursorPos - previousCursorPos_);
+        bool cursorWrapped = cursorDelta.x >= viewportRect.size.x * 0.95f || cursorDelta.y >= viewportRect.size.y * 0.95f;
+        previousCursorPos_ = cursorPos;
+
+        auto axisArrow = axisArrows_[selectedAxis_];
+        auto axisRay = ZRay(gizmo_->Position(), glm::eulerAngles(axisArrow->Orientation()));
+
+        glm::vec3 currentAxisPoint = axisRay.ClosestPointTo(ray);
+        glm::vec3 delta = (currentAxisPoint - previousAxisPoint_) * sensitivity_;
+        previousAxisPoint_ = currentAxisPoint;
+
+        if (!cursorWrapped)
+            gizmo_->Translate(-delta, true);
+    }
+}
+
+void ZTransformGizmo::Deactivate()
+{
+    active_ = false;
+    selectedAxis_ = -1;
+    previousAxisPoint_ = glm::vec3(0.f);
 }
 
 std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& axis)
@@ -94,18 +152,6 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
     auto arrowMaterial = ZMaterial::Create(materialProps);
 
     auto axisArrow = ZGameObject::Create();
-
-    auto physicsComp = ZPhysicsComponent::CreateIn(axisArrow);
-    auto colliderComp = ZColliderComponent::CreateIn(axisArrow);
-    physicsComp->Initialize(
-        ZPhysicsBodyType::Trigger,
-        0.f
-    );
-    colliderComp->Initialize(
-        ZColliderType::Capsule,
-        glm::vec3(0.12f, 5.1f, 0.f),
-        glm::vec3(0.f, axis.y > 0.f || axis.z > 0.f ? -2.6f : 2.6f, 0.f)
-    );
 
     auto arrowBase = ZGameObject::Create(
         glm::vec3(0.f, 0.f, 2.5f),

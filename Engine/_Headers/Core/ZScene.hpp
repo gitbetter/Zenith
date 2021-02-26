@@ -51,6 +51,7 @@ class ZTextureReadyEvent;
 class ZShaderReadyEvent;
 class ZModelReadyEvent;
 class ZSkyboxReadyEvent;
+class ZRay;
 
 // Class and Data Structure Definitions
 class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene>
@@ -109,6 +110,8 @@ public:
     void AddUIElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements);
     std::shared_ptr<ZUIElement> FindUIElement(const std::string& id);
     void RemoveUIElement(std::shared_ptr<ZUIElement> element);
+
+    ZRay ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions = glm::vec2(0.f));
 
     void UpdateViewProjectionMatrices();
     void UpdateLightspaceMatrices();

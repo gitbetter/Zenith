@@ -72,16 +72,19 @@ std::shared_ptr<ZVec3Field> ZVec3Field::Create(const std::string& label, const Z
     vec3Field->xInputField_ = ZFloatField::Create("X", fieldOptions, scene, theme);
     vec3Field->xInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
     vec3Field->xInputField_->Control()->SetLabelFontSize(13.f);
+    vec3Field->xInputField_->Control()->SetLabelBackgroundColor(glm::vec4(1.f, 0.f, 0.f, 1.f));
     container->AddChild(vec3Field->xInputField_->Control());
 
     vec3Field->yInputField_ = ZFloatField::Create("Y", fieldOptions, scene, theme);
     vec3Field->yInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
     vec3Field->yInputField_->Control()->SetLabelFontSize(13.f);
+    vec3Field->yInputField_->Control()->SetLabelBackgroundColor(glm::vec4(0.f, 1.f, 0.f, 1.f));
     container->AddChild(vec3Field->yInputField_->Control());
 
     vec3Field->zInputField_ = ZFloatField::Create("Z", fieldOptions, scene, theme);
     vec3Field->zInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
     vec3Field->zInputField_->Control()->SetLabelFontSize(13.f);
+    vec3Field->zInputField_->Control()->SetLabelBackgroundColor(glm::vec4(0.f, 0.f, 1.f, 1.f));
     container->AddChild(vec3Field->zInputField_->Control());
 
     vec3Field->control_ = ZUILabeledElement::Create(label, container);

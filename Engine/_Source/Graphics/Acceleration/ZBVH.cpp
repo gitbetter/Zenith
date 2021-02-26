@@ -6,9 +6,9 @@
         /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
         \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-        ZAABBox.cpp
+        ZBVH.cpp
 
-        Created by Adrian Sanchez on 18/04/2019.
+        Created by Adrian Sanchez on 02/24/2021.
         Copyright © 2019 Pervasive Sense. All rights reserved.
 
     This file is part of Zenith.
@@ -27,4 +27,4 @@
     along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZAABBox.hpp"
+#include "ZBVH.hpp"

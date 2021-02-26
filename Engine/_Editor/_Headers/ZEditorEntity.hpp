@@ -47,12 +47,12 @@ public:
 
     virtual void CleanUp() = 0;
 
-    virtual void OnProjectSceneChanged() {}
-
     void SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene);
 
 protected:
 
     std::shared_ptr<ZScene>                     activeProjectScene_;
+
+    virtual void OnProjectSceneChanged() {}
     
 };

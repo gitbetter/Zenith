@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZGameObject;
+class ZRay;
 
 // Definitions
 class ZEditorGizmo : public ZEditorEntity
@@ -43,8 +44,19 @@ public:
     ZEditorGizmo() { }
     virtual ~ZEditorGizmo() { }
 
+    virtual void Initialize(const std::shared_ptr<ZScene>& scene) override;
+
+    void Update() override { }
+
+    virtual void TryActivate(const ZRect& viewportRect) = 0;
+
+    virtual void Manipulate(const ZRect& viewportRect) = 0;
+
+    virtual void Deactivate() = 0;
+
 protected:
 
     std::shared_ptr<ZGameObject> gizmo_;
+    bool active_ = false;
 
 };

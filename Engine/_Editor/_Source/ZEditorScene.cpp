@@ -65,10 +65,10 @@ void ZEditorScene::Initialize() {
 }
 
 void ZEditorScene::Update(double deltaTime) {
+    ZScene::Update(deltaTime);
     for (std::shared_ptr<ZEditorEntity> entity : entities_) {
         entity->Update();
     }
-    ZScene::Update(deltaTime);
 }
 
 void ZEditorScene::CleanUp() {

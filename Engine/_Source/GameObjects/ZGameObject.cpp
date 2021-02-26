@@ -34,6 +34,7 @@
 #include "ZGame.hpp"
 #include "ZScene.hpp"
 #include "ZModel.hpp"
+#include "ZFrustum.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZScriptComponent.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -100,11 +101,6 @@ void ZGameObject::Render(double deltaTime, const std::shared_ptr<ZShader>& shade
         graphicsComp->SetGameLights(scene->GameLights());
         graphicsComp->SetGameCamera(scene->ActiveCamera());
         graphicsComp->Render(deltaTime, shader, renderOp);
-
-        if (scene->GameConfig().graphics.drawAABBDebug && graphicsComp->AABBEnabled())
-        {
-            ZServices::Graphics()->DebugDraw(scene, graphicsComp->AABB(), glm::vec4(1.f));
-        }
     }
 }
 
@@ -210,10 +206,8 @@ bool ZGameObject::IsVisible()
     if (!scene) return false;
 
     std::shared_ptr<ZCamera> activeCamera = scene->ActiveCamera();
-    std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>();
-    if (activeCamera && graphicsComp && graphicsComp->Model())
-    {
-        return (!graphicsComp->AABBEnabled() || activeCamera->Frustum().Contains(graphicsComp->AABB())) && properties_.active;
+    if (auto graphicsComp = FindComponent<ZGraphicsComponent>()) {
+        return activeCamera && graphicsComp->IsVisible(activeCamera->Frustum()) && properties_.active;
     }
     return false;
 }
@@ -415,7 +409,7 @@ void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
     objectMutexes_.modelMatrix.unlock();
 
     if (auto graphicsComp = FindComponent<ZGraphicsComponent>())
-        graphicsComp->UpdateAABB(properties_.modelMatrix);
+        graphicsComp->Transform(properties_.modelMatrix);
 
     for (auto child : children_) {
         child->SetModelMatrix(properties_.modelMatrix * child->properties_.localModelMatrix);
@@ -427,6 +421,25 @@ void ZGameObject::SetActive(bool active)
     properties_.active = active;
     for (auto object : children_)
         object->SetActive(active);
+}
+
+void ZGameObject::Translate(const glm::vec3& translation, bool global)
+{
+    if (global) {
+        //glm::vec3 localTranslation = glm::rotate(Orientation(), translation);
+        objectMutexes_.position.lock();
+        properties_.previousPosition = properties_.position;
+        properties_.position += glm::vec4(translation, 0.f);
+        objectMutexes_.position.unlock();
+    }
+    else {
+        objectMutexes_.position.lock();
+        properties_.previousPosition = properties_.position;
+        properties_.position += glm::vec4(translation, 0.f);
+        objectMutexes_.position.unlock();
+    }
+
+    CalculateDerivedData();
 }
 
 ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)

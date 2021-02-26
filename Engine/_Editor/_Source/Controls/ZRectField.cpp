@@ -74,21 +74,25 @@ std::shared_ptr<ZRectField> ZRectField::Create(const std::string& label, const Z
     rectField->xInputField_ = ZFloatField::Create("X", fieldOptions, scene, theme);
     rectField->xInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
     rectField->xInputField_->Control()->SetLabelFontSize(13.f);
+    rectField->xInputField_->Control()->SetLabelBackgroundColor(glm::vec4(1.f, 0.f, 0.f, 1.f));
     container->AddChild(rectField->xInputField_->Control());
 
     rectField->yInputField_ = ZFloatField::Create("Y", fieldOptions, scene, theme);
     rectField->yInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
     rectField->yInputField_->Control()->SetLabelFontSize(13.f);
+    rectField->yInputField_->Control()->SetLabelBackgroundColor(glm::vec4(0.f, 1.f, 0.f, 1.f));
     container->AddChild(rectField->yInputField_->Control());
 
     rectField->wInputField_ = ZFloatField::Create("W", fieldOptions, scene, theme);
     rectField->wInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
     rectField->wInputField_->Control()->SetLabelFontSize(13.f);
+    rectField->wInputField_->Control()->SetLabelBackgroundColor(glm::vec4(1.f, 0.f, 0.f, 1.f));
     container->AddChild(rectField->wInputField_->Control());
 
     rectField->hInputField_ = ZFloatField::Create("H", fieldOptions, scene, theme);
     rectField->hInputField_->Control()->SetLabelTextAlignment(ZAlignment::Middle);
     rectField->hInputField_->Control()->SetLabelFontSize(13.f);
+    rectField->hInputField_->Control()->SetLabelBackgroundColor(glm::vec4(0.f, 1.f, 0.f, 1.f));
     container->AddChild(rectField->hInputField_->Control());
 
     rectField->control_ = ZUILabeledElement::Create(label, container);

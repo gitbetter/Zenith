@@ -134,7 +134,7 @@ void ZGame::AddScene(const std::shared_ptr<ZScene>& scene)
     scenes_.push_back(scene);
     scene->SetGameSystems(gameSystems_);
     scene->SetGameConfig(gameOptions_);
-    ZServices::ProcessRunner()->AttachProcess(scene, ZPriority::High);
+    ZServices::ProcessRunner()->AttachProcess(scene, ZPriority::Critical);
 }
 
 void ZGame::RemoveScene(const std::shared_ptr<ZScene>& scene)

@@ -36,6 +36,7 @@
 class ZGameObject;
 class ZUIImage;
 class ZEditorGizmo;
+class ZUIClicker;
 
 // Definitions
 class ZSceneTool : public ZEditorTool {
@@ -46,14 +47,19 @@ public:
         : ZEditorTool("Scene", theme) { }
 
     void Initialize(const std::shared_ptr<ZScene>& scene) override;
-    void OnProjectSceneChanged() override;
     
 	void Update() override;
 
 private:
 
     std::shared_ptr<ZUIImage> sceneDisplay_ = nullptr;
+    std::shared_ptr<ZEditorGizmo> currentGizmo_ = nullptr;
     std::vector<std::shared_ptr<ZEditorGizmo>> gizmos_;
+
+    std::shared_ptr<ZUIClicker> selectClicker_ = nullptr;
+    std::shared_ptr<ZUIClicker> travelClicker_ = nullptr;
+
+    void OnProjectSceneChanged() override;
 
     void SetupGizmos(const std::shared_ptr<ZScene>& scene);
     void AddGizmo(const std::shared_ptr<ZEditorGizmo>& gizmo, const std::shared_ptr<ZScene>& scene);

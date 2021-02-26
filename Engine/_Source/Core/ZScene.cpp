@@ -172,18 +172,30 @@ void ZScene::Play()
 {
     playState_ = ZPlayState::Playing;
     gameSystems_.physics->Resume();
+    if (activeCamera_) {
+        activeCamera_->EnableLook();
+        activeCamera_->EnableMovement();
+    }
 }
 
 void ZScene::Pause()
 {
     playState_ = ZPlayState::Paused;
     gameSystems_.physics->Pause();
+    if (activeCamera_) {
+        activeCamera_->DisableLook();
+        activeCamera_->DisableMovement();
+    }
 }
 
 void ZScene::Stop()
 {
     playState_ = ZPlayState::Ready;
     gameSystems_.physics->Pause();
+    if (activeCamera_) {
+        activeCamera_->DisableLook();
+        activeCamera_->DisableMovement();
+    }
 }
 
 void ZScene::UpdateViewProjectionMatrices()
@@ -419,6 +431,24 @@ std::shared_ptr<ZUIElement> ZScene::FindUIElement(const std::string& id)
     return nullptr;
 }
 
+ZRay ZScene::ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions)
+{
+    if (!ActiveCamera())
+        return ZRay(glm::vec3(0.f), glm::vec3(0.f));
+
+    auto rectRes = dimensions == glm::vec2(0.f) ? gameSystems_.domain->Resolution() : dimensions;
+    float x = (2.f * point.x) / rectRes.x - 1.f;
+    float y = (2.f * point.y) / rectRes.y - 1.f;
+
+    glm::vec4 start = glm::normalize(glm::inverse(viewProjection_) * glm::vec4(x, -y, 0.f, 1.f));
+    start /= start.w;
+    glm::vec4 end = glm::normalize(glm::inverse(viewProjection_) * glm::vec4(x, -y, 1.f, 1.f));
+    end /= end.w;
+    glm::vec4 direction = glm::normalize(end - start);
+
+    return ZRay(start, direction);
+}
+
 std::shared_ptr<ZTexture> ZScene::TargetTexture()
 {
     if (targetBuffer_)
@@ -590,17 +620,7 @@ void ZScene::HandleObjectDestroyed(const std::shared_ptr<ZObjectDestroyedEvent>&
 
 void ZScene::HandleRaycastEvent(const std::shared_ptr<ZRaycastEvent>& event)
 {
-    glm::mat4 InverseViewProjection = glm::inverse(ViewProjection());
-
-    glm::vec4 rayStartNDC(event->Origin().x * 2.f - 1.f, -event->Origin().y * 2.f + 1.f, -1.f, 1.f);
-    glm::vec4 rayEndNDC(event->Origin().x * 2.f - 1.f, -event->Origin().y * 2.f + 1.f, 0.f, 1.f);
-
-    glm::vec4 rayStart = InverseViewProjection * rayStartNDC; rayStart /= rayStart.w;
-    glm::vec4 rayEnd = InverseViewProjection * rayEndNDC; rayEnd /= rayEnd.w;
-
-    glm::vec3 rayDir = glm::normalize(glm::vec3(rayEnd - rayStart));
-
-    ZRaycastHitResult hitResult = gameSystems_.physics->Raycast(rayStart, rayDir);
+    ZRaycastHitResult hitResult = gameSystems_.physics->Raycast(event->Origin(), event->Direction(), event->Length());
     if (hitResult.hasHit)
     {
         // TODO: Rename to ZObjectRayHit event or something similar

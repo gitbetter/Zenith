@@ -32,22 +32,36 @@
 
 bool ZUIClicker::Clicked(const ZRect& rect)
 {
+    if (activated_) return false;
+
     bool previouslyActivated = activated_;
-    bool previousMouseDown = mouseDown_;
     activated_ = Pressed(rect);
-    return !previouslyActivated && !previousMouseDown && activated_;
+    return !previouslyActivated && activated_;
 }
 
 bool ZUIClicker::Pressed(const ZRect& rect, bool inRect)
 {
-    mouseDown_ = ZServices::Input()->Mouse(ZMouse::LEFT_MB);
-    return (inRect ? rect.Contains(ZServices::Input()->GetCursorPosition()) : true) && mouseDown_;
+    auto buttonDown = ZServices::Input()->Mouse(button_);
+    auto cursorPos = ZServices::Input()->GetCursorPosition();
+    if (activated_ && wrapToBounds_) {
+        if (cursorPos.x < rect.position.x)
+            cursorPos.x = rect.position.x + rect.size.x;
+        if (cursorPos.x > rect.position.x + rect.size.x)
+            cursorPos.x = rect.position.x;
+        if (cursorPos.y < rect.position.y)
+            cursorPos.y = rect.position.y + rect.size.y;
+        if (cursorPos.y > rect.position.y + rect.size.y)
+            cursorPos.y = rect.position.y;
+        ZServices::Input()->SetCursorPosition(cursorPos);
+    }
+    return (inRect ? rect.Contains(cursorPos) : true) && buttonDown;
 }
 
 bool ZUIClicker::Released(const ZRect& rect)
 {
+    if (!activated_) return false;
+
     bool previouslyActivated = activated_;
-    bool previousMouseDown = mouseDown_;
     activated_ = Pressed(rect, false);
-    return previouslyActivated && previousMouseDown && !activated_;
+    return previouslyActivated && !activated_;
 }

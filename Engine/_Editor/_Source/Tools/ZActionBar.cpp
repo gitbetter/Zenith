@@ -65,8 +65,6 @@ void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
 void ZActionBar::Update() {
     if (playButton_->Clicked()) {
         activeProjectScene_->Play();
-        activeProjectScene_->ActiveCamera()->EnableDefaultLook();
-        activeProjectScene_->ActiveCamera()->EnableDefaultMovement();
         ZServices::Input()->CaptureCursor();
     }
     if (stopButton_->Clicked()) {

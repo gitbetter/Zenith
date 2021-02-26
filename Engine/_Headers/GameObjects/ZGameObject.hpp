@@ -141,6 +141,8 @@ public:
     void SetName(const std::string& name) { properties_.name = name; }
     void SetActive(bool active = true);
 
+    void Translate(const glm::vec3& translation, bool global = false);
+
     template<class T>
     typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
         AddComponent(std::shared_ptr<T> component)

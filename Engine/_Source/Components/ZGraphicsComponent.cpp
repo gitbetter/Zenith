@@ -36,6 +36,7 @@
 #include "ZSkybox.hpp"
 #include "ZCamera.hpp"
 #include "ZOFTree.hpp"
+#include "ZFrustum.hpp"
 
 ZGraphicsComponent::ZGraphicsComponent() : ZComponent(), highlightColor_(0.f), isBillboard_(false)
 {
@@ -148,7 +149,8 @@ std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
 
 void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
-    if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
+    auto model = Model();
+    if (!gameCamera_ || !model) return;
 
     glm::mat4 modelMatrix = object_->ModelMatrix();
     glm::mat4 projectionMatrix = gameCamera_->ProjectionMatrix();
@@ -202,11 +204,16 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
             }
         }
 
-        modelObject_->Render(activeShader, Materials());
+        model->Render(activeShader, Materials());
     }
 
     ZServices::Graphics()->DisableAlphaBlending();
     DrawOutlineIfEnabled(modelMatrix, object_->Scene()->ViewProjection());
+
+    if (object_->Scene()->GameConfig().graphics.drawAABBDebug && hasAABB_)
+    {
+        ZServices::Graphics()->DebugDraw(object_->Scene(), bounds_, glm::vec4(1.f));
+    }
 }
 
 std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader()
@@ -287,56 +294,37 @@ void ZGraphicsComponent::SetModel(const std::shared_ptr<ZModel>& model)
 
 void ZGraphicsComponent::SetupAABB()
 {
-    if (!hasAABB_) return;
-
-    glm::vec3 min(std::numeric_limits<float>::max());
-    glm::vec3 max(std::numeric_limits<float>::min());
-
-    auto it = modelObject_->Meshes().cbegin(), end = modelObject_->Meshes().cend();
-    for (; it != end; it++)
-    {
-        const ZVertex3DList& vertices = it->second->Vertices();
-        for (int i = 0; i < vertices.size(); i++)
-        {
-            if (vertices[i].position.x < min.x) min.x = vertices[i].position.x;
-            if (vertices[i].position.y < min.y) min.y = vertices[i].position.y;
-            if (vertices[i].position.z < min.z) min.z = vertices[i].position.z;
-            if (vertices[i].position.x > max.x) max.x = vertices[i].position.x;
-            if (vertices[i].position.y > max.y) max.y = vertices[i].position.y;
-            if (vertices[i].position.z > max.z) max.z = vertices[i].position.z;
-        }
-    }
-
-    localBoundingBox_.minimum = min;
-    localBoundingBox_.maximum = max;
-
-    auto transform = object_ ? object_->ModelMatrix() : glm::mat4(1.f);
-    boundingBox_.minimum = transform * glm::vec4(min, 1.f);
-    boundingBox_.maximum = transform * glm::vec4(max, 1.f);
+    auto mat = object_ ? object_->ModelMatrix() : glm::mat4(1.f);
+    Transform(mat);
 }
 
-void ZGraphicsComponent::UpdateAABB(const glm::mat4& transform)
+bool ZGraphicsComponent::IsVisible(ZFrustum frustrum)
 {
-    if (!hasAABB_) return;
-
-    boundingBox_.minimum = transform * glm::vec4(localBoundingBox_.minimum, 1.f);
-    boundingBox_.maximum = transform * glm::vec4(localBoundingBox_.maximum, 1.f);
+    return !hasAABB_ || (modelObject_ && frustrum.Contains(bounds_));
 }
 
-void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm::mat4& viewProjection)
+void ZGraphicsComponent::Transform(const glm::mat4& mat)
 {
-    if (highlightShader_ == nullptr) return;
+    auto model = Model();
+    if (!hasAABB_ || !model) return;
+    bounds_ = mat * model->Bounds();
+}
+
+void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& worldMat, const glm::mat4& viewProjection)
+{
+    auto model = Model();
+    if (!highlightShader_ || !model) return;
 
     ZServices::Graphics()->DisableStencilBuffer();
     highlightShader_->Activate();
 
-    glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.03f, 1.03f, 1.03f));
+    glm::mat4 highlightModelMatrix = glm::scale(worldMat, glm::vec3(1.03f, 1.03f, 1.03f));
 
     highlightShader_->SetMat4("ViewProjection", viewProjection);
     highlightShader_->SetMat4("M", highlightModelMatrix);
     highlightShader_->SetVec4("color", highlightColor_);
 
-    modelObject_->Render(highlightShader_, Materials());
+    model->Render(highlightShader_, Materials());
 
     ZServices::Graphics()->EnableStencilBuffer();
 }

@@ -63,7 +63,7 @@ public:
     float Sensitivity() const { return lookSensitivity_; }
     float NearField() const { return nearClippingPlane_; }
     float FarField() const { return farClippingPlane_; }
-    ZFrustum& Frustum() { return frustum_; }
+    ZFrustum Frustum() const { return frustum_; }
     bool IsPrimary() const { return isPrimary_; }
     bool Moving() const { return moving_; }
     glm::mat4 ProjectionMatrix();
@@ -75,14 +75,12 @@ public:
     void SetMovementStyle(ZCameraMovementStyle style) { movementStyle_ = style; }
 
     void Move(float z, float x, bool useWorldFront = false);
-    void EnableDefaultMovement() { movementEnabled_ = true; }
-    void DisableDefaultMovement() { movementEnabled_ = false; }
+    void EnableMovement() { movementEnabled_ = true; }
+    void DisableMovement() { movementEnabled_ = false; }
 
     void Look(float pitch, float yaw);
-    void EnableDefaultLook() { lookEnabled_ = true; }
-    void DisableDefaultLook() { lookEnabled_ = false; }
-
-    void UpdateCameraFrustum();
+    void EnableLook() { lookEnabled_ = true; }
+    void DisableLook() { lookEnabled_ = false; }
 
     DECLARE_OBJECT_CREATORS(ZCamera)
 
@@ -107,6 +105,8 @@ private:
 
     double currentDeltaTime_ = 0.0;
     double lastDeltaTime_ = 0.0;
+
+    void UpdateCameraFrustum();
 
     void HandleMove(const std::shared_ptr<ZMoveEvent>& event);
     void HandleLook(const std::shared_ptr<ZLookEvent>& event);

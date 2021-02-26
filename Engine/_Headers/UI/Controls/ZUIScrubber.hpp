@@ -41,7 +41,8 @@ class ZUIScrubber : public ZUIClicker
 
 public:
 
-    ZUIScrubber() : ZUIClicker()  { }
+    ZUIScrubber(const ZMouse& button = ZMouse::LEFT_MB)
+        : ZUIClicker(button)  { }
     ~ZUIScrubber() { }
 
     template<typename T>

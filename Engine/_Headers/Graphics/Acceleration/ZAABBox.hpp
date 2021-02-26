@@ -30,7 +30,7 @@
 #pragma once
 
 // Includes
-#include "ZCommon.hpp"
+#include "ZRay.hpp"
 
 // Forward Declarations
 
@@ -45,5 +45,30 @@ public:
     ZAABBox() : minimum(std::numeric_limits<float>::max()), maximum(std::numeric_limits<float>::min()) {}
     ZAABBox(const glm::vec3& min, const glm::vec3& max) : minimum(min), maximum(max) {}
 
+    bool Intersects(const ZRay& ray);
+
+    static const ZAABBox Union(const ZAABBox& b, const glm::vec3& p) noexcept
+    {
+        return ZAABBox(glm::vec3(std::min(b.minimum.x, p.x),
+            std::min(b.minimum.y, p.y),
+            std::min(b.minimum.z, p.z)),
+            glm::vec3(std::max(b.maximum.x, p.x),
+                std::max(b.maximum.y, p.y),
+                std::max(b.maximum.z, p.z)));
+    }
+
+    static const ZAABBox Union(const ZAABBox& b1, const ZAABBox& b2) noexcept
+    {
+        return ZAABBox(glm::vec3(std::min(b1.minimum.x, b2.minimum.x),
+            std::min(b1.minimum.y, b2.minimum.y),
+            std::min(b1.minimum.z, b2.minimum.z)),
+            glm::vec3(std::max(b1.maximum.x, b2.maximum.x),
+                std::max(b1.maximum.y, b2.maximum.y),
+                std::max(b1.maximum.z, b2.maximum.z)));
+    }
 };
 
+inline const ZAABBox operator*(const glm::mat4& mat, const ZAABBox& b) noexcept
+{
+    return ZAABBox(mat * glm::vec4(b.minimum, 1.f), mat * glm::vec4(b.maximum, 1.f));
+}

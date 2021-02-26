@@ -52,8 +52,8 @@ void ZCamera::Initialize()
     ZServices::EventAgent()->Subscribe(this, &ZCamera::HandleMove);
     ZServices::EventAgent()->Subscribe(this, &ZCamera::HandleLook);
 
-    DisableDefaultMovement();
-    DisableDefaultLook();
+    DisableMovement();
+    DisableLook();
 
     auto scene = Scene();
     if (!scene) return;

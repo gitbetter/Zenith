@@ -31,6 +31,7 @@
 #include "ZServices.hpp"
 #include "ZUIHorizontalLayout.hpp"
 #include "ZUIText.hpp"
+#include "ZUIPanel.hpp"
 
 ZUILabeledElement::ZUILabeledElement(const std::string& label, const std::shared_ptr<ZUIElement>& element)
     : ZUIElement()
@@ -110,6 +111,13 @@ void ZUILabeledElement::SetLabelTextColor(const glm::vec4& color)
     }
 }
 
+void ZUILabeledElement::SetLabelBackgroundColor(const glm::vec4& color)
+{
+    if (background_) {
+        background_->SetColor(color);
+    }
+}
+
 void ZUILabeledElement::CreateLabelField()
 {
     auto scene = Scene();
@@ -117,16 +125,22 @@ void ZUILabeledElement::CreateLabelField()
 
     float labelWidth = label_.empty() ? 0.f : labelWidth_;
 
-    ZUIElementOptions textOptions;
-    textOptions.positioning = ZPositioning::Relative;
-    textOptions.scaling = ZPositioning::Relative;
-    textOptions.rect = ZRect(0.f, 0.f, labelWidth, 1.f);
-    textOptions.color = labelTextColor_;
-    labelText_ = ZUIText::Create(textOptions, scene);
+    ZUIElementOptions options;
+    options.positioning = ZPositioning::Relative;
+    options.scaling = ZPositioning::Relative;
+    options.rect = ZRect(0.f, 0.f, labelWidth, 1.f);
+
+    background_ = ZUIPanel::Create(options, scene);
+
+    options.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+    options.color = labelTextColor_;
+    labelText_ = ZUIText::Create(options, scene);
     labelText_->SetText(label_);
     labelText_->SetFontScale(labelFontSize_);
 
-    AddChild(labelText_);
+    background_->AddChild(labelText_);
+
+    AddChild(background_);
 }
 
 void ZUILabeledElement::SetupElement()

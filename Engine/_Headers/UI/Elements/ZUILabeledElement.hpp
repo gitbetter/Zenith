@@ -35,6 +35,7 @@
 // Forward Declarations
 class ZScene;
 class ZUIText;
+class ZUIPanel;
 
 // Class and Data Structure Definitions
 class ZUILabeledElement : public ZUIElement
@@ -55,6 +56,7 @@ public:
     void                                        SetLabel(const std::string& label);
     void                                        SetLabelWidth(float width);
     void                                        SetLabelTextColor(const glm::vec4& color);
+    void                                        SetLabelBackgroundColor(const glm::vec4& color);
     void                                        SetLabelFontSize(float size);
     void                                        SetLabelTextAlignment(ZAlignment alignment);
 
@@ -68,6 +70,7 @@ protected:
     float                                   labelFontSize_ = 14.f;
 
     std::shared_ptr<ZUIText>                labelText_;
+    std::shared_ptr<ZUIPanel>               background_;
     std::shared_ptr<ZUIElement>             element_;
 
     void                                        CreateLabelField();

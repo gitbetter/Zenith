@@ -17,6 +17,7 @@ class ZModel;
 class ZShader;
 class ZCamera;
 class ZMaterial;
+class ZFrustum;
 struct ZOFNode;
 
 // Class and Data Structure Definitions
@@ -41,7 +42,7 @@ public:
     std::shared_ptr<ZModel> Model();
     const std::vector<std::shared_ptr<ZMaterial>>& Materials();
     bool AABBEnabled() const { return hasAABB_; }
-    const ZAABBox& AABB() const { return boundingBox_; }
+    const ZAABBox& AABB() const { return bounds_; }
 
     void SetOutline(const glm::vec4& color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
     void ClearOutline();
@@ -53,8 +54,11 @@ public:
     void AddMaterial(const std::shared_ptr<ZMaterial>& material);
     
     void EnableAABB() { hasAABB_ = true; }
-    void UpdateAABB(const glm::mat4& transform);
     void DisableAABB() { hasAABB_ = false; }
+
+    bool IsVisible(ZFrustum frustrum);
+
+    void Transform(const glm::mat4& mat);
 
     DECLARE_COMPONENT_CREATORS(ZGraphicsComponent)
 
@@ -77,10 +81,9 @@ protected:
     bool isBillboard_;
     bool hasAABB_ = true;
 
-    ZAABBox localBoundingBox_;
-    ZAABBox boundingBox_;
+    ZAABBox bounds_;
 
     void SetupAABB();
-    void DrawOutlineIfEnabled(const glm::mat4& model, const glm::mat4& viewProjection);
+    void DrawOutlineIfEnabled(const glm::mat4& worldMat, const glm::mat4& viewProjection);
 
 };

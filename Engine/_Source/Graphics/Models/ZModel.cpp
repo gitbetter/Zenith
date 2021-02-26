@@ -60,6 +60,8 @@ void ZModel::Initialize()
         if (skeleton_ && skeleton_->rootJoint) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
     }
 
+    ComputeBounds();
+
     std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(shared_from_this());
     ZServices::EventAgent()->Queue(modelReadyEvent);
 }
@@ -138,6 +140,21 @@ void ZModel::BoneTransform(const std::string& anim, double secondsTime)
         double animationTime = fmod(timeInTicks, animations_[anim]->duration);
 
         CalculateTransformsInHierarchy(anim, animationTime, skeleton_->rootJoint, identity);
+    }
+}
+
+void ZModel::ComputeBounds()
+{
+    bounds_ = ZAABBox();
+
+    auto it = meshes_.cbegin(), end = meshes_.cend();
+    for (; it != end; it++)
+    {
+        const ZVertex3DList& vertices = it->second->Vertices();
+        for (int i = 0; i < vertices.size(); i++)
+        {
+            bounds_ = ZAABBox::Union(bounds_, vertices[i].position);
+        }
     }
 }
 
