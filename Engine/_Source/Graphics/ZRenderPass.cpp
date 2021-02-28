@@ -34,6 +34,7 @@
 #include "ZMesh.hpp"
 #include "ZScene.hpp"
 #include "ZRenderable.hpp"
+#include "ZSkybox.hpp"
 
 ZRenderPass::ZRenderPass(const std::shared_ptr<ZRenderable>& root, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp,
     const glm::vec2& size, bool multisample, std::initializer_list<ZRenderPass::ptr> dependencies)
@@ -118,6 +119,7 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
             }
         }
         else {
+            PrepareIBLAttachments(scene);
             root_->Render(deltaTime, shader_, renderOp_);
         }
 
@@ -149,6 +151,23 @@ void ZRenderPass::BindDependencies()
         for (const auto& attachment : dep->framebuffer_->Attachments()) {
             std::string uniformName = attachment->type + "Sampler" + std::to_string(attachmentCount[attachment->type]++);
             shader_->AddAttachment(uniformName, attachment);
+        }
+    }
+}
+
+void ZRenderPass::PrepareIBLAttachments(const std::shared_ptr<ZScene>& scene)
+{
+    if (scene->Skybox())
+    {
+        ZIBLTexture iblTexture = scene->Skybox()->IBLTexture();
+        if (iblTexture.irradiance) {
+            shader_->AddAttachment("irradianceMap", iblTexture.irradiance);
+        }
+        if (iblTexture.prefiltered) {
+            shader_->AddAttachment("prefilterMap", iblTexture.prefiltered);
+        }
+        if (iblTexture.brdfLUT) {
+            shader_->AddAttachment("brdfLUT", iblTexture.brdfLUT);
         }
     }
 }

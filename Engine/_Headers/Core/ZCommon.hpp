@@ -61,6 +61,7 @@
 #include <filesystem>
 #include "ZIDSequence.hpp"
 #include "ZStringHelpers.hpp"
+#include "ZFrameProfiler.hpp"
 
 constexpr unsigned int BONES_PER_VERTEX = 4;
 constexpr float UPDATE_STEP_SIZE = 0.017f;
@@ -882,3 +883,23 @@ struct is_multiple_components_supported<ZScriptComponent> {
 #define ID_FROM_STRING(str) std::hash<std::string>{}(str)
 #define TYPE_ID(type) ID_FROM_STRING(#type)
 #define SECONDS_TIME std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() * 0.001
+
+#ifdef DEV_BUILD
+#define ZPR_SESSION_BEGIN(name) ZFrameProfiler::StartSession(name);
+#define ZPR_SESSION_END() ZFrameProfiler::EndSession();
+#define ZPR_SESSION_COLLECT_VERTICES(vertices) ZFrameProfiler::CollectSessionVertices(vertices);
+#define ZPR_SESSION_COLLECT_DRAWS(draws) ZFrameProfiler::CollectSessionDrawCalls(draws);
+#define ZPR_SESSION_COLLECT_RENDER_PASSES(passes) ZFrameProfiler::CollectSessionRenderPasses(passes);
+#define ZPR_SESSION(name) ZFrameProfiler::GetSession(name)
+#define ZPR_SESSION_STATS(name) ZFrameProfiler::GetSessionStats(name)
+#define ZPR_CURRENT_SESSION ZFrameProfiler::CurrentSession()
+#else
+#define ZPR_SESSION_BEGIN() ((void)0);
+#define ZPR_SESSION_END() ((void)0);
+#define ZPR_SESSION_COLLECT_VERTICES(vertices) ((void)0);
+#define ZPR_SESSION_COLLECT_DRAWS(draws) ((void)0);
+#define ZPR_SESSION_COLLECT_RENDER_PASSES(passes) ((void)0);
+#define ZPR_SESSION(name) ((void)0)
+#define ZPR_SESSION_STATS(name) ((void)0)
+#define ZPR_CURRENT_SESSION ((void)0)
+#endif

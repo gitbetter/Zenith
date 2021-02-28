@@ -55,17 +55,17 @@ void ZUIButton::Initialize(const std::shared_ptr<ZOFNode>& root)
 
 bool ZUIButton::Clicked()
 {
-    return clicker_->Clicked(options_.calculatedRect);
+    return clicker_->Click(options_.calculatedRect);
 }
 
 bool ZUIButton::Pressed()
 {
-    return clicker_->Pressed(options_.calculatedRect);
+    return clicker_->Press(options_.calculatedRect);
 }
 
 bool ZUIButton::Released()
 {
-    return clicker_->Released(options_.calculatedRect);
+    return clicker_->Release(options_.calculatedRect);
 }
 
 DEFINE_UI_CREATORS(ZUIButton)

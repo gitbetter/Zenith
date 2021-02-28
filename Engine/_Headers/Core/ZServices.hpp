@@ -54,15 +54,14 @@ public:
 
     static std::shared_ptr<ZGraphics> Graphics() { return graphics_; }
     static std::shared_ptr<ZInput> Input() { return input_; }
-    static std::shared_ptr<ZProcessRunner> ProcessRunner() { return processRunner_; }
     static std::shared_ptr<ZEventAgent> EventAgent() { return eventAgent_; }
     static std::shared_ptr<ZResourceCache> ResourceCache() { return resourceCache_; }
     static std::shared_ptr<ZScriptManager> ScriptManager() { return scriptManager_; }
-    static std::shared_ptr<ZLogger> Logger(const std::string& logger);
+    static std::shared_ptr<ZProcessRunner> ProcessRunner(const std::string& runner = "Default");
+    static std::shared_ptr<ZLogger> Logger(const std::string& logger = "Default");
 
     static void Provide(const std::shared_ptr<ZGraphics>& graphics);
     static void Provide(const std::shared_ptr<ZInput>& input);
-    static void Provide(const std::shared_ptr<ZProcessRunner>& processRunner);
     static void Provide(const std::shared_ptr<ZResourceCache>& resourceCache);
     static void Provide(const std::shared_ptr<ZEventAgent>& eventAgent);
     static void Provide(const std::shared_ptr<ZScriptManager>& scriptManager);
@@ -73,13 +72,14 @@ private:
 
     static std::shared_ptr<ZGraphics> graphics_;
     static std::shared_ptr<ZInput> input_;
-    static std::shared_ptr<ZProcessRunner> processRunner_;
     static std::shared_ptr<ZEventAgent> eventAgent_;
     static std::shared_ptr<ZResourceCache> resourceCache_;
     static std::shared_ptr<ZScriptManager> scriptManager_;
+    static std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> processRunners_;
     static std::unordered_map<std::string, std::shared_ptr<ZLogger>> loggers_;
     static bool initialized_;
 
 };
 
 #define LOG(message, severity) ZServices::Logger(std::filesystem::path(__FILE__).stem().string())->Log(message, severity, __FILE__, __LINE__);
+#define ILOG(message) LOG(message, ZSeverity::Info);

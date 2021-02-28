@@ -45,16 +45,21 @@ public:
     { }
     ~ZUIClicker() { }
 
-    bool Clicked(const ZRect& rect);
-    bool Pressed(const ZRect& rect, bool inRect = true);
-    bool Released(const ZRect& rect);
+    bool Click(const ZRect& rect);
+    bool Press(const ZRect& rect);
+    bool Release(const ZRect& rect);
 
     void WrapToBounds(bool wrap = true) { wrapToBounds_ = wrap; }
 
 protected:
 
     bool activated_ = false;
+    bool buttonDown_ = false;
     bool wrapToBounds_ = false;
     ZMouse button_;
+
+    bool Clicked(const ZRect& rect);
+    bool Pressed(const ZRect& rect, bool inRect = true);
+    bool Released(const ZRect& rect);
 
 };

@@ -109,6 +109,9 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
 {
     if (!scene) return;
 
+    ZPR_SESSION_COLLECT_DRAWS(1);
+    ZPR_SESSION_COLLECT_VERTICES(2);
+
     const auto& VPMatrix = scene->ViewProjection();
     auto debugShader = scene->AssetStore()->DebugShader();
 

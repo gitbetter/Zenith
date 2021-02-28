@@ -172,6 +172,8 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
 
     if (activeShader)
     {
+        activeShader->Activate();
+
         activeShader->BindAttachments();
 
         activeShader->Use(gameLights_);
@@ -188,20 +190,6 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
             auto light = gameLights_.begin()->second;
             activeShader->SetMat4List("ViewProjectionLightSpace", light->LightSpaceMatrices());
             activeShader->SetFloatList("shadowFarPlanes", light->ShadowFarPlaneSplits());
-        }
-
-        if (object_->Scene()->Skybox() != nullptr)
-        {
-            ZIBLTexture iblTexture = object_->Scene()->Skybox()->IBLTexture();
-            if (iblTexture.irradiance) {
-                activeShader->BindAttachment("irradianceMap", iblTexture.irradiance);
-            }
-            if (iblTexture.prefiltered) {
-                activeShader->BindAttachment("prefilterMap", iblTexture.prefiltered);
-            }
-            if (iblTexture.brdfLUT) {
-                activeShader->BindAttachment("brdfLUT", iblTexture.brdfLUT);
-            }
         }
 
         model->Render(activeShader, Materials());

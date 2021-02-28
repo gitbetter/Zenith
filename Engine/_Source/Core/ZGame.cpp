@@ -36,7 +36,7 @@
 
 using namespace std;
 
-ZGame::ZGame(const std::string& name) : ZBase(), activeScene_(0), name_(name) {}
+ZGame::ZGame(const std::string& name) : ZBase(name), activeScene_(0) {}
 
 void ZGame::Provide(const std::shared_ptr<ZDomain>& domain)
 {
@@ -107,6 +107,8 @@ void ZGame::Loop()
 
 void ZGame::Tick()
 {
+    ZPR_SESSION_BEGIN(name_)
+
     if (previousTime_ == 0.0)
         previousTime_ = SECONDS_TIME;
 
@@ -114,10 +116,16 @@ void ZGame::Tick()
     deltaTime_ = currentTime - previousTime_;
     previousTime_ = currentTime;
 
-    ZServices::ProcessRunner()->UpdateTick(deltaTime_);
+    ZServices::ProcessRunner(name_)->UpdateTick(deltaTime_);
+    // We tick the default process runner to update global systems like input
+    // and concurrent tasks, only if we are the top level game base
+    if (isTopLevel_)
+        ZServices::ProcessRunner()->UpdateTick(deltaTime_);
 
     if (onUpdateTickCallback_)
         onUpdateTickCallback_();
+
+    ZPR_SESSION_END();
 
     if (!gameOptions_.domain.offline)
         Domain()->SwapBuffers();
@@ -134,7 +142,8 @@ void ZGame::AddScene(const std::shared_ptr<ZScene>& scene)
     scenes_.push_back(scene);
     scene->SetGameSystems(gameSystems_);
     scene->SetGameConfig(gameOptions_);
-    ZServices::ProcessRunner()->AttachProcess(scene, ZPriority::Critical);
+    scene->SetGameName(name_);
+    ZServices::ProcessRunner(name_)->AttachProcess(scene);
 }
 
 void ZGame::RemoveScene(const std::shared_ptr<ZScene>& scene)
@@ -144,6 +153,8 @@ void ZGame::RemoveScene(const std::shared_ptr<ZScene>& scene)
     {
         scenes_.erase(it);
         scene->SetGameSystems(ZGameSystems());
+        scene->SetGameConfig(ZGameOptions());
+        scene->SetGameName("");
     }
 }
 

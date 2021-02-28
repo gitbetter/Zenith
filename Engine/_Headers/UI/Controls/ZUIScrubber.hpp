@@ -48,11 +48,11 @@ public:
     template<typename T>
     T Scrub(const ZRect& rect) {
         auto cursorXPos = ZServices::Input()->GetCursorPosition().x;
-        if (!scrubbing_ && Clicked(rect)) {
+        if (Clicked(rect)) {
             currentXPos_ = cursorXPos;
             scrubbing_ = true;
         }
-        if (scrubbing_ && Released(rect)) {
+        else if (Released(rect)) {
             scrubbing_ = false;
         }
         return scrubbing_ ? sensitivity_ * static_cast<T>(cursorXPos - currentXPos_) : 0;

@@ -46,22 +46,18 @@
 
 std::shared_ptr<ZGraphics> ZServices::graphics_ = nullptr;
 std::shared_ptr<ZInput> ZServices::input_ = nullptr;
-std::shared_ptr<ZProcessRunner> ZServices::processRunner_ = nullptr;
 std::shared_ptr<ZEventAgent> ZServices::eventAgent_ = nullptr;
 std::shared_ptr<ZResourceCache> ZServices::resourceCache_ = nullptr;
 std::shared_ptr<ZScriptManager> ZServices::scriptManager_ = nullptr;
+std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
 bool ZServices::initialized_ = false;
 
 void ZServices::Initialize()
 {
     if (!initialized_) {
-        /* ========= Process System ============ */
-        Provide(std::make_shared<ZProcessRunner>());
-        /* ===================================== */
-
         /* ========= Resource Cache System ============ */
-        Provide(std::make_shared<ZResourceCache>(100));
+        Provide(std::make_shared<ZResourceCache>(256));
         /* ============================================ */
 
         /* ========= Event System ============ */
@@ -81,6 +77,14 @@ void ZServices::Initialize()
         /* =================================== */
     }
     initialized_ = true;
+}
+
+std::shared_ptr<ZProcessRunner> ZServices::ProcessRunner(const std::string& runner)
+{
+    if (processRunners_.find(runner) == processRunners_.end()) {
+        processRunners_[runner] = std::make_shared<ZProcessRunner>();
+    }
+    return processRunners_[runner];
 }
 
 std::shared_ptr<ZLogger> ZServices::Logger(const std::string& logger)
@@ -109,14 +113,6 @@ void ZServices::Provide(const std::shared_ptr<ZInput>& input)
     ZServices::ProcessRunner()->AttachProcess(input_);
 }
 
-void ZServices::Provide(const std::shared_ptr<ZProcessRunner>& processRunner)
-{
-    if (processRunner_)
-        processRunner_->AbortAllProcesses(true);
-
-    processRunner_ = processRunner;
-}
-
 void ZServices::Provide(const std::shared_ptr<ZResourceCache>& resourceCache)
 {
     if (resourceCache_)
@@ -143,7 +139,7 @@ void ZServices::Provide(const std::shared_ptr<ZEventAgent>& eventAgent)
 
     eventAgent_ = eventAgent;
     eventAgent_->Initialize();
-    processRunner_->AttachProcess(eventAgent_, ZPriority::High);
+    ZServices::ProcessRunner()->AttachProcess(eventAgent_, ZPriority::High);
 }
 
 void ZServices::Provide(const std::shared_ptr<ZScriptManager>& scriptManager)

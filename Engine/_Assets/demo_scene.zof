@@ -19,30 +19,30 @@ ZGO_GROUND
 		:materials [ZMAT_01]:
 	^
 ^
-#ZGO_12
-#    :position [0.3, 0.5, -0.8]:
-#    :scale [0.6, 0.6, 0.6]:
-#    :orientation [-90.0, 0.0, 0.0]:
-#    ZCOMP_PHYSICS
-#        :type Dynamic:
-#        :mass 1.0:
-#        :damping 0.0 0.5:
-#        :restitution 0.4:
-#        :hasGravity Yes:
-#    ^
-#    ZCOMP_COLLIDER
-#        :shape Box:
-#        :extents [0.3, 0.3, 0.3]:
-#    ^
-#    ZCOMP_GRAPHICS
-#        :activeShader 0:
-#        :model ZMOD_01:
-#        :materials [ZMAT_02]:
-#    ^
-#    ZCOMP_ANIMATOR ^
-#^
+ZGO_12
+    :position [0.3, 0.5, -0.8]:
+    :scale [0.6, 0.6, 0.6]:
+    :orientation [-90.0, 0.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.3, 0.3, 0.3]:
+    ^
+    ZCOMP_GRAPHICS
+        :activeShader 0:
+        :model ZMOD_01:
+        :materials [ZMAT_02]:
+    ^
+    ZCOMP_ANIMATOR ^
+^
 ZGO_13
-    :position [0.0, 2.0, 0.5]:
+    :position [-3.0, 2.0, 0.5]:
     :scale [0.3, 0.3, 0.3]:
     :orientation [0.0, 0.0, 0.0]:
     ZCOMP_PHYSICS
@@ -63,7 +63,7 @@ ZGO_13
     ^
 ^
 ZGO_23
-    :position [-1.6, 50.0, 0.5]:
+    :position [-1.6, 10.0, 0.5]:
     :scale [0.2, 0.2, 0.2]:
     :orientation [-90.0, 0.0, 0.0]:
     ZCOMP_PHYSICS

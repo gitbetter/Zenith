@@ -105,7 +105,6 @@ void ZModel::Render(const std::shared_ptr<ZShader>& shader, const std::vector<st
     std::vector<std::shared_ptr<ZMaterial>> mats(materials);
     if (mats.empty()) mats.emplace_back(ZMaterial::Default());
 
-    shader->Activate();
     shader->SetBool("rigged", skeleton_ != nullptr);
     if (skeleton_)
     {

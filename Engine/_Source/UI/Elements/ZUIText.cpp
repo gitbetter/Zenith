@@ -132,6 +132,8 @@ void ZUIText::Draw()
 
     if (text_.empty()) return;
 
+    ZPR_SESSION_COLLECT_VERTICES(textVertexData_.vertices.size());
+
     options_.shader->Activate();
     options_.shader->ClearAttachments();
 
@@ -140,7 +142,7 @@ void ZUIText::Draw()
 
     options_.shader->BindAttachment(font->Atlas().texture->type + "0", font->Atlas().texture);
 
-    ZServices::Graphics()->Draw(bufferData_, textVertexData_, ZMeshDrawStyle::Triangle);;
+    ZServices::Graphics()->Draw(bufferData_, textVertexData_, ZMeshDrawStyle::Triangle);
 }
 
 void ZUIText::OnRectChanged()

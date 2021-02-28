@@ -44,6 +44,11 @@ class ZBase
 
 public:
 
+    ZBase(const std::string& name = "Untitled")
+        : name_(name)
+    { }
+    virtual ~ZBase() = default;
+
     void Initialize(int windowWidth, int windowHeight);
     void Initialize(const ZGameOptions& options);
 
@@ -52,6 +57,9 @@ public:
     std::shared_ptr<ZAudio> Audio() const { return gameSystems_.audio; }
     std::shared_ptr<ZAssetStore> AssetStore() const { return gameSystems_.assetStore; }
     const ZGameOptions& Options() const { return gameOptions_; }
+    const std::string& Name() const { return name_; }
+
+    void SetName(const std::string& name) { name_ = name; }
 
     virtual void Provide(const std::shared_ptr<ZDomain>& domain);
     virtual void Provide(const std::shared_ptr<ZPhysicsUniverse>& physics);
@@ -65,6 +73,7 @@ protected:
 
     ZGameSystems gameSystems_;
     ZGameOptions gameOptions_;
+    std::string name_;
 
     virtual void Setup() = 0;
 

@@ -90,9 +90,12 @@ public:
     std::shared_ptr<ZAudio> Audio() const { return gameSystems_.audio; }
     std::shared_ptr<ZAssetStore> AssetStore() const { return gameSystems_.assetStore; }
     ZGameOptions GameConfig() { return gameConfig_; }
+    std::string GameName() const { return gameName_; }
+    ZFrameStats& FrameStats() { return frameStats_; }
 
     void SetGameSystems(const ZGameSystems& systems) { gameSystems_ = systems; }
     void SetGameConfig(const ZGameOptions& options) { gameConfig_ = options; }
+    void SetGameName(const std::string& name) { gameName_ = name; }
     void SetPrimaryCamera(std::shared_ptr<ZCamera> camera) { primaryCamera_ = camera; }
     void SetActiveCamera(std::shared_ptr<ZCamera> camera) { activeCamera_ = camera; }
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
@@ -152,6 +155,7 @@ protected:
     std::vector<std::string> pendingSceneObjects_;
 
     std::string name_;
+    std::string gameName_;
     ZPlayState playState_;
 
     std::shared_ptr<ZRenderer3D> renderer3D_ = nullptr;
@@ -171,6 +175,7 @@ protected:
 
     ZGameSystems gameSystems_;
     ZGameOptions gameConfig_;
+    ZFrameStats frameStats_;
 
     glm::mat4 viewProjection_, previousViewProjection_;
 

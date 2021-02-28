@@ -143,7 +143,8 @@ ${ENGINE_SOURCE_DIR}/Audio/ZALAudio.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZALAudioSource.cpp
 ${ENGINE_SOURCE_DIR}/Animation/ZSkeleton.cpp
 ${ENGINE_SOURCE_DIR}/Animation/ZAnimation.cpp
-${ENGINE_HEADERS_DIR}/Animation/ZAnimation.hpp
+${ENGINE_SOURCE_DIR}/Analysis/ZFrameProfiler.cpp
+${ENGINE_HEADERS_DIR}/Analysis/ZFrameProfiler.hpp
 ${ENGINE_HEADERS_DIR}/Animation/ZSkeleton.hpp
 ${ENGINE_HEADERS_DIR}/Audio/ZAudioSource.hpp
 ${ENGINE_HEADERS_DIR}/Audio/ZAudio.hpp
@@ -1130,6 +1131,7 @@ ${ENGINE_HEADERS_DIR}/_ThirdParty/openal
 ${ENGINE_HEADERS_DIR}/_ThirdParty/vorbis
 ${ENGINE_HEADERS_DIR}/_ThirdParty/zip
 ${ENGINE_HEADERS_DIR}/_ThirdParty/zlib
+${ENGINE_HEADERS_DIR}/Analysis
 ${ENGINE_HEADERS_DIR}/Animation
 ${ENGINE_HEADERS_DIR}/Audio
 ${ENGINE_HEADERS_DIR}/Components

@@ -28,6 +28,7 @@
 */
 
 #include "ZStringHelpers.hpp"
+#include <regex>
 
 namespace zenith
 {

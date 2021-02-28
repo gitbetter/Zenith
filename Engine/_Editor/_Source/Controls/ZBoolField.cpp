@@ -54,7 +54,7 @@ void ZBoolField::Update()
         control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
     }
 
-    if (clicker_->Clicked(elementRect)) {
+    if (clicker_->Click(elementRect)) {
         checkbox_->Toggle();
     }
 

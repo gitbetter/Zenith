@@ -51,13 +51,14 @@ void ZEditor::Setup() {
 
 void ZEditor::CreateDefaultProject()
 {
-	project_ = ZGame::Create();
+	project_ = ZGame::Create("Demo");
     ZGameOptions options;
     options.domain.windowSize.x = 1920;
     options.domain.windowSize.y = 1080;
     options.domain.maximized = false;
     options.domain.offline = true;
     project_->Initialize(options);
+    project_->SetTopLevel(false);
 
     ZScene::LoadIn<ZScene>(project_, std::initializer_list<std::string>({ "/demo_scene.zof" }));
 

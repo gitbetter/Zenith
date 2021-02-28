@@ -100,7 +100,7 @@ void ZBase::Provide(const std::shared_ptr<ZPhysicsUniverse>& physics)
 
     gameSystems_.physics = physics;
     gameSystems_.physics->Initialize();
-    ZServices::ProcessRunner()->AttachProcess(gameSystems_.physics);
+    ZServices::ProcessRunner(name_)->AttachProcess(gameSystems_.physics);
 }
 
 void ZBase::Provide(const std::shared_ptr<ZAudio>& audio)

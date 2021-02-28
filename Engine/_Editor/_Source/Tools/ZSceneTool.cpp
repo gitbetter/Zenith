@@ -36,6 +36,7 @@
 #include "ZTransformGizmo.hpp"
 #include "ZUIClicker.hpp"
 #include "ZCamera.hpp"
+#include "ZFrameStatsDisplay.hpp"
 
 void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
@@ -64,27 +65,26 @@ void ZSceneTool::Update()
     if (currentGizmo_) {
         currentGizmo_->Update();
 
-        if (selectClicker_->Clicked(rect)) {
+        if (selectClicker_->Release(rect)) {
+            currentGizmo_->Deactivate();
+        }
+        else if (selectClicker_->Press(rect)) {
+            currentGizmo_->Manipulate(rect);
+        }
+        else if (selectClicker_->Click(rect)) {
             // TODO: Handle object selection with ray hit
             currentGizmo_->TryActivate(rect);
         }
-        else if (selectClicker_->Pressed(rect)) {
-            currentGizmo_->Manipulate(rect);
-        }
-        else if (selectClicker_->Released(rect)) {
-            currentGizmo_->Deactivate();
-        }
     }
 
-    if (travelClicker_->Clicked(rect)) {
-        activeProjectScene_->ActiveCamera()->EnableLook();
-        activeProjectScene_->ActiveCamera()->EnableMovement();
-        ZServices::Input()->CaptureCursor();
-    }
-    else if (travelClicker_->Released(rect)) {
+    if (travelClicker_->Release(rect)) {
         activeProjectScene_->ActiveCamera()->DisableLook();
         activeProjectScene_->ActiveCamera()->DisableMovement();
         ZServices::Input()->ReleaseCursor();
+    } else if (travelClicker_->Click(rect)) {
+        activeProjectScene_->ActiveCamera()->EnableLook();
+        activeProjectScene_->ActiveCamera()->EnableMovement();
+        ZServices::Input()->CaptureCursor();
     }
 }
 

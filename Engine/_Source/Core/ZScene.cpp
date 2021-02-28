@@ -319,7 +319,7 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImme
 
         if (runImmediately) {
             for (auto comp : gameObject->components_)
-                ZServices::ProcessRunner()->AttachProcess(comp);
+                ZServices::ProcessRunner(gameName_)->AttachProcess(comp);
         }
 
         for (auto child : gameObject->Children()) {

@@ -43,6 +43,8 @@ void ZMesh2D::Initialize()
 
 void ZMesh2D::Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material)
 {
+    ZPR_SESSION_COLLECT_VERTICES(vertexData_.vertices.size());
+
     if (material)
     {
         shader->Use(material);
@@ -103,6 +105,8 @@ void ZMesh3D::Initialize()
 
 void ZMesh3D::Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material)
 {
+    ZPR_SESSION_COLLECT_VERTICES(vertexData_.vertices.size());
+
     shader->Use(material);
     auto materialProps = material->Properties();
     if (materialProps.tiling > 1)

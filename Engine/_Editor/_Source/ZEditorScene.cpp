@@ -50,6 +50,7 @@
 #include "ZConsoleTool.hpp"
 #include "ZInspectorTool.hpp"
 #include "ZHierarchyTool.hpp"
+#include "ZFrameStatsDisplay.hpp"
 
 void ZEditorScene::Initialize() {
     ZServices::EventAgent()->Subscribe(this, &ZEditorScene::HandleResourceLoaded);
@@ -218,6 +219,7 @@ void ZEditorScene::SetupInitialTools() {
     AddTool(std::make_shared<ZActionBar>(config_.theme), topPanel_);
     AddTool(std::make_shared<ZMenuBar>(config_.theme), topPanel_);
     AddTool(std::make_shared<ZSceneTool>(config_.theme), centerPanel_);
+    AddTool(std::make_shared<ZFrameStatsDisplay>(config_.theme), centerPanel_);
     AddTool(std::make_shared<ZProjectTool>(config_.theme), bottomPanel_);
     AddTool(std::make_shared<ZConsoleTool>(config_.theme), bottomPanel_);
     AddTool(std::make_shared<ZInspectorTool>(config_.theme), leftPanel_);

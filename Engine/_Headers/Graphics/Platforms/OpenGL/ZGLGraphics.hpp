@@ -56,6 +56,7 @@ public:
     void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f)) override;
     void UpdateViewport(const glm::vec2& size, const glm::vec2& position = glm::vec2(0.f)) override;
     void EnableStencilTesting() override;
+    void DisableStencilTesting() override;
     void EnableDepthTesting() override;
     void DisableDepthTesting() override;
     void EnableStencilBuffer() override;
