@@ -34,6 +34,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+std::unordered_map<ZSystemCursorType, int> ZGLDomain::cursorTypeMap_ = {
+    {ZSystemCursorType::Arrow, GLFW_ARROW_CURSOR},
+    {ZSystemCursorType::Caret, GLFW_IBEAM_CURSOR},
+    {ZSystemCursorType::Crosshair, GLFW_CROSSHAIR_CURSOR},
+    {ZSystemCursorType::Hand, GLFW_HAND_CURSOR},
+    {ZSystemCursorType::HorizontalResize, GLFW_HRESIZE_CURSOR},
+    {ZSystemCursorType::VerticalResize, GLFW_VRESIZE_CURSOR}
+};
+
 void ZGLDomain::Initialize()
 {
     CreateWindow(options_.windowSize.x, options_.windowSize.y, options_.maximized, !options_.offline);
@@ -127,6 +136,17 @@ void ZGLDomain::ResizeFramebuffer(int width, int height)
     }
 }
 
+void ZGLDomain::SetSizeLimits(const glm::vec2& min, const glm::vec2& max)
+{
+    if (GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_)) {
+        int minX = min.x <= 1.f ? GLFW_DONT_CARE : min.x;
+        int minY = min.y <= 1.f ? GLFW_DONT_CARE : min.y;
+        int maxX = max.x <= 1.f ? GLFW_DONT_CARE : max.x;
+        int maxY = max.y <= 1.f ? GLFW_DONT_CARE : max.y;
+        glfwSetWindowSizeLimits(glWindow, minX, minY, maxX, maxY);
+    }
+}
+
 glm::vec2 ZGLDomain::FramebufferSize()
 {
     GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);
@@ -161,9 +181,33 @@ void ZGLDomain::SetAsCurrent()
 
 void ZGLDomain::Destroy()
 {
-    GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);
-    if (glWindow) glfwDestroyWindow(glWindow);
+    for (auto cursor : glCursors_) {
+        glfwDestroyCursor(cursor);
+    };
+    glCursors_.clear();
+    if (GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_)) {
+        glfwDestroyWindow(glWindow);
+    }
     window_ = nullptr;
+}
+
+void ZGLDomain::SetCursor(const ZCursor& cursor)
+{
+    GLFWwindow* glWindow = static_cast<GLFWwindow*>(window_);
+
+    GLFWcursor* glCursor = nullptr;
+    for (int i = 0; i < cursors_.size(); i++) {
+        if (cursors_[i].type == cursor.type) {
+            glCursor = glCursors_[i];
+        }
+    }
+    if (!glCursor) {
+        cursors_.push_back(cursor);
+        glCursor = glfwCreateStandardCursor(cursorTypeMap_[cursor.type]);
+        glCursors_.push_back(glCursor);
+    }
+
+    glfwSetCursor(glWindow, glCursor);
 }
 
 void ZGLDomain::OnWindowResized(const std::function<void(int, int)>& callback)

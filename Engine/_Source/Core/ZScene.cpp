@@ -45,6 +45,7 @@
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZSceneRoot.hpp"
+#include "ZComponent.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZTextureReadyEvent.hpp"
@@ -122,34 +123,31 @@ void ZScene::SetupRenderPasses()
 
     // TODO: Possible performance penalty here. Color and depth information might be better computed in 
     // a single render pass using multiple render targets.
-
-    // Render pass #1: Shadow
-    // TODO: Support more shadow casting lights!
-    ZRenderPass::ptr shadowPass = std::make_shared<ZRenderPass>(
-        root_, gameSystems_.assetStore->ShadowShader(), ZRenderOp::Shadow, glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
-        );
-    shadowPass->SetIsSizeFixed(true);
-    renderer3D_->AddPass(shadowPass);
-
     ZRenderPass::ptr depthPass = std::make_shared<ZRenderPass>(
         root_, gameSystems_.assetStore->DepthShader(), ZRenderOp::Depth, glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
         );
     depthPass->SetIsSizeFixed(true);
     renderer3D_->AddPass(depthPass);
 
+    ZRenderPass::ptr shadowPass = std::make_shared<ZRenderPass>(
+        root_, gameSystems_.assetStore->ShadowShader(), ZRenderOp::Shadow, glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
+        );
+    shadowPass->SetIsSizeFixed(true);
+    renderer3D_->AddPass(shadowPass);
+
     ZRenderPass::ptr colorPass = std::make_shared<ZRenderPass>(
         root_, gameSystems_.assetStore->PBRShader(), ZRenderOp::Color, gameSystems_.domain->Resolution(),
-        true, shadowPass, depthPass
+        true, depthPass, shadowPass
         );
     renderer3D_->AddPass(colorPass);
 
     ZRenderPass::ptr postPass = std::make_shared<ZRenderPass>(
         root_, gameSystems_.assetStore->PostShader(), ZRenderOp::Post, gameSystems_.domain->Resolution(),
-        false, colorPass, depthPass
+        false, colorPass, depthPass, shadowPass
         );
     renderer3D_->AddPass(postPass);
 
-    canvas_->SetTexture(postPass->Framebuffer()->Attachment());
+    canvas_->SetTexture(postPass->Framebuffer()->BoundAttachment());
     ZRenderPass::ptr uiPass = std::make_shared<ZRenderPass>(
         canvas_, gameSystems_.assetStore->UIShader(), ZRenderOp::UI, gameSystems_.domain->Resolution()
         );
@@ -174,18 +172,30 @@ void ZScene::Play()
 {
     playState_ = ZPlayState::Playing;
     gameSystems_.physics->Resume();
+    if (activeCamera_) {
+        activeCamera_->EnableLook();
+        activeCamera_->EnableMovement();
+    }
 }
 
 void ZScene::Pause()
 {
     playState_ = ZPlayState::Paused;
     gameSystems_.physics->Pause();
+    if (activeCamera_) {
+        activeCamera_->DisableLook();
+        activeCamera_->DisableMovement();
+    }
 }
 
 void ZScene::Stop()
 {
     playState_ = ZPlayState::Ready;
     gameSystems_.physics->Pause();
+    if (activeCamera_) {
+        activeCamera_->DisableLook();
+        activeCamera_->DisableMovement();
+    }
 }
 
 void ZScene::UpdateViewProjectionMatrices()
@@ -203,10 +213,10 @@ void ZScene::UpdateViewProjectionMatrices()
 
 void ZScene::UpdateLightspaceMatrices()
 {
-    if (gameLights_.empty()) return;
+    if (gameLights_.empty() || !activeCamera_->Moving()) return;
     ZFrustum frustum = activeCamera_->Frustum();
     for (auto it = gameLights_.begin(); it != gameLights_.end(); it++) {
-        it->second->UpdateLightspaceMatrix(frustum);
+        it->second->UpdateLightspaceMatrices(frustum);
     }
 }
 
@@ -215,7 +225,6 @@ ZSceneSnapshot ZScene::Snapshot()
     ZSceneSnapshot snapshot;
     std::shared_ptr<ZScene> sceneClone = std::make_shared<ZScene>(name_);
 
-    sceneClone->matrixStack_ = matrixStack_;
     sceneClone->viewProjection_ = viewProjection_;
     sceneClone->previousViewProjection_ = previousViewProjection_;
     sceneClone->playState_ = playState_;
@@ -238,7 +247,6 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot)
 {
     CreateSceneRoot(name_);
 
-    matrixStack_ = snapshot.scene->matrixStack_;
     viewProjection_ = snapshot.scene->viewProjection_;
     previousViewProjection_ = snapshot.scene->previousViewProjection_;
     playState_ = snapshot.scene->playState_;
@@ -261,7 +269,7 @@ void ZScene::CreateSceneRoot(const std::string& name)
 {
     root_ = ZSceneRoot::Create();
     root_->SetName(name);
-    root_->scene_ = shared_from_this();
+    root_->SetScene(shared_from_this());
 }
 
 void ZScene::CreateUICanvas()
@@ -286,7 +294,7 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImme
 {
     if (gameObject != nullptr)
     {
-        gameObject->scene_ = shared_from_this();
+        gameObject->SetScene(shared_from_this());
         if (auto camera = std::dynamic_pointer_cast<ZCamera>(gameObject))
         {
             if (camera->IsPrimary()) primaryCamera_ = camera;
@@ -306,11 +314,16 @@ void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImme
             gameObjects_.insert({ gameObject->ID(), gameObject });
         }
 
-        root_->AddChild(gameObject);
+        if (!gameObject->Parent())
+            root_->AddChild(gameObject);
 
         if (runImmediately) {
             for (auto comp : gameObject->components_)
-                ZServices::ProcessRunner()->AttachProcess(comp);
+                ZServices::ProcessRunner(gameName_)->AttachProcess(comp);
+        }
+
+        for (auto child : gameObject->Children()) {
+            AddGameObject(child);
         }
     }
 }
@@ -333,9 +346,16 @@ void ZScene::RemoveGameObject(std::shared_ptr<ZGameObject> gameObject)
         }
 
         gameObjects_.erase(gameObject->ID());
-        root_->RemoveChild(gameObject, true);
+        if (auto parent = gameObject->Parent()) {
+            if (parent == root_)
+                root_->RemoveChild(gameObject, true);
+        }
         gameObject->parent_.reset();
-        gameObject->scene_.reset();
+        gameObject->SetScene(nullptr);
+
+        for (auto child : gameObject->Children()) {
+            RemoveGameObject(child);
+        }
     }
 }
 
@@ -411,34 +431,28 @@ std::shared_ptr<ZUIElement> ZScene::FindUIElement(const std::string& id)
     return nullptr;
 }
 
-glm::mat4 ZScene::TopMatrix()
+ZRay ZScene::ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions)
 {
-    glm::mat4 M;
-    sceneMutexes_.matrixStack.lock();
-    if (matrixStack_.empty()) M = glm::mat4(1.f);
-    else M = matrixStack_.back();
-    sceneMutexes_.matrixStack.unlock();
-    return M;
-}
+    if (!ActiveCamera())
+        return ZRay(glm::vec3(0.f), glm::vec3(0.f));
 
-void ZScene::PushMatrix(const glm::mat4& matrix)
-{
-    sceneMutexes_.matrixStack.lock();
-    matrixStack_.push_back(matrix);
-    sceneMutexes_.matrixStack.unlock();
-}
+    auto rectRes = dimensions == glm::vec2(0.f) ? gameSystems_.domain->Resolution() : dimensions;
+    float x = (2.f * point.x) / rectRes.x - 1.f;
+    float y = (2.f * point.y) / rectRes.y - 1.f;
 
-void ZScene::PopMatrix()
-{
-    sceneMutexes_.matrixStack.lock();
-    if (!matrixStack_.empty()) matrixStack_.pop_back();
-    sceneMutexes_.matrixStack.unlock();
+    glm::vec4 start = glm::normalize(glm::inverse(viewProjection_) * glm::vec4(x, -y, 0.f, 1.f));
+    start /= start.w;
+    glm::vec4 end = glm::normalize(glm::inverse(viewProjection_) * glm::vec4(x, -y, 1.f, 1.f));
+    end /= end.w;
+    glm::vec4 direction = glm::normalize(end - start);
+
+    return ZRay(start, direction);
 }
 
 std::shared_ptr<ZTexture> ZScene::TargetTexture()
 {
     if (targetBuffer_)
-        return targetBuffer_->Attachment();
+        return targetBuffer_->BoundAttachment();
     return nullptr;
 }
 
@@ -606,36 +620,12 @@ void ZScene::HandleObjectDestroyed(const std::shared_ptr<ZObjectDestroyedEvent>&
 
 void ZScene::HandleRaycastEvent(const std::shared_ptr<ZRaycastEvent>& event)
 {
-    if (event->Origin().z == 0.f)
-    { // Handle screen to world raycasting (i.e. mouse picking)
-        std::shared_ptr<ZCamera> camera = ActiveCamera();
-        if (camera)
-        {
-            glm::mat4 InverseProjection = glm::inverse(camera->ProjectionMatrix());
-            glm::mat4 InverseView = glm::inverse(camera->ViewMatrix());
-
-            glm::vec4 rayStart(event->Origin().x * 2.f - 1.f, -event->Origin().y * 2.f + 1.f, -1.f, 1.f);
-            glm::vec4 rayEnd(event->Origin().x * 2.f - 1.f, -event->Origin().y * 2.f + 1.f, 0.f, 1.f);
-
-            glm::vec4 rayStartCamera = InverseProjection * rayStart; rayStartCamera /= rayStartCamera.w;
-            glm::vec4 rayStartWorld = InverseView * rayStartCamera; rayStartWorld /= rayStartWorld.w;
-            glm::vec4 rayEndCamera = InverseProjection * rayEnd; rayEndCamera /= rayEndCamera.w;
-            glm::vec4 rayEndWorld = InverseView * rayEndCamera; rayEndWorld /= rayEndWorld.w;
-
-            glm::vec3 rayDir = glm::normalize(glm::vec3(rayEndWorld - rayStartWorld));
-
-            ZRaycastHitResult hitResult = gameSystems_.physics->Raycast(rayStartWorld, rayDir);
-            if (hitResult.hasHit)
-            {
-                // TODO: Rename to ZObjectRayHit event or something similar
-                std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(hitResult.objectHit->ID(), hitResult.hitPosition));
-                ZServices::EventAgent()->Trigger(objectSelectEvent);
-            }
-        }
-    }
-    else
+    ZRaycastHitResult hitResult = gameSystems_.physics->Raycast(event->Origin(), event->Direction(), event->Length());
+    if (hitResult.hasHit)
     {
-        // Handle general 3D raycasting
+        // TODO: Rename to ZObjectRayHit event or something similar
+        std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(hitResult.objectHit->ID(), hitResult.hitPosition));
+        ZServices::EventAgent()->Trigger(objectSelectEvent);
     }
 }
 

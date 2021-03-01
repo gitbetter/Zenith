@@ -28,23 +28,74 @@
  */
 
 #include "ZSceneTool.hpp"
+#include "ZServices.hpp"
 #include "ZUIPanel.hpp"
 #include "ZUIImage.hpp"
 #include "ZDomain.hpp"
 #include "ZScene.hpp"
+#include "ZTransformGizmo.hpp"
+#include "ZUIClicker.hpp"
+#include "ZCamera.hpp"
+#include "ZFrameStatsDisplay.hpp"
 
 void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
     container_->SetColor(glm::vec4(1.f));
+
+    selectClicker_ = std::make_shared<ZUIClicker>();
+    selectClicker_->WrapToBounds();
+    travelClicker_ = std::make_shared<ZUIClicker>(ZMouse::RIGHT_MB);
+
+    SetupGizmos(scene);
 }
 
 void ZSceneTool::OnProjectSceneChanged()
 {
     if (activeProjectScene_) {
         container_->SetTexture(activeProjectScene_->TargetTexture());
+        if (currentGizmo_) {
+            currentGizmo_->SetActiveProjectScene(activeProjectScene_);
+        }
     }
 }
 
-void ZSceneTool::Update() {
+void ZSceneTool::Update()
+{
+    auto rect = container_->CalculatedRect();
+    if (currentGizmo_) {
+        currentGizmo_->Update();
 
+        if (selectClicker_->Release(rect)) {
+            currentGizmo_->Deactivate();
+        }
+        else if (selectClicker_->Press(rect)) {
+            currentGizmo_->Manipulate(rect);
+        }
+        else if (selectClicker_->Click(rect)) {
+            // TODO: Handle object selection with ray hit
+            currentGizmo_->TryActivate(rect);
+        }
+    }
+
+    if (travelClicker_->Release(rect)) {
+        activeProjectScene_->ActiveCamera()->DisableLook();
+        activeProjectScene_->ActiveCamera()->DisableMovement();
+        ZServices::Input()->ReleaseCursor();
+    } else if (travelClicker_->Click(rect)) {
+        activeProjectScene_->ActiveCamera()->EnableLook();
+        activeProjectScene_->ActiveCamera()->EnableMovement();
+        ZServices::Input()->CaptureCursor();
+    }
+}
+
+
+void ZSceneTool::AddGizmo(const std::shared_ptr<ZEditorGizmo>& gizmo, const std::shared_ptr<ZScene>& scene)
+{
+    gizmos_.push_back(gizmo);
+    gizmo->Initialize(scene);
+}
+
+void ZSceneTool::SetupGizmos(const std::shared_ptr<ZScene>& scene)
+{
+    AddGizmo(std::make_shared<ZTransformGizmo>(), scene);
 }

@@ -33,8 +33,8 @@
 #include "ZComponent.hpp"
 
 // Forward Declarations
-struct ZOFNode;
 class ZRigidBody;
+class ZCollider;
 
 // Class and Data Structure Definitions
 class ZPhysicsComponent : public ZComponent
@@ -45,9 +45,8 @@ public:
     ZPhysicsComponent();
     ~ZPhysicsComponent() {}
 
-    void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Initialize(ZPhysicsBodyType bodyType, const std::string& colliderType, float mass, const glm::vec3& position, const glm::vec3& scale, const glm::quat& rotation);
+    void Initialize(ZPhysicsBodyType bodyType, float mass, bool hasGravityInfluence = false);
 
     std::shared_ptr<ZComponent> Clone() override;
 
@@ -55,6 +54,11 @@ public:
 
     void CleanUp() override;
 
+    void SetLinearDamping(float damping);
+    void SetAngularDamping(float damping);
+    void SetRestitution(float restitution);
+
+    void AddCollider(const std::shared_ptr<ZCollider>& collider);
     void DisableCollisionResponse();
     void AddForce(const glm::vec3& force);
     void AddForceAtPoint(const glm::vec3& force, const glm::vec3& point);
@@ -63,8 +67,11 @@ public:
 
     std::shared_ptr<ZRigidBody> RigidBody() { return body_; }
 
+    DECLARE_COMPONENT_CREATORS(ZPhysicsComponent)
+
 protected:
 
     std::shared_ptr<ZRigidBody> body_;
+    bool inUniverse_ = false;
 
 };

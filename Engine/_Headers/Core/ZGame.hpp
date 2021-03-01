@@ -40,17 +40,6 @@ class ZScene;
 class ZGame : public ZBase
 {
 
-protected:
-
-    // TODO: Store this information in a scene manager class
-    unsigned int activeScene_ = 0;
-    std::vector<std::shared_ptr<ZScene>> scenes_;
-
-    std::string name_;
-    double previousTime_ = 0.0;
-    double deltaTime_ = 0.0;
-    std::function<void()> onUpdateTickCallback_;
-
 public:
 
     ZGame(const std::string& name = "Untitled");
@@ -65,10 +54,9 @@ public:
     virtual void CleanUp() override;
 
     std::shared_ptr<ZScene> ActiveScene() { return !(scenes_.empty()) ? scenes_[activeScene_] : nullptr; }
-    const std::string& Name() const { return name_; }
 
     void SetActiveScene(unsigned int index);
-    void SetName(const std::string& name) { name_ = name; }
+    void SetTopLevel(bool topLevel = true) { isTopLevel_ = topLevel; }
 
     void OnUpdateTick(const std::function<void()>& onTick) { onUpdateTickCallback_ = onTick; }
 
@@ -83,6 +71,15 @@ public:
     static std::shared_ptr<ZGame> Create(const std::string& name = "Untitled");
 
 protected:
+
+    // TODO: Store this information in a scene manager class
+    unsigned int activeScene_ = 0;
+    std::vector<std::shared_ptr<ZScene>> scenes_;
+
+    double previousTime_ = 0.0;
+    double deltaTime_ = 0.0;
+    std::function<void()> onUpdateTickCallback_;
+    bool isTopLevel_ = true;
 
     virtual void Setup() override;
 

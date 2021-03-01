@@ -7,7 +7,7 @@ ZGO_CUBE
 	:position [0.0, 1.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
-	GraphicsComponent
+	ZCOMP_GRAPHICS
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Cube [1.0, 1.0, 1.0]:
@@ -17,7 +17,7 @@ ZGO_SPHERE
 	:position [0.0, 1.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
-	GraphicsComponent
+	ZCOMP_GRAPHICS
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Sphere [1.0, 1.0, 1.0]:
@@ -26,7 +26,7 @@ ZGO_SPHERE
 ZGO_PLANE
 	:position [0.0, 0.0, 0.0]:
 	:scale [50.0, 0.1, 50.0]:
-	GraphicsComponent
+	ZCOMP_GRAPHICS
 		:activeShader 0:
 		:shaders [ZSH_01]:
 		:model Plane [1.0, 1.0, 1.0]:
@@ -46,8 +46,4 @@ ZLT_LIGHT
   :orientation [0.0, 0.0, 0.0]:
   :ambient [0.1, 0.1, 0.1]:
   :color [0.95, 0.95, 0.95]:
-^
-ZTR_TRIGGER
-    :position [0.0, 1.0, 0.0]:
-    :scale [1.0, 1.0, 1.0]:
 ^

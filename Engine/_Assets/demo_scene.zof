@@ -4,56 +4,102 @@ ZSCENE :name "Demo": ^
 
 ZGO_GROUND
 	:position [0.0, 0.0, 0.0]:
-	:scale [100.0, 1.0, 100.0]:
-	PhysicsComponent
-		:type Static:
+	:scale [10.0, 0.1, 10.0]:
+	ZCOMP_PHYSICS
+		:type Kinematic:
 		:restitution 0.4:
-		:collider Box [10.0, 1.0, 10.0]:
 	^
-	GraphicsComponent
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [1.0, 1.0, 1.0]:
+    ^
+	ZCOMP_GRAPHICS
 		:activeShader 0:
-		:shaders [ZSH_01]:
-		:model Cube [1.0, 1.0, 1.0]:
+		:model ZMOD_02:
 		:materials [ZMAT_01]:
 	^
 ^
 ZGO_12
-    :position [3.0, 5.0, -8.0]:
-    :scale [6.0, 6.0, 6.0]:
+    :position [0.3, 0.5, -0.8]:
+    :scale [0.6, 0.6, 0.6]:
     :orientation [-90.0, 0.0, 0.0]:
-    PhysicsComponent
+    ZCOMP_PHYSICS
         :type Dynamic:
-        :mass 20.0:
+        :mass 1.0:
         :damping 0.0 0.5:
         :restitution 0.4:
         :hasGravity Yes:
-        :collider Box [0.8, 1.6, 1.3]:
-        :colliderOffset [0.0, -1.3, 0.3]:
     ^
-    GraphicsComponent
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.3, 0.3, 0.3]:
+    ^
+    ZCOMP_GRAPHICS
         :activeShader 0:
-        :shaders [ZSH_01]:
-        :model ZMOD_01 [1.0, 1.0, 1.0]:
-		:materials [ZMAT_02]:
+        :model ZMOD_01:
+        :materials [ZMAT_02]:
     ^
-    AnimatorComponent ^
+    ZCOMP_ANIMATOR ^
 ^
-ZGR_MEADOW
-	:position [35.0, 0.0, 40.0]:
-	:scale [1.2, 1.2, 1.2]:
-	:texture ZTEX_GRASS:
-	:shader ZSH_01:
-	:instances 30000.0:
-	:spacingStyle Random:
-	:windDirection [1.0, 0.0, 0.0]:
-	:windStrength 1.5:
+ZGO_13
+    :position [-3.0, 2.0, 0.5]:
+    :scale [0.3, 0.3, 0.3]:
+    :orientation [0.0, 0.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [1.0, 1.0, 1.0]:
+    ^
+    ZCOMP_GRAPHICS
+        :activeShader 0:
+        :model ZMOD_02:
+		:materials [ZMAT_01]:
+    ^
 ^
+ZGO_23
+    :position [-1.6, 10.0, 0.5]:
+    :scale [0.2, 0.2, 0.2]:
+    :orientation [-90.0, 0.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.5 0.5:
+        :restitution 0.8:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER_01
+        :shape Sphere:
+        :extents [1.0, 1.0, 1.0]:
+    ^
+    ZCOMP_GRAPHICS
+        :activeShader 0:
+        :model ZMOD_03:
+		:materials [ZMAT_01]:
+    ^
+^
+#ZGR_MEADOW
+#	:position [0.0, 0.0, 0.0]:
+#	:scale [0.1, 0.1, 0.1]:
+#	:texture ZTEX_GRASS:
+#	:instances 1000.0:
+#	:spacingStyle Random:
+#	:windDirection [1.0, 0.0, 0.0]:
+#	:windStrength 1.5:
+#^
 ZCAM_01
-	:position [-5.0, 15.0, 50.0]:
-	:orientation [0.0, 0.0, 0.0]:
+	:position [-1.4, 1.0, -5.0]:
+	:orientation [0.0, 160.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
 	:primary Yes:
-	:speed 20.0:
+    :sensitivity 0.5:
+	:speed 2.0:
+    :damping 0.3:
 	:type Perspective:
 	:movementStyle Follow:
 ^
@@ -62,17 +108,13 @@ ZCAM_01
 
 ZLT_01
   :type Directional:
-  :orientation [10.0, -10.0, 10.0]:
+  :orientation [45.0, 25.0, 33.0]:
   :ambient [0.2, 0.2, 0.2]:
-  :color [2.0, 1.0, 1.0]:
+  :color [1.0, 1.0, 1.0]:
 ^
 
 # Shaders
 
-ZSH_01
-	:vertex "/Shaders/Vertex/blinnphong.vert":
-	:pixel "/Shaders/Pixel/blinnphong.frag":
-^
 ZSH_02
 	:vertex "/Shaders/Vertex/blinnphong.vert":
 	:pixel "/Shaders/Pixel/outline.frag":
@@ -80,12 +122,6 @@ ZSH_02
 
 # Textures
 
-ZTEX_01
-	:path "/Textures/Metal/albedo.png":
-^
-ZTEX_05
-	:path "/Textures/Mahogany/albedo.png":
-^
 ZTEX_GRASS
 	:path "/Textures/Grass/albedo.png":
 	:type albedo:
@@ -97,12 +133,24 @@ ZMOD_01
 	:path "/Models/wolf.dae":
 ^
 
+ZMOD_02
+    :type Cube:
+    :size [1.0, 1.0, 1.0]:
+^
+
+ZMOD_03
+    :type Sphere:
+    :radius 1.0:
+    :isSmooth Yes:
+    :segments [32.0, 32.0]:
+^
+
 # Materials
 
 ZMAT_01
-	:albedo ZTEX_05:
+	:albedo [0.8, 0.8, 0.8]:
 ^
 
 ZMAT_02
-	:albedo ZTEX_01:
+	:albedo [1.0, 0.2, 0.1]:
 ^

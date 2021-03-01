@@ -1,19 +1,22 @@
 #version 450 core
 
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
 out vec4 FragColor;
 
-in vec2 FragUV;
+in VertexOutput vout;
 
 uniform mat4 previousViewProjection;
 uniform mat4 inverseViewProjection;
 uniform sampler2D colorSampler0;
 uniform sampler2D depthSampler0;
+uniform sampler2DArray shadowArraySampler0;
 uniform bool useMotionBlur = false;
 
 const int NUM_VELOCITY_SAMPLES = 8;
 
 void main() {
-	vec2 texCoord = FragUV;
+	vec2 texCoord = vout.FragUV;
 	vec4 color = texture(colorSampler0, texCoord);
 	if (useMotionBlur)
 	{
@@ -37,6 +40,6 @@ void main() {
 		}
 		color /= NUM_VELOCITY_SAMPLES;
 	}
-
+	
 	FragColor = color;
 }

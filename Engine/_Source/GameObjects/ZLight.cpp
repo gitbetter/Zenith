@@ -30,6 +30,8 @@
 #include "ZLight.hpp"
 #include "ZServices.hpp"
 #include "ZScene.hpp"
+#include "ZFrustum.hpp"
+#include "ZCamera.hpp"
 
 std::map<std::string, ZLightType> ZLight::lightTypesMap = {
     {"Directional", ZLightType::Directional},
@@ -109,6 +111,18 @@ void ZLight::Initialize(std::shared_ptr<ZOFNode> root)
         std::shared_ptr<ZOFNumber> prop = props["spotExponent"]->Value<ZOFNumber>(0);
         spot.exponent = prop->value;
     }
+
+    lightspaceMatrices_ = std::vector<glm::mat4>(NUM_SHADOW_CASCADES, glm::mat4(1.f));
+}
+
+void ZLight::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+{
+    if (auto scene = Scene()) {
+        if (scene->GameConfig().graphics.drawAABBDebug)
+        {
+            ZServices::Graphics()->DebugDraw(scene, lightspaceRegion_, glm::vec4(1.f));
+        }
+    }
 }
 
 std::shared_ptr<ZGameObject> ZLight::Clone()
@@ -131,11 +145,31 @@ std::shared_ptr<ZGameObject> ZLight::Clone()
     return clone;
 }
 
-void ZLight::UpdateLightspaceMatrix(const ZFrustum& frustum)
+void ZLight::UpdateLightspaceMatrices(const ZFrustum& frustum)
 {
-    glm::mat4 lightP = glm::ortho(-frustum.nearWidth, frustum.nearWidth, -frustum.nearHeight, -frustum.nearHeight, frustum.near, frustum.far);
-    glm::mat4 lightV = glm::lookAt(type == ZLightType::Directional ? glm::eulerAngles(Orientation()) : Position(), glm::vec3(0.f), WORLD_UP);
-    lightspaceMatrix_ = lightP * lightV;
+    if (type == ZLightType::Directional) {
+        shadowFarPlaneSplits_ = std::vector<float>{ frustum.far * 0.2f, frustum.far * 0.35f, frustum.far * 0.75f, frustum.far };
+        lightspaceMatrices_.clear();
+        for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
+            ZFrustum splitFrustum = frustum;
+            splitFrustum.far = shadowFarPlaneSplits_[i];
+            splitFrustum.Recalculate();
+
+            glm::mat4 lightV = glm::lookAt(splitFrustum.center + glm::eulerAngles(glm::normalize(Orientation())), splitFrustum.center, WORLD_UP);
+
+            lightspaceRegion_ = ZAABBox();
+            for (const auto& corner : splitFrustum.corners) {
+                auto transformedCorner = glm::vec4(corner, 1.0) * lightV;
+                lightspaceRegion_ = ZAABBox::Union(lightspaceRegion_, transformedCorner);
+            }
+
+            glm::vec3 extents = glm::vec3(glm::abs(lightspaceRegion_.maximum.x - lightspaceRegion_.minimum.x),
+                                          glm::abs(lightspaceRegion_.maximum.y - lightspaceRegion_.minimum.y),
+                                          glm::abs(lightspaceRegion_.maximum.z - lightspaceRegion_.minimum.z)) * 0.5f;
+
+            lightspaceMatrices_.push_back(glm::ortho(-extents.x, extents.x, -extents.y, extents.y, -extents.z, extents.z) * lightV);
+        }
+    }
 }
 
 DEFINE_OBJECT_CREATORS(ZLight)

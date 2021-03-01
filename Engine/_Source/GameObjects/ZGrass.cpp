@@ -27,31 +27,31 @@
  */
 
 #include "ZGrass.hpp"
+#include "ZMaterial.hpp"
 #include "ZServices.hpp"
 #include "ZScene.hpp"
 #include "ZAssetStore.hpp"
-#include "ZModel.hpp"
+#include "ZPlane.hpp"
 #include "ZShader.hpp"
+#include "ZGraphicsComponent.hpp"
 #include "ZTextureReadyEvent.hpp"
 
 ZGrass::ZGrass(unsigned int instances) : 
     ZGameObject(), textureId_(std::string()), instanceCount_(instances), windDirection_(1.f), windStrength_(5.f), time_(0.f)
 {
-    graphicsComp_ = std::make_shared<ZGraphicsComponent>();
     ZServices::EventAgent()->Subscribe(this, &ZGrass::HandleTextureReady);
 }
 
 void ZGrass::Initialize()
 {
     auto shader = ZShader::Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag");
-    graphicsComp_ = std::static_pointer_cast<ZGraphicsComponent>(ZComponent::CreateGraphicsComponent(shared_from_this()));
+    graphicsComp_ = std::static_pointer_cast<ZGraphicsComponent>(ZGraphicsComponent::CreateIn(shared_from_this()));
     graphicsComp_->Initialize(nullptr, shader);
 
     std::vector<ZInstancedDataOptions> instanceDatas;
     for (unsigned int i = 0; i < cPolygonCount; i++)
     {
-        auto model = std::make_shared<ZModel>(ZPrimitiveType::Plane);
-        model->Initialize();
+        std::shared_ptr<ZModel> model = ZPlane::Create(glm::vec2(1.f));
         UpdateVertexNormals(model);
         polygons_.push_back(model);
 
@@ -65,10 +65,10 @@ void ZGrass::Initialize()
     {
         for (unsigned int j = 0; j < length; j++)
         {
+            auto scale = Scale();
             auto x = -(length * 0.75f) + i + (-2 + std::rand() % 4);
             auto z = -(length * 0.75f) + j + (-2 + std::rand() % 4);
-            auto translation = Position() + glm::vec3(x, 1.5f, z);
-            auto scale = Scale();
+            auto translation = Position() + glm::vec3(x, scale.y * 2.f, z);
             for (unsigned int k = 0; k < cPolygonCount; k++)
             {
                 auto rotation = glm::quat(glm::vec3(-90.f, (k == 2 ? 135.f : k * 45.f), 0.f));

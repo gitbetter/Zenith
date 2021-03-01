@@ -31,7 +31,8 @@
 #include "ZUICheckBox.hpp"
 #include "ZShader.hpp"
 #include "ZUIImage.hpp"
-#include "ZFireEvent.hpp"
+#include "ZUIClicker.hpp"
+#include "ZInputButtonEvent.hpp"
 
 ZUICheckBox::ZUICheckBox(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
 {
@@ -46,12 +47,21 @@ ZUICheckBox::ZUICheckBox(const ZUIElementOptions& options) : ZUIElement(options)
 void ZUICheckBox::Initialize() {
     ZUIElement::Initialize();
 
-    checkImage_ = std::make_shared<ZUIImage>("/Textures/UI/checkmark.png", glm::vec2(0.f) + Size(), Size());
-    checkImage_->SetScene(Scene());
-    checkImage_->Initialize();
-    AddChild(checkImage_);
+    auto scene = Scene();
+    if (!scene) {
+        LOG("Cannot initialize a ZUICheckbox that is not attached to a scene", ZSeverity::Error);
+    }
 
-    ZServices::EventAgent()->Subscribe(this, &ZUICheckBox::HandleMousePress);
+    ZUIElementOptions options;
+    options.positioning = ZPositioning::Relative;
+    options.scaling = ZPositioning::Relative;
+    options.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+    options.color = glm::vec4(1.f);
+    options.flipped = true;
+    options.hidden = !checked_;
+    checkImage_ = ZUIImage::Create(options, Scene());
+    checkImage_->SetImage("/Textures/UI/checkmark.png");
+    AddChild(checkImage_);
 }
 
 void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -73,26 +83,22 @@ void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
     }
 }
 
-void ZUICheckBox::CleanUp()
+void ZUICheckBox::SetChecked(bool checked)
 {
-    ZUIElement::CleanUp();
-    ZServices::EventAgent()->Unsubscribe(this, &ZUICheckBox::HandleMousePress);
+    checked_ = checked;
+    if (checked_)
+    {
+        checkImage_->Show();
+    }
+    else
+    {
+        checkImage_->Hide();
+    }
 }
 
-void ZUICheckBox::HandleMousePress(const std::shared_ptr<ZFireEvent>& event)
+void ZUICheckBox::Toggle()
 {
-    if (event->Done() && TrySelect(glm::vec3(event->X(), event->Y(), event->Z())))
-    {
-        checked_ = !checked_;
-        if (checked_)
-        {
-            checkImage_->Show();
-        }
-        else
-        {
-            checkImage_->Hide();
-        }
-    }
+    SetChecked(!checked_);
 }
 
 DEFINE_UI_CREATORS(ZUICheckBox)

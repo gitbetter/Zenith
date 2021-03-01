@@ -54,6 +54,8 @@ void ZMaterial::Initialize()
 {
     if (!pendingTextures_.empty())
         ZServices::EventAgent()->Subscribe(this, &ZMaterial::HandleTextureReady);
+    else
+        ZServices::EventAgent()->Queue(std::make_shared<ZMaterialReadyEvent>(shared_from_this()));
 }
 
 void ZMaterial::SetProperty(const std::string& property, float value)
@@ -201,7 +203,7 @@ void ZMaterial::Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outMaterialM
     }
 }
 
-void ZMaterial::CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPendingMaterials)
+void ZMaterial::CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPendingMaterials, ZMaterialMap& outMaterials)
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
@@ -239,9 +241,14 @@ void ZMaterial::CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPe
                 }
             }
 
-            material->Initialize();
+            if (material->pendingTextures_.empty()) {
+                outMaterials[material->ID()] = material;
+            }
+            else {
+                outPendingMaterials[material] = material->ID();
+            }
 
-            outPendingMaterials[material] = material->ID();
+            material->Initialize();
         }
     }
 }

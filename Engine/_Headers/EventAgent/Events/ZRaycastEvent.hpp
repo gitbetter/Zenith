@@ -42,28 +42,33 @@ private:
 
     glm::vec3 origin_;
     glm::vec3 direction_;
+    float length_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZRaycastEvent(const glm::vec3& origin = glm::vec3(0.f), const glm::vec3& direction = glm::vec3(0.f)) : origin_(origin), direction_(direction) {}
+    explicit ZRaycastEvent(const glm::vec3& origin = glm::vec3(0.f), const glm::vec3& direction = glm::vec3(0.f), float length = 100.f)
+        : origin_(origin), direction_(direction), length_(length)
+    { }
     explicit ZRaycastEvent(std::istringstream& in)
     {
         in >> origin_.x; in >> origin_.y; in >> origin_.z;
         in >> direction_.x; in >> direction_.y; in >> direction_.z;
+        in >> length_;
     }
 
     const ZTypeIdentifier& EventType() const override { return Type; };
     std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZRaycastEvent>(new ZRaycastEvent(origin_, direction_)); }
     void Serialize(std::ostringstream& out) const override
     {
-        out << origin_.x << " " << origin_.y << " " << origin_.z << direction_.x << " " << direction_.y << " " << direction_.z;
+        out << origin_.x << " " << origin_.y << " " << origin_.z << direction_.x << " " << direction_.y << " " << direction_.z << " " << length_;
     }
     std::string Name() const override { return "ZRaycastEvent"; }
 
     glm::vec3 Origin() const { return origin_; }
     glm::vec3 Direction() const { return direction_; }
+    float Length() const { return length_; }
 
 protected:
 

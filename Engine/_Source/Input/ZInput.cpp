@@ -28,15 +28,24 @@
 */
 
 #include "ZInput.hpp"
+#include "ZServices.hpp"
+#include "ZInputButtonEvent.hpp"
+#include "ZInputKeyEvent.hpp"
 
 void ZInput::SetKey(const ZKey& key, bool pressed)
 {
     prevKeyPress_[key] = keyPress_[key];
     keyPress_[key] = pressed;
+
+    auto keyEvent = std::make_shared<ZInputKeyEvent>(key, pressed);
+    ZServices::EventAgent()->Trigger(keyEvent);
 }
 
 void ZInput::SetMouse(const ZMouse& mouse, bool pressed)
 {
     prevMousePress_[mouse] = mousePress_[mouse];
     mousePress_[mouse] = pressed;
+
+    auto buttonEvent = std::make_shared<ZInputButtonEvent>(mouse, pressed);
+    ZServices::EventAgent()->Trigger(buttonEvent);
 }

@@ -155,6 +155,13 @@ void ZTexture::Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap)
     outTextureMap = textures;
 }
 
+ZTexture::ptr ZTexture::Create()
+{
+    // TODO: Switch on contant, variable or define to choose implementation
+    ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->Initialize();
+    return texture;
+}
 
 ZTexture::ptr ZTexture::Create(const std::string& filename, const std::string& directory, ZTextureWrapping wrapping, bool hdr, bool flip)
 {
@@ -198,6 +205,14 @@ ZTexture::ptr ZTexture::CreateDepth(const glm::vec2& size)
     ZTexture::ptr texture = std::make_shared<ZGLTexture>();
     texture->LoadDepth(size);
     texture->Initialize();
+    return texture;
+}
+
+ZTexture::ptr ZTexture::CreateDepthArray(const glm::vec2& size, int layers)
+{
+    // TODO: Switch on contant, variable or define to choose implementation
+    ZTexture::ptr texture = std::make_shared<ZGLTexture>();
+    texture->LoadDepthArray(size, layers);
     return texture;
 }
 
@@ -289,6 +304,16 @@ ZTexture::ptr ZTexture::CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubem
     texture->Initialize();
     texture->LoadBRDFLUT(cubemapBufferData);
     return texture;
+}
+
+ZIBLTexture ZTexture::CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const std::shared_ptr<ZTexture>& cubemap)
+{
+    ZIBLTexture generatedIBLTexture;
+    generatedIBLTexture.cubeMap = cubemap;
+    generatedIBLTexture.irradiance = ZTexture::CreateIrradianceMap(bufferData, cubemap);
+    generatedIBLTexture.prefiltered = ZTexture::CreatePrefilterMap(bufferData, cubemap);
+    generatedIBLTexture.brdfLUT = ZTexture::CreateBRDFLUT(bufferData);
+    return generatedIBLTexture;
 }
 
 ZTexture::ptr ZTexture::Default()

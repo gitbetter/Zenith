@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZProcess.hpp"
+#include "ZOFTree.hpp"
 
 // Forward Declarations
 class ZGame;
@@ -50,6 +51,7 @@ class ZTextureReadyEvent;
 class ZShaderReadyEvent;
 class ZModelReadyEvent;
 class ZSkyboxReadyEvent;
+class ZRay;
 
 // Class and Data Structure Definitions
 class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene>
@@ -88,9 +90,12 @@ public:
     std::shared_ptr<ZAudio> Audio() const { return gameSystems_.audio; }
     std::shared_ptr<ZAssetStore> AssetStore() const { return gameSystems_.assetStore; }
     ZGameOptions GameConfig() { return gameConfig_; }
+    std::string GameName() const { return gameName_; }
+    ZFrameStats& FrameStats() { return frameStats_; }
 
     void SetGameSystems(const ZGameSystems& systems) { gameSystems_ = systems; }
     void SetGameConfig(const ZGameOptions& options) { gameConfig_ = options; }
+    void SetGameName(const std::string& name) { gameName_ = name; }
     void SetPrimaryCamera(std::shared_ptr<ZCamera> camera) { primaryCamera_ = camera; }
     void SetActiveCamera(std::shared_ptr<ZCamera> camera) { activeCamera_ = camera; }
     void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
@@ -109,9 +114,10 @@ public:
     std::shared_ptr<ZUIElement> FindUIElement(const std::string& id);
     void RemoveUIElement(std::shared_ptr<ZUIElement> element);
 
-    glm::mat4 TopMatrix();
-    void PushMatrix(const glm::mat4& matrix);
-    void PopMatrix();
+    ZRay ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions = glm::vec2(0.f));
+
+    void UpdateViewProjectionMatrices();
+    void UpdateLightspaceMatrices();
 
     template <class T, typename... Args>
     static std::shared_ptr<T> Load(Args&&... args)
@@ -142,7 +148,6 @@ protected:
 
     struct
     {
-        std::mutex matrixStack;
         std::mutex pendingObjects;
     } sceneMutexes_;
 
@@ -150,6 +155,7 @@ protected:
     std::vector<std::string> pendingSceneObjects_;
 
     std::string name_;
+    std::string gameName_;
     ZPlayState playState_;
 
     std::shared_ptr<ZRenderer3D> renderer3D_ = nullptr;
@@ -169,9 +175,9 @@ protected:
 
     ZGameSystems gameSystems_;
     ZGameOptions gameConfig_;
+    ZFrameStats frameStats_;
 
     glm::mat4 viewProjection_, previousViewProjection_;
-    std::list<glm::mat4> matrixStack_;
 
     void SetupRenderers();
     void SetupTargetDrawBuffer();
@@ -181,8 +187,6 @@ protected:
     void CheckPendingObjects();
     void CreateSceneRoot(const std::string& name);
     void CreateUICanvas();
-    void UpdateViewProjectionMatrices();
-    void UpdateLightspaceMatrices();
     void UnregisterLoadDelegates();
 
     void HandleWindowResize(const std::shared_ptr<ZWindowResizeEvent>& event);

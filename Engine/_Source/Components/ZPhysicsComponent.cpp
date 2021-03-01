@@ -38,13 +38,7 @@
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent()
 {
-    id_ = "ZCPhysics_" + idGenerator_.Next();
-}
-
-void ZPhysicsComponent::Initialize()
-{
-    ZComponent::Initialize();
-    if (body_) object_->Scene()->PhysicsUniverse()->AddRigidBody(body_);
+    id_ = "ZCOMP_PHYSICS_" + idGenerator_.Next();
 }
 
 void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
@@ -56,11 +50,9 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         return;
     }
 
-    btScalar mass = -1., damping = 1., angularDamping = 1., restitution = 0.;
+    btScalar mass = -1.f, damping = 1.f, angularDamping = 1.f, restitution = 0.f;
     ZPhysicsBodyType type = ZPhysicsBodyType::Static;
-    std::string shape = "";
     bool gravity = false;
-    std::vector<float> size, origin, offset, rotation;
 
     ZOFPropertyMap props = node->properties;
 
@@ -99,95 +91,45 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         restitution = restProp->value;
     }
 
-    if (props.find("collider") != props.end() && props["collider"]->HasValues())
-    {
-        std::shared_ptr<ZOFString> colliderProp = props["collider"]->Value<ZOFString>(0);
-        shape = colliderProp->value;
-
-        if (props["collider"]->ValueCount() > 1)
-        {
-            std::shared_ptr<ZOFNumberList> scaleProp = props["collider"]->Value<ZOFNumberList>(1);
-            std::transform(scaleProp->value.begin(), scaleProp->value.end(), std::back_inserter(size), [] (float val) { return val; });
-        }
-
-        if (props["collider"]->ValueCount() > 2)
-        {
-            std::shared_ptr<ZOFNumberList> centerProp = props["collider"]->Value<ZOFNumberList>(2);
-            std::transform(centerProp->value.begin(), centerProp->value.end(), std::back_inserter(origin), [] (float val) { return val; });
-        }
-
-        if (props["collider"]->ValueCount() > 3)
-        {
-            std::shared_ptr<ZOFNumberList> rotProp = props["collider"]->Value<ZOFNumberList>(2);
-            std::transform(rotProp->value.begin(), rotProp->value.end(), std::back_inserter(rotation), [] (float val) { return val; });
-        }
-    }
-
-    if (props.find("colliderOffset") != props.end() && props["colliderOffset"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumberList> offsetProp = props["colliderOffset"]->Value<ZOFNumberList>(0);
-        std::transform(offsetProp->value.begin(), offsetProp->value.end(), std::back_inserter(offset), [] (float val) { return val; });
-    }
-
     if (props.find("hasGravity") != props.end() && props["hasGravity"]->HasValues())
     {
         std::shared_ptr<ZOFString> gravProp = props["hasGravity"]->Value<ZOFString>(0);
         gravity = gravProp->value == "Yes";
     }
 
-    glm::vec3 pos, scale, offs;
-    glm::quat rot;
-
     if (mass < 0) mass = 0.0;
 
-    if (size.size() < 3) scale = object_->Scale();
-    else scale = glm::vec3(size[0], size[1], size[2]);
+    Initialize(type, mass, gravity);
 
-    if (origin.size() < 3) pos = object_->Position();
-    else pos = glm::vec3(origin[0], origin[1], origin[2]);
-
-    if (rotation.size() < 3) rot = object_->Orientation();
-    else rot = glm::quat(glm::vec3(rotation[0], rotation[1], rotation[2]));
-
-    if (offset.size() < 3) offs = glm::vec3(0.f);
-    else offs = glm::vec3(offset[0], offset[1], offset[2]);
-
-    Initialize(type, shape, mass, pos, scale, rot);
-
-    if (gravity)
-    {
-        glm::vec3 gravityForce(0.f, -30.f, 0.f);
-        if (gravity) body_->SetGravity(gravityForce);
-    }
-    body_->SetLinearDamping(damping);
-    body_->SetAngularDamping(angularDamping);
-    body_->SetRestitution(restitution);
-    body_->SetColliderOffset(offs);
+    SetLinearDamping(damping);
+    SetAngularDamping(angularDamping);
+    SetRestitution(restitution);
 }
 
-void ZPhysicsComponent::Initialize(ZPhysicsBodyType bodyType, const std::string& colliderType, float mass, const glm::vec3& position, const glm::vec3& size, const glm::quat& rotation)
+void ZPhysicsComponent::Initialize(ZPhysicsBodyType bodyType, float mass, bool hasGravityInfluence)
 {
-    std::shared_ptr<ZCollider> collider;
-    if (!colliderType.empty())
-    {
-        collider = ZCollider::Create(colliderType, size);
-    }
-    else
-    {
-        LOG("Could not create the given collider for object " + object_->ID() + ". Creating a default collider instead.", ZSeverity::Warning);
-        collider = ZCollider::Create("Box", size);
-    }
-
-    body_ = std::make_shared<ZBulletRigidBody>(bodyType, collider, mass, position, size, rotation);
+    body_ = std::make_shared<ZBulletRigidBody>(bodyType, mass, object_->Position(), object_->Scale(), object_->Orientation());
     body_->Initialize();
     body_->SetGameObject(object_);
+    if (hasGravityInfluence)
+    {
+        body_->SetGravity(glm::vec3(0.f, -9.8f, 0.f));
+    }
 }
 
 void ZPhysicsComponent::Update(double deltaTime)
 {
     assert(object_ != nullptr && body_ != nullptr);
 
-    // Don't update static rigid bodies, since the physics engine cannot affect them
+    if (!inUniverse_ && object_->Scene()) {
+        object_->Scene()->PhysicsUniverse()->AddRigidBody(body_);
+        inUniverse_ = true;
+    }
+
+    if (body_->Type() == ZPhysicsBodyType::Trigger)
+        body_->SetTransformMatrix(object_->ModelMatrix());
+
+    // Don't update static rigid bodies with the physic engine, since the physics engine cannot affect them
     if (body_->InverseMass() == 0.0) return;
 
     glm::mat4 M = body_->TransformMatrix();
@@ -197,6 +139,7 @@ void ZPhysicsComponent::Update(double deltaTime)
 
 std::shared_ptr<ZComponent> ZPhysicsComponent::Clone()
 {
+    assert(body_ != nullptr);
     std::shared_ptr<ZPhysicsComponent> clone = std::make_shared<ZPhysicsComponent>();
     clone->body_ = body_->Clone();
     return clone;
@@ -205,30 +148,63 @@ std::shared_ptr<ZComponent> ZPhysicsComponent::Clone()
 void ZPhysicsComponent::CleanUp()
 {
     ZComponent::CleanUp();
-    object_->Scene()->PhysicsUniverse()->RemoveRigidBody(body_);
+    if (object_ && body_) {
+        object_->Scene()->PhysicsUniverse()->RemoveRigidBody(body_);
+    }
+}
+
+void ZPhysicsComponent::SetLinearDamping(float damping)
+{
+    assert(body_ != nullptr);
+    body_->SetLinearDamping(damping);
+}
+
+void ZPhysicsComponent::SetAngularDamping(float damping)
+{
+    assert(body_ != nullptr);
+    body_->SetAngularDamping(damping);
+}
+
+void ZPhysicsComponent::SetRestitution(float restitution)
+{
+    assert(body_ != nullptr);
+    body_->SetRestitution(restitution);
+}
+
+void ZPhysicsComponent::AddCollider(const std::shared_ptr<ZCollider>& collider)
+{
+    assert(body_ != nullptr);
+    body_->AddCollider(collider);
 }
 
 void ZPhysicsComponent::DisableCollisionResponse()
 {
-    if (body_) body_->DisableContactResponse();
+    assert(body_ != nullptr);
+    body_->DisableContactResponse();
 }
 
 void ZPhysicsComponent::AddForce(const glm::vec3& force)
 {
+    assert(body_ != nullptr);
     body_->ApplyForce(force);
 }
 
 void ZPhysicsComponent::AddForceAtPoint(const glm::vec3& force, const glm::vec3& point)
 {
+    assert(body_ != nullptr);
     body_->ApplyForceAtPoint(force, point);
 }
 
 void ZPhysicsComponent::AddTorque(const glm::vec3& torque)
 {
+    assert(body_ != nullptr);
     body_->ApplyTorque(torque);
 }
 
 bool ZPhysicsComponent::HasFiniteMass()
 {
+    assert(body_ != nullptr);
     return body_->InverseMass() != 0.0;
 }
+
+DEFINE_COMPONENT_CREATORS(ZPhysicsComponent)

@@ -35,6 +35,7 @@
 // Forward Declarations
 class ZScene;
 class ZFrustum;
+class ZAABBox;
 class ZBuffer;
 class ZFont;
 
@@ -57,6 +58,7 @@ public:
     virtual void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f)) = 0;
     virtual void UpdateViewport(const glm::vec2& size, const glm::vec2& position = glm::vec2(0.f)) = 0;
     virtual void EnableStencilTesting() = 0;
+    virtual void DisableStencilTesting() = 0;
     virtual void EnableDepthTesting() = 0;
     virtual void DisableDepthTesting() = 0;
     virtual void EnableStencilBuffer() = 0;
@@ -72,16 +74,14 @@ public:
     virtual void CullFrontFaces() = 0;
     virtual void CullBackFaces() = 0;
     virtual void ClearDepth() = 0;
+
     virtual void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
     virtual void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
 
-    void DrawText(const std::shared_ptr<ZBuffer>& bufferData, const glm::vec2& position, const std::string& text, const std::shared_ptr<ZFont>& font, float fontScale = 1.f, float lineSpacing = 1.f, float maxWrap = 0.f);
-    void DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustum, const glm::vec4& color);
+    void DebugDraw(const std::shared_ptr<ZScene>& scene, const ZFrustum& frustum, const glm::vec4& color);
+    void DebugDraw(const std::shared_ptr<ZScene>& scene, const ZAABBox& aabb, const glm::vec4& color);
     void DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::vec4& color);
     void DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::vec3& from, const glm::vec3& to, const glm::vec4& color);
-
-    // Vertex3D
-    static void ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3);
 
 protected:
 

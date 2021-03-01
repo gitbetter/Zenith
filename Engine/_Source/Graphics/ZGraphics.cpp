@@ -28,68 +28,13 @@
 */
 
 #include "ZServices.hpp"
-#include "ZWindowResizeEvent.hpp"
-#include "ZTextureReadyEvent.hpp"
-#include "ZShaderReadyEvent.hpp"
-#include "ZModelReadyEvent.hpp"
-#include "ZFontReadyEvent.hpp"
-#include "ZGameObject.hpp"
-#include "ZShader.hpp"
-#include "ZModel.hpp"
-#include "ZMesh2D.hpp"
+#include "ZBuffer.hpp"
 #include "ZScene.hpp"
-#include "ZLight.hpp"
-#include "ZFont.hpp"
+#include "ZFrustum.hpp"
 #include "ZAssetStore.hpp"
+#include "ZShader.hpp"
 
-void ZGraphics::DrawText(const std::shared_ptr<ZBuffer>& bufferData, const glm::vec2& position, const std::string& text, const std::shared_ptr<ZFont>& font, float fontScale, float lineSpacing, float maxWrap)
-{
-    auto pos = position;
-    float x = pos.x, y = pos.y;
-
-    ZVertex2DDataOptions options;
-    options.vertices.reserve(text.size() * 6);
-    for (auto c = text.begin(); c != text.end(); c++)
-    {
-        ZCharacter character = font->Atlas().characterInfo[*c];
-
-        float one_over_font_size = 1.f / font->Size();
-
-        float atlasH = font->Atlas().height * 0.5f * fontScale * one_over_font_size;
-        float w = character.bitmapSize.x * fontScale * one_over_font_size;
-        float h = character.bitmapSize.y * fontScale * one_over_font_size;
-        float xpos = x + character.bitmapPos.x * fontScale * one_over_font_size;
-        float ypos = (y + atlasH) - character.bitmapPos.y * fontScale * one_over_font_size;
-
-        x += character.advance.x * fontScale * one_over_font_size;
-        y += character.advance.y * fontScale * one_over_font_size;
-
-        if (maxWrap > 0.f)
-        {
-            auto maxX = maxWrap - w * 2.f;
-            if (x > maxX)
-            {
-                y += std::floor(x / maxX) * (atlasH + lineSpacing);
-                x = pos.x;
-            }
-        }
-
-        if (w == 0 || h == 0) continue;
-
-        options.vertices.push_back(ZVertex2D(xpos, ypos, character.xOffset, 0));
-        options.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / font->Atlas().width, 0));
-        options.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / font->Atlas().height));
-        options.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / font->Atlas().width, 0));
-        options.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / font->Atlas().height));
-        options.vertices.push_back(ZVertex2D(xpos + w, ypos + h, character.xOffset + character.bitmapSize.x / font->Atlas().width, character.bitmapSize.y / font->Atlas().height));
-    }
-
-    bufferData->Update(options);
-    Draw(bufferData, options, ZMeshDrawStyle::Triangle);
-}
-
-// TODO: Pass pointer to scene to this method
-void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustum, const glm::vec4& color)
+void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, const ZFrustum& frustum, const glm::vec4& color)
 {
     std::vector<std::pair<glm::vec3, glm::vec3>> linePoints = {
         std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[0]), glm::vec3(frustum.corners[1])),
@@ -106,13 +51,43 @@ void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, ZFrustum& frustu
         std::make_pair<glm::vec3, glm::vec3>(glm::vec3(frustum.corners[3]), glm::vec3(frustum.corners[7]))
     };
 
-    for (std::pair<glm::vec3, glm::vec3> points : linePoints)
+    for (const auto& points : linePoints)
     {
         DebugDrawLine(scene, points.first, points.second, color);
     }
 }
 
-// TODO: Pass pointer to scene to this method
+void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, const ZAABBox& aabb, const glm::vec4& color)
+{
+    auto cornerTLB = glm::vec3(aabb.minimum.x, aabb.maximum.y, aabb.minimum.z);
+    auto cornerTRB = glm::vec3(aabb.maximum.x, aabb.maximum.y, aabb.minimum.z);
+    auto cornerBRB = glm::vec3(aabb.maximum.x, aabb.minimum.y, aabb.minimum.z);
+    auto cornerBLB = glm::vec3(aabb.minimum.x, aabb.minimum.y, aabb.minimum.z);
+    auto cornerTLF = glm::vec3(aabb.minimum.x, aabb.maximum.y, aabb.maximum.z);
+    auto cornerTRF = glm::vec3(aabb.maximum.x, aabb.maximum.y, aabb.maximum.z);
+    auto cornerBRF = glm::vec3(aabb.maximum.x, aabb.minimum.y, aabb.maximum.z);
+    auto cornerBLF = glm::vec3(aabb.minimum.x, aabb.minimum.y, aabb.maximum.z);
+    std::vector<std::pair<glm::vec3, glm::vec3>> linePoints = {
+        { cornerTLB, cornerTRB },
+        { cornerTRB, cornerBRB },
+        { cornerBRB, cornerBLB },
+        { cornerBLB, cornerTLB },
+        { cornerTLF, cornerTRF },
+        { cornerTRF, cornerBRF },
+        { cornerBRF, cornerBLF },
+        { cornerBLF, cornerTLF },
+        { cornerTLB, cornerTLF },
+        { cornerTRB, cornerTRF },
+        { cornerBRB, cornerBRF },
+        { cornerBLB, cornerBLF }
+    };
+
+    for (const auto& points : linePoints)
+    {
+        DebugDrawLine(scene, points.first, points.second, color);
+    }
+}
+
 void ZGraphics::DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::vec4& color)
 {
     std::vector<std::pair<glm::vec3, glm::vec3>> linePoints;
@@ -123,7 +98,7 @@ void ZGraphics::DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::v
         linePoints.push_back(std::make_pair<glm::vec3, glm::vec3>(glm::vec3((float)i, 0.f, -(float)numGridLines / 2.f), glm::vec3((float)i, 0.f, (float)numGridLines / 2.f)));
     }
 
-    for (std::pair<glm::vec3, glm::vec3> points : linePoints)
+    for (const auto& points : linePoints)
     {
         DebugDrawLine(scene, points.first, points.second, color);
     }
@@ -134,6 +109,9 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
 {
     if (!scene) return;
 
+    ZPR_SESSION_COLLECT_DRAWS(1);
+    ZPR_SESSION_COLLECT_VERTICES(2);
+
     const auto& VPMatrix = scene->ViewProjection();
     auto debugShader = scene->AssetStore()->DebugShader();
 
@@ -142,26 +120,11 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
     debugShader->SetVec4("color", color);
 
     ZVertex3DDataOptions options;
-    options.vertices = std::vector<ZVertex3D>{
+    options.vertices = ZVertex3DList{
       ZVertex3D(from), ZVertex3D(to)
     };
 
     ZBuffer::ptr bufferData = ZBuffer::Create(options);
     Draw(bufferData, options, ZMeshDrawStyle::Line);
     bufferData->Delete();
-}
-
-void ZGraphics::ComputeTangentBitangent(ZVertex3D& v1, ZVertex3D& v2, ZVertex3D& v3)
-{
-    glm::vec3 deltaPos1 = v2.position - v1.position;
-    glm::vec3 deltaPos2 = v3.position - v1.position;
-    glm::vec2 deltaUV1 = v2.uv - v1.uv;
-    glm::vec2 deltaUV2 = v3.uv - v1.uv;
-
-    float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-    glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
-    glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
-
-    v1.tangent = tangent; v2.tangent = tangent; v3.tangent = tangent;
-    v1.bitangent = bitangent; v2.bitangent = bitangent; v3.bitangent = bitangent;
 }

@@ -1,15 +1,15 @@
 #version 450 core
 
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
 out vec4 FragColor;
 
-in vec3 localPos;
+in VertexOutput vout;
 
 uniform samplerCube environmentMap;
 
-const float PI = 3.14159265369;
-
 void main() {
-  vec3 normal = normalize(localPos);
+  vec3 normal = normalize(vout.FragNormal);
   vec3 irradiance = vec3(0.0);
 
   vec3 up = vec3(0.0, 1.0, 0.0);

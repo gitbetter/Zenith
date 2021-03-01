@@ -1,4 +1,7 @@
 #version 450 core
+
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec2 texCoords;
@@ -8,19 +11,12 @@ layout (location = 5) in ivec4 boneIDs;
 layout (location = 6) in vec4 boneWeights;
 layout (location = 7) in mat4 instanceM;
 
-const int MAX_BONES = 100;
-
-out VS_OUT {
-    vec3 FragPos;
-    vec3 FragNormal;
-    vec2 FragUV;
-    mat3 FragTBN;
-    vec4 FragPosLightSpace;
-} vs_out;
+out VertexOutput vout;
 
 uniform mat4 M;
+uniform mat4 V;
 uniform mat4 ViewProjection;
-uniform mat4 P_lightSpace;
+uniform mat4 ViewProjectionLightSpace[NUM_SHADOW_CASCADES];
 uniform mat4 Bones[MAX_BONES];
 uniform bool rigged = false;
 uniform bool instanced = false;
@@ -32,18 +28,21 @@ void main()
     vec3 T = normalize(mat3(m) * tangent);
     vec3 B = normalize(mat3(m) * bitangent);
     vec3 N = normalize(mat3(m) * normal);
-    vs_out.FragNormal = N;
-    vs_out.FragTBN = mat3(T, B, N);
+    vout.FragNormal = N;
+    vout.FragTBN = mat3(T, B, N);
     if (rigged) {
         mat4 boneTransform = Bones[boneIDs[0]] * boneWeights[0];
         boneTransform += Bones[boneIDs[1]] * boneWeights[1];
         boneTransform += Bones[boneIDs[2]] * boneWeights[2];
         boneTransform += Bones[boneIDs[3]] * boneWeights[3];
-        vs_out.FragNormal = mat3(boneTransform) * vs_out.FragNormal;
+        vout.FragNormal = mat3(boneTransform) * vout.FragNormal;
         pos = boneTransform * pos;
     }
-    vs_out.FragPos = vec3(m * pos);
-    vs_out.FragUV = texCoords;
-    vs_out.FragPosLightSpace = P_lightSpace * vec4(vs_out.FragPos, 1.0);
-    gl_Position = ViewProjection * m * pos;
+    vout.FragWorldPos = m * pos;
+    vout.FragViewPos = V * vout.FragWorldPos;
+    vout.FragUV = texCoords;
+    for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
+        vout.FragPosLightSpace[i] = ViewProjectionLightSpace[i] * vout.FragWorldPos;
+    }
+    gl_Position = ViewProjection * vout.FragWorldPos;
 }

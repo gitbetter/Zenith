@@ -33,21 +33,21 @@
 #include "ZScene.hpp"
 
 // Forward Declarations
-class ZEditorTool;
+class ZEditorEntity;
 class ZMenuBar;
 class ZEvent;
 class ZResourceHandle;
 class ZResourceLoadedEvent;
 class ZUIPanel;
 class ZCamera;
+class ZEditorTool;
 
 // Definitions
 const std::string EDITOR_CONFIG_PATH = "/conf.zof";
 const std::string EDITOR_OBJECT_TEMPLATES_PATH = "/object_templates.zof";
 
 struct ZEditorConfig {
-    std::string fontPath;
-    float fontSize;
+    glm::vec4 sizeLimits{ 0.f };
     ZUITheme theme;
 };
 
@@ -93,7 +93,7 @@ private:
     std::shared_ptr<ZUIPanel>                   centerPanel_;
     std::shared_ptr<ZUIPanel>                   rightPanel_;
     std::shared_ptr<ZUIPanel>                   bottomPanel_;
-    std::vector<std::shared_ptr<ZEditorTool>>   tools_;
+    std::vector<std::shared_ptr<ZEditorEntity>> entities_;
     ZSceneSnapshot                              lastSceneSnapshot_;
 
     std::shared_ptr<ZScene>                     activeProjectScene_;

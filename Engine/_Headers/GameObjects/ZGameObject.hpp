@@ -31,7 +31,7 @@
 
 #define DECLARE_OBJECT_CREATORS(Type)\
 static std::shared_ptr<Type> Create();\
-static std::shared_ptr<Type> Create(const glm::vec3& position, const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const std::shared_ptr<ZScene>& scene = nullptr);\
+static std::shared_ptr<Type> Create(const glm::vec3& position, const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f), const std::shared_ptr<ZScene>& scene = nullptr);\
 static std::shared_ptr<Type> Create(const std::shared_ptr<ZOFNode>& root, const std::shared_ptr<ZScene>& scene = nullptr);
 
 #define DEFINE_OBJECT_CREATORS(Type)\
@@ -40,9 +40,9 @@ std::shared_ptr<Type> Type::Create()\
     std::shared_ptr<Type> obj = std::make_shared<Type>();\
     return obj;\
 }\
-std::shared_ptr<Type> Type::Create(const glm::vec3& position, const glm::quat& orientation, const std::shared_ptr<ZScene>& scene)\
+std::shared_ptr<Type> Type::Create(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale, const std::shared_ptr<ZScene>& scene)\
 {\
-    std::shared_ptr<Type> obj = std::make_shared<Type>(position, orientation);\
+    std::shared_ptr<Type> obj = std::make_shared<Type>(position, orientation, scale);\
     if (scene) {\
         obj->scene_ = scene;\
     }\
@@ -61,16 +61,15 @@ std::shared_ptr<Type> Type::Create(const std::shared_ptr<ZOFNode>& root, const s
 
 // Includes
 #include "ZProcess.hpp"
-#include "ZGraphicsComponent.hpp"
+#include "ZRenderable.hpp"
 #include "ZProcessRunner.hpp"
-#include "ZStringHelpers.hpp"
+#include "ZOFTree.hpp"
 
 // Forward Declarations
 class ZGame;
 class ZScene;
 class ZSkybox;
 class ZGrass;
-struct ZOFNode;
 
 // Class Definitions
 struct ZGameObjectProperties
@@ -79,8 +78,9 @@ struct ZGameObjectProperties
     glm::vec4 position, previousPosition;
     glm::vec3 scale, previousScale;
     glm::quat orientation, previousOrientation;
-    glm::mat4 modelMatrix;
+    glm::mat4 localModelMatrix, modelMatrix;
     std::string name;
+    bool active = true;
 };
 
 class ZGameObject : public ZProcess, public ZRenderable, public std::enable_shared_from_this<ZGameObject>
@@ -92,17 +92,17 @@ class ZGameObject : public ZProcess, public ZRenderable, public std::enable_shar
 
 public:
 
-    ZGameObject(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)));
+    ZGameObject(const glm::vec3& position = glm::vec3(0.f, 0.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f));
     ZGameObject(const std::string& name) : ZGameObject() { properties_.name = name; }
     virtual ~ZGameObject() {}
 
     virtual void Initialize() override { ZProcess::Initialize(); }
     virtual void Initialize(std::shared_ptr<ZOFNode> root);
 
-    virtual void PreRender();
+    virtual void PreRender() { }
     virtual void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
     virtual void RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color);
-    virtual void PostRender();
+    virtual void PostRender() { }
     virtual bool Renderable() override { return true; }
 
     void CalculateDerivedData();
@@ -130,20 +130,25 @@ public:
     glm::vec3 PreviousUp();
     glm::vec3 PreviousRight();
 
+    void SetScene(const std::shared_ptr<ZScene>& scene);
     void SetPosition(const glm::vec3& position);
     void SetScale(const glm::vec3& scale);
     void SetOrientation(const glm::quat& quaternion);
     void SetOrientation(const glm::vec3& euler);
+    void SetLocalModelMatrix(const glm::mat4& modelMatrix);
     void SetModelMatrix(const glm::mat4& modelMatrix);
     void SetRenderOrder(ZRenderOrder renderOrder) { properties_.renderOrder = renderOrder; }
     void SetName(const std::string& name) { properties_.name = name; }
+    void SetActive(bool active = true);
+
+    void Translate(const glm::vec3& translation, bool global = false);
 
     template<class T>
     typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
         AddComponent(std::shared_ptr<T> component)
     {
         std::shared_ptr<T> foundComponent = FindComponent<T>();
-        if (foundComponent == nullptr)
+        if (foundComponent == nullptr || is_multiple_components_supported<T>::value)
         {
             component->object_ = this;
             components_.push_back(component);
@@ -151,31 +156,31 @@ public:
     }
 
     template<class T>
-    std::shared_ptr<T> RemoveComponent()
+    std::shared_ptr<T> RemoveComponent(const std::string& id = "")
     {
-        ZComponentList::iterator found;
-        for (ZComponentList::iterator it = components_.begin(); it != components_.end(); ++it)
-        {
-            if (std::dynamic_pointer_cast<T>(*it))
-            {
-                found = it; break;
-            }
+        std::shared_ptr<T> removed = nullptr;
+        if (removed = FindComponent<T>(id)) {
+            components_.erase(found);
         }
-
-        if (found == components_.end()) return nullptr;
-
-        std::shared_ptr<T> removed = *found;
-        components_.erase(found);
         return removed;
     }
 
     template<class T>
-    std::shared_ptr<T> FindComponent()
+    std::shared_ptr<T> FindComponent(const std::string& id = "")
     {
-        for (std::shared_ptr<ZComponent> comp : components_)
-        {
-            if (std::dynamic_pointer_cast<T>(comp)) return std::dynamic_pointer_cast<T>(comp);
+        ZComponentList::iterator found;
+        if (is_multiple_components_supported<T>::value && !id.empty()) {
+            found = std::find_if(components_.begin(), components_.end(), [&id](const auto& comp) {
+                return std::dynamic_pointer_cast<T>(comp) != nullptr && id == comp->ID();
+            });
         }
+        else {
+            found = std::find_if(components_.begin(), components_.end(), [&id](const auto& comp) {
+                return std::dynamic_pointer_cast<T>(comp) != nullptr;
+            });
+        }
+        if (found != components_.end())
+            return std::dynamic_pointer_cast<T>(*found);
         return nullptr;
     }
 
@@ -215,6 +220,7 @@ protected:
         std::mutex orientation;
         std::mutex scale;
         std::mutex modelMatrix;
+        std::mutex localModelMatrix;
     } objectMutexes_;
 
     static ZIDSequence idGenerator_;

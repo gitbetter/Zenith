@@ -1,7 +1,9 @@
 CONFIG
+    :editorSizeLimits [800.0, 600.0, 0.0, 0.0]:
     THEME
         :font "/Fonts/clemente.ttf" 13.0:
         :primaryColor [0.5, 0.5, 0.5, 1.0]:
         :secondaryColor [0.2, 0.2, 0.2, 1.0]:
+        :highlightColor [0.454, 0.854, 0.945, 1.0]:
     ^
 ^

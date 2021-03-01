@@ -37,6 +37,7 @@
 #include "ZResourceExtraData.hpp"
 #include "ZCamera.hpp"
 #include "ZFont.hpp"
+#include "ZDomain.hpp"
 
 #include "ZUIVerticalLayout.hpp"
 #include "ZUIHorizontalLayout.hpp"
@@ -49,6 +50,7 @@
 #include "ZConsoleTool.hpp"
 #include "ZInspectorTool.hpp"
 #include "ZHierarchyTool.hpp"
+#include "ZFrameStatsDisplay.hpp"
 
 void ZEditorScene::Initialize() {
     ZServices::EventAgent()->Subscribe(this, &ZEditorScene::HandleResourceLoaded);
@@ -63,14 +65,24 @@ void ZEditorScene::Initialize() {
     Play();
 }
 
+void ZEditorScene::Update(double deltaTime) {
+    ZScene::Update(deltaTime);
+    for (std::shared_ptr<ZEditorEntity> entity : entities_) {
+        entity->Update();
+    }
+}
+
 void ZEditorScene::CleanUp() {
     ZServices::EventAgent()->Unsubscribe(this, &ZEditorScene::HandleResourceLoaded);
+    for (std::shared_ptr<ZEditorEntity> entity : entities_) {
+        entity->CleanUp();
+    }
     ZScene::CleanUp();
 }
 
 std::shared_ptr<ZCamera> ZEditorScene::CreateCamera() {
 
-    std::shared_ptr<ZCamera> camera = ZCamera::Create(glm::vec3(0.f, 15.f, 50.f), glm::vec3(0.f), shared_from_this());
+    std::shared_ptr<ZCamera> camera = ZCamera::Create(glm::vec3(0.f, 15.f, 50.f), glm::vec3(0.f), glm::vec3(1.f), shared_from_this());
     camera->SetType(ZCameraType::Perspective);
     AddGameObject(camera);
     return camera;
@@ -105,14 +117,14 @@ std::shared_ptr<ZUIPanel> ZEditorScene::CreateHorizontalRegion(const ZRect& rect
 void ZEditorScene::SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene)
 {
     activeProjectScene_ = activeScene;
-    for (auto tool : tools_) {
-        tool->SetActiveProjectScene(activeProjectScene_);
+    for (std::shared_ptr<ZEditorEntity> entity : entities_) {
+        entity->SetActiveProjectScene(activeProjectScene_);
     }
 }
 
 void ZEditorScene::AddTool(const std::shared_ptr<ZEditorTool>& tool, const std::shared_ptr<ZUIPanel>& layoutRegion)
 {
-    tools_.push_back(tool);
+    entities_.push_back(tool);
     tool->Initialize(shared_from_this());
     tool->SetActiveProjectScene(activeProjectScene_);
     layoutRegion->AddChild(tool->Container());
@@ -146,6 +158,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.2f, 1.f);
+    elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 2.5f, 0.f);
     leftPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
     contentPanel->AddChild(leftPanel_);
@@ -165,6 +178,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.7f, 1.0f);
+    elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 5.f, 0.f);
     centerPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
     sceneContentPanel->AddChild(centerPanel_);
@@ -176,6 +190,7 @@ void ZEditorScene::SetupLayoutPanels() {
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.3f, 1.0f);
+    elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 2.5f, 0.f);
     rightPanel_ = ZUIPanel::Create(elementOptions, shared_from_this());
 
     sceneContentPanel->AddChild(rightPanel_);
@@ -204,6 +219,7 @@ void ZEditorScene::SetupInitialTools() {
     AddTool(std::make_shared<ZActionBar>(config_.theme), topPanel_);
     AddTool(std::make_shared<ZMenuBar>(config_.theme), topPanel_);
     AddTool(std::make_shared<ZSceneTool>(config_.theme), centerPanel_);
+    AddTool(std::make_shared<ZFrameStatsDisplay>(config_.theme), centerPanel_);
     AddTool(std::make_shared<ZProjectTool>(config_.theme), bottomPanel_);
     AddTool(std::make_shared<ZConsoleTool>(config_.theme), bottomPanel_);
     AddTool(std::make_shared<ZInspectorTool>(config_.theme), leftPanel_);
@@ -214,6 +230,12 @@ void ZEditorScene::Configure(std::shared_ptr<ZOFTree> objectTree) {
     ZEditorConfig config;
     if (objectTree->children.find("CONFIG") != objectTree->children.end()) {
         std::shared_ptr<ZOFObjectNode> configDataNode = std::static_pointer_cast<ZOFObjectNode>(objectTree->children["CONFIG"]);
+
+        if (configDataNode->properties.find("editorSizeLimits") != configDataNode->properties.end()) {
+            std::shared_ptr<ZOFNumberList> sizeLimitsProp = configDataNode->properties["editorSizeLimits"]->Value<ZOFNumberList>(0);
+            config.sizeLimits = glm::vec4(sizeLimitsProp->value[0], sizeLimitsProp->value[1], sizeLimitsProp->value[2], sizeLimitsProp->value[3]);
+        }
+
         if (configDataNode->children.find("THEME") != configDataNode->children.end()) {
             std::shared_ptr<ZOFObjectNode> themeDataNode = std::static_pointer_cast<ZOFObjectNode>(configDataNode->children["THEME"]);
             if (themeDataNode->properties.find("primaryColor") != themeDataNode->properties.end()) {
@@ -257,6 +279,11 @@ void ZEditorScene::Configure(ZEditorConfig config) {
         ZServices::ResourceCache()->RequestHandle(fontResource);
     }
 
+    Domain()->SetSizeLimits(
+        glm::vec2(config.sizeLimits.x, config.sizeLimits.y),
+        glm::vec2(config.sizeLimits.z, config.sizeLimits.w)
+    );
+
     SetupLayoutPanels();
     SetupInitialTools();
 }
@@ -264,13 +291,6 @@ void ZEditorScene::Configure(ZEditorConfig config) {
 void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
     gameObjectTemplates_ = ZGameObject::Load(objectTree, shared_from_this());
     uiElementTemplates_ = ZUIElement::Load(objectTree, shared_from_this());
-}
-
-void ZEditorScene::Update(double deltaTime) {
-    for (std::shared_ptr<ZEditorTool> tool : tools_) {
-        tool->Update();
-    }
-    ZScene::Update(deltaTime);
 }
 
 void ZEditorScene::HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event) {

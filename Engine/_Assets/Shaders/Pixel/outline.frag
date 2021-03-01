@@ -1,8 +1,8 @@
 #version 450 core
 
-in vec3 FragPos;
-in vec3 FragNormal;
-in vec3 FragUV;
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
+in VertexOutput vout;
 
 out vec4 FragColor;
 

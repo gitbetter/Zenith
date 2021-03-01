@@ -47,7 +47,7 @@ public:
     void* Window() const { return window_; }    
     glm::vec2 WindowSize() const { return options_.windowSize; }
     glm::vec2 Resolution() const { return options_.resolution; }
-    double Aspect() const { return options_.resolution.x / options_.resolution.y; }
+    double Aspect() const { return options_.resolution.y > 0 ? options_.resolution.x / options_.resolution.y : 0; }
     bool Visible() const { return !options_.offline; }
     bool Maximized() const { return options_.maximized; }
 
@@ -57,11 +57,13 @@ public:
     virtual void SwapBuffers() = 0;
     virtual void ResizeWindow(int width, int height) = 0;
     virtual void ResizeFramebuffer(int width, int height) = 0;
+    virtual void SetSizeLimits(const glm::vec2& min, const glm::vec2& max) = 0;
     virtual bool IsClosing() = 0;
     virtual void Close() = 0;
     virtual void SetWindow(void* window) = 0;
     virtual void SetAsCurrent() = 0;
     virtual void Destroy() = 0;
+    virtual void SetCursor(const ZCursor& cursor) = 0;
     virtual void OnWindowResized(const std::function<void(int, int)>& callback) = 0;
     virtual void OnFramebufferResized(const std::function<void(int, int)>& callback) = 0;
     virtual void CleanUp() = 0;
@@ -71,6 +73,7 @@ public:
 protected:
 
     void* window_ = nullptr;
+    std::vector<ZCursor> cursors_;
     ZDomainOptions options_;
 
     virtual void CreateWindow(int width, int height, bool maximized = true, bool visible = true, void* sharedContext = nullptr) = 0;

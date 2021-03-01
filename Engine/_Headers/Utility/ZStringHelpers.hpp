@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "ZCommon.hpp"
+#include <string>
 
 namespace zenith
 {
@@ -38,7 +38,9 @@ namespace zenith
         extern std::string FormatStringGlobals(const std::string& str);
         extern bool HasObjectPrefix(const std::string& str, const std::string& prefix);
         extern bool HasUIPrefix(const std::string& str);
+        extern bool HasComponentPrefix(const std::string& str);
         extern bool HasSuffix(const std::string& str, const std::string& suffix);
-        extern std::string StripFileExtension(const std::string& str);
+        extern std::string StripObjectPrefix(const std::string& str);
+        extern std::string StripIDSuffix(const std::string& str);
     }
 }

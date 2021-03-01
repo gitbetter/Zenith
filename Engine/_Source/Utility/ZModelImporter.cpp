@@ -136,16 +136,16 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
  @param mesh the mesh from which the vertices are loaded.
  @return a vector of ZVertex3D objects, one for each vertex in the mesh.
  */
-std::vector<ZVertex3D> ZModelImporter::LoadVertexData(const aiMesh* mesh)
+ZVertex3DList ZModelImporter::LoadVertexData(const aiMesh* mesh)
 {
-    std::vector<ZVertex3D> vertices;
+    ZVertex3DList vertices;
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
-        ZVertex3D vertex;
-
-        vertex.position = AssimpToGLMVec3(mesh->mVertices[i]);
-        vertex.normal = AssimpToGLMVec3(mesh->mNormals[i]);
-        vertex.uv = glm::vec2(0.0f, 0.0f);
+        ZVertex3D vertex(
+            AssimpToGLMVec3(mesh->mVertices[i]),
+            AssimpToGLMVec3(mesh->mNormals[i]),
+            glm::vec2(0.0f, 0.0f)
+        );
 
         if (mesh->mTextureCoords[0])
         {
@@ -262,7 +262,7 @@ std::shared_ptr<ZJoint> ZModelImporter::LoadSkeletonJoint(const aiNode* node)
  @param mesh the mesh from which to look for bones.
  @return a map of bone objects, where the key is the bone name.
  */
-void ZModelImporter::LoadBones(const aiMesh* mesh, std::vector<ZVertex3D>& vertices)
+void ZModelImporter::LoadBones(const aiMesh* mesh, ZVertex3DList& vertices)
 {
     for (unsigned int i = 0; i < mesh->mNumBones; i++)
     {

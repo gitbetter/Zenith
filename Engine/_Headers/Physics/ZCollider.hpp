@@ -38,26 +38,27 @@
 class ZCollider
 {
 
-    using Creator = std::shared_ptr<ZCollider>(*)(const glm::vec3& extents);
-
 public:
 
-    ZCollider(void* colliderPtr, ZColliderType type) : ptr_(colliderPtr), type_(type) {}
+    ZCollider(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset = glm::vec3(0.f))
+        : type_(type), extents_(extents), offset_(offset)
+    { }
     virtual ~ZCollider() {}
 
-    void* Get() { return ptr_; }
-    ZColliderType Type() { return type_; }
+    virtual void Initialize() = 0;
 
-    static std::shared_ptr<ZCollider> Create(const std::string& type, const glm::vec3& size);
-    static std::shared_ptr<ZCollider> CreateBoxCollider(const glm::vec3& extents);
-    static std::shared_ptr<ZCollider> CreateSphereCollider(const glm::vec3& extents);
-    static std::shared_ptr<ZCollider> CreateCapsuleCollider(const glm::vec3& extents);
+    void* Get() const { return ptr_; }
+    ZColliderType Type() const { return type_; }
+    const glm::vec3& Extents() const { return extents_; }
+    const glm::vec3& Offset() const { return offset_; }
+
+    static std::shared_ptr<ZCollider> Create(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset = glm::vec3(0.f));
 
 protected:
 
     void* ptr_ = nullptr;
     ZColliderType type_ = ZColliderType::None;
-
-    static std::map<std::string, Creator> colliderCreators_;
+    glm::vec3 extents_;
+    glm::vec3 offset_;
 
 };

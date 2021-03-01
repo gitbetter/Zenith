@@ -31,6 +31,7 @@
 
 // Includes
 #include "ZCommon.hpp"
+#include "ZOFTree.hpp"
 
 // Forward Declarations
 class ZGameObject;
@@ -123,5 +124,6 @@ private:
     ZMaterialIDMap pendingMaterials_;
 
     void InitializeShaders();
+    void InitializeFonts();
 
 };

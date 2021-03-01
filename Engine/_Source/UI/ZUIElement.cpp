@@ -29,6 +29,7 @@
 
 #include "ZServices.hpp"
 #include "ZScene.hpp"
+#include "ZMesh.hpp"
 #include "ZAssetStore.hpp"
 #include "ZDomain.hpp"
 #include "ZUIButton.hpp"
@@ -43,6 +44,7 @@
 #include "ZWindowResizeEvent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZWindowResizeEvent.hpp"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
@@ -59,6 +61,11 @@ ZUIElement::ZUIElement(const ZUIElementOptions& options) : modelMatrix_(1.f), pr
     id_ = "ZUI_" + idGenerator_.Next();
     type_ = ZUIElementType::Unknown;
     options_ = options;
+}
+
+ZUIElement::~ZUIElement()
+{
+    CleanUp();
 }
 
 void ZUIElement::Initialize() {
@@ -219,9 +226,9 @@ void ZUIElement::Draw()
 {
     std::shared_ptr<ZMesh2D> mesh = ElementShape();
     options_.shader->Activate();
+    options_.shader->ClearAttachments();
 
-    options_.texture->Bind(0);
-    options_.shader->SetInt(options_.texture->type + "Sampler0", 0);
+    options_.shader->BindAttachment(options_.texture->type + "Sampler0", options_.texture);
 
     options_.shader->SetMat4("M", modelMatrix_);
     options_.shader->SetMat4("P", projectionMatrix_);
@@ -230,15 +237,11 @@ void ZUIElement::Draw()
     options_.shader->SetFloat("borderWidth", 0.f);
     options_.shader->SetFloat("borderRadius", options_.border.radius);
     options_.shader->SetVec2("resolution", options_.calculatedRect.size);
-    options_.shader->SetFloat("aspectRatio", 1.f);
 
     if (options_.border.width > 0.f)
     {
-        float borderWidth = options_.border.width / glm::length(options_.calculatedRect.size);
-        float aspect = options_.rect.size.y / options_.rect.size.x;
         options_.shader->SetVec4("borderColor", options_.border.color);
-        options_.shader->SetFloat("borderWidth", borderWidth);
-        options_.shader->SetFloat("aspectRatio", aspect);
+        options_.shader->SetFloat("borderWidth", options_.border.width);
     }
 
     mesh->Render(options_.shader);
@@ -254,6 +257,8 @@ void ZUIElement::PostRender(double deltaTime, const std::shared_ptr<ZShader>& sh
 
 void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
 { 
+    children_[element->ID()] = element;
+
     element->SetOpacity(Opacity(), true);
     element->SetTranslationBounds(options_.translationBounds.x, options_.translationBounds.y, options_.translationBounds.z, options_.translationBounds.w);
 
@@ -261,8 +266,6 @@ void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
     element->SetScene(Scene());
 
     LayoutChild(element);
-
-    children_[element->ID()] = element;
 }
 
 void ZUIElement::RemoveChild(const std::shared_ptr<ZUIElement>& element, bool recurse)
@@ -318,6 +321,7 @@ void ZUIElement::SetRect(const ZRect& rect, const ZRect& relativeTo)
     if (options_.layout) {
         options_.layout->SetDimensions(options_.calculatedRect);
     }
+    OnRectChanged();
 }
 
 void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
@@ -336,6 +340,7 @@ void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
         options_.rect.size = size;
         options_.calculatedRect.size = options_.rect.size;
     }
+    ClampToSizeLimits();
     RecalculateModelMatrix();
 }
 
@@ -420,6 +425,7 @@ void ZUIElement::Scale(const glm::vec2& factor)
 {
     options_.rect.size *= factor;
     options_.calculatedRect.size *= factor;
+    ClampToSizeLimits();
     RecalculateModelMatrix();
 }
 
@@ -447,10 +453,7 @@ bool ZUIElement::TrySelect(const glm::vec3& position)
 
 bool ZUIElement::Contains(const glm::vec2& point)
 {
-    return point.x >= options_.calculatedRect.position.x &&
-        point.x <= options_.calculatedRect.position.x + options_.calculatedRect.size.x &&
-        point.y >= options_.calculatedRect.position.y &&
-        point.y <= options_.calculatedRect.position.y + options_.calculatedRect.size.y;
+    return options_.calculatedRect.Contains(point);
 }
 
 std::shared_ptr<ZMesh2D> ZUIElement::ElementShape()
@@ -464,8 +467,28 @@ void ZUIElement::CleanUp()
     ZUIElementMap childrenCopy(children_);
     for (auto it = childrenCopy.begin(); it != childrenCopy.end(); it++)
     {
-        it->second->CleanUp();
         RemoveChild(it->second);
+    }
+    ZServices::EventAgent()->Unsubscribe(this, &ZUIElement::OnWindowResized);
+}
+
+void ZUIElement::ClampToSizeLimits()
+{
+    if (options_.minSize.x > 0) {
+        options_.calculatedRect.size.x =
+            glm::clamp(options_.calculatedRect.size.x, options_.minSize.x, std::numeric_limits<float>::max());
+    }
+    if (options_.minSize.y > 0) {
+        options_.calculatedRect.size.y =
+            glm::clamp(options_.calculatedRect.size.y, options_.minSize.y, std::numeric_limits<float>::max());
+    }
+    if (options_.maxSize.x > 0) {
+        options_.calculatedRect.size.x =
+            glm::clamp(options_.calculatedRect.size.x, 0.f, options_.maxSize.x);
+    }
+    if (options_.maxSize.y > 0) {
+        options_.calculatedRect.size.y =
+            glm::clamp(options_.calculatedRect.size.y, 0.f, options_.maxSize.y);
     }
 }
 
@@ -527,12 +550,39 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
                 rect.size,
                 options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : options_.calculatedRect.size
             );
+            // We want to lock the relative position of the rect if it is already at its minimum size
+            if (element->options_.calculatedRect.size.x <= element->options_.minSize.x
+                || element->options_.calculatedRect.size.y <= element->options_.minSize.y) {
+                rect.size = element->options_.rect.size;
+            }
         }
         element->SetRect(rect, options_.calculatedRect);
     }
 
-    for (auto it = element->children_.begin(); it != element->children_.end(); it++) {
-        element->LayoutChild(it->second, true);
+    LayoutChildren(element, true);
+}
+
+void ZUIElement::LayoutChildren(const std::shared_ptr<ZUIElement>& element, bool force)
+{
+    // If there's a layout for the given element we want to traverse the children in order of the calculated rects
+    // in the layout object, otherwise we might update the rect for an element and miss updating dependent rects
+    // in the layout if those objects were already traversed.
+    if (element->options_.layout) {
+        std::vector<std::shared_ptr<ZUIElement>> layoutList;
+        for (auto it = element->options_.layout->Rects().begin(); it != element->options_.layout->Rects().end(); it++) {
+            auto elIt = element->children_.find((*it).id);
+            if (elIt != element->children_.end()) {
+                layoutList.push_back(elIt->second);
+            }
+        }
+        for (auto it = layoutList.begin(); it != layoutList.end(); it++) {
+            element->LayoutChild((*it), force);
+        }
+    }
+    else {
+        for (auto it = element->children_.begin(); it != element->children_.end(); it++) {
+            element->LayoutChild(it->second, force);
+        }
     }
 }
 
@@ -545,10 +595,8 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& even
         SetRect(options_.rect, parent ? parent->options_.calculatedRect : ZRect());
     }
 
-    if (options_.layout) {
-        for (auto it = children_.begin(); it != children_.end(); it++) {
-            LayoutChild(it->second, true);
-        }
+    for (auto it = children_.begin(); it != children_.end(); it++) {
+        LayoutChild(it->second, true);
     }
 }
 

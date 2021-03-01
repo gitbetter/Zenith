@@ -36,10 +36,11 @@
 #include "ZSkybox.hpp"
 #include "ZCamera.hpp"
 #include "ZOFTree.hpp"
+#include "ZFrustum.hpp"
 
 ZGraphicsComponent::ZGraphicsComponent() : ZComponent(), highlightColor_(0.f), isBillboard_(false)
 {
-    id_ = "ZCGraphics_" + idGenerator_.Next();
+    id_ = "ZCOMP_GRAPHICS_" + idGenerator_.Next();
 }
 
 ZGraphicsComponent::~ZGraphicsComponent()
@@ -52,8 +53,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_p
 {
     if (model)
     {
-        modelObject_ = model;
-        instanceData_ = modelObject_->InstanceData();
+        SetModel(model);
     }
     if (shader)
     {
@@ -63,8 +63,6 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model, std::shared_p
 
 void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
 {
-    ZComponent::Initialize();
-
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
     {
@@ -121,19 +119,6 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         {
             model_ = nameProp->value;
         }
-        else
-        {
-            if (props["model"]->ValueCount() > 1)
-            {
-                std::shared_ptr<ZOFNumberList> scaleProp = props["model"]->Value<ZOFNumberList>(1);
-                modelObject_ = ZModel::Create(nameProp->value, glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]));
-            }
-            else
-            {
-                modelObject_ = ZModel::Create(nameProp->value);
-            }
-            modelObject_->SetInstanceData(instanceData_);
-        }
     }
 
     if (props.find("materials") != props.end() && props["materials"]->HasValues())
@@ -164,14 +149,22 @@ std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
 
 void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
 {
-    if (gameCamera_ == nullptr || modelObject_ == nullptr) return;
+    auto model = Model();
+    if (!gameCamera_ || !model) return;
 
-    glm::mat4 modelMatrix = object_->Scene()->TopMatrix();
+    glm::mat4 modelMatrix = object_->ModelMatrix();
     glm::mat4 projectionMatrix = gameCamera_->ProjectionMatrix();
     glm::mat4 viewMatrix = gameCamera_->ViewMatrix();
 
-    auto activeShader = ActiveShader();
-    if (!activeShader) activeShader = shader;
+    auto activeShader = shader;
+    auto attachments = shader->Attachments();
+    if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow) {
+        if (ActiveShader()) {
+            activeShader = ActiveShader();
+        }
+    }
+    activeShader->ClearAttachments();
+    activeShader->SetAttachments(attachments);
 
     // Make sure we write to the stencil buffer (if outlining is enabled, we'll need these bits)
     ZServices::Graphics()->EnableStencilBuffer();
@@ -179,6 +172,10 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
 
     if (activeShader)
     {
+        activeShader->Activate();
+
+        activeShader->BindAttachments();
+
         activeShader->Use(gameLights_);
 
         activeShader->SetMat4("P", projectionMatrix);
@@ -188,33 +185,23 @@ void ZGraphicsComponent::Render(double deltaTime, const std::shared_ptr<ZShader>
         activeShader->SetVec3("viewPosition", gameCamera_->Position());
         activeShader->SetBool("instanced", false);
 
-        if (!gameLights_.empty()) {
+        if (!gameLights_.empty() && renderOp != ZRenderOp::Shadow) {
             // TODO: Defer this computation or choose light based on id for forward rendering
-            activeShader->SetMat4("P_lightSpace", gameLights_.begin()->second->LightSpaceMatrix());
+            auto light = gameLights_.begin()->second;
+            activeShader->SetMat4List("ViewProjectionLightSpace", light->LightSpaceMatrices());
+            activeShader->SetFloatList("shadowFarPlanes", light->ShadowFarPlaneSplits());
         }
 
-        if (object_->Scene()->Skybox() != nullptr)
-        {
-            ZIBLTexture iblTexture = object_->Scene()->Skybox()->IBLTexture();
-            if (iblTexture.irradiance) {
-                iblTexture.irradiance->Bind(3);
-                activeShader->SetInt("irradianceMap", 3);
-            }
-            if (iblTexture.prefiltered) {
-                iblTexture.prefiltered->Bind(4);
-                activeShader->SetInt("prefilterMap", 4);
-            }
-            if (iblTexture.brdfLUT) {
-                iblTexture.brdfLUT->Bind(5);
-                activeShader->SetInt("brdfLUT", 5);
-            }
-        }
-
-        modelObject_->Render(activeShader, Materials());
+        model->Render(activeShader, Materials());
     }
 
     ZServices::Graphics()->DisableAlphaBlending();
     DrawOutlineIfEnabled(modelMatrix, object_->Scene()->ViewProjection());
+
+    if (object_->Scene()->GameConfig().graphics.drawAABBDebug && hasAABB_)
+    {
+        ZServices::Graphics()->DebugDraw(object_->Scene(), bounds_, glm::vec4(1.f));
+    }
 }
 
 std::shared_ptr<ZShader> ZGraphicsComponent::ActiveShader()
@@ -239,6 +226,7 @@ std::shared_ptr<ZModel> ZGraphicsComponent::Model()
     {
         modelObject_ = scene->AssetStore()->GetModel(model_);
         modelObject_->SetInstanceData(instanceData_);
+        SetupAABB();
         return modelObject_;
     }
     return nullptr;
@@ -289,22 +277,42 @@ void ZGraphicsComponent::SetModel(const std::shared_ptr<ZModel>& model)
 {
     modelObject_ = model;
     instanceData_ = modelObject_->InstanceData();
+    SetupAABB();
 }
 
-void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& model, const glm::mat4& viewProjection)
+void ZGraphicsComponent::SetupAABB()
 {
-    if (highlightShader_ == nullptr) return;
+    auto mat = object_ ? object_->ModelMatrix() : glm::mat4(1.f);
+    Transform(mat);
+}
+
+bool ZGraphicsComponent::IsVisible(ZFrustum frustrum)
+{
+    return !hasAABB_ || (modelObject_ && frustrum.Contains(bounds_));
+}
+
+void ZGraphicsComponent::Transform(const glm::mat4& mat)
+{
+    auto model = Model();
+    if (!hasAABB_ || !model) return;
+    bounds_ = mat * model->Bounds();
+}
+
+void ZGraphicsComponent::DrawOutlineIfEnabled(const glm::mat4& worldMat, const glm::mat4& viewProjection)
+{
+    auto model = Model();
+    if (!highlightShader_ || !model) return;
 
     ZServices::Graphics()->DisableStencilBuffer();
     highlightShader_->Activate();
 
-    glm::mat4 highlightModelMatrix = glm::scale(model, glm::vec3(1.03f, 1.03f, 1.03f));
+    glm::mat4 highlightModelMatrix = glm::scale(worldMat, glm::vec3(1.03f, 1.03f, 1.03f));
 
     highlightShader_->SetMat4("ViewProjection", viewProjection);
     highlightShader_->SetMat4("M", highlightModelMatrix);
     highlightShader_->SetVec4("color", highlightColor_);
 
-    modelObject_->Render(highlightShader_, Materials());
+    model->Render(highlightShader_, Materials());
 
     ZServices::Graphics()->EnableStencilBuffer();
 }
@@ -313,3 +321,5 @@ void ZGraphicsComponent::ClearOutline()
 {
     if (highlightShader_ != nullptr) highlightShader_ = nullptr;
 }
+
+DEFINE_COMPONENT_CREATORS(ZGraphicsComponent)

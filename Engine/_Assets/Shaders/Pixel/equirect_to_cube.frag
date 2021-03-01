@@ -1,8 +1,10 @@
 #version 450 core
 
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
 out vec4 FragColor;
 
-in vec3 localPos;
+in VertexOutput vout;
 
 uniform sampler2D equirectangularMap;
 
@@ -16,7 +18,7 @@ vec2 SampleSphericalMap(vec3 v) {
 }
 
 void main() {
-  vec2 uv = SampleSphericalMap(normalize(localPos));
+  vec2 uv = SampleSphericalMap(normalize(vout.FragLocalPos.xyz));
   vec3 color = texture(equirectangularMap, uv).rgb;
 
   FragColor = vec4(color, 1.0);

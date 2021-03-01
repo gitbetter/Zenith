@@ -51,11 +51,10 @@ std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::
 
 // Includes
 #include "ZRenderable.hpp"
-#include "ZMesh2D.hpp"
 #include "ZTexture.hpp"
 #include "ZProcess.hpp"
-#include "ZStringHelpers.hpp"
 #include "ZUIHelpers.hpp"
+#include "ZOFTree.hpp"
 
 // Forward Declarations
 class ZScene;
@@ -71,6 +70,12 @@ struct ZUIBorder
     float width{ 0.f };
     float radius{ 0.f };
     glm::vec4 color{ 0.f };
+
+    ZUIBorder() 
+    { }
+    ZUIBorder(const glm::vec4& color, float width, float radius)
+        : width(width), radius(radius), color(color)
+    { }
 };
 
 struct ZUIElementOptions
@@ -82,8 +87,10 @@ struct ZUIElementOptions
     ZPositioning                             positioning{ ZPositioning::Absolute };
     ZPositioning                             scaling{ ZPositioning::Absolute };
     ZRect                                    calculatedRect{ 0.f, 0.f, 1.f, 1.f };
-    float                                    orientation{ 0.f };
     ZRect                                    rect{ 0.f, 0.f, 0.f, 0.f };
+    float                                    orientation{ 0.f };
+    glm::vec2                                maxSize{ 0.f };
+    glm::vec2                                minSize{ 0.f };
     glm::vec4                                translationBounds{ 0.f, 1.f, 0.f, 1.f };
     glm::vec4                                color{ 0.0f };
     float                                    opacity{ 1.f };
@@ -103,14 +110,14 @@ public:
 
     ZUIElement(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
     ZUIElement(const ZUIElementOptions& options);
-    virtual ~ZUIElement() {}
+    virtual ~ZUIElement();
 
     virtual void                        Initialize() override;
     virtual void                        Initialize(const std::shared_ptr<ZOFNode>& root);
 
     void                                Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
     bool                                Renderable() override { return !options_.hidden; }
-
+    ZUIElementType                      Type() const { return type_; }
     bool                                Enabled() const { return options_.enabled; }
     bool                                Hidden() const { return  options_.hidden; }
     bool                                Selected() const { return  options_.selected; }
@@ -132,6 +139,7 @@ public:
     const std::shared_ptr<ZUILayout>&   Layout() const { return options_.layout; }
     glm::mat4                           ModelMatrix() const { return modelMatrix_; }
     glm::mat4                           ProjectionMatrix() const { return projectionMatrix_; }
+    ZUIElementOptions                   Options() const { return options_; }
     std::shared_ptr<ZUIElement>         Parent() const;
     std::shared_ptr<ZScene>             Scene() const;
 
@@ -216,12 +224,17 @@ protected:
     virtual void                        Draw();
     virtual void                        PostRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color);
 
+    virtual void                        OnRectChanged() { };
+
+    void                                LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force = false);
+    void                                LayoutChildren(const std::shared_ptr<ZUIElement>& element, bool force = false);
+
 private:
 
+    void                                ClampToSizeLimits();
     void                                ClampToBounds();
     void                                RecalculateModelMatrix();
     void                                RecalculateProjectionMatrix();
-    void                                LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force = false);
     void                                OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event);
 
 };

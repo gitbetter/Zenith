@@ -41,6 +41,7 @@ struct ZUILayoutOptions
     glm::vec2 defaultItemSize{ 0.f, 0.f };
     ZAlignment verticalAlign{ ZAlignment::Top };
     ZAlignment horizontalAlign{ ZAlignment::Left };
+    glm::vec2 padding{ 0.f };
 };
 
 struct ZUICalculatedLayoutEntry
@@ -55,9 +56,13 @@ class ZUILayout
 public:
 
     ZUILayout() { }
-    ZUILayout(const ZUILayoutOptions& options) : options_(options) { }
+    ZUILayout(const ZUILayoutOptions& options);
+    ZUILayout(const ZRect& dimensions, float itemSpacing, const glm::vec2& itemSize = glm::vec2(0.f),
+        ZAlignment hAlign = ZAlignment::Left, ZAlignment vAlign = ZAlignment::Top, const glm::vec2& padding = glm::vec2(0.f));
 
     virtual ~ZUILayout() { }
+
+    const std::vector<ZUICalculatedLayoutEntry>& Rects() const { return calculatedRects_; }
 
     void SetDimensions(const ZRect& rect);
 
@@ -67,6 +72,7 @@ public:
 protected:
 
     void RecalculateRects(const std::vector<ZUICalculatedLayoutEntry>::iterator& start);
+    void PadDimensions();
 
     virtual ZRect CalculateNewRect(const std::string& element, const glm::vec2& size) = 0;
 

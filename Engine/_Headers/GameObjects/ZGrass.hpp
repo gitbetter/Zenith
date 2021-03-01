@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZTextureReadyEvent;
+class ZGraphicsComponent;
 class ZShader;
 
 // Class and Data Structure Definitions
@@ -42,8 +43,8 @@ class ZGrass : public ZGameObject
 
 public:
 
-    ZGrass(const glm::vec3& position, const glm::quat& orientation)
-        : ZGameObject(position, orientation) { }
+    ZGrass(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
+        : ZGameObject(position, orientation, scale) { }
     ZGrass(unsigned int instances = 0);
     ~ZGrass() {}
 

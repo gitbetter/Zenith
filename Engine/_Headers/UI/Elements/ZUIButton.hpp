@@ -34,6 +34,7 @@
 
 // Forward Declarations
 class ZShader;
+class ZUIClicker;
 
 // Class and Data Structure Definitions
 class ZUIButton : public ZUIElement
@@ -57,5 +58,6 @@ public:
 protected:
 
     bool activated_ = false;
+    std::shared_ptr<ZUIClicker> clicker_ = nullptr;
 
 };

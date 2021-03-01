@@ -44,9 +44,9 @@ class ZCamera : public ZGameObject
 
 public:
 
-    ZCamera(const glm::vec3& position = glm::vec3(0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), ZCameraType type = ZCameraType::Orthographic);
+    ZCamera(const glm::vec3& position = glm::vec3(0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f), ZCameraType type = ZCameraType::Orthographic);
     ZCamera::ZCamera(ZCameraType type) 
-        : ZCamera(glm::vec3(0.f), glm::quat(glm::vec3(0.f)), type)
+        : ZCamera(glm::vec3(0.f), glm::quat(glm::vec3(0.f)), glm::vec3(1.f), type)
     { }
     ~ZCamera() {}
 
@@ -63,8 +63,9 @@ public:
     float Sensitivity() const { return lookSensitivity_; }
     float NearField() const { return nearClippingPlane_; }
     float FarField() const { return farClippingPlane_; }
-    ZFrustum& Frustum() { return frustum_; }
+    ZFrustum Frustum() const { return frustum_; }
     bool IsPrimary() const { return isPrimary_; }
+    bool Moving() const { return moving_; }
     glm::mat4 ProjectionMatrix();
     glm::mat4 ViewMatrix();
 
@@ -74,14 +75,12 @@ public:
     void SetMovementStyle(ZCameraMovementStyle style) { movementStyle_ = style; }
 
     void Move(float z, float x, bool useWorldFront = false);
-    void EnableDefaultMovement() { movementEnabled_ = true; }
-    void DisableDefaultMovement() { movementEnabled_ = false; }
+    void EnableMovement() { movementEnabled_ = true; }
+    void DisableMovement() { movementEnabled_ = false; }
 
     void Look(float pitch, float yaw);
-    void EnableDefaultLook() { lookEnabled_ = true; }
-    void DisableDefaultLook() { lookEnabled_ = false; }
-
-    void UpdateCameraOrientation();
+    void EnableLook() { lookEnabled_ = true; }
+    void DisableLook() { lookEnabled_ = false; }
 
     DECLARE_OBJECT_CREATORS(ZCamera)
 
@@ -90,12 +89,13 @@ private:
     bool isPrimary_ = false;
     bool movementEnabled_ = true;
     bool lookEnabled_ = true;
+    bool moving_ = true;
     float movementSpeed_ = 25.f;
     float lookSensitivity_ = 0.1f;
     float zoom_ = 45.0f;
     float zoomSpeed_ = 5.0f;
     float nearClippingPlane_ = 0.01f;
-    float farClippingPlane_ = 1000.0f;
+    float farClippingPlane_ = 100.0f;
     float cameraDamping_ = 0.02f;
     ZCameraType cameraType_;
     ZCameraMovementStyle movementStyle_;
@@ -105,6 +105,8 @@ private:
 
     double currentDeltaTime_ = 0.0;
     double lastDeltaTime_ = 0.0;
+
+    void UpdateCameraFrustum();
 
     void HandleMove(const std::shared_ptr<ZMoveEvent>& event);
     void HandleLook(const std::shared_ptr<ZLookEvent>& event);

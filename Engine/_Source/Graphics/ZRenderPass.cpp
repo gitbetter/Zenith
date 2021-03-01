@@ -31,9 +31,10 @@
 #include "ZServices.hpp"
 #include "ZFramebuffer.hpp"
 #include "ZShader.hpp"
-#include "ZMesh2D.hpp"
+#include "ZMesh.hpp"
 #include "ZScene.hpp"
 #include "ZRenderable.hpp"
+#include "ZSkybox.hpp"
 
 ZRenderPass::ZRenderPass(const std::shared_ptr<ZRenderable>& root, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp,
     const glm::vec2& size, bool multisample, std::initializer_list<ZRenderPass::ptr> dependencies)
@@ -52,8 +53,10 @@ void ZRenderPass::Initialize()
         framebuffer_ = ZFramebuffer::CreateColor(size_);
         break;
     case ZRenderOp::Depth:        
-    case ZRenderOp::Shadow:
         framebuffer_ = ZFramebuffer::CreateDepth(size_);
+        break;
+    case ZRenderOp::Shadow:
+        framebuffer_ = ZFramebuffer::CreateShadow(size_, NUM_SHADOW_CASCADES);
         break;
     default:
         framebuffer_ = ZFramebuffer::CreateColor(size_);
@@ -65,43 +68,72 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
 {
     if (!root_->Renderable()) return;
 
-    framebuffer_->Resize(size_.x, size_.y);
+    for (auto i = 0; i < framebuffer_->Attachments().size(); i++) {
+        if (!fixedSize_) {
+            framebuffer_->Resize(size_.x, size_.y);
+        }
 
-    if (multisample_) {
-        multisampledFramebuffer_->Resize(size_.x, size_.y, true);
-        multisampledFramebuffer_->Bind();
-    }
-    else {
-        framebuffer_->Bind();
-    }
+        if (multisample_) {
+            multisampledFramebuffer_->Resize(size_.x, size_.y);
+            multisampledFramebuffer_->Bind();
+            multisampledFramebuffer_->BindAttachment(i);
+        }
+        else {
+            framebuffer_->Bind();
+            framebuffer_->BindAttachment(i);
+        }
 
-    ZServices::Graphics()->ClearViewport(scene->GameConfig().graphics.clearColor);
-    ZServices::Graphics()->UpdateViewport(size_);
+        if (renderOp_ == ZRenderOp::Post) {
+            ZServices::Graphics()->DisableDepthTesting();
+        }
+        else if (renderOp_ == ZRenderOp::Depth) {
+            ZServices::Graphics()->ClearDepth();
+        }
+        else if (renderOp_ == ZRenderOp::Shadow) {
+            ZServices::Graphics()->CullFrontFaces();
+        }
 
-    if (renderOp_ == ZRenderOp::Depth || renderOp_ == ZRenderOp::Shadow) {
-        ZServices::Graphics()->ClearDepth();
-    }
-    else if (renderOp_ == ZRenderOp::Post) {
-        ZServices::Graphics()->DisableDepthTesting();
-    }
+        ZServices::Graphics()->ClearViewport(scene->GameConfig().graphics.clearColor);
+        ZServices::Graphics()->UpdateViewport(size_);
 
-    shader_->Activate();
-    BindDependencies();
+        shader_->Activate();
+        shader_->ClearAttachments();
 
-    if (renderOp_ == ZRenderOp::Post) {
-        PreparePostProcessing(scene);
-        screenTri_->Render(shader_);
-    }
-    else {
-        root_->Render(deltaTime, shader_, renderOp_);
-    }
+        BindDependencies();
 
-    if (renderOp_ == ZRenderOp::Post) {
-        ZServices::Graphics()->EnableDepthTesting();
-    }
+        if (renderOp_ == ZRenderOp::Post) {
+            PreparePostProcessingShader(scene);
+        }
 
-    if (multisample_) {
-        multisampledFramebuffer_->Blit(framebuffer_);
+        if (renderOp_ == ZRenderOp::Post) {
+            shader_->BindAttachments();
+            screenTri_->Render(shader_);
+        }
+        else if (renderOp_ == ZRenderOp::Shadow) {
+            auto fb = multisample_ ? multisampledFramebuffer_ : framebuffer_;
+            for (int j = 0; j < NUM_SHADOW_CASCADES; j++) {
+                PrepareShadowShader(scene, j);
+                fb->BindAttachmentLayer(j);
+                ZServices::Graphics()->ClearDepth();
+                root_->Render(deltaTime, shader_, renderOp_);
+            }
+        }
+        else {
+            PrepareIBLAttachments(scene);
+            root_->Render(deltaTime, shader_, renderOp_);
+        }
+
+        if (renderOp_ == ZRenderOp::Post) {
+            ZServices::Graphics()->EnableDepthTesting();
+        }
+
+        if (renderOp_ == ZRenderOp::Shadow) {
+            ZServices::Graphics()->CullBackFaces();
+        }
+
+        if (multisample_) {
+            multisampledFramebuffer_->Blit(framebuffer_);
+        }
     }
 
     // TODO: Use a better method to determine when to blit the current renderpass
@@ -114,32 +146,43 @@ void ZRenderPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
 
 void ZRenderPass::BindDependencies()
 {
-    unsigned int depthAttachments = 0;
-    unsigned int colorAttachments = 0;
-    unsigned int shadowAttachments = 0;
-    unsigned int index = 0;
-    for (auto dep : dependencies_) {
-        dep->framebuffer_->Attachment()->Bind(index);
-        switch (dep->renderOp_) {
-        case ZRenderOp::Post:
-        case ZRenderOp::Color:
-            shader_->SetInt(std::string("colorSampler") + std::to_string(colorAttachments++), index);
-            break;
-        case ZRenderOp::Shadow:
-            shader_->SetInt(std::string("shadowSampler") + std::to_string(shadowAttachments++), index);
-            break;
-        case ZRenderOp::Depth:
-            shader_->SetInt(std::string("depthSampler") + std::to_string(depthAttachments++), index);
-            break;
+    std::unordered_map<std::string, unsigned int> attachmentCount;
+    for (const auto& dep : dependencies_) {
+        for (const auto& attachment : dep->framebuffer_->Attachments()) {
+            std::string uniformName = attachment->type + "Sampler" + std::to_string(attachmentCount[attachment->type]++);
+            shader_->AddAttachment(uniformName, attachment);
         }
-        ++index;
     }
 }
 
-void ZRenderPass::PreparePostProcessing(const std::shared_ptr<ZScene>& scene)
+void ZRenderPass::PrepareIBLAttachments(const std::shared_ptr<ZScene>& scene)
 {
-    bool useMotionBlur = ZServices::Graphics()->HasMotionBlur();
+    if (scene->Skybox())
+    {
+        ZIBLTexture iblTexture = scene->Skybox()->IBLTexture();
+        if (iblTexture.irradiance) {
+            shader_->AddAttachment("irradianceMap", iblTexture.irradiance);
+        }
+        if (iblTexture.prefiltered) {
+            shader_->AddAttachment("prefilterMap", iblTexture.prefiltered);
+        }
+        if (iblTexture.brdfLUT) {
+            shader_->AddAttachment("brdfLUT", iblTexture.brdfLUT);
+        }
+    }
+}
+
+void ZRenderPass::PreparePostProcessingShader(const std::shared_ptr<ZScene>& scene)
+{
     shader_->SetMat4("previousViewProjection", scene->PreviousViewProjection());
     shader_->SetMat4("inverseViewProjection", glm::inverse(scene->ViewProjection()));
-    shader_->SetBool("useMotionBlur", useMotionBlur);
+    shader_->SetBool("useMotionBlur", ZServices::Graphics()->HasMotionBlur());
+}
+
+void ZRenderPass::PrepareShadowShader(const std::shared_ptr<ZScene>& scene, int cascade)
+{
+    auto lights = scene->GameLights();
+    if (!lights.empty()) {
+        shader_->SetMat4("ViewProjectionLightSpace", lights.begin()->second->LightSpaceMatrices()[cascade]);
+    }
 }

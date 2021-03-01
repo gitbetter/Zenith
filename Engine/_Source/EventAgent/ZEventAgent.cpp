@@ -153,12 +153,15 @@ void ZEventAgent::Update(double deltaTime)
     const float maxTime = ((updateTimeoutMax_ == floatMax) ? floatMax : currentTime + updateTimeoutMax_);
 
     int listenersToProcess = activeListeners_;
-    activeListeners_ = (activeListeners_ + 1) % NUM_LISTENER_QUEUES;
-    eventListeners_[activeListeners_] = eventListeners_[listenersToProcess];
-
     int queueToProcess = activeQueue_;
-    activeQueue_ = (activeQueue_ + 1) % NUM_EVENT_QUEUES;
-    eventQueues_[activeQueue_].clear();
+    {
+        std::lock_guard<std::mutex> listenersLock(mutexes_.listeners);
+        activeListeners_ = (activeListeners_ + 1) % NUM_LISTENER_QUEUES;
+        eventListeners_[activeListeners_] = eventListeners_[listenersToProcess];
+
+        activeQueue_ = (activeQueue_ + 1) % NUM_EVENT_QUEUES;
+        eventQueues_[activeQueue_].clear();
+    }
 
     while (!eventQueues_[queueToProcess].empty())
     {
@@ -184,18 +187,21 @@ void ZEventAgent::Update(double deltaTime)
         }
     }
 
-    bool queueFlushed = eventQueues_[queueToProcess].empty();
-    if (!queueFlushed)
     {
-        while (!eventQueues_[queueToProcess].empty())
+        std::lock_guard<std::mutex> listenersLock(mutexes_.listeners);
+        bool queueFlushed = eventQueues_[queueToProcess].empty();
+        if (!queueFlushed)
         {
-            std::shared_ptr<ZEvent> event = eventQueues_[queueToProcess].back();
-            eventQueues_[queueToProcess].pop_back();
-            eventQueues_[activeQueue_].emplace_front(event);
+            while (!eventQueues_[queueToProcess].empty())
+            {
+                std::shared_ptr<ZEvent> event = eventQueues_[queueToProcess].back();
+                eventQueues_[queueToProcess].pop_back();
+                eventQueues_[activeQueue_].emplace_front(event);
+            }
         }
-    }
 
-    eventListeners_[listenersToProcess] = eventListeners_[activeListeners_];
+        eventListeners_[listenersToProcess] = eventListeners_[activeListeners_];
+    }
 
     ZProcess::Update(deltaTime);
 }

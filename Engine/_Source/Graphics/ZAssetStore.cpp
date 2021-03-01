@@ -33,6 +33,7 @@
 #include "ZShader.hpp"
 #include "ZModel.hpp"
 #include "ZFont.hpp"
+#include "ZMaterial.hpp"
 #include "ZShaderReadyEvent.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZModelReadyEvent.hpp"
@@ -42,16 +43,18 @@
 void ZAssetStore::Initialize()
 {
     InitializeShaders();
+    InitializeFonts();
 
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleShaderReady);
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleTextureReady);
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleModelReady);
     ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleMaterialReady);
+    ZServices::EventAgent()->Subscribe(this, &ZAssetStore::HandleFontReady);
 }
 
 void ZAssetStore::InitializeShaders()
 {
-    pbrShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/pbr.frag"));
+    pbrShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"));
     debugShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/debug.vert", "/Shaders/Pixel/debug.frag"));
     shadowShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/depth.frag"));
     depthShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/depth.frag"));
@@ -65,6 +68,12 @@ void ZAssetStore::InitializeShaders()
     postShader_->Initialize();
     uiShader_->Initialize();
     textShader_->Initialize();
+}
+
+void ZAssetStore::InitializeFonts()
+{
+    auto arialDefault = ZFont::Create("/Fonts/arial/arial.ttf", 64.f);
+    AddFont(arialDefault->Name(), arialDefault);
 }
 
 void ZAssetStore::Load(std::shared_ptr<ZOFTree> root)
@@ -106,11 +115,23 @@ void ZAssetStore::Load(std::shared_ptr<ZOFTree> root)
 
 void ZAssetStore::LoadAsync(std::shared_ptr<ZOFTree> root)
 {
+    ZMaterialMap loadedMaterials; ZModelMap loadedModels;
+
     ZFont::CreateAsync(root, pendingFonts_);
     ZTexture::CreateAsync(root, pendingTextures_);
     ZShader::CreateAsync(root, pendingShaders_);
-    ZModel::CreateAsync(root, pendingModels_);
-    ZMaterial::CreateAsync(root, pendingMaterials_);
+    ZModel::CreateAsync(root, pendingModels_, loadedModels);
+    ZMaterial::CreateAsync(root, pendingMaterials_, loadedMaterials);
+
+    for (ZModelMap::iterator it = loadedModels.begin(); it != loadedModels.end(); it++)
+    {
+        AddModel(it->first, it->second);
+    }
+
+    for (ZMaterialMap::iterator it = loadedMaterials.begin(); it != loadedMaterials.end(); it++)
+    {
+        AddMaterial(it->first, it->second);
+    }
 }
 
 void ZAssetStore::RegisterFont(const std::string& fontPath, unsigned int fontSize)
@@ -283,6 +304,7 @@ void ZAssetStore::CleanUp()
         textShader_.reset();
     }
 
+    ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleFontReady);
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleShaderReady);
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleTextureReady);
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleModelReady);

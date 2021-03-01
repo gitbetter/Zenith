@@ -75,6 +75,8 @@ protected:
     bool fixedSize_ = false;
 
     void BindDependencies();
-    void PreparePostProcessing(const std::shared_ptr<ZScene>& scene);
+    void PrepareIBLAttachments(const std::shared_ptr<ZScene>& scene);
+    void PreparePostProcessingShader(const std::shared_ptr<ZScene>& scene);
+    void PrepareShadowShader(const std::shared_ptr<ZScene>& scene, int cascade);
 
 };

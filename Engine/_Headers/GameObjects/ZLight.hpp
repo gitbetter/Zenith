@@ -64,24 +64,32 @@ public:
     ZLAttenuationProperties attenuation;
     ZLSpotProperties spot;
 
-    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)))
-        : ZGameObject(position, orientation), type(ZLightType::Point), enabled(true) { }
+    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f))
+        : ZGameObject(position, orientation, scale), type(ZLightType::Point), enabled(true) { }
     ZLight(ZLightType lightType);
     ~ZLight() {}
 
     void Initialize() override { ZGameObject::Initialize(); }
     void Initialize(std::shared_ptr<ZOFNode> root) override;
+
+    bool IsVisible() override { return true; }
+    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
+
     std::shared_ptr<ZGameObject> Clone() override;
 
-    glm::mat4 LightSpaceMatrix() const { return lightspaceMatrix_; }
+    std::vector<glm::mat4> LightSpaceMatrices() const { return lightspaceMatrices_; }
+    const ZAABBox& LightSpaceRegion() const { return lightspaceRegion_; }
+    const std::vector<float>& ShadowFarPlaneSplits() const { return shadowFarPlaneSplits_; }
 
-    void UpdateLightspaceMatrix(const ZFrustum& frustum);
+    void UpdateLightspaceMatrices(const ZFrustum& frustum);
 
     DECLARE_OBJECT_CREATORS(ZLight)
 
 private:
 
-    glm::mat4 lightspaceMatrix_;
+    std::vector<float> shadowFarPlaneSplits_;
+    std::vector<glm::mat4> lightspaceMatrices_;
+    ZAABBox lightspaceRegion_;
 
     static std::map<std::string, ZLightType> lightTypesMap;
 

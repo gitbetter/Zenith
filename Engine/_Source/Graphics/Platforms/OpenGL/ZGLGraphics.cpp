@@ -87,6 +87,11 @@ void ZGLGraphics::EnableStencilTesting()
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
+void ZGLGraphics::DisableStencilTesting()
+{
+    glDisable(GL_STENCIL_TEST);
+}
+
 void ZGLGraphics::EnableStencilBuffer()
 {
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -158,6 +163,8 @@ void ZGLGraphics::ClearDepth()
 
 void ZGLGraphics::Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
 {
+    ZPR_SESSION_COLLECT_DRAWS(1);
+
     bufferData->Bind();
     if (!vertexData.indices.empty())
     {
@@ -187,6 +194,8 @@ void ZGLGraphics::Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex
 
 void ZGLGraphics::Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
 {
+    ZPR_SESSION_COLLECT_DRAWS(1);
+
     bufferData->Bind();
     if (vertexData.instanced.count > 1)
     {

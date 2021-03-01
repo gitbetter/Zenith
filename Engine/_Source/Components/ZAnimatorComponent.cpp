@@ -28,6 +28,7 @@
 */
 
 #include "ZAnimatorComponent.hpp"
+#include "ZGraphicsComponent.hpp"
 #include "ZGameObject.hpp"
 #include "ZModel.hpp"
 #include "ZMesh.hpp"
@@ -36,6 +37,7 @@
 ZAnimatorComponent::ZAnimatorComponent()
 {
     currentClip_.state = ZAnimationState::Invalid;
+    id_ = "ZCOMP_ANIMATOR_" + idGenerator_.Next();
 }
 
 void ZAnimatorComponent::Initialize(std::shared_ptr<ZOFNode> root)
@@ -114,3 +116,5 @@ void ZAnimatorComponent::Stop()
     if (currentClip_.state == ZAnimationState::Playing)
         currentClip_.state = ZAnimationState::Stopped;
 }
+
+DEFINE_COMPONENT_CREATORS(ZAnimatorComponent)

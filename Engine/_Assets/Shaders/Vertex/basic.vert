@@ -1,14 +1,16 @@
 #version 450 core
 
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+
 layout (location = 0) in vec4 aPos;
 
-out vec3 localPos;
+out VertexOutput vout;
 
 uniform mat4 P;
 uniform mat4 V;
 
 void main()
 {
-  localPos = vec3(aPos);
+  vout.FragLocalPos = aPos;
   gl_Position = P * V * aPos;
 }

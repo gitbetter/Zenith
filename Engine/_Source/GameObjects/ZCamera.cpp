@@ -34,8 +34,8 @@
 #include "ZOFTree.hpp"
 #include "ZDomain.hpp"
 
-ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, ZCameraType type)
-    : ZGameObject(position, orientation)
+ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale, ZCameraType type)
+    : ZGameObject(position, orientation, scale)
 {
     cameraType_ = type;
     zoom_ = cameraType_ == ZCameraType::Orthographic ? 180.f : 45.f;
@@ -52,10 +52,13 @@ void ZCamera::Initialize()
     ZServices::EventAgent()->Subscribe(this, &ZCamera::HandleMove);
     ZServices::EventAgent()->Subscribe(this, &ZCamera::HandleLook);
 
-    DisableDefaultMovement();
-    DisableDefaultLook();
+    DisableMovement();
+    DisableLook();
 
-    frustum_ = ZFrustum(zoom_, 1.f, nearClippingPlane_, farClippingPlane_);
+    auto scene = Scene();
+    if (!scene) return;
+
+    frustum_ = ZFrustum(zoom_, scene->Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
 
     ZGameObject::Initialize();
 }
@@ -88,7 +91,7 @@ void ZCamera::Initialize(std::shared_ptr<ZOFNode> root)
     if (props.find("sensitivity") != props.end() && props["sensitivity"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> prop = props["sensitivity"]->Value<ZOFNumber>(0);
-        lookSensitivity_ = prop->value;
+        lookSensitivity_ = prop->value * 0.1f;
     }
 
     if (props.find("type") != props.end() && props["type"]->HasValues())
@@ -142,7 +145,9 @@ void ZCamera::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, Z
     lastDeltaTime_ = currentDeltaTime_;
     currentDeltaTime_ = deltaTime;
 
-    UpdateCameraOrientation();
+    if (moving_) {
+        UpdateCameraFrustum();
+    }
 
     if (auto scene = Scene()) {
         frustum_.ratio = scene->Domain()->Aspect();
@@ -189,19 +194,29 @@ void ZCamera::CleanUp()
     ZServices::EventAgent()->Unsubscribe(this, &ZCamera::HandleLook);
 }
 
-void ZCamera::UpdateCameraOrientation()
+void ZCamera::UpdateCameraFrustum()
 {
     if (!lookEnabled_) return;
+    auto scene = Scene();
+    if (!scene) return;
 
     if (movementStyle_ == ZCameraMovementStyle::Follow)
     {
         pitchVelocity_ *= glm::pow(cameraDamping_, (float)currentDeltaTime_);
         yawVelocity_ *= glm::pow(cameraDamping_, (float)currentDeltaTime_);
-        pitch_ = glm::quat(pitchVelocity_ * (float)currentDeltaTime_);
-        yaw_ = glm::quat(yawVelocity_ * (float)currentDeltaTime_);
-        SetOrientation(glm::normalize(pitch_ * Orientation() * yaw_));
+
+        float epsilonSquared = EPSILON * EPSILON;
+        if (glm::length2(pitchVelocity_) <= epsilonSquared &&
+            glm::length2(yawVelocity_) <= epsilonSquared) {
+            moving_ = false;
+        }
+        else {
+            pitch_ = glm::quat(pitchVelocity_ * (float)currentDeltaTime_);
+            yaw_ = glm::quat(yawVelocity_ * (float)currentDeltaTime_);
+            SetOrientation(glm::normalize(pitch_ * Orientation() * yaw_));
+        }
     }
-    frustum_.Recalculate(Position(), Position() + Front(), Up());
+    frustum_.SetBasis(Position(), Position() + Front(), Up());
 }
 
 void ZCamera::Move(float z, float x, bool useWorldFront)
@@ -214,6 +229,8 @@ void ZCamera::Move(float z, float x, bool useWorldFront)
     {
         zoom_ += zoomSpeed_ * z * velocity;
     }
+
+    moving_ = true;
 }
 
 void ZCamera::HandleMove(const std::shared_ptr<ZMoveEvent>& event)
@@ -234,8 +251,9 @@ void ZCamera::Look(float pitch, float yaw)
     {
         pitch_ = glm::angleAxis(glm::radians(-pitch * lookSensitivity_), glm::vec3(1.f, 0.f, 0.f));
         yaw_ = glm::angleAxis(glm::radians(yaw * lookSensitivity_), glm::vec3(0.f, 1.f, 0.f));
-        SetOrientation(glm::normalize(pitch_ * Orientation() * yaw_));
     }
+
+    moving_ = true;
 }
 
 void ZCamera::HandleLook(const std::shared_ptr<ZLookEvent>& event)

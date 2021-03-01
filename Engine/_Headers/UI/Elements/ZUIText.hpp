@@ -31,10 +31,10 @@
 
 // Includes
 #include "ZUIElement.hpp"
-#include "ZBuffer.hpp"
 
 // Forward Declarations
-// class SomeClass;
+class ZBuffer;
+class ZFont;
 
 // Class and Data Structure Definitions
 class ZUIText : public ZUIElement
@@ -52,29 +52,40 @@ public:
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     const std::string& Text() const { return text_; }
-    const std::string& Font() const { return font_; }
+    std::shared_ptr<ZFont> Font();
     float FontScale() const { return fontScale_; }
     float LineSpacing() const { return lineSpacing_; }
     bool ShouldWrap() const { return wrapToBounds_; }
+    ZAlignment Alignment() const { return alignment_; }
     float MaxWrapBounds() const;
 
-    void SetText(const std::string& text) { text_ = text; }
-    void SetFontScale(float scale) { fontScale_ = scale; }
-    void SetFont(const std::string& font) { font_ = font; }
-    void SetWrap(bool wrap) { wrapToBounds_ = wrap; }
-    void SetLineSpacing(float spacing) { lineSpacing_ = spacing; }
+    void SetText(const std::string& text);
+    void SetFontScale(float scale);
+    void SetFont(const std::string& font);
+    void SetWrap(bool wrap);
+    void SetLineSpacing(float spacing);
+    void SetAlignment(ZAlignment alignment);
 
     DECLARE_UI_CREATORS(ZUIText)
 
 protected:
 
     std::string text_;
-    std::string font_;
+    std::string fontName_;
     float fontScale_;
     float lineSpacing_;
     bool wrapToBounds_;
-    ZBuffer::ptr bufferData_;
+    ZAlignment alignment_;
+    std::shared_ptr<ZFont> font_;
+    std::shared_ptr<ZBuffer> bufferData_;
+    ZVertex2DDataOptions textVertexData_;
 
     void Draw() override;
+
+    void OnRectChanged() override;
+
+private:
+
+    void RecalculateBufferData();
 
 };

@@ -46,8 +46,8 @@ private:
 
 public:
 
-    ZParticle(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)))
-        : ZGameObject(position, orientation) { }
+    ZParticle(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f))
+        : ZGameObject(position, orientation, scale) { }
     ~ZParticle() {}
 
     void Initialize() override;

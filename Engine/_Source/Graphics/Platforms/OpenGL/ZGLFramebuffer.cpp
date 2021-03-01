@@ -34,13 +34,21 @@
 #include <GLFW/glfw3.h>
 
 void ZGLFramebuffer::LoadColor(const glm::vec2& size, const ZTexture::ptr& colorTexture, bool multisample)
-{
-    attachment_ = colorTexture;
+{  
+    // This framebuffer has already been created, but we can still use this Load method to add texture attachments
+    if (id_ > 0) {
+        Delete();
+    }
+
     size_ = size;
+    multisampled_ = multisample;
     glGenFramebuffers(1, &id_);
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, colorTexture->id, 0);
+    if (colorTexture) {
+        attachments_.push_back(colorTexture);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture->multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, colorTexture->id, 0);
+    }
 
     GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, drawBuffers);
@@ -48,7 +56,7 @@ void ZGLFramebuffer::LoadColor(const glm::vec2& size, const ZTexture::ptr& color
     glGenRenderbuffers(1, &rboId_);
     glBindRenderbuffer(GL_RENDERBUFFER, rboId_);
 
-    if (multisample)
+    if (multisampled_)
     {
         glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, size.x, size.y);
     }
@@ -70,13 +78,21 @@ void ZGLFramebuffer::LoadColor(const glm::vec2& size, const ZTexture::ptr& color
 
 void ZGLFramebuffer::LoadDepth(const glm::vec2& size, const ZTexture::ptr& depthTexture)
 {
-    attachment_ = depthTexture;
+    // This framebuffer has already been created, but we can still use this Load method to add texture attachments
+    if (id_ > 0) {
+        Delete();
+    }
+
     size_ = size;
     glGenFramebuffers(1, &id_);
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture->id, 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
+
+    if (depthTexture) {
+        attachments_.push_back(depthTexture);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture->id, 0);
+    }
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
     {
@@ -88,6 +104,10 @@ void ZGLFramebuffer::LoadDepth(const glm::vec2& size, const ZTexture::ptr& depth
 
 void ZGLFramebuffer::LoadCubeMap()
 {
+    if (id_ > 0) {
+        Delete();
+    }
+
     size_ = glm::vec2(CUBE_MAP_SIZE, CUBE_MAP_SIZE);
     glGenFramebuffers(1, &id_);
     glGenRenderbuffers(1, &rboId_);
@@ -103,23 +123,47 @@ void ZGLFramebuffer::Bind()
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
 }
 
+void ZGLFramebuffer::BindAttachment(unsigned int attachmentIndex)
+{
+    if (attachmentIndex >= attachments_.size() || attachmentIndex < 0) {
+        return;
+    }
+    if (attachmentIndex != boundAttachment_) {
+        boundAttachment_ = attachmentIndex;
+        ZTexture::ptr texture = attachments_[boundAttachment_];
+        GLenum textureTarget = texture->type == "color" ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT;
+        // TODO: Do a better check for array textures or move this texture binding logic elsewhere!
+        glFramebufferTexture2D(GL_FRAMEBUFFER, textureTarget, texture->multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, texture->id, 0);
+    }
+}
+
+void ZGLFramebuffer::BindAttachmentLayer(unsigned int layer) {
+    ZTexture::ptr texture = attachments_[boundAttachment_];
+    if (texture->type.find("Array") == std::string::npos)
+        return;
+
+    GLenum textureTarget = texture->type == "colorArray" ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT;
+    // TODO: Do a better check for array textures or move this texture binding logic elsewhere!
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, textureTarget, texture->id, 0, layer);
+}
+
 void ZGLFramebuffer::BindRenderbuffer()
 {
     glBindRenderbuffer(GL_RENDERBUFFER, rboId_);
 }
 
-void ZGLFramebuffer::Resize(unsigned int width, unsigned int height, bool multisample)
+void ZGLFramebuffer::Resize(unsigned int width, unsigned int height)
 {
     if ((size_.x == width && size_.y == height)) return;
 
-    if (attachment_) {
-        size_ = glm::vec2(width, height);
-        attachment_->Resize(width, height, multisample);
+    size_ = glm::vec2(width, height);
+    for (const auto& attachment : attachments_) {
+        attachment->Resize(width, height);
     }
 
     BindRenderbuffer();
 
-    if (multisample)
+    if (multisampled_)
     {
         glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, width, height);
     }
@@ -150,4 +194,14 @@ void ZGLFramebuffer::Blit(const ZFramebuffer::ptr& destination)
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destination ? destination->ID() : 0);
     glBlitFramebuffer(0, 0, size_.x, size_.y, 0, 0, destinationSize.x, destinationSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void ZGLFramebuffer::Delete()
+{
+    if (id_ > 0) {
+        for (const auto& attachment : attachments_) {
+            attachment->Delete();
+        }
+        glDeleteFramebuffers(1, &id_);
+    }
 }
