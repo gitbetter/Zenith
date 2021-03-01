@@ -6,10 +6,10 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZRenderer3D.hpp
+    ZDrawCall.cpp
 
-    Created by Adrian Sanchez on 29/01/2021.
-    Copyright Â© 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 03/01/2021.
+    Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
 
@@ -27,36 +27,9 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "ZDrawCall.hpp"
 
-// Includes
-#include "ZRenderPass.hpp"
-
-// Forward Declarations
-class ZFramebuffer;
-class ZScene;
-
-// Class and Data Structure Definitions
-class ZRenderer3D
+ZDrawCall ZDrawCall::Create(ZMeshDrawStyle drawStyle)
 {
-
-public:
-
-    ZRenderer3D(const std::shared_ptr<ZScene>& scene) : scene_(scene) { };
-    ~ZRenderer3D() = default;
-
-    const std::vector<ZRenderPass::ptr>& Passes() const { return passes_; }
-
-    void SetTarget(const std::shared_ptr<ZFramebuffer>& target) { target_ = target; }
-
-    void Render(double deltaTime);
-
-    void AddPass(const ZRenderPass::ptr& pass);
-
-private:
-
-    std::vector<ZRenderPass::ptr> passes_;
-    std::shared_ptr<ZFramebuffer> target_ = nullptr;
-    std::shared_ptr<ZScene> scene_ = nullptr;
-
-};
+    return ZDrawCall(drawStyle);
+}

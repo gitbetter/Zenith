@@ -217,7 +217,7 @@ int main(int argc, const char* argv[]) {
     game->Initialize(gameOptions);
 
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    game->AssetStore()->RegisterFont(\"/Fonts/earth_orbiter/earthorbiter.ttf\");
+    ZServices::AssetStore()->RegisterFont(\"/Fonts/earth_orbiter/earthorbiter.ttf\");
 
     // Load a default scene from the engine
     ZScene::LoadIn({ \"/demo_scene.zof\" });

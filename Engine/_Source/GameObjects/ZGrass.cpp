@@ -35,18 +35,29 @@
 #include "ZShader.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZTextureReadyEvent.hpp"
+#include "ZUniformBuffer.hpp"
+#include "ZRenderStateGroup.hpp"
 
 ZGrass::ZGrass(unsigned int instances) : 
-    ZGameObject(), textureId_(std::string()), instanceCount_(instances), windDirection_(1.f), windStrength_(5.f), time_(0.f)
+    ZGameObject(), textureId_(std::string()), instanceCount_(instances), windDirection_(1.f), windStrength_(5.f), time_(0.f), objectHeight_(1.f)
 {
     ZServices::EventAgent()->Subscribe(this, &ZGrass::HandleTextureReady);
 }
 
 void ZGrass::Initialize()
 {
-    auto shader = ZShader::Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag");
     graphicsComp_ = std::static_pointer_cast<ZGraphicsComponent>(ZGraphicsComponent::CreateIn(shared_from_this()));
-    graphicsComp_->Initialize(nullptr, shader);
+    graphicsComp_->Initialize();
+
+    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::UserDefined, sizeof(ZGrassUniforms));
+    uniformBuffer_->Update(offsetof(ZGrassUniforms, windStrength), sizeof(windStrength_), &windStrength_);
+    uniformBuffer_->Update(offsetof(ZGrassUniforms, windDirection), sizeof(windDirection_), glm::value_ptr(windDirection_));
+    uniformBuffer_->Update(offsetof(ZGrassUniforms, objectHeight), sizeof(objectHeight_), &objectHeight_);
+
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.BindUniformBuffer(uniformBuffer_);
+    renderState_ = writer.End();
 
     std::vector<ZInstancedDataOptions> instanceDatas;
     for (unsigned int i = 0; i < cPolygonCount; i++)
@@ -94,6 +105,8 @@ void ZGrass::Initialize()
     {
         polygons_[k]->SetInstanceData(instanceDatas[k]);
     }
+
+    ZGameObject::Initialize();
 }
 
 void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
@@ -148,24 +161,15 @@ void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
     ZGrass::Initialize();
 }
 
-void ZGrass::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+void ZGrass::Prepare(double deltaTime)
 {
     auto scene = Scene();
     if (!scene) return;
 
-    auto activeShader = graphicsComp_->ActiveShader();
-    if (!activeShader) activeShader = shader;
-    activeShader->Activate();
-
     time_ += deltaTime;
     if (scene->PlayState() == ZPlayState::Playing) {
-        activeShader->SetFloat("timestamp", time_);
+        uniformBuffer_->Update(offsetof(ZGrassUniforms, timestamp), sizeof(time_), &time_);
     }
-    else {
-        activeShader->SetFloat("timestamp", 0.f);
-    }
-    activeShader->SetFloat("windStrength", windStrength_);
-    activeShader->SetVec3("windDirection", windDirection_);
 
     graphicsComp_->SetGameLights(scene->GameLights());
     graphicsComp_->SetGameCamera(scene->ActiveCamera());
@@ -173,7 +177,7 @@ void ZGrass::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZR
     for (auto it = polygons_.begin(); it != polygons_.end(); it++)
     {
         graphicsComp_->SetModel(*it);
-        graphicsComp_->Render(deltaTime, activeShader, renderOp);
+        graphicsComp_->Prepare(deltaTime, { renderState_ });
     }
 }
 
@@ -209,7 +213,7 @@ void ZGrass::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event
 {
     if (event->Texture()->name == textureId_)
     {
-        auto grassMaterial = ZMaterial::Create(std::vector<ZTexture::ptr>{ event->Texture() });
+        auto grassMaterial = ZMaterial::Create({ event->Texture() }, ZShader::Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
         graphicsComp_->AddMaterial(grassMaterial);
         ZServices::EventAgent()->Unsubscribe(this, &ZGrass::HandleTextureReady);
     }

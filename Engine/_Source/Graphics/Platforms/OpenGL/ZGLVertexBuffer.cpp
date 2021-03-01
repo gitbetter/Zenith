@@ -6,7 +6,7 @@
 	/\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
 	\/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-	ZGLBuffer.cpp
+	ZGLVertexBuffer.cpp
 
 	Created by Adrian Sanchez on 27/01/2021.
 	Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -27,13 +27,17 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZGLBuffer.hpp"
+#include "ZGLVertexBuffer.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void ZGLBuffer::Load(const ZVertex3DDataOptions& options)
+void ZGLVertexBuffer::Load(const ZVertex3DDataOptions& options)
 {
+    vertexCount = options.vertices.size();
+    indexCount = options.indices.size();
+    instanceCount = options.instanced.count;
+
     glGenVertexArrays(1, &vao_);
     glGenBuffers(1, &vbo_);
     glGenBuffers(1, &ivbo_);
@@ -107,7 +111,7 @@ void ZGLBuffer::Load(const ZVertex3DDataOptions& options)
     glBindVertexArray(0);
 }
 
-void ZGLBuffer::Bind()
+void ZGLVertexBuffer::Bind()
 {
     glBindVertexArray(vao_);
     if (ebo_ != 0) {
@@ -115,14 +119,17 @@ void ZGLBuffer::Bind()
     }
 }
 
-void ZGLBuffer::Unbind()
+void ZGLVertexBuffer::Unbind()
 {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-void ZGLBuffer::Load(const ZVertex2DDataOptions& options)
+void ZGLVertexBuffer::Load(const ZVertex2DDataOptions& options)
 {
+    vertexCount = options.vertices.size();
+    instanceCount = options.instanced.count;
+
     glGenVertexArrays(1, &vao_);
     glGenBuffers(1, &vbo_);
     glGenBuffers(1, &ivbo_);
@@ -166,8 +173,12 @@ void ZGLBuffer::Load(const ZVertex2DDataOptions& options)
     glBindVertexArray(0);
 }
 
-void ZGLBuffer::Update(const ZVertex3DDataOptions& vertexData)
+void ZGLVertexBuffer::Update(const ZVertex3DDataOptions& vertexData)
 {
+    vertexCount = vertexData.vertices.size();
+    indexCount = vertexData.indices.size();
+    instanceCount = vertexData.instanced.count;
+
     glBindVertexArray(vao_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_);
     glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(ZVertex3D), &vertexData.vertices[0], GL_DYNAMIC_DRAW);
@@ -186,8 +197,11 @@ void ZGLBuffer::Update(const ZVertex3DDataOptions& vertexData)
     glBindVertexArray(0);
 }
 
-void ZGLBuffer::Update(const ZVertex2DDataOptions& vertexData)
+void ZGLVertexBuffer::Update(const ZVertex2DDataOptions& vertexData)
 {
+    vertexCount = vertexData.vertices.size();
+    instanceCount = vertexData.instanced.count;
+
     glBindVertexArray(vao_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_);
     glBufferData(GL_ARRAY_BUFFER, vertexData.vertices.size() * sizeof(ZVertex2D), &vertexData.vertices[0], GL_DYNAMIC_DRAW);
@@ -200,7 +214,7 @@ void ZGLBuffer::Update(const ZVertex2DDataOptions& vertexData)
     glBindVertexArray(0);
 }
 
-void ZGLBuffer::Delete()
+void ZGLVertexBuffer::Delete()
 {
     glDeleteVertexArrays(1, &vao_);
     glDeleteBuffers(1, &vbo_);

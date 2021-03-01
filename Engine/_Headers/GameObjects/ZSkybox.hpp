@@ -36,6 +36,7 @@
 // Forward Declarations
 class ZTexture;
 class ZTextureReadyEvent;
+class ZRenderStateGroup;
 
 // Class and Data Structure Definitions
 class ZSkybox : public ZGameObject
@@ -60,11 +61,10 @@ public:
 
     std::shared_ptr<ZGameObject> Clone() override;
 
-    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
-
     bool IsVisible() override { return true; }
 
     ZIBLTexture IBLTexture() const { return iblTexture_; }
+    const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
 
     DECLARE_OBJECT_CREATORS(ZSkybox)
 
@@ -72,6 +72,8 @@ protected:
 
     std::shared_ptr<ZTexture> pendingHDRTexture_;
     ZIBLTexture iblTexture_;
+
+    std::shared_ptr<ZRenderStateGroup> renderState_;
 
     void HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& event);
 

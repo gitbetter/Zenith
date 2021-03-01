@@ -33,6 +33,8 @@
 #include "ZLookEvent.hpp"
 #include "ZOFTree.hpp"
 #include "ZDomain.hpp"
+#include "ZUniformBuffer.hpp"
+#include "ZRenderStateGroup.hpp"
 
 ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale, ZCameraType type)
     : ZGameObject(position, orientation, scale)
@@ -44,7 +46,7 @@ ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, const 
     yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
     pitchVelocity_ = glm::vec3(0.f);
     yawVelocity_ = glm::vec3(0.f);
-    id_ = "ZCAM_" + idGenerator_.Next();
+    id_ = "ZCAM_" + std::to_string(idGenerator_.Next());
 }
 
 void ZCamera::Initialize()
@@ -59,6 +61,13 @@ void ZCamera::Initialize()
     if (!scene) return;
 
     frustum_ = ZFrustum(zoom_, scene->Domain()->Aspect(), nearClippingPlane_, farClippingPlane_);
+
+    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::Camera, sizeof(ZCameraUniforms));
+
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.BindUniformBuffer(uniformBuffer_);
+    renderState_ = writer.End();
 
     ZGameObject::Initialize();
 }
@@ -140,7 +149,7 @@ void ZCamera::Initialize(std::shared_ptr<ZOFNode> root)
     Initialize();
 }
 
-void ZCamera::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+void ZCamera::Prepare(double deltaTime)
 {
     lastDeltaTime_ = currentDeltaTime_;
     currentDeltaTime_ = deltaTime;
@@ -148,6 +157,20 @@ void ZCamera::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, Z
     if (moving_) {
         UpdateCameraFrustum();
     }
+
+    previousViewProjection_ = viewProjection_;
+    view_ = GenerateViewMatrix();
+    projection_ = GenerateProjectionMatrix();
+    viewProjection_ = projection_ * view_;
+    inverseViewProjection_ = glm::inverse(viewProjection_);
+    auto viewPosition = Position();
+
+    uniformBuffer_->Update(offsetof(ZCameraUniforms, V), sizeof(view_), glm::value_ptr(view_));
+    uniformBuffer_->Update(offsetof(ZCameraUniforms, P), sizeof(projection_), glm::value_ptr(projection_));
+    uniformBuffer_->Update(offsetof(ZCameraUniforms, ViewProjection), sizeof(viewProjection_), glm::value_ptr(viewProjection_));
+    uniformBuffer_->Update(offsetof(ZCameraUniforms, PreviousViewProjection), sizeof(previousViewProjection_), glm::value_ptr(previousViewProjection_));
+    uniformBuffer_->Update(offsetof(ZCameraUniforms, InverseViewProjection), sizeof(inverseViewProjection_), glm::value_ptr(inverseViewProjection_));
+    uniformBuffer_->Update(offsetof(ZCameraUniforms, ViewPosition), sizeof(viewPosition), glm::value_ptr(viewPosition));
 
     if (auto scene = Scene()) {
         frustum_.ratio = scene->Domain()->Aspect();
@@ -175,15 +198,6 @@ std::shared_ptr<ZGameObject> ZCamera::Clone()
     clone->movementEnabled_ = movementEnabled_;
     clone->lookEnabled_ = lookEnabled_;
     return clone;
-}
-
-bool ZCamera::IsVisible()
-{
-    if (auto scene = Scene()) {
-        std::shared_ptr<ZCamera> activeCamera = scene->ActiveCamera();
-        return activeCamera->Frustum().Contains(Frustum()) || ZGameObject::IsVisible();
-    }
-    return false;
 }
 
 void ZCamera::CleanUp()
@@ -263,7 +277,7 @@ void ZCamera::HandleLook(const std::shared_ptr<ZLookEvent>& event)
     Look(event->Pitch(), event->Yaw());
 }
 
-glm::mat4 ZCamera::ProjectionMatrix()
+glm::mat4 ZCamera::GenerateProjectionMatrix()
 {
     glm::mat4 projectionMatrix(1.f);
 
@@ -289,7 +303,7 @@ glm::mat4 ZCamera::ProjectionMatrix()
     return projectionMatrix;
 }
 
-glm::mat4 ZCamera::ViewMatrix()
+glm::mat4 ZCamera::GenerateViewMatrix()
 {
     return glm::lookAt(Position(), Position() + Front(), Up());
 }

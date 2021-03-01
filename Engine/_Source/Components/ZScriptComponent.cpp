@@ -32,7 +32,7 @@
 
 ZScriptComponent::ZScriptComponent()
 {
-    id_ = "ZCOMP_SCRIPT_" + idGenerator_.Next();
+    id_ = "ZCOMP_SCRIPT_" + std::to_string(idGenerator_.Next());
 }
 
 std::shared_ptr<ZComponent> ZScriptComponent::Clone()

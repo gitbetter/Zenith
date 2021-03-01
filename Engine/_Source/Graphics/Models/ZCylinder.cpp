@@ -235,7 +235,7 @@ void ZCylinder::BuildSmooth()
     }
 
     meshes_.clear();
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options, ZMeshDrawStyle::Triangle);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }
@@ -393,7 +393,7 @@ void ZCylinder::BuildFlat()
     }
 
     meshes_.clear();
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options, ZMeshDrawStyle::Triangle);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }

@@ -33,7 +33,9 @@
 #include "ZAssetStore.hpp"
 #include "ZShader.hpp"
 #include "ZFont.hpp"
-#include "ZBuffer.hpp"
+#include "ZVertexBuffer.hpp"
+#include "ZRenderTask.hpp"
+#include "ZRenderPass.hpp"
 #include "ZDomain.hpp"
 
 ZUIText::ZUIText(const std::string& text, const std::string& font, float fontSize, const glm::vec2& position, const glm::vec2& scale)
@@ -53,14 +55,20 @@ ZUIText::ZUIText(const ZUIElementOptions& options, const std::string& text, cons
 void ZUIText::Initialize() {
     ZVertex2DDataOptions options;
     options.numVertices = 4;
-    bufferData_ = ZBuffer::Create(options);
+    bufferData_ = ZVertexBuffer::Create(options);
 
     if (auto scene = Scene()) {
-        options_.shader = scene->AssetStore()->TextShader();
+        options_.shader = ZServices::AssetStore()->TextShader();
         if (fontName_.empty()) fontName_ = "arial";
     }
 
     ZUIElement::Initialize();
+
+    ZRenderStateGroupWriter writer(renderState_);
+    writer.Begin();
+    writer.SetShader(options_.shader);
+    writer.BindVertexBuffer(bufferData_);
+    renderState_ = writer.End();
 }
 
 void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -104,6 +112,8 @@ void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
         std::shared_ptr<ZOFNumber> lineSpacingProp = props["lineSpacing"]->Value<ZOFNumber>(0);
         lineSpacing_ = lineSpacingProp->value;
     }
+
+    Initialize();
 }
 
 std::shared_ptr<ZFont> ZUIText::Font()
@@ -113,36 +123,41 @@ std::shared_ptr<ZFont> ZUIText::Font()
     auto scene = Scene();
     if (!scene) return nullptr;
 
-    if (!scene->AssetStore()->HasFont(fontName_)) {
+    if (!ZServices::AssetStore()->HasFont(fontName_)) {
         LOG("The font " + fontName_ + " has not been loaded.", ZSeverity::Warning);
         return nullptr;
     }
-    font_ = scene->AssetStore()->GetFont(fontName_);
+    font_ = ZServices::AssetStore()->GetFont(fontName_);
     RecalculateBufferData();
+
+    ZRenderStateGroupWriter writer(renderState_);
+    writer.Begin();
+    writer.BindTexture(font_->Atlas().texture);
+    renderState_ = writer.End();
+
     return font_;
 }
 
-void ZUIText::Draw()
+void ZUIText::Prepare(double deltaTime, unsigned int zOrder)
 {
+    if (text_.empty() || options_.hidden) return;
+
     auto scene = Scene();
     if (!scene) return;
 
     auto font = Font();
     if (!font) return;
 
-    if (text_.empty()) return;
-
     ZPR_SESSION_COLLECT_VERTICES(textVertexData_.vertices.size());
 
-    options_.shader->Activate();
-    options_.shader->ClearAttachments();
+    SetZOrder(zOrder);
 
-    options_.shader->SetMat4("P", projectionMatrix_);
-    options_.shader->SetVec4("color", options_.color);
-
-    options_.shader->BindAttachment(font->Atlas().texture->type + "0", font->Atlas().texture);
-
-    ZServices::Graphics()->Draw(bufferData_, textVertexData_, ZMeshDrawStyle::Triangle);
+    ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
+    auto uiTask = ZRenderTask::Compile(drawCall,
+        { renderState_ },
+        ZRenderPass::UI()
+    );
+    uiTask->Submit({ ZRenderPass::UI() });
 }
 
 void ZUIText::OnRectChanged()

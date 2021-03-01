@@ -145,11 +145,10 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
 {
     static std::shared_ptr<ZCylinder> cylinder = ZCylinder::Create(1.0f, 1.0f, 1.0f, glm::vec2(8.f));
     static std::shared_ptr<ZCylinder> cone = ZCylinder::Create(0.f, 0.5f, 1.0f, glm::vec2(8.f));
-    static std::shared_ptr<ZShader> gizmoShader = ZShader::Create("/Shaders/Vertex/gizmo.vert", "/Shaders/Pixel/gizmo.frag");   // TODO: Unlocalize this shader
 
     ZMaterialProperties materialProps;
-    materialProps.albedo = glm::vec4(glm::abs(axis), 1.f);
-    auto arrowMaterial = ZMaterial::Create(materialProps);
+    materialProps.look.albedo = glm::vec4(glm::abs(axis), 1.f);
+    auto arrowMaterial = ZMaterial::Create(materialProps, ZShader::Create("/Shaders/Vertex/gizmo.vert", "/Shaders/Pixel/gizmo.frag"));
 
     auto axisArrow = ZGameObject::Create();
 
@@ -159,7 +158,7 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
         glm::vec3(0.03f, 0.03f, 5.f)
     );
     auto graphicsComp = ZGraphicsComponent::CreateIn(arrowBase);
-    graphicsComp->Initialize(cylinder, gizmoShader);
+    graphicsComp->Initialize(cylinder);
     graphicsComp->AddMaterial(arrowMaterial);
 
     auto arrowTop = ZGameObject::Create(
@@ -168,7 +167,7 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
         glm::vec3(0.5f, 0.5f, 0.5f)
     );
     graphicsComp = ZGraphicsComponent::CreateIn(arrowTop);
-    graphicsComp->Initialize(cone, gizmoShader);
+    graphicsComp->Initialize(cone);
     graphicsComp->AddMaterial(arrowMaterial);
 
     axisArrow->AddChild(arrowBase);

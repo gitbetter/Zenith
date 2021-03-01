@@ -1,12 +1,10 @@
-#version 450 core
-
 #include "Shaders/common.glsl" //! #include "../common.glsl"
 
 out vec4 FragColor;
 
 in VertexOutput vout;
 
-uniform samplerCube environmentMap;
+uniform samplerCube environmentMapSampler0;
 
 void main() {
   vec3 normal = normalize(vout.FragNormal);
@@ -23,7 +21,7 @@ void main() {
       vec3 tangentSample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
       vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
 
-      irradiance += texture(environmentMap, sampleVec).rgb * cos(theta) * sin(theta);
+      irradiance += texture(environmentMapSampler0, sampleVec).rgb * cos(theta) * sin(theta);
       nrSamples++;
     }
   }

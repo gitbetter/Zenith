@@ -1,6 +1,8 @@
-#version 450 core
-
 #include "Shaders/common.glsl" //! #include "../common.glsl"
+#include "Shaders/Uniforms/object.glsl" //! #include "../Uniforms/object.glsl"
+#include "Shaders/Uniforms/model.glsl" //! #include "../Uniforms/model.glsl"
+#include "Shaders/Uniforms/camera.glsl" //! #include "../Uniforms/camera.glsl"
+#include "Shaders/Uniforms/light.glsl" //! #include "../Uniforms/light.glsl"
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
@@ -11,19 +13,16 @@ layout (location = 7) in mat4 instanceM;
 
 out VertexOutput vout;
 
-uniform mat4 M;
-uniform mat4 V;
-uniform mat4 ViewProjection;
-uniform mat4 ViewProjectionLightSpace[NUM_SHADOW_CASCADES];
-
 // Grass animation uniforms
-uniform float objectHeight = 1.0;
-uniform float timestamp = 0.0;
-uniform vec3 windDirection = vec3(1.0, 0.0, 0.0);
-uniform float windStrength = 5.0;
-uniform bool instanced = false;
+layout (std140, binding = USER_UBO0) uniform Grass
+{
+    float objectHeight;
+    float timestamp;
+    float windStrength;
+    vec4 windDirection;
+};
 
-vec4 CalculateTranslation(vec4 position, float time, vec3 windDirection, float windStrength);
+vec4 CalculateTranslation(vec4 position, float time, vec4 windDirection, float windStrength);
 
 void main()
 {   
@@ -45,13 +44,13 @@ void main()
     vout.FragTBN = mat3(T, B, N);
     vout.FragUV = texCoords;
     for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
-        vout.FragPosLightSpace[i] = ViewProjectionLightSpace[i] * vout.FragWorldPos;
+        vout.FragPosLightSpace[i] = ViewProjectionsLightSpace[i] * vout.FragWorldPos;
     }
     gl_Position = ViewProjection * vout.FragWorldPos;
 }
 
-vec4 CalculateTranslation(vec4 position, float time, vec3 windDirection, float windStrength)
+vec4 CalculateTranslation(vec4 position, float time, vec4 windDirection, float windStrength)
 {
-    vec3 windTranslation = windDirection * windStrength;
+    vec3 windTranslation = windDirection.xyz * windStrength;
     return vec4(position.xyz + windTranslation * sin(time * Random(vec2(instanceM[3][0], instanceM[3][2]))), 1.0);
 }

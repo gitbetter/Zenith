@@ -54,7 +54,7 @@ public:
     void Initialize(std::shared_ptr<ZOFNode> root) override { ZGameObject::Initialize(root); }
 
     void Update(double deltaTime) override;
-    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Prepare(double deltaTime) override;
 
     float Age() { return age_; }
     bool Active() { return active_; }

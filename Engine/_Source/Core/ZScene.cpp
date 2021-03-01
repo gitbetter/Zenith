@@ -30,8 +30,7 @@
 #include "ZScene.hpp"
 #include "ZServices.hpp"
 #include "ZAssetStore.hpp"
-#include "ZRenderer3D.hpp"
-#include "ZRenderer2D.hpp"
+#include "ZRenderer.hpp"
 #include "ZFramebuffer.hpp"
 #include "ZGame.hpp"
 #include "ZLight.hpp"
@@ -101,8 +100,7 @@ void ZScene::Initialize()
 
 void ZScene::SetupRenderers()
 {
-    renderer3D_ = std::make_shared<ZRenderer3D>(shared_from_this());
-    renderer2D_ = std::make_shared<ZRenderer2D>(shared_from_this());
+    renderer_ = std::make_shared<ZRenderer>(shared_from_this());
     if (gameConfig_.domain.offline) {
         SetupTargetDrawBuffer();
     }
@@ -111,57 +109,30 @@ void ZScene::SetupRenderers()
 void ZScene::SetupTargetDrawBuffer()
 {
     targetBuffer_ = ZFramebuffer::CreateColor(gameSystems_.domain->Resolution());
-    renderer3D_->SetTarget(targetBuffer_);
-    renderer2D_->SetTarget(targetBuffer_);
+    renderer_->SetTarget(targetBuffer_);
 }
 
 void ZScene::SetupRenderPasses()
 {
-    // TODO: For now we support one light source for shadows, but this should change
-    // so that multiple light space matrices are supported for multiple light sources
-    // that can cast shadows, possibly using deferred rendering
-
     // TODO: Possible performance penalty here. Color and depth information might be better computed in 
-    // a single render pass using multiple render targets.
-    ZRenderPass::ptr depthPass = std::make_shared<ZRenderPass>(
-        root_, gameSystems_.assetStore->DepthShader(), ZRenderOp::Depth, glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
-        );
-    depthPass->SetIsSizeFixed(true);
-    renderer3D_->AddPass(depthPass);
+    // a single render pass using multiple render targets (i.e. G-Buffer pass)
+    renderer_->AddPass(ZRenderPass::Depth());
 
-    ZRenderPass::ptr shadowPass = std::make_shared<ZRenderPass>(
-        root_, gameSystems_.assetStore->ShadowShader(), ZRenderOp::Shadow, glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
-        );
-    shadowPass->SetIsSizeFixed(true);
-    renderer3D_->AddPass(shadowPass);
+    renderer_->AddPass(ZRenderPass::Shadow());
 
-    ZRenderPass::ptr colorPass = std::make_shared<ZRenderPass>(
-        root_, gameSystems_.assetStore->PBRShader(), ZRenderOp::Color, gameSystems_.domain->Resolution(),
-        true, depthPass, shadowPass
-        );
-    renderer3D_->AddPass(colorPass);
+    renderer_->AddPass(ZRenderPass::Color(gameSystems_.domain->Resolution()));
 
-    ZRenderPass::ptr postPass = std::make_shared<ZRenderPass>(
-        root_, gameSystems_.assetStore->PostShader(), ZRenderOp::Post, gameSystems_.domain->Resolution(),
-        false, colorPass, depthPass, shadowPass
-        );
-    renderer3D_->AddPass(postPass);
+    renderer_->AddPass(ZRenderPass::Post(gameSystems_.domain->Resolution()));
 
-    canvas_->SetTexture(postPass->Framebuffer()->BoundAttachment());
-    ZRenderPass::ptr uiPass = std::make_shared<ZRenderPass>(
-        canvas_, gameSystems_.assetStore->UIShader(), ZRenderOp::UI, gameSystems_.domain->Resolution()
-        );
-    renderer2D_->AddPass(uiPass);
+    renderer_->AddPass(ZRenderPass::UI(gameSystems_.domain->Resolution()));
 }
 
 void ZScene::Update(double deltaTime)
 {
-    if (playState_ == ZPlayState::Playing || playState_ == ZPlayState::Paused)
-    {
-        UpdateViewProjectionMatrices();
-        UpdateLightspaceMatrices();
-        renderer3D_->Render(deltaTime);
-        renderer2D_->Render(deltaTime);
+    if (playState_ == ZPlayState::Playing || playState_ == ZPlayState::Paused) {
+        root_->Prepare(deltaTime);
+        canvas_->Prepare(deltaTime);
+        renderer_->Render(deltaTime);
     }
     else if (playState_ == ZPlayState::Loading) {
         CheckPendingObjects();
@@ -198,19 +169,6 @@ void ZScene::Stop()
     }
 }
 
-void ZScene::UpdateViewProjectionMatrices()
-{
-    previousViewProjection_ = viewProjection_;
-    if (activeCamera_)
-    {
-        viewProjection_ = activeCamera_->ProjectionMatrix() * activeCamera_->ViewMatrix();
-    }
-    else
-    {
-        viewProjection_ = glm::mat4(1.f);
-    }
-}
-
 void ZScene::UpdateLightspaceMatrices()
 {
     if (gameLights_.empty() || !activeCamera_->Moving()) return;
@@ -225,8 +183,6 @@ ZSceneSnapshot ZScene::Snapshot()
     ZSceneSnapshot snapshot;
     std::shared_ptr<ZScene> sceneClone = std::make_shared<ZScene>(name_);
 
-    sceneClone->viewProjection_ = viewProjection_;
-    sceneClone->previousViewProjection_ = previousViewProjection_;
     sceneClone->playState_ = playState_;
     sceneClone->state_ = state_;
 
@@ -247,8 +203,6 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot)
 {
     CreateSceneRoot(name_);
 
-    viewProjection_ = snapshot.scene->viewProjection_;
-    previousViewProjection_ = snapshot.scene->previousViewProjection_;
     playState_ = snapshot.scene->playState_;
     state_ = snapshot.scene->state_;
 
@@ -270,6 +224,7 @@ void ZScene::CreateSceneRoot(const std::string& name)
     root_ = ZSceneRoot::Create();
     root_->SetName(name);
     root_->SetScene(shared_from_this());
+    root_->Initialize();
 }
 
 void ZScene::CreateUICanvas()
@@ -385,10 +340,6 @@ void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element)
     {
         canvas_->AddChild(element);
         uiElements_[element->ID()] = element;
-
-        if (canvas_->Texture() != ZTexture::Default()) {
-            canvas_->SetTexture(ZTexture::Default());
-        }
     }
 }
 
@@ -433,16 +384,17 @@ std::shared_ptr<ZUIElement> ZScene::FindUIElement(const std::string& id)
 
 ZRay ZScene::ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions)
 {
-    if (!ActiveCamera())
+    auto cam = ActiveCamera();
+    if (!cam)
         return ZRay(glm::vec3(0.f), glm::vec3(0.f));
 
     auto rectRes = dimensions == glm::vec2(0.f) ? gameSystems_.domain->Resolution() : dimensions;
     float x = (2.f * point.x) / rectRes.x - 1.f;
     float y = (2.f * point.y) / rectRes.y - 1.f;
 
-    glm::vec4 start = glm::normalize(glm::inverse(viewProjection_) * glm::vec4(x, -y, 0.f, 1.f));
+    glm::vec4 start = glm::normalize(cam->InverseViewProjectionMatrix() * glm::vec4(x, -y, 0.f, 1.f));
     start /= start.w;
-    glm::vec4 end = glm::normalize(glm::inverse(viewProjection_) * glm::vec4(x, -y, 1.f, 1.f));
+    glm::vec4 end = glm::normalize(cam->InverseViewProjectionMatrix() * glm::vec4(x, -y, 1.f, 1.f));
     end /= end.w;
     glm::vec4 direction = glm::normalize(end - start);
 
@@ -471,7 +423,7 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFTree>& objectTree)
     // load times. Refactor this so the object tree is only traversed once, or erase
     // ZOF iterators as items are created.
     ZServices::ScriptManager()->LoadAsync(objectTree);
-    gameSystems_.assetStore->LoadAsync(objectTree);
+    ZServices::AssetStore()->LoadAsync(objectTree);
 
     ZOFLoadResult zofResults;
     zofResults.gameObjects = ZGameObject::Load(objectTree, shared_from_this());
@@ -543,10 +495,7 @@ void ZScene::HandleWindowResize(const std::shared_ptr<ZWindowResizeEvent>& event
     if (targetBuffer_) {
         targetBuffer_->Resize(newResolution.x, newResolution.y);
     }
-    for (auto pass : renderer3D_->Passes()) {
-        pass->SetSize(newResolution);
-    }
-    for (auto pass : renderer2D_->Passes()) {
+    for (auto pass : renderer_->Passes()) {
         pass->SetSize(newResolution);
     }
 }
@@ -646,8 +595,6 @@ void ZScene::CleanUp()
     uiElements_.clear();
 
     skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;
-
-    ZServices::Graphics()->ClearViewport(gameConfig_.graphics.clearColor);
 }
 
 void ZScene::Finish()

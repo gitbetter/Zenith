@@ -30,7 +30,7 @@
 // TODO: Conditional include based on graphics implementation
 #include "ZGLGraphics.hpp"
 #include "ZServices.hpp"
-#include "ZBuffer.hpp"
+#include "ZVertexBuffer.hpp"
 #include "ZFrustum.hpp"
 #include "ZShader.hpp"
 #include "ZFont.hpp"
@@ -46,6 +46,7 @@ void ZGLGraphics::Initialize()
     EnableDepthTesting();
     EnableStencilTesting();
     EnableSeamlessCubemap();
+    EnableFaceCulling();
     EnableMSAA();
 
     drawingStylesMap_[ZMeshDrawStyle::Point] = GL_POINT;
@@ -57,13 +58,6 @@ void ZGLGraphics::Initialize()
     drawingStylesMap_[ZMeshDrawStyle::Quads] = GL_QUADS;
 }
 
-void ZGLGraphics::ClearViewport(const glm::vec4& clearColor)
-{
-    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glStencilMask(0x00);
-}
-
 void ZGLGraphics::UpdateViewport(const glm::vec2& size, const glm::vec2& position)
 {
     glViewport(position.x, position.y, size.x, size.y);
@@ -73,6 +67,7 @@ void ZGLGraphics::EnableDepthTesting()
 {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    glClearDepth(1.0);
 }
 
 void ZGLGraphics::DisableDepthTesting()
@@ -110,7 +105,13 @@ void ZGLGraphics::EnableAlphaBlending()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void ZGLGraphics::DisableAlphaBlending()
+void ZGLGraphics::EnableAdditiveBlending()
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+}
+
+void ZGLGraphics::DisableBlending()
 {
     glDisable(GL_BLEND);
 }
@@ -155,55 +156,143 @@ void ZGLGraphics::CullBackFaces()
     glCullFace(GL_BACK);
 }
 
-void ZGLGraphics::ClearDepth()
+void ZGLGraphics::ClearViewport(const glm::vec4& clearColor, uint8_t clearFlags)
 {
-    glClearDepth(1.0f);
-    glClear(GL_DEPTH_BUFFER_BIT);
+    GLbitfield clearBits = clearFlags == 0 ? GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : 0;
+
+    if (clearFlags > 0) {
+        clearBits |= (clearFlags & static_cast<uint8_t>(ZClearFlags::Color)) ? GL_COLOR_BUFFER_BIT : 0;
+        clearBits |= (clearFlags & static_cast<uint8_t>(ZClearFlags::Depth)) ? GL_DEPTH_BUFFER_BIT : 0;
+        clearBits |= (clearFlags & static_cast<uint8_t>(ZClearFlags::Stencil)) ? GL_STENCIL_BUFFER_BIT : 0;
+    }
+
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    glClear(clearBits);
 }
 
-void ZGLGraphics::Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
+void ZGLGraphics::ClearViewport(const glm::vec4& clearColor, const std::initializer_list<ZClearFlags>& clearFlags)
 {
-    ZPR_SESSION_COLLECT_DRAWS(1);
+    GLbitfield clearBits = clearFlags.size() == 0 ? GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : 0;
 
+    for (auto flag : clearFlags) {
+        if (flag == ZClearFlags::Color) clearBits |= GL_COLOR_BUFFER_BIT;
+        else if (flag == ZClearFlags::Depth) clearBits |= GL_DEPTH_BUFFER_BIT;
+        else if (flag == ZClearFlags::Stencil) clearBits |= GL_STENCIL_BUFFER_BIT;
+    }
+
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    glClear(clearBits);
+}
+
+void ZGLGraphics::CullFaces(uint8_t faceCullState)
+{
+    bool frontFace = faceCullState & static_cast<uint8_t>(ZFaceCullState::Front);
+    bool backFace = faceCullState & static_cast<uint8_t>(ZFaceCullState::Back);
+    if (frontFace && backFace)
+        glCullFace(GL_FRONT_AND_BACK);
+    else if (frontFace)
+        glCullFace(GL_FRONT);
+    else if (backFace)
+        glCullFace(GL_BACK);
+}
+
+void ZGLGraphics::CullFaces(const std::initializer_list<ZFaceCullState>& faceCullState)
+{
+    bool frontFace = false, backFace = false;
+    for (auto faceCull : faceCullState) {
+        if (faceCull == ZFaceCullState::Front) frontFace = true;
+        else if (faceCull == ZFaceCullState::Back) backFace = true;
+    }
+    if (frontFace && backFace)
+        glCullFace(GL_FRONT_AND_BACK);
+    else if (frontFace)
+        glCullFace(GL_FRONT);
+    else if (backFace)
+        glCullFace(GL_BACK);
+}
+
+void ZGLGraphics::SetDepthStencilState(uint8_t depthStencilState)
+{
+    bool depthEnabled = depthStencilState & static_cast<uint8_t>(ZDepthStencilState::Depth);
+    bool stencilEnabled = depthStencilState & static_cast<uint8_t>(ZDepthStencilState::Stencil);
+
+    if (depthEnabled) {
+        EnableDepthTesting();
+    }
+    else {
+        DisableDepthTesting();
+    }
+
+    if (stencilEnabled) {
+        EnableStencilTesting();
+        EnableStencilBuffer();
+    }
+    else {
+        DisableStencilBuffer();
+        DisableStencilTesting();
+    }
+}
+
+void ZGLGraphics::SetDepthStencilState(const std::initializer_list<ZDepthStencilState>& depthStencilState)
+{
+    bool depthEnabled = false, stencilEnabled = false;
+    for (auto state : depthStencilState) {
+        if (state == ZDepthStencilState::Depth) depthEnabled = true;
+        if (state == ZDepthStencilState::Stencil) stencilEnabled = true;
+
+    }
+
+    if (depthEnabled) {
+        EnableDepthTesting();
+    }
+    else {
+        DisableDepthTesting();
+    }
+
+    if (stencilEnabled) {
+        EnableStencilTesting();
+        EnableStencilBuffer();
+    }
+    else {
+        DisableStencilBuffer();
+        DisableStencilTesting();
+    }
+}
+
+void ZGLGraphics::SetBlending(ZBlendMode blendMode)
+{
+    if (blendMode == ZBlendMode::Transluscent)
+        EnableAlphaBlending();
+    else if (blendMode == ZBlendMode::Additive)
+        EnableAdditiveBlending();
+    else
+        DisableBlending();
+}
+
+void ZGLGraphics::Draw(const std::shared_ptr<ZVertexBuffer>& bufferData, ZMeshDrawStyle drawStyle)
+{
     bufferData->Bind();
-    if (!vertexData.indices.empty())
+    if (bufferData->indexCount > 0)
     {
-        if (vertexData.instanced.count > 1)
+        if (bufferData->instanceCount > 1)
         {
-            glDrawElementsInstanced(drawingStylesMap_[drawStyle], vertexData.indices.size(), GL_UNSIGNED_INT, 0, vertexData.instanced.count);
+            glDrawElementsInstanced(drawingStylesMap_[drawStyle], bufferData->indexCount, GL_UNSIGNED_INT, 0, bufferData->instanceCount);
         }
         else
         {
-            glDrawElements(drawingStylesMap_[drawStyle], vertexData.indices.size(), GL_UNSIGNED_INT, 0);
+            glDrawElements(drawingStylesMap_[drawStyle], bufferData->indexCount, GL_UNSIGNED_INT, 0);
         }
     }
     else
     {
-        if (vertexData.instanced.count > 1)
+        if (bufferData->instanceCount > 1)
         {
-            glDrawArraysInstanced(drawingStylesMap_[drawStyle], 0, vertexData.vertices.size(), vertexData.instanced.count);
+            glDrawArraysInstanced(drawingStylesMap_[drawStyle], 0, bufferData->vertexCount, bufferData->instanceCount);
         }
         else
         {
-            glDrawArrays(drawingStylesMap_[drawStyle], 0, vertexData.vertices.size());
+            glDrawArrays(drawingStylesMap_[drawStyle], 0, bufferData->vertexCount);
         }
-    }
-    bufferData->Unbind();
-    glActiveTexture(GL_TEXTURE0);
-}
-
-void ZGLGraphics::Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle)
-{
-    ZPR_SESSION_COLLECT_DRAWS(1);
-
-    bufferData->Bind();
-    if (vertexData.instanced.count > 1)
-    {
-        glDrawArraysInstanced(drawingStylesMap_[drawStyle], 0, vertexData.vertices.size(), vertexData.instanced.count);
-    }
-    else
-    {
-        glDrawArrays(drawingStylesMap_[drawStyle], 0, vertexData.vertices.size());
     }
     bufferData->Unbind();
     glActiveTexture(GL_TEXTURE0);

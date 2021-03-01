@@ -34,15 +34,10 @@
 #include "ZResourceCache.hpp"
 #include "ZEventAgent.hpp"
 #include "ZScriptManager.hpp"
+#include "ZAssetStore.hpp"
 #include "ZGraphics.hpp"
 #include "ZInput.hpp"
 #include "ZLogger.hpp"
-
-// Forward Declarations
-class ZProcessRunner;
-class ZEventAgent;
-class ZResourceCache;
-class ZScriptManager;
 
 // Definitions
 class ZServices
@@ -59,12 +54,14 @@ public:
     static std::shared_ptr<ZScriptManager> ScriptManager() { return scriptManager_; }
     static std::shared_ptr<ZProcessRunner> ProcessRunner(const std::string& runner = "Default");
     static std::shared_ptr<ZLogger> Logger(const std::string& logger = "Default");
+    static std::shared_ptr<ZAssetStore> AssetStore();
 
     static void Provide(const std::shared_ptr<ZGraphics>& graphics);
     static void Provide(const std::shared_ptr<ZInput>& input);
     static void Provide(const std::shared_ptr<ZResourceCache>& resourceCache);
     static void Provide(const std::shared_ptr<ZEventAgent>& eventAgent);
     static void Provide(const std::shared_ptr<ZScriptManager>& scriptManager);
+    static void Provide(const std::shared_ptr<ZAssetStore>& assetStore);
 
     static void LoadZOF(const std::string& zofPath);
 
@@ -75,6 +72,7 @@ private:
     static std::shared_ptr<ZEventAgent> eventAgent_;
     static std::shared_ptr<ZResourceCache> resourceCache_;
     static std::shared_ptr<ZScriptManager> scriptManager_;
+    static std::shared_ptr<ZAssetStore> assetStore_;
     static std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> processRunners_;
     static std::unordered_map<std::string, std::shared_ptr<ZLogger>> loggers_;
     static bool initialized_;

@@ -49,6 +49,7 @@ std::shared_ptr<ZInput> ZServices::input_ = nullptr;
 std::shared_ptr<ZEventAgent> ZServices::eventAgent_ = nullptr;
 std::shared_ptr<ZResourceCache> ZServices::resourceCache_ = nullptr;
 std::shared_ptr<ZScriptManager> ZServices::scriptManager_ = nullptr;
+std::shared_ptr<ZAssetStore> ZServices::assetStore_ = nullptr;
 std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
 bool ZServices::initialized_ = false;
@@ -93,6 +94,16 @@ std::shared_ptr<ZLogger> ZServices::Logger(const std::string& logger)
         loggers_[logger] = std::make_shared<ZLogger>();
     }
     return loggers_[logger];
+}
+
+std::shared_ptr<ZAssetStore> ZServices::AssetStore()
+{
+    // Lazy initialization since this system is dependent on a domain being present first.
+    // NOTE: HARDER TO DEBUG!
+    if (!assetStore_) {
+        Provide(std::make_shared<ZAssetStore>());
+    }
+    return assetStore_;
 }
 
 void ZServices::Provide(const std::shared_ptr<ZGraphics>& graphics)
@@ -154,6 +165,15 @@ void ZServices::Provide(const std::shared_ptr<ZScriptManager>& scriptManager)
         ZResource luaSetupScript("/Scripts/init.lua", ZResourceType::Script);
         resourceCache_->GetHandle(&luaSetupScript);
     }
+}
+
+void ZServices::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
+{
+    if (assetStore_)
+        assetStore_->CleanUp();
+
+    assetStore_ = assetStore;
+    assetStore_->Initialize();
 }
 
 void ZServices::LoadZOF(const std::string& zofPath)

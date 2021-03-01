@@ -48,7 +48,6 @@ public:
     void Provide(const std::shared_ptr<ZDomain>& domain) override;
     void Provide(const std::shared_ptr<ZPhysicsUniverse>& physics) override;
     void Provide(const std::shared_ptr<ZAudio>& audio) override;
-    void Provide(const std::shared_ptr<ZAssetStore>& store) override;
     void Configure(const ZGameOptions& options) override;
 
     virtual void CleanUp() override;

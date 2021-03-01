@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZBuffer.cpp
+    ZUniformBuffer.cpp
 
-    Created by Adrian Sanchez on 27/01/2021.
+    Created by Adrian Sanchez on 03/01/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,20 +27,16 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZGLBuffer.hpp"
+#include "ZGLUniformBuffer.hpp"
 
-std::shared_ptr<ZBuffer> ZBuffer::Create(const ZVertex3DDataOptions& options)
+ZUniformBuffer::ptr ZUniformBuffer::Create(uint16_t index, unsigned int size)
 {
-    // TODO: Switch on contant, variable or define to choose implementation
-    auto buffer = std::make_shared<ZGLBuffer>();
-    buffer->Load(options);
+    auto buffer = std::make_shared<ZGLUniformBuffer>(index);
+    buffer->Load(size);
     return buffer;
 }
 
-std::shared_ptr<ZBuffer> ZBuffer::Create(const ZVertex2DDataOptions& options)
+ZUniformBuffer::ptr ZUniformBuffer::Create(ZUniformBufferType type, unsigned int size)
 {
-    // TODO: Switch on contant, variable or define to choose implementation
-    auto buffer = std::make_shared<ZGLBuffer>();
-    buffer->Load(options);
-    return buffer;
+    return ZUniformBuffer::Create(static_cast<uint16_t>(type), size);
 }

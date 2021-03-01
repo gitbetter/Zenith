@@ -14,7 +14,6 @@ ZGO_GROUND
         :extents [1.0, 1.0, 1.0]:
     ^
 	ZCOMP_GRAPHICS
-		:activeShader 0:
 		:model ZMOD_02:
 		:materials [ZMAT_01]:
 	^
@@ -35,7 +34,6 @@ ZGO_12
         :extents [0.3, 0.3, 0.3]:
     ^
     ZCOMP_GRAPHICS
-        :activeShader 0:
         :model ZMOD_01:
         :materials [ZMAT_02]:
     ^
@@ -57,7 +55,6 @@ ZGO_13
         :extents [1.0, 1.0, 1.0]:
     ^
     ZCOMP_GRAPHICS
-        :activeShader 0:
         :model ZMOD_02:
 		:materials [ZMAT_01]:
     ^
@@ -78,7 +75,6 @@ ZGO_23
         :extents [1.0, 1.0, 1.0]:
     ^
     ZCOMP_GRAPHICS
-        :activeShader 0:
         :model ZMOD_03:
 		:materials [ZMAT_01]:
     ^
@@ -115,6 +111,11 @@ ZLT_01
 
 # Shaders
 
+ZSH_01
+	:vertex "/Shaders/Vertex/blinnphong.vert":
+	:pixel "/Shaders/Pixel/blinnphong.frag":
+^
+
 ZSH_02
 	:vertex "/Shaders/Vertex/blinnphong.vert":
 	:pixel "/Shaders/Pixel/outline.frag":
@@ -149,8 +150,10 @@ ZMOD_03
 
 ZMAT_01
 	:albedo [0.8, 0.8, 0.8]:
+    :shader ZSH_01:
 ^
 
 ZMAT_02
 	:albedo [1.0, 0.2, 0.1]:
+    :shader ZSH_01:
 ^

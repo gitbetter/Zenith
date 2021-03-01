@@ -71,6 +71,7 @@ public:
     void SetMat2(const std::string& name, const glm::mat2& value) const;
     void SetMat3(const std::string& name, const glm::mat3& value) const;
     void SetMat4(const std::string& name, const glm::mat4& value) const;
+    void SetUBO(const std::string& name, int index) const;
     void SetFloatList(const std::string& name, const std::vector<float>& value) const;
     void SetMat4List(const std::string& name, const std::vector<glm::mat4>& value) const;
 
@@ -112,8 +113,6 @@ private:
     AttachmentsMap attachments_;
 
     std::string GetShaderCode(const std::string& shaderPath, ZShaderType shaderType, bool async = false);
-
-    void PreProcess();
     void ProcessIncludes(std::string& shaderCode);
 
     void Compile();

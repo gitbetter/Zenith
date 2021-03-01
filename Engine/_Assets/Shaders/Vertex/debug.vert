@@ -1,10 +1,9 @@
-#version 450 core
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+#include "Shaders/Uniforms/camera.glsl" //! #include "../Uniforms/camera.glsl"
 
 layout (location = 0) in vec3 position;
 
-uniform mat4 ViewProjection;
-
 void main()
 {
-    gl_Position = ViewProjection * mat4(1.0) * vec4(position, 1.0);
+    gl_Position = ViewProjection * vec4(position, 1.0);
 }
