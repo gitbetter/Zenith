@@ -43,6 +43,8 @@
 #include "ZOFTree.hpp"
 #include "ZIDSequence.hpp"
 #include "ZObjectDestroyedEvent.hpp"
+#include "ZUniformBuffer.hpp"
+#include "ZRenderStateGroup.hpp"
 
 ZIDSequence ZGameObject::idGenerator_("ZGO");
 
@@ -52,8 +54,22 @@ ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation
     properties_.previousOrientation = properties_.orientation = orientation;
     properties_.previousScale = properties_.scale = scale;
     properties_.modelMatrix = properties_.localModelMatrix = glm::mat4(1.f);
-    properties_.renderOrder = ZRenderOrder::Static;
-    id_ = "ZGO_" + idGenerator_.Next();
+    properties_.renderOrder = ZRenderLayer::Static;
+    id_ = "ZGO_" + std::to_string(idGenerator_.Next());
+    CalculateDerivedData();
+}
+
+void ZGameObject::Initialize()
+{
+    ZProcess::Initialize();
+
+    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::Object, sizeof(ZObjectUniforms));
+    
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.BindUniformBuffer(uniformBuffer_);
+    renderState_ = writer.End();
+
     CalculateDerivedData();
 }
 
@@ -88,10 +104,10 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root)
         properties_.previousScale = properties_.scale = glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]);
     }
 
-    CalculateDerivedData();
+    Initialize();
 }
 
-void ZGameObject::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+void ZGameObject::Prepare(double deltaTime)
 {
     auto scene = Scene();
     if (!scene) return;
@@ -100,23 +116,21 @@ void ZGameObject::Render(double deltaTime, const std::shared_ptr<ZShader>& shade
     {
         graphicsComp->SetGameLights(scene->GameLights());
         graphicsComp->SetGameCamera(scene->ActiveCamera());
-        graphicsComp->Render(deltaTime, shader, renderOp);
+        graphicsComp->Prepare(deltaTime);
     }
 }
 
-void ZGameObject::RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+void ZGameObject::PrepareChildren(double deltaTime)
 {
-    ZGameObjectList::reverse_iterator it = children_.rbegin(), end = children_.rend();
+    ZGameObjectList::iterator it = children_.begin(), end = children_.end();
     for (; it != end; it++)
     {
         auto go = *it;
-        go->PreRender();
         if (go->IsVisible())
         {
-            go->Render(deltaTime, shader, renderOp);
+            go->Prepare(deltaTime);
         }
-        go->RenderChildren(deltaTime, shader, renderOp);
-        go->PostRender();
+        go->PrepareChildren(deltaTime);
     }
 }
 
@@ -407,6 +421,9 @@ void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
     objectMutexes_.modelMatrix.lock();
     properties_.modelMatrix = modelMatrix;
     objectMutexes_.modelMatrix.unlock();
+
+    if (uniformBuffer_)
+        uniformBuffer_->Update(offsetof(ZObjectUniforms, M), sizeof(glm::mat4), glm::value_ptr(properties_.modelMatrix));
 
     if (auto graphicsComp = FindComponent<ZGraphicsComponent>())
         graphicsComp->Transform(properties_.modelMatrix);

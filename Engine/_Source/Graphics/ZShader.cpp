@@ -51,7 +51,7 @@ ZIDSequence ZShader::idGenerator_("ZSH");
 ZShader::ZShader(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath)
     : vertexShaderPath_(vertexShaderPath), pixelShaderPath_(pixelShaderPath), geometryShaderPath_(geomShaderPath), loadedShadersMask_(0)
 {
-    name_ = "ZSH_" + idGenerator_.Next();
+    name_ = "ZSH_" + std::to_string(idGenerator_.Next());
 }
 
 void ZShader::Initialize()
@@ -60,7 +60,7 @@ void ZShader::Initialize()
     pixelShaderCode_ = GetShaderCode(pixelShaderPath_, ZShaderType::Pixel);
     geometryShaderCode_ = GetShaderCode(geometryShaderPath_, ZShaderType::Geometry);
 
-    PreProcess();
+    Compile();
 }
 
 void ZShader::InitializeAsync()
@@ -125,18 +125,11 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
             if (shaderHandle)
             {               
                 shaderCode = std::string((char*) shaderHandle->Buffer());
+                ProcessIncludes(shaderCode);
             }
         }
     }
     return shaderCode;
-}
-
-void ZShader::PreProcess()
-{
-    ProcessIncludes(vertexShaderCode_);
-    ProcessIncludes(geometryShaderCode_);
-    ProcessIncludes(pixelShaderCode_);
-    Compile();
 }
 
 void ZShader::ProcessIncludes(std::string& shaderCode)
@@ -316,6 +309,11 @@ void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const
     glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
+void ZShader::SetUBO(const std::string& name, int index) const
+{
+    glUniformBlockBinding(id_, glGetUniformBlockIndex(id_, name.c_str()), index);
+}
+
 void ZShader::SetFloatList(const std::string& name, const std::vector<float>& value) const
 {
     for (int i = 0; i < value.size(); i++) {
@@ -334,27 +332,26 @@ void ZShader::Use(const std::shared_ptr<ZMaterial>& material)
 {
     Activate();
 
-    SetInt("materialIndex", material->Index());
     SetBool("isTextured", material->IsTextured());
     SetBool("hasDisplacement", material->HasDisplacement());
     // TODO: Move this elsewhere for configurability
     SetFloat("heightScale", 0.01f);
 
-    std::string shaderMaterial = "materials[" + std::to_string(material->Index()) + "]";
-    SetVec4(shaderMaterial + ".albedo", material->Properties().albedo);
+    std::string shaderMaterial = "material";
+    SetVec4(shaderMaterial + ".albedo", material->Properties().look.albedo);
     if (material->IsPBR())
     {
-        SetFloat(shaderMaterial + ".metallic", material->Properties().metallic);
-        SetFloat(shaderMaterial + ".roughness", material->Properties().roughness);
-        SetFloat(shaderMaterial + ".ao", material->Properties().ao);
+        SetFloat(shaderMaterial + ".metallic", material->Properties().realisticLook.metallic);
+        SetFloat(shaderMaterial + ".roughness", material->Properties().realisticLook.roughness);
+        SetFloat(shaderMaterial + ".ao", material->Properties().realisticLook.ao);
     }
     else
     {
-        SetFloat(shaderMaterial + ".emission", material->Properties().emission);
-        SetFloat(shaderMaterial + ".diffuse", material->Properties().diffuse);
-        SetFloat(shaderMaterial + ".ambient", material->Properties().ambient);
-        SetFloat(shaderMaterial + ".specular", material->Properties().specular);
-        SetFloat(shaderMaterial + ".shininess", material->Properties().shininess);
+        SetFloat(shaderMaterial + ".emission", material->Properties().look.emission);
+        SetFloat(shaderMaterial + ".diffuse", material->Properties().look.diffuse);
+        SetFloat(shaderMaterial + ".ambient", material->Properties().look.ambient);
+        SetFloat(shaderMaterial + ".specular", material->Properties().look.specular);
+        SetFloat(shaderMaterial + ".shininess", material->Properties().look.shininess);
     }
 
     for (auto const& [key, val] : material->Textures())
@@ -367,44 +364,34 @@ void ZShader::Use(const ZLightMap& lights)
 {
     Activate();
 
-    SetInt("lightCount", lights.size());
-
     unsigned int i = 0;
     for (auto it = lights.begin(); it != lights.end(); it++)
     {
         std::shared_ptr<ZLight> light = it->second;
-        std::string shaderLight = "lights[" + std::to_string(i) + "]";
+        std::string shaderLight = "light";
+        SetInt(shaderLight + ".lightType", static_cast<unsigned int>(light->type));
+        SetBool(shaderLight + ".isEnabled", light->properties.isEnabled);
+        SetVec3(shaderLight + ".ambient", light->properties.ambient);
+        SetVec3(shaderLight + ".color", light->properties.color);
+        SetVec3(shaderLight + ".position", light->Position());
+
         switch (light->type)
         {
         case ZLightType::Directional:
-            SetBool(shaderLight + ".isEnabled", light->enabled);
-            SetBool(shaderLight + ".isDirectional", true);
-            SetVec3(shaderLight + ".ambient", light->ambient);
-            SetVec3(shaderLight + ".color", light->color);
             SetVec3(shaderLight + ".direction", glm::eulerAngles(light->Orientation()));
-            SetVec3(shaderLight + ".position", light->Position());
             break;
         case ZLightType::Point:
-            SetBool(shaderLight + ".isEnabled", light->enabled);
-            SetVec3(shaderLight + ".ambient", light->ambient);
-            SetVec3(shaderLight + ".color", light->color);
-            SetFloat(shaderLight + ".constantAttenuation", light->attenuation.constant);
-            SetFloat(shaderLight + ".linearAttenuation", light->attenuation.linear);
-            SetFloat(shaderLight + ".quadraticAttenuation", light->attenuation.quadratic);
-            SetVec3(shaderLight + ".position", light->Position());
+            SetFloat(shaderLight + ".constantAttenuation", light->properties.constantAttenuation);
+            SetFloat(shaderLight + ".linearAttenuation", light->properties.linearAttenuation);
+            SetFloat(shaderLight + ".quadraticAttenuation", light->properties.quadraticAttenuation);
             break;
         case ZLightType::Spot:
-            SetBool(shaderLight + ".isEnabled", light->enabled);
-            SetBool(shaderLight + ".isSpot", true);
-            SetVec3(shaderLight + ".ambient", light->ambient);
-            SetVec3(shaderLight + ".color", light->color);
-            SetFloat(shaderLight + ".constantAttenuation", light->attenuation.constant);
-            SetFloat(shaderLight + ".linearAttenuation", light->attenuation.linear);
-            SetFloat(shaderLight + ".quadraticAttenuation", light->attenuation.quadratic);
-            SetVec3(shaderLight + ".coneDirection", light->spot.coneDirection);
-            SetFloat(shaderLight + ".cutoff", light->spot.cutoff);
-            SetFloat(shaderLight + ".exponent", light->spot.exponent);
-            SetVec3(shaderLight + ".position", light->Position());
+            SetFloat(shaderLight + ".constantAttenuation", light->properties.constantAttenuation);
+            SetFloat(shaderLight + ".linearAttenuation", light->properties.linearAttenuation);
+            SetFloat(shaderLight + ".quadraticAttenuation", light->properties.quadraticAttenuation);
+            SetVec3(shaderLight + ".coneDirection", light->properties.coneDirection);
+            SetFloat(shaderLight + ".cutoff", light->properties.spotCutoff);
+            SetFloat(shaderLight + ".exponent", light->properties.spotExponent);
             break;
         default: break;
         }
@@ -416,7 +403,7 @@ void ZShader::Use(const ZBoneList& bones)
 {
     Activate();
     std::shared_ptr<ZBone> bone;
-    for (unsigned int i = 0, j = bones.size(); i < j; i++)
+    for (unsigned int i = 0; i < BONES_PER_MODEL; i++)
     {
         bone = bones[i];
         SetMat4("Bones[" + std::to_string(i) + "]", bone->transformation);
@@ -436,6 +423,7 @@ void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>
         {
             loadedShadersMask_ |= 1;
             vertexShaderCode_ = extraData->Code();
+            ProcessIncludes(vertexShaderCode_);
         }
         break;
     case ZResourceType::PixelShader:
@@ -443,6 +431,7 @@ void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>
         {
             loadedShadersMask_ |= 1 << 1;
             pixelShaderCode_ = extraData->Code();
+            ProcessIncludes(pixelShaderCode_);
         }
         break;
     case ZResourceType::GeometryShader:
@@ -450,6 +439,7 @@ void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>
         {
             loadedShadersMask_ |= 1 << 2;
             geometryShaderCode_ = extraData->Code();
+            ProcessIncludes(geometryShaderCode_);
         }
         break;
     default: break;
@@ -459,7 +449,7 @@ void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>
     {
         ZServices::EventAgent()->Unsubscribe(this, &ZShader::HandleShaderCodeLoaded);
 
-        PreProcess();
+        Compile();
 
         std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
         ZServices::EventAgent()->Queue(shaderReadyEvent);
@@ -475,6 +465,7 @@ void ZShader::BindAttachments()
 
 void ZShader::BindAttachment(const std::string& uniformName, const std::shared_ptr<ZTexture>& attachment)
 {
+    attachments_[uniformName] = attachment;
     attachment->Bind(attachmentIndex_);
     SetInt(uniformName, attachmentIndex_);
     ++attachmentIndex_;

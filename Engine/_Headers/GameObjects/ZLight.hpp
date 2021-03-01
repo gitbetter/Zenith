@@ -35,22 +35,9 @@
 
 // Forward Declarations
 class ZScene;
+class ZRenderStateGroup;
 
 // Class and Data Structure Definitions
-
-struct ZLAttenuationProperties
-{
-    float constant{ 1.0f };
-    float linear{ 0.7f };
-    float quadratic{ 1.8f };
-};
-
-struct ZLSpotProperties
-{
-    glm::vec3 coneDirection{ 0.f, 1.f, 1.f };
-    float cutoff;
-    float exponent;
-};
 
 class ZLight : public ZGameObject
 {
@@ -58,28 +45,24 @@ class ZLight : public ZGameObject
 public:
 
     ZLightType type;
-    bool enabled;
-    glm::vec3 ambient{ 0.1f };
-    glm::vec3 color{ 0.9f };
-    ZLAttenuationProperties attenuation;
-    ZLSpotProperties spot;
+    Light properties;
 
-    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f))
-        : ZGameObject(position, orientation, scale), type(ZLightType::Point), enabled(true) { }
+    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f));
     ZLight(ZLightType lightType);
     ~ZLight() {}
 
-    void Initialize() override { ZGameObject::Initialize(); }
+    void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
 
     bool IsVisible() override { return true; }
-    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Prepare(double deltaTime) override;
 
     std::shared_ptr<ZGameObject> Clone() override;
 
     std::vector<glm::mat4> LightSpaceMatrices() const { return lightspaceMatrices_; }
     const ZAABBox& LightSpaceRegion() const { return lightspaceRegion_; }
-    const std::vector<float>& ShadowFarPlaneSplits() const { return shadowFarPlaneSplits_; }
+    const glm::vec4 ShadowFarPlaneSplits() const { return shadowFarPlaneSplits_; }
+    const std::shared_ptr<ZRenderStateGroup> RenderState() const { return renderState_; }
 
     void UpdateLightspaceMatrices(const ZFrustum& frustum);
 
@@ -87,9 +70,12 @@ public:
 
 private:
 
-    std::vector<float> shadowFarPlaneSplits_;
+    glm::vec4 shadowFarPlaneSplits_;
     std::vector<glm::mat4> lightspaceMatrices_;
     ZAABBox lightspaceRegion_;
+
+    std::shared_ptr<ZRenderStateGroup> renderState_;
+    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
 
     static std::map<std::string, ZLightType> lightTypesMap;
 

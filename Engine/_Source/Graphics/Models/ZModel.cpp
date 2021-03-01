@@ -41,13 +41,15 @@
 #include "ZResourceLoadedEvent.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZModelReadyEvent.hpp"
+#include "ZUniformBuffer.hpp"
+#include "ZRenderStateGroup.hpp"
 
 ZIDSequence ZModel::idGenerator_("ZMOD");
 
 ZModel::ZModel(const std::string& path)
     : modelPath_(path)
 {
-    id_ = idGenerator_.Next();
+    id_ = std::to_string(idGenerator_.Next());
 }
 
 void ZModel::Initialize()
@@ -61,6 +63,21 @@ void ZModel::Initialize()
     }
 
     ComputeBounds();
+
+    bool isRigged = skeleton_ != nullptr;
+    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::Model, sizeof(ZModelUniforms));
+    uniformBuffer_->Update(offsetof(ZModelUniforms, rigged), sizeof(isRigged), &isRigged);
+
+    if (skeleton_) {
+        for (auto i = 0; i < bones_.size(); i++) {
+            uniformBuffer_->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * i, sizeof(glm::mat4), glm::value_ptr(bones_[i]->transformation));
+        }
+    }
+
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.BindUniformBuffer(uniformBuffer_);
+    renderState_ = writer.End();
 
     std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(shared_from_this());
     ZServices::EventAgent()->Queue(modelReadyEvent);
@@ -94,34 +111,11 @@ void ZModel::InitializeAsync()
     ZServices::EventAgent()->Subscribe(this, &ZModel::HandleModelLoaded);
 }
 
-void ZModel::Render(const std::shared_ptr<ZShader>& shader)
-{
-    std::vector<std::shared_ptr<ZMaterial>> materials = { ZMaterial::Default() };
-    Render(shader, materials);
-}
-
-void ZModel::Render(const std::shared_ptr<ZShader>& shader, const std::vector<std::shared_ptr<ZMaterial>>& materials)
-{
-    std::vector<std::shared_ptr<ZMaterial>> mats(materials);
-    if (mats.empty()) mats.emplace_back(ZMaterial::Default());
-
-    shader->SetBool("rigged", skeleton_ != nullptr);
-    if (skeleton_)
-    {
-        shader->Use(bones_);
-    }
-
-    auto materialsIt = mats.begin();
-    for (auto meshesIt = meshes_.begin(); meshesIt != meshes_.end(); meshesIt++) {
-        meshesIt->second->Render(shader, (*materialsIt));
-        if (materialsIt + 1 != mats.end())
-            ++materialsIt;
-    }
-}
-
 void ZModel::SetInstanceData(const ZInstancedDataOptions& instanceData)
 {
     instanceData_ = instanceData;
+    bool isInstanced = instanceData_.count > 1;
+    uniformBuffer_->Update(offsetof(ZModelUniforms, instanced), sizeof(isInstanced), &isInstanced);
     for (auto it = meshes_.begin(); it != meshes_.end(); it++)
     {
         it->second->SetInstanceData(instanceData);
@@ -199,6 +193,7 @@ void ZModel::CalculateTransformsInHierarchy(const std::string& animName, double 
     {
         unsigned int index = bonesMap_[joint->name];
         bones_[index]->transformation = globalInverseTransform_ * globalTransform * bones_[index]->offset;
+        uniformBuffer_->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * index, sizeof(glm::mat4), glm::value_ptr(bones_[index]->transformation));
     }
 
     for (unsigned int i = 0; i < joint->children.size(); i++)

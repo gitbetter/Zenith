@@ -61,7 +61,6 @@ std::shared_ptr<Type> Type::Create(const std::shared_ptr<ZOFNode>& root, const s
 
 // Includes
 #include "ZProcess.hpp"
-#include "ZRenderable.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZOFTree.hpp"
 
@@ -70,11 +69,13 @@ class ZGame;
 class ZScene;
 class ZSkybox;
 class ZGrass;
+class ZUniformBuffer;
+class ZRenderStateGroup;
 
 // Class Definitions
 struct ZGameObjectProperties
 {
-    ZRenderOrder renderOrder;
+    ZRenderLayer renderOrder{ ZRenderLayer::Static };
     glm::vec4 position, previousPosition;
     glm::vec3 scale, previousScale;
     glm::quat orientation, previousOrientation;
@@ -83,7 +84,7 @@ struct ZGameObjectProperties
     bool active = true;
 };
 
-class ZGameObject : public ZProcess, public ZRenderable, public std::enable_shared_from_this<ZGameObject>
+class ZGameObject : public ZProcess, public std::enable_shared_from_this<ZGameObject>
 {
 
     friend class ZScene;
@@ -96,14 +97,11 @@ public:
     ZGameObject(const std::string& name) : ZGameObject() { properties_.name = name; }
     virtual ~ZGameObject() {}
 
-    virtual void Initialize() override { ZProcess::Initialize(); }
+    virtual void Initialize() override;
     virtual void Initialize(std::shared_ptr<ZOFNode> root);
 
-    virtual void PreRender() { }
-    virtual void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
-    virtual void RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color);
-    virtual void PostRender() { }
-    virtual bool Renderable() override { return true; }
+    virtual void Prepare(double deltaTime);
+    virtual void PrepareChildren(double deltaTime);
 
     void CalculateDerivedData();
     virtual std::shared_ptr<ZGameObject> Clone();
@@ -116,7 +114,7 @@ public:
     std::shared_ptr<ZScene> Scene() const;
     std::shared_ptr<ZGameObject> Parent() const;
     std::string Name() const { return properties_.name; }
-    ZRenderOrder RenderOrder() const { return properties_.renderOrder; }
+    ZRenderLayer RenderLayer() const { return properties_.renderOrder; }
     virtual ZGameObjectList& Children() { return children_; }
     glm::vec3 Position();
     glm::vec3 Scale();
@@ -129,6 +127,7 @@ public:
     glm::vec3 PreviousFront();
     glm::vec3 PreviousUp();
     glm::vec3 PreviousRight();
+    std::shared_ptr<ZRenderStateGroup> RenderState() const { return renderState_; }
 
     void SetScene(const std::shared_ptr<ZScene>& scene);
     void SetPosition(const glm::vec3& position);
@@ -137,7 +136,7 @@ public:
     void SetOrientation(const glm::vec3& euler);
     void SetLocalModelMatrix(const glm::mat4& modelMatrix);
     void SetModelMatrix(const glm::mat4& modelMatrix);
-    void SetRenderOrder(ZRenderOrder renderOrder) { properties_.renderOrder = renderOrder; }
+    void SetRenderOrder(ZRenderLayer renderOrder) { properties_.renderOrder = renderOrder; }
     void SetName(const std::string& name) { properties_.name = name; }
     void SetActive(bool active = true);
 
@@ -213,6 +212,9 @@ protected:
     ZComponentList components_;
     ZGameObjectList children_;
     ZGameObjectProperties properties_;
+
+    std::shared_ptr<ZRenderStateGroup> renderState_;
+    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
 
     struct
     {

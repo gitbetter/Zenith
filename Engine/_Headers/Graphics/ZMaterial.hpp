@@ -36,16 +36,40 @@
 // Forward Declarations
 class ZTexture;
 class ZTextureReadyEvent;
+class ZShaderReadyEvent;
+class ZRenderStateGroup;
+class ZUniformBuffer;
 
 // Class and Data Structure Definitions
+
+struct ZMaterialProperties
+{
+    float alpha{ 1.f };
+    float tiling{ 1.f };
+    bool isPBR{ false };
+    bool hasDisplacement{ false };
+    union
+    {
+        Material look;
+        PBRMaterial realisticLook;
+    };
+
+    ZMaterialProperties()
+    {
+        look.albedo = glm::vec4(1.f, 1.f, 1.f, 1.f); look.emission = 0.f;
+        look.diffuse = 0.8f; look.ambient = 0.2f;
+        look.specular = 0.5f; look.shininess = 48.f;
+    }
+};
+
 class ZMaterial : public std::enable_shared_from_this<ZMaterial>
 {
 
 public:
 
-    ZMaterial(int index = 0);
-    ZMaterial(const ZMaterialProperties& materialProperties) : ZMaterial(0) { properties_ = materialProperties; }
-    ZMaterial(const std::vector<std::shared_ptr<ZTexture>>& textures);
+    ZMaterial();
+    ZMaterial(const ZMaterialProperties& materialProperties, const std::shared_ptr<ZShader>& shader = nullptr);
+    ZMaterial(const std::vector<std::shared_ptr<ZTexture>>& textures, const std::shared_ptr<ZShader>& shader = nullptr);
 
     void Initialize();
 
@@ -53,11 +77,12 @@ public:
     const ZMaterialProperties& Properties() const { return properties_; }
     const ZTextureMap& Textures() const { return textures_; }
     float Alpha(float alpha) const { return properties_.alpha; }
-    int Index() const { return index_; }
     bool IsPBR() const { return properties_.isPBR; }
     bool IsTextured() const { return !textures_.empty(); }
     bool HasDisplacement() const { return properties_.hasDisplacement; }
+    const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
 
+    void SetShader(const std::shared_ptr<ZShader>& shader);
     void SetPBR(bool pbr = true) { properties_.isPBR = pbr; }
     void SetProperties(const ZMaterialProperties& properties) { properties_ = properties; }
     void SetAlpha(float alpha) { properties_.alpha = alpha; }
@@ -65,15 +90,16 @@ public:
     void SetProperty(const std::string& property, const glm::vec4& value);
     void SetProperty(const std::string& property, bool value);
 
-    void AddTexture(const std::string& slot, const std::shared_ptr<ZTexture>& texture) { textures_[slot] = texture; }
+    void AddTexture(const std::string& slot, const std::shared_ptr<ZTexture>& texture);
     void AddTexture(const std::string& slot, const std::string& textureId) { pendingTextures_[slot] = textureId; }
 
     static std::shared_ptr<ZMaterial> Default();
     static std::shared_ptr<ZMaterial> CreateDefault();
     static void Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outTextureMap, const ZTextureMap& textureCache);
     static void CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPendingTextures, ZMaterialMap& outMaterials);
-    static std::shared_ptr<ZMaterial> Create(const ZMaterialProperties& materialProperties);
-    static std::shared_ptr<ZMaterial> Create(const std::vector<std::shared_ptr<ZTexture>>& textures);
+
+    static std::shared_ptr<ZMaterial> Create(const ZMaterialProperties& materialProperties, const std::shared_ptr<ZShader>& shader = nullptr);
+    static std::shared_ptr<ZMaterial> Create(const std::vector<std::shared_ptr<ZTexture>>& textures, const std::shared_ptr<ZShader>& shader = nullptr);
 
 private:
 
@@ -81,12 +107,18 @@ private:
     ZMaterialProperties properties_;
     ZTextureMap textures_;
     std::unordered_map<std::string, std::string> pendingTextures_;
-    int index_;
-    bool isPBR_ = false;
-    bool hasDisplacement_ = false;
+
+    std::string shaderId_;
+    std::shared_ptr<ZShader> shaderObject_ = nullptr;
+
+    std::shared_ptr<ZRenderStateGroup> renderState_;
+    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
 
     static ZIDSequence idGenerator_;
 
+    void UpdateUniformMaterial();
+
     void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
+    void HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event);
 
 };

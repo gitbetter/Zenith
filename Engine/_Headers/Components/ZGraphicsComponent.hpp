@@ -9,19 +9,19 @@
 
 // Includes
 #include "ZComponent.hpp"
-#include "ZRenderable.hpp"
 #include "ZAABBox.hpp"
 
 // Forward Declarations
 class ZModel;
-class ZShader;
 class ZCamera;
 class ZMaterial;
 class ZFrustum;
+class ZRenderStateGroup;
+class ZUniformBuffer;
 struct ZOFNode;
 
 // Class and Data Structure Definitions
-class ZGraphicsComponent : public ZComponent, public ZRenderable
+class ZGraphicsComponent : public ZComponent
 {
 
 public:
@@ -31,16 +31,14 @@ public:
 
     void Initialize() override { ZComponent::Initialize(); }
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Initialize(std::shared_ptr<ZModel> model, std::shared_ptr<ZShader> shader);
+    void Initialize(std::shared_ptr<ZModel> model);
 
     std::shared_ptr<ZComponent> Clone() override;
 
-    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
-    bool Renderable() override { return true; }
+    void Prepare(double deltaTime, const std::shared_ptr<ZRenderStateGroup>& additionalState = nullptr);
 
-    std::shared_ptr<ZShader> ActiveShader();
     std::shared_ptr<ZModel> Model();
-    const std::vector<std::shared_ptr<ZMaterial>>& Materials();
+    const ZMaterialList& Materials();
     bool AABBEnabled() const { return hasAABB_; }
     const ZAABBox& AABB() const { return bounds_; }
 
@@ -56,6 +54,12 @@ public:
     void EnableAABB() { hasAABB_ = true; }
     void DisableAABB() { hasAABB_ = false; }
 
+    void EnableShadowCasting() { isShadowCaster_ = true; }
+    void DisableShadowCasting() { isShadowCaster_ = false; }
+
+    void EnableDepthInfo() { hasDepthInfo_ = true; }
+    void DisableDepthInfo() { hasDepthInfo_ = false; }
+
     bool IsVisible(ZFrustum frustrum);
 
     void Transform(const glm::mat4& mat);
@@ -64,26 +68,29 @@ public:
 
 protected:
 
-    std::string model_;
-    std::shared_ptr<ZModel> modelObject_ = nullptr;
-    int activeShaderIndex_ = -1;
-    std::shared_ptr<ZShader> currentShaderObject_ = nullptr;
-    std::vector<std::shared_ptr<ZMaterial>> materials_;
-    std::string highlightShaderId_;
-    std::shared_ptr<ZShader> highlightShader_ = nullptr;
-    glm::vec4 highlightColor_{ 0.f };
-    ZInstancedDataOptions instanceData_;
     ZLightMap gameLights_;
     std::shared_ptr<ZCamera> gameCamera_ = nullptr;
-    std::vector<std::string> shadersIds_;
+
+    std::string model_;
+    std::shared_ptr<ZModel> modelObject_ = nullptr;
+    ZInstancedDataOptions instanceData_;
+
     std::vector<std::string> materialIds_;
-    // TODO: Implement billboarding in component
-    bool isBillboard_;
+    ZMaterialList materials_;
+
+    std::shared_ptr<ZMaterial> outlineMaterial_ = nullptr;
+
+    std::shared_ptr<ZRenderStateGroup> overrideState_ = nullptr;
+
+    // TODO: Implement billboarding
+    bool isBillboard_ = false;
     bool hasAABB_ = true;
+    bool isShadowCaster_ = true;
+    bool hasDepthInfo_ = true;
 
     ZAABBox bounds_;
 
     void SetupAABB();
-    void DrawOutlineIfEnabled(const glm::mat4& worldMat, const glm::mat4& viewProjection);
+    void PrepareOutlineDisplay(glm::mat4& modelMatrix, std::shared_ptr<ZModel>& model, const std::shared_ptr<ZRenderStateGroup>& additionalState, const std::shared_ptr<ZRenderStateGroup>& cameraState);
 
 };

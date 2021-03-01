@@ -1,12 +1,10 @@
-#version 450 core
-
 #include "Shaders/common.glsl" //! #include "../common.glsl"
 
 out vec4 FragColor;
 
 in VertexOutput vout;
 
-uniform samplerCube environmentMap;
+uniform samplerCube environmentMapSampler0;
 uniform float roughness;
 uniform float resolution;
 
@@ -36,7 +34,7 @@ void main() {
 
       float mipLevel = roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
 
-      prefilteredColor += texture(environmentMap, L, mipLevel).rgb * NdotL;
+      prefilteredColor += texture(environmentMapSampler0, L, mipLevel).rgb * NdotL;
       totalWeight += NdotL;
     }
   }

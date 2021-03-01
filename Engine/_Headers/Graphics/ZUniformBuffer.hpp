@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZRenderer2D.hpp
+    ZUniformBuffer.hpp
 
-    Created by Adrian Sanchez on 29/01/2021.
+    Created by Adrian Sanchez on 03/01/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
@@ -30,32 +30,40 @@
 #pragma once
 
 // Includes
-#include "ZRenderPass.hpp"
+#include "ZCommon.hpp"
 
-// Forward Declarations
-class ZScene;
+enum class ZUniformBufferType
+{
+    None = 0, Camera, Object, Model, Material, Light, UI, Post, Last, UserDefined = Last
+};
 
-// Class and Data Structure Definitions
-class ZRenderer2D
+class ZUniformBuffer
 {
 
 public:
 
-    ZRenderer2D(const std::shared_ptr<ZScene>& scene) : scene_(scene) { };
-    ~ZRenderer2D() = default;
+    using ptr = std::shared_ptr<ZUniformBuffer>;
 
-    const std::vector<ZRenderPass::ptr>& Passes() const { return passes_; }
+    ZUniformBuffer(uint16_t index)
+        : index_(index)
+    { }
+    virtual ~ZUniformBuffer() {}
 
-    void SetTarget(const std::shared_ptr<ZFramebuffer>& target) { target_ = target; }
+    uint16_t Index() const { return index_; }
 
-    void Render(double deltaTime);
+    virtual void Bind() = 0;
+    virtual void Unbind() = 0;
+    virtual void Load(unsigned int size) = 0;
+    virtual void Update(unsigned int offset, unsigned int size, const void* data) = 0;
+    virtual void Delete() = 0;
 
-    void AddPass(const ZRenderPass::ptr & pass);
+    static ptr Create(uint16_t index, unsigned int size);
+    static ptr Create(ZUniformBufferType type, unsigned int size);
 
-private:
+protected:
 
-    std::vector<ZRenderPass::ptr> passes_;
-    std::shared_ptr<ZFramebuffer> target_ = nullptr;
-    std::shared_ptr<ZScene> scene_ = nullptr;
+    unsigned int ubo_ = 0;
+    unsigned int size_ = 0;
+    uint16_t index_;
 
 };

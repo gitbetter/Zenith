@@ -1,6 +1,8 @@
-#version 450 core
-
 #include "Shaders/common.glsl" //! #include "../common.glsl"
+#include "Shaders/Uniforms/camera.glsl" //! #include "../Uniforms/camera.glsl"
+#include "Shaders/Uniforms/object.glsl" //! #include "../Uniforms/object.glsl"
+#include "Shaders/Uniforms/model.glsl" //! #include "../Uniforms/model.glsl"
+#include "Shaders/Uniforms/light.glsl" //! #include "../Uniforms/light.glsl"
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
@@ -13,14 +15,6 @@ layout (location = 7) in mat4 instanceM;
 
 out VertexOutput vout;
 
-uniform mat4 M;
-uniform mat4 V;
-uniform mat4 ViewProjection;
-uniform mat4 ViewProjectionLightSpace[NUM_SHADOW_CASCADES];
-uniform mat4 Bones[MAX_BONES];
-uniform bool rigged = false;
-uniform bool instanced = false;
-
 void main()
 {   
     vec4 pos = vec4(position, 1.0);
@@ -31,10 +25,11 @@ void main()
     vout.FragNormal = N;
     vout.FragTBN = mat3(T, B, N);
     if (rigged) {
-        mat4 boneTransform = Bones[boneIDs[0]] * boneWeights[0];
-        boneTransform += Bones[boneIDs[1]] * boneWeights[1];
-        boneTransform += Bones[boneIDs[2]] * boneWeights[2];
-        boneTransform += Bones[boneIDs[3]] * boneWeights[3];
+        mat4 boneTransform = mat4(0.0);
+        for (int i = 0; i < MAX_BONES_PER_VERTEX; i++) {
+            if (boneIDs[i] == -1) continue;
+            boneTransform += Bones[boneIDs[i]] * boneWeights[i];
+        }
         vout.FragNormal = mat3(boneTransform) * vout.FragNormal;
         pos = boneTransform * pos;
     }
@@ -42,7 +37,7 @@ void main()
     vout.FragViewPos = V * vout.FragWorldPos;
     vout.FragUV = texCoords;
     for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
-        vout.FragPosLightSpace[i] = ViewProjectionLightSpace[i] * vout.FragWorldPos;
+        vout.FragPosLightSpace[i] = ViewProjectionsLightSpace[i] * vout.FragWorldPos;
     }
     gl_Position = ViewProjection * vout.FragWorldPos;
 }

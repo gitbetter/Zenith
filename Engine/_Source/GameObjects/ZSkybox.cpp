@@ -35,10 +35,11 @@
 #include "ZGraphicsComponent.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZSkyboxReadyEvent.hpp"
+#include "ZRenderStateGroup.hpp"
 
 ZSkybox::ZSkybox(const std::string& hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr)
 {
-    properties_.renderOrder = ZRenderOrder::Sky;
+    properties_.renderOrder = ZRenderLayer::Sky;
 }
 
 void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root)
@@ -84,13 +85,23 @@ void ZSkybox::Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& 
 {
     iblTexture_ = ZTexture::CreateIBL(bufferData, cubeMap);
 
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.BindTexture(iblTexture_.irradiance);
+    writer.BindTexture(iblTexture_.prefiltered);
+    writer.BindTexture(iblTexture_.brdfLUT);
+    renderState_ = writer.End();
+
     auto skyboxGraphicsComponent = ZGraphicsComponent::CreateIn(shared_from_this());
     skyboxGraphicsComponent->DisableAABB();
+    skyboxGraphicsComponent->DisableShadowCasting();
+    skyboxGraphicsComponent->DisableDepthInfo();
     skyboxGraphicsComponent->Initialize(
-        ZCube::Create(glm::vec3(1.f, 1.f, 1.f)),
-        ZShader::Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")
+        ZCube::Create(glm::vec3(1.f, 1.f, 1.f))
     );
-    skyboxGraphicsComponent->AddMaterial(ZMaterial::Create({ iblTexture_.cubeMap }));
+    skyboxGraphicsComponent->AddMaterial(ZMaterial::Create({ iblTexture_.cubeMap }, ZShader::Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")));
+
+    ZGameObject::Initialize();
 }
 
 std::shared_ptr<ZGameObject> ZSkybox::Clone()
@@ -102,14 +113,6 @@ std::shared_ptr<ZGameObject> ZSkybox::Clone()
     if (std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>())
         clone->AddComponent(graphicsComp->Clone());
     return clone;
-}
-
-void ZSkybox::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
-{
-    if (renderOp != ZRenderOp::Depth && renderOp != ZRenderOp::Shadow)
-    {
-        ZGameObject::Render(deltaTime, shader, renderOp);
-    }
 }
 
 void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& event)

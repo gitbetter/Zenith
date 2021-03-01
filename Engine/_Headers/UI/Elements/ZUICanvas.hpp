@@ -47,9 +47,7 @@ public:
     void                                Initialize() override;
     void                                Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
-    bool                                Renderable() override { return !options_.hidden && !children_.empty(); }
-
-    std::shared_ptr<ZMesh2D>            ElementShape() override;
+    void                                Prepare(double deltaTime, unsigned int zOrder = 0) override;
 
     DECLARE_UI_CREATORS(ZUICanvas)
 

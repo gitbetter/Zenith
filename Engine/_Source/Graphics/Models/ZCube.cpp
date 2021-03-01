@@ -129,7 +129,7 @@ void ZCube::Initialize(const std::shared_ptr<ZOFNode>& data)
 
 std::shared_ptr<ZCube> ZCube::Create(const glm::vec3& size)
 {
-    auto plane = std::make_shared<ZCube>(size);
-    plane->Initialize();
-    return plane;
+    auto cube = std::make_shared<ZCube>(size);
+    cube->Initialize();
+    return cube;
 }

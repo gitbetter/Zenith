@@ -41,6 +41,10 @@
 #include "ZShader.hpp"
 #include "ZUIText.hpp"
 #include "ZUILayout.hpp"
+#include "ZMesh.hpp"
+#include "ZRenderTask.hpp"
+#include "ZRenderPass.hpp"
+#include "ZUniformBuffer.hpp"
 #include "ZWindowResizeEvent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZWindowResizeEvent.hpp"
@@ -52,13 +56,13 @@ ZIDSequence ZUIElement::idGenerator_("ZUI");
 
 ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f), projectionMatrix_(1.f)
 {
-    id_ = "ZUI_" + idGenerator_.Next();
+    id_ = "ZUI_" + std::to_string(idGenerator_.Next());
     type_ = ZUIElementType::Unknown;
     SetPosition(position); SetSize(scale);
 }
 
 ZUIElement::ZUIElement(const ZUIElementOptions& options) : modelMatrix_(1.f), projectionMatrix_(1.f) {
-    id_ = "ZUI_" + idGenerator_.Next();
+    id_ = "ZUI_" + std::to_string(idGenerator_.Next());
     type_ = ZUIElementType::Unknown;
     options_ = options;
 }
@@ -76,12 +80,33 @@ void ZUIElement::Initialize() {
         return;
     }
 
-    if (options_.texture == nullptr) {
-        options_.texture = ZTexture::Default();
+    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::UI, sizeof(ZUIUniforms));
+
+    if (!options_.texture) {
+        SetTexture(ZTexture::Default());
     }
 
     SetRect(options_.rect);
     RecalculateProjectionMatrix();
+
+    auto mesh = ElementShape();
+    auto isInstanced = mesh->Instanced();
+
+    uniformBuffer_->Update(offsetof(ZUIUniforms, color), sizeof(options_.color), glm::value_ptr(options_.color));
+    uniformBuffer_->Update(offsetof(ZUIUniforms, borderColor), sizeof(options_.border.color), glm::value_ptr(options_.border.color));
+    uniformBuffer_->Update(offsetof(ZUIUniforms, borderWidth), sizeof(options_.border.width), &options_.border.width);
+    uniformBuffer_->Update(offsetof(ZUIUniforms, borderRadius), sizeof(options_.border.radius), &options_.border.radius);
+    uniformBuffer_->Update(offsetof(ZUIUniforms, instanced), sizeof(isInstanced), &isInstanced);
+
+
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.SetBlending(ZBlendMode::Transluscent);
+    writer.SetFullScreenLayer(ZFullScreenLayer::UI);
+    writer.SetRenderLayer(ZRenderLayer::UI);
+    writer.BindTexture(options_.texture);
+    writer.BindUniformBuffer(uniformBuffer_);
+    renderState_ = writer.End();
 
     ZServices::EventAgent()->Subscribe(this, &ZUIElement::OnWindowResized);
 }
@@ -162,8 +187,8 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
     if (props.find("texture") != props.end() && props["texture"]->HasValues())
     {
         std::shared_ptr<ZOFString> texProp = props["texture"]->Value<ZOFString>(0);
-        if (scene->AssetStore()->HasTexture(texProp->value))
-            options_.texture = scene->AssetStore()->GetTexture(texProp->value);
+        if (ZServices::AssetStore()->HasTexture(texProp->value))
+            options_.texture = ZServices::AssetStore()->GetTexture(texProp->value);
     }
 
     if (props.find("borderWidth") != props.end() && props["borderWidth"]->HasValues())
@@ -201,58 +226,39 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
     Initialize();
 }
 
-void ZUIElement::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+void ZUIElement::Prepare(double deltaTime, unsigned int zOrder)
 {
     // Only render the top level elements that are not hidden. The children will
     // be rendered within the respective parent elements.
     if (options_.hidden) return;
 
-    if (options_.shader == nullptr) {
-        options_.shader = shader;
-    }
+    SetZOrder(zOrder);
 
-    PreRender(deltaTime, shader, renderOp);
-
-    Draw();
-
-    PostRender(deltaTime, shader, renderOp);
-}
-
-void ZUIElement::PreRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
-{
-}
-
-void ZUIElement::Draw()
-{
     std::shared_ptr<ZMesh2D> mesh = ElementShape();
-    options_.shader->Activate();
-    options_.shader->ClearAttachments();
 
-    options_.shader->BindAttachment(options_.texture->type + "Sampler0", options_.texture);
+    ZPR_SESSION_COLLECT_VERTICES(mesh->Vertices().size());
 
-    options_.shader->SetMat4("M", modelMatrix_);
-    options_.shader->SetMat4("P", projectionMatrix_);
-    options_.shader->SetVec4("color", options_.color);
-    options_.shader->SetVec4("borderColor", glm::vec4(0.f));
-    options_.shader->SetFloat("borderWidth", 0.f);
-    options_.shader->SetFloat("borderRadius", options_.border.radius);
-    options_.shader->SetVec2("resolution", options_.calculatedRect.size);
+    auto meshState = mesh->RenderState();
 
-    if (options_.border.width > 0.f)
-    {
-        options_.shader->SetVec4("borderColor", options_.border.color);
-        options_.shader->SetFloat("borderWidth", options_.border.width);
-    }
-
-    mesh->Render(options_.shader);
+    ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::TriangleFan);
+    auto uiTask = ZRenderTask::Compile(drawCall,
+        { meshState, renderState_ },
+        ZRenderPass::UI()
+    );
+    uiTask->Submit({ ZRenderPass::UI() });
 }
 
-void ZUIElement::PostRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+unsigned int ZUIElement::PrepareChildren(double deltaTime, unsigned int zOrder)
 {
+    if (options_.hidden) return zOrder;
+
+    unsigned int lastZOrder = zOrder;
     for (auto it = children_.begin(); it != children_.end(); it++)
     {
-        it->second->Render(deltaTime, shader, renderOp);
+        it->second->Prepare(deltaTime, ++lastZOrder);
+        lastZOrder = it->second->PrepareChildren(deltaTime, lastZOrder);
     }
+    return lastZOrder;
 }
 
 void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
@@ -340,6 +346,9 @@ void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
         options_.rect.size = size;
         options_.calculatedRect.size = options_.rect.size;
     }
+
+    uniformBuffer_->Update(offsetof(ZUIUniforms, pixelSize), sizeof(options_.calculatedRect.size), glm::value_ptr(options_.calculatedRect.size));
+
     ClampToSizeLimits();
     RecalculateModelMatrix();
 }
@@ -372,6 +381,25 @@ void ZUIElement::SetRotation(float angle)
     RecalculateModelMatrix();
 }
 
+void ZUIElement::SetTexture(const ZTexture::ptr& texture)
+{
+    options_.texture = texture;
+
+    ZRenderStateGroupWriter writer(renderState_);
+    writer.Begin();
+    writer.ClearTextures();
+    writer.BindTexture(options_.texture);
+    renderState_ = writer.End();
+}
+
+void ZUIElement::SetBorder(const ZUIBorder& border)
+{
+    options_.border = border;
+    uniformBuffer_->Update(offsetof(ZUIUniforms, borderColor), sizeof(options_.border.color), glm::value_ptr(options_.border.color));
+    uniformBuffer_->Update(offsetof(ZUIUniforms, borderWidth), sizeof(options_.border.width), &options_.border.width);
+    uniformBuffer_->Update(offsetof(ZUIUniforms, borderRadius), sizeof(options_.border.radius), &options_.border.radius);
+}
+
 void ZUIElement::SetTranslationBounds(float left, float right, float bottom, float top)
 {
     options_.translationBounds = glm::vec4(left, right, bottom, top);
@@ -379,6 +407,12 @@ void ZUIElement::SetTranslationBounds(float left, float right, float bottom, flo
     {
         it->second->SetTranslationBounds(left, right, bottom, top);
     }
+}
+
+void ZUIElement::SetColor(const glm::vec4& newColor)
+{
+    options_.color = newColor;
+    uniformBuffer_->Update(offsetof(ZUIUniforms, color), sizeof(options_.color), glm::value_ptr(options_.color));
 }
 
 void ZUIElement::SetOpacity(float opacity, bool relativeToAlpha)
@@ -396,6 +430,14 @@ void ZUIElement::SetFlipped(bool flipped)
 {
     options_.flipped = flipped;
     RecalculateProjectionMatrix();
+}
+
+void ZUIElement::SetZOrder(unsigned int zOrder)
+{
+    ZRenderStateGroupWriter writer(renderState_);
+    writer.Begin();
+    writer.SetRenderDepth(zOrder);
+    renderState_ = writer.End();
 }
 
 void ZUIElement::Translate(const glm::vec2& translation)
@@ -521,6 +563,8 @@ void ZUIElement::RecalculateModelMatrix()
     glm::mat4 rotate = glm::rotate(glm::mat4(1.f), options_.orientation, glm::vec3(0.f, 0.f, 1.f));
     glm::mat4 translate = glm::translate(glm::mat4(1.f), glm::vec3(options_.calculatedRect.position + options_.calculatedRect.size * 0.5f, 0.f));
     modelMatrix_ = translate * rotate * scale;
+
+    uniformBuffer_->Update(offsetof(ZUIUniforms, M), sizeof(modelMatrix_), glm::value_ptr(modelMatrix_));
 }
 
 void ZUIElement::RecalculateProjectionMatrix()
@@ -528,6 +572,7 @@ void ZUIElement::RecalculateProjectionMatrix()
     if (auto scene = Scene()) {
         glm::vec2 resolution = scene->Domain()->Resolution();
         projectionMatrix_ = glm::ortho(0.f, (float)resolution.x, (float)resolution.y, 0.f, -1.f, 1.f);
+        uniformBuffer_->Update(offsetof(ZUIUniforms, P), sizeof(projectionMatrix_), glm::value_ptr(projectionMatrix_));
     }
 }
 

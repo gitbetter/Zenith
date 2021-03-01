@@ -1,5 +1,3 @@
-#version 450 core
-
 #include "Shaders/common.glsl" //! #include "../common.glsl"
 
 layout (location = 0) in vec2 aPos;

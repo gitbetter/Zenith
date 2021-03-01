@@ -63,6 +63,7 @@ public:
     void CleanUp();
 
     const std::shared_ptr<ZShader>& PBRShader() const { return pbrShader_; }
+    const std::shared_ptr<ZShader>& BlinnPhongShader() const { return blinnPhongShader_; }
     const std::shared_ptr<ZShader>& ShadowShader() const { return shadowShader_; }
     const std::shared_ptr<ZShader>& DepthShader() const { return depthShader_; }
     const std::shared_ptr<ZShader>& PostShader() const { return postShader_; }
@@ -103,6 +104,7 @@ public:
 protected:
 
     std::shared_ptr<ZShader> pbrShader_ = nullptr;
+    std::shared_ptr<ZShader> blinnPhongShader_ = nullptr;
     std::shared_ptr<ZShader> debugShader_ = nullptr;
     std::shared_ptr<ZShader> shadowShader_ = nullptr;
     std::shared_ptr<ZShader> depthShader_ = nullptr;

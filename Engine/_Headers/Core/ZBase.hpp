@@ -55,7 +55,6 @@ public:
     std::shared_ptr<ZDomain> Domain() const { return gameSystems_.domain; }
     std::shared_ptr<ZPhysicsUniverse> PhysicsUniverse() const { return gameSystems_.physics; }
     std::shared_ptr<ZAudio> Audio() const { return gameSystems_.audio; }
-    std::shared_ptr<ZAssetStore> AssetStore() const { return gameSystems_.assetStore; }
     const ZGameOptions& Options() const { return gameOptions_; }
     const std::string& Name() const { return name_; }
 
@@ -64,7 +63,6 @@ public:
     virtual void Provide(const std::shared_ptr<ZDomain>& domain);
     virtual void Provide(const std::shared_ptr<ZPhysicsUniverse>& physics);
     virtual void Provide(const std::shared_ptr<ZAudio>& audio);
-    virtual void Provide(const std::shared_ptr<ZAssetStore>& store);
     virtual void Configure(const ZGameOptions& options);
 
     virtual void CleanUp();

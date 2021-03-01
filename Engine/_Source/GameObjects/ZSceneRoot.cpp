@@ -30,68 +30,54 @@
 #include "ZServices.hpp"
 #include "ZPhysicsUniverse.hpp"
 #include "ZScene.hpp"
+#include "ZMesh.hpp"
+#include "ZRenderTask.hpp"
+#include "ZRenderPass.hpp"
+#include "ZCamera.hpp"
 
 ZSceneRoot::ZSceneRoot(const std::string& name) : ZGameObject(name)
+{ }
+
+void ZSceneRoot::Initialize()
 {
-    std::shared_ptr<ZGameObject> staticGroup = std::make_shared<ZGameObject>("StaticGroup");
-    staticGroup->SetRenderOrder(ZRenderOrder::Static);
-    children_.push_back(staticGroup);
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.SetRenderLayer(ZRenderLayer::UI);
+    renderState_ = writer.End();
 
-    std::shared_ptr<ZGameObject> dynamicGroup = std::make_shared<ZGameObject>("DynamicGroup");
-    dynamicGroup->SetRenderOrder(ZRenderOrder::Dynamic);
-    children_.push_back(dynamicGroup);
-
-    std::shared_ptr<ZGameObject> skyGroup = std::make_shared<ZGameObject>("SkyGroup");
-    skyGroup->SetRenderOrder(ZRenderOrder::Sky);
-    children_.push_back(skyGroup);
-
-    std::shared_ptr<ZGameObject> invisibleGroup = std::make_shared<ZGameObject>("InvisibleGroup");
-    invisibleGroup->SetRenderOrder(ZRenderOrder::Invisible);
-    children_.push_back(invisibleGroup);
-
-    std::shared_ptr<ZGameObject> uiGroup = std::make_shared<ZGameObject>("UIGroup");
-    uiGroup->SetRenderOrder(ZRenderOrder::UI);
-    children_.push_back(uiGroup);
+    ZGameObject::Initialize();
 }
 
-void ZSceneRoot::AddChild(std::shared_ptr<ZGameObject> gameObject)
+std::shared_ptr<ZMesh2D> ZSceneRoot::ScreenTri()
 {
-    int order = static_cast<int>(gameObject->RenderOrder());
-    if (order >= children_.size() || !children_[order])
-    {
-        LOG("The child being added has a non-extant render order", ZSeverity::Warning);
-        return;
-    }
-
-    children_[order]->AddChild(gameObject);
-
-    if (std::find(publicChildren_.begin(), publicChildren_.end(), gameObject) == publicChildren_.end())
-    {
-        publicChildren_.push_back(gameObject);
-    }
-
-    gameObject->parent_ = shared_from_this();
+    static std::shared_ptr<ZMesh2D> screenTri = ZMesh2D::NewScreenTriangle();
+    return screenTri;
 }
 
-void ZSceneRoot::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse)
+void ZSceneRoot::Prepare(double deltaTime)
 {
-    ZGameObject::RemoveChild(gameObject);
-    for (ZGameObjectList::iterator it = children_.begin(), end = children_.end(); it != end; it++)
-    {
-        (*it)->RemoveChild(gameObject, recurse);
-    }
+    auto scene = Scene();
+    if (!scene) return;
 
-    ZGameObjectList::iterator it = std::find(publicChildren_.begin(), publicChildren_.end(), gameObject);
-    if (it != publicChildren_.end())
-        publicChildren_.erase(it);
+    auto cam = scene->ActiveCamera();
+    if (!cam) return;
+
+    auto mesh = ScreenTri();
+
+    auto meshState = mesh->RenderState();
+    auto cameraState = cam->RenderState();
+
+    ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
+    auto renderTask = ZRenderTask::Compile(drawCall,
+        { cameraState, meshState, renderState_ },
+        ZRenderPass::Post()
+    );
+    renderTask->Submit({ ZRenderPass::Post() });
+
+    PrepareChildren(deltaTime);
 }
 
-void ZSceneRoot::Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
-{
-    RenderChildren(deltaTime, shader, renderOp);
-}
-
-void ZSceneRoot::RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp)
+void ZSceneRoot::PrepareChildren(double deltaTime)
 {
     auto scene = Scene();
     if (!scene) return;
@@ -99,18 +85,7 @@ void ZSceneRoot::RenderChildren(double deltaTime, const std::shared_ptr<ZShader>
     if (scene->GameConfig().graphics.drawGrid)
         ZServices::Graphics()->DebugDrawGrid(scene, glm::vec4(0.75f, 0.75f, 0.75f, 1.f));
 
-    for (int pass = static_cast<int>(ZRenderOrder::First); pass < static_cast<int>(ZRenderOrder::Last); pass++)
-    {
-        if (pass == static_cast<int>(ZRenderOrder::UI)) {
-            ZServices::Graphics()->DisableDepthTesting();
-        }
-
-        children_[pass]->RenderChildren(deltaTime, shader, renderOp);
-
-        if (pass == static_cast<int>(ZRenderOrder::UI)) {
-            ZServices::Graphics()->EnableDepthTesting();
-        }
-    }
+    ZGameObject::PrepareChildren(deltaTime);
 
     if (scene->GameConfig().graphics.drawPhysicsDebug)
         scene->PhysicsUniverse()->DebugDraw(scene);

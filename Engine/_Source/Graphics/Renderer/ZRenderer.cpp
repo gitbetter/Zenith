@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZRenderer2D.hpp
+    ZRenderer.hpp
 
     Created by Adrian Sanchez on 29/01/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -27,22 +27,18 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZRenderer2D.hpp"
-#include "ZServices.hpp"
+#include "ZRenderer.hpp"
 
-void ZRenderer2D::Render(double deltaTime)
+void ZRenderer::Render(double deltaTime)
 {
     ZPR_SESSION_COLLECT_RENDER_PASSES(passes_.size());
 
-    ZServices::Graphics()->EnableAlphaBlending();
     for (auto pass : passes_) {
-        pass->Perform(deltaTime, scene_, target_);
+        pass->Render(deltaTime, scene_, target_);
     }
-    ZServices::Graphics()->DisableAlphaBlending();
 }
 
-void ZRenderer2D::AddPass(const ZRenderPass::ptr& pass)
+void ZRenderer::AddPass(const ZRenderPass::ptr& pass)
 {
-    pass->Initialize();
     passes_.emplace_back(pass);
 }

@@ -72,10 +72,6 @@ void ZBase::Initialize(const ZGameOptions& options)
     Provide(std::make_shared<ZALAudio>());
     /* ===================================== */
 
-    /* ========= Asset Store ============ */
-    Provide(std::make_shared<ZAssetStore>());
-    /* ===================================== */
-
     Setup();
 }
 
@@ -112,15 +108,6 @@ void ZBase::Provide(const std::shared_ptr<ZAudio>& audio)
     gameSystems_.audio->Initialize();
 }
 
-void ZBase::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
-{
-    if (gameSystems_.assetStore)
-        gameSystems_.assetStore->CleanUp();
-
-    gameSystems_.assetStore = assetStore;
-    gameSystems_.assetStore->Initialize();
-}
-
 void ZBase::Configure(const ZGameOptions& options)
 {
     gameOptions_ = options;
@@ -128,7 +115,6 @@ void ZBase::Configure(const ZGameOptions& options)
 
 void ZBase::CleanUp()
 {
-    gameSystems_.assetStore.reset();
     gameSystems_.physics->CleanUp(); gameSystems_.physics.reset();
     gameSystems_.audio->CleanUp(); gameSystems_.audio.reset();
     gameSystems_.domain->CleanUp(); gameSystems_.domain.reset();

@@ -40,8 +40,11 @@ struct ZSkeleton;
 struct ZJoint;
 struct ZJointAnimation;
 class ZResourceLoadedEvent;
+class ZUniformBuffer;
+class ZRenderStateGroup;
 
 // Class Definitions
+
 class ZModel : public std::enable_shared_from_this<ZModel>
 {
 
@@ -56,9 +59,6 @@ public:
     virtual void Initialize(const std::shared_ptr<ZOFNode>& data);
     virtual void InitializeAsync();
 
-    virtual void Render(const std::shared_ptr<ZShader>& shader);
-    virtual void Render(const std::shared_ptr<ZShader>& shader, const std::vector<std::shared_ptr<ZMaterial>>& materials);
-
     const std::string& ID() const { return id_; }
     const std::string& Path() const { return modelPath_; }
     const ZMesh3DMap& Meshes() const { return meshes_; }
@@ -69,8 +69,10 @@ public:
     const std::shared_ptr<ZSkeleton> Skeleton() const { return skeleton_; }
     const glm::mat4 GlobalInverseTransform() const { return globalInverseTransform_; }
     const ZAABBox& Bounds() const { return bounds_; }
+    const std::shared_ptr<ZRenderStateGroup> RenderState() const { return renderState_; }
 
     void SetInstanceData(const ZInstancedDataOptions& instanceData);
+
     void BoneTransform(const std::string& anim, double secondsTime);
 
     static void Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap);
@@ -89,8 +91,12 @@ protected:
     ZAnimationMap animations_;
     std::shared_ptr<ZSkeleton> skeleton_;
     ZInstancedDataOptions instanceData_;
+    glm::mat4 modelMatrix_;
     glm::mat4 globalInverseTransform_;
     ZAABBox bounds_;
+
+    std::shared_ptr<ZRenderStateGroup> renderState_;
+    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
 
     static ZIDSequence idGenerator_;
 

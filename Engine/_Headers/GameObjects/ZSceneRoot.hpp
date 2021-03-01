@@ -33,14 +33,12 @@
 #include "ZGameObject.hpp"
 
 // Forward Declarations
+class ZMesh2D;
+class ZRenderStateGroup;
 
 // Class Definitions
 class ZSceneRoot : public ZGameObject
 {
-
-private:
-
-    ZGameObjectList publicChildren_;
 
 public:
 
@@ -48,15 +46,20 @@ public:
         : ZGameObject(position, orientation, scale) { }
     ZSceneRoot(const std::string& name = "Root");
 
-    ZGameObjectList& Children() override { return publicChildren_; }
+    void Initialize() override;
+    void Initialize(std::shared_ptr<ZOFNode> root) override { ZGameObject::Initialize(root); }
 
-    void AddChild(std::shared_ptr<ZGameObject> gameObject) override;
-    void RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse = false) override;
-    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
-    void RenderChildren(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
-    bool Renderable() override { return !children_.empty(); }
+    std::shared_ptr<ZMesh2D> ScreenTri();
+
+    void Prepare(double deltaTime) override;
+    void PrepareChildren(double deltaTime) override;
     bool IsVisible() override { return true; }
 
     DECLARE_OBJECT_CREATORS(ZSceneRoot)
+
+private:
+
+    ZGameObjectList publicChildren_;
+    std::shared_ptr<ZRenderStateGroup> renderState_;
 
 };
