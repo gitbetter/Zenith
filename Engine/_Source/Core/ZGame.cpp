@@ -56,12 +56,6 @@ void ZGame::Provide(const std::shared_ptr<ZAudio>& audio)
     UpdateSceneSystems();
 }
 
-void ZGame::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
-{
-    ZBase::Provide(assetStore);
-    UpdateSceneSystems();
-}
-
 void ZGame::Configure(const ZGameOptions& options)
 {
     ZBase::Configure(options);

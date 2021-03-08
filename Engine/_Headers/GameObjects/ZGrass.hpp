@@ -35,9 +35,18 @@
 // Forward Declarations
 class ZTextureReadyEvent;
 class ZGraphicsComponent;
-class ZShader;
+class ZUniformBuffer;
+class ZRenderStateGroup;
 
 // Class and Data Structure Definitions
+struct ZGrassUniforms
+{
+    float objectHeight;
+    float timestamp;
+    float windStrength;
+    glm::vec4 windDirection;
+};
+
 class ZGrass : public ZGameObject
 {
 
@@ -50,7 +59,7 @@ public:
 
     void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
+    void Prepare(double deltaTime) override;
     bool IsVisible() override { return true; }
 
     void TrimPatch(const glm::vec3& position, const glm::vec3& size);
@@ -66,8 +75,12 @@ private:
     unsigned int instanceCount_ = 0;
     std::vector<std::shared_ptr<ZModel>> polygons_;
     glm::vec3 windDirection_;
+    float objectHeight_;
     float windStrength_;
     float time_;
+
+    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
+    std::shared_ptr<ZRenderStateGroup> renderState_;
 
     void UpdateVertexNormals(std::shared_ptr<ZModel>& model);
     void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);

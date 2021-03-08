@@ -32,11 +32,12 @@
 #include "ZServices.hpp"
 #include "ZCube.hpp"
 #include "ZShader.hpp"
-#include "ZBuffer.hpp"
+#include "ZVertexBuffer.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZImageImporter.hpp"
+#include "ZMaterial.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -143,7 +144,9 @@ void ZGLTexture::LoadCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZF
     equirectToCubemapShader->Activate();
     equirectToCubemapShader->SetMat4("P", captureProjection);
 
-    equirectToCubemapShader->BindAttachment("equirectangularMap", hdrTexture);
+    equirectToCubemapShader->BindAttachment("equirectangularMapSampler0", hdrTexture);
+
+    equirectToCubemapShader->Use(ZMaterial::Default());
 
     bufferData->Bind();
     ZServices::Graphics()->UpdateViewport(glm::vec2(CUBE_MAP_SIZE, CUBE_MAP_SIZE));
@@ -151,9 +154,10 @@ void ZGLTexture::LoadCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZF
     {
         equirectToCubemapShader->SetMat4("V", captureViews[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, id, 0);
-        ZServices::Graphics()->ClearViewport();
-
-        cube->Render(equirectToCubemapShader);
+        ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
+        for (const auto& [id, mesh] : cube->Meshes()) {
+            ZServices::Graphics()->Draw(mesh->BufferData());   
+        }
     }
     bufferData->Unbind();
 
@@ -182,7 +186,9 @@ void ZGLTexture::LoadIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapB
     irradianceShader->Activate();
     irradianceShader->SetMat4("P", captureProjection);
 
-    irradianceShader->BindAttachment("environmentMap", cubemapTexture);
+    irradianceShader->BindAttachment("environmentMapSampler0", cubemapTexture);
+
+    irradianceShader->Use(ZMaterial::Default());
 
     cubemapBufferData->Bind();
     cubemapBufferData->BindRenderbuffer();
@@ -192,9 +198,10 @@ void ZGLTexture::LoadIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapB
     {
         irradianceShader->SetMat4("V", captureViews[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, id, 0);
-        ZServices::Graphics()->ClearViewport();
-
-        cube->Render(irradianceShader);
+        ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
+        for (const auto& [id, mesh] : cube->Meshes()) {
+            ZServices::Graphics()->Draw(mesh->BufferData());
+        }
     }
     cubemapBufferData->UnbindRenderbuffer();
     cubemapBufferData->Unbind();
@@ -221,7 +228,9 @@ void ZGLTexture::LoadPrefilterCubeMap(const std::shared_ptr<ZFramebuffer>& cubem
     prefilterShader->SetMat4("P", captureProjection);
     prefilterShader->SetFloat("resolution", PREFILTER_MAP_SIZE);
 
-    prefilterShader->BindAttachment("environmentMap", cubemapTexture);
+    prefilterShader->BindAttachment("environmentMapSampler0", cubemapTexture);
+
+    prefilterShader->Use(ZMaterial::Default());
 
     cubemapBufferData->Bind();
 
@@ -240,8 +249,10 @@ void ZGLTexture::LoadPrefilterCubeMap(const std::shared_ptr<ZFramebuffer>& cubem
         {
             prefilterShader->SetMat4("V", captureViews[i]);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, id, mip);
-            ZServices::Graphics()->ClearViewport();
-            cube->Render(prefilterShader);
+            ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
+            for (const auto& [id, mesh] : cube->Meshes()) {
+                ZServices::Graphics()->Draw(mesh->BufferData());
+            }
         }
     }
     cubemapBufferData->UnbindRenderbuffer();
@@ -259,7 +270,7 @@ void ZGLTexture::LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferD
         ZVertex2D(1.f, 1.f, 1.f, 1.f),
         ZVertex2D(1.f, -1.f, 1.f, 0.f),
     };
-    ZBuffer::ptr quadBufferData = ZBuffer::Create(options);
+    ZVertexBuffer::ptr quadBufferData = ZVertexBuffer::Create(options);
     auto brdfLUTShader = ZShader::Create("/Shaders/Vertex/brdf_lut.vert", "/Shaders/Pixel/brdf_lut.frag");
     brdfLUTShader->Activate();
 
@@ -268,10 +279,10 @@ void ZGLTexture::LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferD
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, LUT_SIZE, LUT_SIZE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
 
-    ZServices::Graphics()->ClearViewport();
+    ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
     ZServices::Graphics()->UpdateViewport(glm::vec2(LUT_SIZE, LUT_SIZE));
 
-    ZServices::Graphics()->Draw(quadBufferData, options);
+    ZServices::Graphics()->Draw(quadBufferData);
 
     cubemapBufferData->UnbindRenderbuffer();
     cubemapBufferData->Unbind();

@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\ 
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/ 
                                                           
-    ZRenderer3D.hpp
+    ZVertexBuffer.cpp
 
-    Created by Adrian Sanchez on 29/01/2021.
+    Created by Adrian Sanchez on 27/01/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,19 +27,20 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZRenderer3D.hpp"
+#include "ZGLVertexBuffer.hpp"
 
-void ZRenderer3D::Render(double deltaTime)
+std::shared_ptr<ZVertexBuffer> ZVertexBuffer::Create(const ZVertex3DDataOptions& options)
 {
-    ZPR_SESSION_COLLECT_RENDER_PASSES(passes_.size());
-
-    for (auto pass : passes_) {
-        pass->Perform(deltaTime, scene_, target_);
-    }
+    // TODO: Switch on contant, variable or define to choose implementation
+    auto buffer = std::make_shared<ZGLVertexBuffer>();
+    buffer->Load(options);
+    return buffer;
 }
 
-void ZRenderer3D::AddPass(const ZRenderPass::ptr& pass)
+std::shared_ptr<ZVertexBuffer> ZVertexBuffer::Create(const ZVertex2DDataOptions& options)
 {
-    pass->Initialize();
-    passes_.emplace_back(pass);
+    // TODO: Switch on contant, variable or define to choose implementation
+    auto buffer = std::make_shared<ZGLVertexBuffer>();
+    buffer->Load(options);
+    return buffer;
 }

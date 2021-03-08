@@ -1,5 +1,3 @@
-#version 450 core
-
 #include "Shaders/common.glsl" //! #include "../common.glsl"
 
 out vec2 FragColor;

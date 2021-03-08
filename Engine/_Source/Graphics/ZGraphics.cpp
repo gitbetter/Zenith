@@ -28,11 +28,23 @@
 */
 
 #include "ZServices.hpp"
-#include "ZBuffer.hpp"
+#include "ZVertexBuffer.hpp"
 #include "ZScene.hpp"
 #include "ZFrustum.hpp"
 #include "ZAssetStore.hpp"
 #include "ZShader.hpp"
+#include "ZCamera.hpp"
+#include "ZRenderTask.hpp"
+#include "ZRenderPass.hpp"
+#include "ZRenderStateExecutor.hpp"
+
+std::shared_ptr<ZRenderStateExecutor> ZGraphics::Executor()
+{
+    if (!executor_) {
+        executor_ = ZRenderStateExecutor::Create();
+    }
+    return executor_;
+}
 
 void ZGraphics::DebugDraw(const std::shared_ptr<ZScene>& scene, const ZFrustum& frustum, const glm::vec4& color)
 {
@@ -109,22 +121,34 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
 {
     if (!scene) return;
 
-    ZPR_SESSION_COLLECT_DRAWS(1);
+    auto cam = scene->ActiveCamera();
+    if (!cam) return;
+
     ZPR_SESSION_COLLECT_VERTICES(2);
-
-    const auto& VPMatrix = scene->ViewProjection();
-    auto debugShader = scene->AssetStore()->DebugShader();
-
-    debugShader->Activate();
-    debugShader->SetMat4("ViewProjection", VPMatrix);
-    debugShader->SetVec4("color", color);
 
     ZVertex3DDataOptions options;
     options.vertices = ZVertex3DList{
       ZVertex3D(from), ZVertex3D(to)
     };
 
-    ZBuffer::ptr bufferData = ZBuffer::Create(options);
-    Draw(bufferData, options, ZMeshDrawStyle::Line);
-    bufferData->Delete();
+    auto bufferData = ZVertexBuffer::Create(options);
+    auto colorUniforms = ZUniformBuffer::Create(ZUniformBufferType::UI, sizeof(ZUIUniforms));
+    colorUniforms->Update(offsetof(ZUIUniforms, color), sizeof(color), &color);
+
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.BindVertexBuffer(bufferData);
+    writer.SetShader(ZServices::AssetStore()->DebugShader());
+    writer.BindUniformBuffer(colorUniforms);
+    auto lineState = writer.End();
+
+    ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Line);
+    auto renderTask = ZRenderTask::Compile(drawCall,
+        { cam->RenderState(), lineState },
+        ZRenderPass::Color()
+    );
+    renderTask->Submit({ ZRenderPass::Color() });
+
+    // TODO: Delete buffer data once rendering is done, maybe within a Debug renderpass?
+    // Might also want to think about a special debug renderer implementation instead
 }

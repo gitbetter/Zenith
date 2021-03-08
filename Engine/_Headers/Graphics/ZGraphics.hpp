@@ -36,8 +36,9 @@
 class ZScene;
 class ZFrustum;
 class ZAABBox;
-class ZBuffer;
+class ZVertexBuffer;
 class ZFont;
+class ZRenderStateExecutor;
 
 // Class and Data Structure Definitions
 class ZGraphics
@@ -52,39 +53,50 @@ public:
     void UseMotionBlur(bool blur = false) { options_.hasMotionBlur = blur; }
     bool HasPBR() const { return options_.hasPBR; }
     bool HasMotionBlur() const { return options_.hasMotionBlur; }
-
-    // Platform Graphics
-    virtual void Initialize() = 0;
-    virtual void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f)) = 0;
-    virtual void UpdateViewport(const glm::vec2& size, const glm::vec2& position = glm::vec2(0.f)) = 0;
-    virtual void EnableStencilTesting() = 0;
-    virtual void DisableStencilTesting() = 0;
-    virtual void EnableDepthTesting() = 0;
-    virtual void DisableDepthTesting() = 0;
-    virtual void EnableStencilBuffer() = 0;
-    virtual void DisableStencilBuffer() = 0;
-    virtual void EnableAlphaBlending() = 0;
-    virtual void DisableAlphaBlending() = 0;
-    virtual void EnableFaceCulling() = 0;
-    virtual void DisableFaceCulling() = 0;
-    virtual void EnableSeamlessCubemap() = 0;
-    virtual void DisableSeamlessCubemap() = 0;
-    virtual void EnableMSAA() = 0;
-    virtual void DisableMSAA() = 0;
-    virtual void CullFrontFaces() = 0;
-    virtual void CullBackFaces() = 0;
-    virtual void ClearDepth() = 0;
-
-    virtual void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
-    virtual void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) = 0;
+    std::shared_ptr<ZRenderStateExecutor> Executor();
 
     void DebugDraw(const std::shared_ptr<ZScene>& scene, const ZFrustum& frustum, const glm::vec4& color);
     void DebugDraw(const std::shared_ptr<ZScene>& scene, const ZAABBox& aabb, const glm::vec4& color);
     void DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::vec4& color);
     void DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::vec3& from, const glm::vec3& to, const glm::vec4& color);
 
+    // Platform Graphics
+    virtual void Initialize() = 0;
+    virtual void UpdateViewport(const glm::vec2& size, const glm::vec2& position = glm::vec2(0.f)) = 0;
+    virtual void EnableStencilTesting() = 0;
+    virtual void DisableStencilTesting() = 0;
+    virtual void EnableDepthTesting() = 0;
+    virtual void DisableDepthTesting() = 0;
+    virtual void EnableFaceCulling() = 0;
+    virtual void DisableFaceCulling() = 0;
+    virtual void EnableSeamlessCubemap() = 0;
+    virtual void DisableSeamlessCubemap() = 0;
+    virtual void EnableMSAA() = 0;
+    virtual void DisableMSAA() = 0;
+
+    virtual void EnableStencilBuffer() = 0;
+    virtual void DisableStencilBuffer() = 0;
+
+    virtual void EnableAlphaBlending() = 0;
+    virtual void EnableAdditiveBlending() = 0;
+    virtual void DisableBlending() = 0;
+
+    virtual void CullFrontFaces() = 0;
+    virtual void CullBackFaces() = 0;
+
+    virtual void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f), uint8_t clearFlags = 0) = 0;
+    virtual void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f), const std::initializer_list<ZClearFlags>& clearFlags = {}) = 0;
+    virtual void CullFaces(uint8_t faceCullState) = 0;
+    virtual void CullFaces(const std::initializer_list<ZFaceCullState>& faceCullState = {}) = 0;
+    virtual void SetDepthStencilState(uint8_t depthStencilState) = 0;
+    virtual void SetDepthStencilState(const std::initializer_list<ZDepthStencilState>& depthStencilState) = 0;
+    virtual void SetBlending(ZBlendMode blendMode) = 0;
+
+    virtual void Draw(const std::shared_ptr<ZVertexBuffer>& bufferData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) = 0;
+
 protected:
 
     ZGraphicsOptions options_;
+    std::shared_ptr<ZRenderStateExecutor> executor_;
 
 };

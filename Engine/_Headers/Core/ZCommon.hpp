@@ -64,6 +64,13 @@
 #include "ZFrameProfiler.hpp"
 
 constexpr unsigned int BONES_PER_VERTEX = 4;
+constexpr unsigned int BONES_PER_MODEL = 50;
+constexpr unsigned int MAX_MATERIALS_PER_OBJECT = 6;
+constexpr unsigned int MAX_LOCAL_LIGHTS = 4;
+constexpr unsigned int NUM_SHADOW_CASCADES = 4;
+constexpr unsigned int MAX_TEXTURE_SLOTS = 16;
+constexpr unsigned int MAX_UBO_SLOTS = 16;
+
 constexpr float UPDATE_STEP_SIZE = 0.017f;
 constexpr int MAX_FIXED_UPDATE_ITERATIONS = 4;
 constexpr unsigned int SHADOW_MAP_SIZE = 4096;
@@ -71,9 +78,11 @@ constexpr unsigned int CUBE_MAP_SIZE = 2048;
 constexpr unsigned int IRRADIANCE_MAP_SIZE = 32;
 constexpr unsigned int PREFILTER_MAP_SIZE = 128;
 constexpr unsigned int LUT_SIZE = 512;
+
 const glm::vec3 WORLD_UP(0.0f, 1.0f, 0.0f);
 const glm::vec3 WORLD_RIGHT(1.0f, 0.0f, 0.0f);
 const glm::vec3 WORLD_FRONT(0.0f, 0.0f, -1.0f);
+
 const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP{
     "/Skyboxes/Default/right.png",
     "/Skyboxes/Default/left.png",
@@ -83,7 +92,7 @@ const std::vector<std::string> DEFAULT_SKYBOX_CUBEMAP{
     "/Skyboxes/Default/back.png",
 };
 const std::string DEFAULT_HDR_CUBEMAP = "/Skyboxes/DefaultHDR/sky.hdr";
-constexpr unsigned int NUM_SHADOW_CASCADES = 4;
+
 const float EPSILON = glm::epsilon<float>();
 const float PI = glm::pi<float>();
 
@@ -439,6 +448,7 @@ struct ZVertex3D;
 struct ZVertex2D;
 class ZColliderComponent;
 class ZScriptComponent;
+class ZUniformBuffer;
 
 using ZGameObjectMap = std::map<std::string, std::shared_ptr<ZGameObject>>;
 using ZLightMap = std::map<std::string, std::shared_ptr<ZLight>>;
@@ -463,6 +473,9 @@ using ZCollisionPairs = std::set<ZCollisionPair>;
 using ZAnimationMap = std::map<std::string, std::shared_ptr<ZAnimation>>;
 using ZBoneMap = std::map<std::string, unsigned int>;
 using ZBoneList = std::vector<std::shared_ptr<ZBone>>;
+using ZMaterialList = std::vector<std::shared_ptr<ZMaterial>>;
+using ZTextureList = std::array<std::shared_ptr<ZTexture>, MAX_TEXTURE_SLOTS>;
+using ZUBOList = std::array<std::shared_ptr<ZUniformBuffer>, MAX_UBO_SLOTS>;
 using ZTimedUpdateCallback = std::function<void(float)>;
 using ZTypeIdentifier = unsigned long;
 using ZVertex3DList = std::vector<ZVertex3D>;
@@ -473,9 +486,14 @@ enum ZPriority
     FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority
 };
 
-enum class ZRenderOrder
+enum class ZRenderLayer
 {
-    First = 0, Invisible = First, Static, Dynamic, Sky, UI, Last
+    Null = 0, First, Invisible = First, Static, Dynamic, Debug, Sky, UI, Last
+};
+
+enum class ZFullScreenLayer
+{
+    Null = 0, First, Game = First, Effect, UI, Last
 };
 
 enum class ZRenderOp
@@ -505,7 +523,7 @@ enum class ZCameraMovementStyle
 
 enum class ZLightType
 {
-    Directional, Point, Spot, Area
+    Point = 1, Spot, Directional, Area
 };
 
 enum class ZColliderType
@@ -580,39 +598,60 @@ enum class ZSystemCursorType
     Arrow, Caret, Crosshair, Hand, HorizontalResize, VerticalResize
 };
 
-struct ZMaterialProperties
+enum class ZTextureBindPoint
 {
-    glm::vec4 albedo;
-    float alpha;
-    float tiling;
-    bool isPBR;
-    bool hasDisplacement;
-    union
-    {
-        struct
-        {
-            float emission;
-            float diffuse;
-            float ambient;
-            float specular;
-            float shininess;
-        };
-        struct
-        {
-            float metallic;
-            float roughness;
-            float ao;
-        };
-    };
+    Depth = 0, Shadow, Color, Irradiance, Prefilter, BRDFLUT, User0
+};
 
-    ZMaterialProperties()
-    {
-        isPBR = false; hasDisplacement = false;
-        albedo = glm::vec4(1.f, 1.f, 1.f, 1.f);
-        alpha = 1.f; emission = 0.f; diffuse = 0.8f;
-        ambient = 0.2f; specular = 0.5f; shininess = 48.f;
-        tiling = 1.f;
-    }
+enum class ZClearFlags
+{
+    Null = 0, None, Color, Stencil = 4, Depth = 8
+};
+
+enum class ZBlendMode
+{
+    Null = 0, None, Opaque, Transluscent, Additive
+};
+
+enum class ZDepthStencilState
+{
+    Null = 0, None, Depth, Stencil = 4
+};
+
+enum class ZFaceCullState
+{
+    Null = 0, None, Front, Back = 4
+};
+
+struct Light {
+    glm::vec4 ambient{ 0.1f };
+    glm::vec4 color{ 0.9f };
+    glm::vec4 position{ 0.f };
+    glm::vec4 direction{ 0.f };
+    glm::vec4 coneDirection{ 0.f };
+    float constantAttenuation{ 0.f };
+    float linearAttenuation{ 0.f };
+    float quadraticAttenuation{ 0.f };
+    float spotCutoff{ 0.f };
+    float spotExponent{ 0.f };
+    alignas(sizeof(float)) bool isEnabled{ true };
+    alignas(sizeof(float)) unsigned int lightType;
+};
+
+struct Material {
+    glm::vec4 albedo;
+    float emission;
+    float ambient;
+    float diffuse;
+    float specular;
+    float shininess;
+};
+
+struct PBRMaterial {
+    glm::vec4 albedo;
+    float metallic;
+    float roughness;
+    float ao;
 };
 
 struct ZVertex3D
@@ -622,12 +661,15 @@ struct ZVertex3D
     glm::vec2 uv;
     glm::vec3 tangent;
     glm::vec3 bitangent;
-    unsigned int boneIDs[BONES_PER_VERTEX];
+    int boneIDs[BONES_PER_VERTEX];
     float boneWeights[BONES_PER_VERTEX];
 
     ZVertex3D()
     {
-        for (unsigned int i = 0; i < BONES_PER_VERTEX; i++) boneWeights[i] = 0.f;
+        for (unsigned int i = 0; i < BONES_PER_VERTEX; i++) {
+            boneIDs[i] = -1;
+            boneWeights[i] = 0.f;
+        }
     }
 
     ZVertex3D(const glm::vec3& position, const glm::vec3& normal = glm::vec3(0.f, 1.f, 0.f), const glm::vec2& uv = glm::vec2(0.f)) : ZVertex3D()
@@ -789,7 +831,6 @@ struct ZGameSystems
     std::shared_ptr<ZDomain> domain{ nullptr };
     std::shared_ptr<ZPhysicsUniverse> physics{ nullptr };
     std::shared_ptr<ZAudio> audio{ nullptr };
-    std::shared_ptr<ZAssetStore> assetStore{ nullptr };;
 };
 
 struct ZSceneSnapshot
@@ -858,6 +899,61 @@ struct ZCursor {
     ZCursor(const ZSystemCursorType& type)
         : type(type)
     { }
+};
+
+struct ZUIUniforms
+{
+    glm::mat4 P;
+    glm::mat4 M;
+    glm::vec4 color;
+    glm::vec4 borderColor;
+    glm::vec2 pixelSize;
+    float borderWidth;
+    float borderRadius;
+    alignas(sizeof(float)) bool instanced;
+};
+
+struct ZCameraUniforms
+{
+    glm::mat4 V;
+    glm::mat4 P;
+    glm::mat4 ViewProjection;
+    glm::mat4 PreviousViewProjection;
+    glm::mat4 InverseViewProjection;
+    alignas(sizeof(float) * 4) glm::vec3 ViewPosition;
+};
+
+struct ZLightUniforms
+{
+    glm::mat4 ViewProjectionLightSpace;
+    glm::mat4 ViewProjectionsLightSpace[NUM_SHADOW_CASCADES];
+    glm::vec4 shadowFarPlanes;
+    Light light;
+};
+
+struct ZObjectUniforms
+{
+    glm::mat4 M;
+};
+
+struct ZModelUniforms
+{
+    glm::mat4 bones[BONES_PER_MODEL];
+    alignas(sizeof(float)) bool rigged;
+    alignas(sizeof(float)) bool instanced;
+};
+
+struct ZPostUniforms
+{
+    alignas(sizeof(float)) bool useMotionBlur;
+};
+
+struct ZMaterialUniforms
+{
+    Material material;
+    PBRMaterial pbrMaterial;
+    alignas(sizeof(float)) bool isTextured;
+    alignas(sizeof(float)) bool hasDisplacement;
 };
 
 // TODO: Is there a better way we can write this type trait?

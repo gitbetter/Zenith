@@ -50,7 +50,7 @@ public:
 
     // TODO: Use a random number generator to sample from a
     // list of tokens and use a few tokens as the prefix
-    std::string Next() { return std::to_string((currentId_++) % MaxIDCount); }
+    unsigned int Next() { return (currentId_++) % MaxIDCount; }
 
 private:
 

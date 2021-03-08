@@ -39,8 +39,7 @@ class ZLight;
 class ZSkybox;
 class ZCamera;
 class ZUIElement;
-class ZRenderer3D;
-class ZRenderer2D;
+class ZRenderer;
 class ZUICanvas;
 class ZRaycastEvent;
 class ZFramebuffer;
@@ -81,14 +80,11 @@ public:
     ZUIElementMap& UIElements() { return uiElements_; }
     ZLightMap& GameLights() { return gameLights_; }
     std::string& Name() { return name_; }
-    glm::mat4& ViewProjection() { return viewProjection_; }
-    glm::mat4& PreviousViewProjection() { return previousViewProjection_; }
     ZPlayState& PlayState() { return playState_; }
     std::shared_ptr<ZTexture> TargetTexture();
     std::shared_ptr<ZPhysicsUniverse> PhysicsUniverse() const { return gameSystems_.physics; }
     std::shared_ptr<ZDomain> Domain() const { return gameSystems_.domain; }
     std::shared_ptr<ZAudio> Audio() const { return gameSystems_.audio; }
-    std::shared_ptr<ZAssetStore> AssetStore() const { return gameSystems_.assetStore; }
     ZGameOptions GameConfig() { return gameConfig_; }
     std::string GameName() const { return gameName_; }
     ZFrameStats& FrameStats() { return frameStats_; }
@@ -116,7 +112,6 @@ public:
 
     ZRay ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions = glm::vec2(0.f));
 
-    void UpdateViewProjectionMatrices();
     void UpdateLightspaceMatrices();
 
     template <class T, typename... Args>
@@ -158,8 +153,7 @@ protected:
     std::string gameName_;
     ZPlayState playState_;
 
-    std::shared_ptr<ZRenderer3D> renderer3D_ = nullptr;
-    std::shared_ptr<ZRenderer2D> renderer2D_ = nullptr;
+    std::shared_ptr<ZRenderer> renderer_ = nullptr;
     std::shared_ptr<ZFramebuffer> targetBuffer_ = nullptr;
 
     // TODO: Create a light manager class to handle the scene lights
@@ -176,8 +170,6 @@ protected:
     ZGameSystems gameSystems_;
     ZGameOptions gameConfig_;
     ZFrameStats frameStats_;
-
-    glm::mat4 viewProjection_, previousViewProjection_;
 
     void SetupRenderers();
     void SetupTargetDrawBuffer();

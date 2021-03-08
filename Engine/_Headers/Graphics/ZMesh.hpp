@@ -31,11 +31,12 @@
 
 // Includes
 #include "ZProcess.hpp"
-#include "ZBuffer.hpp"
+#include "ZVertexBuffer.hpp"
 
 // Forward Declarations
 class ZShader;
 class ZMaterial;
+class ZRenderStateGroup;
 
 // Class and Data Structure Definitions
 class ZMesh : public ZProcess
@@ -43,42 +44,38 @@ class ZMesh : public ZProcess
 
 public:
 
-    ZMesh(const ZMeshDrawStyle& drawStyle = ZMeshDrawStyle::Triangle)
-        : drawStyle_(drawStyle)
-    { }
+    ZMesh() { }
     virtual ~ZMesh() {}
 
     virtual void Initialize() = 0;
 
-    virtual void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material) = 0;
-
-    virtual ZMeshDrawStyle DrawStyle() const { return drawStyle_; };
+    const ZVertexBuffer::ptr& BufferData() const { return bufferData_; }
+    const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
 
 protected:
 
-    ZBuffer::ptr bufferData_;
-    ZMeshDrawStyle drawStyle_;
+    ZVertexBuffer::ptr bufferData_;
+
+    std::shared_ptr<ZRenderStateGroup> renderState_;
 
     static ZIDSequence idGenerator_;
 
 };
 
-class ZMesh2D : ZMesh
+class ZMesh2D : public ZMesh
 {
 
 public:
 
-    ZMesh2D() {}
-    ZMesh2D(const ZVertex2DDataOptions& vertexData, const ZMeshDrawStyle& drawStyle = ZMeshDrawStyle::Triangle)
-        : ZMesh(drawStyle), vertexData_(vertexData)
+    ZMesh2D(const ZVertex2DDataOptions& vertexData)
+        : ZMesh(), vertexData_(vertexData)
     { }
     ~ZMesh2D() {}
 
     void Initialize() override;
 
-    void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material = nullptr) override;
-
     ZVertex2DList Vertices() const { return vertexData_.vertices; }
+    bool Instanced() const { return vertexData_.instanced.count > 1; }
 
     static std::shared_ptr<ZMesh2D> NewQuad();
     static std::shared_ptr<ZMesh2D> NewScreenTriangle();
@@ -97,16 +94,15 @@ class ZMesh3D : public ZMesh
 
 public:
 
-    ZMesh3D(const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
+    ZMesh3D(const ZVertex3DDataOptions& vertexData);
     ~ZMesh3D();
 
     void Initialize() override;
 
-    void Render(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZMaterial>& material) override;
-
     const ZInstancedDataOptions& InstanceData() const { return vertexData_.instanced; }
     const ZVertex3DList& Vertices() const { return vertexData_.vertices; }
     const std::vector<unsigned int>& Indices() const { return vertexData_.indices; }
+    bool Instanced() const { return vertexData_.instanced.count > 1; }
 
     void SetInstanceData(const ZInstancedDataOptions& data);
     void SetVertices(const ZVertex3DList& data);

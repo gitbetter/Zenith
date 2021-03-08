@@ -149,7 +149,7 @@ void ZSphere::BuildSmooth()
     }
 
     meshes_.clear();
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options, ZMeshDrawStyle::TriangleStrip);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }
@@ -299,7 +299,7 @@ void ZSphere::BuildFlat()
     }
 
     meshes_.clear();
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options, ZMeshDrawStyle::TriangleStrip);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 }

@@ -37,7 +37,7 @@
 ZAnimatorComponent::ZAnimatorComponent()
 {
     currentClip_.state = ZAnimationState::Invalid;
-    id_ = "ZCOMP_ANIMATOR_" + idGenerator_.Next();
+    id_ = "ZCOMP_ANIMATOR_" + std::to_string(idGenerator_.Next());
 }
 
 void ZAnimatorComponent::Initialize(std::shared_ptr<ZOFNode> root)

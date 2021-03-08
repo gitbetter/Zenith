@@ -50,7 +50,6 @@ std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::
 }
 
 // Includes
-#include "ZRenderable.hpp"
 #include "ZTexture.hpp"
 #include "ZProcess.hpp"
 #include "ZUIHelpers.hpp"
@@ -61,6 +60,8 @@ class ZScene;
 class ZMesh2D;
 class ZShader;
 class ZUILayout;
+class ZUniformBuffer;
+class ZRenderStateGroup;
 class ZWindowResizeEvent;
 
 // Class and Data Structure Definitions
@@ -100,7 +101,7 @@ struct ZUIElementOptions
     std::shared_ptr<ZUILayout>               layout;
 };
 
-class ZUIElement : public ZProcess, public ZRenderable, public std::enable_shared_from_this<ZUIElement>
+class ZUIElement : public ZProcess, public std::enable_shared_from_this<ZUIElement>
 {
 
     friend class ZScene;
@@ -115,8 +116,9 @@ public:
     virtual void                        Initialize() override;
     virtual void                        Initialize(const std::shared_ptr<ZOFNode>& root);
 
-    void                                Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
-    bool                                Renderable() override { return !options_.hidden; }
+    virtual void                        Prepare(double deltaTime, unsigned int zOrder = 0);
+    virtual unsigned int                PrepareChildren(double deltaTime, unsigned int zOrder = 0);
+
     ZUIElementType                      Type() const { return type_; }
     bool                                Enabled() const { return options_.enabled; }
     bool                                Hidden() const { return  options_.hidden; }
@@ -149,9 +151,9 @@ public:
     void                                SetSize(const glm::vec2& size, const ZRect& relativeTo = ZRect());
     void                                SetPosition(const glm::vec2& position, const ZRect& relativeTo = ZRect());
     void                                SetRotation(float angle);
-    void                                SetTexture(const ZTexture::ptr& texture) { options_.texture = texture; }
-    void                                SetBorder(const ZUIBorder& border) { options_.border = border; }
-    virtual void                        SetColor(const glm::vec4& newColor) { options_.color = newColor; }
+    void                                SetTexture(const ZTexture::ptr& texture);
+    void                                SetBorder(const ZUIBorder& border);
+    virtual void                        SetColor(const glm::vec4& newColor);
     void                                SetOpacity(float opacity, bool relativeToAlpha = false);
     void                                SetTranslationBounds(float left, float right, float bottom, float top);
     void                                SetShader(const std::shared_ptr<ZShader>& shader) { options_.shader = shader; }
@@ -159,6 +161,7 @@ public:
     void                                SetParent(std::shared_ptr<ZUIElement> parent) { parent_ = parent; }
     void                                SetScene(const std::shared_ptr<ZScene> scene) { scene_ = scene; }
     void                                SetFlipped(bool flipped);
+    void                                SetZOrder(unsigned int zOrder);
 
     void                                ResetModelMatrix() { modelMatrix_ = glm::mat4(1.f); }
     void                                Translate(const glm::vec2& translation);
@@ -217,12 +220,11 @@ protected:
     ZUIElementMap                            children_;
     ZUIElementType                           type_;
     ZUIElementOptions                        options_;
+
+    std::shared_ptr<ZUniformBuffer>          uniformBuffer_;
+    std::shared_ptr<ZRenderStateGroup>       renderState_;
     
     static ZIDSequence                       idGenerator_;
-
-    virtual void                        PreRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color);
-    virtual void                        Draw();
-    virtual void                        PostRender(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color);
 
     virtual void                        OnRectChanged() { };
 

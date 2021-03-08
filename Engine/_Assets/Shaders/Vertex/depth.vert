@@ -1,11 +1,10 @@
-#version 450 core
+#include "Shaders/common.glsl" //! #include "../common.glsl"
+#include "Shaders/Uniforms/camera.glsl" //! #include "../Uniforms/camera.glsl"
+#include "Shaders/Uniforms/object.glsl" //! #include "../Uniforms/object.glsl"
+#include "Shaders/Uniforms/model.glsl" //! #include "../Uniforms/model.glsl"
 
 layout (location = 0) in vec3 position;
 layout (location = 7) in mat4 instanceM;
-
-uniform mat4 ViewProjection;
-uniform mat4 M;
-uniform bool instanced = false;
 
 void main()
 {

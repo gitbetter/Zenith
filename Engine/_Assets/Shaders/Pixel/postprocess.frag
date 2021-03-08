@@ -1,17 +1,14 @@
-#version 450 core
-
 #include "Shaders/common.glsl" //! #include "../common.glsl"
+#include "Shaders/Uniforms/post.glsl" //! #include "../Uniforms/post.glsl"
+#include "Shaders/Uniforms/camera.glsl" //! #include "../Uniforms/camera.glsl"
 
 out vec4 FragColor;
 
 in VertexOutput vout;
 
-uniform mat4 previousViewProjection;
-uniform mat4 inverseViewProjection;
 uniform sampler2D colorSampler0;
 uniform sampler2D depthSampler0;
 uniform sampler2DArray shadowArraySampler0;
-uniform bool useMotionBlur = false;
 
 const int NUM_VELOCITY_SAMPLES = 8;
 
@@ -23,12 +20,12 @@ void main() {
 		// Extract world position from depth buffer
 		float zOverW = texture(depthSampler0, texCoord).r;
 		vec4 H = vec4(texCoord.x * 2.0 - 1.0, (1.0 - texCoord.y) * 2.0 - 1.0, zOverW, 1.0);
-		vec4 D = inverseViewProjection * H;
+		vec4 D = InverseViewProjection * H;
 		vec4 worldPos = D / D.w;
 
 		// Compute velocity vector
 		vec4 currentPos = H;
-		vec4 previousPos = previousViewProjection * worldPos;
+		vec4 previousPos = PreviousViewProjection * worldPos;
 		previousPos /= previousPos.w;
 		vec2 velocity = ((currentPos - previousPos) / 2.0).xy;
 

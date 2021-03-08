@@ -88,6 +88,7 @@ void ZUIImage::SetImage(const std::shared_ptr<ZTexture>& texture)
 {
     if (texture)
     {
+        texture->type = "color";
         SetTexture(texture);
     }
 }

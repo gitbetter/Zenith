@@ -76,7 +76,7 @@ ZMesh3DMap ZModelImporter::LoadModel(const std::shared_ptr<ZResourceHandle>& mod
 
     // If we load another model with this ZModelImporter instance, we want to make sure there is no bone data
     // from previous loads.
-    currentBonesMap_.clear(); currentBones_.clear(); currentAnimations_.clear(); currentSkeleton_.reset();
+    currentBonesMap_.clear(); currentAnimations_.clear(); currentSkeleton_.reset(); currentBones_.clear();
 
     return meshes;
 }
@@ -143,8 +143,7 @@ ZVertex3DList ZModelImporter::LoadVertexData(const aiMesh* mesh)
     {
         ZVertex3D vertex(
             AssimpToGLMVec3(mesh->mVertices[i]),
-            AssimpToGLMVec3(mesh->mNormals[i]),
-            glm::vec2(0.0f, 0.0f)
+            AssimpToGLMVec3(mesh->mNormals[i])
         );
 
         if (mesh->mTextureCoords[0])
@@ -264,6 +263,8 @@ std::shared_ptr<ZJoint> ZModelImporter::LoadSkeletonJoint(const aiNode* node)
  */
 void ZModelImporter::LoadBones(const aiMesh* mesh, ZVertex3DList& vertices)
 {
+    unsigned int currentBoneIndex = 0;
+    currentBones_.reserve(mesh->mNumBones);
     for (unsigned int i = 0; i < mesh->mNumBones; i++)
     {
         unsigned int boneIndex = 0;
@@ -271,16 +272,16 @@ void ZModelImporter::LoadBones(const aiMesh* mesh, ZVertex3DList& vertices)
 
         if (currentBonesMap_.find(boneName) == currentBonesMap_.end())
         {
-            boneIndex = currentBones_.size();
-            std::shared_ptr<ZBone> bone = std::make_shared<ZBone>();
+            boneIndex = currentBoneIndex++;
+            std::shared_ptr<ZBone> bone = std::make_shared<ZBone>(boneName);
             currentBones_.push_back(bone);
+            currentBonesMap_[boneName] = boneIndex;
         }
         else
         {
             boneIndex = currentBonesMap_[boneName];
         }
 
-        currentBonesMap_[boneName] = boneIndex;
         currentBones_[boneIndex]->offset = AssimpToGLMMat4(mesh->mBones[i]->mOffsetMatrix);
 
         for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++)

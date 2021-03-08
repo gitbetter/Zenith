@@ -53,7 +53,6 @@ public:
 
     // Platform Graphics
     void Initialize() override;
-    void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f)) override;
     void UpdateViewport(const glm::vec2& size, const glm::vec2& position = glm::vec2(0.f)) override;
     void EnableStencilTesting() override;
     void DisableStencilTesting() override;
@@ -62,7 +61,8 @@ public:
     void EnableStencilBuffer() override;
     void DisableStencilBuffer() override;
     void EnableAlphaBlending() override;
-    void DisableAlphaBlending() override;
+    void EnableAdditiveBlending() override;
+    void DisableBlending() override;
     void EnableFaceCulling() override;
     void DisableFaceCulling() override;
     void EnableSeamlessCubemap() override;
@@ -71,8 +71,15 @@ public:
     void DisableMSAA() override;
     void CullFrontFaces() override;
     void CullBackFaces() override;
-    void ClearDepth() override;
-    void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex3DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
-    void Draw(const std::shared_ptr<ZBuffer>& bufferData, const ZVertex2DDataOptions& vertexData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::TriangleStrip) override;
+
+    void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f), uint8_t clearFlags = 0) override;
+    void ClearViewport(const glm::vec4& clearColor = glm::vec4(0.f, 0.f, 0.f, 1.f), const std::initializer_list<ZClearFlags>& clearFlags = {}) override;
+    void CullFaces(uint8_t faceCullState) override;
+    void CullFaces(const std::initializer_list<ZFaceCullState>& faceCullState = {}) override;
+    void SetDepthStencilState(uint8_t depthStencilState) override;
+    void SetDepthStencilState(const std::initializer_list<ZDepthStencilState>& depthStencilState) override;
+    void SetBlending(ZBlendMode blendMode) override;
+
+    void Draw(const std::shared_ptr<ZVertexBuffer>& bufferData, ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle) override;
 
 };

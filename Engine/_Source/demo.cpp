@@ -17,10 +17,11 @@ int main(int argc, const char* argv[]) {
     options.domain.windowSize.x = 800;
     options.domain.windowSize.y = 600;
     options.domain.maximized = false;
+    options.graphics.hasPBR = false;
     game->Initialize(options);
 
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    game->AssetStore()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
+    ZServices::AssetStore()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
 
     // Register delegate methods for specific builtin events
     ZServices::EventAgent()->Subscribe(&onSceneLoad);
@@ -48,8 +49,8 @@ void onSceneLoad(const std::shared_ptr<ZSceneReadyEvent>& event)
         auto camera = scene->ActiveCamera();
         if (camera)
         {
-            camera->EnableDefaultMovement();
-            camera->EnableDefaultLook();
+            camera->EnableMovement();
+            camera->EnableLook();
         }
         scene->Play();
     }

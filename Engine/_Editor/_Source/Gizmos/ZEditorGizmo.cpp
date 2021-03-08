@@ -33,5 +33,5 @@
 void ZEditorGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     gizmo_ = std::make_shared<ZGameObject>();
-    gizmo_->SetRenderOrder(ZRenderOrder::UI);
+    gizmo_->SetRenderOrder(ZRenderLayer::UI);
 }

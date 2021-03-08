@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZRenderable.hpp
+    ZDrawCall.hpp
 
-    Created by Adrian Sanchez on 29/01/2021.
+    Created by Adrian Sanchez on 03/01/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
@@ -32,16 +32,24 @@
 // Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
-class ZShader;
-
 // Class and Data Structure Definitions
-class ZRenderable
+class ZDrawCall
 {
 
-public:
+    friend class ZRenderStateExecutor;
 
-    virtual void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) = 0;
-    virtual bool Renderable() = 0;
+public:
+    
+    ZDrawCall() = default;
+    ZDrawCall(ZMeshDrawStyle drawStyle)
+        : drawStyle_(drawStyle)
+    { }
+    ~ZDrawCall() = default;
+
+    static ZDrawCall Create(ZMeshDrawStyle drawStyle = ZMeshDrawStyle::Triangle);
+
+protected:
+
+    ZMeshDrawStyle drawStyle_;
 
 };

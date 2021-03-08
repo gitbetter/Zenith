@@ -51,11 +51,13 @@ struct ZBone
 {
     glm::mat4 offset;
     glm::mat4 transformation;
+    std::string name;
 
-    ZBone()
+    ZBone(const std::string& name = "")
     {
-        offset = glm::mat4(1.f);
-        transformation = glm::mat4(1.f);
+        this->offset = glm::mat4(1.f);
+        this->transformation = glm::mat4(1.f);
+        this->name = name;
     }
 };
 

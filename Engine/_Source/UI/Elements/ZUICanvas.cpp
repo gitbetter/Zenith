@@ -50,10 +50,10 @@ void ZUICanvas::Initialize(const std::shared_ptr<ZOFNode>& root)
     ZUIElement::Initialize(root);
 }
 
-std::shared_ptr<ZMesh2D> ZUICanvas::ElementShape()
+void ZUICanvas::Prepare(double deltaTime, unsigned int zOrder)
 {
-    static std::shared_ptr<ZMesh2D> mesh = ZMesh2D::NewScreenTriangle();
-    return mesh;
+    SetZOrder(zOrder);
+    PrepareChildren(deltaTime, zOrder);
 }
 
 DEFINE_UI_CREATORS(ZUICanvas)

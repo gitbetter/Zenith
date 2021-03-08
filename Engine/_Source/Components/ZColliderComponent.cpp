@@ -35,7 +35,7 @@
 
 ZColliderComponent::ZColliderComponent()
 {
-    id_ = "ZCOMP_COLLIDER_" + idGenerator_.Next();
+    id_ = "ZCOMP_COLLIDER_" + std::to_string(idGenerator_.Next());
 }
 
 void ZColliderComponent::Initialize(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset)

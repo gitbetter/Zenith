@@ -54,14 +54,16 @@ void ZAssetStore::Initialize()
 
 void ZAssetStore::InitializeShaders()
 {
-    pbrShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"));
+    pbrShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/pbr.frag"));
+    blinnPhongShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"));
     debugShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/debug.vert", "/Shaders/Pixel/debug.frag"));
-    shadowShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/depth.frag"));
-    depthShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/depth.frag"));
+    shadowShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/null.frag"));
+    depthShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/null.frag"));
     postShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/postprocess.vert", "/Shaders/Pixel/postprocess.frag"));
     uiShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"));
     textShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/text.vert", "/Shaders/Pixel/text.frag"));
     pbrShader_->Initialize();
+    blinnPhongShader_->Initialize();
     debugShader_->Initialize();
     shadowShader_->Initialize();
     depthShader_->Initialize();
@@ -302,6 +304,14 @@ void ZAssetStore::CleanUp()
     if (textShader_)
     {
         textShader_.reset();
+    }
+    if (blinnPhongShader_)
+    {
+        blinnPhongShader_.reset();
+    }
+    if (pbrShader_)
+    {
+        pbrShader_.reset();
     }
 
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleFontReady);

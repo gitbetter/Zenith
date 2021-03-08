@@ -33,7 +33,7 @@
 #include "ZUIElement.hpp"
 
 // Forward Declarations
-class ZBuffer;
+class ZVertexBuffer;
 class ZFont;
 
 // Class and Data Structure Definitions
@@ -50,6 +50,8 @@ public:
 
     void Initialize() override;
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    
+    void Prepare(double deltaTime, unsigned int zOrder = 0) override;
 
     const std::string& Text() const { return text_; }
     std::shared_ptr<ZFont> Font();
@@ -70,17 +72,15 @@ public:
 
 protected:
 
-    std::string text_;
-    std::string fontName_;
-    float fontScale_;
-    float lineSpacing_;
-    bool wrapToBounds_;
-    ZAlignment alignment_;
-    std::shared_ptr<ZFont> font_;
-    std::shared_ptr<ZBuffer> bufferData_;
-    ZVertex2DDataOptions textVertexData_;
-
-    void Draw() override;
+    std::string                              text_;
+    std::string                              fontName_;
+    float                                    fontScale_;
+    float                                    lineSpacing_;
+    bool                                     wrapToBounds_;
+    ZAlignment                               alignment_;
+    std::shared_ptr<ZFont>                   font_;
+    std::shared_ptr<ZVertexBuffer>           bufferData_;
+    ZVertex2DDataOptions                     textVertexData_;
 
     void OnRectChanged() override;
 

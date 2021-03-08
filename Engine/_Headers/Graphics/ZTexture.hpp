@@ -40,6 +40,7 @@ class ZResourceLoadedEvent;
 struct ZIBLTexture;
 
 // Class and Data Structure Definitions
+
 class ZTexture : public std::enable_shared_from_this<ZTexture>
 {
 

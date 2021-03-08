@@ -6,9 +6,9 @@
    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZBuffer.hpp
+    ZRenderQueue.hpp
 
-    Created by Adrian Sanchez on 27/01/2021.
+    Created by Adrian Sanchez on 03/03/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
  This file is part of Zenith.
@@ -32,36 +32,34 @@
 // Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
-// class SomeClass;
+class ZRenderTask;
+class ZRenderStateExecutor;
 
-// Class and Data Structure Definitions
-class ZBuffer
+class ZRenderQueue
 {
+
+    using ZRenderTaskEntry = std::pair<uint64_t, std::shared_ptr<ZRenderTask>>;
 
 public:
 
-    using ptr = std::shared_ptr<ZBuffer>;
+    ZRenderQueue() { }
+    ~ZRenderQueue() { }
 
-    ZBuffer() {}
-    virtual ~ZBuffer() {}
+    void Initialize();
 
-    virtual void Bind() = 0;
-    virtual void Unbind() = 0;
-    virtual void Load(const ZVertex2DDataOptions& vertexData) = 0;
-    virtual void Load(const ZVertex3DDataOptions& vertexData) = 0;
-    virtual void Update(const ZVertex2DDataOptions& vertexData) = 0;
-    virtual void Update(const ZVertex3DDataOptions& vertexData) = 0;
-    virtual void Delete() = 0;
+    bool Empty() { return queue_.empty(); }
 
-    static ptr Create(const ZVertex3DDataOptions& options);
-    static ptr Create(const ZVertex2DDataOptions& options);
+    void Add(const std::shared_ptr<ZRenderTask>& task);
+    void Submit(bool flush = true);
+
+    static std::shared_ptr<ZRenderQueue> Create();
 
 protected:
 
-    unsigned int vbo_ = 0;
-    unsigned int ivbo_ = 0;
-    unsigned int ebo_ = 0;
-    unsigned int vao_ = 0;
+    std::vector<ZRenderTaskEntry> queue_;
+    std::shared_ptr<ZRenderStateExecutor> executor_ = nullptr;
+
+    void Execute(const std::shared_ptr<ZRenderTask>& task);
+    uint64_t GenerateKey(const std::shared_ptr<ZRenderTask>& task);
 
 };

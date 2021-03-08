@@ -38,7 +38,7 @@
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent()
 {
-    id_ = "ZCOMP_PHYSICS_" + idGenerator_.Next();
+    id_ = "ZCOMP_PHYSICS_" + std::to_string(idGenerator_.Next());
 }
 
 void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
@@ -67,7 +67,7 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
         std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
 
         if (typeProp->value == "Static") mass = 0.f;
-        else object_->SetRenderOrder(ZRenderOrder::Dynamic);
+        else object_->SetRenderOrder(ZRenderLayer::Dynamic);
 
         if (typeProp->value == "Dynamic") type = ZPhysicsBodyType::Dynamic;
         else if (typeProp->value == "Static") type = ZPhysicsBodyType::Static;

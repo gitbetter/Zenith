@@ -6,7 +6,7 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZGLBuffer.hpp
+    ZGLVertexBuffer.hpp
 
     Created by Adrian Sanchez on 27/01/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
@@ -30,17 +30,17 @@
 #pragma once
 
 // Includes
-#include "ZBuffer.hpp"
+#include "ZVertexBuffer.hpp"
 
 // Forward Declarations
 
 // Class and Data Structure Definitions
-class ZGLBuffer : public ZBuffer
+class ZGLVertexBuffer : public ZVertexBuffer
 {
 
 public:
 
-    ~ZGLBuffer() {}
+    ~ZGLVertexBuffer() {}
 
     void Bind() override;
     void Unbind() override;

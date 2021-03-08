@@ -37,8 +37,11 @@
 struct ZOFNode;
 class ZLookEvent;
 class ZMoveEvent;
+class ZUniformBuffer;
+class ZRenderStateGroup;
 
 // Class and Data Structure Definitions
+
 class ZCamera : public ZGameObject
 {
 
@@ -52,9 +55,11 @@ public:
 
     void Initialize() override;
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Render(double deltaTime, const std::shared_ptr<ZShader>& shader, ZRenderOp renderOp = ZRenderOp::Color) override;
+
+    void Prepare(double deltaTime) override;
+    bool IsVisible() override { return true; }
+
     std::shared_ptr<ZGameObject> Clone() override;
-    bool IsVisible() override;
     void CleanUp() override;
 
     ZCameraType Type() { return cameraType_; }
@@ -66,8 +71,12 @@ public:
     ZFrustum Frustum() const { return frustum_; }
     bool IsPrimary() const { return isPrimary_; }
     bool Moving() const { return moving_; }
-    glm::mat4 ProjectionMatrix();
-    glm::mat4 ViewMatrix();
+    glm::mat4 ProjectionMatrix() { return projection_; }
+    glm::mat4 ViewMatrix() { return view_; }
+    glm::mat4 ViewProjectionMatrix() { return viewProjection_; }
+    glm::mat4 InverseViewProjectionMatrix() { return inverseViewProjection_; }
+    glm::mat4 PreviousViewProjectionMatrix() { return previousViewProjection_; }
+    const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
 
     void SetType(ZCameraType type) { cameraType_ = type; }
     void SetSpeed(float speed) { movementSpeed_ = speed; }
@@ -106,7 +115,18 @@ private:
     double currentDeltaTime_ = 0.0;
     double lastDeltaTime_ = 0.0;
 
+    glm::mat4 view_{ 1.f };
+    glm::mat4 projection_{ 1.f };
+    glm::mat4 viewProjection_{ 1.f };
+    glm::mat4 inverseViewProjection_{ 1.f };
+    glm::mat4 previousViewProjection_{ 1.f };
+
+    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
+    std::shared_ptr<ZRenderStateGroup> renderState_;
+
     void UpdateCameraFrustum();
+    glm::mat4 GenerateProjectionMatrix();
+    glm::mat4 GenerateViewMatrix();
 
     void HandleMove(const std::shared_ptr<ZMoveEvent>& event);
     void HandleLook(const std::shared_ptr<ZLookEvent>& event);
