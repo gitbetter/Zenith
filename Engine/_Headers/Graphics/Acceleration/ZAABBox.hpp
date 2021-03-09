@@ -68,7 +68,16 @@ public:
     }
 };
 
-inline const ZAABBox operator*(const glm::mat4& mat, const ZAABBox& b) noexcept
+inline const ZAABBox operator*(const glm::mat4& mat, const ZAABBox& box) noexcept
 {
-    return ZAABBox(mat * glm::vec4(b.minimum, 1.f), mat * glm::vec4(b.maximum, 1.f));
+    ZAABBox result(mat[3], mat[3]);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            float a = mat[j][i] * box.minimum[j];
+            float b = mat[j][i] * box.maximum[j];
+            result.minimum[i] += a < b ? a : b;
+            result.maximum[i] += a < b ? b : a;
+        }
+    }
+    return result;
 }

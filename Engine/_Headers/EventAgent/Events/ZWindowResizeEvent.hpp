@@ -42,12 +42,18 @@ public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZWindowResizeEvent() {}
-    explicit ZWindowResizeEvent(std::istringstream& in) {}
+    explicit ZWindowResizeEvent(const glm::vec2& size) : size_(size) { }
+    explicit ZWindowResizeEvent(std::istringstream& in) { in >> size_.x; in >> size_.y; }
+
+    const glm::vec2& Size() const { return size_; }
 
     const ZTypeIdentifier& EventType() const override { return Type; };
-    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZWindowResizeEvent>(new ZWindowResizeEvent); }
-    void Serialize(std::ostringstream& out) const override {}
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZWindowResizeEvent>(new ZWindowResizeEvent(size_)); }
+    void Serialize(std::ostringstream& out) const override { out << size_.x << " " << size_.y; }
     std::string Name() const override { return "ZWindowResizeEvent"; }
+
+protected:
+
+    glm::vec2 size_;
 
 };

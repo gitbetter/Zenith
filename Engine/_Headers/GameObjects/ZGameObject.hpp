@@ -136,7 +136,7 @@ public:
     void SetOrientation(const glm::vec3& euler);
     void SetLocalModelMatrix(const glm::mat4& modelMatrix);
     void SetModelMatrix(const glm::mat4& modelMatrix);
-    void SetRenderOrder(ZRenderLayer renderOrder) { properties_.renderOrder = renderOrder; }
+    void SetRenderOrder(ZRenderLayer renderOrder);
     void SetName(const std::string& name) { properties_.name = name; }
     void SetActive(bool active = true);
 

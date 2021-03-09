@@ -491,7 +491,7 @@ void ZScene::CheckPendingObjects()
 
 void ZScene::HandleWindowResize(const std::shared_ptr<ZWindowResizeEvent>& event)
 {
-    glm::vec2 newResolution = gameSystems_.domain->Resolution();
+    glm::vec2 newResolution = event->Size();
     if (targetBuffer_) {
         targetBuffer_->Resize(newResolution.x, newResolution.y);
     }

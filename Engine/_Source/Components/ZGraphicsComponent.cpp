@@ -156,10 +156,13 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
 
     ZRenderStateGroupWriter writer(overrideState_);
     writer.Begin();
-    if (hasDepthInfo_)
+    if (hasDepthInfo_) {
         writer.SetRenderDepth(viewPos.z);
-    if (object_->RenderLayer() == ZRenderLayer::UI)
+    }
+    if (object_->RenderLayer() == ZRenderLayer::UI) {
+        writer.SetRenderDepth(0.f);
         writer.SetDepthStencilState({ ZDepthStencilState::None });
+    }
     else if (outlineMaterial_)
         writer.SetDepthStencilState({ ZDepthStencilState::Stencil, ZDepthStencilState::Depth });
     overrideState_ = writer.End();

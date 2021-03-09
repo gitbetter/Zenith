@@ -57,6 +57,7 @@ void ZEditor::CreateDefaultProject()
     options.domain.windowSize.y = 1080;
     options.domain.maximized = false;
     options.domain.offline = true;
+    options.graphics.hasPBR = false;
     project_->Initialize(options);
     project_->SetTopLevel(false);
 

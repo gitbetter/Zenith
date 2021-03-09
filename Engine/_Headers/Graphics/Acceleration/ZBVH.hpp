@@ -31,9 +31,17 @@
 
 // Includes
 #include "ZCommon.hpp"
+#include "ZAABBox.hpp"
 
-enum class ZBVHSplitMethod {
+enum class ZBVHSplitMethod
+{
     SAH, Middle, EqualCounts
+};
+
+struct ZBVHPrimitive
+{
+    std::string objectId;
+    ZAABBox bounds;
 };
 
 // Class and Data Structure Definitions

@@ -433,6 +433,11 @@ void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
     }
 }
 
+void ZGameObject::SetRenderOrder(ZRenderLayer renderOrder)
+{
+    properties_.renderOrder = renderOrder;
+}
+
 void ZGameObject::SetActive(bool active)
 {
     properties_.active = active;

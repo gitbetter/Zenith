@@ -59,6 +59,106 @@ ZGO_13
 		:materials [ZMAT_01]:
     ^
 ^
+ZGO_14
+    :position [-3.0, 4.5, 0.5]:
+    :scale [0.3, 0.3, 0.3]:
+    :orientation [0.0, 45.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [1.0, 1.0, 1.0]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_02:
+		:materials [ZMAT_01]:
+    ^
+^
+ZGO_15
+    :position [-3.0, 6.0, 0.5]:
+    :scale [0.3, 0.3, 0.3]:
+    :orientation [0.0, 24.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [1.0, 1.0, 1.0]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_02:
+		:materials [ZMAT_01]:
+    ^
+^
+ZGO_16
+    :position [4.0, 2.0, 1.5]:
+    :scale [0.3, 0.3, 0.3]:
+    :orientation [0.0, 24.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [1.0, 1.0, 1.0]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_02:
+		:materials [ZMAT_01]:
+    ^
+^
+ZGO_17
+    :position [4.0, 4.5, 1.5]:
+    :scale [0.3, 0.3, 0.3]:
+    :orientation [0.0, 45.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [1.0, 1.0, 1.0]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_02:
+		:materials [ZMAT_01]:
+    ^
+^
+ZGO_18
+    :position [2.0, 2.0, -1.5]:
+    :scale [0.3, 0.3, 0.3]:
+    :orientation [0.0, 24.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [1.0, 1.0, 1.0]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_02:
+		:materials [ZMAT_01]:
+    ^
+^
 ZGO_23
     :position [-1.6, 10.0, 0.5]:
     :scale [0.2, 0.2, 0.2]:
