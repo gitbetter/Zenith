@@ -35,6 +35,7 @@
 #include "ZCamera.hpp"
 #include "ZEditorScene.hpp"
 #include "ZUIHorizontalLayout.hpp"
+#include "ZAnimatorComponent.hpp"
 
 void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
@@ -66,6 +67,11 @@ void ZActionBar::Update() {
     if (playButton_->Clicked()) {
         activeProjectScene_->Play();
         ZServices::Input()->CaptureCursor();
+
+        if (auto wolf = activeProjectScene_->FindGameObject("ZGO_12")) {
+            auto animComp = wolf->FindComponent<ZAnimatorComponent>();
+            animComp->Play("Wolf_Skeleton", true);
+        }
     }
     if (stopButton_->Clicked()) {
         activeProjectScene_->Stop();

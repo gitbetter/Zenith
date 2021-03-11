@@ -236,16 +236,14 @@ void ZBulletRigidBody::SetGameObject(ZGameObject* gameObject)
 
 void ZBulletRigidBody::SetTransformMatrix(const glm::mat4& matrix)
 {
-    btRigidBody* body = static_cast<btRigidBody*>(ptr_);
-    if (!body) return;
-
-    btTransform transform; transform.setIdentity();
-
-    transform.setFromOpenGLMatrix(glm::value_ptr(matrix));
-   
-    body->setWorldTransform(transform);
-    body->getMotionState()->setWorldTransform(transform);
-    body->activate();
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::decompose(matrix, scale, rotation, translation, glm::vec3(0.f), glm::vec4(0.f));
+    
+    SetPosition(translation);
+    SetRotation(rotation);
+    SetScale(scale);
 }
 
 void ZBulletRigidBody::SetPosition(const glm::vec3& position)

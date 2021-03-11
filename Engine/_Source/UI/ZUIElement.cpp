@@ -645,9 +645,9 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& even
     }
 }
 
-ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
+ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
 {
-    ZUIElementMap uiElements;
+    ZUIElementList uiElements;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         std::shared_ptr<ZOFNode> node = it->second;
@@ -669,13 +669,13 @@ ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_
             // Recursively create children if there are any nested UI nodes
             if (element)
             {
-                ZUIElementMap uiChildren = Load(uiNode, scene);
-                for (ZUIElementMap::iterator it = uiChildren.begin(); it != uiChildren.end(); it++)
+                ZUIElementList uiChildren = Load(uiNode, scene);
+                for (ZUIElementList::iterator it = uiChildren.begin(); it != uiChildren.end(); it++)
                 {
-                    element->AddChild(it->second);
+                    element->AddChild(*it);
                 }
 
-                uiElements[uiNode->id] = element;
+                uiElements.push_back(element);
             }
         }
     }

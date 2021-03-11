@@ -73,11 +73,11 @@ protected:
 private:
 
     std::weak_ptr<ZScene> scene_;
-    btDefaultCollisionConfiguration* collisionConfig_ = nullptr;
-    btCollisionDispatcher* dispatcher_ = nullptr;
-    btBroadphaseInterface* overlappingPairCache_ = nullptr;
-    btSequentialImpulseConstraintSolver* solver_ = nullptr;
-    btDiscreteDynamicsWorld* dynamicsWorld_ = nullptr;
+    std::shared_ptr<btDefaultCollisionConfiguration> collisionConfig_ = nullptr;
+    std::shared_ptr<btCollisionDispatcher> dispatcher_ = nullptr;
+    std::shared_ptr<btBroadphaseInterface> overlappingPairCache_ = nullptr;
+    std::shared_ptr<btSequentialImpulseConstraintSolver> solver_ = nullptr;
+    std::shared_ptr<btDiscreteDynamicsWorld> dynamicsWorld_ = nullptr;
     int debugMode_ = 0;
 
     static void TickCallback(btDynamicsWorld* world, btScalar timeStep);

@@ -289,8 +289,13 @@ void ZEditorScene::Configure(ZEditorConfig config) {
 }
 
 void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
-    gameObjectTemplates_ = ZGameObject::Load(objectTree, shared_from_this());
-    uiElementTemplates_ = ZUIElement::Load(objectTree, shared_from_this());
+    auto gameObjects = ZGameObject::Load(objectTree, shared_from_this());
+    for (auto object : gameObjects)
+        gameObjectTemplates_[object->ID()] = object;
+
+    auto uiElements = ZUIElement::Load(objectTree, shared_from_this());
+    for (auto el : uiElements)
+        uiElementTemplates_[el->ID()] = el;
 }
 
 void ZEditorScene::HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event) {

@@ -32,9 +32,7 @@
 #include "ZScriptResourceLoader.hpp"
 #include "ZWavResourceLoader.hpp"
 #include "ZOggResourceLoader.hpp"
-#include "ZScriptExports.hpp"
 #include "ZLuaScriptManager.hpp"
-#include "ZScriptableProcess.hpp"
 #include "ZGLGraphics.hpp"
 #include "ZGLInput.hpp"
 
@@ -157,8 +155,6 @@ void ZServices::Provide(const std::shared_ptr<ZScriptManager>& scriptManager)
 {
     scriptManager_ = scriptManager;
     scriptManager_->Initialize();
-    ZScriptExports::Register();
-    ZScriptableProcess::RegisterScriptClass();
     // We don't need to do anything with this resource. The resource loader
     // will load and execute the script for us.
     if (resourceCache_) {

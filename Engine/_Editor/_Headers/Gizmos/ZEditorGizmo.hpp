@@ -48,10 +48,13 @@ public:
 
     void Update() override { }
 
-    virtual void TryActivate(const ZRect& viewportRect) = 0;
+    bool Showing();
+    void SetPosition(const glm::vec3& position);
+    void Hide();
+    void Show();
 
-    virtual void Manipulate(const ZRect& viewportRect) = 0;
-
+    virtual bool TryActivate(const ZRect& viewportRect) = 0;
+    virtual void Manipulate(const ZRect& viewportRect, glm::mat4& transform) = 0;
     virtual void Deactivate() = 0;
 
 protected:

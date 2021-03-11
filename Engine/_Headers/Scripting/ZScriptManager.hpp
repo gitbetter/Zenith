@@ -40,10 +40,6 @@ class ZScriptManager
 {
     typedef std::map<std::string, bool> ZScriptMap;
 
-private:
-
-    ZScriptMap scripts_;
-
 public:
 
     virtual ~ZScriptManager() {}
@@ -53,8 +49,11 @@ public:
     virtual void Initialize() = 0;
     virtual void Load(std::shared_ptr<ZOFTree> zof);
     virtual void LoadAsync(std::shared_ptr<ZOFTree> zof);
-    virtual void RegisterEventTypeWithScript(const std::string& key, ZTypeIdentifier type) = 0;
     virtual void ExecuteFile(const std::string& resource) = 0;
     virtual void ExecuteString(const std::string& script) = 0;
+
+private:
+
+    ZScriptMap scripts_;
 
 };

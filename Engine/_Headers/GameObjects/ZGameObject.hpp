@@ -76,7 +76,7 @@ class ZRenderStateGroup;
 struct ZGameObjectProperties
 {
     ZRenderLayer renderOrder{ ZRenderLayer::Static };
-    glm::vec4 position, previousPosition;
+    glm::vec3 position, previousPosition;
     glm::vec3 scale, previousScale;
     glm::quat orientation, previousOrientation;
     glm::mat4 localModelMatrix, modelMatrix;
@@ -111,6 +111,7 @@ public:
     virtual bool IsVisible();
     virtual void Destroy();
 
+    bool Active() const { return properties_.active; }
     std::shared_ptr<ZScene> Scene() const;
     std::shared_ptr<ZGameObject> Parent() const;
     std::string Name() const { return properties_.name; }
@@ -201,7 +202,7 @@ public:
         return go;
     }
 
-    static ZGameObjectMap Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene);
+    static ZGameObjectList Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene);
 
     DECLARE_OBJECT_CREATORS(ZGameObject)
 

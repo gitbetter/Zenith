@@ -57,6 +57,7 @@ public:
     void SetLinearDamping(float damping);
     void SetAngularDamping(float damping);
     void SetRestitution(float restitution);
+    void SetTransform(const glm::mat4& transform);
 
     void AddCollider(const std::shared_ptr<ZCollider>& collider);
     void DisableCollisionResponse();

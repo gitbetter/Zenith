@@ -171,6 +171,12 @@ void ZPhysicsComponent::SetRestitution(float restitution)
     body_->SetRestitution(restitution);
 }
 
+void ZPhysicsComponent::SetTransform(const glm::mat4& transform)
+{
+    assert(body_ != nullptr);
+    body_->SetTransformMatrix(transform);
+}
+
 void ZPhysicsComponent::AddCollider(const std::shared_ptr<ZCollider>& collider)
 {
     assert(body_ != nullptr);

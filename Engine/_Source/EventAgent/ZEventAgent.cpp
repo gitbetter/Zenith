@@ -33,7 +33,6 @@
 void ZEventAgent::Initialize()
 {
     ZProcess::Initialize();
-    scriptableEventAgent_.reset(new ZScriptableEventAgent);
 }
 
 bool ZEventAgent::Subscribe(const std::shared_ptr<ZEventDelegate>& eventDelegate, const ZTypeIdentifier& type)
@@ -214,32 +213,5 @@ void ZEventAgent::CleanUp()
         {
             eventListeners_[i].clear();
         }
-    }
-
-    scriptableEventAgent_.reset();
-}
-
-ZScriptableEventAgent::~ZScriptableEventAgent()
-{
-    for (auto it = listeners_.begin(); it != listeners_.end(); it++)
-    {
-        ZScriptableEventDelegate* listener = (*it);
-        delete listener;
-    }
-    listeners_.clear();
-}
-
-void ZScriptableEventAgent::Subscribe(ZScriptableEventDelegate* listener)
-{
-    listeners_.insert(listener);
-}
-
-void ZScriptableEventAgent::DestroyListener(ZScriptableEventDelegate* listener)
-{
-    ScriptEventListeners::iterator foundIt = listeners_.find(listener);
-    if (foundIt != listeners_.end())
-    {
-        listeners_.erase(foundIt);
-        delete listener;
     }
 }

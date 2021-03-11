@@ -31,7 +31,6 @@ ${ENGINE_SOURCE_DIR}/UI/Controls/ZUIScrubber.cpp
 ${ENGINE_SOURCE_DIR}/UI/Controls/ZUIClicker.cpp
 ${ENGINE_SOURCE_DIR}/UI/Controls/ZUIHoverer.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZScriptManager.cpp
-${ENGINE_SOURCE_DIR}/Scripting/ZScriptExports.cpp
 ${ENGINE_SOURCE_DIR}/Scripting/ZLuaScriptManager.cpp
 ${ENGINE_SOURCE_DIR}/Core/ZGame.cpp
 ${ENGINE_SOURCE_DIR}/Core/ZBase.cpp
@@ -68,7 +67,6 @@ ${ENGINE_SOURCE_DIR}/GameObjects/ZSceneRoot.cpp
 ${ENGINE_SOURCE_DIR}/GameObjects/ZCamera.cpp
 ${ENGINE_SOURCE_DIR}/Process/ZProcessRunner.cpp
 ${ENGINE_SOURCE_DIR}/Process/ZProcess.cpp
-${ENGINE_SOURCE_DIR}/Process/ZScriptableProcess.cpp
 ${ENGINE_SOURCE_DIR}/Process/ZConcurrentWorker.cpp
 ${ENGINE_SOURCE_DIR}/Process/ZTimedUpdateTask.cpp
 ${ENGINE_SOURCE_DIR}/Physics/Platforms/Bullet/ZBulletPhysicsUniverse.cpp
@@ -141,7 +139,6 @@ ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZWindowResizeEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZScrollEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZInputKeyEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZInputButtonEvent.cpp
-${ENGINE_SOURCE_DIR}/EventAgent/ZScriptableEvent.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZAudio.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZALAudio.cpp
@@ -168,7 +165,6 @@ ${ENGINE_HEADERS_DIR}/Core/ZGame.hpp
 ${ENGINE_HEADERS_DIR}/Core/ZScene.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/ZEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/ZEventAgent.hpp
-${ENGINE_HEADERS_DIR}/EventAgent/ZScriptableEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZCollisionEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZCollisionEndEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZFireEvent.hpp
@@ -249,7 +245,6 @@ ${ENGINE_HEADERS_DIR}/Physics/ZRigidBody.hpp
 ${ENGINE_HEADERS_DIR}/Physics/ZPhysicsUniverse.hpp
 ${ENGINE_HEADERS_DIR}/Process/ZProcess.hpp
 ${ENGINE_HEADERS_DIR}/Process/ZProcessRunner.hpp
-${ENGINE_HEADERS_DIR}/Process/ZScriptableProcess.hpp
 ${ENGINE_HEADERS_DIR}/Process/ZConcurrentWorker.hpp
 ${ENGINE_HEADERS_DIR}/Process/ZTimedUpdateTask.hpp
 ${ENGINE_HEADERS_DIR}/ResourceCache/ZResource.hpp
@@ -266,7 +261,6 @@ ${ENGINE_HEADERS_DIR}/ResourceCache/ResourceLoaders/ZScriptResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/ResourceCache/ResourceLoaders/ZWavResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/ResourceCache/ResourceLoaders/ZOggResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/Scripting/ZLuaScriptManager.hpp
-${ENGINE_HEADERS_DIR}/Scripting/ZScriptExports.hpp
 ${ENGINE_HEADERS_DIR}/Scripting/ZScriptManager.hpp
 ${ENGINE_HEADERS_DIR}/UI/ZUILayout.hpp
 ${ENGINE_HEADERS_DIR}/UI/ZUIElement.hpp
@@ -1087,6 +1081,8 @@ ${ENGINE_HEADERS_DIR}/_ThirdParty/lua/lua.hpp
 ${ENGINE_HEADERS_DIR}/_ThirdParty/lua/luaconf.h
 ${ENGINE_HEADERS_DIR}/_ThirdParty/lua/lualib.h
 ${ENGINE_HEADERS_DIR}/_ThirdParty/lua/sol.hpp
+${ENGINE_HEADERS_DIR}/_ThirdParty/lua/forward.hpp
+${ENGINE_HEADERS_DIR}/_ThirdParty/lua/config.hpp
 ${ENGINE_HEADERS_DIR}/_ThirdParty/ogg/ogg.h
 ${ENGINE_HEADERS_DIR}/_ThirdParty/ogg/os_types.h
 ${ENGINE_HEADERS_DIR}/_ThirdParty/openal/default-44100.mhr.h

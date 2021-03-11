@@ -49,6 +49,14 @@ void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     SetupGizmos(scene);
 }
 
+void ZSceneTool::SetSelectedObject(const std::shared_ptr<ZGameObject>& object)
+{
+    selectedObject_ = object;
+    if (currentGizmo_) {
+        currentGizmo_->SetPosition(selectedObject_->ModelMatrix()[3]);
+    }
+}
+
 void ZSceneTool::OnProjectSceneChanged()
 {
     if (activeProjectScene_) {
@@ -62,18 +70,37 @@ void ZSceneTool::OnProjectSceneChanged()
 void ZSceneTool::Update()
 {
     auto rect = container_->CalculatedRect();
-    if (currentGizmo_) {
+    if (currentGizmo_->Showing()) {
         currentGizmo_->Update();
+    }
 
-        if (selectClicker_->Release(rect)) {
+    if (selectClicker_->Release(rect)) {
+        if (currentGizmo_->Showing())
             currentGizmo_->Deactivate();
+    }
+    else if (selectClicker_->Press(rect)) {
+        if (currentGizmo_->Showing()) {
+            auto transform = selectedObject_->ModelMatrix();
+            currentGizmo_->Manipulate(rect, transform);
+            selectedObject_->SetModelMatrix(transform);
         }
-        else if (selectClicker_->Press(rect)) {
-            currentGizmo_->Manipulate(rect);
-        }
-        else if (selectClicker_->Click(rect)) {
-            // TODO: Handle object selection with ray hit
-            currentGizmo_->TryActivate(rect);
+    }
+    else if (selectClicker_->Click(rect)) {
+        if (!currentGizmo_->Showing() || !currentGizmo_->TryActivate(rect)) {
+            auto cursorPos = ZServices::Input()->GetCursorPosition() - rect.position;
+            auto ray = activeProjectScene_->ScreenPointToWorldRay(cursorPos, rect.size);
+
+            ZIntersectHitResult hitResult;
+            bool hasHit = activeProjectScene_->RayCast(ray, hitResult);
+            std::shared_ptr<ZGameObject> foundObj = hasHit ? activeProjectScene_->FindGameObject(hitResult.objectId) : nullptr;
+
+            if (hasHit && foundObj) {
+                SetSelectedObject(foundObj);
+                currentGizmo_->Show();
+            }
+            else if (currentGizmo_->Showing()) {
+                currentGizmo_->Hide();
+            }
         }
     }
 
@@ -93,6 +120,7 @@ void ZSceneTool::AddGizmo(const std::shared_ptr<ZEditorGizmo>& gizmo, const std:
 {
     gizmos_.push_back(gizmo);
     gizmo->Initialize(scene);
+    currentGizmo_ = gizmo;
 }
 
 void ZSceneTool::SetupGizmos(const std::shared_ptr<ZScene>& scene)

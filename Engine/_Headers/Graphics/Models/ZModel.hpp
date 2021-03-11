@@ -91,7 +91,6 @@ protected:
     ZAnimationMap animations_;
     std::shared_ptr<ZSkeleton> skeleton_;
     ZInstancedDataOptions instanceData_;
-    glm::mat4 modelMatrix_;
     glm::mat4 globalInverseTransform_;
     ZAABBox bounds_;
 

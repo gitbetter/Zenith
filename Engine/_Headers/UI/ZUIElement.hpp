@@ -206,7 +206,7 @@ public:
         return el;
     }
 
-    static ZUIElementMap                Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene);
+    static ZUIElementList               Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene);
     static std::shared_ptr<ZUIElement>  Create(const std::string& type);
 
 protected:

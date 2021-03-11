@@ -36,12 +36,8 @@ void ZLogger::Log(const std::string& text, ZSeverity severity, const std::string
     entry.line = line;
     entry.severity = severity;
     entry.text = text;
-    Log(entry);
-}
-
-void ZLogger::Log(const ZLogEntry& entry)
-{
     AddEntry(entry);
+
 #ifdef DEV_BUILD
     switch (entry.severity)
     {

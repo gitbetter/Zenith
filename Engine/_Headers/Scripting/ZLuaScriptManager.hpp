@@ -56,7 +56,6 @@ public:
     sol::state& LuaState() { return lua_; }
 
     void Initialize() override;
-    void RegisterEventTypeWithScript(const std::string& key, ZTypeIdentifier type) override;
     void ExecuteFile(const std::string& resource) override;
     void ExecuteString(const std::string& script) override;
 

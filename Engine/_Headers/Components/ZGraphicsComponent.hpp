@@ -45,7 +45,7 @@ public:
     void SetOutline(const glm::vec4& color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
     void ClearOutline();
 
-    void SetGameLights(const ZLightMap& lights) { gameLights_ = lights; }
+    void SetGameLights(const ZLightList& lights) { gameLights_ = lights; }
     void SetGameCamera(const std::shared_ptr<ZCamera>& camera) { gameCamera_ = camera; }
     void SetModel(const std::shared_ptr<ZModel>& model);
 
@@ -60,6 +60,9 @@ public:
     void EnableDepthInfo() { hasDepthInfo_ = true; }
     void DisableDepthInfo() { hasDepthInfo_ = false; }
 
+    void EnableBVHTraversal() { isBoundsTraversable_ = true; }
+    void DisableBVHTraversal() { isBoundsTraversable_ = false; }
+
     bool IsVisible(ZFrustum frustrum);
 
     void Transform(const glm::mat4& mat);
@@ -68,7 +71,7 @@ public:
 
 protected:
 
-    ZLightMap gameLights_;
+    ZLightList gameLights_;
     std::shared_ptr<ZCamera> gameCamera_ = nullptr;
 
     std::string model_;
@@ -85,6 +88,7 @@ protected:
     // TODO: Implement billboarding
     bool isBillboard_ = false;
     bool hasAABB_ = true;
+    bool isBoundsTraversable_ = true;
     bool isShadowCaster_ = true;
     bool hasDepthInfo_ = true;
 

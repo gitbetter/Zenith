@@ -150,6 +150,9 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
     auto scene = object_->Scene();
     if (!scene) return;
 
+    if (hasAABB_ && isBoundsTraversable_)
+        scene->AddBVHPrimitive(ZBVHPrimitive(object_->ID(), bounds_));
+
     glm::mat4 modelMatrix = object_->ModelMatrix();
 
     auto viewPos = object_->Position() - gameCamera_->Position();
@@ -201,7 +204,7 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
             shadowTask->Submit({ ZRenderPass::Shadow() });
         }
 
-        for (const auto& [lightID, light] : gameLights_) {
+        for (const auto& light : gameLights_) {
             auto lightState = light->RenderState();
             for (auto material : materials) {
                  auto materialState = material->RenderState();

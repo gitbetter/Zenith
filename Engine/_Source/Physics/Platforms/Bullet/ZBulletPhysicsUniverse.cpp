@@ -43,11 +43,11 @@ void ZBulletPhysicsUniverse::Initialize()
 {
     ZPhysicsUniverse::Initialize();
 
-    collisionConfig_ = new btDefaultCollisionConfiguration();
-    dispatcher_ = new btCollisionDispatcher(collisionConfig_);
-    overlappingPairCache_ = new btDbvtBroadphase();
-    solver_ = new btSequentialImpulseConstraintSolver;
-    dynamicsWorld_ = new btDiscreteDynamicsWorld(dispatcher_, overlappingPairCache_, solver_, collisionConfig_);
+    collisionConfig_ = std::make_shared<btDefaultCollisionConfiguration>();
+    dispatcher_ = std::make_shared<btCollisionDispatcher>(collisionConfig_.get());
+    overlappingPairCache_ = std::make_shared<btDbvtBroadphase>();
+    solver_ = std::make_shared<btSequentialImpulseConstraintSolver>();
+    dynamicsWorld_ = std::make_shared<btDiscreteDynamicsWorld>(dispatcher_.get(), overlappingPairCache_.get(), solver_.get(), collisionConfig_.get());
 
     dynamicsWorld_->setDebugDrawer(this);
     dynamicsWorld_->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
@@ -170,11 +170,6 @@ void ZBulletPhysicsUniverse::TickCallback(btDynamicsWorld* world, btScalar timeS
 
 void ZBulletPhysicsUniverse::CleanUp()
 {
-    delete dynamicsWorld_;
-    delete solver_;
-    delete overlappingPairCache_;
-    delete dispatcher_;
-    delete collisionConfig_;
     ZPhysicsUniverse::CleanUp();
 }
 

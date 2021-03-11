@@ -39,6 +39,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <iostream>
 #include <initializer_list>
 #include <array>
@@ -450,21 +451,22 @@ class ZColliderComponent;
 class ZScriptComponent;
 class ZUniformBuffer;
 
-using ZGameObjectMap = std::map<std::string, std::shared_ptr<ZGameObject>>;
-using ZLightMap = std::map<std::string, std::shared_ptr<ZLight>>;
-using ZUIElementMap = std::map<std::string, std::shared_ptr<ZUIElement>>;
-using ZShaderMap = std::map<std::string, std::shared_ptr<ZShader>>;
-using ZModelMap = std::map<std::string, std::shared_ptr<ZModel>>;
-using ZFontMap = std::map<std::string, std::shared_ptr<ZFont>>;
-using ZMaterialMap = std::map<std::string, std::shared_ptr<ZMaterial>>;
-using ZShaderIDMap = std::map<std::shared_ptr<ZShader>, std::string>;
-using ZModelIDMap = std::map<std::shared_ptr<ZModel>, std::string>;
-using ZTextureIDMap = std::map<std::shared_ptr<ZTexture>, std::string>;
-using ZFontIDMap = std::map<std::shared_ptr<ZFont>, std::string>;
-using ZMaterialIDMap = std::map<std::shared_ptr<ZMaterial>, std::string>;
-using ZTextureMap = std::map<std::string, std::shared_ptr<ZTexture>>;
-using ZMesh3DMap = std::map<std::string, std::shared_ptr<ZMesh3D>>;
+using ZGameObjectMap = std::unordered_map<std::string, std::shared_ptr<ZGameObject>>;
+using ZLightMap = std::unordered_map<std::string, std::shared_ptr<ZLight>>;
+using ZUIElementMap = std::unordered_map<std::string, std::shared_ptr<ZUIElement>>;
+using ZShaderMap = std::unordered_map<std::string, std::shared_ptr<ZShader>>;
+using ZModelMap = std::unordered_map<std::string, std::shared_ptr<ZModel>>;
+using ZFontMap = std::unordered_map<std::string, std::shared_ptr<ZFont>>;
+using ZMaterialMap = std::unordered_map<std::string, std::shared_ptr<ZMaterial>>;
+using ZShaderIDMap = std::unordered_map<std::shared_ptr<ZShader>, std::string>;
+using ZModelIDMap = std::unordered_map<std::shared_ptr<ZModel>, std::string>;
+using ZTextureIDMap = std::unordered_map<std::shared_ptr<ZTexture>, std::string>;
+using ZFontIDMap = std::unordered_map<std::shared_ptr<ZFont>, std::string>;
+using ZMaterialIDMap = std::unordered_map<std::shared_ptr<ZMaterial>, std::string>;
+using ZTextureMap = std::unordered_map<std::string, std::shared_ptr<ZTexture>>;
+using ZMesh3DMap = std::unordered_map<std::string, std::shared_ptr<ZMesh3D>>;
 using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
+using ZLightList = std::vector<std::shared_ptr<ZLight>>;
 using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
 using ZUIElementList = std::vector<std::shared_ptr<ZUIElement>>;
 using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
@@ -472,6 +474,7 @@ using ZCollisionPair = std::pair<ZGameObject*, ZGameObject*>;
 using ZCollisionPairs = std::set<ZCollisionPair>;
 using ZAnimationMap = std::map<std::string, std::shared_ptr<ZAnimation>>;
 using ZBoneMap = std::map<std::string, unsigned int>;
+using ZIDMap = std::unordered_map<std::string, unsigned int>;
 using ZBoneList = std::vector<std::shared_ptr<ZBone>>;
 using ZMaterialList = std::vector<std::shared_ptr<ZMaterial>>;
 using ZTextureList = std::array<std::shared_ptr<ZTexture>, MAX_TEXTURE_SLOTS>;
@@ -759,8 +762,8 @@ struct ZCharacter
 
 struct ZOFLoadResult
 {
-    ZGameObjectMap gameObjects;
-    ZUIElementMap uiElements;
+    ZGameObjectList gameObjects;
+    ZUIElementList uiElements;
 };
 
 struct ZWavFormatDesc

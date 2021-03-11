@@ -34,4 +34,25 @@ void ZEditorGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     gizmo_ = std::make_shared<ZGameObject>();
     gizmo_->SetRenderOrder(ZRenderLayer::UI);
+    gizmo_->SetActive(false);
+}
+
+bool ZEditorGizmo::Showing()
+{
+    return gizmo_->Active();
+}
+
+void ZEditorGizmo::SetPosition(const glm::vec3& position)
+{
+    gizmo_->SetPosition(position);
+}
+
+void ZEditorGizmo::Hide()
+{
+    gizmo_->SetActive(false);
+}
+
+void ZEditorGizmo::Show()
+{
+    gizmo_->SetActive(true);
 }
