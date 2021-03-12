@@ -18,29 +18,31 @@ ZGO_GROUND
 		:materials [ZMAT_01]:
 	^
 ^
-ZGO_23
-    :position [-1.6, 10.0, 0.5]:
-    :scale [0.2, 0.2, 0.2]:
-    :orientation [-90.0, 0.0, 0.0]:
+
+ZGO_14
+    :position [3.3, 2.5, -5.8]:
+    :scale [1.0, 1.0, 1.0]:
+    :orientation [-90.0, 30.0, 0.0]:
     ZCOMP_PHYSICS
         :type Dynamic:
         :mass 1.0:
-        :damping 0.5 0.5:
-        :restitution 0.8:
+        :damping 0.0 0.5:
+        :restitution 0.4:
         :hasGravity Yes:
     ^
-    ZCOMP_COLLIDER_01
-        :shape Sphere:
-        :extents [1.0, 1.0, 1.0]:
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.4, 0.4, 0.4]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_03:
-		:materials [ZMAT_01]:
+        :model ZMOD_WOLF:
+        :materials [ZMAT_02]:
     ^
+    ZCOMP_ANIMATOR ^
 ^
 
 ZGO_ROCK_01
-    :position [-3.0, 2.0, 0.5]:
+    :position [-6.0, 2.0, 0.5]:
     :scale [0.5, 0.5, 0.5]:
     :orientation [-90.0, 0.0, 0.0]:
     ZCOMP_PHYSICS
@@ -79,29 +81,7 @@ ZGO_ROCK_02
     ^
     ZCOMP_GRAPHICS
         :model ZMOD_04:
-		:materials [ZMAT_01]:
-    ^
-^
-
-ZGO_ROCK_03
-    :position [4.0, 2.0, -0.75]:
-    :scale [0.3, 0.3, 0.3]:
-    :orientation [0.0, 0.0, 0.0]:
-    ZCOMP_PHYSICS
-        :type Dynamic:
-        :mass 1.0:
-        :damping 0.0 0.5:
-        :restitution 0.4:
-        :hasGravity Yes:
-    ^
-    ZCOMP_COLLIDER
-        :shape Box:
-        :extents [0.5, 0.5, 0.5]:
-        :offset [0.0, 0.0, 0.15]:
-    ^
-    ZCOMP_GRAPHICS
-        :model ZMOD_04:
-		:materials [ZMAT_01]:
+        :materials [ZMAT_01]:
     ^
 ^
 
@@ -234,37 +214,16 @@ ZGO_ROCK_09
 		:materials [ZMAT_01]:
     ^
 ^
-ZGO_12
-    :position [0.3, 2.5, -0.8]:
-    :scale [1.0, 1.0, 1.0]:
-    :orientation [-90.0, 0.0, 0.0]:
-    ZCOMP_PHYSICS
-        :type Dynamic:
-        :mass 1.0:
-        :damping 0.0 0.5:
-        :restitution 0.4:
-        :hasGravity Yes:
-    ^
-    ZCOMP_COLLIDER
-        :shape Box:
-        :extents [0.4, 0.4, 0.4]:
-    ^
-    ZCOMP_GRAPHICS
-        :model ZMOD_WOLF:
-        :materials [ZMAT_02]:
-    ^
-    ZCOMP_ANIMATOR ^
-^
 
-#ZGR_MEADOW
-#	:position [0.0, 0.0, 0.0]:
-#	:scale [0.1, 0.1, 0.1]:
-#	:texture ZTEX_GRASS:
-#	:instances 1000.0:
-#	:spacingStyle Random:
-#	:windDirection [1.0, 0.0, 0.0]:
-#	:windStrength 1.5:
-#^
+ZGR_MEADOW
+    :position [3.3, 0.0, -5.0]:
+	:scale [0.1, 0.1, 0.1]:
+	:texture ZTEX_GRASS:
+	:instances 200.0:
+	:spacingStyle Random:
+	:windDirection [1.0, 0.0, 0.0]:
+	:windStrength 10.0:
+^
 
 ZCAM_01
 	:position [-1.4, 1.0, -5.0]:

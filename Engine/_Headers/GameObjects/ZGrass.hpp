@@ -41,10 +41,10 @@ class ZRenderStateGroup;
 // Class and Data Structure Definitions
 struct ZGrassUniforms
 {
+    glm::vec4 windDirection;
     float objectHeight;
     float timestamp;
     float windStrength;
-    glm::vec4 windDirection;
 };
 
 class ZGrass : public ZGameObject

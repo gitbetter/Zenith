@@ -59,12 +59,14 @@ void ZResourceCache::RegisterLoader(std::shared_ptr<ZResourceLoader> loader)
 {
     if (loader)
     {
+        std::lock_guard<std::mutex> lock(mutexes_.resourceLoaders);
         resourceLoaders_.push_front(loader);
     }
 }
 
 void ZResourceCache::RegisterResourceFile(std::shared_ptr<ZResourceFile> file)
 {
+    std::lock_guard<std::mutex> lock(mutexes_.resourceFiles);
     if (resourceFiles_.find(file->Name()) != resourceFiles_.end()) return;
     if (file->Open())
     {

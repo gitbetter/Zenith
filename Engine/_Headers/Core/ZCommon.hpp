@@ -639,6 +639,7 @@ struct Light {
     float spotExponent{ 0.f };
     alignas(sizeof(float)) bool isEnabled{ true };
     alignas(sizeof(float)) unsigned int lightType;
+    float padding[1];
 };
 
 struct Material {
@@ -648,6 +649,7 @@ struct Material {
     float diffuse;
     float specular;
     float shininess;
+    float padding[3];
 };
 
 struct PBRMaterial {
@@ -655,6 +657,7 @@ struct PBRMaterial {
     float metallic;
     float roughness;
     float ao;
+    float padding[1];
 };
 
 struct ZVertex3D

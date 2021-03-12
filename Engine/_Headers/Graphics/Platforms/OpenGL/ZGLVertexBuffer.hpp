@@ -40,7 +40,7 @@ class ZGLVertexBuffer : public ZVertexBuffer
 
 public:
 
-    ~ZGLVertexBuffer() {}
+    ~ZGLVertexBuffer() { Delete(); }
 
     void Bind() override;
     void Unbind() override;
@@ -49,5 +49,12 @@ public:
     void Update(const ZVertex2DDataOptions& vertexData) override;
     void Update(const ZVertex3DDataOptions& vertexData) override;
     void Delete() override;
+
+protected:
+
+    struct
+    {
+        std::mutex state;
+    } glMutexes_;
 
 };

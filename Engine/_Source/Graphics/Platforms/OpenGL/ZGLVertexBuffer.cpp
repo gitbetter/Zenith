@@ -38,6 +38,8 @@ void ZGLVertexBuffer::Load(const ZVertex3DDataOptions& options)
     indexCount = options.indices.size();
     instanceCount = options.instanced.count;
 
+    std::lock_guard<std::mutex> lock(glMutexes_.state);
+
     glGenVertexArrays(1, &vao_);
     glGenBuffers(1, &vbo_);
     glGenBuffers(1, &ivbo_);
@@ -113,6 +115,7 @@ void ZGLVertexBuffer::Load(const ZVertex3DDataOptions& options)
 
 void ZGLVertexBuffer::Bind()
 {
+    std::lock_guard<std::mutex> lock(glMutexes_.state);
     glBindVertexArray(vao_);
     if (ebo_ != 0) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
@@ -129,6 +132,8 @@ void ZGLVertexBuffer::Load(const ZVertex2DDataOptions& options)
 {
     vertexCount = options.vertices.size();
     instanceCount = options.instanced.count;
+
+    std::lock_guard<std::mutex> lock(glMutexes_.state);
 
     glGenVertexArrays(1, &vao_);
     glGenBuffers(1, &vbo_);
@@ -216,6 +221,7 @@ void ZGLVertexBuffer::Update(const ZVertex2DDataOptions& vertexData)
 
 void ZGLVertexBuffer::Delete()
 {
+    std::lock_guard<std::mutex> lock(glMutexes_.state);
     glDeleteVertexArrays(1, &vao_);
     glDeleteBuffers(1, &vbo_);
     glDeleteBuffers(1, &ebo_);

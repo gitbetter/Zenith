@@ -68,7 +68,7 @@ void ZActionBar::Update() {
         activeProjectScene_->Play();
         ZServices::Input()->CaptureCursor();
 
-        if (auto wolf = activeProjectScene_->FindGameObject("ZGO_12")) {
+        if (auto wolf = activeProjectScene_->FindGameObject("ZGO_14")) {
             auto animComp = wolf->FindComponent<ZAnimatorComponent>();
             animComp->Play("Wolf_Skeleton", true);
         }

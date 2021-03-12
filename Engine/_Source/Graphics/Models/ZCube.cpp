@@ -100,7 +100,7 @@ void ZCube::Initialize()
         20, 21, 22, 20, 22, 23
     };
 
-    static std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 

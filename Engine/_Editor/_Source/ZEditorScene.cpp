@@ -33,7 +33,6 @@
 #include "ZPhysicsUniverse.hpp"
 #include "ZInput.hpp"
 #include "ZResourceLoadedEvent.hpp"
-#include "ZSceneReadyEvent.hpp"
 #include "ZResourceExtraData.hpp"
 #include "ZCamera.hpp"
 #include "ZFont.hpp"

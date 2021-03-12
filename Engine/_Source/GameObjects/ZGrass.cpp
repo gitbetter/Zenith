@@ -50,8 +50,8 @@ void ZGrass::Initialize()
     graphicsComp_->Initialize();
 
     uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::UserDefined, sizeof(ZGrassUniforms));
-    uniformBuffer_->Update(offsetof(ZGrassUniforms, windStrength), sizeof(windStrength_), &windStrength_);
     uniformBuffer_->Update(offsetof(ZGrassUniforms, windDirection), sizeof(windDirection_), glm::value_ptr(windDirection_));
+    uniformBuffer_->Update(offsetof(ZGrassUniforms, windStrength), sizeof(windStrength_), &windStrength_);
     uniformBuffer_->Update(offsetof(ZGrassUniforms, objectHeight), sizeof(objectHeight_), &objectHeight_);
 
     ZRenderStateGroupWriter writer;
@@ -77,12 +77,12 @@ void ZGrass::Initialize()
         for (unsigned int j = 0; j < length; j++)
         {
             auto scale = Scale();
-            auto x = -(length * 0.75f) + i + (-2 + std::rand() % 4);
-            auto z = -(length * 0.75f) + j + (-2 + std::rand() % 4);
-            auto translation = Position() + glm::vec3(x, scale.y * 2.f, z);
+            auto x = -(length * 0.5f) + i + (-2 + std::rand() % 4);
+            auto z = -(length * 0.5f) + j + (-2 + std::rand() % 4);
+            auto translation = Position() + glm::vec3(scale.x * 2.f * x, scale.y * 2.f, scale.z * 2.f * z);
             for (unsigned int k = 0; k < cPolygonCount; k++)
             {
-                auto rotation = glm::quat(glm::vec3(-90.f, (k == 2 ? 135.f : k * 45.f), 0.f));
+                auto rotation = glm::quat(glm::vec3(glm::radians(-90.f), glm::radians(k == 2 ? 135.f : k * 45.f), glm::radians(0.f)));
                 auto modelM = glm::translate(glm::mat4(1.f), translation) *
                     glm::toMat4(rotation) *
                     glm::scale(glm::mat4(1.f), scale);
@@ -97,7 +97,7 @@ void ZGrass::Initialize()
     {
         for (unsigned int k = 0; k < cPolygonCount; k++)
         {
-            instanceDatas[k].translations.push_back(glm::mat4(1.f));
+            instanceDatas[k].translations.push_back(glm::mat4(0.f));
         }
     }
 
@@ -111,8 +111,6 @@ void ZGrass::Initialize()
 
 void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
 {
-    ZGameObject::Initialize(root);
-
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
     {
@@ -158,7 +156,7 @@ void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
         windStrength_ = windStrengthProp->value;
     }
 
-    ZGrass::Initialize();
+    ZGameObject::Initialize(root);
 }
 
 void ZGrass::Prepare(double deltaTime)

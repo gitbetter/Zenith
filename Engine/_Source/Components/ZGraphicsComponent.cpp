@@ -335,7 +335,7 @@ void ZGraphicsComponent::SetupAABB()
 
 bool ZGraphicsComponent::IsVisible(ZFrustum frustrum)
 {
-    return !hasAABB_ || (modelObject_ && frustrum.Contains(bounds_));
+    return !hasAABB_ || frustrum.Contains(bounds_);
 }
 
 void ZGraphicsComponent::Transform(const glm::mat4& mat)
