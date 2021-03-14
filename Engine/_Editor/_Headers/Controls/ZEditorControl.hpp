@@ -73,11 +73,11 @@ public:
     virtual void CleanUp() override { }
 
     std::shared_ptr<T> Control() const { return control_; }
-    const V& Value() const { return value_; }
+    bool Value(V& ref) const { ref = value_; return lastValue_ != value_; }
 
 protected:
 
     std::shared_ptr<T>                          control_;
-    V                                           value_;
+    V                                           value_, lastValue_;
 
 };

@@ -63,6 +63,8 @@ void ZBoolField::Update()
 
 void ZBoolField::SetValue(const bool& val)
 {
+    if (val == lastValue_) return;
+    lastValue_ = value_;
     value_ = val;
     checkbox_->SetChecked(val);
 }

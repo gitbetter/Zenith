@@ -20,7 +20,7 @@ ZGO_GROUND
 ^
 
 ZGO_14
-    :position [3.3, 2.5, -5.8]:
+    :position [3.3, 1.5, -5.8]:
     :scale [1.0, 1.0, 1.0]:
     :orientation [-90.0, 30.0, 0.0]:
     ZCOMP_PHYSICS
@@ -266,6 +266,10 @@ ZMOD_WOLF
 	:path "/Models/wolf.dae":
 ^
 
+ZMOD_04
+    :path "/Models/rock.fbx":
+^
+
 ZMOD_02
     :type Cube:
     :size [1.0, 1.0, 1.0]:
@@ -276,10 +280,6 @@ ZMOD_03
     :radius 1.0:
     :isSmooth Yes:
     :segments [32.0, 32.0]:
-^
-
-ZMOD_04
-    :path "/Models/rock.fbx":
 ^
 
 # Materials

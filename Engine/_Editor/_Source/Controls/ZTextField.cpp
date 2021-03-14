@@ -52,6 +52,8 @@ void ZTextField::Update()
 
 void ZTextField::SetValue(const std::string& val)
 {
+    if (val == lastValue_) return;
+    lastValue_ = value_;
     value_ = val;
     inputField_->SetText(val);
 }

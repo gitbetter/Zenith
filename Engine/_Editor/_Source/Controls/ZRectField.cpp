@@ -41,11 +41,14 @@ void ZRectField::Update()
     yInputField_->Update();
     wInputField_->Update();
     hInputField_->Update();
-    value_ = ZRect(xInputField_->Value(), yInputField_->Value(), wInputField_->Value(), hInputField_->Value());
+    xInputField_->Value(value_.position.x); yInputField_->Value(value_.position.y);
+    wInputField_->Value(value_.size.x); hInputField_->Value(value_.size.y);
 }
 
 void ZRectField::SetValue(const ZRect& val)
 {
+    if (val == lastValue_) return;
+    lastValue_ = value_;
     value_ = val;
     xInputField_->SetValue(val.position.x);
     yInputField_->SetValue(val.position.y);

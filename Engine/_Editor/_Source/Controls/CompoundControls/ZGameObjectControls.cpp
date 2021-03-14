@@ -35,6 +35,7 @@
 #include "ZTextField.hpp"
 #include "ZBoolField.hpp"
 #include "ZVec3Field.hpp"
+#include "ZGameObject.hpp"
 
 void ZGameObjectControls::Initialize(const std::shared_ptr<ZScene>& scene)
 {
@@ -46,11 +47,39 @@ void ZGameObjectControls::Update()
 {
     if (!gameObject_) return;
 
+    auto name = gameObject_->ID();
+    auto active = gameObject_->Active();
+
+    auto m = gameObject_->ModelMatrix();
+    glm::vec3 pos, scale, orn;
+    glm::quat rot;
+    glm::decompose(m, scale, rot, pos, glm::vec3(0.f), glm::vec4(0.f));
+    orn = glm::eulerAngles(rot);
+
+    nameField_->SetValue(name);
+    activeField_->SetValue(active);
+    positionField_->SetValue(pos);
+    scaleField_->SetValue(scale);
+    rotationField_->SetValue(orn);
+
     nameField_->Update();
     activeField_->Update();
     positionField_->Update();
     scaleField_->Update();
     rotationField_->Update();
+
+    if (activeField_->Value(active)) {
+        gameObject_->SetActive(active);
+    }
+    if (positionField_->Value(pos)) {
+        gameObject_->SetPosition(pos);
+    }
+    if (scaleField_->Value(scale)) {
+        gameObject_->SetScale(scale);
+    }
+    if (rotationField_->Value(orn)) {
+        gameObject_->SetOrientation(orn);
+    }
 }
 
 void ZGameObjectControls::SetupObjectHeader(const std::shared_ptr<ZScene>& scene)

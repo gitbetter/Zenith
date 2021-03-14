@@ -55,7 +55,6 @@ private:
     ZVertex3DList LoadVertexData(const aiMesh* mesh);
     std::vector<unsigned int> LoadIndexData(const aiMesh* mesh);
     void LoadSkeleton(const aiScene* scene);
-    aiNode* FindSkeletonRoot(aiNode* rootNode);
     std::shared_ptr<ZJoint> LoadSkeletonJoint(const aiNode* node);
     void LoadBones(const aiMesh* mesh, ZVertex3DList& vertices);
     void LoadAnimations(const aiScene* scene);

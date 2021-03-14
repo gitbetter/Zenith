@@ -62,6 +62,5 @@ protected:
     std::shared_ptr<ZFloatField> yInputField_ = nullptr;
     std::shared_ptr<ZFloatField> zInputField_ = nullptr;
     std::shared_ptr<ZFloatField> wInputField_ = nullptr;
-    glm::vec4 lastValue_{ 0.f };
 
 };

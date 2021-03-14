@@ -64,6 +64,6 @@ protected:
     std::shared_ptr<ZUIInputField> inputField_ = nullptr;
     std::shared_ptr<ZUIScrubber> scrubber_ = nullptr;
     std::shared_ptr<ZUIHoverer> hoverer_ = nullptr;
-    float lastValue_ = 0;
+    float lastScrubbedValue_{ 0.f };
 
 };

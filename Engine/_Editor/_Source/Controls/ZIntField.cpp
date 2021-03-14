@@ -79,6 +79,8 @@ void ZIntField::Update()
 
 void ZIntField::SetValue(const int& val)
 {
+    if (val == lastValue_) return;
+    lastValue_ = value_;
     value_ = val;
     inputField_->SetText(std::to_string(value_));
 }

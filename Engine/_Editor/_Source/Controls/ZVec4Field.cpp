@@ -41,11 +41,13 @@ void ZVec4Field::Update()
     yInputField_->Update();
     zInputField_->Update();
     wInputField_->Update();
-    value_ = glm::vec4(xInputField_->Value(), yInputField_->Value(), zInputField_->Value(), wInputField_->Value());
+    xInputField_->Value(value_.x); yInputField_->Value(value_.y); zInputField_->Value(value_.z); wInputField_->Value(value_.w);
 }
 
 void ZVec4Field::SetValue(const glm::vec4& val)
 {
+    if (val == lastValue_) return;
+    lastValue_ = value_;
     value_ = val;
     xInputField_->SetValue(val.x);
     yInputField_->SetValue(val.y);

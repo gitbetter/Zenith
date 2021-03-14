@@ -76,6 +76,7 @@ void ZSceneTool::Update()
     auto rect = container_->CalculatedRect();
     if (currentGizmo_->Showing()) {
         currentGizmo_->Update();
+        currentGizmo_->SetPosition(selectedObject_->ModelMatrix()[3]);
     }
 
     if (selectClicker_->Release(rect)) {

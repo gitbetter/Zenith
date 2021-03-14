@@ -40,11 +40,13 @@ void ZVec3Field::Update()
     xInputField_->Update();
     yInputField_->Update();
     zInputField_->Update();
-    value_ = glm::vec3(xInputField_->Value(), yInputField_->Value(), zInputField_->Value());
+    xInputField_->Value(value_.x); yInputField_->Value(value_.y); zInputField_->Value(value_.z);
 }
 
 void ZVec3Field::SetValue(const glm::vec3& val)
 {
+    if (val == lastValue_) return;
+    lastValue_ = value_;
     value_ = val;
     xInputField_->SetValue(val.x);
     yInputField_->SetValue(val.y);
