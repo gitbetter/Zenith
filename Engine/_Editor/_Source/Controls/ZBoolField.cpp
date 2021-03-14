@@ -71,18 +71,12 @@ std::shared_ptr<ZBoolField> ZBoolField::Create(const std::string& label, const Z
 {
     auto boolField = std::make_shared<ZBoolField>(theme);
 
-    ZUIElementOptions panelOptions = options;
-    panelOptions.color = glm::vec4(0.f);
-    auto checkboxPanel = ZUIPanel::Create(panelOptions, scene);
-
     ZUIElementOptions checkboxOptions = options;
-    checkboxOptions.positioning = ZPositioning::Relative;
-    checkboxOptions.scaling = ZPositioning::Relative;
-    checkboxOptions.rect = ZRect(0.93f, 0.f, 0.07f, 1.f);
+    checkboxOptions.maxSize = glm::vec2(100.f, 0.f);
     boolField->checkbox_ = ZUICheckBox::Create(checkboxOptions, scene);
-    checkboxPanel->AddChild(boolField->checkbox_);
 
-    boolField->control_ = ZUILabeledElement::Create(label, checkboxPanel);
+    boolField->control_ = ZUILabeledElement::Create(label, boolField->checkbox_);
+
     boolField->Initialize(scene);
 
     return boolField;

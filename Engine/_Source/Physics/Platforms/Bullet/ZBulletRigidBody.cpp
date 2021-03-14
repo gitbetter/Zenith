@@ -206,7 +206,7 @@ void ZBulletRigidBody::SetLinearDamping(float damping)
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
     if (!body) return;
 
-    body->setDamping(damping, body->getAngularDamping());
+    body->setDamping(static_cast<double>(damping), body->getAngularDamping());
 }
 
 void ZBulletRigidBody::SetAngularDamping(float damping)

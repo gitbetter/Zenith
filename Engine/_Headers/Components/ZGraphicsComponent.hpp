@@ -63,6 +63,9 @@ public:
     void EnableBVHTraversal() { isBoundsTraversable_ = true; }
     void DisableBVHTraversal() { isBoundsTraversable_ = false; }
 
+    void EnableLightingInfo() { hasLightingInfo_ = true; }
+    void DisableLightingInfo() { hasLightingInfo_ = false; }
+
     bool IsVisible(ZFrustum frustrum);
 
     void Transform(const glm::mat4& mat);
@@ -91,6 +94,7 @@ protected:
     bool isBoundsTraversable_ = true;
     bool isShadowCaster_ = true;
     bool hasDepthInfo_ = true;
+    bool hasLightingInfo_ = true;
 
     ZAABBox bounds_;
 

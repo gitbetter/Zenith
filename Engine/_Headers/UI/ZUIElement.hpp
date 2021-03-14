@@ -92,6 +92,7 @@ struct ZUIElementOptions
     float                                    orientation{ 0.f };
     glm::vec2                                maxSize{ 0.f };
     glm::vec2                                minSize{ 0.f };
+    glm::vec2                                padding{ 0.f };
     glm::vec4                                translationBounds{ 0.f, 1.f, 0.f, 1.f };
     glm::vec4                                color{ 0.0f };
     float                                    opacity{ 1.f };
@@ -130,6 +131,7 @@ public:
     glm::vec2                           Size() const { return options_.rect.size; }
     ZRect                               Rect() const { return options_.rect; }
     ZRect                               CalculatedRect() const { return options_.calculatedRect; }
+    glm::vec2                           Padding() const { return options_.padding; }
     float                               Angle() const { return options_.orientation; }
     glm::vec4                           Color() const { return  options_.color; }
     float                               Opacity() const { return  options_.opacity; }
@@ -142,11 +144,13 @@ public:
     glm::mat4                           ModelMatrix() const { return modelMatrix_; }
     glm::mat4                           ProjectionMatrix() const { return projectionMatrix_; }
     ZUIElementOptions                   Options() const { return options_; }
+    ZRect                               PaddedRect() const;
     std::shared_ptr<ZUIElement>         Parent() const;
     std::shared_ptr<ZScene>             Scene() const;
 
     void                                SetPositioning(const ZPositioning& positioning) { options_.positioning = positioning; }
     void                                SetScaling(const ZPositioning& scaling) { options_.scaling = scaling; }
+    void                                SetPadding(const glm::vec2& padding);
     void                                SetRect(const ZRect& rect, const ZRect& relativeTo = ZRect());
     void                                SetSize(const glm::vec2& size, const ZRect& relativeTo = ZRect());
     void                                SetPosition(const glm::vec2& position, const ZRect& relativeTo = ZRect());

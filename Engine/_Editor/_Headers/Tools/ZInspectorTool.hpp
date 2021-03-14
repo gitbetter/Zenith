@@ -34,6 +34,9 @@
 #include "ZEditorControl.hpp"
 
 // Forward Declarations
+class ZEditorObjectSelectedEvent;
+class ZGameObjectControls;
+class ZGameObject;
 
 class ZInspectorTool : public ZEditorTool {
 
@@ -48,16 +51,12 @@ public:
 
     void CleanUp() override;
 
-    template<typename T>
-    typename std::enable_if<std::is_base_of<ZEditorControl, T>::value>::type
-    AddControl(const std::shared_ptr<T>& control)
-    {
-        container_->AddChild(control->Control());
-        controls_.push_back(control);
-    }
-
 protected:
 
-    std::vector<std::shared_ptr<ZEditorControl>> controls_;
+    std::shared_ptr<ZGameObjectControls> gameObjectControls_ = nullptr;
+
+    std::shared_ptr<ZGameObject> selectedObject_ = nullptr;
+
+    void HandleEditorObjectSelected(const std::shared_ptr<ZEditorObjectSelectedEvent>& event);
 
 };

@@ -40,11 +40,11 @@ void ZFrameStatsDisplay::Initialize(const std::shared_ptr<ZScene>& scene)
     ZEditorTool::Initialize(scene);
     container_->SetColor(theme_.secondaryColor * 0.75f);
     container_->SetRect(ZRect(0.01f, 0.01f, 0.35f, 0.25f));
+    container_->SetPadding(glm::vec2(5.f));
 
     ZUILayoutOptions layoutOptions;
     layoutOptions.itemSpacing = 5.f;
     layoutOptions.dimensions = container_->CalculatedRect();
-    layoutOptions.padding = glm::vec2(5.f);
     container_->SetLayout(std::make_shared<ZUIVerticalLayout>(layoutOptions));
 
     container_->Hide();

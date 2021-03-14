@@ -37,6 +37,7 @@
 #include "ZUIClicker.hpp"
 #include "ZCamera.hpp"
 #include "ZFrameStatsDisplay.hpp"
+#include "ZEditorObjectSelectedEvent.hpp"
 
 void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
@@ -52,9 +53,12 @@ void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
 void ZSceneTool::SetSelectedObject(const std::shared_ptr<ZGameObject>& object)
 {
     selectedObject_ = object;
-    if (currentGizmo_) {
+    if (currentGizmo_->Showing()) {
         currentGizmo_->SetPosition(selectedObject_->ModelMatrix()[3]);
     }
+
+    auto selectedEvent = std::make_shared<ZEditorObjectSelectedEvent>(selectedObject_ ? selectedObject_->ID() : "");
+    ZServices::EventAgent()->Trigger(selectedEvent);
 }
 
 void ZSceneTool::OnProjectSceneChanged()
@@ -95,11 +99,12 @@ void ZSceneTool::Update()
             std::shared_ptr<ZGameObject> foundObj = hasHit ? activeProjectScene_->FindGameObject(hitResult.objectId) : nullptr;
 
             if (hasHit && foundObj) {
-                SetSelectedObject(foundObj);
                 currentGizmo_->Show();
+                SetSelectedObject(foundObj);
             }
             else if (currentGizmo_->Showing()) {
                 currentGizmo_->Hide();
+                SetSelectedObject(nullptr);
             }
         }
     }

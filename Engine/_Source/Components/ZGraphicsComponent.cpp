@@ -160,7 +160,7 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
     ZRenderStateGroupWriter writer(overrideState_);
     writer.Begin();
     if (hasDepthInfo_) {
-        writer.SetRenderDepth(viewPos.z);
+        writer.SetRenderDepth(viewPos.z * 100.f);
     }
     if (object_->RenderLayer() == ZRenderLayer::UI) {
         writer.SetRenderDepth(0.f);
@@ -204,17 +204,30 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
             shadowTask->Submit({ ZRenderPass::Shadow() });
         }
 
-        for (const auto& light : gameLights_) {
-            auto lightState = light->RenderState();
-            for (auto material : materials) {
-                 auto materialState = material->RenderState();
+        if (hasLightingInfo_) {
+            for (const auto& light : gameLights_) {
+                auto lightState = light->RenderState();
+                for (auto material : materials) {
+                    auto materialState = material->RenderState();
 
-                 auto colorRenderTask = ZRenderTask::Compile(drawCall,
-                     { cameraState, objectState, modelState, meshState, additionalState, materialState, lightState, skyboxState, overrideState_ },
-                     ZRenderPass::Color()
-                 );
-                 colorRenderTask->Submit({ ZRenderPass::Color() });
-             }
+                    auto colorRenderTask = ZRenderTask::Compile(drawCall,
+                        { cameraState, objectState, modelState, meshState, additionalState, materialState, lightState, skyboxState, overrideState_ },
+                        ZRenderPass::Color()
+                    );
+                    colorRenderTask->Submit({ ZRenderPass::Color() });
+                }
+            }
+        }
+        else {
+            for (auto material : materials) {
+                auto materialState = material->RenderState();
+
+                auto colorRenderTask = ZRenderTask::Compile(drawCall,
+                    { cameraState, objectState, modelState, meshState, additionalState, materialState, skyboxState, overrideState_ },
+                    ZRenderPass::Color()
+                );
+                colorRenderTask->Submit({ ZRenderPass::Color() });
+            }
         }
     }
     

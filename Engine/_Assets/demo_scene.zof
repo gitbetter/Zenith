@@ -4,7 +4,7 @@ ZSCENE :name "Demo": ^
 
 ZGO_GROUND
 	:position [0.0, 0.0, 0.0]:
-	:scale [10.0, 0.1, 10.0]:
+	:scale [25.0, 0.1, 25.0]:
 	ZCOMP_PHYSICS
 		:type Kinematic:
 		:restitution 0.4:
@@ -216,13 +216,13 @@ ZGO_ROCK_09
 ^
 
 ZGR_MEADOW
-    :position [3.3, 0.0, -5.0]:
+    :position [3.3, -0.05, -5.0]:
 	:scale [0.1, 0.1, 0.1]:
 	:texture ZTEX_GRASS:
-	:instances 200.0:
+	:instances 50.0:
 	:spacingStyle Random:
 	:windDirection [1.0, 0.0, 0.0]:
-	:windStrength 10.0:
+	:windStrength 5.0:
 ^
 
 ZCAM_01

@@ -34,19 +34,19 @@ void ZBulletCollider::Initialize()
 {
     switch (type_) {
     case ZColliderType::Box:
-        ptr_ = new btBoxShape(btVector3(extents_.x, extents_.y, extents_.z));
+        ptr_ = new btBoxShape(btVector3(static_cast<double>(extents_.x), static_cast<double>(extents_.y), static_cast<double>(extents_.z)));
         break;
     case ZColliderType::Sphere:
-        ptr_ = new btSphereShape(extents_.x);
+        ptr_ = new btSphereShape(static_cast<double>(extents_.x));
         break;
     case ZColliderType::Capsule:
-        ptr_ = new btCapsuleShape(extents_.x, extents_.y);
+        ptr_ = new btCapsuleShape(static_cast<double>(extents_.x), static_cast<double>(extents_.y));
         break;
     case ZColliderType::Cylinder:
-        ptr_ = new btCylinderShape(btVector3(extents_.x, extents_.y, extents_.z));
+        ptr_ = new btCylinderShape(btVector3(static_cast<double>(extents_.x), static_cast<double>(extents_.y), static_cast<double>(extents_.z)));
         break;
     case ZColliderType::Cone:
-        ptr_ = new btConeShape(extents_.x, extents_.y);
+        ptr_ = new btConeShape(static_cast<double>(extents_.x), static_cast<double>(extents_.y));
         break;
     case ZColliderType::None:
         ptr_ = new btEmptyShape();

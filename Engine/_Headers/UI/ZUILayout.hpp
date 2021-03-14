@@ -41,7 +41,6 @@ struct ZUILayoutOptions
     glm::vec2 defaultItemSize{ 0.f, 0.f };
     ZAlignment verticalAlign{ ZAlignment::Top };
     ZAlignment horizontalAlign{ ZAlignment::Left };
-    glm::vec2 padding{ 0.f };
 };
 
 struct ZUICalculatedLayoutEntry
@@ -72,7 +71,6 @@ public:
 protected:
 
     void RecalculateRects(const std::vector<ZUICalculatedLayoutEntry>::iterator& start);
-    void PadDimensions();
 
     virtual ZRect CalculateNewRect(const std::string& element, const glm::vec2& size) = 0;
 

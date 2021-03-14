@@ -36,10 +36,10 @@ ZRect ZUIHorizontalLayout::CalculateNewRect(const std::string& element, const gl
     newRect.position.y = options_.dimensions.position.y;
     switch (options_.verticalAlign) {
     case ZAlignment::Middle:
-        newRect.position.y += glm::clamp(options_.dimensions.size.y - size.y, 0.f, options_.dimensions.size.y) / 2.f;
+        newRect.position.y += glm::clamp(options_.dimensions.size.y - newRect.size.y, 0.f, options_.dimensions.size.y) / 2.f;
         break;
     case ZAlignment::Bottom:
-        newRect.position.y += glm::clamp(options_.dimensions.size.y - size.y, 0.f, options_.dimensions.size.y);
+        newRect.position.y += glm::clamp(options_.dimensions.size.y - newRect.size.y, 0.f, options_.dimensions.size.y);
         break;
     default:
         break;
