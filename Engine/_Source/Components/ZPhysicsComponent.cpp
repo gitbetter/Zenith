@@ -30,11 +30,11 @@
 #include "ZPhysicsComponent.hpp"
 #include "ZScene.hpp"
 #include "ZGameObject.hpp"
-#include "ZPhysicsFactory.hpp"
 #include "ZPhysicsUniverse.hpp"
 #include "ZOFTree.hpp"
 #include "ZBulletRigidBody.hpp"
 #include "ZServices.hpp"
+#include "btBulletDynamicsCommon.h"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent()
 {

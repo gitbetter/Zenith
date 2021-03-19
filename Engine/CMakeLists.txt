@@ -110,7 +110,6 @@ ${ENGINE_SOURCE_DIR}/Graphics/Models/ZCompositeModel.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZShader.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZMesh.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZTexture.cpp
-${ENGINE_SOURCE_DIR}/Factories/ZPhysicsFactory.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/ZEventAgent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/ZEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZCollisionEvent.cpp
@@ -189,7 +188,6 @@ ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZWindowResizeEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZScrollEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZInputKeyEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZInputButtonEvent.hpp
-${ENGINE_HEADERS_DIR}/Factories/ZPhysicsFactory.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZGameObject.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZLight.hpp
 ${ENGINE_HEADERS_DIR}/GameObjects/ZParticle.hpp
@@ -331,7 +329,6 @@ ${ENGINE_HEADERS_DIR}/Components
 ${ENGINE_HEADERS_DIR}/Core
 ${ENGINE_HEADERS_DIR}/EventAgent
 ${ENGINE_HEADERS_DIR}/EventAgent/Events
-${ENGINE_HEADERS_DIR}/Factories
 ${ENGINE_HEADERS_DIR}/GameObjects
 ${ENGINE_HEADERS_DIR}/Graphics
 ${ENGINE_HEADERS_DIR}/Graphics/Acceleration
