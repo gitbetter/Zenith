@@ -50,7 +50,7 @@ ZIDSequence ZGameObject::idGenerator_("ZGO");
 
 ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
 {
-    properties_.previousPosition = properties_.position = glm::vec4(position, 1.f);
+    properties_.previousPosition = properties_.position = position, 1.f;
     properties_.previousOrientation = properties_.orientation = orientation;
     properties_.previousScale = properties_.scale = scale;
     properties_.modelMatrix = properties_.localModelMatrix = glm::mat4(1.f);
@@ -89,7 +89,7 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root)
     if (props.find("position") != props.end() && props["position"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
-        properties_.previousPosition = properties_.position = glm::vec4(posProp->value[0], posProp->value[1], posProp->value[2], 1.f);
+        properties_.previousPosition = properties_.position = glm::vec3(posProp->value[0], posProp->value[1], posProp->value[2]);
     }
 
     if (props.find("orientation") != props.end() && props["orientation"]->HasValues())
@@ -137,7 +137,7 @@ void ZGameObject::PrepareChildren(double deltaTime)
 void ZGameObject::CalculateDerivedData()
 {
     objectMutexes_.position.lock();
-    glm::mat4 translation = glm::translate(glm::mat4(1.f), glm::vec3(properties_.position));
+    glm::mat4 translation = glm::translate(glm::mat4(1.f), properties_.position);
     objectMutexes_.position.unlock();
 
     objectMutexes_.orientation.lock();
@@ -253,7 +253,7 @@ glm::vec3 ZGameObject::Position()
 {
     glm::vec3 pos;
     objectMutexes_.position.lock();
-    pos = glm::vec3(properties_.position);
+    pos = properties_.position;
     objectMutexes_.position.unlock();
     return pos;
 
@@ -368,7 +368,7 @@ void ZGameObject::SetPosition(const glm::vec3& position)
 {
     objectMutexes_.position.lock();
     properties_.previousPosition = properties_.position;
-    properties_.position = glm::vec4(position, 1.f);
+    properties_.position = position;
     objectMutexes_.position.unlock();
 
     CalculateDerivedData();
@@ -428,9 +428,17 @@ void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
     if (auto graphicsComp = FindComponent<ZGraphicsComponent>())
         graphicsComp->Transform(properties_.modelMatrix);
 
+    if (auto physicsComp = FindComponent<ZPhysicsComponent>())
+        physicsComp->SetTransform(properties_.modelMatrix);
+
     for (auto child : children_) {
         child->SetModelMatrix(properties_.modelMatrix * child->properties_.localModelMatrix);
     }
+}
+
+void ZGameObject::SetRenderOrder(ZRenderLayer renderOrder)
+{
+    properties_.renderOrder = renderOrder;
 }
 
 void ZGameObject::SetActive(bool active)
@@ -446,23 +454,23 @@ void ZGameObject::Translate(const glm::vec3& translation, bool global)
         //glm::vec3 localTranslation = glm::rotate(Orientation(), translation);
         objectMutexes_.position.lock();
         properties_.previousPosition = properties_.position;
-        properties_.position += glm::vec4(translation, 0.f);
+        properties_.position += translation, 0.f;
         objectMutexes_.position.unlock();
     }
     else {
         objectMutexes_.position.lock();
         properties_.previousPosition = properties_.position;
-        properties_.position += glm::vec4(translation, 0.f);
+        properties_.position += translation, 0.f;
         objectMutexes_.position.unlock();
     }
 
     CalculateDerivedData();
 }
 
-ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
+ZGameObjectList ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
 {
     using namespace zenith::strings;
-    ZGameObjectMap gameObjects;
+    ZGameObjectList gameObjects;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         std::shared_ptr<ZOFNode> node = it->second;
@@ -489,7 +497,7 @@ ZGameObjectMap ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::share
         }
 
         if (gameObject) {
-            gameObjects[gameObject->ID()] = gameObject;
+            gameObjects.push_back(gameObject);
 
             for (ZOFChildMap::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++)
             {

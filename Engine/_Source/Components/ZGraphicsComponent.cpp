@@ -150,16 +150,22 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
     auto scene = object_->Scene();
     if (!scene) return;
 
+    if (hasAABB_ && isBoundsTraversable_)
+        scene->AddBVHPrimitive(ZBVHPrimitive(object_->ID(), bounds_));
+
     glm::mat4 modelMatrix = object_->ModelMatrix();
 
     auto viewPos = object_->Position() - gameCamera_->Position();
 
     ZRenderStateGroupWriter writer(overrideState_);
     writer.Begin();
-    if (hasDepthInfo_)
-        writer.SetRenderDepth(viewPos.z);
-    if (object_->RenderLayer() == ZRenderLayer::UI)
+    if (hasDepthInfo_) {
+        writer.SetRenderDepth(viewPos.z * 100.f);
+    }
+    if (object_->RenderLayer() == ZRenderLayer::UI) {
+        writer.SetRenderDepth(0.f);
         writer.SetDepthStencilState({ ZDepthStencilState::None });
+    }
     else if (outlineMaterial_)
         writer.SetDepthStencilState({ ZDepthStencilState::Stencil, ZDepthStencilState::Depth });
     overrideState_ = writer.End();
@@ -198,17 +204,30 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
             shadowTask->Submit({ ZRenderPass::Shadow() });
         }
 
-        for (const auto& [lightID, light] : gameLights_) {
-            auto lightState = light->RenderState();
-            for (auto material : materials) {
-                 auto materialState = material->RenderState();
+        if (hasLightingInfo_) {
+            for (const auto& light : gameLights_) {
+                auto lightState = light->RenderState();
+                for (auto material : materials) {
+                    auto materialState = material->RenderState();
 
-                 auto colorRenderTask = ZRenderTask::Compile(drawCall,
-                     { cameraState, objectState, modelState, meshState, additionalState, materialState, lightState, skyboxState, overrideState_ },
-                     ZRenderPass::Color()
-                 );
-                 colorRenderTask->Submit({ ZRenderPass::Color() });
-             }
+                    auto colorRenderTask = ZRenderTask::Compile(drawCall,
+                        { cameraState, objectState, modelState, meshState, additionalState, materialState, lightState, skyboxState, overrideState_ },
+                        ZRenderPass::Color()
+                    );
+                    colorRenderTask->Submit({ ZRenderPass::Color() });
+                }
+            }
+        }
+        else {
+            for (auto material : materials) {
+                auto materialState = material->RenderState();
+
+                auto colorRenderTask = ZRenderTask::Compile(drawCall,
+                    { cameraState, objectState, modelState, meshState, additionalState, materialState, skyboxState, overrideState_ },
+                    ZRenderPass::Color()
+                );
+                colorRenderTask->Submit({ ZRenderPass::Color() });
+            }
         }
     }
     
@@ -329,7 +348,7 @@ void ZGraphicsComponent::SetupAABB()
 
 bool ZGraphicsComponent::IsVisible(ZFrustum frustrum)
 {
-    return !hasAABB_ || (modelObject_ && frustrum.Contains(bounds_));
+    return !hasAABB_ || frustrum.Contains(bounds_);
 }
 
 void ZGraphicsComponent::Transform(const glm::mat4& mat)

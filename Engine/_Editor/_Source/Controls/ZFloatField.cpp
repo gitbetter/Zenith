@@ -60,10 +60,10 @@ void ZFloatField::Update()
     if (scrubber_) {
         float scrubbedVal = scrubber_->Scrub<float>(labelRect);
         if (scrubbedVal != 0) {
-            SetValue(lastValue_ + scrubbedVal);
+            SetValue(lastScrubbedValue_ + scrubbedVal);
         }
         else {
-            lastValue_ = value_;
+            lastScrubbedValue_ = value_;
         }
     }
     
@@ -80,6 +80,8 @@ void ZFloatField::Update()
 
 void ZFloatField::SetValue(const float& val)
 {
+    if (val == lastValue_) return;
+    lastValue_ = value_;
     value_ = val;
     std::stringstream stream;
     stream << std::fixed << std::setprecision(4) << value_;

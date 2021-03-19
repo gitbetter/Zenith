@@ -30,21 +30,14 @@
 #include "ZLuaScriptManager.hpp"
 #include "ZResource.hpp"
 #include "ZResourceCache.hpp"
+#include "ZServices.hpp"
 
 void ZLuaScriptManager::Initialize()
 {
     lua_.open_libraries(sol::lib::base, sol::lib::package);
     lua_.set_function("executeFile", &ZLuaScriptManager::ExecuteFile, (*this));
     lua_.set_function("executeString", &ZLuaScriptManager::ExecuteString, (*this));
-}
-
-void ZLuaScriptManager::RegisterEventTypeWithScript(const std::string& key, ZTypeIdentifier type)
-{
-    sol::table eventTypeTable = lua_["ZTypeIdentifier"];
-    if (!eventTypeTable.valid())
-        eventTypeTable = lua_.create_named_table("ZTypeIdentifier");
-
-    eventTypeTable[key] = (double)type;
+    lua_["log"] = [](const std::string& message) { ILOG(message); };
 }
 
 void ZLuaScriptManager::ExecuteFile(const std::string& resource)

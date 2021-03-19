@@ -4,7 +4,7 @@ ZSCENE :name "Demo": ^
 
 ZGO_GROUND
 	:position [0.0, 0.0, 0.0]:
-	:scale [10.0, 0.1, 10.0]:
+	:scale [25.0, 0.1, 25.0]:
 	ZCOMP_PHYSICS
 		:type Kinematic:
 		:restitution 0.4:
@@ -18,9 +18,32 @@ ZGO_GROUND
 		:materials [ZMAT_01]:
 	^
 ^
-ZGO_12
-    :position [0.3, 0.5, -0.8]:
-    :scale [0.6, 0.6, 0.6]:
+
+ZGO_14
+    :position [3.3, 1.5, -5.8]:
+    :scale [1.0, 1.0, 1.0]:
+    :orientation [-90.0, 30.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.4, 0.4, 0.4]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_WOLF:
+        :materials [ZMAT_02]:
+    ^
+    ZCOMP_ANIMATOR ^
+^
+
+ZGO_ROCK_01
+    :position [-6.0, 2.0, 0.5]:
+    :scale [0.5, 0.5, 0.5]:
     :orientation [-90.0, 0.0, 0.0]:
     ZCOMP_PHYSICS
         :type Dynamic:
@@ -31,17 +54,18 @@ ZGO_12
     ^
     ZCOMP_COLLIDER
         :shape Box:
-        :extents [0.3, 0.3, 0.3]:
+        :extents [0.5, 0.5, 0.5]:
+        :offset [0.0, 0.0, 0.25]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_01:
-        :materials [ZMAT_02]:
+        :model ZMOD_04:
+		:materials [ZMAT_01]:
     ^
-    ZCOMP_ANIMATOR ^
 ^
-ZGO_13
-    :position [-3.0, 2.0, 0.5]:
-    :scale [0.3, 0.3, 0.3]:
+
+ZGO_ROCK_02
+    :position [-4.0, 2.0, 0.75]:
+    :scale [0.5, 0.5, 0.5]:
     :orientation [0.0, 0.0, 0.0]:
     ZCOMP_PHYSICS
         :type Dynamic:
@@ -52,42 +76,155 @@ ZGO_13
     ^
     ZCOMP_COLLIDER
         :shape Box:
-        :extents [1.0, 1.0, 1.0]:
+        :extents [0.5, 0.5, 0.5]:
+        :offset [0.0, 0.0, 0.25]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_02:
-		:materials [ZMAT_01]:
+        :model ZMOD_04:
+        :materials [ZMAT_01]:
     ^
 ^
-ZGO_23
-    :position [-1.6, 10.0, 0.5]:
-    :scale [0.2, 0.2, 0.2]:
-    :orientation [-90.0, 0.0, 0.0]:
+
+ZGO_ROCK_04
+    :position [2.0, 2.0, -2.75]:
+    :scale [0.6, 0.6, 0.6]:
+    :orientation [0.0, 0.0, 0.0]:
     ZCOMP_PHYSICS
         :type Dynamic:
         :mass 1.0:
-        :damping 0.5 0.5:
-        :restitution 0.8:
+        :damping 0.0 0.5:
+        :restitution 0.4:
         :hasGravity Yes:
     ^
-    ZCOMP_COLLIDER_01
-        :shape Sphere:
-        :extents [1.0, 1.0, 1.0]:
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.5, 0.5, 0.5]:
+        :offset [0.0, 0.0, 0.15]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_03:
+        :model ZMOD_04:
 		:materials [ZMAT_01]:
     ^
 ^
-#ZGR_MEADOW
-#	:position [0.0, 0.0, 0.0]:
-#	:scale [0.1, 0.1, 0.1]:
-#	:texture ZTEX_GRASS:
-#	:instances 1000.0:
-#	:spacingStyle Random:
-#	:windDirection [1.0, 0.0, 0.0]:
-#	:windStrength 1.5:
-#^
+
+ZGO_ROCK_05
+    :position [2.0, 2.0, 5.75]:
+    :scale [0.5, 0.5, 0.5]:
+    :orientation [0.0, 90.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.5, 0.5, 0.5]:
+        :offset [0.0, 0.0, 0.15]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_04:
+		:materials [ZMAT_01]:
+    ^
+^
+
+ZGO_ROCK_06
+    :position [9.0, 2.0, 5.75]:
+    :scale [0.4, 0.4 0.4]:
+    :orientation [0.0, 0.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.5, 0.5, 0.5]:
+        :offset [0.0, 0.0, 0.15]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_04:
+		:materials [ZMAT_01]:
+    ^
+^
+
+ZGO_ROCK_07
+    :position [-9.0, 2.0, -5.75]:
+    :scale [0.4, 0.4 0.4]:
+    :orientation [0.0, 0.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.5, 0.5, 0.5]:
+        :offset [0.0, 0.0, 0.15]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_04:
+		:materials [ZMAT_01]:
+    ^
+^
+ZGO_ROCK_08
+    :position [-8.5, 2.0, -6.75]:
+    :scale [0.2, 0.2 0.2]:
+    :orientation [0.0, 0.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.5, 0.5, 0.5]:
+        :offset [0.0, 0.0, 0.15]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_04:
+		:materials [ZMAT_01]:
+    ^
+^
+ZGO_ROCK_09
+    :position [6.5, 2.0, -9.0]:
+    :scale [0.6, 0.6 0.6]:
+    :orientation [0.0, 0.0, 0.0]:
+    ZCOMP_PHYSICS
+        :type Dynamic:
+        :mass 1.0:
+        :damping 0.0 0.5:
+        :restitution 0.4:
+        :hasGravity Yes:
+    ^
+    ZCOMP_COLLIDER
+        :shape Box:
+        :extents [0.5, 0.5, 0.5]:
+        :offset [0.0, 0.0, 0.15]:
+    ^
+    ZCOMP_GRAPHICS
+        :model ZMOD_04:
+		:materials [ZMAT_01]:
+    ^
+^
+
+ZGR_MEADOW
+    :position [3.3, -0.05, -5.0]:
+	:scale [0.1, 0.1, 0.1]:
+	:texture ZTEX_GRASS:
+	:instances 50.0:
+	:spacingStyle Random:
+	:windDirection [1.0, 0.0, 0.0]:
+	:windStrength 5.0:
+^
+
 ZCAM_01
 	:position [-1.4, 1.0, -5.0]:
 	:orientation [0.0, 160.0, 0.0]:
@@ -95,7 +232,7 @@ ZCAM_01
 	:primary Yes:
     :sensitivity 0.5:
 	:speed 2.0:
-    :damping 0.3:
+    :damping 0.01:
 	:type Perspective:
 	:movementStyle Follow:
 ^
@@ -111,11 +248,6 @@ ZLT_01
 
 # Shaders
 
-ZSH_01
-	:vertex "/Shaders/Vertex/blinnphong.vert":
-	:pixel "/Shaders/Pixel/blinnphong.frag":
-^
-
 ZSH_02
 	:vertex "/Shaders/Vertex/blinnphong.vert":
 	:pixel "/Shaders/Pixel/outline.frag":
@@ -130,8 +262,12 @@ ZTEX_GRASS
 
 # Models
 
-ZMOD_01
+ZMOD_WOLF
 	:path "/Models/wolf.dae":
+^
+
+ZMOD_04
+    :path "/Models/rock.fbx":
 ^
 
 ZMOD_02
@@ -150,10 +286,8 @@ ZMOD_03
 
 ZMAT_01
 	:albedo [0.8, 0.8, 0.8]:
-    :shader ZSH_01:
 ^
 
 ZMAT_02
 	:albedo [1.0, 0.2, 0.1]:
-    :shader ZSH_01:
 ^

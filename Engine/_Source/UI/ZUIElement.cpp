@@ -315,9 +315,25 @@ std::shared_ptr<ZScene> ZUIElement::Scene() const
     return scene_.lock();
 }
 
+ZRect ZUIElement::PaddedRect() const
+{
+    auto rect = options_.calculatedRect;
+    rect.size -= options_.padding * 2.f;
+    rect.position += options_.padding;
+    return rect;
+}
+
 std::shared_ptr<ZUIElement> ZUIElement::Parent() const
 {
     return parent_.lock();
+}
+
+void ZUIElement::SetPadding(const glm::vec2& padding)
+{
+    options_.padding = padding;
+    if (options_.layout) {
+        options_.layout->SetDimensions(PaddedRect());
+    }
 }
 
 void ZUIElement::SetRect(const ZRect& rect, const ZRect& relativeTo)
@@ -325,7 +341,7 @@ void ZUIElement::SetRect(const ZRect& rect, const ZRect& relativeTo)
     SetSize(rect.size, relativeTo);
     SetPosition(rect.position, relativeTo);
     if (options_.layout) {
-        options_.layout->SetDimensions(options_.calculatedRect);
+        options_.layout->SetDimensions(PaddedRect());
     }
     OnRectChanged();
 }
@@ -581,19 +597,20 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
     auto scene = Scene();
     if (!scene) return;
 
-    element->SetRect(element->Rect(), options_.calculatedRect);
+    auto paddedRect = PaddedRect();
+    element->SetRect(element->Rect(), paddedRect);
     if (options_.layout) {
         ZRect rect = options_.layout->GetRect(element->ID(), element->CalculatedRect().size, force);
         if (element->Positioning() == ZPositioning::Relative) {
             rect.position = ZUIHelpers::AbsoluteToRelativeCoords(
                 rect.position,
-                options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : options_.calculatedRect.size
+                options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : paddedRect.size
             );
         }
         if (element->Scaling() == ZPositioning::Relative) {
             rect.size = ZUIHelpers::AbsoluteToRelativeCoords(
                 rect.size,
-                options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : options_.calculatedRect.size
+                options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : paddedRect.size
             );
             // We want to lock the relative position of the rect if it is already at its minimum size
             if (element->options_.calculatedRect.size.x <= element->options_.minSize.x
@@ -601,7 +618,7 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
                 rect.size = element->options_.rect.size;
             }
         }
-        element->SetRect(rect, options_.calculatedRect);
+        element->SetRect(rect, paddedRect);
     }
 
     LayoutChildren(element, true);
@@ -637,7 +654,7 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& even
 
     auto parent = Parent();
     if (!parent || !parent->options_.layout) {
-        SetRect(options_.rect, parent ? parent->options_.calculatedRect : ZRect());
+        SetRect(options_.rect, parent ? parent->PaddedRect() : ZRect());
     }
 
     for (auto it = children_.begin(); it != children_.end(); it++) {
@@ -645,9 +662,9 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& even
     }
 }
 
-ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
+ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
 {
-    ZUIElementMap uiElements;
+    ZUIElementList uiElements;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         std::shared_ptr<ZOFNode> node = it->second;
@@ -669,13 +686,13 @@ ZUIElementMap ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_
             // Recursively create children if there are any nested UI nodes
             if (element)
             {
-                ZUIElementMap uiChildren = Load(uiNode, scene);
-                for (ZUIElementMap::iterator it = uiChildren.begin(); it != uiChildren.end(); it++)
+                ZUIElementList uiChildren = Load(uiNode, scene);
+                for (ZUIElementList::iterator it = uiChildren.begin(); it != uiChildren.end(); it++)
                 {
-                    element->AddChild(it->second);
+                    element->AddChild(*it);
                 }
 
-                uiElements[uiNode->id] = element;
+                uiElements.push_back(element);
             }
         }
     }

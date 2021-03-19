@@ -32,8 +32,10 @@ ${EDITOR_HEADERS_DIR}/Controls/ZVec3Field.hpp
 ${EDITOR_HEADERS_DIR}/Controls/ZVec4Field.hpp
 ${EDITOR_HEADERS_DIR}/Controls/ZRectField.hpp
 ${EDITOR_HEADERS_DIR}/Controls/ZBoolField.hpp
+${EDITOR_HEADERS_DIR}/Controls/CompoundControls/ZGameObjectControls.hpp
 ${EDITOR_HEADERS_DIR}/Gizmos/ZTransformGizmo.hpp
 ${EDITOR_HEADERS_DIR}/Gizmos/ZEditorGizmo.hpp
+${EDITOR_HEADERS_DIR}/Events/ZEditorObjectSelectedEvent.hpp
 ${EDITOR_SOURCES_DIR}/Tools/ZEditorTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZConsoleTool.cpp
 ${EDITOR_SOURCES_DIR}/Tools/ZHierarchyTool.cpp
@@ -54,8 +56,10 @@ ${EDITOR_SOURCES_DIR}/Controls/ZVec3Field.cpp
 ${EDITOR_SOURCES_DIR}/Controls/ZVec4Field.cpp
 ${EDITOR_SOURCES_DIR}/Controls/ZRectField.cpp
 ${EDITOR_SOURCES_DIR}/Controls/ZBoolField.cpp
+${EDITOR_SOURCES_DIR}/Controls/CompoundControls/ZGameObjectControls.cpp
 ${EDITOR_SOURCES_DIR}/Gizmos/ZTransformGizmo.cpp
 ${EDITOR_SOURCES_DIR}/Gizmos/ZEditorGizmo.cpp
+${EDITOR_SOURCES_DIR}/Events/ZEditorObjectSelectedEvent.cpp
 ${EDITOR_SOURCES_DIR}/main.cpp
 )
 
@@ -63,7 +67,9 @@ SET(EDITOR_INCLUDES
 ${EDITOR_HEADERS_DIR}
 ${EDITOR_HEADERS_DIR}/Tools
 ${EDITOR_HEADERS_DIR}/Controls
+${EDITOR_HEADERS_DIR}/Controls/CompoundControls
 ${EDITOR_HEADERS_DIR}/Gizmos
+${EDITOR_HEADERS_DIR}/Events
 )
 
 file(GLOB_RECURSE EDITOR_ASSETS "${ENGINE_DIRECTORY}/_Editor/_Assets/*")

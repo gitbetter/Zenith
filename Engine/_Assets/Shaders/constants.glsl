@@ -8,7 +8,7 @@ const uint LIGHT_TYPE_POINT = 1;
 const uint LIGHT_TYPE_SPOT = 2;
 const uint LIGHT_TYPE_DIRECTIONAL = 3;
 
-const uint USER_UBO0 = 6;
+const uint USER_UBO0 = 8;
 
 vec2 poissonDisk[64] = vec2[]( 
 	vec2( -0.04117257f, -0.1597612f ),

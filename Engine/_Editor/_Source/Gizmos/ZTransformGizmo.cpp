@@ -80,7 +80,7 @@ void ZTransformGizmo::CleanUp()
     axisArrows_.fill(nullptr);
 }
 
-void ZTransformGizmo::TryActivate(const ZRect& viewportRect)
+bool ZTransformGizmo::TryActivate(const ZRect& viewportRect)
 {
     auto cursorPos = ZServices::Input()->GetCursorPosition() - viewportRect.position;
     auto ray = activeProjectScene_->ScreenPointToWorldRay(cursorPos, viewportRect.size);
@@ -95,12 +95,13 @@ void ZTransformGizmo::TryActivate(const ZRect& viewportRect)
                 previousCursorPos_ = cursorPos;
                 active_ = true;
                 selectedAxis_ = i;
-                return;
+                return true;
             }
         }
     }
 
     Deactivate();
+    return false;
 }
 
 void ZTransformGizmo::OnProjectSceneChanged()
@@ -112,7 +113,7 @@ void ZTransformGizmo::OnProjectSceneChanged()
     activeProjectScene_->AddGameObject(gizmo_);
 }
 
-void ZTransformGizmo::Manipulate(const ZRect& viewportRect)
+void ZTransformGizmo::Manipulate(const ZRect& viewportRect, glm::mat4& transform)
 {
     if (active_) {
         auto cursorPos = ZServices::Input()->GetCursorPosition() - viewportRect.position;
@@ -131,6 +132,8 @@ void ZTransformGizmo::Manipulate(const ZRect& viewportRect)
 
         if (!cursorWrapped)
             gizmo_->Translate(-delta, true);
+
+        transform[3] = gizmo_->ModelMatrix()[3];
     }
 }
 
@@ -157,8 +160,11 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
         glm::vec3(0.f),
         glm::vec3(0.03f, 0.03f, 5.f)
     );
+    arrowBase->SetRenderOrder(ZRenderLayer::UI);
     auto graphicsComp = ZGraphicsComponent::CreateIn(arrowBase);
     graphicsComp->Initialize(cylinder);
+    graphicsComp->DisableShadowCasting();
+    graphicsComp->DisableDepthInfo();
     graphicsComp->AddMaterial(arrowMaterial);
 
     auto arrowTop = ZGameObject::Create(
@@ -166,8 +172,11 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
         glm::vec3(0.f),
         glm::vec3(0.5f, 0.5f, 0.5f)
     );
+    arrowTop->SetRenderOrder(ZRenderLayer::UI);
     graphicsComp = ZGraphicsComponent::CreateIn(arrowTop);
     graphicsComp->Initialize(cone);
+    graphicsComp->DisableShadowCasting();
+    graphicsComp->DisableDepthInfo();
     graphicsComp->AddMaterial(arrowMaterial);
 
     axisArrow->AddChild(arrowBase);

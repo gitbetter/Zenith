@@ -64,14 +64,12 @@ void ZModel::Initialize()
 
     ComputeBounds();
 
-    bool isRigged = skeleton_ != nullptr;
+    bool isRigged = !bonesMap_.empty();
     uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::Model, sizeof(ZModelUniforms));
     uniformBuffer_->Update(offsetof(ZModelUniforms, rigged), sizeof(isRigged), &isRigged);
 
-    if (skeleton_) {
-        for (auto i = 0; i < bones_.size(); i++) {
-            uniformBuffer_->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * i, sizeof(glm::mat4), glm::value_ptr(bones_[i]->transformation));
-        }
+    for (auto i = 0; i < bones_.size(); i++) {
+        uniformBuffer_->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * i, sizeof(glm::mat4), glm::value_ptr(bones_[i]->transformation));
     }
 
     ZRenderStateGroupWriter writer;
@@ -122,20 +120,6 @@ void ZModel::SetInstanceData(const ZInstancedDataOptions& instanceData)
     }
 }
 
-void ZModel::BoneTransform(const std::string& anim, double secondsTime)
-{
-    glm::mat4 identity(1.f);
-
-    if (animations_.find(anim) != animations_.end())
-    {
-        double ticksPerSecond = animations_[anim]->ticksPerSecond != 0 ? animations_[anim]->ticksPerSecond : 25.0;
-        double timeInTicks = secondsTime * ticksPerSecond;
-        double animationTime = fmod(timeInTicks, animations_[anim]->duration);
-
-        CalculateTransformsInHierarchy(anim, animationTime, skeleton_->rootJoint, identity);
-    }
-}
-
 void ZModel::ComputeBounds()
 {
     bounds_ = ZAABBox();
@@ -151,16 +135,24 @@ void ZModel::ComputeBounds()
     }
 }
 
+void ZModel::BoneTransform(const std::string& anim, double secondsTime)
+{
+    if (animations_.find(anim) != animations_.end())
+    {
+        double ticksPerSecond = animations_[anim]->ticksPerSecond != 0 ? animations_[anim]->ticksPerSecond : 25.0;
+        double timeInTicks = secondsTime * ticksPerSecond;
+        double animationTime = fmod(timeInTicks, animations_[anim]->duration);
+
+        glm::mat4 rootTransform = glm::rotate(glm::mat4(1.f), glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
+
+        CalculateTransformsInHierarchy(anim, animationTime, skeleton_->rootJoint, rootTransform);
+    }
+}
+
 void ZModel::CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform)
 {
     std::shared_ptr<ZAnimation> animation = animations_[animName];
     glm::mat4 jointTransform = joint->transform;
-
-    if (joint->name.find("root") != std::string::npos)
-    {
-        jointTransform = glm::rotate(jointTransform, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
-        jointTransform = glm::translate(jointTransform, glm::vec3(0.f, -0.337f, -0.175f));
-    }
 
     std::shared_ptr<ZJointAnimation> jointAnimation;
     for (unsigned int i = 0, j = animation->channels.size(); i < j; i++)

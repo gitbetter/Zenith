@@ -29,7 +29,7 @@
 
 #include "ZAABBox.hpp"
 
-bool ZAABBox::Intersects(const ZRay& ray)
+bool ZAABBox::Intersects(ZRay& ray)
 {
     auto check_axis = [](float origin, float direction, float min, float max) {
         auto tmin_numerator = min - origin;
@@ -59,5 +59,32 @@ bool ZAABBox::Intersects(const ZRay& ray)
     auto tmin = std::max({ xt[0], yt[0], zt[0] });
     auto tmax = std::min({ xt[1], yt[1], zt[1] });
 
+    ray.tMax = tmin;
+
     return tmin <= tmax;
+}
+
+glm::vec3 ZAABBox::Offset(const glm::vec3& p) const
+{
+    glm::vec3 o = p - minimum;
+    if (maximum.x > minimum.x) o.x /= maximum.x - minimum.x;
+    if (maximum.y > minimum.y) o.y /= maximum.y - minimum.y;
+    if (maximum.z > minimum.z) o.z /= maximum.z - minimum.z;
+    return o;
+}
+
+int ZAABBox::MaxExtent() const
+{
+    glm::vec3 diag = Diagonal();
+    if (diag.x > diag.y && diag.x > diag.z)
+        return 0;
+    else if (diag.y > diag.z)
+        return 1;
+    return 2;
+}
+
+float ZAABBox::SurfaceArea() const
+{
+    glm::vec3 diag = Diagonal();
+    return 2.f * (diag.x * diag.y + diag.x * diag.z + diag.y * diag.z);
 }

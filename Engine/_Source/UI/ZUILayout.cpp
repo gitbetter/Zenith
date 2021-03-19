@@ -32,9 +32,7 @@
 
 ZUILayout::ZUILayout(const ZUILayoutOptions& options)
     : options_(options)
-{
-    PadDimensions();
-}
+{ }
 
 ZUILayout::ZUILayout(const ZRect& dimensions, float itemSpacing, const glm::vec2& itemSize, ZAlignment hAlign, ZAlignment vAlign, const glm::vec2& padding)
 {
@@ -84,7 +82,6 @@ void ZUILayout::RemoveRect(const std::string& element)
 void ZUILayout::SetDimensions(const ZRect& rect)
 {
     options_.dimensions = rect;
-    PadDimensions();
 }
 
 void ZUILayout::RecalculateRects(const std::vector<ZUICalculatedLayoutEntry>::iterator& start)
@@ -100,10 +97,4 @@ void ZUILayout::RecalculateRects(const std::vector<ZUICalculatedLayoutEntry>::it
         entry.rect = CalculateNewRect(entry.id, entry.rect.size);
         calculatedRects_.push_back(entry);
     }
-}
-
-void ZUILayout::PadDimensions()
-{
-    options_.dimensions.position += options_.padding;
-    options_.dimensions.size -= options_.padding * 2.f;
 }

@@ -220,7 +220,7 @@ void ZShadowPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
     auto lights = scene->GameLights();
     for (int j = 0; j < NUM_SHADOW_CASCADES; j++) {
         if (!lights.empty()) {
-            auto lightspaceMatrix = lights.begin()->second->LightSpaceMatrices()[j];
+            auto lightspaceMatrix = (*lights.begin())->LightSpaceMatrices()[j];
             uniformBuffer_->Update(offsetof(ZLightUniforms, ViewProjectionLightSpace), sizeof(lightspaceMatrix), glm::value_ptr(lightspaceMatrix));
         }
         framebuffer_->BindAttachmentLayer(j);

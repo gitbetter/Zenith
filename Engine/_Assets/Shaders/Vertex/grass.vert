@@ -16,25 +16,25 @@ out VertexOutput vout;
 // Grass animation uniforms
 layout (std140, binding = USER_UBO0) uniform Grass
 {
+    vec4 windDirection;
     float objectHeight;
     float timestamp;
     float windStrength;
-    vec4 windDirection;
 };
 
-vec4 CalculateTranslation(vec4 position, float time, vec4 windDirection, float windStrength);
+vec4 CalculateTranslation(mat4 transform, vec4 position, float time, vec4 windDirection, float windStrength);
 
 void main()
 {   
     vec4 pos = vec4(position, 1.0);
     vec3 norm = normal;
     // Animate upper vertices of grass objects
+    mat4 m = (instanced ? instanceM : M);
     if (texCoords.y <= 0.1) {
-        vec4 translation = CalculateTranslation(pos, timestamp, windDirection, windStrength);
+        vec4 translation = CalculateTranslation(m, pos, timestamp, windDirection, windStrength);
         pos = pos + translation;
         norm = normalize(norm * objectHeight + translation.xyz);
     }
-    mat4 m = (instanced ? instanceM : M);
     vout.FragWorldPos = m * pos;
     vec3 T = normalize(mat3(m) * tangent);
     vec3 B = normalize(mat3(m) * bitangent);
@@ -49,8 +49,8 @@ void main()
     gl_Position = ViewProjection * vout.FragWorldPos;
 }
 
-vec4 CalculateTranslation(vec4 position, float time, vec4 windDirection, float windStrength)
+vec4 CalculateTranslation(mat4 transform, vec4 position, float time, vec4 windDirection, float windStrength)
 {
-    vec3 windTranslation = windDirection.xyz * windStrength;
-    return vec4(position.xyz + windTranslation * sin(time * Random(vec2(instanceM[3][0], instanceM[3][2]))), 1.0);
+    vec3 windTranslation = vec3(transform * windDirection) * windStrength;
+    return vec4(position.xyz + windTranslation * sin(time * 5.f * Random(vec2(transform[3][0], transform[3][2]))), 1.0);
 }

@@ -51,7 +51,7 @@ void ZPlane::Initialize()
     };
 
 
-    static std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
+    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
     mesh->Initialize();
     meshes_[mesh->ID()] = mesh;
 

@@ -17,17 +17,3 @@ do
 		end
 	end
 end
-
-do
-    local OldPrint = print;  -- save the old print() function
-    
-    print = function(text)
-		if (text ~= nil) then
-			Log(text);
-		else
-			Log("<nil>");
-		end
-	end
-end
-
-

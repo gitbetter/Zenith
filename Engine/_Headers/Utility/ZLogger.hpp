@@ -59,6 +59,17 @@ struct ZLogEntry
 class ZLogger
 {
 
+public:
+
+    ZLogger() = default;
+    ZLogger(const ZLogger&) = default;
+    ~ZLogger() = default;
+
+    const std::vector<ZLogEntry>& Buffer() const { return logBuffer_; }
+
+    void Log(const std::string& text, ZSeverity severity, const std::string& file, unsigned int line);
+    void Clear() { logBuffer_.clear(); }
+
 private:
 
     struct
@@ -69,13 +80,5 @@ private:
     std::vector<ZLogEntry> logBuffer_;
 
     void AddEntry(const ZLogEntry& entry);
-
-public:
-
-    const std::vector<ZLogEntry>& Buffer() const { return logBuffer_; }
-
-    void Log(const std::string& text, ZSeverity severity, const std::string& file, unsigned int line);
-    void Log(const ZLogEntry& entry);
-    void Clear() { logBuffer_.clear(); }
 
 };

@@ -32,6 +32,7 @@
 // Includes
 #include "ZProcess.hpp"
 #include "ZOFTree.hpp"
+#include "ZBVH.hpp"
 
 // Forward Declarations
 class ZGame;
@@ -51,6 +52,7 @@ class ZShaderReadyEvent;
 class ZModelReadyEvent;
 class ZSkyboxReadyEvent;
 class ZRay;
+class ZBVH;
 
 // Class and Data Structure Definitions
 class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene>
@@ -76,9 +78,9 @@ public:
     std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
     std::shared_ptr<ZCamera> ActiveCamera() { return activeCamera_; }
     std::shared_ptr<ZCamera> PrimaryCamera() { return primaryCamera_; }
-    ZGameObjectMap& GameObjects() { return gameObjects_; }
-    ZUIElementMap& UIElements() { return uiElements_; }
-    ZLightMap& GameLights() { return gameLights_; }
+    ZGameObjectList& GameObjects() { return gameObjects_; }
+    ZUIElementList& UIElements() { return uiElements_; }
+    ZLightList& GameLights() { return gameLights_; }
     std::string& Name() { return name_; }
     ZPlayState& PlayState() { return playState_; }
     std::shared_ptr<ZTexture> TargetTexture();
@@ -100,6 +102,8 @@ public:
     ZSceneSnapshot Snapshot();
     void RestoreSnapshot(ZSceneSnapshot& snapshot);
 
+    void AddBVHPrimitive(const ZBVHPrimitive& primitive);
+
     void AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImmediately = true);
     void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately = true);
     std::shared_ptr<ZGameObject> FindGameObject(const std::string& id);
@@ -111,6 +115,7 @@ public:
     void RemoveUIElement(std::shared_ptr<ZUIElement> element);
 
     ZRay ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions = glm::vec2(0.f));
+    bool RayCast(ZRay& ray, ZIntersectHitResult& hitResult);
 
     void UpdateLightspaceMatrices();
 
@@ -162,10 +167,14 @@ protected:
     std::shared_ptr<ZUICanvas> canvas_ = nullptr;
     std::shared_ptr<ZCamera> activeCamera_ = nullptr;
     std::shared_ptr<ZCamera> primaryCamera_ = nullptr;
+    std::shared_ptr<ZBVH> bvh_ = nullptr;
 
-    ZLightMap gameLights_;
-    ZGameObjectMap gameObjects_;
-    ZUIElementMap uiElements_;
+    ZIDMap gameLightIDMap_;
+    ZLightList gameLights_;
+    ZIDMap gameObjectIDMap_;
+    ZGameObjectList gameObjects_;
+    ZIDMap uiElementIDMap_;
+    ZUIElementList uiElements_;
 
     ZGameSystems gameSystems_;
     ZGameOptions gameConfig_;

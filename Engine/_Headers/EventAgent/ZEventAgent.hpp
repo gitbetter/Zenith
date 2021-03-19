@@ -32,7 +32,6 @@
 // Includes
 #include "ZEvent.hpp"
 #include "ZProcess.hpp"
-#include "ZScriptableEvent.hpp"
 
 // Forward Declarations
 //class SomeClass;
@@ -40,24 +39,6 @@
 // Class and Data Structure Definitions
 const unsigned int NUM_EVENT_QUEUES = 2;
 const unsigned int NUM_LISTENER_QUEUES = 2;
-
-class ZScriptableEventAgent
-{
-
-    typedef std::set<ZScriptableEventDelegate*> ScriptEventListeners;
-
-private:
-
-    ScriptEventListeners listeners_;
-    std::mutex agentMutex_;
-
-public:
-
-    ~ZScriptableEventAgent();
-    void Subscribe(ZScriptableEventDelegate* listener);
-    void DestroyListener(ZScriptableEventDelegate* listener);
-
-};
 
 class ZEventAgent : public ZProcess
 {
@@ -120,13 +101,9 @@ public:
         );
     }
 
-    ZScriptableEventAgent* Scriptable() const { return scriptableEventAgent_.get(); }
-
     void CleanUp() override;
 
 private:
-
-    std::unique_ptr<ZScriptableEventAgent> scriptableEventAgent_;
 
     EventListenerMap eventListeners_[NUM_LISTENER_QUEUES];
     EventQueue eventQueues_[NUM_EVENT_QUEUES];

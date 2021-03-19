@@ -186,6 +186,8 @@ void ZMaterial::AddTexture(const std::string& slot, const std::shared_ptr<ZTextu
     writer.Begin();
     writer.BindTexture(texture);
     renderState_ = writer.End();
+
+    UpdateUniformMaterial();
 }
 
 std::shared_ptr<ZMaterial> ZMaterial::Default()
@@ -354,8 +356,8 @@ void ZMaterial::UpdateUniformMaterial()
     else
         uniformBuffer_->Update(offsetof(ZMaterialUniforms, material), sizeof(properties_.look), &properties_.look);
 
-    bool isTextured = !textures_.empty();
-    uniformBuffer_->Update(offsetof(ZMaterialUniforms, isTextured), sizeof(isTextured), &isTextured);
+    bool textured = !textures_.empty();
+    uniformBuffer_->Update(offsetof(ZMaterialUniforms, isTextured), sizeof(textured), &textured);
     uniformBuffer_->Update(offsetof(ZMaterialUniforms, hasDisplacement), sizeof(properties_.hasDisplacement), &properties_.hasDisplacement);
 }
 

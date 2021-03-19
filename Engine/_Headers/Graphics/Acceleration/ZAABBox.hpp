@@ -45,16 +45,21 @@ public:
     ZAABBox() : minimum(std::numeric_limits<float>::max()), maximum(std::numeric_limits<float>::min()) {}
     ZAABBox(const glm::vec3& min, const glm::vec3& max) : minimum(min), maximum(max) {}
 
-    bool Intersects(const ZRay& ray);
+    bool Intersects(ZRay& ray);
+    glm::vec3 Offset(const glm::vec3& p) const;
+    int MaxExtent() const;
+    float SurfaceArea() const;
+
+    glm::vec3 Diagonal() const { return maximum - minimum; }
 
     static const ZAABBox Union(const ZAABBox& b, const glm::vec3& p) noexcept
     {
         return ZAABBox(glm::vec3(std::min(b.minimum.x, p.x),
-            std::min(b.minimum.y, p.y),
-            std::min(b.minimum.z, p.z)),
-            glm::vec3(std::max(b.maximum.x, p.x),
-                std::max(b.maximum.y, p.y),
-                std::max(b.maximum.z, p.z)));
+                                 std::min(b.minimum.y, p.y),
+                                 std::min(b.minimum.z, p.z)),
+                       glm::vec3(std::max(b.maximum.x, p.x),
+                                 std::max(b.maximum.y, p.y),
+                                 std::max(b.maximum.z, p.z)));
     }
 
     static const ZAABBox Union(const ZAABBox& b1, const ZAABBox& b2) noexcept
@@ -68,7 +73,16 @@ public:
     }
 };
 
-inline const ZAABBox operator*(const glm::mat4& mat, const ZAABBox& b) noexcept
+inline const ZAABBox operator*(const glm::mat4& mat, const ZAABBox& box) noexcept
 {
-    return ZAABBox(mat * glm::vec4(b.minimum, 1.f), mat * glm::vec4(b.maximum, 1.f));
+    ZAABBox result(mat[3], mat[3]);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            float a = mat[j][i] * box.minimum[j];
+            float b = mat[j][i] * box.maximum[j];
+            result.minimum[i] += a < b ? a : b;
+            result.maximum[i] += a < b ? b : a;
+        }
+    }
+    return result;
 }

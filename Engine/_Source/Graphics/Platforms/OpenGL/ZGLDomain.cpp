@@ -58,7 +58,7 @@ void ZGLDomain::Initialize()
     });
 
     OnWindowResized([this](int width, int height) {
-        std::shared_ptr<ZWindowResizeEvent> windowResizeEvent = std::make_shared<ZWindowResizeEvent>();
+        std::shared_ptr<ZWindowResizeEvent> windowResizeEvent = std::make_shared<ZWindowResizeEvent>(glm::vec2(width, height));
         ZServices::EventAgent()->Queue(windowResizeEvent);
     });
 
@@ -240,7 +240,7 @@ void ZGLDomain::FrameBufferSizeCallback(GLFWwindow* window, int width, int heigh
     glViewport(0, 0, width, height);
 }
 
-void ZGLDomain::WindowSizeCallback(GLFWwindow* window, int height, int width)
+void ZGLDomain::WindowSizeCallback(GLFWwindow* window, int width, int height)
 {
     ZGLDomain* domainPtr = static_cast<ZGLDomain*>(glfwGetWindowUserPointer(window));
     if (domainPtr) {

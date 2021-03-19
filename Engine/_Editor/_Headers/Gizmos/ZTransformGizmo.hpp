@@ -52,9 +52,9 @@ public:
 
     void CleanUp() override;
 
-    void TryActivate(const ZRect& viewportRect) override;
+    bool TryActivate(const ZRect& viewportRect) override;
 
-    void Manipulate(const ZRect& viewportRect) override;
+    void Manipulate(const ZRect& viewportRect, glm::mat4& transform) override;
 
     void Deactivate() override;
 

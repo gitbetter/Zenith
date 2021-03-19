@@ -30,11 +30,11 @@
 #include "ZPhysicsComponent.hpp"
 #include "ZScene.hpp"
 #include "ZGameObject.hpp"
-#include "ZPhysicsFactory.hpp"
 #include "ZPhysicsUniverse.hpp"
 #include "ZOFTree.hpp"
 #include "ZBulletRigidBody.hpp"
 #include "ZServices.hpp"
+#include "btBulletDynamicsCommon.h"
 
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent()
 {
@@ -169,6 +169,12 @@ void ZPhysicsComponent::SetRestitution(float restitution)
 {
     assert(body_ != nullptr);
     body_->SetRestitution(restitution);
+}
+
+void ZPhysicsComponent::SetTransform(const glm::mat4& transform)
+{
+    assert(body_ != nullptr);
+    body_->SetTransformMatrix(transform);
 }
 
 void ZPhysicsComponent::AddCollider(const std::shared_ptr<ZCollider>& collider)

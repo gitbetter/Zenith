@@ -60,7 +60,7 @@ public:
     std::shared_ptr<ZFramebuffer> Framebuffer() { return framebuffer_; }
     std::shared_ptr<ZRenderStateGroup> RenderState() const { return renderState_; }
 
-    void SetSize(const glm::vec2& size) { size_ = size; }
+    virtual void SetSize(const glm::vec2& size) { size_ = size; }
 
     void Submit(const std::shared_ptr<ZRenderTask>& task);
     void Render(double deltaTime, const std::shared_ptr<ZScene>& scene, const std::shared_ptr<ZFramebuffer>& target = nullptr);
@@ -105,6 +105,8 @@ public:
 
     void Initialize() override;
 
+    void SetSize(const glm::vec2& size) override { }
+
 protected:
 
     void Prepare(const std::shared_ptr<ZScene>& scene);
@@ -126,6 +128,8 @@ public:
     ~ZShadowPass() { }
 
     void Initialize() override;
+
+    void SetSize(const glm::vec2& size) override { }
 
 protected:
 

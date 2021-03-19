@@ -62,6 +62,5 @@ protected:
     std::shared_ptr<ZFloatField> yInputField_ = nullptr;
     std::shared_ptr<ZFloatField> wInputField_ = nullptr;
     std::shared_ptr<ZFloatField> hInputField_ = nullptr;
-    ZRect lastValue_{ 0.f };
 
 };

@@ -253,6 +253,7 @@ float ZUIText::MaxWrapBounds() const
 
 void ZUIText::SetText(const std::string& text)
 {
+    if (text_ == text) return;
     text_ = text;
     RecalculateBufferData();
 }
