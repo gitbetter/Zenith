@@ -76,7 +76,9 @@ void ZUILayout::RemoveRect(const std::string& element)
 
     it = calculatedRects_.erase(it);
 
-    RecalculateRects(it);
+    if (it != calculatedRects_.end()) {
+        RecalculateRects(it);
+    }
 }
 
 void ZUILayout::SetDimensions(const ZRect& rect)

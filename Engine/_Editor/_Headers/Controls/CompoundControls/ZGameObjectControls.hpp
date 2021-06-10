@@ -38,6 +38,7 @@ class ZUIPanel;
 class ZTextField;
 class ZBoolField;
 class ZVec3Field;
+class ZFoldoutRegion;
 
 // Definitions
 class ZGameObjectControls : public ZEditorControl {
@@ -55,7 +56,7 @@ public:
 
     bool Active() const { return gameObject_ != nullptr; }
     std::shared_ptr<ZUIPanel> Header() const { return objectHeader_; }
-    std::shared_ptr<ZUIPanel> TransformFields() const { return transformFields_; }
+    std::shared_ptr<ZFoldoutRegion> TransformFields() const { return transformFields_; }
 
     void SetGameObject(const std::shared_ptr<ZGameObject>& gameObject) { gameObject_ = gameObject; }
 
@@ -66,7 +67,7 @@ protected:
     std::shared_ptr<ZGameObject> gameObject_ = nullptr;
 
     std::shared_ptr<ZUIPanel> objectHeader_ = nullptr;
-    std::shared_ptr<ZUIPanel> transformFields_ = nullptr;
+    std::shared_ptr<ZFoldoutRegion> transformFields_ = nullptr;
 
     std::shared_ptr<ZTextField> nameField_ = nullptr;
     std::shared_ptr<ZBoolField> activeField_ = nullptr;

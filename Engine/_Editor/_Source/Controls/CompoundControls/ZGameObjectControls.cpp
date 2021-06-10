@@ -35,6 +35,7 @@
 #include "ZTextField.hpp"
 #include "ZBoolField.hpp"
 #include "ZVec3Field.hpp"
+#include "ZFoldoutRegion.hpp"
 #include "ZGameObject.hpp"
 
 void ZGameObjectControls::Initialize(const std::shared_ptr<ZScene>& scene)
@@ -64,6 +65,7 @@ void ZGameObjectControls::Update()
 
     nameField_->Update();
     activeField_->Update();
+    transformFields_->Update();
     positionField_->Update();
     scaleField_->Update();
     rotationField_->Update();
@@ -88,7 +90,7 @@ void ZGameObjectControls::SetupObjectHeader(const std::shared_ptr<ZScene>& scene
     fieldOptions.positioning = ZPositioning::Relative;
     fieldOptions.scaling = ZPositioning::Relative;
     fieldOptions.rect = ZRect(0.0f, 0.0f, 1.0f, 1.0f);
-    fieldOptions.maxSize = glm::vec2(0.f, 150.f);
+    fieldOptions.maxSize = glm::vec2(0.f, 75.f);
     ZUILayoutOptions layoutOptions;
     layoutOptions.itemSpacing = 5.f;
     fieldOptions.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
@@ -143,8 +145,7 @@ void ZGameObjectControls::SetupObjectHeaderFields(const std::shared_ptr<ZScene>&
 
     fieldOptions = ZUIElementOptions();
     fieldOptions.positioning = ZPositioning::Relative;
-    fieldOptions.scaling = ZPositioning::Relative;
-    fieldOptions.rect = ZRect(0.0f, 0.0f, 0.1f, 1.f);
+    fieldOptions.rect = ZRect(0.0f, 0.0f, 20.f, 20.f);
     fieldOptions.color = theme_.primaryColor;
     activeField_ = ZBoolField::Create("", fieldOptions, scene, theme_);
     nameFieldContainer->AddChild(activeField_->Control());
@@ -152,15 +153,12 @@ void ZGameObjectControls::SetupObjectHeaderFields(const std::shared_ptr<ZScene>&
 
 void ZGameObjectControls::SetupTransformFields(const std::shared_ptr<ZScene>& scene)
 {
-    ZUIElementOptions panelOptions;
-    panelOptions.positioning = ZPositioning::Relative;
-    panelOptions.scaling = ZPositioning::Relative;
-    panelOptions.rect = ZRect(0.0f, 0.0f, 1.0f, 1.0f);
-    panelOptions.maxSize = glm::vec2(0.f, 3 * (20.f + 5.f));
-    ZUILayoutOptions layoutOptions;
-    layoutOptions.itemSpacing = 5.f;
-    panelOptions.layout = std::make_shared<ZUIVerticalLayout>(layoutOptions);
-    transformFields_ = ZUIPanel::Create(panelOptions, scene);
+    ZUIElementOptions foldoutOptions;
+    foldoutOptions.positioning = ZPositioning::Relative;
+    foldoutOptions.scaling = ZPositioning::Relative;
+    foldoutOptions.rect = ZRect(0.0f, 0.0f, 1.0f, 1.0f);
+    foldoutOptions.maxSize = glm::vec2(0.f, 3 * (20.f + 5.f));
+    transformFields_ = ZFoldoutRegion::Create("Transform", foldoutOptions, scene, theme_);
 
     ZUIElementOptions fieldOptions;
     fieldOptions.positioning = ZPositioning::Relative;

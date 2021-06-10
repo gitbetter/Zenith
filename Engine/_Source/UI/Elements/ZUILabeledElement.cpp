@@ -33,13 +33,14 @@
 #include "ZUIText.hpp"
 #include "ZUIPanel.hpp"
 
-ZUILabeledElement::ZUILabeledElement(const std::string& label, const std::shared_ptr<ZUIElement>& element)
+ZUILabeledElement::ZUILabeledElement(const std::string& label, const std::shared_ptr<ZUIElement>& element, Position labelPosition)
     : ZUIElement()
 {
     // A labeled element is just a wrapper/decorator object, so it should inherit most of the
     // properties of the wrapped element
     element_ = element;
     label_ = label;
+    labelPosition_ = labelPosition;
     options_ = element_->Options();
     type_ = element->Type();
     scene_ = element->Scene();
@@ -62,8 +63,17 @@ void ZUILabeledElement::Initialize()
     layoutOptions.dimensions = options_.calculatedRect;
     options_.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
 
-    CreateLabelField();
-    SetupElement();
+    // A horizontal layout will layout elements based on sequential calls to
+    // AddChild on the layout container. If we want to change the label position
+    // we just change the order of the AddChild calls.
+    if (labelPosition_ == Position::Left) {
+        CreateLabelField();
+        SetupElement();
+    }
+    else {
+        SetupElement();
+        CreateLabelField();
+    }
 }
 
 void ZUILabeledElement::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -99,7 +109,7 @@ void ZUILabeledElement::SetLabelFontSize(float size)
 void ZUILabeledElement::SetLabelTextAlignment(ZAlignment alignment)
 {
     if (labelText_) {
-        labelText_->SetAlignment(alignment);
+        labelText_->SetHorizontalAlignment(alignment);
     }
 }
 
@@ -154,9 +164,9 @@ void ZUILabeledElement::SetupElement()
     AddChild(element_);
 }
 
-std::shared_ptr<ZUILabeledElement> ZUILabeledElement::Create(const std::string& label, const std::shared_ptr<ZUIElement>& element)
+std::shared_ptr<ZUILabeledElement> ZUILabeledElement::Create(const std::string& label, const std::shared_ptr<ZUIElement>& element, Position labelPosition)
 {
-    auto labeledElement = std::make_shared<ZUILabeledElement>(label, element);
+    auto labeledElement = std::make_shared<ZUILabeledElement>(label, element, labelPosition);
     labeledElement->Initialize();
     return labeledElement;
 }

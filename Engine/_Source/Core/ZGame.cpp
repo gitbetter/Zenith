@@ -107,7 +107,7 @@ void ZGame::Tick()
         previousTime_ = SECONDS_TIME;
 
     double currentTime = SECONDS_TIME;
-    deltaTime_ = currentTime - previousTime_;
+    deltaTime_ = glm::min(currentTime - previousTime_, 0.1);
     previousTime_ = currentTime;
 
     ZServices::ProcessRunner(name_)->UpdateTick(deltaTime_);

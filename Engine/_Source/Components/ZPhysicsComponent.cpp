@@ -129,6 +129,9 @@ void ZPhysicsComponent::Update(double deltaTime)
     if (body_->Type() == ZPhysicsBodyType::Trigger)
         body_->SetTransformMatrix(object_->ModelMatrix());
 
+    if (object_->Scene()->PlayState() != ZPlayState::Playing)
+        return;
+
     // Don't update static rigid bodies with the physic engine, since the physics engine cannot affect them
     if (body_->InverseMass() == 0.0) return;
 

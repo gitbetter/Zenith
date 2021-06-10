@@ -176,6 +176,7 @@ void ZUIText::RecalculateBufferData()
     float oneOverFontScale = 1.f / font_->Size();
     float fontSize = oneOverFontScale * fontScale_;
     float maxWrap = wrapToBounds_ ? MaxWrapBounds() : 0.f;
+    float atlasH = font_->Atlas().height * fontSize;
     std::string text = text_;
     // If no wrapping is enabled we simulate banner scrolling by removing
     // characters from the beginning of the original string if the total width
@@ -196,12 +197,23 @@ void ZUIText::RecalculateBufferData()
 
     if (text.empty()) return;
 
-    switch (alignment_) {
+    switch (hAlignment_) {
     case ZAlignment::Middle:
-        x += glm::clamp(options_.calculatedRect.size.x - width, 0.f, options_.calculatedRect.size.x) / 2.f;
+        x += glm::clamp(options_.calculatedRect.size.x - width, 0.f, options_.calculatedRect.size.x) * 0.5f;
         break;
     case ZAlignment::Right:
         x += glm::clamp(options_.calculatedRect.size.x - width, 0.f, options_.calculatedRect.size.x);
+        break;
+    default:
+        break;
+    }
+
+    switch (vAlignment_) {
+    case ZAlignment::Middle:
+        y += glm::clamp(options_.calculatedRect.size.y - atlasH, 0.f, options_.calculatedRect.size.y) * 0.5f;
+        break;
+    case ZAlignment::Bottom:
+        y += glm::clamp(options_.calculatedRect.size.y - atlasH, 0.f, options_.calculatedRect.size.y);
         break;
     default:
         break;
@@ -213,7 +225,6 @@ void ZUIText::RecalculateBufferData()
     {
         ZCharacter character = font_->Atlas().characterInfo[*c];
 
-        float atlasH = font_->Atlas().height * fontSize;
         float w = character.bitmapSize.x * fontSize;
         float h = character.bitmapSize.y * fontSize;
         float xpos = x + character.bitmapPos.x * fontSize;
@@ -283,9 +294,15 @@ void ZUIText::SetLineSpacing(float spacing)
     RecalculateBufferData();
 }
 
-void ZUIText::SetAlignment(ZAlignment alignment)
+void ZUIText::SetHorizontalAlignment(ZAlignment alignment)
 {
-    alignment_ = alignment;
+    hAlignment_ = alignment;
+    RecalculateBufferData();
+}
+
+void ZUIText::SetVerticalAlignment(ZAlignment alignment)
+{
+    vAlignment_ = alignment;
     RecalculateBufferData();
 }
 

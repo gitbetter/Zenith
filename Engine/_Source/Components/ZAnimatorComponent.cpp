@@ -33,6 +33,7 @@
 #include "ZModel.hpp"
 #include "ZMesh.hpp"
 #include "ZServices.hpp"
+#include "ZScene.hpp"
 
 ZAnimatorComponent::ZAnimatorComponent()
 {
@@ -47,6 +48,9 @@ void ZAnimatorComponent::Initialize(std::shared_ptr<ZOFNode> root)
 
 void ZAnimatorComponent::Update(double deltaTime)
 {
+    if (object_->Scene()->PlayState() != ZPlayState::Playing)
+        return;
+
     if (currentClip_.state == ZAnimationState::Playing || currentClip_.state == ZAnimationState::Looping)
     {
         currentClip_.currentTime += deltaTime;

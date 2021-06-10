@@ -106,6 +106,7 @@ void ZUIElement::Initialize() {
     writer.SetRenderLayer(ZRenderLayer::UI);
     writer.BindTexture(options_.texture);
     writer.BindUniformBuffer(uniformBuffer_);
+    writer.SetShader(options_.shader);
     renderState_ = writer.End();
 
     ZServices::EventAgent()->Subscribe(this, &ZUIElement::OnWindowResized);
@@ -351,22 +352,28 @@ void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
     auto scene = Scene();
     if (!scene) return;
 
+    options_.rect.size = size;
     if (options_.scaling == ZPositioning::Relative) {
-        options_.rect.size = size;
         options_.calculatedRect.size = ZUIHelpers::RelativeToAbsoluteCoords(
             size,
             relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
         );
     }
     else {
-        options_.rect.size = size;
         options_.calculatedRect.size = options_.rect.size;
     }
 
+    ClampToSizeLimits();
+
     uniformBuffer_->Update(offsetof(ZUIUniforms, pixelSize), sizeof(options_.calculatedRect.size), glm::value_ptr(options_.calculatedRect.size));
 
-    ClampToSizeLimits();
     RecalculateModelMatrix();
+}
+
+void ZUIElement::SetMaxSize(const glm::vec2& size)
+{
+    options_.maxSize = size;
+    RecalculateRect(true);
 }
 
 void ZUIElement::SetPosition(const glm::vec2& position, const ZRect& relativeTo)
@@ -374,17 +381,16 @@ void ZUIElement::SetPosition(const glm::vec2& position, const ZRect& relativeTo)
     auto scene = Scene();
     if (!scene) return;
 
+    options_.rect.position = position;
     if (options_.positioning == ZPositioning::Relative) {
         auto parent = Parent();
         glm::vec2 offset = parent && !parent->options_.layout ? parent->options_.calculatedRect.position : glm::vec2(0.f);
-        options_.rect.position = position;
         options_.calculatedRect.position = offset + ZUIHelpers::RelativeToAbsoluteCoords(
             position,
             relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
         );
     }
     else {
-        options_.rect.position = position;
         options_.calculatedRect.position = options_.rect.position;
     }
     ClampToBounds();
@@ -423,6 +429,15 @@ void ZUIElement::SetTranslationBounds(float left, float right, float bottom, flo
     {
         it->second->SetTranslationBounds(left, right, bottom, top);
     }
+}
+
+void ZUIElement::SetShader(const std::shared_ptr<ZShader>& shader)
+{
+    options_.shader = shader;
+    ZRenderStateGroupWriter writer(renderState_);
+    writer.Begin();
+    writer.SetShader(options_.shader);
+    renderState_ = writer.End();
 }
 
 void ZUIElement::SetColor(const glm::vec4& newColor)
@@ -569,6 +584,18 @@ void ZUIElement::ClampToBounds()
             options_.translationBounds.w * resolution.y);
 }
 
+void ZUIElement::RecalculateRect(bool force)
+{
+    auto parent = Parent();
+    if (!parent || !parent->options_.layout || force) {
+        SetRect(options_.rect, parent ? parent->PaddedRect() : ZRect());
+    }
+
+    for (auto it = children_.begin(); it != children_.end(); it++) {
+        LayoutChild(it->second, true);
+    }
+}
+
 void ZUIElement::RecalculateModelMatrix()
 {
     // By default we want to draw with the top left as (0, 0), so we use an identity vector to flip since openGL coordinates
@@ -608,14 +635,18 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
             );
         }
         if (element->Scaling() == ZPositioning::Relative) {
-            rect.size = ZUIHelpers::AbsoluteToRelativeCoords(
-                rect.size,
-                options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : paddedRect.size
-            );
-            // We want to lock the relative position of the rect if it is already at its minimum size
+            // We want to lock the relative position of the rect if it is at or past its minimum or maximum sizse
             if (element->options_.calculatedRect.size.x <= element->options_.minSize.x
-                || element->options_.calculatedRect.size.y <= element->options_.minSize.y) {
+                || element->options_.calculatedRect.size.y <= element->options_.minSize.y
+                || element->options_.calculatedRect.size.x >= element->options_.maxSize.x
+                || element->options_.calculatedRect.size.y >= element->options_.maxSize.x) {
                 rect.size = element->options_.rect.size;
+            }
+            else {
+                rect.size = ZUIHelpers::AbsoluteToRelativeCoords(
+                    rect.size,
+                    options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : paddedRect.size
+                );
             }
         }
         element->SetRect(rect, paddedRect);
@@ -651,15 +682,7 @@ void ZUIElement::LayoutChildren(const std::shared_ptr<ZUIElement>& element, bool
 void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event)
 {
     RecalculateProjectionMatrix();
-
-    auto parent = Parent();
-    if (!parent || !parent->options_.layout) {
-        SetRect(options_.rect, parent ? parent->PaddedRect() : ZRect());
-    }
-
-    for (auto it = children_.begin(); it != children_.end(); it++) {
-        LayoutChild(it->second, true);
-    }
+    RecalculateRect();
 }
 
 ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)

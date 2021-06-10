@@ -34,6 +34,7 @@
 #include "ZUIVerticalLayout.hpp"
 #include "ZGameObjectControls.hpp"
 #include "ZEditorObjectSelectedEvent.hpp"
+#include "ZFoldoutRegion.hpp"
 
 void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
@@ -69,12 +70,12 @@ void ZInspectorTool::HandleEditorObjectSelected(const std::shared_ptr<ZEditorObj
         selectedObject_ = nullptr;
         gameObjectControls_->SetGameObject(selectedObject_);
         container_->RemoveChild(gameObjectControls_->Header());
-        container_->RemoveChild(gameObjectControls_->TransformFields());
+        container_->RemoveChild(gameObjectControls_->TransformFields()->Container());
     }
     else if (auto obj = activeProjectScene_->FindGameObject(event->ObjectID())) {
         selectedObject_ = obj;
         gameObjectControls_->SetGameObject(selectedObject_);
         container_->AddChild(gameObjectControls_->Header());
-        container_->AddChild(gameObjectControls_->TransformFields());
+        container_->AddChild(gameObjectControls_->TransformFields()->Container());
     }
 }

@@ -79,7 +79,7 @@ void ZFrameStatsDisplay::SetupStatFields(const std::shared_ptr<ZScene>& scene)
     textOptions.positioning = ZPositioning::Relative;
     textOptions.scaling = ZPositioning::Relative;
     textOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
-    textOptions.maxSize = glm::vec2(0.f, 40.f);
+    textOptions.maxSize = glm::vec2(0.f, 25.f);
     textOptions.color = glm::vec4(1.f);
 
     drawCallsText_ = ZUIText::Create(textOptions, scene);

@@ -129,6 +129,7 @@ public:
     ZPositioning                        Scaling() const { return options_.scaling; }
     glm::vec2                           Position() const { return options_.rect.position; }
     glm::vec2                           Size() const { return options_.rect.size; }
+    glm::vec2                           MaxSize() const { return options_.maxSize; }
     ZRect                               Rect() const { return options_.rect; }
     ZRect                               CalculatedRect() const { return options_.calculatedRect; }
     glm::vec2                           Padding() const { return options_.padding; }
@@ -153,6 +154,7 @@ public:
     void                                SetPadding(const glm::vec2& padding);
     void                                SetRect(const ZRect& rect, const ZRect& relativeTo = ZRect());
     void                                SetSize(const glm::vec2& size, const ZRect& relativeTo = ZRect());
+    void                                SetMaxSize(const glm::vec2& size);
     void                                SetPosition(const glm::vec2& position, const ZRect& relativeTo = ZRect());
     void                                SetRotation(float angle);
     void                                SetTexture(const ZTexture::ptr& texture);
@@ -160,7 +162,7 @@ public:
     virtual void                        SetColor(const glm::vec4& newColor);
     void                                SetOpacity(float opacity, bool relativeToAlpha = false);
     void                                SetTranslationBounds(float left, float right, float bottom, float top);
-    void                                SetShader(const std::shared_ptr<ZShader>& shader) { options_.shader = shader; }
+    void                                SetShader(const std::shared_ptr<ZShader>& shader);
     void                                SetLayout(const std::shared_ptr<ZUILayout>& layout) { options_.layout = layout; }
     void                                SetParent(std::shared_ptr<ZUIElement> parent) { parent_ = parent; }
     void                                SetScene(const std::shared_ptr<ZScene> scene) { scene_ = scene; }
@@ -239,6 +241,7 @@ private:
 
     void                                ClampToSizeLimits();
     void                                ClampToBounds();
+    void                                RecalculateRect(bool force = false);
     void                                RecalculateModelMatrix();
     void                                RecalculateProjectionMatrix();
     void                                OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event);

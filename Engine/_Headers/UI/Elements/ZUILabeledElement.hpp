@@ -43,7 +43,11 @@ class ZUILabeledElement : public ZUIElement
 
 public:
 
-    ZUILabeledElement(const std::string& label, const std::shared_ptr<ZUIElement>& element);
+    enum class Position {
+        Left, Right
+    };
+
+    ZUILabeledElement(const std::string& label, const std::shared_ptr<ZUIElement>& element, Position labelPosition = Position::Left);
     ~ZUILabeledElement() {}
 
     void                                        Initialize();
@@ -60,7 +64,7 @@ public:
     void                                        SetLabelFontSize(float size);
     void                                        SetLabelTextAlignment(ZAlignment alignment);
 
-    static std::shared_ptr<ZUILabeledElement>   Create(const std::string& label, const std::shared_ptr<ZUIElement>& element);
+    static std::shared_ptr<ZUILabeledElement>   Create(const std::string& label, const std::shared_ptr<ZUIElement>& element, Position labelPosition = Position::Left);
 
 protected:
 
@@ -68,6 +72,7 @@ protected:
     glm::vec4                               labelTextColor_ = glm::vec4(1.f);
     float                                   labelWidth_ = 0.3f;
     float                                   labelFontSize_ = 14.f;
+    Position                                labelPosition_;
 
     std::shared_ptr<ZUIText>                labelText_;
     std::shared_ptr<ZUIPanel>               background_;
