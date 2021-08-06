@@ -71,6 +71,7 @@ if (APPLE)
   find_library(VORBIS_LIB NAMES vorbis HINTS "${DARWIN_LIB_DIR}")
   find_library(VORBISFILE_LIB NAMES vorbisfile HINTS "${DARWIN_LIB_DIR}")
   find_library(OPENAL_LIB NAMES openal HINTS "${DARWIN_LIB_DIR}")
+  find_library(RTTR_LIB NAMES librttr_core_d HINTS "${DARWIN_LIB_DIR}")
 
   set(LINKED_LIBS
   "-framework Cocoa" 
@@ -95,7 +96,8 @@ if (APPLE)
   ${OGG_LIB}
   ${VORBIS_LIB}
   ${VORBISFILE_LIB}
-  ${OPENAL_LIB})
+  ${OPENAL_LIB}
+  ${RTTR_LIB})
 
   target_link_libraries(${ZENITH_LIB} ${LINKED_LIBS})
 
@@ -155,6 +157,7 @@ elseif (WIN32)
   find_library(VORBIS_LIB NAMES vorbis_static libvorbis_static HINTS "${WINDOWS_LIB_DIR}")
   find_library(VORBISFILE_LIB NAMES vorbisfile_static libvorbisfile_static HINTS "${WINDOWS_LIB_DIR}")
   find_library(OPENAL_LIB NAMES OpenAL32 HINTS "${WINDOWS_LIB_DIR}")
+  find_library(RTTR_LIB NAMES librttr_core_d HINTS "${WINDOWS_LIB_DIR}")
 
   set(LINKED_LIBS
   ${OPENGL_LIBRARY} 
@@ -176,7 +179,8 @@ elseif (WIN32)
   ${OGG_LIB}
   ${VORBIS_LIB}
   ${VORBISFILE_LIB}
-  ${OPENAL_LIB})
+  ${OPENAL_LIB}
+  ${RTTR_LIB})
 
   target_link_libraries(${ZENITH_LIB} ${LINKED_LIBS})
 
