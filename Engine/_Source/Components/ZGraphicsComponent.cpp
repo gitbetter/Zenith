@@ -45,6 +45,8 @@
 #include "ZRenderTask.hpp"
 #include "ZRenderPass.hpp"
 
+#include <rttr/registration>
+
 ZGraphicsComponent::ZGraphicsComponent() : ZComponent(), isBillboard_(false)
 {
     id_ = "ZCOMP_GRAPHICS_" + std::to_string(idGenerator_.Next());
@@ -144,13 +146,25 @@ std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
 
 void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRenderStateGroup>& additionalState)
 {
-    auto model = Model();
-    if (!gameCamera_ || !model) return;
+	auto model = Model();
+	if (!model)
+	{
+        // Lazy load the model if not yet set
+        if (ZServices::AssetStore()->HasModel(model_))
+        {
+			SetModel(ZServices::AssetStore()->GetModel(model_));
+			model = Model();
+        }
+		else
+		{
+			return;
+		}
+	}
 
     auto scene = object_->Scene();
-    if (!scene) return;
+    if (!scene || !gameCamera_) return;
 
-    if (hasAABB_ && isBoundsTraversable_)
+    if (hasAABB_)
         scene->AddBVHPrimitive(ZBVHPrimitive(object_->ID(), bounds_));
 
     glm::mat4 modelMatrix = object_->ModelMatrix();
@@ -178,7 +192,31 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
         skyboxState = scene->Skybox()->RenderState();
     }
 
-    auto materials = Materials();
+    if (materials_.empty())
+    {
+        // Lazy load materials if not set
+		if (materialIds_.empty())
+        {
+			materials_.push_back(ZMaterial::Default());
+		}
+        else
+        {
+			auto it = materialIds_.begin();
+			while (it != materialIds_.end())
+			{
+				if (ZServices::AssetStore()->HasMaterial(*it))
+				{
+					auto material = ZServices::AssetStore()->GetMaterial(*it);
+					AddMaterial(material);
+					it = materialIds_.erase(it);
+				}
+				else {
+					++it;
+				}
+			}
+        }
+    }
+    auto materials = materials_;
 
     // This setup assumes a forward rendering pipeline
     for (const auto& [meshID, mesh] : model->Meshes()) {
@@ -270,47 +308,6 @@ void ZGraphicsComponent::PrepareOutlineDisplay(glm::mat4& modelMatrix, std::shar
     object_->SetModelMatrix(modelMatrix);
 }
 
-std::shared_ptr<ZModel> ZGraphicsComponent::Model()
-{
-    if (modelObject_) return modelObject_;
-    
-    auto scene = object_->Scene();
-    if (!scene) return nullptr;
-
-    if (ZServices::AssetStore()->HasModel(model_))
-    {
-        modelObject_ = ZServices::AssetStore()->GetModel(model_);
-        modelObject_->SetInstanceData(instanceData_);
-        SetupAABB();
-        return modelObject_;
-    }
-    return nullptr;
-}
-
-const ZMaterialList& ZGraphicsComponent::Materials()
-{
-    if (materialIds_.empty()) {
-        if (materials_.empty())
-            materials_.push_back(ZMaterial::Default());
-        return materials_;
-    }
-
-    auto it = materialIds_.begin();
-    while (it != materialIds_.end())
-    {
-        if (ZServices::AssetStore()->HasMaterial(*it))
-        {
-            auto material = ZServices::AssetStore()->GetMaterial(*it);
-            AddMaterial(material);
-            it = materialIds_.erase(it);
-        }
-        else {
-            ++it;
-        }
-    }
-    return materials_;
-}
-
 void ZGraphicsComponent::AddMaterial(const std::shared_ptr<ZMaterial>& material)
 {
     if (!material) return;
@@ -336,7 +333,7 @@ void ZGraphicsComponent::SetOutline(const glm::vec4& color)
 void ZGraphicsComponent::SetModel(const std::shared_ptr<ZModel>& model)
 {
     modelObject_ = model;
-    instanceData_ = modelObject_->InstanceData();
+    modelObject_->SetInstanceData(instanceData_);
     SetupAABB();
 }
 
@@ -364,3 +361,15 @@ void ZGraphicsComponent::ClearOutline()
 }
 
 DEFINE_COMPONENT_CREATORS(ZGraphicsComponent)
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+    registration::class_<ZGraphicsComponent>("ZGraphicsComponent")
+        .constructor<>()
+        .property("Model", &ZGraphicsComponent::Model, &ZGraphicsComponent::SetModel)
+        .property("Materials", &ZGraphicsComponent::Materials, &ZGraphicsComponent::SetMaterials)
+        .property("HasAABB", &ZGraphicsComponent::HasAABB, &ZGraphicsComponent::SetHasAABB)
+        .property("IsShadowCaster", &ZGraphicsComponent::IsShadowCaster, &ZGraphicsComponent::SetIsShadowCaster)
+        .property("HasLightingInfo", &ZGraphicsComponent::HasLightingInfo, &ZGraphicsComponent::SetHasLightingInfo);
+}

@@ -29,17 +29,17 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 #include "ZOFTree.hpp"
+#include "ZHandle.hpp"
 
-// Forward Declarations
 class ZResourceHandle;
 class ZFramebuffer;
 class ZResourceLoadedEvent;
 struct ZIBLTexture;
 
-// Class and Data Structure Definitions
+struct TextureTag { };
+using ZHTexture = ZHandle<TextureTag>;
 
 class ZTexture : public std::enable_shared_from_this<ZTexture>
 {

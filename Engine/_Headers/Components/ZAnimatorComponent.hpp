@@ -29,15 +29,13 @@
 
 #pragma once
 
-// Includes
 #include "ZComponent.hpp"
 #include "ZAnimation.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZAnimatorComponent : public ZComponent
 {
+
+    RTTR_ENABLE(ZComponent)
 
 public:
 

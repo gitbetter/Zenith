@@ -117,7 +117,7 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
         ZResource shaderResource(shaderPath, type);
         if (async)
         {
-            ZServices::ResourceCache()->RequestHandle(shaderResource);
+            ZServices::ResourceCache()->GetHandleAsync(shaderResource);
         }
         else
         {

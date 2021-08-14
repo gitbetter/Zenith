@@ -175,5 +175,5 @@ void ZServices::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
 void ZServices::LoadZOF(const std::string& zofPath)
 {
     ZResource zofResource(zofPath, ZResourceType::ZOF);
-    ZServices::ResourceCache()->RequestHandle(zofResource);
+    ZServices::ResourceCache()->GetHandleAsync(zofResource);
 }

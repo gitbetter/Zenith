@@ -52,6 +52,7 @@ std::shared_ptr<Type> Type::CreateIn(const std::shared_ptr<ZGameObject>& gameObj
 // Includes
 #include "ZIDSequence.hpp"
 #include "ZProcess.hpp"
+#include <rttr/type>
 
 // Forward Declarations
 class ZGameObject;
@@ -60,6 +61,7 @@ struct ZOFNode;
 // Class and Data Structure Definitions
 class ZComponent : public ZProcess
 {
+    RTTR_ENABLE()
 
     friend class ZGameObject;
 

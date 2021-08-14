@@ -48,8 +48,8 @@ void ZGrass::Initialize()
 {
     graphicsComp_ = std::static_pointer_cast<ZGraphicsComponent>(ZGraphicsComponent::CreateIn(shared_from_this()));
     graphicsComp_->Initialize();
-    graphicsComp_->DisableShadowCasting();
-    graphicsComp_->DisableLightingInfo();
+    graphicsComp_->SetIsShadowCaster(false);
+    graphicsComp_->SetHasLightingInfo(false);
 
     uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::UserDefined, sizeof(ZGrassUniforms));
     uniformBuffer_->Update(offsetof(ZGrassUniforms, windDirection), sizeof(windDirection_), glm::value_ptr(windDirection_));

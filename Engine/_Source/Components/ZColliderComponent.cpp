@@ -33,6 +33,8 @@
 #include "ZGameObject.hpp"
 #include "ZPhysicsComponent.hpp"
 
+#include <rttr/registration>
+
 ZColliderComponent::ZColliderComponent()
 {
     id_ = "ZCOMP_COLLIDER_" + std::to_string(idGenerator_.Next());
@@ -116,3 +118,9 @@ void ZColliderComponent::AddColliderIfNecessary()
 }
 
 DEFINE_COMPONENT_CREATORS(ZColliderComponent)
+
+RTTR_REGISTRATION
+{
+	using namespace rttr;
+	registration::class_<ZColliderComponent>("ZColliderComponent").constructor<>();
+}

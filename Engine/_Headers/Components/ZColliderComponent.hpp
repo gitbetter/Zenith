@@ -39,6 +39,8 @@ class ZCollider;
 class ZColliderComponent : public ZComponent
 {
 
+    RTTR_ENABLE(ZComponent)
+
 public:
 
     ZColliderComponent();

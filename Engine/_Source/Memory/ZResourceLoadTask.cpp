@@ -42,6 +42,7 @@ void ZResourceLoadTask::Run()
     if (!handle)
     {
         LOG("Could not find resource at path " + resource_.name, ZSeverity::Error);
+        return;
     }
 
     switch (resource_.type)
@@ -51,56 +52,44 @@ void ZResourceLoadTask::Run()
     case ZResourceType::TesselationShader:
     case ZResourceType::GeometryShader:
     {
-        if (handle)
-        {
-            std::shared_ptr<ZShaderResourceExtraData> extraData = std::make_shared<ZShaderResourceExtraData>();
-            handle->SetExtra(extraData);
-            extraData->code_ = std::string((char*) handle->Buffer());
+		std::shared_ptr<ZShaderResourceExtraData> extraData = std::make_shared<ZShaderResourceExtraData>();
+		handle->SetExtra(extraData);
+		extraData->code_ = std::string((char*)handle->Buffer());
 
-            switch (resource_.type)
-            {
-            case ZResourceType::VertexShader: extraData->type_ = ZShaderType::Vertex; break;
-            case ZResourceType::PixelShader: extraData->type_ = ZShaderType::Pixel; break;
-            case ZResourceType::TesselationShader: extraData->type_ = ZShaderType::Tesselation; break;
-            case ZResourceType::GeometryShader: extraData->type_ = ZShaderType::Geometry; break;
-            default: break;
-            }
-        }
+		switch (resource_.type)
+		{
+		case ZResourceType::VertexShader: extraData->type_ = ZShaderType::Vertex; break;
+		case ZResourceType::PixelShader: extraData->type_ = ZShaderType::Pixel; break;
+		case ZResourceType::TesselationShader: extraData->type_ = ZShaderType::Tesselation; break;
+		case ZResourceType::GeometryShader: extraData->type_ = ZShaderType::Geometry; break;
+		default: break;
+		}
         break;
     }
     case ZResourceType::ZOF:
     {
-        if (handle)
-        {
-            ZOFParser parser;
-            std::shared_ptr<ZZOFResourceExtraData> extraData = std::make_shared<ZZOFResourceExtraData>();
-            extraData->objectTree_ = parser.Parse(std::string((const char*)handle->Buffer()));
-            handle->SetExtra(extraData);
-        }
+        ZOFParser parser;
+        std::shared_ptr<ZZOFResourceExtraData> extraData = std::make_shared<ZZOFResourceExtraData>();
+        extraData->objectTree_ = parser.Parse(std::string((const char*)handle->Buffer()));
+        handle->SetExtra(extraData);
         break;
     }
     case ZResourceType::HDREquirectangularMap:
     case ZResourceType::HDRTexture:
     case ZResourceType::Texture:
     {
-        if (handle)
-        {
-            ZImageImporter::LoadImage(handle,
-                resource_.type == ZResourceType::HDRTexture || resource_.type == ZResourceType::HDREquirectangularMap,
-                resource_.type == ZResourceType::HDRTexture || resource_.type == ZResourceType::HDREquirectangularMap);
-        }
+        ZImageImporter::LoadImage(handle,
+            resource_.type == ZResourceType::HDRTexture || resource_.type == ZResourceType::HDREquirectangularMap,
+            resource_.type == ZResourceType::HDRTexture || resource_.type == ZResourceType::HDREquirectangularMap);
         break;
     }
     case ZResourceType::Model:
     {
-        if (handle)
-        {
-            ZModelImporter importer;
-            std::string modelDirectory = resource_.name.substr(0, resource_.name.find_last_of("/\\"));
-            std::shared_ptr<ZModelResourceExtraData> extraData = std::make_shared<ZModelResourceExtraData>();
-            extraData->meshMap_ = importer.LoadModel(handle, extraData->boneMap_, extraData->boneList_, extraData->animationMap_, extraData->skeleton_, modelDirectory);
-            handle->SetExtra(extraData);
-        }
+		ZModelImporter importer;
+		std::string modelDirectory = resource_.name.substr(0, resource_.name.find_last_of("/\\"));
+		std::shared_ptr<ZModelResourceExtraData> extraData = std::make_shared<ZModelResourceExtraData>();
+		extraData->meshMap_ = importer.LoadModel(handle, extraData->boneMap_, extraData->boneList_, extraData->animationMap_, extraData->skeleton_, modelDirectory);
+		handle->SetExtra(extraData);
         break;
     }
     default: break;

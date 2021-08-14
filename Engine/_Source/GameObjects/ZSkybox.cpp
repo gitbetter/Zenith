@@ -93,9 +93,9 @@ void ZSkybox::Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& 
     renderState_ = writer.End();
 
     auto skyboxGraphicsComponent = ZGraphicsComponent::CreateIn(shared_from_this());
-    skyboxGraphicsComponent->DisableAABB();
-    skyboxGraphicsComponent->DisableShadowCasting();
-    skyboxGraphicsComponent->DisableDepthInfo();
+    skyboxGraphicsComponent->SetHasAABB(false);
+    skyboxGraphicsComponent->SetIsShadowCaster(false);
+    skyboxGraphicsComponent->SetHasDepthInfo(false);
     skyboxGraphicsComponent->Initialize(
         ZCube::Create(glm::vec3(1.f, 1.f, 1.f))
     );

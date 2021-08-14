@@ -33,6 +33,8 @@
 #include "ZGameObject.hpp"
 #include "ZServices.hpp"
 
+#include <rttr/registration>
+
 ZIDSequence ZComponent::idGenerator_("ZCOMP");
 
 std::map<std::string, ZComponent::Creator> ZComponent::componentCreators_ = {
@@ -76,4 +78,10 @@ void ZComponent::CreateIn(const std::string& id, const std::shared_ptr<ZGameObje
     {
         LOG("Component " + type + " is not available for creation", ZSeverity::Warning);
     }
+}
+
+RTTR_REGISTRATION
+{
+	using namespace rttr;
+    registration::class_<ZComponent>("ZComponent");
 }

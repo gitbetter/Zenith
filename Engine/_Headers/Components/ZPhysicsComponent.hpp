@@ -40,6 +40,8 @@ class ZCollider;
 class ZPhysicsComponent : public ZComponent
 {
 
+    RTTR_ENABLE(ZComponent)
+
 public:
 
     ZPhysicsComponent();

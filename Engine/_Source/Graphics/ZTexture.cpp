@@ -66,7 +66,7 @@ void ZTexture::LoadAsync(const std::string& filename, const std::string& directo
     pendingTextureWrappings_[path] = wrapping;
 
     ZResource textureResource(path, type);
-    ZServices::ResourceCache()->RequestHandle(textureResource);
+    ZServices::ResourceCache()->GetHandleAsync(textureResource);
 }
 
 void ZTexture::CreateAsync(std::shared_ptr<ZOFTree> data, ZTextureIDMap& outPendingTextures)

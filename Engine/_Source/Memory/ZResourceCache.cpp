@@ -32,6 +32,13 @@
 #include "ZResourceLoadTask.hpp"
 #include "ZServices.hpp"
 
+// TODO: Huge overhaul impending. Plan is to use this implementation as just a resource loader interface, which will populate the corresponding
+// resource manager pool with the loaded data based on the resource type (if needed, such as with textures and models) and make the handle a lightweight integer based
+// handle that gets used to index into the corresponding resource pools when needed. This will make resource handling more efficient and easier to serialize in the future.
+// STEPS:
+// 1. Create Resource Managers for textures, shaders, models, and maybe even ZOF trees
+// 2. Using the ZResourceLoaderTask as a base, populate the corresponding Resource Managers and create the handles based on the new RM index + magic number
+
 ZResourceCache::ZResourceCache(const unsigned int sizeInMb)
 {
     cacheSize_ = sizeInMb * 1024 * 1024;
@@ -87,7 +94,7 @@ std::shared_ptr<ZResourceHandle> ZResourceCache::GetHandle(ZResource* resource)
     return handle;
 }
 
-void ZResourceCache::RequestHandle(const ZResource& resource)
+void ZResourceCache::GetHandleAsync(const ZResource& resource)
 {
     std::shared_ptr<ZResourceLoadTask> loadTask = std::make_shared<ZResourceLoadTask>(resource);
     loadTask->Start();

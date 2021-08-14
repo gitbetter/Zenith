@@ -29,14 +29,12 @@
 
 #pragma once
 
-// Includes
 #include "ZComponent.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZScriptComponent : public ZComponent
 {
+
+    RTTR_ENABLE(ZComponent)
 
 public:
 

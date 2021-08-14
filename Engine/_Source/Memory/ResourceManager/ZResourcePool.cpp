@@ -3,13 +3,13 @@
    ______     ______     __   __     __     ______   __  __
   /\___  \   /\  ___\   /\ "-.\ \   /\ \   /\__  _\ /\ \_\ \
   \/_/  /__  \ \  __\   \ \ \-.  \  \ \ \  \/_/\ \/ \ \  __ \
-    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
+    /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-  ZScriptComponent.cpp
+	ZResourcePool.hpp
 
-  Created by Adrian Sanchez on 30/03/2019.
-  Copyright © 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 08/10/2021.
+	Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,26 +27,4 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZScriptComponent.hpp"
-#include "ZGameObject.hpp"
-
-#include <rttr/registration>
-
-ZScriptComponent::ZScriptComponent()
-{
-    id_ = "ZCOMP_SCRIPT_" + std::to_string(idGenerator_.Next());
-}
-
-std::shared_ptr<ZComponent> ZScriptComponent::Clone()
-{
-    std::shared_ptr<ZScriptComponent> clone = std::make_shared<ZScriptComponent>();
-    return clone;
-}
-
-DEFINE_COMPONENT_CREATORS(ZScriptComponent)
-
-RTTR_REGISTRATION
-{
-	using namespace rttr;
-	registration::class_<ZScriptComponent>("ZScriptComponent").constructor<>();
-}
+#include "ZResourcePool.hpp"

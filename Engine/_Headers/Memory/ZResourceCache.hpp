@@ -29,20 +29,20 @@
 
 #pragma once
 
-// Includes
 #include "ZResourceHandle.hpp"
 #include "ZResourceLoader.hpp"
 #include "ZResourceFile.hpp"
 
-// Forward Declarations
 class ZResource;
 
-// Class and Data Structure Definitions
 using ResourceHandleList = std::list<std::shared_ptr<ZResourceHandle>>;
 using ResourceHandleMap = std::map<std::string, std::shared_ptr<ZResourceHandle>>;
 using ResourceFileMap = std::map<std::string, std::shared_ptr<ZResourceFile>>;
 using ResourceLoaderList = std::list<std::shared_ptr<ZResourceLoader>>;
 
+
+// TODO: Deprecate! Should only take care of loading resources
+// New class name: ZResourceImporter
 class ZResourceCache
 {
 
@@ -50,12 +50,13 @@ private:
 
     struct
     {
-        std::mutex allocated;
-        std::mutex lru;
         std::mutex resources;
         std::mutex resourceFiles;
         std::mutex resourceLoaders;
         std::mutex all;
+        // TODO: Deprecate!
+		std::mutex allocated;
+		std::mutex lru;
     } mutexes_;
 
 public:
@@ -69,27 +70,32 @@ public:
     void RegisterLoader(std::shared_ptr<ZResourceLoader> loader);
     void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
     std::shared_ptr<ZResourceHandle> GetHandle(ZResource* resource);
-    void RequestHandle(const ZResource& resource);
+    void GetHandleAsync(const ZResource& resource);
+
+    // TODO: Deprecate!
     int Preload(const std::string& pattern, void(*progressCallback)(int, bool&));
     void Flush();
     void FreeMemory(unsigned int size);
 
 protected:
 
-    ResourceHandleList lru_;
-    ResourceHandleMap resources_;
     ResourceLoaderList resourceLoaders_;
     ResourceFileMap resourceFiles_;
 
+    std::shared_ptr<ZResourceHandle> Load(ZResource* resource);
+    bool MatchPattern(const std::string& pattern, const std::string& str);
+
+    // TODO: Deprecate!
+    ResourceHandleList lru_;
+    ResourceHandleMap resources_;
+    // TODO: Deprecate!
     unsigned int cacheSize_;
     unsigned int allocated_;
 
+    // TODO: Deprecate!
     std::shared_ptr<ZResourceHandle> Find(ZResource* resource);
     const void Update(std::shared_ptr<ZResourceHandle> handle);
-    std::shared_ptr<ZResourceHandle> Load(ZResource* resource);
     void Free(std::shared_ptr<ZResourceHandle> handle);
-    bool MatchPattern(const std::string& pattern, const std::string& str);
-
     bool MakeRoom(unsigned int size);
     char* Allocate(unsigned int size);
     void FreeOneResource();

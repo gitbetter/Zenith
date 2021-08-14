@@ -104,7 +104,7 @@ void ZModel::Initialize(const std::shared_ptr<ZOFNode>& data)
 void ZModel::InitializeAsync()
 {
     ZResource modelResource(modelPath_, ZResourceType::Model);
-    ZServices::ResourceCache()->RequestHandle(modelResource);
+    ZServices::ResourceCache()->GetHandleAsync(modelResource);
 
     ZServices::EventAgent()->Subscribe(this, &ZModel::HandleModelLoaded);
 }

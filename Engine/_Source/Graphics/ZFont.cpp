@@ -46,7 +46,7 @@ void ZFont::LoadAsync(const std::string& fontPath, unsigned int fontSize)
 {
     InitializeFreeType();
     ZResource resource(fontPath, ZResourceType::Font);
-    ZServices::ResourceCache()->RequestHandle(resource);
+    ZServices::ResourceCache()->GetHandleAsync(resource);
 }
 
 void ZFont::CreateAsync(std::shared_ptr<ZOFTree> data, ZFontIDMap& outPendingFonts)

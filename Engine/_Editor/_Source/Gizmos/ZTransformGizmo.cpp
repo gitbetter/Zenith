@@ -163,8 +163,8 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
     arrowBase->SetRenderOrder(ZRenderLayer::UI);
     auto graphicsComp = ZGraphicsComponent::CreateIn(arrowBase);
     graphicsComp->Initialize(cylinder);
-    graphicsComp->DisableShadowCasting();
-    graphicsComp->DisableDepthInfo();
+    graphicsComp->SetIsShadowCaster(false);
+    graphicsComp->SetHasDepthInfo(false);
     graphicsComp->AddMaterial(arrowMaterial);
 
     auto arrowTop = ZGameObject::Create(
@@ -175,8 +175,8 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
     arrowTop->SetRenderOrder(ZRenderLayer::UI);
     graphicsComp = ZGraphicsComponent::CreateIn(arrowTop);
     graphicsComp->Initialize(cone);
-    graphicsComp->DisableShadowCasting();
-    graphicsComp->DisableDepthInfo();
+    graphicsComp->SetIsShadowCaster(false);
+    graphicsComp->SetHasDepthInfo(false);
     graphicsComp->AddMaterial(arrowMaterial);
 
     axisArrow->AddChild(arrowBase);

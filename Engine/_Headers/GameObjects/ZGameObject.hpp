@@ -116,6 +116,7 @@ public:
     std::shared_ptr<ZGameObject> Parent() const;
     std::string Name() const { return properties_.name; }
     ZRenderLayer RenderLayer() const { return properties_.renderOrder; }
+    const ZComponentList& Components() const { return components_; }
     virtual ZGameObjectList& Children() { return children_; }
     glm::vec3 Position();
     glm::vec3 Scale();

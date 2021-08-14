@@ -7,11 +7,9 @@
 
 #pragma once
 
-// Includes
 #include "ZComponent.hpp"
 #include "ZAABBox.hpp"
 
-// Forward Declarations
 class ZModel;
 class ZCamera;
 class ZMaterial;
@@ -20,9 +18,10 @@ class ZRenderStateGroup;
 class ZUniformBuffer;
 struct ZOFNode;
 
-// Class and Data Structure Definitions
 class ZGraphicsComponent : public ZComponent
 {
+
+    RTTR_ENABLE(ZComponent)
 
 public:
 
@@ -37,9 +36,12 @@ public:
 
     void Prepare(double deltaTime, const std::shared_ptr<ZRenderStateGroup>& additionalState = nullptr);
 
-    std::shared_ptr<ZModel> Model();
-    const ZMaterialList& Materials();
-    bool AABBEnabled() const { return hasAABB_; }
+    const std::shared_ptr<ZModel>& Model() const { return modelObject_; }
+    const ZMaterialList& Materials() const { return materials_; }
+    bool HasAABB() const { return hasAABB_; }
+    bool IsShadowCaster() const { return isShadowCaster_; }
+    bool HasDepthInfo() const { return hasDepthInfo_; }
+    bool HasLightingInfo() const { return hasLightingInfo_; }
     const ZAABBox& AABB() const { return bounds_; }
 
     void SetOutline(const glm::vec4& color = glm::vec4(0.5f, 0.5f, 0.1f, 1.f));
@@ -48,23 +50,13 @@ public:
     void SetGameLights(const ZLightList& lights) { gameLights_ = lights; }
     void SetGameCamera(const std::shared_ptr<ZCamera>& camera) { gameCamera_ = camera; }
     void SetModel(const std::shared_ptr<ZModel>& model);
+    void SetMaterials(const ZMaterialList& materials) { materials_ = materials; }
+    void SetHasAABB(bool hasAABB) { hasAABB_ = hasAABB; }
+    void SetIsShadowCaster(bool isShadowCaster) { isShadowCaster_ = isShadowCaster; }
+    void SetHasDepthInfo(bool hasDepthInfo) { hasDepthInfo_ = hasDepthInfo; }
+    void SetHasLightingInfo(bool hasLightingInfo) { hasLightingInfo_ = hasLightingInfo; }
 
     void AddMaterial(const std::shared_ptr<ZMaterial>& material);
-    
-    void EnableAABB() { hasAABB_ = true; }
-    void DisableAABB() { hasAABB_ = false; }
-
-    void EnableShadowCasting() { isShadowCaster_ = true; }
-    void DisableShadowCasting() { isShadowCaster_ = false; }
-
-    void EnableDepthInfo() { hasDepthInfo_ = true; }
-    void DisableDepthInfo() { hasDepthInfo_ = false; }
-
-    void EnableBVHTraversal() { isBoundsTraversable_ = true; }
-    void DisableBVHTraversal() { isBoundsTraversable_ = false; }
-
-    void EnableLightingInfo() { hasLightingInfo_ = true; }
-    void DisableLightingInfo() { hasLightingInfo_ = false; }
 
     bool IsVisible(ZFrustum frustrum);
 
@@ -91,7 +83,6 @@ protected:
     // TODO: Implement billboarding
     bool isBillboard_ = false;
     bool hasAABB_ = true;
-    bool isBoundsTraversable_ = true;
     bool isShadowCaster_ = true;
     bool hasDepthInfo_ = true;
     bool hasLightingInfo_ = true;

@@ -36,6 +36,8 @@
 #include "ZServices.hpp"
 #include "btBulletDynamicsCommon.h"
 
+#include <rttr/registration>
+
 ZPhysicsComponent::ZPhysicsComponent() : ZComponent()
 {
     id_ = "ZCOMP_PHYSICS_" + std::to_string(idGenerator_.Next());
@@ -217,3 +219,9 @@ bool ZPhysicsComponent::HasFiniteMass()
 }
 
 DEFINE_COMPONENT_CREATORS(ZPhysicsComponent)
+
+RTTR_REGISTRATION
+{
+	using namespace rttr;
+	registration::class_<ZPhysicsComponent>("ZPhysicsComponent").constructor<>();
+}

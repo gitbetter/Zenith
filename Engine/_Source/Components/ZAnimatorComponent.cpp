@@ -35,6 +35,8 @@
 #include "ZServices.hpp"
 #include "ZScene.hpp"
 
+#include <rttr/registration>
+
 ZAnimatorComponent::ZAnimatorComponent()
 {
     currentClip_.state = ZAnimationState::Invalid;
@@ -122,3 +124,9 @@ void ZAnimatorComponent::Stop()
 }
 
 DEFINE_COMPONENT_CREATORS(ZAnimatorComponent)
+
+RTTR_REGISTRATION
+{
+	using namespace rttr;
+    registration::class_<ZAnimatorComponent>("ZAnimatorComponent").constructor<>();
+}

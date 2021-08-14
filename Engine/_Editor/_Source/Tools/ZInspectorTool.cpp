@@ -35,6 +35,9 @@
 #include "ZGameObjectControls.hpp"
 #include "ZEditorObjectSelectedEvent.hpp"
 #include "ZFoldoutRegion.hpp"
+#include "ZGameObject.hpp"
+#include "ZComponent.hpp"
+#include <rttr/type>
 
 void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
@@ -77,5 +80,14 @@ void ZInspectorTool::HandleEditorObjectSelected(const std::shared_ptr<ZEditorObj
         gameObjectControls_->SetGameObject(selectedObject_);
         container_->AddChild(gameObjectControls_->Header());
         container_->AddChild(gameObjectControls_->TransformFields()->Container());
+
+        for (const auto& comp : selectedObject_->Components())
+        {
+            auto type = rttr::type::get(*comp.get());
+            for (auto prop : type.get_properties())
+            {
+                ILOG(prop.get_name().to_string());
+            }
+        }
     }
 }
