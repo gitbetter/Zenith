@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZDefaultResourceLoader.cpp
+	ZShaderResourceLoader.hpp
 
-    Created by Adrian Sanchez on 09/03/2019.
+	Created by Adrian Sanchez on 08/14/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,4 +27,4 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZDefaultResourceLoader.hpp"
+#include "ZShaderResourceLoader.hpp"

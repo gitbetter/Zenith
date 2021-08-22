@@ -1,38 +1,38 @@
-ZGO_EMPTY
+EMPTY > GameObject
     :position [0.0, 0.0, 0.0]:
     :scale [1.0, 1.0, 1.0]:
     :orientation [0.0, 0.0, 0.0]:
 ^
-ZGO_CUBE
+CUBE > GameObject
 	:position [0.0, 1.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
 	ZCOMP_GRAPHICS
 		:activeShader 0:
-		:shaders [ZSH_01]:
+		:shaders [SHADER_01]:
 		:model Cube [1.0, 1.0, 1.0]:
 	^
 ^
-ZGO_SPHERE
+SPHERE > GameObject
 	:position [0.0, 1.0, 0.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
 	ZCOMP_GRAPHICS
 		:activeShader 0:
-		:shaders [ZSH_01]:
+		:shaders [SHADER_01]:
 		:model Sphere [1.0, 1.0, 1.0]:
 	^
 ^
-ZGO_PLANE
+PLANE > GameObject
 	:position [0.0, 0.0, 0.0]:
 	:scale [50.0, 0.1, 50.0]:
 	ZCOMP_GRAPHICS
 		:activeShader 0:
-		:shaders [ZSH_01]:
+		:shaders [SHADER_01]:
 		:model Plane [1.0, 1.0, 1.0]:
 	^
 ^
-ZCAM_CAMERA
+CAMERA > Camera
 	:position [-5.0, 15.0, 50.0]:
 	:orientation [0.0, 0.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
@@ -40,7 +40,7 @@ ZCAM_CAMERA
 	:type Perspective:
 	:movementStyle Follow:
 ^
-ZLT_LIGHT
+LIGHT > Light
   :type Directional:
   :position [0.0, 0.0, 0.0]:
   :orientation [0.0, 0.0, 0.0]:

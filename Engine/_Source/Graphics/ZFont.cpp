@@ -37,16 +37,16 @@ bool ZFont::initialized_ = false;
 void ZFont::Load(const std::string& fontPath, unsigned int fontSize)
 {
     InitializeFreeType();
-    ZResource resource(fontPath, ZResourceType::Font);
-    std::shared_ptr<ZResourceHandle> handle = ZServices::ResourceCache()->GetHandle(&resource);
-    Load(handle, fontSize);
+    ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
+    ZServices::ResourceCache()->GetData(resource.get());
+    Load(resource.get(), fontSize);
 }
 
 void ZFont::LoadAsync(const std::string& fontPath, unsigned int fontSize)
 {
     InitializeFreeType();
-    ZResource resource(fontPath, ZResourceType::Font);
-    ZServices::ResourceCache()->GetHandleAsync(resource);
+    ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
+    ZServices::ResourceCache()->GetDataAsync(resource);
 }
 
 void ZFont::CreateAsync(std::shared_ptr<ZOFTree> data, ZFontIDMap& outPendingFonts)
@@ -60,7 +60,7 @@ void ZFont::Create(std::shared_ptr<ZOFTree> data, ZFontMap& outFontMap)
 
 ZFont::ptr ZFont::Create(const std::string& fontPath, unsigned int fontSize)
 {
-    // TODO: Switch on contant, variable or define to choose implementation
+    // TODO: Switch on constant, variable or define to choose implementation
     ZFont::ptr font = std::make_shared<ZGLFont>();
     font->Load(fontPath, fontSize);
     return font;
@@ -68,7 +68,7 @@ ZFont::ptr ZFont::Create(const std::string& fontPath, unsigned int fontSize)
 
 ZFont::ptr ZFont::CreateAsync(const std::string& fontPath, unsigned int fontSize)
 {
-    // TODO: Switch on contant, variable or define to choose implementation
+    // TODO: Switch on constant, variable or define to choose implementation
     ZFont::ptr font = std::make_shared<ZGLFont>();
     font->LoadAsync(fontPath, fontSize);
     return font;

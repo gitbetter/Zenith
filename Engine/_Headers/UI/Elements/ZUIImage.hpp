@@ -44,7 +44,6 @@ class ZUIImage : public ZUIElement
 private:
 
     std::string path_;
-    std::shared_ptr<ZTexture> pendingTexture_;
 
 public:
 
@@ -56,7 +55,7 @@ public:
     void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     void SetImage(const std::string& path);
-    void SetImage(const std::shared_ptr<ZTexture>& texture);
+    void SetImage(const ZHTexture& texture);
 
     DECLARE_UI_CREATORS(ZUIImage)
 

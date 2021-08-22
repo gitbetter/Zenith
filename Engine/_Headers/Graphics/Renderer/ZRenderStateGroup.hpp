@@ -93,7 +93,7 @@ public:
     void SetShader(const std::shared_ptr<ZShader>& shader);
     void BindUniformBuffer(const std::shared_ptr<ZUniformBuffer>& uniformBuffer);
     void BindVertexBuffer(const std::shared_ptr<ZVertexBuffer>& vertexBuffer);
-    void BindTexture(const std::shared_ptr<ZTexture>& texture);
+    void BindTexture(const ZHTexture& texture);
     void ClearTextures();
     void SetRenderLayer(ZRenderLayer layer);
     void SetFullScreenLayer(ZFullScreenLayer layer);

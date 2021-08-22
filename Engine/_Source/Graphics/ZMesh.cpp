@@ -33,7 +33,7 @@
 #include "ZMaterial.hpp"
 #include "ZRenderStateGroup.hpp"
 
-ZIDSequence ZMesh::idGenerator_("ZMSH");
+ZIDSequence ZMesh::idGenerator_;
 
 /****************** ZMesh2D ******************/
 

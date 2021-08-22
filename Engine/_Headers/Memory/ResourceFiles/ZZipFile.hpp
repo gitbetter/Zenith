@@ -29,14 +29,9 @@
 
 #pragma once
 
-// Includes
 #include "ZResourceFile.hpp"
 #include "zip.h"
 
-// Forward Declarations
-//class SomeClass;
-
-// Class and Data Structure Definitions
 class ZZipFile : public ZResourceFile
 {
 
@@ -51,8 +46,8 @@ public:
     ~ZZipFile() {}
     bool Open() override;
     std::string Name() const override { return fileName_; }
-    unsigned int RawResourceSize(const ZResource& resource) override;
-    unsigned int RawResource(const ZResource& resource, char* buffer) override;
+    unsigned int RawResourceSize(const std::string& resource) override;
+    unsigned int RawResource(const std::string& resource, char* buffer) override;
     unsigned int ResourceCount() const override;
     std::string ResourceName(unsigned int num) const override;
     void PrintResources() const override;

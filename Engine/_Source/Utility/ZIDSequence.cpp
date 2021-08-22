@@ -30,11 +30,3 @@
 #include "ZIDSequence.hpp"
 
 unsigned int ZIDSequence::MaxIDCount = 100000000;
-
-ZIDSequence::ZIDSequence(const std::string& seed)
-{
-    std::seed_seq seedSeq(seed.begin(), seed.end());
-    std::mt19937 generator;
-    generator.seed(seedSeq);
-    currentId_ = generator() % MaxIDCount;
-}

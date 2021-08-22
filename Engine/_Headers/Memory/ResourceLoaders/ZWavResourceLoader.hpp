@@ -29,14 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZResourceLoader.hpp"
+#include "ZResourceData.hpp"
 
-// Forward Declarations
-//class SomeClass;
-
-// Class and Data Structure Definitions
-class ZWavResourceLoader : public ZResourceLoader
+class ZWavResourceLoader : public ZResourceLoaderBase<ZAudioResourceData>
 {
 
 public:
@@ -45,10 +41,10 @@ public:
     std::string Pattern() override { return ".*\\.wav"; }
     bool UseRawFile() override { return false; };
     unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override;
-    bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
 
 protected:
 
-    bool ParseWav(char* wavStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle);
+    bool Load(char* rawBuffer, unsigned int rawSize, ZAudioResourceData* resource) override;
+    bool ParseWav(char* wavStream, unsigned int length, ZAudioResourceData* resource);
 
 };

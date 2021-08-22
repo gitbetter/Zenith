@@ -27,19 +27,18 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+ #include "ZServices.hpp"
 #include "ZRenderStateGroup.hpp"
 #include "ZUniformBuffer.hpp"
 #include "ZTexture.hpp"
 
 ZRenderStateGroup::ZRenderStateGroup()
 {
-    resourceState_.textures.fill(nullptr);
     resourceState_.uniformBuffers.fill(nullptr);
 }
 
 ZRenderStateGroup::~ZRenderStateGroup()
 {
-    resourceState_.textures.fill(nullptr);
     resourceState_.uniformBuffers.fill(nullptr);
 }
 
@@ -69,19 +68,20 @@ void ZRenderStateGroupWriter::BindVertexBuffer(const std::shared_ptr<ZVertexBuff
     currentStateGroup_->resourceState_.vertexBuffer = vertexBuffer;
 }
 
-void ZRenderStateGroupWriter::BindTexture(const std::shared_ptr<ZTexture>& texture)
+void ZRenderStateGroupWriter::BindTexture(const ZHTexture& texture)
 {
-    if (texture->type == "depth")
+    std::string type = ZServices::TextureManager()->Type(texture);
+    if (type == "depth")
         currentStateGroup_->resourceState_.textures[static_cast<uint8_t>(ZTextureBindPoint::Depth)] = texture;
-    else if (texture->type == "shadow" || texture->type == "shadowArray")
+    else if (type == "shadow" || type == "shadowArray")
         currentStateGroup_->resourceState_.textures[static_cast<uint8_t>(ZTextureBindPoint::Shadow)] = texture;
-    else if (texture->type == "color")
+    else if (type == "color")
         currentStateGroup_->resourceState_.textures[static_cast<uint8_t>(ZTextureBindPoint::Color)] = texture;
-    else if (texture->type == "irradiance")
+    else if (type == "irradiance")
         currentStateGroup_->resourceState_.textures[static_cast<uint8_t>(ZTextureBindPoint::Irradiance)] = texture;
-    else if (texture->type == "prefilter")
+    else if (type == "prefilter")
         currentStateGroup_->resourceState_.textures[static_cast<uint8_t>(ZTextureBindPoint::Prefilter)] = texture;
-    else if (texture->type == "lut")
+    else if (type == "lut")
         currentStateGroup_->resourceState_.textures[static_cast<uint8_t>(ZTextureBindPoint::BRDFLUT)] = texture;
     else {
         currentStateGroup_->resourceState_.textures[currentTextureBindPoint_] = texture;
@@ -92,7 +92,7 @@ void ZRenderStateGroupWriter::BindTexture(const std::shared_ptr<ZTexture>& textu
 
 void ZRenderStateGroupWriter::ClearTextures()
 {
-    currentStateGroup_->resourceState_.textures.fill(nullptr);
+    currentStateGroup_->resourceState_.textures.fill(ZHTexture());
 }
 
 void ZRenderStateGroupWriter::SetRenderLayer(ZRenderLayer layer)

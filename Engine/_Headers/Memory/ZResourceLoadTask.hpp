@@ -29,28 +29,23 @@
 
 #pragma once
 
-// Includes
 #include "ZConcurrentWorker.hpp"
-#include "ZResourceCache.hpp"
+#include "ZResourceImporter.hpp"
 
-// Forward Declarations
-//class SomeClass;
-
-// Class and Data Structure Definitions
 class ZResourceLoadTask : public ZConcurrentWorker
 {
 
-private:
-
-    ZResource resource_;
-
 public:
 
-    ZResourceLoadTask(const ZResource& resource) : ZConcurrentWorker(), resource_(resource) {}
+    ZResourceLoadTask(const ZResourceData::ptr& resource) : ZConcurrentWorker(), resource_(resource) {}
     ~ZResourceLoadTask() {}
 
 protected:
 
     void Run() override;
+
+private:
+
+    ZResourceData::ptr resource_;
 
 };

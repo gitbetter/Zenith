@@ -50,7 +50,7 @@ ZLight::ZLight(ZLightType lightType) : ZGameObject(glm::vec3(1.f))
 {
     type = lightType;
     properties.isEnabled = true;
-    id_ = "ZLT_" + std::to_string(idGenerator_.Next());
+    id_ = "Light_" + std::to_string(idGenerator_.Next());
 }
 
 void ZLight::Initialize()

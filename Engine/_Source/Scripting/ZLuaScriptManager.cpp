@@ -29,7 +29,7 @@
 
 #include "ZLuaScriptManager.hpp"
 #include "ZResource.hpp"
-#include "ZResourceCache.hpp"
+#include "ZResourceImporter.hpp"
 #include "ZServices.hpp"
 
 void ZLuaScriptManager::Initialize()

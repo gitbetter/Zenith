@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZResource.hpp
+    ZZofResourceLoader.hpp
 
-    Created by Adrian Sanchez on 08/03/2019.
+    Created by Adrian Sanchez on 09/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -29,21 +29,21 @@
 
 #pragma once
 
-// Includes
-#include "ZCommon.hpp"
+#include "ZResourceLoader.hpp"
+#include "ZResourceData.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
-class ZResource
+class ZZofResourceLoader : public ZResourceLoaderBase<ZZofResourceData>
 {
 
 public:
 
-    ZResourceType type;
-    std::string name;
+    ~ZZofResourceLoader() {}
+    std::string Pattern() override { return ".*\\.zof"; }
+    bool UseRawFile() override { return true; };
+    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
 
-    ZResource(const std::string& name, ZResourceType type);
-    ~ZResource() {}
+protected:
+
+    bool Load(char* rawBuffer, unsigned int rawSize, ZZofResourceData* resource) override { return true; }
 
 };

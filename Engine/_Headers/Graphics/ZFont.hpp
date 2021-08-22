@@ -42,7 +42,7 @@ struct ZAtlas
 {
     unsigned int width;
     unsigned int height;
-    ZTexture::ptr texture;
+    ZHTexture texture;
     std::map<unsigned char, ZCharacter> characterInfo;
 };
 
@@ -61,7 +61,7 @@ public:
     virtual void Load(const std::string& fontPath, unsigned int fontSize);
     virtual void LoadAsync(const std::string& fontPath, unsigned int fontSize);
 
-    virtual void Load(const std::shared_ptr<ZResourceHandle>& handle, unsigned int fontSize) = 0;
+    virtual void Load(ZResourceData* resource, unsigned int fontSize) = 0;
     virtual void SetSize(unsigned int size) = 0;
 
     static void CreateAsync(std::shared_ptr<ZOFTree> data, ZFontIDMap& outPendingFonts);

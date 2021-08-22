@@ -52,7 +52,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
-ZIDSequence ZUIElement::idGenerator_("ZUI");
+ZIDSequence ZUIElement::idGenerator_;
 
 ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f), projectionMatrix_(1.f)
 {
@@ -83,7 +83,7 @@ void ZUIElement::Initialize() {
     uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::UI, sizeof(ZUIUniforms));
 
     if (!options_.texture) {
-        SetTexture(ZTexture::Default());
+        SetTexture(ZServices::TextureManager()->Default());
     }
 
     SetRect(options_.rect);
@@ -187,9 +187,8 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
 
     if (props.find("texture") != props.end() && props["texture"]->HasValues())
     {
-        std::shared_ptr<ZOFString> texProp = props["texture"]->Value<ZOFString>(0);
-        if (ZServices::AssetStore()->HasTexture(texProp->value))
-            options_.texture = ZServices::AssetStore()->GetTexture(texProp->value);
+        std::shared_ptr<ZOFNumber> texProp = props["texture"]->Value<ZOFNumber>(0);
+        options_.texture = ZHTexture(texProp->value);
     }
 
     if (props.find("borderWidth") != props.end() && props["borderWidth"]->HasValues())
@@ -403,7 +402,7 @@ void ZUIElement::SetRotation(float angle)
     RecalculateModelMatrix();
 }
 
-void ZUIElement::SetTexture(const ZTexture::ptr& texture)
+void ZUIElement::SetTexture(const ZHTexture& texture)
 {
     options_.texture = texture;
 
@@ -635,7 +634,7 @@ void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool fo
             );
         }
         if (element->Scaling() == ZPositioning::Relative) {
-            // We want to lock the relative position of the rect if it is at or past its minimum or maximum sizse
+            // We want to lock the relative position of the rect if it is at or past its minimum or maximum size
             if (element->options_.calculatedRect.size.x <= element->options_.minSize.x
                 || element->options_.calculatedRect.size.y <= element->options_.minSize.y
                 || element->options_.calculatedRect.size.x >= element->options_.maxSize.x

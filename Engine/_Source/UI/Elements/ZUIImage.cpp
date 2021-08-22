@@ -80,25 +80,24 @@ void ZUIImage::SetImage(const std::string& path)
     {
         path_ = path;
         ZServices::EventAgent()->Subscribe(this, &ZUIImage::HandleTextureReady);
-        pendingTexture_ = ZTexture::CreateAsync(path, "");
+        ZServices::TextureManager()->CreateAsync(path, "");
     }
 }
 
-void ZUIImage::SetImage(const std::shared_ptr<ZTexture>& texture)
+void ZUIImage::SetImage(const ZHTexture& texture)
 {
     if (texture)
     {
-        texture->type = "color";
+        ZServices::TextureManager()->SetType(texture, "color");
         SetTexture(texture);
     }
 }
 
 void ZUIImage::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
-    if (event->Texture()->path == path_)
+    if (!event->Texture().IsNull())
     {
         SetImage(event->Texture());
-
         ZServices::EventAgent()->Unsubscribe(this, &ZUIImage::HandleTextureReady);
     }
 }

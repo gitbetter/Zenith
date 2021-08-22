@@ -38,7 +38,6 @@
 #include <assimp/material.h>
 
 // Forward Declarations
-struct ZTexture;
 struct ZSkeleton;
 struct ZJoint;
 struct ZBone;
@@ -62,7 +61,7 @@ private:
 public:
 
     ZMesh3DMap LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton);
-    ZMesh3DMap LoadModel(const std::shared_ptr<ZResourceHandle>& modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, const std::string& modelDirectory = "");
+    ZMesh3DMap LoadModel(class ZModelResourceData* const modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, const std::string& modelDirectory = "");
 
     glm::vec3 AssimpToGLMVec3(const aiVector3D& vec);
     glm::quat AssimpToGLMQuat(const aiQuaternion& quat);

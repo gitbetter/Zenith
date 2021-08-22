@@ -29,13 +29,8 @@
 
 #pragma once
 
-// Includes
-#include "ZResource.hpp"
+#include "ZCommon.hpp"
 
-// Forward Declarations
-// class SomeClass;
-
-// Class and Data Structure Definitions
 class ZResourceFile
 {
 
@@ -44,8 +39,8 @@ public:
     virtual ~ZResourceFile() {}
     virtual bool Open() = 0;
     virtual std::string Name() const = 0;
-    virtual unsigned int RawResourceSize(const ZResource& resource) = 0;
-    virtual unsigned int RawResource(const ZResource& resource, char* buffer) = 0;
+    virtual unsigned int RawResourceSize(const std::string& resource) = 0;
+    virtual unsigned int RawResource(const std::string& resource, char* buffer) = 0;
     virtual unsigned int ResourceCount() const = 0;
     virtual std::string ResourceName(unsigned int num) const = 0;
     virtual void PrintResources() const = 0;

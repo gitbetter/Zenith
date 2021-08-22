@@ -275,7 +275,7 @@ void ZEditorScene::Configure(ZEditorConfig config) {
 
     if (!config_.theme.font.empty()) {
         ZResource fontResource(config_.theme.font, ZResourceType::Font);
-        ZServices::ResourceCache()->GetHandleAsync(fontResource);
+        ZServices::ResourceCache()->GetDataAsync(fontResource);
     }
 
     Domain()->SetSizeLimits(

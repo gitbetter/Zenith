@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "ZCommon.hpp"
+#include <cassert>
 
 template <typename Tag>
 class ZHandle
@@ -59,8 +59,8 @@ class ZHandle
 
 public:
 
-    ZHandle()
-        : handle_(0)
+    ZHandle(unsigned int handle = 0)
+        : handle_(handle)
     { }
 
     void Initialize(unsigned int index);

@@ -40,7 +40,7 @@ class ZResourcePool
 {
 public:
 
-    ZResourcePool(unsigned int Size)
+    explicit ZResourcePool(unsigned int initialAllocationSize)
     {
         userData_.reserve(Size);
         magicNumbers_.reserve(Size);
@@ -80,7 +80,7 @@ public:
         freeSlots_.push_back(index);
     }
 
-    Data* Deref(const Handle& handle)
+    Data* Get(const Handle& handle)
     {
         if (handle.IsNull())
         {
@@ -97,7 +97,7 @@ public:
         return &(*(userData_.begin() + index));
     }
 
-    const Data* Deref(const Handle& handle) const
+    const Data* Get(const Handle& handle) const
     {
         using ThisType = ZResourcePool<Data, Handle>;
         return const_cast<ThisType*>(this)->Deref(handle);

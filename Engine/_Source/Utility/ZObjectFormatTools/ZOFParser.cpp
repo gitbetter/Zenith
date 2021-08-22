@@ -126,12 +126,27 @@ void ZOFParser::Object(std::shared_ptr<ZOFNode> node)
         objectNode->root = node;
         node->children[objectNode->id] = objectNode;
 
-        Match(id_); PropsList(objectNode); Match("^");
+        Match(id_); Match(">"); ObjectType(objectNode); PropsList(objectNode); Match("^");
     }
     else
     {
         HandleParseError(node);
     }
+}
+
+void ZOFParser::ObjectType(std::shared_ptr<ZOFObjectNode> node)
+{
+	if (std::regex_match(currentToken_, id_))
+	{
+		// Push a new object node onto the tree
+        node->type = ZOFObjectNode::StringToType(currentToken_);
+
+		Match(id_);
+	}
+	else
+	{
+		HandleParseError(node);
+	}
 }
 
 void ZOFParser::PropsList(std::shared_ptr<ZOFObjectNode> node)

@@ -29,19 +29,15 @@
 
 #pragma once
 
-// Includes
 #include "ZLight.hpp"
 
-// Forward Declarations
 class ZMaterial;
-class ZTexture;
 class ZResourceLoadedEvent;
 
-// Class and Data Structure Definitions
 class ZShader : public std::enable_shared_from_this<ZShader>
 {
 
-    using AttachmentsMap = std::unordered_map<std::string, std::shared_ptr<ZTexture>>;
+    using AttachmentsMap = std::unordered_map<std::string, ZHTexture>;
 
 public:
 
@@ -80,13 +76,13 @@ public:
     void Use(const ZBoneList& bones);
 
     void BindAttachments();
-    void BindAttachment(const std::string& uniformName, const std::shared_ptr<ZTexture>& attachment);
+    void BindAttachment(const std::string& uniformName, const ZHTexture& attachment);
 
     void SetAttachments(const AttachmentsMap& attachments) { attachments_ = attachments; }
-    void AddAttachment(const std::string& uniformName, const std::shared_ptr<ZTexture>& attachment) { attachments_[uniformName] = attachment; }
+    void AddAttachment(const std::string& uniformName, const ZHTexture& attachment) { attachments_[uniformName] = attachment; }
     void ClearAttachments();
 
-    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendingShaders);
+    static void CreateAsync(std::shared_ptr<struct ZOFTree> data, ZShaderIDMap& outPendingShaders);
     static void Create(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap);
     static std::shared_ptr<ZShader> Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "");
 

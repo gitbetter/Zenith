@@ -472,7 +472,8 @@ void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree)
     bool hasSkybox = false;
     for (ZOFChildMap::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++)
     {
-        if (it->first.find("ZSCENE") == 0)
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Scene)
         {
             std::shared_ptr<ZOFObjectNode> sceneDataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
             if (sceneDataNode->properties.find("name") != sceneDataNode->properties.end())
@@ -480,14 +481,16 @@ void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree)
                 name_ = sceneDataNode->properties["name"]->Value<ZOFString>(0)->value;
                 root_->SetName(name_);
             }
-        }
-        else if (it->first.find("ZTEX") == 0 || it->first.find("ZMOD") == 0 || it->first.find("ZSH") == 0 ||
-            /*it->first.find("ZSCR") == 0 ||*/ it->first.find("ZSKY") == 0)
+		}
+		else if (dataNode->type == ZOFObjectType::Texture || dataNode->type == ZOFObjectType::Model || dataNode->type == ZOFObjectType::Shader ||
+            dataNode->type == ZOFObjectType::Skybox)
         {
             std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
             pendingSceneObjects_.push_back(it->first);
-            if (it->first.find("ZSKY") == 0)
+            if (dataNode->type == ZOFObjectType::Skybox)
+            {
                 hasSkybox = true;
+            }
         }
     }
 
@@ -529,13 +532,17 @@ void ZScene::HandleWindowResize(const std::shared_ptr<ZWindowResizeEvent>& event
 
 void ZScene::HandleZOFReady(const std::shared_ptr<ZResourceLoadedEvent>& event)
 {
-    if (!event->Handle()) return;
-
-    if (pendingSceneDefinitions_.find(event->Handle()->Resource().name) != pendingSceneDefinitions_.end())
+    if (event->Resource() == nullptr)
     {
-        std::shared_ptr<ZZOFResourceExtraData> extraData = std::static_pointer_cast<ZZOFResourceExtraData>(event->Handle()->ExtraData());
-        LoadSceneData(extraData->ObjectTree());
-        pendingSceneDefinitions_.erase(event->Handle()->Resource().name);
+        return;
+    }
+
+    std::shared_ptr<ZZofResourceData> zofResource = std::static_pointer_cast<ZZofResourceData>(event->Resource());
+
+    if (pendingSceneDefinitions_.find(zofResource->path) != pendingSceneDefinitions_.end())
+    {
+        LoadSceneData(zofResource->objectTree);
+        pendingSceneDefinitions_.erase(zofResource->path);
         playState_ = ZPlayState::Loading;
     }
 
@@ -547,9 +554,9 @@ void ZScene::HandleZOFReady(const std::shared_ptr<ZResourceLoadedEvent>& event)
 
 void ZScene::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
-    auto texture = event->Texture();
+    ZHTexture textureHandle = event->Texture();
     std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
-    auto it = std::find(pendingSceneObjects_.begin(), pendingSceneObjects_.end(), texture->name);
+    auto it = std::find(pendingSceneObjects_.begin(), pendingSceneObjects_.end(), ZServices::TextureManager()->Name(textureHandle));
     if (it != pendingSceneObjects_.end())
     {
         pendingSceneObjects_.erase(it);

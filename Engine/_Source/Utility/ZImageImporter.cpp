@@ -29,41 +29,37 @@
 
 #include "ZServices.hpp"
 #include "ZImageImporter.hpp"
-#include "ZResourceExtraData.hpp"
+#include "ZResourceData.hpp"
 
 std::mutex ZImageImporter::importerMutex_;
 
-std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(const std::string& path, bool hdr, bool flipped)
+ZTextureResourceData::ptr ZImageImporter::LoadImage(const std::string& path, bool hdr, bool flipped)
 {
-    ZResource resource(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
-    std::shared_ptr<ZResourceHandle> handle = ZServices::ResourceCache()->GetHandle(&resource);
-    return LoadImage(handle, hdr, flipped);
+    ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
+    ZServices::ResourceCache()->GetData(resource.get());
+    LoadImage(resource.get(), hdr, flipped);
+    return resource;
 }
 
-std::shared_ptr<ZResourceHandle> ZImageImporter::LoadImage(const std::shared_ptr<ZResourceHandle>& handle, bool hdr, bool flipped)
+void ZImageImporter::LoadImage(ZTextureResourceData* resource, bool hdr, bool flipped)
 {
-    if (!handle) return nullptr;
+    if (resource == nullptr) return;
 
-    std::shared_ptr<ZTextureResourceExtraData> extraData = std::make_shared<ZTextureResourceExtraData>();
-    extraData->hdr_ = hdr;
-    extraData->flipped_ = flipped;
+    resource->hdr = hdr;
+    resource->flipped = flipped;
 
     importerMutex_.lock();
     stbi_set_flip_vertically_on_load(flipped);
 
     if (hdr)
     {
-        extraData->fData_ = stbi_loadf_from_memory((const stbi_uc*) handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 0);
+        resource->data = stbi_loadf_from_memory((const stbi_uc*) resource->buffer, resource->size, &resource->width, &resource->height, &resource->channels, 0);
     }
     else
     {
-        extraData->ucData_ = stbi_load_from_memory((const stbi_uc*) handle->Buffer(), handle->Size(), &extraData->width_, &extraData->height_, &extraData->channels_, 4);
+        resource->data = stbi_load_from_memory((const stbi_uc*) resource->buffer, resource->size, &resource->width, &resource->height, &resource->channels, 4);
     }
     importerMutex_.unlock();
-
-    handle->SetExtra(extraData);
-
-    return handle;
 }
 
 void ZImageImporter::FreeImageData(void* data)

@@ -46,7 +46,7 @@ ZCamera::ZCamera(const glm::vec3& position, const glm::quat& orientation, const 
     yaw_ = glm::quat(0.f, glm::vec3(0.f, 1.f, 0.f));
     pitchVelocity_ = glm::vec3(0.f);
     yawVelocity_ = glm::vec3(0.f);
-    id_ = "ZCAM_" + std::to_string(idGenerator_.Next());
+    id_ = "Camera_" + std::to_string(idGenerator_.Next());
 }
 
 void ZCamera::Initialize()

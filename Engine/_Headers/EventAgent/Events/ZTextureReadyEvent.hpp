@@ -42,15 +42,15 @@ class ZTextureReadyEvent : public ZEvent
 
 private:
 
-    std::shared_ptr<ZTexture> texture_;
+    ZHTexture texture_;
     std::shared_ptr<ZFramebuffer> bufferData_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZTextureReadyEvent(const std::shared_ptr<ZTexture>& texture) : texture_(texture) {}
-    explicit ZTextureReadyEvent(const std::shared_ptr<ZTexture>& texture, const std::shared_ptr<ZFramebuffer>& bufferData) : texture_(texture), bufferData_(bufferData) {}
+    explicit ZTextureReadyEvent(const ZHTexture& texture) : texture_(texture) {}
+    explicit ZTextureReadyEvent(const ZHTexture& texture, const std::shared_ptr<ZFramebuffer>& bufferData) : texture_(texture), bufferData_(bufferData) {}
     explicit ZTextureReadyEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
@@ -58,7 +58,7 @@ public:
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZTextureReadyEvent"; }
 
-    std::shared_ptr<ZTexture> Texture() { return texture_; }
+    ZHTexture Texture() { return texture_; }
     std::shared_ptr<ZFramebuffer> BufferData() { return bufferData_; }
 
 };

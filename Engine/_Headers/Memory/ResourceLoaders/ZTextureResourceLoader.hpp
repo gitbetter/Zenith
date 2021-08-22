@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZResource.cpp
+    ZTextureResourceLoader.hpp
 
-    Created by Adrian Sanchez on 08/03/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 08/14/2021.
+    Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,10 +27,23 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZResource.hpp"
+#pragma once
 
-ZResource::ZResource(const std::string& name, ZResourceType type)
+#include "ZResourceLoader.hpp"
+#include "ZResourceData.hpp"
+
+class ZTextureResourceLoader : public ZResourceLoaderBase<ZTextureResourceData>
 {
-    this->type = type;
-    this->name = name;
-}
+
+public:
+
+    ~ZTextureResourceLoader() {}
+    std::string Pattern() override { return ".*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.tiff|.*\\.bmp"; }
+    bool UseRawFile() override { return true; };
+    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
+
+protected:
+
+    bool Load(char* rawBuffer, unsigned int rawSize, ZTextureResourceData* resource) override { return true; }
+
+};

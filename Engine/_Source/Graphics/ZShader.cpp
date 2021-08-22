@@ -30,7 +30,7 @@
 #include "ZServices.hpp"
 #include "ZShader.hpp"
 #include "ZMaterial.hpp"
-#include "ZResource.hpp"
+#include "ZResourceData.hpp"
 #include "ZSkeleton.hpp"
 #include "ZTexture.hpp"
 #include "ZResourceLoadedEvent.hpp"
@@ -46,12 +46,12 @@
 // TODO: Make ZShader an interface, and rework this specific implementation as ZGLShader
 // which derives from the ZShader interface
 
-ZIDSequence ZShader::idGenerator_("ZSH");
+ZIDSequence ZShader::idGenerator_;
 
 ZShader::ZShader(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath)
     : vertexShaderPath_(vertexShaderPath), pixelShaderPath_(pixelShaderPath), geometryShaderPath_(geomShaderPath), loadedShadersMask_(0)
 {
-    name_ = "ZSH_" + std::to_string(idGenerator_.Next());
+    name_ = "Shader_" + std::to_string(idGenerator_.Next());
 }
 
 void ZShader::Initialize()
@@ -114,17 +114,17 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
 
     if (!shaderPath.empty())
     {
-        ZResource shaderResource(shaderPath, type);
+        ZShaderResourceData::ptr shaderResource = std::make_shared<ZShaderResourceData>(shaderPath, type);
         if (async)
         {
-            ZServices::ResourceCache()->GetHandleAsync(shaderResource);
+            ZServices::ResourceCache()->GetDataAsync(shaderResource);
         }
         else
         {
-            std::shared_ptr<ZResourceHandle> shaderHandle = ZServices::ResourceCache()->GetHandle(&shaderResource);
-            if (shaderHandle)
+            ZServices::ResourceCache()->GetData(shaderResource.get());
+            if (shaderResource->size > 0)
             {               
-                shaderCode = std::string((char*) shaderHandle->Buffer());
+                shaderCode = std::string(static_cast<char*>(shaderResource->buffer));
                 ProcessIncludes(shaderCode);
             }
         }
@@ -412,33 +412,36 @@ void ZShader::Use(const ZBoneList& bones)
 
 void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
 {
-    if (!event->Handle()) return;
-
-    std::shared_ptr<ZShaderResourceExtraData> extraData = std::static_pointer_cast<ZShaderResourceExtraData>(event->Handle()->ExtraData());
-
-    switch (event->Handle()->Resource().type)
+    if (event->Resource() == nullptr)
     {
-    case ZResourceType::VertexShader:
-        if (event->Handle()->Resource().name == vertexShaderPath_ && (loadedShadersMask_ & 1) == 0)
+        return;
+    }
+
+    std::shared_ptr<ZShaderResourceData> shaderResource = std::static_pointer_cast<ZShaderResourceData>(event->Resource());
+
+    switch (shaderResource->type)
+    {
+    case ZShaderType::Vertex:
+        if (shaderResource->path == vertexShaderPath_ && (loadedShadersMask_ & 1) == 0)
         {
             loadedShadersMask_ |= 1;
-            vertexShaderCode_ = extraData->Code();
+            vertexShaderCode_ = shaderResource->code;
             ProcessIncludes(vertexShaderCode_);
         }
         break;
-    case ZResourceType::PixelShader:
-        if (event->Handle()->Resource().name == pixelShaderPath_ && (loadedShadersMask_ & (1 << 1)) == 0)
+    case ZShaderType::Pixel:
+        if (shaderResource->path == pixelShaderPath_ && (loadedShadersMask_ & (1 << 1)) == 0)
         {
             loadedShadersMask_ |= 1 << 1;
-            pixelShaderCode_ = extraData->Code();
+            pixelShaderCode_ = shaderResource->code;
             ProcessIncludes(pixelShaderCode_);
         }
         break;
-    case ZResourceType::GeometryShader:
-        if (event->Handle()->Resource().name == geometryShaderPath_ && (loadedShadersMask_ & (1 << 2)) == 0)
+    case ZShaderType::Geometry:
+        if (shaderResource->path == geometryShaderPath_ && (loadedShadersMask_ & (1 << 2)) == 0)
         {
             loadedShadersMask_ |= 1 << 2;
-            geometryShaderCode_ = extraData->Code();
+            geometryShaderCode_ = shaderResource->code;
             ProcessIncludes(geometryShaderCode_);
         }
         break;
@@ -463,10 +466,11 @@ void ZShader::BindAttachments()
     }
 }
 
-void ZShader::BindAttachment(const std::string& uniformName, const std::shared_ptr<ZTexture>& attachment)
+void ZShader::BindAttachment(const std::string& uniformName, const ZHTexture& attachment)
 {
     attachments_[uniformName] = attachment;
-    attachment->Bind(attachmentIndex_);
+    // Before: attachment->Bind(attachmentIndex_);
+    // After:  ZServices::TextureManager()->Bind(attachment, attachmentIndex_);
     SetInt(uniformName, attachmentIndex_);
     ++attachmentIndex_;
 }
@@ -474,7 +478,8 @@ void ZShader::BindAttachment(const std::string& uniformName, const std::shared_p
 void ZShader::ClearAttachments()
 {
     for (const auto& [key, val] : attachments_) {
-        val->Unbind();
+        // Before: val->Unbind();
+        // After: ZServices::TextureManager()->Unbind(attachment);
     }
     attachments_.clear();
     attachmentIndex_ = 0;
@@ -484,13 +489,12 @@ void ZShader::CreateAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendin
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
-        if (it->first.find("ZSH") == 0)
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Shader)
         {
             std::string vertexPath = "", pixelPath = "", geometryPath = "";
 
-            std::shared_ptr<ZOFObjectNode> shaderNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-
-            for (ZOFPropertyMap::iterator it = shaderNode->properties.begin(); it != shaderNode->properties.end(); it++)
+            for (ZOFPropertyMap::iterator it = dataNode->properties.begin(); it != dataNode->properties.end(); it++)
             {
                 if (!it->second->HasValues()) continue;
 
@@ -517,13 +521,12 @@ void ZShader::Create(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap)
     ZShaderMap shaders;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
-        if (it->first.find("ZSH") == 0)
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Shader)
         {
             std::string vertexPath = "", pixelPath = "", geometryPath = "";
 
-            std::shared_ptr<ZOFObjectNode> shaderNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-
-            for (ZOFPropertyMap::iterator it = shaderNode->properties.begin(); it != shaderNode->properties.end(); it++)
+            for (ZOFPropertyMap::iterator it = dataNode->properties.begin(); it != dataNode->properties.end(); it++)
             {
                 if (!it->second->HasValues()) continue;
 

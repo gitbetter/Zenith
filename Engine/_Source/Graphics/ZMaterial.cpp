@@ -37,11 +37,11 @@
 #include "ZRenderStateGroup.hpp"
 #include "ZUniformBuffer.hpp"
 
-ZIDSequence ZMaterial::idGenerator_("ZMAT");
+ZIDSequence ZMaterial::idGenerator_;
 
 ZMaterial::ZMaterial()
 { 
-    id_ = "ZMAT_" + std::to_string(idGenerator_.Next());
+    id_ = "Material_" + std::to_string(idGenerator_.Next());
 }
 
 ZMaterial::ZMaterial(const ZMaterialProperties& materialProperties, const std::shared_ptr<ZShader>& shader) : ZMaterial()
@@ -225,14 +225,13 @@ void ZMaterial::Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outMaterialM
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
-        if (it->first.find("ZMAT") == 0)
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Material)
         {
-            std::shared_ptr<ZOFObjectNode> materialNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-
             auto material = std::make_shared<ZMaterial>();
             material->id_ = it->first;
 
-            for (ZOFPropertyMap::iterator matIt = materialNode->properties.begin(); matIt != materialNode->properties.end(); matIt++)
+            for (ZOFPropertyMap::iterator matIt = dataNode->properties.begin(); matIt != dataNode->properties.end(); matIt++)
             {
                 if (!matIt->second->HasValues()) continue;
 
@@ -280,14 +279,13 @@ void ZMaterial::CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPe
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
-        if (it->first.find("ZMAT") == 0)
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Material)
         {
-            std::shared_ptr<ZOFObjectNode> materialNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-
             auto material = std::make_shared<ZMaterial>();
             material->id_ = it->first;
 
-            for (ZOFPropertyMap::iterator matIt = materialNode->properties.begin(); matIt != materialNode->properties.end(); matIt++)
+            for (ZOFPropertyMap::iterator matIt = dataNode->properties.begin(); matIt != dataNode->properties.end(); matIt++)
             {
                 if (!matIt->second->HasValues()) continue;
 

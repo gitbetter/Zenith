@@ -122,6 +122,7 @@ struct ZOFPropertyNode : public ZOFNode
 struct ZOFObjectNode : public ZOFNode
 {
     ZOFPropertyMap properties;
+    ZOFObjectType type;
 
     ~ZOFObjectNode()
     {
@@ -137,7 +138,54 @@ struct ZOFObjectNode : public ZOFNode
         objString += "-" + NEWLINE;
         return objString;
     }
+
+    static ZOFObjectType StringToType(const std::string& type);
 };
+
+ZOFObjectType ZOFObjectNode::StringToType(const std::string& type)
+{
+    if (type == "GameObject")
+    {
+        return ZOFObjectType::GameObject;
+    }
+    if (type == "Light")
+    {
+        return ZOFObjectType::Light;
+    }
+	if (type == "Camera")
+	{
+		return ZOFObjectType::Camera;
+	}
+	if (type == "Grass")
+	{
+		return ZOFObjectType::Grass;
+	}
+	if (type == "Material")
+	{
+		return ZOFObjectType::Material;
+	}
+	if (type == "Texture")
+	{
+		return ZOFObjectType::Texture;
+	}
+	if (type == "Shader")
+	{
+		return ZOFObjectType::Shader;
+	}
+	if (type == "Model")
+	{
+		return ZOFObjectType::Model;
+	}
+	if (type == "Scene")
+	{
+		return ZOFObjectType::Scene;
+	}
+	if (type == "Skybox")
+	{
+		return ZOFObjectType::Skybox;
+	}
+    return ZOFObjectType::Any;
+}
 
 typedef ZOFValueTerminal<float> ZOFNumber;
 typedef ZOFValueTerminal<std::string> ZOFString;

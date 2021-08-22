@@ -143,19 +143,15 @@ unsigned int ZOggResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned in
     return bytes;
 }
 
-bool ZOggResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle)
+bool ZOggResourceLoader::Load(char* rawBuffer, unsigned int rawSize, ZAudioResourceData* resource)
 {
-    std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();
-    extra->soundType_ = ZSoundType::Ogg;
-    handle->SetExtra(extra);
-    if (!ParseOgg(rawBuffer, rawSize, handle)) return false;
+    resource->soundType = ZSoundType::Ogg;
+    if (!ParseOgg(rawBuffer, rawSize, resource)) return false;
     return true;
 }
 
-bool ZOggResourceLoader::ParseOgg(char* oggStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle)
+bool ZOggResourceLoader::ParseOgg(char* oggStream, unsigned int length, ZAudioResourceData* resource)
 {
-    std::shared_ptr<ZSoundResourceExtraData> extra = std::static_pointer_cast<ZSoundResourceExtraData>(handle->ExtraData());
-
     OggVorbis_File vf;
 
     ov_callbacks oggCallbacks;
@@ -175,14 +171,14 @@ bool ZOggResourceLoader::ParseOgg(char* oggStream, unsigned int length, std::sha
 
     vorbis_info* vi = ov_info(&vf, -1);
 
-    memset(&extra->wavFormatDesc_, 0, sizeof(ZWavFormatDesc));
-    extra->wavFormatDesc_.cbSize = sizeof(extra->wavFormatDesc_);
-    extra->wavFormatDesc_.channels = vi->channels;
-    extra->wavFormatDesc_.bitsPerSample = 16;
-    extra->wavFormatDesc_.samplesPerSec = vi->rate;
-    extra->wavFormatDesc_.avgBytesPerSec = extra->wavFormatDesc_.samplesPerSec * extra->wavFormatDesc_.channels * 2;
-    extra->wavFormatDesc_.blockAlign = extra->wavFormatDesc_.channels * 2;
-    extra->wavFormatDesc_.formatTag = 1;
+    memset(&resource->wavFormatDesc, 0, sizeof(ZWavFormatDesc));
+    resource->wavFormatDesc.cbSize = sizeof(resource->wavFormatDesc);
+    resource->wavFormatDesc.channels = vi->channels;
+    resource->wavFormatDesc.bitsPerSample = 16;
+    resource->wavFormatDesc.samplesPerSec = vi->rate;
+    resource->wavFormatDesc.avgBytesPerSec = resource->wavFormatDesc.samplesPerSec * resource->wavFormatDesc.channels * 2;
+    resource->wavFormatDesc.blockAlign = resource->wavFormatDesc.channels * 2;
+    resource->wavFormatDesc.formatTag = 1;
 
     unsigned long size = 4096 * 16, pos = 0;
     int sec = 0, ret = 1;
@@ -190,7 +186,7 @@ bool ZOggResourceLoader::ParseOgg(char* oggStream, unsigned int length, std::sha
     unsigned long bytes = (unsigned long) ov_pcm_total(&vf, -1);
     bytes *= 2 * vi->channels;
 
-    if (handle->Size() != bytes)
+    if (resource->size != bytes)
     {
         LOG("The OGG file size and the memory buffer size are not the same", ZSeverity::Error);
         ov_clear(&vf);
@@ -200,12 +196,12 @@ bool ZOggResourceLoader::ParseOgg(char* oggStream, unsigned int length, std::sha
 
     while (ret && pos < bytes)
     {
-        ret = ov_read(&vf, (char*) handle->FluidBuffer() + pos, size, 0, 2, 1, &sec);
+        ret = ov_read(&vf, (char*) resource->buffer + pos, size, 0, 2, 1, &sec);
         pos += ret;
         if (bytes - pos < size) size = bytes - pos;
     }
 
-    extra->lengthMilli_ = (int) (1000.f * ov_time_total(&vf, -1));
+    resource->lengthMilli = (int) (1000.f * ov_time_total(&vf, -1));
 
     ov_clear(&vf);
     delete vorbisMemoryFile;

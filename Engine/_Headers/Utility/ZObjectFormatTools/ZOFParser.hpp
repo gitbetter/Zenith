@@ -53,6 +53,7 @@ private:
     void Start(std::shared_ptr<ZOFTree> tree);
     void ObjectList(std::shared_ptr<ZOFTree> node);
     void Object(std::shared_ptr<ZOFTree> tree);
+    void ObjectType(std::shared_ptr<ZOFObjectNode> node);
     void PropsList(std::shared_ptr<ZOFObjectNode> node);
     void Prop(std::shared_ptr<ZOFObjectNode> node);
     void ValuesList(std::shared_ptr<ZOFPropertyNode> prop);

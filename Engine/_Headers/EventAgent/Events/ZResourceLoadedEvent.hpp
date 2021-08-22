@@ -29,32 +29,27 @@
 
 #pragma once
 
-// Includes
 #include "ZEvent.hpp"
 
-// Forward Declarations
-class ZResourceHandle;
-
-// Class and Data Structure Definitions
 class ZResourceLoadedEvent : public ZEvent
 {
 
 private:
 
-    std::shared_ptr<ZResourceHandle> handle_;
+    std::shared_ptr<class ZResourceData> resource_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZResourceLoadedEvent(std::shared_ptr<ZResourceHandle> handle) : handle_(handle) {}
+    explicit ZResourceLoadedEvent(std::shared_ptr<ZResourceData> resource) : resource_(resource) {}
     explicit ZResourceLoadedEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
-    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZResourceLoadedEvent>(new ZResourceLoadedEvent(handle_)); }
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZResourceLoadedEvent>(new ZResourceLoadedEvent(resource_)); }
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZResourceLoadedEvent"; }
 
-    std::shared_ptr<ZResourceHandle> Handle() { return handle_; }
+    std::shared_ptr<ZResourceData> Resource() { return resource_; }
 
 };

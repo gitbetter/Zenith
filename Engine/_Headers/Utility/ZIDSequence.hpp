@@ -29,15 +29,8 @@
 
 #pragma once
 
-// Includes
-#include <random>
-#include <string>
 #include <atomic>
 
-// Forward Declarations
-// class SomeClass;
-
-// Class and Data Structure Definitions
 class ZIDSequence
 {
 
@@ -45,15 +38,12 @@ public:
     
     static unsigned int MaxIDCount;
 
-    ZIDSequence(const std::string& seed);
-    ~ZIDSequence() {}
+public:
 
-    // TODO: Use a random number generator to sample from a
-    // list of tokens and use a few tokens as the prefix
     unsigned int Next() { return (currentId_++) % MaxIDCount; }
 
 private:
 
-    std::atomic_uint currentId_;
+    std::atomic_uint currentId_{ 0 };
 
 };

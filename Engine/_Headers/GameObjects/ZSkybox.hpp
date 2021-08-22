@@ -63,7 +63,7 @@ public:
 
     bool IsVisible() override { return true; }
 
-    ZIBLTexture IBLTexture() const { return iblTexture_; }
+    ZIBLTextureData IBLTexture() const { return iblTexture_; }
     const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
 
     DECLARE_OBJECT_CREATORS(ZSkybox)
@@ -71,7 +71,7 @@ public:
 protected:
 
     std::shared_ptr<ZTexture> pendingHDRTexture_;
-    ZIBLTexture iblTexture_;
+    ZIBLTextureData iblTexture_;
 
     std::shared_ptr<ZRenderStateGroup> renderState_;
 

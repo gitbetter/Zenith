@@ -45,8 +45,9 @@
 std::shared_ptr<ZGraphics> ZServices::graphics_ = nullptr;
 std::shared_ptr<ZInput> ZServices::input_ = nullptr;
 std::shared_ptr<ZEventAgent> ZServices::eventAgent_ = nullptr;
-std::shared_ptr<ZResourceCache> ZServices::resourceCache_ = nullptr;
+std::shared_ptr<ZResourceImporter> ZServices::resourceImporter_ = nullptr;
 std::shared_ptr<ZScriptManager> ZServices::scriptManager_ = nullptr;
+std::shared_ptr<ZTextureManager> ZServices::textureManager_ = nullptr;
 std::shared_ptr<ZAssetStore> ZServices::assetStore_ = nullptr;
 std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
@@ -56,7 +57,7 @@ void ZServices::Initialize()
 {
     if (!initialized_) {
         /* ========= Resource Cache System ============ */
-        Provide(std::make_shared<ZResourceCache>(256));
+        Provide(std::make_shared<ZResourceImporter>());
         /* ============================================ */
 
         /* ========= Event System ============ */
@@ -122,21 +123,18 @@ void ZServices::Provide(const std::shared_ptr<ZInput>& input)
     ZServices::ProcessRunner()->AttachProcess(input_);
 }
 
-void ZServices::Provide(const std::shared_ptr<ZResourceCache>& resourceCache)
+void ZServices::Provide(const std::shared_ptr<ZResourceImporter>& resourceCache)
 {
-    if (resourceCache_)
-        resourceCache_->CleanUp();
+    if (resourceImporter_)
+        resourceImporter_->CleanUp();
 
-    resourceCache_ = resourceCache;
-    resourceCache_->Initialize();
+    resourceImporter_ = resourceCache;
+    resourceImporter_->Initialize();
 #ifdef DEV_BUILD
-    resourceCache_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(ENGINE_ROOT) + "/_Assets")));
+    resourceImporter_->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(ENGINE_ROOT) + "/_Assets")));
 #else
-    resourceCache_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile(std::string(ENGINE_ROOT) + "/_Assets.zip")));
+    resourceImporter_->RegisterResourceFile(std::shared_ptr<ZZipFile>(new ZZipFile(std::string(ENGINE_ROOT) + "/_Assets.zip")));
 #endif
-    resourceCache_->RegisterLoader(std::shared_ptr<ZScriptResourceLoader>(new ZScriptResourceLoader));
-    resourceCache_->RegisterLoader(std::shared_ptr<ZWavResourceLoader>(new ZWavResourceLoader));
-    resourceCache_->RegisterLoader(std::shared_ptr<ZOggResourceLoader>(new ZOggResourceLoader));
 }
 
 void ZServices::Provide(const std::shared_ptr<ZEventAgent>& eventAgent)
@@ -157,16 +155,29 @@ void ZServices::Provide(const std::shared_ptr<ZScriptManager>& scriptManager)
     scriptManager_->Initialize();
     // We don't need to do anything with this resource. The resource loader
     // will load and execute the script for us.
-    if (resourceCache_) {
-        ZResource luaSetupScript("/Scripts/init.lua", ZResourceType::Script);
-        resourceCache_->GetHandle(&luaSetupScript);
+    if (resourceImporter_) {
+        ZScriptResourceData::ptr luaSetupScriptResource = std::make_shared<ZScriptResourceData>("/Scripts/init.lua", ZResourceType::Script);
+        resourceImporter_->GetData(luaSetupScriptResource.get());
     }
+}
+
+void ZServices::Provide(const std::shared_ptr<ZTextureManager>& textureManager)
+{
+	if (textureManager_)
+	{
+        textureManager_->CleanUp();
+	}
+
+    textureManager_ = textureManager;
+    textureManager_->Initialize();
 }
 
 void ZServices::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
 {
     if (assetStore_)
+    {
         assetStore_->CleanUp();
+    }
 
     assetStore_ = assetStore;
     assetStore_->Initialize();
@@ -174,6 +185,6 @@ void ZServices::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
 
 void ZServices::LoadZOF(const std::string& zofPath)
 {
-    ZResource zofResource(zofPath, ZResourceType::ZOF);
-    ZServices::ResourceCache()->GetHandleAsync(zofResource);
+    ZZofResourceData::ptr zofResource = std::make_shared<ZZofResourceData>(zofPath, ZResourceType::ZOF);
+    ZServices::ResourceCache()->GetDataAsync(zofResource);
 }

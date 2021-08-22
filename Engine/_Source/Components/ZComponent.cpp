@@ -35,7 +35,7 @@
 
 #include <rttr/registration>
 
-ZIDSequence ZComponent::idGenerator_("ZCOMP");
+ZIDSequence ZComponent::idGenerator_;
 
 std::map<std::string, ZComponent::Creator> ZComponent::componentCreators_ = {
     { "GRAPHICS", &ZComponent::CreateGraphicsComponent },

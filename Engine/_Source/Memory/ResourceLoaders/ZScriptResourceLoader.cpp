@@ -30,7 +30,7 @@
 #include "ZServices.hpp"
 #include "ZScriptResourceLoader.hpp"
 
-bool ZScriptResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle)
+bool ZScriptResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, ZScriptResourceData* resource)
 {
     if (rawSize <= 0) return false;
     ZServices::ScriptManager()->ExecuteString(rawBuffer);

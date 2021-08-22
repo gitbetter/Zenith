@@ -29,14 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZResourceLoader.hpp"
+#include "ZResourceData.hpp"
 
-// Forward Declarations
-//class SomeClass;
-
-// Class and Data Structure Definitions
-class ZOggResourceLoader : public ZResourceLoader
+class ZOggResourceLoader : public ZResourceLoaderBase<ZAudioResourceData>
 {
 
 public:
@@ -45,10 +41,10 @@ public:
     std::string Pattern() override { return ".*\\.ogg"; }
     bool UseRawFile() override { return false; };
     unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override;
-    bool LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle) override;
 
 protected:
 
-    bool ParseOgg(char* oggStream, unsigned int length, std::shared_ptr<ZResourceHandle> handle);
+    bool Load(char* rawBuffer, unsigned int rawSize, ZAudioResourceData* resource) override;
+    bool ParseOgg(char* oggStream, unsigned int length, ZAudioResourceData* resource);
 
 };

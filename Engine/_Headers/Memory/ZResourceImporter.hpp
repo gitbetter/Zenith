@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZScriptResourceLoader.hpp
+    ZResourceImporter.hpp
 
-    Created by Adrian Sanchez on 24/03/2019.
+    Created by Adrian Sanchez on 08/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -29,21 +29,50 @@
 
 #pragma once
 
-#include "ZResourceLoader.hpp"
+#include "ZCommon.hpp"
 #include "ZResourceData.hpp"
+#include "ZResourceHandle.hpp"
+#include "ZResourceLoader.hpp"
+#include "ZResourceFile.hpp"
 
-class ZScriptResourceLoader : public ZResourceLoaderBase<ZScriptResourceData>
+using ResourceFileMap = std::map<std::string, std::shared_ptr<ZResourceFile>>;
+using ResourceLoaderList = std::list<std::shared_ptr<ZIResourceLoader>>;
+
+class ZResourceImporter
 {
 
 public:
 
-    ~ZScriptResourceLoader() {}
-    std::string Pattern() override { return ".*\\.lua"; }
-    bool UseRawFile() override { return false; };
-    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
+    ZResourceImporter() = default;
+    ~ZResourceImporter();
+
+    void Initialize();
+    void CleanUp() { }
+
+    void RegisterResourceFile(std::shared_ptr<ZResourceFile> file);
+	void RegisterLoader(std::shared_ptr<ZIResourceLoader> loader);
+
+    void GetData(ZResourceData* resource);
+    void GetDataAsync(const std::shared_ptr<ZResourceData>& resource);
 
 protected:
 
-    bool Load(char* rawBuffer, unsigned int rawSize, ZScriptResourceData* resource) override;
+    ResourceLoaderList resourceLoaders_;
+    ResourceFileMap resourceFiles_;
+
+protected:
+
+    void Load(ZResourceData* resource);
+    bool MatchPattern(const std::string& pattern, const std::string& str);
+
+private:
+
+    struct
+    {
+        std::mutex resources;
+        std::mutex resourceFiles;
+        std::mutex resourceLoaders;
+        std::mutex all;
+    } mutexes_;
 
 };

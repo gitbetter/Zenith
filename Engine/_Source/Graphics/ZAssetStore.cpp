@@ -84,7 +84,7 @@ void ZAssetStore::Load(std::shared_ptr<ZOFTree> root)
     ZMaterialMap materials; ZFontMap fonts;
 
     ZFont::Create(root, fonts);
-    ZTexture::Create(root, textures);
+    ZServices::TextureManager()->Create(root, textures);
     ZShader::Create(root, shaders);
     ZModel::Create(root, models);
     ZMaterial::Create(root, materials, textures);
@@ -120,7 +120,7 @@ void ZAssetStore::LoadAsync(std::shared_ptr<ZOFTree> root)
     ZMaterialMap loadedMaterials; ZModelMap loadedModels;
 
     ZFont::CreateAsync(root, pendingFonts_);
-    ZTexture::CreateAsync(root, pendingTextures_);
+    ZServices::TextureManager()->CreateAsync(root);
     ZShader::CreateAsync(root, pendingShaders_);
     ZModel::CreateAsync(root, pendingModels_, loadedModels);
     ZMaterial::CreateAsync(root, pendingMaterials_, loadedMaterials);
@@ -243,12 +243,13 @@ void ZAssetStore::HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& ev
 
 void ZAssetStore::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
-    if (pendingTextures_.find(event->Texture()) != pendingTextures_.end())
+    if (event->Texture().IsNull())
     {
-        ZTexture::ptr texture = event->Texture();
-        AddTexture(pendingTextures_[texture], texture);
-        pendingTextures_.erase(texture);
+        return;
     }
+
+	ZTexture::ptr texture = event->Texture();
+	AddTexture(texture->id, texture);
 }
 
 void ZAssetStore::HandleModelReady(const std::shared_ptr<ZModelReadyEvent>& event)

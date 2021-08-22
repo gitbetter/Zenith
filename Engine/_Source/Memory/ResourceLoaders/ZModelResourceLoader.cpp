@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZScriptResourceLoader.hpp
+    ZModelResourceLoader.cpp
 
-    Created by Adrian Sanchez on 24/03/2019.
+    Created by Adrian Sanchez on 09/03/2019.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -27,23 +27,4 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include "ZResourceLoader.hpp"
-#include "ZResourceData.hpp"
-
-class ZScriptResourceLoader : public ZResourceLoaderBase<ZScriptResourceData>
-{
-
-public:
-
-    ~ZScriptResourceLoader() {}
-    std::string Pattern() override { return ".*\\.lua"; }
-    bool UseRawFile() override { return false; };
-    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
-
-protected:
-
-    bool Load(char* rawBuffer, unsigned int rawSize, ZScriptResourceData* resource) override;
-
-};
+#include "ZModelResourceLoader.hpp"

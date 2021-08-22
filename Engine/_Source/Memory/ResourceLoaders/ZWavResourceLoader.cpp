@@ -94,19 +94,16 @@ unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned in
     return 0;
 }
 
-bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, std::shared_ptr<ZResourceHandle> handle)
+bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, ZAudioResourceData* resource)
 {
-    std::shared_ptr<ZSoundResourceExtraData> extra = std::make_shared<ZSoundResourceExtraData>();
-    extra->soundType_ = ZSoundType::Wav;
-    handle->SetExtra(extra);
-    if (!ParseWav(rawBuffer, rawSize, handle)) return false;
+    resource->soundType = ZSoundType::Wav;
+    if (!ParseWav(rawBuffer, rawSize, resource)) return false;
     return true;
 }
 
 
-bool ZWavResourceLoader::ParseWav(char* wavStream, unsigned int bufferLength, std::shared_ptr<ZResourceHandle> handle)
+bool ZWavResourceLoader::ParseWav(char* wavStream, unsigned int bufferLength, ZAudioResourceData* resource)
 {
-    std::shared_ptr<ZSoundResourceExtraData> extra = std::static_pointer_cast<ZSoundResourceExtraData>(handle->ExtraData());
     unsigned long file = 0, fileEnd = 0, length = 0, type = 0;
     unsigned long pos = 0;
 
@@ -121,7 +118,7 @@ bool ZWavResourceLoader::ParseWav(char* wavStream, unsigned int bufferLength, st
 
     fileEnd = length - 4;
 
-    memset(&extra->wavFormatDesc_, 0, sizeof(ZWavFormatDesc));
+    memset(&resource->wavFormatDesc, 0, sizeof(ZWavFormatDesc));
 
     bool copiedBuffer = false;
     while (file < fileEnd)
@@ -141,8 +138,8 @@ bool ZWavResourceLoader::ParseWav(char* wavStream, unsigned int bufferLength, st
         }
         case MAKEFOURCC('f', 'm', 't', ' '):
         {
-            memcpy(&extra->wavFormatDesc_, wavStream + pos, length); pos += length;
-            extra->wavFormatDesc_.cbSize = (unsigned short) length;
+            memcpy(&resource->wavFormatDesc, wavStream + pos, length); pos += length;
+            resource->wavFormatDesc.cbSize = (unsigned short) length;
             break;
         }
         case MAKEFOURCC('L', 'I', 'S', 'T'):
@@ -154,12 +151,12 @@ bool ZWavResourceLoader::ParseWav(char* wavStream, unsigned int bufferLength, st
         case MAKEFOURCC('d', 'a', 't', 'a'):
         {
             copiedBuffer = true;
-            if (length != handle->Size())
+            if (length != resource->size)
             {
                 LOG("Resource size and buffer size do not match", ZSeverity::Error);
                 return 0;
             }
-            memcpy(handle->FluidBuffer(), wavStream + pos, length); pos += length;
+            memcpy(resource->buffer, wavStream + pos, length); pos += length;
             break;
         }
         }
@@ -168,7 +165,7 @@ bool ZWavResourceLoader::ParseWav(char* wavStream, unsigned int bufferLength, st
 
         if (copiedBuffer)
         {
-            extra->lengthMilli_ = (handle->Size() * 1000) / extra->wavFormatDesc_.avgBytesPerSec;
+            resource->lengthMilli = (resource->size * 1000) / resource->wavFormatDesc.avgBytesPerSec;
             return true;
         }
 

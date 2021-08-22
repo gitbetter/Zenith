@@ -44,7 +44,7 @@
 #include "ZUniformBuffer.hpp"
 #include "ZRenderStateGroup.hpp"
 
-ZIDSequence ZModel::idGenerator_("ZMOD");
+ZIDSequence ZModel::idGenerator_;
 
 ZModel::ZModel(const std::string& path)
     : modelPath_(path)
@@ -103,8 +103,8 @@ void ZModel::Initialize(const std::shared_ptr<ZOFNode>& data)
 
 void ZModel::InitializeAsync()
 {
-    ZResource modelResource(modelPath_, ZResourceType::Model);
-    ZServices::ResourceCache()->GetHandleAsync(modelResource);
+    ZResourceData::ptr modelResource = std::make_shared<ZResourceData>(modelPath_, ZResourceType::Model);
+    ZServices::ResourceCache()->GetDataAsync(modelResource);
 
     ZServices::EventAgent()->Subscribe(this, &ZModel::HandleModelLoaded);
 }
@@ -271,17 +271,20 @@ glm::vec3 ZModel::CalculateInterpolatedPosition(double animationTime, std::share
 
 void ZModel::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
 {
-    if (!event->Handle()) return;
-
-    std::shared_ptr<ZModelResourceExtraData> extraData = std::static_pointer_cast<ZModelResourceExtraData>(event->Handle()->ExtraData());
-
-    if (event->Handle()->Resource().name == modelPath_)
+    if (event->Resource() == nullptr)
     {
-        meshes_ = extraData->Meshes();
-        bonesMap_ = extraData->BoneMap();
-        bones_ = extraData->Bones();
-        animations_ = extraData->Animations();
-        skeleton_ = extraData->Skeleton();
+        return;
+    }
+
+    std::shared_ptr<ZModelResourceData> modelResource = std::static_pointer_cast<ZModelResourceData>(event->Resource());
+
+    if (modelResource->path == modelPath_)
+    {
+        meshes_ = modelResource->meshMap;
+        bonesMap_ = modelResource->boneMap;
+        bones_ = modelResource->boneList;
+        animations_ = modelResource->animationMap;
+        skeleton_ = modelResource->skeleton;
 
         for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++)
             it->second->Initialize();
@@ -299,18 +302,18 @@ void ZModel::Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap)
     ZModelMap models;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
-        if (it->first.find("ZMOD") == 0)
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Model)
         {
-            std::shared_ptr<ZOFObjectNode> modelNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-            if (modelNode->properties.find("type") != modelNode->properties.end())
+            if (dataNode->properties.find("type") != dataNode->properties.end())
             {
-                std::shared_ptr<ZOFString> typeProp = modelNode->properties["type"]->Value<ZOFString>(0);
+                std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
                 std::shared_ptr<ZModel> model = ZModel::Create(typeProp->value, it->second);
                 model->id_ = it->first;
                 models[model->id_] = model;
             }
-            else if (modelNode->properties.find("path") != modelNode->properties.end()) {
-                std::shared_ptr<ZOFString> pathProp = modelNode->properties["path"]->Value<ZOFString>(0);
+            else if (dataNode->properties.find("path") != dataNode->properties.end()) {
+                std::shared_ptr<ZOFString> pathProp = dataNode->properties["path"]->Value<ZOFString>(0);
                 std::shared_ptr<ZModel> model = ZModel::CreateExternal(pathProp->value);
                 model->id_ = it->first;
                 models[model->id_] = model;
@@ -324,20 +327,20 @@ void ZModel::CreateAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingM
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
-        if (it->first.find("ZMOD") == 0)
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Model)
         {
             std::string path;
-            std::shared_ptr<ZOFObjectNode> modelNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-            if (modelNode->properties.find("type") != modelNode->properties.end())
+            if (dataNode->properties.find("type") != dataNode->properties.end())
             {
-                std::shared_ptr<ZOFString> typeProp = modelNode->properties["type"]->Value<ZOFString>(0);
+                std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
                 std::shared_ptr<ZModel> model = ZModel::Create(typeProp->value, it->second);
                 model->id_ = it->first;
                 outModelMap[model->id_] = model;
             }
-            if (modelNode->properties.find("path") != modelNode->properties.end())
+            if (dataNode->properties.find("path") != dataNode->properties.end())
             {
-                std::shared_ptr<ZOFString> pathStr = modelNode->properties["path"]->Value<ZOFString>(0);
+                std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
                 std::shared_ptr<ZModel> model = ZModel::CreateExternal(pathStr->value, true);
                 model->id_ = it->first;
                 outPendingModels[model] = it->first;

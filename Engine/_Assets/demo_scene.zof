@@ -1,8 +1,8 @@
-ZSCENE :name "Demo": ^
+ZSCENE > Scene :name "Demo": ^
 
 # Game objects
 
-ZGO_GROUND
+GROUND > GameObject
 	:position [0.0, 0.0, 0.0]:
 	:scale [25.0, 0.1, 25.0]:
 	ZCOMP_PHYSICS
@@ -14,12 +14,12 @@ ZGO_GROUND
         :extents [1.0, 1.0, 1.0]:
     ^
 	ZCOMP_GRAPHICS
-		:model ZMOD_02:
-		:materials [ZMAT_01]:
+		:model MODEL_02:
+		:materials [MATERIAL_01]:
 	^
 ^
 
-ZGO_14
+GAMEOBJECT_14 > GameObject
     :position [3.3, 1.5, -5.8]:
     :scale [1.0, 1.0, 1.0]:
     :orientation [-90.0, 30.0, 0.0]:
@@ -35,13 +35,13 @@ ZGO_14
         :extents [0.4, 0.4, 0.4]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_WOLF:
-        :materials [ZMAT_02]:
+        :model WOLF:
+        :materials [MATERIAL_02]:
     ^
     ZCOMP_ANIMATOR ^
 ^
 
-ZGO_ROCK_01
+ROCK_01 > GameObject
     :position [-6.0, 2.0, 0.5]:
     :scale [0.5, 0.5, 0.5]:
     :orientation [-90.0, 0.0, 0.0]:
@@ -58,12 +58,12 @@ ZGO_ROCK_01
         :offset [0.0, 0.0, 0.25]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_04:
-		:materials [ZMAT_01]:
+        :model MODEL_04:
+		:materials [MATERIAL_01]:
     ^
 ^
 
-ZGO_ROCK_02
+ROCK_02 > GameObject
     :position [-4.0, 2.0, 0.75]:
     :scale [0.5, 0.5, 0.5]:
     :orientation [0.0, 0.0, 0.0]:
@@ -80,12 +80,12 @@ ZGO_ROCK_02
         :offset [0.0, 0.0, 0.25]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_04:
-        :materials [ZMAT_01]:
+        :model MODEL_04:
+        :materials [MATERIAL_01]:
     ^
 ^
 
-ZGO_ROCK_04
+ROCK_04 > GameObject
     :position [2.0, 2.0, -2.75]:
     :scale [0.6, 0.6, 0.6]:
     :orientation [0.0, 0.0, 0.0]:
@@ -102,12 +102,12 @@ ZGO_ROCK_04
         :offset [0.0, 0.0, 0.15]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_04:
-		:materials [ZMAT_01]:
+        :model MODEL_04:
+		:materials [MATERIAL_01]:
     ^
 ^
 
-ZGO_ROCK_05
+ROCK_05 > GameObject
     :position [2.0, 2.0, 5.75]:
     :scale [0.5, 0.5, 0.5]:
     :orientation [0.0, 90.0, 0.0]:
@@ -124,12 +124,12 @@ ZGO_ROCK_05
         :offset [0.0, 0.0, 0.15]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_04:
-		:materials [ZMAT_01]:
+        :model MODEL_04:
+		:materials [MATERIAL_01]:
     ^
 ^
 
-ZGO_ROCK_06
+ROCK_06 > GameObject
     :position [9.0, 2.0, 5.75]:
     :scale [0.4, 0.4 0.4]:
     :orientation [0.0, 0.0, 0.0]:
@@ -146,12 +146,12 @@ ZGO_ROCK_06
         :offset [0.0, 0.0, 0.15]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_04:
-		:materials [ZMAT_01]:
+        :model MODEL_04:
+		:materials [MATERIAL_01]:
     ^
 ^
 
-ZGO_ROCK_07
+ROCK_07 > GameObject
     :position [-9.0, 2.0, -5.75]:
     :scale [0.4, 0.4 0.4]:
     :orientation [0.0, 0.0, 0.0]:
@@ -168,11 +168,11 @@ ZGO_ROCK_07
         :offset [0.0, 0.0, 0.15]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_04:
-		:materials [ZMAT_01]:
+        :model MODEL_04:
+		:materials [MATERIAL_01]:
     ^
 ^
-ZGO_ROCK_08
+ROCK_08 > GameObject
     :position [-8.5, 2.0, -6.75]:
     :scale [0.2, 0.2 0.2]:
     :orientation [0.0, 0.0, 0.0]:
@@ -189,11 +189,11 @@ ZGO_ROCK_08
         :offset [0.0, 0.0, 0.15]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_04:
-		:materials [ZMAT_01]:
+        :model MODEL_04:
+		:materials [MATERIAL_01]:
     ^
 ^
-ZGO_ROCK_09
+ROCK_09 > GameObject
     :position [6.5, 2.0, -9.0]:
     :scale [0.6, 0.6 0.6]:
     :orientation [0.0, 0.0, 0.0]:
@@ -210,22 +210,22 @@ ZGO_ROCK_09
         :offset [0.0, 0.0, 0.15]:
     ^
     ZCOMP_GRAPHICS
-        :model ZMOD_04:
-		:materials [ZMAT_01]:
+        :model MODEL_04:
+		:materials [MATERIAL_01]:
     ^
 ^
 
-ZGR_MEADOW
+MEADOW > Grass
     :position [3.3, -0.05, -5.0]:
 	:scale [0.1, 0.1, 0.1]:
-	:texture ZTEX_GRASS:
+	:texture GRASS:
 	:instances 50.0:
 	:spacingStyle Random:
 	:windDirection [1.0, 0.0, 0.0]:
 	:windStrength 5.0:
 ^
 
-ZCAM_01
+CAMERA_01 > Camera
 	:position [-1.4, 1.0, -5.0]:
 	:orientation [0.0, 160.0, 0.0]:
 	:scale [1.0, 1.0, 1.0]:
@@ -239,7 +239,7 @@ ZCAM_01
 
 # Lights
 
-ZLT_01
+LIGHT_01 > Light
   :type Directional:
   :orientation [45.0, 25.0, 33.0]:
   :ambient [0.2, 0.2, 0.2]:
@@ -248,34 +248,34 @@ ZLT_01
 
 # Shaders
 
-ZSH_02
+SHADER_02 > Shader
 	:vertex "/Shaders/Vertex/blinnphong.vert":
 	:pixel "/Shaders/Pixel/outline.frag":
 ^
 
 # Textures
 
-ZTEX_GRASS
+GRASS > Texture
 	:path "/Textures/Grass/albedo.png":
 	:type albedo:
 ^
 
 # Models
 
-ZMOD_WOLF
+WOLF > Model
 	:path "/Models/wolf.dae":
 ^
 
-ZMOD_04
+MODEL_04 > Model
     :path "/Models/rock.fbx":
 ^
 
-ZMOD_02
+MODEL_02 > Model
     :type Cube:
     :size [1.0, 1.0, 1.0]:
 ^
 
-ZMOD_03
+MODEL_03 > Model
     :type Sphere:
     :radius 1.0:
     :isSmooth Yes:
@@ -284,10 +284,10 @@ ZMOD_03
 
 # Materials
 
-ZMAT_01
+MATERIAL_01 > Material
 	:albedo [0.8, 0.8, 0.8]:
 ^
 
-ZMAT_02
+MATERIAL_02 > Material
 	:albedo [1.0, 0.2, 0.1]:
 ^

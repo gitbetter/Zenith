@@ -29,7 +29,7 @@
 
 #include "ZServices.hpp"
 #include "ZModelImporter.hpp"
-#include "ZResource.hpp"
+#include "ZResourceData.hpp"
 #include "ZSkeleton.hpp"
 #include "ZAnimation.hpp"
 #include <assimp/Importer.hpp>
@@ -45,19 +45,19 @@ ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& out
     std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
 
     // Cache in the model data from the given file
-    ZResource resource(modelPath, ZResourceType::Model);
-    std::shared_ptr<ZResourceHandle> handle = ZServices::ResourceCache()->GetHandle(&resource);
+    ZModelResourceData::ptr resource = std::make_shared<ZModelResourceData>(modelPath, ZResourceType::Model);
+    ZServices::ResourceCache()->GetData(resource.get());
 
-    return LoadModel(handle, outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
+    return LoadModel(resource.get(), outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
 }
 
-ZMesh3DMap ZModelImporter::LoadModel(const std::shared_ptr<ZResourceHandle>& modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, const std::string& modelDirectory)
+ZMesh3DMap ZModelImporter::LoadModel(ZModelResourceData* const resource, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, const std::string& modelDirectory)
 {
     ZMesh3DMap meshes;
 
     // TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
     Assimp::Importer import;
-    const aiScene* scene = import.ReadFileFromMemory((const void*) modelHandle->Buffer(), (size_t) modelHandle->Size(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene* scene = import.ReadFileFromMemory((const void*)resource->buffer, (size_t)resource->size, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     // The file might have incomplete data or no nodes to traverse. Handle that.
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)

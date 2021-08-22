@@ -28,12 +28,11 @@
 */
 
 #include "ZResourceHandle.hpp"
-#include "ZResourceCache.hpp"
+#include "ZResourceImporter.hpp"
 
-ZResourceHandle::ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache) : resource_(resource), size_(size)
+ZResourceHandle::ZResourceHandle(ZResource& resource, void* buffer, unsigned int size) : resource_(resource), size_(size)
 {
     buffer_ = buffer;
-    resourceCache_ = resourceCache;
 }
 
 ZResourceHandle::~ZResourceHandle()

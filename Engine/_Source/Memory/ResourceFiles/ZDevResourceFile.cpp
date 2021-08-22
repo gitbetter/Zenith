@@ -46,18 +46,18 @@ bool ZDevResourceFile::Open()
     return true;
 }
 
-unsigned int ZDevResourceFile::RawResourceSize(const ZResource& resource)
+unsigned int ZDevResourceFile::RawResourceSize(const std::string& resource)
 {
-    auto it = assetIndices_.find(resource.name);
+    auto it = assetIndices_.find(resource);
     if (it == assetIndices_.end())
         return 0;
 
     return assets_[it->second].size();
 }
 
-unsigned int ZDevResourceFile::RawResource(const ZResource& resource, char* buffer)
+unsigned int ZDevResourceFile::RawResource(const std::string& resource, char* buffer)
 {
-    auto it = assetIndices_.find(resource.name);
+    auto it = assetIndices_.find(resource);
     if (it == assetIndices_.end())
         return 0;
 

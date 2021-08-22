@@ -97,7 +97,7 @@ struct ZUIElementOptions
     glm::vec4                                color{ 0.0f };
     float                                    opacity{ 1.f };
     std::shared_ptr<ZShader>                 shader{ nullptr };
-    ZTexture::ptr                            texture;
+    ZHTexture                                texture;
     ZUIBorder                                border;
     std::shared_ptr<ZUILayout>               layout;
 };
@@ -137,7 +137,7 @@ public:
     glm::vec4                           Color() const { return  options_.color; }
     float                               Opacity() const { return  options_.opacity; }
     glm::vec4                           TranslationBounds() const { return  options_.translationBounds; }
-    const ZTexture::ptr&                Texture() const { return  options_.texture; }
+    const ZHTexture&                    Texture() const { return  options_.texture; }
     const ZUIBorder&                    Border() const { return options_.border; }
     const std::shared_ptr<ZShader>&     Shader() const { return  options_.shader; }
     const ZUIElementMap&                Children() const { return children_; }
@@ -157,7 +157,7 @@ public:
     void                                SetMaxSize(const glm::vec2& size);
     void                                SetPosition(const glm::vec2& position, const ZRect& relativeTo = ZRect());
     void                                SetRotation(float angle);
-    void                                SetTexture(const ZTexture::ptr& texture);
+    void                                SetTexture(const ZHTexture& texture);
     void                                SetBorder(const ZUIBorder& border);
     virtual void                        SetColor(const glm::vec4& newColor);
     void                                SetOpacity(float opacity, bool relativeToAlpha = false);

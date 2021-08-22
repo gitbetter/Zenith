@@ -32,92 +32,114 @@
 #include "ZCommon.hpp"
 #include "ZOFTree.hpp"
 #include "ZHandle.hpp"
+#include "ZResourcePool.hpp"
 
 class ZResourceHandle;
 class ZFramebuffer;
 class ZResourceLoadedEvent;
-struct ZIBLTexture;
+struct ZIBLTextureData;
 
-struct TextureTag { };
-using ZHTexture = ZHandle<TextureTag>;
-
-class ZTexture : public std::enable_shared_from_this<ZTexture>
+struct ZTexture
 {
+	unsigned int id{ 0 };
+	unsigned int index{ 0 };
+	ZTextureWrapping wrapping{ ZTextureWrapping::Repeat };
+	std::string name;
+	std::string type;
+	std::string path;
+	bool multisampled{ false };
 
-public:
-
-    using ptr = std::shared_ptr<ZTexture>;
-
-    unsigned int id = 0;
-    std::string name;
-    std::string type;
-    std::string path;
-    bool multisampled = false;
-    ZTextureWrapping wrapping;
-
-    ZTexture();
-    virtual ~ZTexture() = default;
-
-    virtual void Initialize();
-
-    virtual void LoadAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);
-    virtual void Load(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
-
-    virtual void LoadDefault() = 0;
-    virtual void LoadCubeMap(const std::vector<std::string>& faces) = 0;
-    virtual void LoadCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZFramebuffer>& bufferData) = 0;
-    virtual void LoadEmptyCubeMap(ZCubemapTextureType textureType = ZCubemapTextureType::Normal) = 0;
-    virtual void LoadHDRIAsync(const std::string& hdriPath) = 0;
-    virtual void LoadHDRI(const std::string& hdriPath, std::shared_ptr<ZFramebuffer>& bufferData) = 0;
-    virtual void LoadIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture) = 0;
-    virtual void LoadPrefilterCubeMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture) = 0;
-    virtual void LoadBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferData) = 0;
-    virtual void Load(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) = 0;
-    virtual void LoadEmptyLUT() = 0;
-    virtual void LoadColor(const glm::vec2& size, bool multisample = false) = 0;
-    virtual void LoadDepth(const glm::vec2& size) = 0;
-    virtual void LoadDepthArray(const glm::vec2& size, int layers) = 0;
-
-    virtual void Resize(unsigned int width, unsigned int height) = 0;
-    virtual void Bind(unsigned int index) = 0;
-    virtual void Unbind() = 0;
-    virtual void Delete() = 0;
-
-    static void Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);
-    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZTextureIDMap& outPendingTextures);
-    static ptr Create();
-    static ptr Create(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
-    static ptr Create(std::shared_ptr<ZResourceHandle> handle, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
-    static ptr CreateAsync(const std::string& path, const std::string& directory, ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);
-    static ptr CreateDefault();
-    static ptr CreateEmptyLUT();
-    static ptr CreateColor(const glm::vec2& size, bool multisample = false);
-    static ptr CreateDepth(const glm::vec2& size);
-    static ptr CreateDepthArray(const glm::vec2& size, int layers);
-    static ptr CreateCubeMap(const std::vector<std::string>& faces);
-    static ptr CreateCubeMap(const ZTexture::ptr& hdrTexture, std::shared_ptr<ZFramebuffer>& bufferData);
-    static ptr CreateEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal);
-    static ptr CreateHDRIAsync(const std::string& hdriPath);
-    static ptr CreateHDRI(const std::string& hdriPath, std::shared_ptr<ZFramebuffer>& bufferData);
-    static ptr CreateIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture);
-    static ptr CreatePrefilterMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZTexture::ptr& cubemapTexture);
-    static ptr CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferData);
-    static ZIBLTexture CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const std::shared_ptr<ZTexture>& cubemap);
-
-    static ptr Default();
+	ZTexture();
 
 private:
 
-    static std::map<std::string, ZTextureWrapping> pendingTextureWrappings_;
-
-    void HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
+	static ZIDSequence idGenerator_;
 
 };
 
-struct ZIBLTexture
+struct ZIBLTextureData
 {
-    ZTexture::ptr cubeMap;
-    ZTexture::ptr irradiance;
-    ZTexture::ptr prefiltered;
-    ZTexture::ptr brdfLUT;
+	ZHTexture cubeMap;
+	ZHTexture irradiance;
+	ZHTexture prefiltered;
+	ZHTexture brdfLUT;
+};
+
+class ZTextureManager
+{
+
+    using ZTexturePool = ZResourcePool<ZTexture, ZHTexture>;
+
+public:
+
+    ZTextureManager();
+    virtual ~ZTextureManager() = default;
+
+    ZHTexture Default();
+
+    ZHTexture Create();
+    void Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);
+    ZHTexture Create(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
+    void CreateAsync(std::shared_ptr<ZOFTree> data);
+    void CreateAsync(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);
+    ZIBLTextureData CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const ZHTexture& cubemap);
+
+	bool IsLoaded(const std::string& name);
+	ZHTexture GetFromName(const std::string& name);
+
+	std::string Name(const ZHTexture& handle);
+	std::string Type(const ZHTexture& handle);
+	std::string Path(const ZHTexture& handle);
+	bool IsMultisampled(const ZHTexture& handle);
+	ZTextureWrapping Wrapping(const ZHTexture& handle);
+
+	void SetName(const ZHTexture& handle, const std::string& name);
+	void SetType(const ZHTexture& handle, const std::string& type);
+	void SetPath(const ZHTexture& handle, const std::string& path);
+	bool SetIsMultisampled(const ZHTexture& handle, bool multisampled);
+	ZTextureWrapping SetWrapping(const ZHTexture& handle, ZTextureWrapping wrapping);
+
+public:
+
+    virtual void Initialize();
+	virtual void CleanUp();
+
+	virtual ZHTexture Create(class ZTextureResourceData* resource, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) = 0;
+	virtual ZHTexture CreateDefault() = 0;
+	virtual ZHTexture CreateEmptyLUT() = 0;
+	virtual ZHTexture CreateColor(const glm::vec2& size, bool multisample = false) = 0;
+	virtual ZHTexture CreateDepth(const glm::vec2& size) = 0;
+	virtual ZHTexture CreateDepthArray(const glm::vec2& size, int layers) = 0;
+	virtual ZHTexture CreateCubeMap(const std::vector<std::string>& faces) = 0;
+	virtual ZHTexture CreateCubeMap(const ZHTexture& hdrTexture, std::shared_ptr<ZFramebuffer>& bufferData) = 0;
+	virtual ZHTexture CreateEmptyCubeMap(ZCubemapTextureType type = ZCubemapTextureType::Normal) = 0;
+	virtual ZHTexture CreateHDRI(const std::string& hdriPath, std::shared_ptr<ZFramebuffer>& bufferData) = 0;
+	virtual void CreateHDRIAsync(const std::string& hdriPath) = 0;
+	virtual ZHTexture CreateIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZHTexture& cubemapTexture) = 0;
+	virtual ZHTexture CreatePrefilterMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZHTexture& cubemapTexture) = 0;
+	virtual ZHTexture CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferData) = 0;
+
+    virtual void Resize(const ZHTexture& handle, unsigned int width, unsigned int height) = 0;
+    virtual void Bind(const ZHTexture& handle, unsigned int index) = 0;
+    virtual void Unbind(const ZHTexture& handle) = 0;
+    virtual void Delete(const ZHTexture& handle) = 0;
+
+
+protected:
+
+    ZTexturePool texturePool_;
+	ZTextureMap loadedTextures_;
+
+    std::map<std::string, ZTextureWrapping> pendingTextureWrappings_;
+	std::map<std::string, std::string> pendingTextureTypes_;
+
+protected:
+
+	/** Adds a texture to the internal loaded texture map so that we don't accidentally recreate duplicates of the texture */
+	void TrackTexture(const ZHTexture& handle);
+
+private:
+
+    void HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
+
 };

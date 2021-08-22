@@ -119,7 +119,6 @@ protected:
 
 private:
 
-    ZTextureIDMap pendingTextures_;
     ZShaderIDMap pendingShaders_;
     ZModelIDMap pendingModels_;
     ZFontIDMap pendingFonts_;

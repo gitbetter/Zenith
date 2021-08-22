@@ -39,7 +39,7 @@ class ZGLFont : public ZFont
 
 public:
 
-    void Load(const std::shared_ptr<ZResourceHandle>& handle, unsigned int fontSize) override;
+    void Load(ZResourceData* resource, unsigned int fontSize) override;
     void SetSize(unsigned int size) override;
 
 };

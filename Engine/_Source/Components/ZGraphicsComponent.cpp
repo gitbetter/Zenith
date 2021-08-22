@@ -98,10 +98,7 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     if (props.find("model") != props.end() && props["model"]->HasValues())
     {
         std::shared_ptr<ZOFString> nameProp = props["model"]->Value<ZOFString>(0);
-        if (nameProp->value.find("ZMOD") != std::string::npos)
-        {
-            model_ = nameProp->value;
-        }
+        model_ = nameProp->value;
     }
 
     if (props.find("materials") != props.end() && props["materials"]->HasValues())

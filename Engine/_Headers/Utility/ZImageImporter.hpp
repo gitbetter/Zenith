@@ -29,14 +29,9 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 #include "stb_image.hpp"
 
-// Forward Declarations
-class ZResourceHandle;
-
-// Class and Data Structure Definitions
 class ZImageImporter
 {
 
@@ -46,8 +41,8 @@ private:
 
 public:
 
-    static std::shared_ptr<ZResourceHandle> LoadImage(const std::string& path, bool hdr = false, bool flipped = true);
-    static std::shared_ptr<ZResourceHandle> LoadImage(const std::shared_ptr<ZResourceHandle>& handle, bool hdr = false, bool flipped = true);
+    static ZTextureResourceData::ptr LoadImage(const std::string& path, bool hdr = false, bool flipped = true);
+    static void LoadImage(class ZTextureResourceData* resource, bool hdr = false, bool flipped = true);
     static void FreeImageData(void* data);
 
 };

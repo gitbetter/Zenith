@@ -43,19 +43,19 @@ bool ZZipFile::Open()
     return true;
 }
 
-unsigned int ZZipFile::RawResourceSize(const ZResource& resource)
+unsigned int ZZipFile::RawResourceSize(const std::string& resource)
 {
-    zip_entry_open(zipFile_, resource.name.c_str());
+    zip_entry_open(zipFile_, resource.c_str());
     unsigned int size = zip_entry_size(zipFile_);
     zip_entry_close(zipFile_);
     return size;
 }
 
-unsigned int ZZipFile::RawResource(const ZResource& resource, char* buffer)
+unsigned int ZZipFile::RawResource(const std::string& resource, char* buffer)
 {
     if (zipFile_)
     {
-        zip_entry_open(zipFile_, resource.name.c_str());
+        zip_entry_open(zipFile_, resource.c_str());
         size_t bytes = zip_entry_size(zipFile_);
         zip_entry_noallocread(zipFile_, (void*) buffer, bytes);
         zip_entry_close(zipFile_);

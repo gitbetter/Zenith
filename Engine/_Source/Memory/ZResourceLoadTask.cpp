@@ -37,64 +37,55 @@
 
 void ZResourceLoadTask::Run()
 {
-    std::shared_ptr<ZResourceHandle> handle = ZServices::ResourceCache()->GetHandle(&resource_);
+    ZServices::ResourceCache()->GetData(resource_.get());
 
-    if (!handle)
+    if (resource_->size == 0)
     {
-        LOG("Could not find resource at path " + resource_.name, ZSeverity::Error);
+        LOG("Could not find resource at path " + resource_->path, ZSeverity::Error);
         return;
     }
 
-    switch (resource_.type)
+    switch (resource_->type)
     {
     case ZResourceType::VertexShader:
     case ZResourceType::PixelShader:
     case ZResourceType::TesselationShader:
     case ZResourceType::GeometryShader:
     {
-		std::shared_ptr<ZShaderResourceExtraData> extraData = std::make_shared<ZShaderResourceExtraData>();
-		handle->SetExtra(extraData);
-		extraData->code_ = std::string((char*)handle->Buffer());
-
-		switch (resource_.type)
-		{
-		case ZResourceType::VertexShader: extraData->type_ = ZShaderType::Vertex; break;
-		case ZResourceType::PixelShader: extraData->type_ = ZShaderType::Pixel; break;
-		case ZResourceType::TesselationShader: extraData->type_ = ZShaderType::Tesselation; break;
-		case ZResourceType::GeometryShader: extraData->type_ = ZShaderType::Geometry; break;
-		default: break;
-		}
-        break;
+		std::shared_ptr<ZShaderResourceData> shaderData = std::static_pointer_cast<ZShaderResourceData>(resource_);
+        shaderData->code = std::string(static_cast<char*>(resource_->buffer));
     }
     case ZResourceType::ZOF:
     {
         ZOFParser parser;
-        std::shared_ptr<ZZOFResourceExtraData> extraData = std::make_shared<ZZOFResourceExtraData>();
-        extraData->objectTree_ = parser.Parse(std::string((const char*)handle->Buffer()));
-        handle->SetExtra(extraData);
+        std::shared_ptr<ZZofResourceData> zofData = std::static_pointer_cast<ZZofResourceData>(resource_);
+        zofData->objectTree = parser.Parse(std::string((const char*)resource_->buffer));
         break;
     }
     case ZResourceType::HDREquirectangularMap:
     case ZResourceType::HDRTexture:
     case ZResourceType::Texture:
     {
-        ZImageImporter::LoadImage(handle,
-            resource_.type == ZResourceType::HDRTexture || resource_.type == ZResourceType::HDREquirectangularMap,
-            resource_.type == ZResourceType::HDRTexture || resource_.type == ZResourceType::HDREquirectangularMap);
+        std::shared_ptr<ZTextureResourceData> textureData = std::static_pointer_cast<ZTextureResourceData>(resource_);
+        ZImageImporter::LoadImage(textureData.get(),
+            resource_->type == ZResourceType::HDRTexture || resource_->type == ZResourceType::HDREquirectangularMap,
+            resource_->type == ZResourceType::HDRTexture || resource_->type == ZResourceType::HDREquirectangularMap);
         break;
     }
     case ZResourceType::Model:
     {
 		ZModelImporter importer;
-		std::string modelDirectory = resource_.name.substr(0, resource_.name.find_last_of("/\\"));
-		std::shared_ptr<ZModelResourceExtraData> extraData = std::make_shared<ZModelResourceExtraData>();
-		extraData->meshMap_ = importer.LoadModel(handle, extraData->boneMap_, extraData->boneList_, extraData->animationMap_, extraData->skeleton_, modelDirectory);
-		handle->SetExtra(extraData);
+		std::string modelDirectory = resource_->path.substr(0, resource_->path.find_last_of("/\\"));
+        std::shared_ptr<ZModelResourceData> modelData = std::static_pointer_cast<ZModelResourceData>(resource_);
+        modelData->meshMap = importer.LoadModel(modelData.get(), modelData->boneMap, modelData->boneList, modelData->animationMap, modelData->skeleton, modelDirectory);
         break;
     }
     default: break;
     }
 
-    std::shared_ptr<ZResourceLoadedEvent> loadedEvent = std::make_shared<ZResourceLoadedEvent>(handle);
+    std::shared_ptr<ZResourceLoadedEvent> loadedEvent = std::make_shared<ZResourceLoadedEvent>(resource_);
     ZServices::EventAgent()->Queue(loadedEvent);
+
+    // Makes sure the process is marked as completed, removed from the process runner, destroyed and the thread joins
+    Finish();
 }

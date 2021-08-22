@@ -30,23 +30,23 @@
 #pragma once
 
 // Includes
-#include "ZResource.hpp"
+#include "ZResourceData.hpp"
 
 // Forward Declarations
-class ZResourceCache;
+class ZResourceImporter;
 class ZResourceExtraData;
 
 // Class and Data Structure Definitions
 class ZResourceHandle
 {
 
-    friend class ZResourceCache;
+    friend class ZResourceImporter;
 
 private:
 
 public:
 
-    ZResourceHandle(ZResource& resource, void* buffer, unsigned int size, ZResourceCache* resourceCache);
+    ZResourceHandle(ZResource& resource, void* buffer, unsigned int size);
     virtual ~ZResourceHandle();
 
     ZResource& Resource() { return resource_; }
@@ -62,7 +62,6 @@ protected:
     ZResource resource_;
     void* buffer_ = nullptr;
     unsigned int size_;
-    ZResourceCache* resourceCache_ = nullptr;
     std::shared_ptr<ZResourceExtraData> extraData_;
 
 };

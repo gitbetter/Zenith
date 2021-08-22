@@ -33,19 +33,22 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void ZGLFont::Load(const std::shared_ptr<ZResourceHandle>& handle, unsigned int fontSize)
+void ZGLFont::Load(ZResourceData* resource, unsigned int fontSize)
 {
-	if (handle == nullptr) return;
+	if (resource == nullptr)
+	{
+		return;
+	}
 
 	FT_Face face;
-	if (FT_New_Memory_Face(ft_, (const FT_Byte*)handle->Buffer(), (FT_Long)handle->Size(), 0, &face)) {
-		LOG("Could not load font at " + handle->Resource().name, ZSeverity::Error);
+	if (FT_New_Memory_Face(ft_, (const FT_Byte*)resource->buffer, (FT_Long)resource->size, 0, &face)) {
+		LOG("Could not load font at " + resource->path, ZSeverity::Error);
 		return;
 	}
 
 	FT_Set_Pixel_Sizes(face, 0, fontSize);
 
-	std::string file = handle->Resource().name.substr(handle->Resource().name.find_last_of("/\\") + 1);
+	std::string file = resource->path.substr(resource->path.find_last_of("/\\") + 1);
 	std::string fileName = file.substr(0, file.find_last_of("."));
 	name_ = fileName;
 	size_ = fontSize;
@@ -63,13 +66,12 @@ void ZGLFont::Load(const std::shared_ptr<ZResourceHandle>& handle, unsigned int 
 		atlas_.height = std::max(atlas_.height, face->glyph->bitmap.rows);
 	}
 
-	atlas_.texture = ZTexture::Create();
-	atlas_.texture->type = "atlas";
-	atlas_.texture->path = fileName;
+	atlas_.texture = ZServices::TextureManager()->Create();
+	ZServices::TextureManager()->SetType(atlas_.texture, "atlas");
+	ZServices::TextureManager()->SetPath(atlas_.texture, fileName);
 
-	glActiveTexture(GL_TEXTURE0);
-	glGenTextures(1, &atlas_.texture->id);
-	glBindTexture(GL_TEXTURE_2D, atlas_.texture->id);
+	ZServices::TextureManager()->Bind(atlas_.texture, 0);
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, atlas_.width, atlas_.height, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

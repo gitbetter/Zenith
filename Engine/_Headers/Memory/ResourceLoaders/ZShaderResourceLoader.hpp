@@ -6,9 +6,9 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZScriptResourceLoader.hpp
+    ZShaderResourceLoader.hpp
 
-    Created by Adrian Sanchez on 24/03/2019.
+    Created by Adrian Sanchez on 08/14/2021.
     Copyright © 2019 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
@@ -32,18 +32,18 @@
 #include "ZResourceLoader.hpp"
 #include "ZResourceData.hpp"
 
-class ZScriptResourceLoader : public ZResourceLoaderBase<ZScriptResourceData>
+class ZShaderResourceLoader : public ZResourceLoaderBase<ZShaderResourceData>
 {
 
 public:
 
-    ~ZScriptResourceLoader() {}
-    std::string Pattern() override { return ".*\\.lua"; }
-    bool UseRawFile() override { return false; };
+    ~ZShaderResourceLoader() {}
+    std::string Pattern() override { return ".*\\.vert|.*\\.frag|.*\\.glsl"; }
+    bool UseRawFile() override { return true; };
     unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
 
 protected:
 
-    bool Load(char* rawBuffer, unsigned int rawSize, ZScriptResourceData* resource) override;
+    bool Load(char* rawBuffer, unsigned int rawSize, ZShaderResourceData* resource) override { return true; }
 
 };

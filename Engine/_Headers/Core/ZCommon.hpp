@@ -60,6 +60,8 @@
 #include <thread>
 #include <mutex>
 #include <filesystem>
+
+#include "ZHandle.hpp"
 #include "ZIDSequence.hpp"
 #include "ZStringHelpers.hpp"
 #include "ZFrameProfiler.hpp"
@@ -451,6 +453,24 @@ class ZColliderComponent;
 class ZScriptComponent;
 class ZUniformBuffer;
 
+struct TextureTag { };
+using ZHTexture = ZHandle<TextureTag>;
+
+struct ModelTag { };
+using ZHModel = ZHandle<ModelTag>;
+
+struct ZofTag { };
+using ZHZof = ZHandle<ZofTag>;
+
+struct ShaderTag { };
+using ZHShader = ZHandle<ShaderTag>;
+
+struct AudioTag { };
+using ZHAudio = ZHandle<AudioTag>;
+
+struct ScriptTag { };
+using ZHScript = ZHandle<ScriptTag>;
+
 using ZGameObjectMap = std::unordered_map<std::string, std::shared_ptr<ZGameObject>>;
 using ZLightMap = std::unordered_map<std::string, std::shared_ptr<ZLight>>;
 using ZUIElementMap = std::unordered_map<std::string, std::shared_ptr<ZUIElement>>;
@@ -460,10 +480,10 @@ using ZFontMap = std::unordered_map<std::string, std::shared_ptr<ZFont>>;
 using ZMaterialMap = std::unordered_map<std::string, std::shared_ptr<ZMaterial>>;
 using ZShaderIDMap = std::unordered_map<std::shared_ptr<ZShader>, std::string>;
 using ZModelIDMap = std::unordered_map<std::shared_ptr<ZModel>, std::string>;
-using ZTextureIDMap = std::unordered_map<std::shared_ptr<ZTexture>, std::string>;
+using ZTextureIDMap = std::unordered_map<ZHTexture, std::string>;
 using ZFontIDMap = std::unordered_map<std::shared_ptr<ZFont>, std::string>;
 using ZMaterialIDMap = std::unordered_map<std::shared_ptr<ZMaterial>, std::string>;
-using ZTextureMap = std::unordered_map<std::string, std::shared_ptr<ZTexture>>;
+using ZTextureMap = std::unordered_map<std::string, ZHTexture>;
 using ZMesh3DMap = std::unordered_map<std::string, std::shared_ptr<ZMesh3D>>;
 using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
 using ZLightList = std::vector<std::shared_ptr<ZLight>>;
@@ -477,7 +497,7 @@ using ZBoneMap = std::map<std::string, unsigned int>;
 using ZIDMap = std::unordered_map<std::string, unsigned int>;
 using ZBoneList = std::vector<std::shared_ptr<ZBone>>;
 using ZMaterialList = std::vector<std::shared_ptr<ZMaterial>>;
-using ZTextureList = std::array<std::shared_ptr<ZTexture>, MAX_TEXTURE_SLOTS>;
+using ZTextureList = std::array<ZHTexture, MAX_TEXTURE_SLOTS>;
 using ZUBOList = std::array<std::shared_ptr<ZUniformBuffer>, MAX_UBO_SLOTS>;
 using ZTimedUpdateCallback = std::function<void(float)>;
 using ZTypeIdentifier = unsigned long;
@@ -624,6 +644,11 @@ enum class ZDepthStencilState
 enum class ZFaceCullState
 {
     Null = 0, None, Front, Back = 4
+};
+
+enum class ZOFObjectType
+{
+    Any = 0, GameObject, Light, Camera, Grass, Material, Texture, Shader, Scene, Model, Skybox
 };
 
 struct Light {

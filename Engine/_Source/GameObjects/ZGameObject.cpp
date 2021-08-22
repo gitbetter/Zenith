@@ -46,7 +46,7 @@
 #include "ZUniformBuffer.hpp"
 #include "ZRenderStateGroup.hpp"
 
-ZIDSequence ZGameObject::idGenerator_("ZGO");
+ZIDSequence ZGameObject::idGenerator_;
 
 ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
 {
@@ -55,7 +55,7 @@ ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation
     properties_.previousScale = properties_.scale = scale;
     properties_.modelMatrix = properties_.localModelMatrix = glm::mat4(1.f);
     properties_.renderOrder = ZRenderLayer::Static;
-    id_ = "ZGO_" + std::to_string(idGenerator_.Next());
+    id_ = "GameObject" + std::to_string(idGenerator_.Next());
     CalculateDerivedData();
 }
 
@@ -473,25 +473,25 @@ ZGameObjectList ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::shar
     ZGameObjectList gameObjects;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
-        std::shared_ptr<ZOFNode> node = it->second;
+        std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(it->second);
         std::shared_ptr<ZGameObject> gameObject;
-        if (HasObjectPrefix(node->id, "ZGO"))
+        if (node->type == ZOFObjectType::GameObject)
         {
             gameObject = ZGameObject::Create(node, scene);
         }
-        else if (HasObjectPrefix(node->id, "ZLT"))
+        else if (node->type == ZOFObjectType::Light)
         {
             gameObject = ZLight::Create(node, scene);
         }
-        else if (HasObjectPrefix(node->id, "ZCAM"))
+        else if (node->type == ZOFObjectType::Camera)
         {
             gameObject = ZCamera::Create(node, scene);
         }
-        else if (HasObjectPrefix(node->id, "ZSKY"))
+        else if (node->type == ZOFObjectType::Skybox)
         {
             gameObject = ZSkybox::Create(node, scene);
         }
-        else if (HasObjectPrefix(node->id, "ZGR"))
+        else if (node->type == ZOFObjectType::Grass)
         {
             gameObject = ZGrass::Create(node, scene);
         }
