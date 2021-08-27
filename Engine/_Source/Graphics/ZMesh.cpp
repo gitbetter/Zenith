@@ -29,7 +29,6 @@
 
 #include "ZMesh.hpp"
 #include "ZServices.hpp"
-#include "ZShader.hpp"
 #include "ZMaterial.hpp"
 #include "ZRenderStateGroup.hpp"
 

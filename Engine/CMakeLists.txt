@@ -10,6 +10,7 @@ ${ENGINE_SOURCE_DIR}/Utility/ZEasing.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZLogger.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZIDSequence.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFParser.cpp
+${ENGINE_SOURCE_DIR}/Utility/ZObjectFormatTools/ZOFTree.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZModelImporter.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZImageImporter.cpp
 ${ENGINE_SOURCE_DIR}/Utility/stb_image.cpp
@@ -46,11 +47,9 @@ ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZModelResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZTextureResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZZofResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZShaderResourceLoader.cpp
-${ENGINE_SOURCE_DIR}/Memory/ZResourceHandle.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ZResourceImporter.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceFiles/ZZipFile.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceFiles/ZDevResourceFile.cpp
-${ENGINE_SOURCE_DIR}/Memory/ZResourceExtraData.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ZResourceLoadTask.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ZResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ZResourceData.cpp
@@ -252,10 +251,8 @@ ${ENGINE_HEADERS_DIR}/Process/ZTimedUpdateTask.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ZResourceData.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ZResourceImporter.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ZResourceFile.hpp
-${ENGINE_HEADERS_DIR}/Memory/ZResourceHandle.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ZResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ZResourceLoadTask.hpp
-${ENGINE_HEADERS_DIR}/Memory/ZResourceExtraData.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceFiles/ZZipFile.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceFiles/ZDevResourceFile.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceLoaders/ZModelResourceLoader.hpp

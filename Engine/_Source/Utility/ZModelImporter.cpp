@@ -46,7 +46,7 @@ ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& out
 
     // Cache in the model data from the given file
     ZModelResourceData::ptr resource = std::make_shared<ZModelResourceData>(modelPath, ZResourceType::Model);
-    ZServices::ResourceCache()->GetData(resource.get());
+    ZServices::ResourceImporter()->GetData(resource.get());
 
     return LoadModel(resource.get(), outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
 }

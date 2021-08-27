@@ -430,7 +430,7 @@ void ZUIElement::SetTranslationBounds(float left, float right, float bottom, flo
     }
 }
 
-void ZUIElement::SetShader(const std::shared_ptr<ZShader>& shader)
+void ZUIElement::SetShader(const ZHShader& shader)
 {
     options_.shader = shader;
     ZRenderStateGroupWriter writer(renderState_);
@@ -684,7 +684,7 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& even
     RecalculateRect();
 }
 
-ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
+ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene)
 {
     ZUIElementList uiElements;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)

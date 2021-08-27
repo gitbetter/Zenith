@@ -33,7 +33,6 @@
 #include "ZPhysicsUniverse.hpp"
 #include "ZInput.hpp"
 #include "ZResourceLoadedEvent.hpp"
-#include "ZResourceExtraData.hpp"
 #include "ZCamera.hpp"
 #include "ZFont.hpp"
 #include "ZDomain.hpp"
@@ -225,7 +224,7 @@ void ZEditorScene::SetupInitialTools() {
     AddTool(std::make_shared<ZHierarchyTool>(config_.theme), rightPanel_);
 }
 
-void ZEditorScene::Configure(std::shared_ptr<ZOFTree> objectTree) {
+void ZEditorScene::Configure(std::shared_ptr<ZOFNode> objectTree) {
     ZEditorConfig config;
     if (objectTree->children.find("CONFIG") != objectTree->children.end()) {
         std::shared_ptr<ZOFObjectNode> configDataNode = std::static_pointer_cast<ZOFObjectNode>(objectTree->children["CONFIG"]);
@@ -274,8 +273,8 @@ void ZEditorScene::Configure(ZEditorConfig config) {
     config_ = config;
 
     if (!config_.theme.font.empty()) {
-        ZResource fontResource(config_.theme.font, ZResourceType::Font);
-        ZServices::ResourceCache()->GetDataAsync(fontResource);
+        ZResourceData::ptr fontResource = std::make_shared<ZResourceData>(config_.theme.font, ZResourceType::Font);
+        ZServices::ResourceImporter()->GetDataAsync(fontResource);
     }
 
     Domain()->SetSizeLimits(
@@ -287,7 +286,7 @@ void ZEditorScene::Configure(ZEditorConfig config) {
     SetupInitialTools();
 }
 
-void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
+void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFNode> objectTree) {
     auto gameObjects = ZGameObject::Load(objectTree, shared_from_this());
     for (auto object : gameObjects)
         gameObjectTemplates_[object->ID()] = object;
@@ -298,17 +297,17 @@ void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree) {
 }
 
 void ZEditorScene::HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event) {
-    ZResource& resource = event->Handle()->Resource();
+    ZResourceData::ptr resource = event->Resource();
 
-    if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_CONFIG_PATH) {
-        std::shared_ptr<ZZOFResourceExtraData> zofData = std::static_pointer_cast<ZZOFResourceExtraData>(event->Handle()->ExtraData());
-        Configure(zofData->ObjectTree());
+    if (resource->type == ZResourceType::ZOF && resource->path == EDITOR_CONFIG_PATH) {
+        ZZofResourceData::ptr zofData = std::static_pointer_cast<ZZofResourceData>(resource);
+        Configure(zofData->objectTree);
     }
-    else if (resource.type == ZResourceType::ZOF && resource.name == EDITOR_OBJECT_TEMPLATES_PATH) {
-        std::shared_ptr<ZZOFResourceExtraData> zofData = std::static_pointer_cast<ZZOFResourceExtraData>(event->Handle()->ExtraData());
-        LoadObjectTemplates(zofData->ObjectTree());
+    else if (resource->type == ZResourceType::ZOF && resource->path == EDITOR_OBJECT_TEMPLATES_PATH) {
+        ZZofResourceData::ptr zofData = std::static_pointer_cast<ZZofResourceData>(resource);
+        LoadObjectTemplates(zofData->objectTree);
     }
-    else if (resource.type == ZResourceType::Font && resource.name == config_.theme.font) {
+    else if (resource->type == ZResourceType::Font && resource->path == config_.theme.font) {
 
     }
 }

@@ -28,7 +28,6 @@
 */
 
 #include "ZLuaScriptManager.hpp"
-#include "ZResource.hpp"
 #include "ZResourceImporter.hpp"
 #include "ZServices.hpp"
 

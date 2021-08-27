@@ -31,7 +31,6 @@
 
 #include "ZCommon.hpp"
 #include "ZResourceData.hpp"
-#include "ZResourceHandle.hpp"
 #include "ZResourceLoader.hpp"
 #include "ZResourceFile.hpp"
 

@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZResourceHandle.cpp
+    ZOFTree.cpp
 
-    Created by Adrian Sanchez on 09/03/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 08/22/2021.
+    Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,15 +27,49 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZResourceHandle.hpp"
-#include "ZResourceImporter.hpp"
+#include "ZOFTree.hpp"
 
-ZResourceHandle::ZResourceHandle(ZResource& resource, void* buffer, unsigned int size) : resource_(resource), size_(size)
+ZOFObjectType ZOFObjectNode::StringToType(const std::string& type)
 {
-    buffer_ = buffer;
-}
-
-ZResourceHandle::~ZResourceHandle()
-{
-    delete[](char*)buffer_;
+	if (type == "GameObject")
+	{
+		return ZOFObjectType::GameObject;
+	}
+	if (type == "Light")
+	{
+		return ZOFObjectType::Light;
+	}
+	if (type == "Camera")
+	{
+		return ZOFObjectType::Camera;
+	}
+	if (type == "Grass")
+	{
+		return ZOFObjectType::Grass;
+	}
+	if (type == "Material")
+	{
+		return ZOFObjectType::Material;
+	}
+	if (type == "Texture")
+	{
+		return ZOFObjectType::Texture;
+	}
+	if (type == "Shader")
+	{
+		return ZOFObjectType::Shader;
+	}
+	if (type == "Model")
+	{
+		return ZOFObjectType::Model;
+	}
+	if (type == "Scene")
+	{
+		return ZOFObjectType::Scene;
+	}
+	if (type == "Skybox")
+	{
+		return ZOFObjectType::Skybox;
+	}
+	return ZOFObjectType::Any;
 }

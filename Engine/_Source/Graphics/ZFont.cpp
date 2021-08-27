@@ -38,7 +38,7 @@ void ZFont::Load(const std::string& fontPath, unsigned int fontSize)
 {
     InitializeFreeType();
     ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
-    ZServices::ResourceCache()->GetData(resource.get());
+    ZServices::ResourceImporter()->GetData(resource.get());
     Load(resource.get(), fontSize);
 }
 
@@ -46,14 +46,14 @@ void ZFont::LoadAsync(const std::string& fontPath, unsigned int fontSize)
 {
     InitializeFreeType();
     ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
-    ZServices::ResourceCache()->GetDataAsync(resource);
+    ZServices::ResourceImporter()->GetDataAsync(resource);
 }
 
-void ZFont::CreateAsync(std::shared_ptr<ZOFTree> data, ZFontIDMap& outPendingFonts)
+void ZFont::CreateAsync(std::shared_ptr<ZOFNode> data, ZFontIDMap& outPendingFonts)
 {
 }
 
-void ZFont::Create(std::shared_ptr<ZOFTree> data, ZFontMap& outFontMap)
+void ZFont::Create(std::shared_ptr<ZOFNode> data, ZFontMap& outFontMap)
 {
 }
 

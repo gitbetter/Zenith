@@ -31,7 +31,6 @@
 #include "ZServices.hpp"
 #include "ZScene.hpp"
 #include "ZAssetStore.hpp"
-#include "ZShader.hpp"
 #include "ZFont.hpp"
 #include "ZVertexBuffer.hpp"
 #include "ZRenderTask.hpp"

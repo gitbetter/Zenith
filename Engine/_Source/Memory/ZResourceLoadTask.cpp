@@ -30,14 +30,13 @@
 #include "ZServices.hpp"
 #include "ZResourceLoadTask.hpp"
 #include "ZResourceLoadedEvent.hpp"
-#include "ZResourceExtraData.hpp"
 #include "ZOFParser.hpp"
 #include "ZModelImporter.hpp"
 #include "ZImageImporter.hpp"
 
 void ZResourceLoadTask::Run()
 {
-    ZServices::ResourceCache()->GetData(resource_.get());
+    ZServices::ResourceImporter()->GetData(resource_.get());
 
     if (resource_->size == 0)
     {

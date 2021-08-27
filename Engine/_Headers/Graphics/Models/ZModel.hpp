@@ -75,8 +75,8 @@ public:
 
     void BoneTransform(const std::string& anim, double secondsTime);
 
-    static void Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap);
-    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingModels, ZModelMap& outModelMap);
+    static void Create(std::shared_ptr<ZOFNode> data, ZModelMap& outModelMap);
+    static void CreateAsync(std::shared_ptr<ZOFNode> data, ZModelIDMap& outPendingModels, ZModelMap& outModelMap);
 
     static std::shared_ptr<ZModel> Create(const std::string& type, const std::shared_ptr<ZOFNode>& data = nullptr);
     static std::shared_ptr<ZModel> CreateExternal(const std::string& path, bool async = false);

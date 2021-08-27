@@ -29,9 +29,9 @@
 
 #include "ZServices.hpp"
 #include "ZScriptManager.hpp"
-#include "ZResource.hpp"
+#include "ZResourceData.hpp"
 
-void ZScriptManager::Load(std::shared_ptr<ZOFTree> zof)
+void ZScriptManager::Load(std::shared_ptr<ZOFNode> zof)
 {
     for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++)
     {
@@ -45,15 +45,15 @@ void ZScriptManager::Load(std::shared_ptr<ZOFTree> zof)
             if (props.find("path") != props.end() && props["path"]->HasValues())
             {
                 std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
-                ZResource scriptResource(prop->value, ZResourceType::Script);
-                ZServices::ResourceCache()->GetData(&scriptResource);
+                ZResourceData::ptr scriptResource = std::make_shared<ZResourceData>(prop->value, ZResourceType::Script);
+                ZServices::ResourceImporter()->GetData(scriptResource.get());
                 scripts_[it->first] = true;
             }
         }
     }
 }
 
-void ZScriptManager::LoadAsync(std::shared_ptr<ZOFTree> zof)
+void ZScriptManager::LoadAsync(std::shared_ptr<ZOFNode> zof)
 {
     for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++)
     {
@@ -67,8 +67,8 @@ void ZScriptManager::LoadAsync(std::shared_ptr<ZOFTree> zof)
             if (props.find("path") != props.end() && props["path"]->HasValues())
             {
                 std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
-                ZResource scriptResource(prop->value, ZResourceType::Script);
-                ZServices::ResourceCache()->GetDataAsync(scriptResource);
+                ZResourceData::ptr scriptResource = std::make_shared<ZResourceData>(prop->value, ZResourceType::Script);
+                ZServices::ResourceImporter()->GetDataAsync(scriptResource);
                 // TODO: Create a ZScriptReadyEvent that we can catch in order to cache the script properly.
                 // Might also want to refactor the scripts into separate ZScript objects where we can store extra
                 // data.

@@ -29,13 +29,11 @@
 
 #pragma once
 
-// Includes
 #include "ZUniformBuffer.hpp"
 
 class ZVertexBuffer;
 class ZUniformBuffer;
 
-// Class and Data Structure Definitions
 struct ZRenderPipelineState
 {
     ZBlendMode blendState = ZBlendMode::Null;
@@ -49,7 +47,7 @@ struct ZRenderResourceState
     ZTextureList textures;
     ZUBOList uniformBuffers;
     std::shared_ptr<ZVertexBuffer> vertexBuffer = nullptr;
-    std::shared_ptr<ZShader> shader = nullptr;
+    ZHShader shader;
 };
 
 class ZRenderStateGroup
@@ -90,7 +88,7 @@ public:
 
     void Begin();
     void SetBlending(ZBlendMode blendMode);
-    void SetShader(const std::shared_ptr<ZShader>& shader);
+    void SetShader(const ZHShader& shader);
     void BindUniformBuffer(const std::shared_ptr<ZUniformBuffer>& uniformBuffer);
     void BindVertexBuffer(const std::shared_ptr<ZVertexBuffer>& vertexBuffer);
     void BindTexture(const ZHTexture& texture);

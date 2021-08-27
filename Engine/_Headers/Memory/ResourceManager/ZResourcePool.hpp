@@ -42,9 +42,9 @@ public:
 
     explicit ZResourcePool(unsigned int initialAllocationSize)
     {
-        userData_.reserve(Size);
-        magicNumbers_.reserve(Size);
-        freeSlots_.reserve(Size);
+        userData_.reserve(initialAllocationSize);
+        magicNumbers_.reserve(initialAllocationSize);
+        freeSlots_.reserve(initialAllocationSize);
     }
     ~ZResourcePool() { }
 

@@ -211,7 +211,7 @@ void ZGrass::UpdateVertexNormals(std::shared_ptr<ZModel>& model)
 
 void ZGrass::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
-    if (event->Texture()->name == textureId_)
+    if (ZServices::TextureManager()->Name(event->Texture()) == textureId_)
     {
         auto grassMaterial = ZMaterial::Create({ event->Texture() }, ZShader::Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
         graphicsComp_->AddMaterial(grassMaterial);

@@ -28,39 +28,40 @@
 */
 
 #include "ZGLFramebuffer.hpp"
+#include "ZServices.hpp"
 
 ZFramebuffer::ptr ZFramebuffer::CreateColor(const glm::vec2& size, bool multisample)
 {
-    // TODO: Switch on contant, variable or define to choose implementation
+    // TODO: Switch on constant, variable or define to choose implementation
     auto framebuffer = std::make_shared<ZGLFramebuffer>();
-    auto attachment = ZTexture::CreateColor(size, multisample);
+    auto attachment = ZServices::TextureManager()->CreateColor(size, multisample);
     framebuffer->LoadColor(size, attachment, multisample);
     return framebuffer;
 }
 
 ZFramebuffer::ptr ZFramebuffer::CreateDepth(const glm::vec2& size)
 {
-    // TODO: Switch on contant, variable or define to choose implementation
+    // TODO: Switch on constant, variable or define to choose implementation
     auto framebuffer = std::make_shared<ZGLFramebuffer>();
-    auto attachment = ZTexture::CreateDepth(size);
+    auto attachment = ZServices::TextureManager()->CreateDepth(size);
     framebuffer->LoadDepth(size, attachment);
     return framebuffer;
 }
 
 ZFramebuffer::ptr ZFramebuffer::CreateShadow(const glm::vec2& size, unsigned int cascades)
 {
-    // TODO: Switch on contant, variable or define to choose implementation
+    // TODO: Switch on constant, variable or define to choose implementation
     auto framebuffer = std::make_shared<ZGLFramebuffer>();
     framebuffer->LoadDepth(size);
-    auto attachment = ZTexture::CreateDepthArray(size, cascades);
-    attachment->type = "shadowArray";
+    ZHTexture attachment = ZServices::TextureManager()->CreateDepthArray(size, cascades);
+    ZServices::TextureManager()->SetType(attachment, "shadowArray");
     framebuffer->AddAttachment(attachment);
     return framebuffer;
 }
 
 ZFramebuffer::ptr ZFramebuffer::CreateCubeMap()
 {
-    // TODO: Switch on contant, variable or define to choose implementation
+    // TODO: Switch on constant, variable or define to choose implementation
     auto framebuffer = std::make_shared<ZGLFramebuffer>();
     framebuffer->LoadCubeMap();
     return framebuffer;

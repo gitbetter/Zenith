@@ -35,6 +35,7 @@
 #include "ZLuaScriptManager.hpp"
 #include "ZGLGraphics.hpp"
 #include "ZGLInput.hpp"
+#include "ZGLTexture.hpp"
 
 #ifdef DEV_BUILD
 #include "ZDevResourceFile.hpp"
@@ -75,6 +76,14 @@ void ZServices::Initialize()
         /* ========= Input System ============ */
         Provide(std::make_shared<ZGLInput>());
         /* =================================== */
+
+		/* ========= Texture Manager ============ */
+		Provide(std::make_shared<ZGLTextureManager>());
+		/* =================================== */
+
+		/* ========= Shader Manager ============ */
+		Provide(std::make_shared<ZShaderManager>());
+		/* =================================== */
     }
     initialized_ = true;
 }
@@ -172,6 +181,17 @@ void ZServices::Provide(const std::shared_ptr<ZTextureManager>& textureManager)
     textureManager_->Initialize();
 }
 
+void ZServices::Provide(const std::shared_ptr<ZShaderManager>& shaderManager)
+{
+	if (shaderManager_)
+	{
+		shaderManager_->CleanUp();
+	}
+
+    shaderManager_ = shaderManager;
+    shaderManager_->Initialize();
+}
+
 void ZServices::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
 {
     if (assetStore_)
@@ -186,5 +206,5 @@ void ZServices::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
 void ZServices::LoadZOF(const std::string& zofPath)
 {
     ZZofResourceData::ptr zofResource = std::make_shared<ZZofResourceData>(zofPath, ZResourceType::ZOF);
-    ZServices::ResourceCache()->GetDataAsync(zofResource);
+    ZServices::ResourceImporter()->GetDataAsync(zofResource);
 }

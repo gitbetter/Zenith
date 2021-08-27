@@ -44,18 +44,18 @@ ZMaterial::ZMaterial()
     id_ = "Material_" + std::to_string(idGenerator_.Next());
 }
 
-ZMaterial::ZMaterial(const ZMaterialProperties& materialProperties, const std::shared_ptr<ZShader>& shader) : ZMaterial()
+ZMaterial::ZMaterial(const ZMaterialProperties& materialProperties, const ZHShader& shader) : ZMaterial()
 {
     properties_ = materialProperties;
     shaderObject_ = shader;
 }
 
-ZMaterial::ZMaterial(const std::vector<std::shared_ptr<ZTexture>>& textures, const std::shared_ptr<ZShader>& shader) : ZMaterial()
+ZMaterial::ZMaterial(const std::vector<ZHTexture>& textures, const ZHShader& shader) : ZMaterial()
 { 
     shaderObject_ = shader;
     for (auto texture : textures)
     {
-        textures_[texture->type] = texture;
+        textures_[ZServices::TextureManager()->Type(texture)] = texture;
     }
 }
 
@@ -89,9 +89,12 @@ void ZMaterial::Initialize()
         ZServices::EventAgent()->Queue(std::make_shared<ZMaterialReadyEvent>(shared_from_this()));
 }
 
-void ZMaterial::SetShader(const std::shared_ptr<ZShader>& shader)
+void ZMaterial::SetShader(const ZHShader& shader)
 {
-    if (!shader) return;
+    if (shader.IsNull())
+    {
+        return;
+    }
 
     shaderObject_ = shader;
 
@@ -178,7 +181,7 @@ void ZMaterial::SetProperty(const std::string& property, bool value)
     }
 }
 
-void ZMaterial::AddTexture(const std::string& slot, const std::shared_ptr<ZTexture>& texture)
+void ZMaterial::AddTexture(const std::string& slot, const ZHTexture& texture)
 {
     textures_[slot] = texture;
 
@@ -221,7 +224,7 @@ std::shared_ptr<ZMaterial> ZMaterial::CreateDefault()
     }
 }
 
-void ZMaterial::Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outMaterialMap, const ZTextureMap& textureCache)
+void ZMaterial::Create(std::shared_ptr<ZOFNode> data, ZMaterialMap& outMaterialMap, const ZTextureMap& textureCache)
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
@@ -254,7 +257,7 @@ void ZMaterial::Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outMaterialM
                 {
                     if (textureCache.find(strProp->value) != textureCache.end())
                     {
-                        ZTexture::ptr texture = textureCache.at(strProp->value);
+                        ZHTexture texture = textureCache.at(strProp->value);
                         material->textures_[matIt->second->id] = texture;
                     }
                 }
@@ -275,7 +278,7 @@ void ZMaterial::Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outMaterialM
     }
 }
 
-void ZMaterial::CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPendingMaterials, ZMaterialMap& outMaterials)
+void ZMaterial::CreateAsync(std::shared_ptr<ZOFNode> data, ZMaterialIDMap& outPendingMaterials, ZMaterialMap& outMaterials)
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
@@ -330,14 +333,14 @@ void ZMaterial::CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPe
     }
 }
 
-std::shared_ptr<ZMaterial> ZMaterial::Create(const ZMaterialProperties& materialProperties, const std::shared_ptr<ZShader>& shader)
+std::shared_ptr<ZMaterial> ZMaterial::Create(const ZMaterialProperties& materialProperties, const ZHShader& shader)
 {
     auto material = std::make_shared<ZMaterial>(materialProperties, shader);
     material->Initialize();
     return material;
 }
 
-std::shared_ptr<ZMaterial> ZMaterial::Create(const std::vector<std::shared_ptr<ZTexture>>& textures, const std::shared_ptr<ZShader>& shader)
+std::shared_ptr<ZMaterial> ZMaterial::Create(const std::vector<ZHTexture>& textures, const ZHShader& shader)
 {
     auto material = std::make_shared<ZMaterial>(textures, shader);
     material->Initialize();
@@ -365,12 +368,15 @@ void ZMaterial::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& ev
     if (!texture) return;
 
     auto it = pendingTextures_.begin();
-    while (it != pendingTextures_.end()) {
-        if (it->second == texture->name) {
+    while (it != pendingTextures_.end())
+    {
+        if (it->second == ZServices::TextureManager()->Name(texture))
+        {
             AddTexture(it->first, texture);
             it = pendingTextures_.erase(it);
         }
-        else {
+        else
+        {
             ++it;
         }
     }
@@ -385,17 +391,23 @@ void ZMaterial::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& ev
 
 void ZMaterial::HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event)
 {
-    auto shader = event->Shader();
-    if (!shader) return;
+    ZHShader shader = event->Shader();
+    if (shader.IsNull())
+    {
+        return;
+    }
 
-    if (shader->Name() == shaderId_) {
+    if (ZServices::ShaderManager()->Name(shader) == shaderId_)
+    {
         SetShader(shader);
     }
 
     if (shaderObject_)
     {
         if (pendingTextures_.empty())
+        {
             ZServices::EventAgent()->Queue(std::make_shared<ZMaterialReadyEvent>(shared_from_this()));
+        }
         ZServices::EventAgent()->Unsubscribe(this, &ZMaterial::HandleShaderReady);
     }
 }

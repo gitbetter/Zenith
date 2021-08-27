@@ -474,7 +474,7 @@ using ZHScript = ZHandle<ScriptTag>;
 using ZGameObjectMap = std::unordered_map<std::string, std::shared_ptr<ZGameObject>>;
 using ZLightMap = std::unordered_map<std::string, std::shared_ptr<ZLight>>;
 using ZUIElementMap = std::unordered_map<std::string, std::shared_ptr<ZUIElement>>;
-using ZShaderMap = std::unordered_map<std::string, std::shared_ptr<ZShader>>;
+using ZShaderMap = std::unordered_map<std::string, ZHShader>;
 using ZModelMap = std::unordered_map<std::string, std::shared_ptr<ZModel>>;
 using ZFontMap = std::unordered_map<std::string, std::shared_ptr<ZFont>>;
 using ZMaterialMap = std::unordered_map<std::string, std::shared_ptr<ZMaterial>>;
@@ -576,7 +576,7 @@ enum class ZUIElementType
 
 enum class ZShaderType
 {
-    Vertex, Pixel, Tesselation, Geometry, Other
+    Vertex = 0, Pixel, Geometry, Tesselation, Other
 };
 
 enum class ZProcessState

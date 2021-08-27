@@ -29,17 +29,14 @@
 
 #pragma once
 
-// Includes
 #include "ZFont.hpp"
-
-// Class and Data Structure Definitions
 
 class ZGLFont : public ZFont
 {
 
 public:
 
-    void Load(ZResourceData* resource, unsigned int fontSize) override;
+    void Load(class ZResourceData* resource, unsigned int fontSize) override;
     void SetSize(unsigned int size) override;
 
 };

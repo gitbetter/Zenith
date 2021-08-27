@@ -28,12 +28,13 @@
 */
 
 #include "ZOFParser.hpp"
+#include "ZOFTree.hpp"
 #include "ZServices.hpp"
 #include <filesystem>
 
-std::shared_ptr<ZOFTree> ZOFParser::Parse(const std::string& contents)
+std::shared_ptr<ZOFNode> ZOFParser::Parse(const std::string& contents)
 {
-    std::shared_ptr<ZOFTree> parseTree = std::make_shared<ZOFTree>();
+    std::shared_ptr<ZOFNode> parseTree = std::make_shared<ZOFNode>();
     if (!contents.empty())
     {
         zof_ = std::stringstream(contents);
@@ -101,14 +102,14 @@ void ZOFParser::HandleParseError(std::shared_ptr<ZOFNode> node)
     node->Clear();
 }
 
-void ZOFParser::Start(std::shared_ptr<ZOFTree> tree)
+void ZOFParser::Start(std::shared_ptr<ZOFNode> tree)
 {
     currentToken_ = Scan();
     ObjectList(tree);
     Match("");
 }
 
-void ZOFParser::ObjectList(std::shared_ptr<ZOFTree> node)
+void ZOFParser::ObjectList(std::shared_ptr<ZOFNode> node)
 {
     if (currentToken_ != "")
     {

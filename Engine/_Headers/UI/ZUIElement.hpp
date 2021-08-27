@@ -58,7 +58,6 @@ std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::
 // Forward Declarations
 class ZScene;
 class ZMesh2D;
-class ZShader;
 class ZUILayout;
 class ZUniformBuffer;
 class ZRenderStateGroup;
@@ -96,7 +95,7 @@ struct ZUIElementOptions
     glm::vec4                                translationBounds{ 0.f, 1.f, 0.f, 1.f };
     glm::vec4                                color{ 0.0f };
     float                                    opacity{ 1.f };
-    std::shared_ptr<ZShader>                 shader{ nullptr };
+    ZHShader                                 shader;
     ZHTexture                                texture;
     ZUIBorder                                border;
     std::shared_ptr<ZUILayout>               layout;
@@ -139,7 +138,7 @@ public:
     glm::vec4                           TranslationBounds() const { return  options_.translationBounds; }
     const ZHTexture&                    Texture() const { return  options_.texture; }
     const ZUIBorder&                    Border() const { return options_.border; }
-    const std::shared_ptr<ZShader>&     Shader() const { return  options_.shader; }
+    const ZHShader&                     Shader() const { return  options_.shader; }
     const ZUIElementMap&                Children() const { return children_; }
     const std::shared_ptr<ZUILayout>&   Layout() const { return options_.layout; }
     glm::mat4                           ModelMatrix() const { return modelMatrix_; }
@@ -162,7 +161,7 @@ public:
     virtual void                        SetColor(const glm::vec4& newColor);
     void                                SetOpacity(float opacity, bool relativeToAlpha = false);
     void                                SetTranslationBounds(float left, float right, float bottom, float top);
-    void                                SetShader(const std::shared_ptr<ZShader>& shader);
+    void                                SetShader(const ZHShader& shader);
     void                                SetLayout(const std::shared_ptr<ZUILayout>& layout) { options_.layout = layout; }
     void                                SetParent(std::shared_ptr<ZUIElement> parent) { parent_ = parent; }
     void                                SetScene(const std::shared_ptr<ZScene> scene) { scene_ = scene; }
@@ -212,7 +211,7 @@ public:
         return el;
     }
 
-    static ZUIElementList               Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene);
+    static ZUIElementList               Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
     static std::shared_ptr<ZUIElement>  Create(const std::string& type);
 
 protected:

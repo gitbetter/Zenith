@@ -34,7 +34,6 @@
 #include "ZSkeleton.hpp"
 #include "ZTexture.hpp"
 #include "ZResourceLoadedEvent.hpp"
-#include "ZResourceExtraData.hpp"
 #include "ZShaderReadyEvent.hpp"
 #include "ZOFTree.hpp"
 
@@ -48,28 +47,10 @@
 
 ZIDSequence ZShader::idGenerator_;
 
-ZShader::ZShader(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath)
-    : vertexShaderPath_(vertexShaderPath), pixelShaderPath_(pixelShaderPath), geometryShaderPath_(geomShaderPath), loadedShadersMask_(0)
+ZShader::ZShader(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath /*= ""*/)
+    : vertexShaderPath(vertexShaderPath), pixelShaderPath(pixelShaderPath), geometryShaderPath(geomShaderPath)
 {
-    name_ = "Shader_" + std::to_string(idGenerator_.Next());
-}
-
-void ZShader::Initialize()
-{
-    vertexShaderCode_ = GetShaderCode(vertexShaderPath_, ZShaderType::Vertex);
-    pixelShaderCode_ = GetShaderCode(pixelShaderPath_, ZShaderType::Pixel);
-    geometryShaderCode_ = GetShaderCode(geometryShaderPath_, ZShaderType::Geometry);
-
-    Compile();
-}
-
-void ZShader::InitializeAsync()
-{
-    GetShaderCode(vertexShaderPath_, ZShaderType::Vertex, true);
-    GetShaderCode(pixelShaderPath_, ZShaderType::Pixel, true);
-    GetShaderCode(geometryShaderPath_, ZShaderType::Geometry, true);
-
-    ZServices::EventAgent()->Subscribe(this, &ZShader::HandleShaderCodeLoaded);
+    name = "Shader_" + std::to_string(idGenerator_.Next());
 }
 
 /**
@@ -79,13 +60,17 @@ void ZShader::InitializeAsync()
     @param pixelShaderCode the pixel shader code as a string.
     @param geometryShaderCode the geometry shader code as a string.
 */
-void ZShader::Compile()
+void ZShaderManager::Compile(const ZHShader& handle)
 {
-    int vShader = CompileShader(vertexShaderCode_, ZShaderType::Vertex);
-    int pShader = CompileShader(pixelShaderCode_, ZShaderType::Pixel);
-    int gShader = CompileShader(geometryShaderCode_, ZShaderType::Geometry);
+    assert(!handle.IsNull() && "Cannot compile shader with a null shader handle!");
 
-    id_ = CreateProgram(vShader, pShader, gShader);
+    ZShader* shader = shaderPool_.Get(handle);
+
+    int vShader = CompileShader(shader->vertexShaderCode, ZShaderType::Vertex);
+    int pShader = CompileShader(shader->pixelShaderCode, ZShaderType::Pixel);
+    int gShader = CompileShader(shader->geometryShaderCode, ZShaderType::Geometry);
+
+    shader->id = CreateProgram(vShader, pShader, gShader);
 
     glDeleteShader(vShader);
     glDeleteShader(pShader);
@@ -98,7 +83,7 @@ void ZShader::Compile()
     @param shaderPath the path to the shader file.
     @return a string containing the shader source code.
 */
-std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType shaderType, bool async)
+std::string ZShaderManager::GetShaderCode(const std::string& shaderPath, ZShaderType shaderType, bool async)
 {
     std::string shaderCode;
     ZResourceType type = ZResourceType::Other;
@@ -117,11 +102,11 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
         ZShaderResourceData::ptr shaderResource = std::make_shared<ZShaderResourceData>(shaderPath, type);
         if (async)
         {
-            ZServices::ResourceCache()->GetDataAsync(shaderResource);
+            ZServices::ResourceImporter()->GetDataAsync(shaderResource);
         }
         else
         {
-            ZServices::ResourceCache()->GetData(shaderResource.get());
+            ZServices::ResourceImporter()->GetData(shaderResource.get());
             if (shaderResource->size > 0)
             {               
                 shaderCode = std::string(static_cast<char*>(shaderResource->buffer));
@@ -132,7 +117,7 @@ std::string ZShader::GetShaderCode(const std::string& shaderPath, ZShaderType sh
     return shaderCode;
 }
 
-void ZShader::ProcessIncludes(std::string& shaderCode)
+void ZShaderManager::ProcessIncludes(std::string& shaderCode)
 {
     std::vector<size_t> includePositions;
     size_t pos = shaderCode.find("#include", 0);
@@ -161,7 +146,7 @@ void ZShader::ProcessIncludes(std::string& shaderCode)
     @param shaderType the shader type, itself of type ZShaderType.
     @return the unsigned integer id of the newly created shader, or -1 if the shader could not be compiled.
 */
-int ZShader::CompileShader(const std::string& shaderCode, ZShaderType shaderType)
+int ZShaderManager::CompileShader(const std::string& shaderCode, ZShaderType shaderType)
 {
     if (!shaderCode.empty())
     {
@@ -196,7 +181,7 @@ int ZShader::CompileShader(const std::string& shaderCode, ZShaderType shaderType
     @param gShader the geometry shader handle to link.
     @return the unsigned integer id of the OpenGL created program.
 */
-unsigned int ZShader::CreateProgram(int vShader, int pShader, int gShader)
+unsigned int ZShaderManager::CreateProgram(int vShader, int pShader, int gShader)
 {
     unsigned int programId = glCreateProgram();
     if (vShader != -1) glAttachShader(programId, vShader);
@@ -215,7 +200,7 @@ unsigned int ZShader::CreateProgram(int vShader, int pShader, int gShader)
     @param compilationUnit the compilation unit id to check against.
     @param shaderType the type of the compilation unit.
 */
-void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderType shaderType, const std::string& shaderSource)
+void ZShaderManager::CheckCompileErrors(unsigned int compilationUnit, ZShaderType shaderType, const std::string& shaderSource)
 {
     GLint success; GLchar infoLog[1024];
     bool isShader = shaderType < ZShaderType::Other;
@@ -231,167 +216,226 @@ void ZShader::CheckCompileErrors(unsigned int compilationUnit, ZShaderType shade
     }
 }
 
-void ZShader::Activate()
+unsigned int ZShaderManager::ID(const ZHShader& handle)
 {
-    glUseProgram(id_);
+	assert(!handle.IsNull() && "Cannot fetch shader property with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    return shader->id;
 }
 
-void ZShader::Validate()
+const std::string& ZShaderManager::Name(const ZHShader& handle)
 {
-    glValidateProgram(id_);
+	assert(!handle.IsNull() && "Cannot fetch shader property with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+	return shader->name;
+}
+
+const AttachmentsMap& ZShaderManager::Attachments(const ZHShader& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch shader property with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+	return shader->attachments;
+}
+
+unsigned int ZShaderManager::AttachmentIndex(const ZHShader& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch shader property with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+	return shader->attachmentIndex;
+}
+
+void ZShaderManager::Activate(const ZHShader& handle)
+{
+    assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+    ZShader* shader = shaderPool_.Get(handle);
+    glUseProgram(shader->id);
+}
+
+void ZShaderManager::Validate(const ZHShader& handle)
+{
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+
+    glValidateProgram(shader->id);
     GLint status;
-    glGetProgramiv(id_, GL_VALIDATE_STATUS, &status);
+    glGetProgramiv(shader->id, GL_VALIDATE_STATUS, &status);
     if (status == GL_FALSE) {
         int length = 0;
         char log[1000];
-        glGetProgramInfoLog(id_, 1000, &length, log);
+        glGetProgramInfoLog(shader->id, 1000, &length, log);
         LOG(std::string(log), ZSeverity::Info);
     }
 }
 
-void ZShader::SetBool(const std::string& name, bool value) const
+void ZShaderManager::SetBool(const ZHShader& handle, const std::string& name, bool value)
 {
-    glUniform1i(glGetUniformLocation(id_, name.c_str()), (int) value);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform1i(glGetUniformLocation(shader->id, name.c_str()), (int) value);
 }
 
-void ZShader::SetInt(const std::string& name, int value) const
+void ZShaderManager::SetInt(const ZHShader& handle, const std::string& name, int value)
 {
-    glUniform1i(glGetUniformLocation(id_, name.c_str()), (int) value);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform1i(glGetUniformLocation(shader->id, name.c_str()), (int)value);
 }
 
-void ZShader::SetFloat(const std::string& name, float value) const
+void ZShaderManager::SetFloat(const ZHShader& handle, const std::string& name, float value)
 {
-    glUniform1f(glGetUniformLocation(id_, name.c_str()), (float) value);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform1f(glGetUniformLocation(shader->id, name.c_str()), (float)value);
 }
 
-void ZShader::SetVec2(const std::string& name, const glm::vec2& value) const
+void ZShaderManager::SetVec2(const ZHShader& handle, const std::string& name, const glm::vec2& value)
 {
-    glUniform2fv(glGetUniformLocation(id_, name.c_str()), 1, &value[0]);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform2fv(glGetUniformLocation(shader->id, name.c_str()), 1, &value[0]);
 }
 
-void ZShader::SetVec2(const std::string& name, float x, float y) const
+void ZShaderManager::SetVec2(const ZHShader& handle, const std::string& name, float x, float y)
 {
-    glUniform2f(glGetUniformLocation(id_, name.c_str()), x, y);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform2f(glGetUniformLocation(shader->id, name.c_str()), x, y);
 }
 
-void ZShader::SetVec3(const std::string& name, const glm::vec3& value) const
+void ZShaderManager::SetVec3(const ZHShader& handle, const std::string& name, const glm::vec3& value)
 {
-    glUniform3fv(glGetUniformLocation(id_, name.c_str()), 1, &value[0]);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform3fv(glGetUniformLocation(shader->id, name.c_str()), 1, &value[0]);
 }
 
-void ZShader::SetVec3(const std::string& name, float x, float y, float z) const
+void ZShaderManager::SetVec3(const ZHShader& handle, const std::string& name, float x, float y, float z)
 {
-    glUniform3f(glGetUniformLocation(id_, name.c_str()), x, y, z);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform3f(glGetUniformLocation(shader->id, name.c_str()), x, y, z);
 }
 
-void ZShader::SetVec4(const std::string& name, const glm::vec4& value) const
+void ZShaderManager::SetVec4(const ZHShader& handle, const std::string& name, const glm::vec4& value)
 {
-    glUniform4fv(glGetUniformLocation(id_, name.c_str()), 1, &value[0]);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform4fv(glGetUniformLocation(shader->id, name.c_str()), 1, &value[0]);
 }
 
-void ZShader::SetVec4(const std::string& name, float x, float y, float z, float w) const
+void ZShaderManager::SetVec4(const ZHShader& handle, const std::string& name, float x, float y, float z, float w)
 {
-    glUniform4f(glGetUniformLocation(id_, name.c_str()), x, y, z, w);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniform4f(glGetUniformLocation(shader->id, name.c_str()), x, y, z, w);
 }
 
-void ZShader::SetMat2(const std::string& name, const glm::mat2& value) const
+void ZShaderManager::SetMat2(const ZHShader& handle, const std::string& name, const glm::mat2& value)
 {
-    glUniformMatrix2fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniformMatrix2fv(glGetUniformLocation(shader->id, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
-void ZShader::SetMat3(const std::string& name, const glm::mat3& value) const
+void ZShaderManager::SetMat3(const ZHShader& handle, const std::string& name, const glm::mat3& value)
 {
-    glUniformMatrix3fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniformMatrix3fv(glGetUniformLocation(shader->id, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
-void ZShader::SetMat4(const std::string& name, const glm::mat4& value) const
+void ZShaderManager::SetMat4(const ZHShader& handle, const std::string& name, const glm::mat4& value)
 {
-    glUniformMatrix4fv(glGetUniformLocation(id_, name.c_str()), 1, GL_FALSE, &value[0][0]);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniformMatrix4fv(glGetUniformLocation(shader->id, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
-void ZShader::SetUBO(const std::string& name, int index) const
+void ZShaderManager::SetUBO(const ZHShader& handle, const std::string& name, int index)
 {
-    glUniformBlockBinding(id_, glGetUniformBlockIndex(id_, name.c_str()), index);
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    glUniformBlockBinding(shader->id, glGetUniformBlockIndex(shader->id, name.c_str()), index);
 }
 
-void ZShader::SetFloatList(const std::string& name, const std::vector<float>& value) const
+void ZShaderManager::SetFloatList(const ZHShader& handle, const std::string& name, const std::vector<float>& value)
 {
     for (int i = 0; i < value.size(); i++) {
-        SetFloat(name + "[" + std::to_string(i) + "]", value[i]);
+        SetFloat(handle, name + "[" + std::to_string(i) + "]", value[i]);
     }
 }
 
-void ZShader::SetMat4List(const std::string& name, const std::vector<glm::mat4>& value) const
+void ZShaderManager::SetMat4List(const ZHShader& handle, const std::string& name, const std::vector<glm::mat4>& value)
 {
     for (int i = 0; i < value.size(); i++) {
-        SetMat4(name + "[" + std::to_string(i) + "]", value[i]);
+        SetMat4(handle, name + "[" + std::to_string(i) + "]", value[i]);
     }
 }
 
-void ZShader::Use(const std::shared_ptr<ZMaterial>& material)
+void ZShaderManager::Use(const ZHShader& handle, const std::shared_ptr<ZMaterial>& material)
 {
-    Activate();
+    Activate(handle);
 
-    SetBool("isTextured", material->IsTextured());
-    SetBool("hasDisplacement", material->HasDisplacement());
-    // TODO: Move this elsewhere for configurability
-    SetFloat("heightScale", 0.01f);
+    SetBool(handle, "isTextured", material->IsTextured());
+    SetBool(handle, "hasDisplacement", material->HasDisplacement());
+    // TODO: Move this elsewhere for reconfigurability
+    SetFloat(handle, "heightScale", 0.01f);
 
     std::string shaderMaterial = "material";
-    SetVec4(shaderMaterial + ".albedo", material->Properties().look.albedo);
+    SetVec4(handle, shaderMaterial + ".albedo", material->Properties().look.albedo);
     if (material->IsPBR())
     {
-        SetFloat(shaderMaterial + ".metallic", material->Properties().realisticLook.metallic);
-        SetFloat(shaderMaterial + ".roughness", material->Properties().realisticLook.roughness);
-        SetFloat(shaderMaterial + ".ao", material->Properties().realisticLook.ao);
+        SetFloat(handle, shaderMaterial + ".metallic", material->Properties().realisticLook.metallic);
+        SetFloat(handle, shaderMaterial + ".roughness", material->Properties().realisticLook.roughness);
+        SetFloat(handle, shaderMaterial + ".ao", material->Properties().realisticLook.ao);
     }
     else
     {
-        SetFloat(shaderMaterial + ".emission", material->Properties().look.emission);
-        SetFloat(shaderMaterial + ".diffuse", material->Properties().look.diffuse);
-        SetFloat(shaderMaterial + ".ambient", material->Properties().look.ambient);
-        SetFloat(shaderMaterial + ".specular", material->Properties().look.specular);
-        SetFloat(shaderMaterial + ".shininess", material->Properties().look.shininess);
+        SetFloat(handle, shaderMaterial + ".emission", material->Properties().look.emission);
+        SetFloat(handle, shaderMaterial + ".diffuse", material->Properties().look.diffuse);
+        SetFloat(handle, shaderMaterial + ".ambient", material->Properties().look.ambient);
+        SetFloat(handle, shaderMaterial + ".specular", material->Properties().look.specular);
+        SetFloat(handle, shaderMaterial + ".shininess", material->Properties().look.shininess);
     }
 
     for (auto const& [key, val] : material->Textures())
     {
-        BindAttachment(key, val);
+        BindAttachment(handle, key, val);
     }
 }
 
-void ZShader::Use(const ZLightMap& lights)
+void ZShaderManager::Use(const ZHShader& handle, const ZLightMap& lights)
 {
-    Activate();
+    Activate(handle);
 
     unsigned int i = 0;
     for (auto it = lights.begin(); it != lights.end(); it++)
     {
         std::shared_ptr<ZLight> light = it->second;
         std::string shaderLight = "light";
-        SetInt(shaderLight + ".lightType", static_cast<unsigned int>(light->type));
-        SetBool(shaderLight + ".isEnabled", light->properties.isEnabled);
-        SetVec3(shaderLight + ".ambient", light->properties.ambient);
-        SetVec3(shaderLight + ".color", light->properties.color);
-        SetVec3(shaderLight + ".position", light->Position());
+        SetInt(handle, shaderLight + ".lightType", static_cast<unsigned int>(light->type));
+        SetBool(handle, shaderLight + ".isEnabled", light->properties.isEnabled);
+        SetVec3(handle, shaderLight + ".ambient", light->properties.ambient);
+        SetVec3(handle, shaderLight + ".color", light->properties.color);
+        SetVec3(handle, shaderLight + ".position", light->Position());
 
         switch (light->type)
         {
         case ZLightType::Directional:
-            SetVec3(shaderLight + ".direction", glm::eulerAngles(light->Orientation()));
+			SetVec3(handle, shaderLight + ".direction", glm::eulerAngles(light->Orientation()));
             break;
         case ZLightType::Point:
-            SetFloat(shaderLight + ".constantAttenuation", light->properties.constantAttenuation);
-            SetFloat(shaderLight + ".linearAttenuation", light->properties.linearAttenuation);
-            SetFloat(shaderLight + ".quadraticAttenuation", light->properties.quadraticAttenuation);
+            SetFloat(handle, shaderLight + ".constantAttenuation", light->properties.constantAttenuation);
+            SetFloat(handle, shaderLight + ".linearAttenuation", light->properties.linearAttenuation);
+            SetFloat(handle, shaderLight + ".quadraticAttenuation", light->properties.quadraticAttenuation);
             break;
         case ZLightType::Spot:
-            SetFloat(shaderLight + ".constantAttenuation", light->properties.constantAttenuation);
-            SetFloat(shaderLight + ".linearAttenuation", light->properties.linearAttenuation);
-            SetFloat(shaderLight + ".quadraticAttenuation", light->properties.quadraticAttenuation);
-            SetVec3(shaderLight + ".coneDirection", light->properties.coneDirection);
-            SetFloat(shaderLight + ".cutoff", light->properties.spotCutoff);
-            SetFloat(shaderLight + ".exponent", light->properties.spotExponent);
+            SetFloat(handle, shaderLight + ".constantAttenuation", light->properties.constantAttenuation);
+            SetFloat(handle, shaderLight + ".linearAttenuation", light->properties.linearAttenuation);
+            SetFloat(handle, shaderLight + ".quadraticAttenuation", light->properties.quadraticAttenuation);
+            SetVec3(handle, shaderLight + ".coneDirection", light->properties.coneDirection);
+            SetFloat(handle, shaderLight + ".cutoff", light->properties.spotCutoff);
+            SetFloat(handle, shaderLight + ".exponent", light->properties.spotExponent);
             break;
         default: break;
         }
@@ -399,124 +443,85 @@ void ZShader::Use(const ZLightMap& lights)
     }
 }
 
-void ZShader::Use(const ZBoneList& bones)
+void ZShaderManager::Use(const ZHShader& handle, const ZBoneList& bones)
 {
-    Activate();
+    Activate(handle);
     std::shared_ptr<ZBone> bone;
     for (unsigned int i = 0; i < BONES_PER_MODEL; i++)
     {
         bone = bones[i];
-        SetMat4("Bones[" + std::to_string(i) + "]", bone->transformation);
+        SetMat4(handle, "Bones[" + std::to_string(i) + "]", bone->transformation);
     }
 }
 
-void ZShader::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
+void ZShaderManager::BindAttachments(const ZHShader& handle)
 {
-    if (event->Resource() == nullptr)
-    {
-        return;
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    for (const auto& [key, val] : shader->attachments) {
+        BindAttachment(handle, key, val);
     }
+}
 
-    std::shared_ptr<ZShaderResourceData> shaderResource = std::static_pointer_cast<ZShaderResourceData>(event->Resource());
+void ZShaderManager::BindAttachment(const ZHShader& handle, const std::string& uniformName, const ZHTexture& attachment)
+{
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    shader->attachments[uniformName] = attachment;
+    ZServices::TextureManager()->Bind(attachment, shader->attachmentIndex);
+    SetInt(handle, uniformName, shader->attachmentIndex);
+    ++shader->attachmentIndex;
+}
 
-    switch (shaderResource->type)
+void ZShaderManager::SetAttachments(const ZHShader& handle, const AttachmentsMap& attachments)
+{
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    shader->attachments = attachments;
+}
+
+void ZShaderManager::SetCode(const ZHShader& handle, const std::string& code, ZShaderType shaderType)
+{
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    switch (shaderType)
     {
     case ZShaderType::Vertex:
-        if (shaderResource->path == vertexShaderPath_ && (loadedShadersMask_ & 1) == 0)
-        {
-            loadedShadersMask_ |= 1;
-            vertexShaderCode_ = shaderResource->code;
-            ProcessIncludes(vertexShaderCode_);
-        }
+        shader->vertexShaderCode = code;
+        ProcessIncludes(shader->vertexShaderCode);
         break;
     case ZShaderType::Pixel:
-        if (shaderResource->path == pixelShaderPath_ && (loadedShadersMask_ & (1 << 1)) == 0)
-        {
-            loadedShadersMask_ |= 1 << 1;
-            pixelShaderCode_ = shaderResource->code;
-            ProcessIncludes(pixelShaderCode_);
-        }
+        shader->pixelShaderCode = code;
+        ProcessIncludes(shader->pixelShaderCode);
         break;
     case ZShaderType::Geometry:
-        if (shaderResource->path == geometryShaderPath_ && (loadedShadersMask_ & (1 << 2)) == 0)
-        {
-            loadedShadersMask_ |= 1 << 2;
-            geometryShaderCode_ = shaderResource->code;
-            ProcessIncludes(geometryShaderCode_);
-        }
+        shader->geometryShaderCode = code;
+        ProcessIncludes(shader->geometryShaderCode);
         break;
-    default: break;
-    }
-
-    if (loadedShadersMask_ == 3 || loadedShadersMask_ == 7)
-    {
-        ZServices::EventAgent()->Unsubscribe(this, &ZShader::HandleShaderCodeLoaded);
-
-        Compile();
-
-        std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(shared_from_this());
-        ZServices::EventAgent()->Queue(shaderReadyEvent);
+    default:
+        break;
     }
 }
 
-void ZShader::BindAttachments()
+void ZShaderManager::AddAttachment(const ZHShader& handle, const std::string& uniformName, const ZHTexture& attachment)
 {
-    for (const auto& [key, val] : attachments_) {
-        BindAttachment(key, val);
-    }
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    shader->attachments[uniformName] = attachment;
 }
 
-void ZShader::BindAttachment(const std::string& uniformName, const ZHTexture& attachment)
+void ZShaderManager::ClearAttachments(const ZHShader& handle)
 {
-    attachments_[uniformName] = attachment;
-    // Before: attachment->Bind(attachmentIndex_);
-    // After:  ZServices::TextureManager()->Bind(attachment, attachmentIndex_);
-    SetInt(uniformName, attachmentIndex_);
-    ++attachmentIndex_;
+	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
+	ZShader* shader = shaderPool_.Get(handle);
+    for (const auto& [key, val] : shader->attachments) {
+        ZServices::TextureManager()->Unbind(val);
+    }
+    shader->attachments.clear();
+    shader->attachmentIndex = 0;
 }
 
-void ZShader::ClearAttachments()
-{
-    for (const auto& [key, val] : attachments_) {
-        // Before: val->Unbind();
-        // After: ZServices::TextureManager()->Unbind(attachment);
-    }
-    attachments_.clear();
-    attachmentIndex_ = 0;
-}
-
-void ZShader::CreateAsync(std::shared_ptr<ZOFTree> data, ZShaderIDMap& outPendingShaders)
-{
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Shader)
-        {
-            std::string vertexPath = "", pixelPath = "", geometryPath = "";
-
-            for (ZOFPropertyMap::iterator it = dataNode->properties.begin(); it != dataNode->properties.end(); it++)
-            {
-                if (!it->second->HasValues()) continue;
-
-                std::shared_ptr<ZOFString> str = it->second->Value<ZOFString>(0);
-                if (it->second->id == "vertex") vertexPath = str->value;
-                else if (it->second->id == "pixel") pixelPath = str->value;
-                else if (it->second->id == "geometry") geometryPath = str->value;
-            }
-
-            std::shared_ptr<ZShader> shader(new ZShader(vertexPath, pixelPath, geometryPath));
-            shader->name_ = it->first;
-            outPendingShaders[shader] = it->first;
-        }
-    }
-
-    for (auto it = outPendingShaders.begin(); it != outPendingShaders.end(); it++)
-    {
-        it->first->InitializeAsync();
-    }
-}
-
-void ZShader::Create(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap)
+void ZShaderManager::Create(std::shared_ptr<ZOFNode> data, ZShaderMap& outShaderMap)
 {
     ZShaderMap shaders;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
@@ -536,17 +541,107 @@ void ZShader::Create(std::shared_ptr<ZOFTree> data, ZShaderMap& outShaderMap)
                 else if (it->second->id == "geometry") geometryPath = str->value;
             }
 
-            auto shader = ZShader::Create(vertexPath, pixelPath, geometryPath);
-            shader->name_ = it->first;
-            shaders[it->first] = shader;
+			shaders[it->first] = ZShaderManager::Create(vertexPath, pixelPath, geometryPath, it->first);
         }
     }
     outShaderMap = shaders;
 }
 
-std::shared_ptr<ZShader> ZShader::Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath)
+void ZShaderManager::CreateAsync(std::shared_ptr<ZOFNode> data)
 {
-    std::shared_ptr<ZShader> shader = std::make_shared<ZShader>(vertexShaderPath, pixelShaderPath, geomShaderPath);
-    shader->Initialize();
-    return shader;
+    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    {
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Shader)
+        {
+            std::string vertexPath = "", pixelPath = "", geometryPath = "";
+
+            for (ZOFPropertyMap::iterator it = dataNode->properties.begin(); it != dataNode->properties.end(); it++)
+            {
+                if (!it->second->HasValues()) continue;
+
+                std::shared_ptr<ZOFString> str = it->second->Value<ZOFString>(0);
+                if (it->second->id == "vertex") vertexPath = str->value;
+                else if (it->second->id == "pixel") pixelPath = str->value;
+                else if (it->second->id == "geometry") geometryPath = str->value;
+            }
+
+            CreateAsync(vertexPath, pixelPath, geometryPath, it->first);
+        }
+    }
+}
+
+ZHShader ZShaderManager::Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath, const std::string& name)
+{
+    ZHShader handle;
+    ZShader* shader = shaderPool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+
+    shader->name = !name.empty() ? name : shader->name;
+
+	shader->vertexShaderCode = GetShaderCode(vertexShaderPath, ZShaderType::Vertex);
+	shader->pixelShaderCode = GetShaderCode(pixelShaderPath, ZShaderType::Pixel);
+	shader->geometryShaderCode = GetShaderCode(geomShaderPath, ZShaderType::Geometry);
+
+	Compile(handle);
+
+    return handle;
+}
+
+void ZShaderManager::CreateAsync(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath, const std::string& name)
+{
+	ZHShader handle;
+	ZShader* shader = shaderPool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+
+    shader->name = !name.empty() ? name : shader->name;
+
+    loadedShaderFiles_[vertexShaderPath].push_back(handle);
+    loadedShaderFiles_[pixelShaderPath].push_back(handle);
+    loadedShaderFiles_[geomShaderPath].push_back(handle);
+    shaderLoadMasks_[handle] = 0;
+
+	GetShaderCode(vertexShaderPath, ZShaderType::Vertex, true);
+	GetShaderCode(pixelShaderPath, ZShaderType::Pixel, true);
+	GetShaderCode(geomShaderPath, ZShaderType::Geometry, true);
+
+	ZServices::EventAgent()->Subscribe(this, &ZShaderManager::HandleShaderCodeLoaded);
+}
+
+void ZShaderManager::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
+{
+    if (event->Resource() == nullptr)
+    {
+        return;
+    }
+
+    std::shared_ptr<ZShaderResourceData> shaderResource = std::static_pointer_cast<ZShaderResourceData>(event->Resource());
+
+	if (loadedShaderFiles_.find(shaderResource->path) != loadedShaderFiles_.end())
+	{
+		for (auto it = loadedShaderFiles_[shaderResource->path].begin(); it != loadedShaderFiles_[shaderResource->path].end(); ++it)
+		{
+            ZHShader handle = *it;
+            unsigned int mask = 1 << static_cast<unsigned short>(shaderResource->type);
+			if ((shaderLoadMasks_[handle] & mask) == 0)
+			{
+				shaderLoadMasks_[handle] |= mask;
+				SetCode(handle, shaderResource->code, shaderResource->type);
+			}
+
+			if (shaderLoadMasks_[handle] == 3 || shaderLoadMasks_[handle] == 7)
+			{
+				Compile(handle);
+
+                shaderLoadMasks_.erase(handle);
+                it = loadedShaderFiles_[shaderResource->path].erase(it);
+
+				std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(handle);
+				ZServices::EventAgent()->Queue(shaderReadyEvent);
+			}
+		}
+
+        if (loadedShaderFiles_[shaderResource->path].empty())
+        {
+            loadedShaderFiles_.erase(shaderResource->path);
+        }
+	}
 }

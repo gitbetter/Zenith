@@ -29,10 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
 class ZScene;
 class ZFrustum;
 class ZAABBox;
@@ -40,7 +38,6 @@ class ZVertexBuffer;
 class ZFont;
 class ZRenderStateExecutor;
 
-// Class and Data Structure Definitions
 class ZGraphics
 {
 

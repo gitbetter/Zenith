@@ -48,6 +48,13 @@ ZTextureManager::ZTextureManager()
 {
 }
 
+unsigned int ZTextureManager::PlatformHandle(const ZHTexture& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZTexture* texture = texturePool_.Get(handle);
+	return texture->id;
+}
+
 std::string ZTextureManager::Name(const ZHTexture& handle)
 {
     assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
@@ -83,6 +90,13 @@ ZTextureWrapping ZTextureManager::Wrapping(const ZHTexture& handle)
 	return texture->wrapping;
 }
 
+void ZTextureManager::SetPlatformHandle(const ZHTexture& handle, unsigned int pHandle)
+{
+	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
+	ZTexture* texture = texturePool_.Get(handle);
+	texture->id = pHandle;
+}
+
 void ZTextureManager::SetName(const ZHTexture& handle, const std::string& name)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
@@ -104,14 +118,14 @@ void ZTextureManager::SetPath(const ZHTexture& handle, const std::string& path)
 	texture->path = path;
 }
 
-bool ZTextureManager::SetIsMultisampled(const ZHTexture& handle, bool multisampled)
+void ZTextureManager::SetIsMultisampled(const ZHTexture& handle, bool multisampled)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
 	ZTexture* texture = texturePool_.Get(handle);
 	texture->multisampled = multisampled;
 }
 
-ZTextureWrapping ZTextureManager::SetWrapping(const ZHTexture& handle, ZTextureWrapping wrapping)
+void ZTextureManager::SetWrapping(const ZHTexture& handle, ZTextureWrapping wrapping)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
 	ZTexture* texture = texturePool_.Get(handle);
@@ -127,7 +141,7 @@ void ZTextureManager::CleanUp()
 {
 }
 
-void ZTextureManager::CreateAsync(std::shared_ptr<ZOFTree> data)
+void ZTextureManager::CreateAsync(std::shared_ptr<ZOFNode> data)
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
@@ -162,7 +176,7 @@ void ZTextureManager::CreateAsync(std::shared_ptr<ZOFTree> data)
     }
 }
 
-void ZTextureManager::Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap)
+void ZTextureManager::Create(std::shared_ptr<ZOFNode> data, ZTextureMap& outTextureMap)
 {
     ZTextureMap textures;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
@@ -228,16 +242,16 @@ void ZTextureManager::CreateAsync(const std::string& path, const std::string& ty
     pendingTextureTypes_[type] = type;
 
 	ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, resourceType);
-	ZServices::ResourceCache()->GetDataAsync(resource);
+	ZServices::ResourceImporter()->GetDataAsync(resource);
 }
 
 ZIBLTextureData ZTextureManager::CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const ZHTexture& cubemap)
 {
     ZIBLTextureData generatedIBLTexture;
     generatedIBLTexture.cubeMap = cubemap;
-    generatedIBLTexture.irradiance = ZTextureManager::CreateIrradianceMap(bufferData, cubemap);
-    generatedIBLTexture.prefiltered = ZTextureManager::CreatePrefilterMap(bufferData, cubemap);
-    generatedIBLTexture.brdfLUT = ZTextureManager::CreateBRDFLUT(bufferData);
+    generatedIBLTexture.irradiance = CreateIrradianceMap(bufferData, cubemap);
+    generatedIBLTexture.prefiltered = CreatePrefilterMap(bufferData, cubemap);
+    generatedIBLTexture.brdfLUT = CreateBRDFLUT(bufferData);
     return generatedIBLTexture;
 }
 

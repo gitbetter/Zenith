@@ -29,7 +29,6 @@
 
 #include "ZServices.hpp"
 #include "ZUICheckBox.hpp"
-#include "ZShader.hpp"
 #include "ZUIImage.hpp"
 #include "ZUIClicker.hpp"
 #include "ZInputButtonEvent.hpp"

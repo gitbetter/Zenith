@@ -36,7 +36,6 @@
 class ZEditorEntity;
 class ZMenuBar;
 class ZEvent;
-class ZResourceHandle;
 class ZResourceLoadedEvent;
 class ZUIPanel;
 class ZCamera;
@@ -100,9 +99,9 @@ private:
 
     void SetupLayoutPanels();
     void SetupInitialTools();
-    void Configure(std::shared_ptr<ZOFTree> objectTree);
+    void Configure(std::shared_ptr<ZOFNode> objectTree);
     void Configure(ZEditorConfig config);
-    void LoadObjectTemplates(std::shared_ptr<ZOFTree> objectTree);
+    void LoadObjectTemplates(std::shared_ptr<ZOFNode> objectTree);
 
     void HandleResourceLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
     

@@ -54,22 +54,14 @@ void ZAssetStore::Initialize()
 
 void ZAssetStore::InitializeShaders()
 {
-    pbrShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/pbr.frag"));
-    blinnPhongShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"));
-    debugShader_ = std::unique_ptr<ZShader>(new ZShader("/Shaders/Vertex/debug.vert", "/Shaders/Pixel/debug.frag"));
-    shadowShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/null.frag"));
-    depthShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/null.frag"));
-    postShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/postprocess.vert", "/Shaders/Pixel/postprocess.frag"));
-    uiShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"));
-    textShader_ = std::shared_ptr<ZShader>(new ZShader("/Shaders/Vertex/text.vert", "/Shaders/Pixel/text.frag"));
-    pbrShader_->Initialize();
-    blinnPhongShader_->Initialize();
-    debugShader_->Initialize();
-    shadowShader_->Initialize();
-    depthShader_->Initialize();
-    postShader_->Initialize();
-    uiShader_->Initialize();
-    textShader_->Initialize();
+    pbrShader_ = ZServices::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/pbr.frag");
+	blinnPhongShader_ = ZServices::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag");
+    debugShader_ = ZServices::ShaderManager()->Create("/Shaders/Vertex/debug.vert", "/Shaders/Pixel/debug.frag");
+    shadowShader_ = ZServices::ShaderManager()->Create("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/null.frag");
+    depthShader_ = ZServices::ShaderManager()->Create("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/null.frag");
+    postShader_ = ZServices::ShaderManager()->Create("/Shaders/Vertex/postprocess.vert", "/Shaders/Pixel/postprocess.frag");
+    uiShader_ = ZServices::ShaderManager()->Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag");
+    textShader_ = ZServices::ShaderManager()->Create("/Shaders/Vertex/text.vert", "/Shaders/Pixel/text.frag");
 }
 
 void ZAssetStore::InitializeFonts()
@@ -78,14 +70,14 @@ void ZAssetStore::InitializeFonts()
     AddFont(arialDefault->Name(), arialDefault);
 }
 
-void ZAssetStore::Load(std::shared_ptr<ZOFTree> root)
+void ZAssetStore::Load(std::shared_ptr<ZOFNode> root)
 {
     ZShaderMap shaders; ZTextureMap textures; ZModelMap models;
     ZMaterialMap materials; ZFontMap fonts;
 
     ZFont::Create(root, fonts);
     ZServices::TextureManager()->Create(root, textures);
-    ZShader::Create(root, shaders);
+    ZServices::ShaderManager()->Create(root, shaders);
     ZModel::Create(root, models);
     ZMaterial::Create(root, materials, textures);
 
@@ -115,13 +107,13 @@ void ZAssetStore::Load(std::shared_ptr<ZOFTree> root)
     }
 }
 
-void ZAssetStore::LoadAsync(std::shared_ptr<ZOFTree> root)
+void ZAssetStore::LoadAsync(std::shared_ptr<ZOFNode> root)
 {
     ZMaterialMap loadedMaterials; ZModelMap loadedModels;
 
     ZFont::CreateAsync(root, pendingFonts_);
     ZServices::TextureManager()->CreateAsync(root);
-    ZShader::CreateAsync(root, pendingShaders_);
+    ZServices::ShaderManager()->CreateAsync(root);
     ZModel::CreateAsync(root, pendingModels_, loadedModels);
     ZMaterial::CreateAsync(root, pendingMaterials_, loadedMaterials);
 
@@ -146,12 +138,12 @@ void ZAssetStore::AddFont(const std::string& id, std::shared_ptr<ZFont> font)
     loadedFonts_[id] = font;
 }
 
-void ZAssetStore::AddShader(const std::string& id, std::shared_ptr<ZShader> shader)
+void ZAssetStore::AddShader(const std::string& id, const ZHShader& shader)
 {
     if (shader) loadedShaders_[id] = shader;
 }
 
-void ZAssetStore::AddTexture(const std::string& id, const std::shared_ptr<ZTexture>& texture)
+void ZAssetStore::AddTexture(const std::string& id, const ZHTexture& texture)
 {
     loadedTextures_[id] = texture;
 }
@@ -199,12 +191,12 @@ ZFont::ptr ZAssetStore::GetFont(const std::string& id)
     return nullptr;
 }
 
-std::shared_ptr<ZTexture> ZAssetStore::GetTexture(const std::string& id)
+ZHTexture ZAssetStore::GetTexture(const std::string& id)
 {
     if (loadedTextures_.find(id) != loadedTextures_.end()) {
         return loadedTextures_[id];
     }
-    return nullptr;
+    return ZHTexture();
 }
 
 std::shared_ptr<ZModel> ZAssetStore::GetModel(const std::string& id)
@@ -215,12 +207,12 @@ std::shared_ptr<ZModel> ZAssetStore::GetModel(const std::string& id)
     return nullptr;
 }
 
-std::shared_ptr<ZShader> ZAssetStore::GetShader(const std::string& id)
+ZHShader ZAssetStore::GetShader(const std::string& id)
 {
     if (loadedShaders_.find(id) != loadedShaders_.end()) {
         return loadedShaders_[id];
     }
-    return nullptr;
+    return ZHShader();
 }
 
 std::shared_ptr<ZMaterial> ZAssetStore::GetMaterial(const std::string& id)
@@ -233,12 +225,13 @@ std::shared_ptr<ZMaterial> ZAssetStore::GetMaterial(const std::string& id)
 
 void ZAssetStore::HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event)
 {
-    if (pendingShaders_.find(event->Shader()) != pendingShaders_.end())
-    {
-        std::shared_ptr<ZShader> shader = event->Shader();
-        AddShader(pendingShaders_[shader], shader);
-        pendingShaders_.erase(shader);
-    }
+	if (event->Shader().IsNull())
+	{
+		return;
+	}
+
+    ZHShader shader = event->Shader();
+    AddShader(ZServices::ShaderManager()->Name(shader), shader);
 }
 
 void ZAssetStore::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
@@ -248,8 +241,8 @@ void ZAssetStore::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& 
         return;
     }
 
-	ZTexture::ptr texture = event->Texture();
-	AddTexture(texture->id, texture);
+	ZHTexture texture = event->Texture();
+	AddTexture(ZServices::TextureManager()->Name(texture), texture);
 }
 
 void ZAssetStore::HandleModelReady(const std::shared_ptr<ZModelReadyEvent>& event)
@@ -282,39 +275,6 @@ void ZAssetStore::HandleMaterialReady(const std::shared_ptr<ZMaterialReadyEvent>
 
 void ZAssetStore::CleanUp()
 {
-    if (shadowShader_)
-    {
-        shadowShader_.reset();
-    }
-    if (depthShader_)
-    {
-        depthShader_.reset();
-    }
-    if (debugShader_)
-    {
-        debugShader_.reset();
-    }
-    if (postShader_)
-    {
-        postShader_.reset();
-    }
-    if (uiShader_)
-    {
-        uiShader_.reset();
-    }
-    if (textShader_)
-    {
-        textShader_.reset();
-    }
-    if (blinnPhongShader_)
-    {
-        blinnPhongShader_.reset();
-    }
-    if (pbrShader_)
-    {
-        pbrShader_.reset();
-    }
-
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleFontReady);
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleShaderReady);
     ZServices::EventAgent()->Unsubscribe(this, &ZAssetStore::HandleTextureReady);

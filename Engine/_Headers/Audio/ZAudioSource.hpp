@@ -28,13 +28,8 @@
 */
 #pragma once
 
-// Includes
 #include "ZProcess.hpp"
 
-// Forward Declarations
-class ZResourceHandle;
-
-// Class and Data Structure Definitions
 class ZAudioSource : public ZProcess
 {
 
@@ -42,10 +37,10 @@ class ZAudioSource : public ZProcess
 
 public:
 
-    ZAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr);
+    ZAudioSource(std::shared_ptr<class ZAudioResourceData> resource = nullptr);
     virtual ~ZAudioSource() {}
 
-    virtual std::shared_ptr<ZResourceHandle> const Resource() { return resourceHandle_; }
+    virtual std::shared_ptr<ZAudioResourceData> const Data() { return data_; }
 
     virtual void Play(int volume, bool looping = true) = 0;
     virtual void Stop() = 0;
@@ -60,7 +55,7 @@ public:
 
 protected:
 
-    std::shared_ptr<ZResourceHandle> resourceHandle_;
+    std::shared_ptr<ZAudioResourceData> data_;
     bool isPaused_, isLooping_, playOnLoad_;
     int volume_;
 

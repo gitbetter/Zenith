@@ -29,16 +29,12 @@
 
 #pragma once
 
-// Includes
 #include "ZGameObject.hpp"
 #include "ZFramebuffer.hpp"
 
-// Forward Declarations
-class ZTexture;
 class ZTextureReadyEvent;
 class ZRenderStateGroup;
 
-// Class and Data Structure Definitions
 class ZSkybox : public ZGameObject
 {
 
@@ -46,7 +42,7 @@ private:
 
     std::string hdrPath_;
 
-    void Initialize(const ZTexture::ptr& cubeMap, const ZFramebuffer::ptr& bufferData);
+    void Initialize(const ZHTexture& cubeMap, const ZFramebuffer::ptr& bufferData);
 
 public:
 
@@ -70,7 +66,6 @@ public:
 
 protected:
 
-    std::shared_ptr<ZTexture> pendingHDRTexture_;
     ZIBLTextureData iblTexture_;
 
     std::shared_ptr<ZRenderStateGroup> renderState_;

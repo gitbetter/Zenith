@@ -29,14 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
-class ZShader;
 class ZUIClicker;
 
-// Class and Data Structure Definitions
 class ZUIButton : public ZUIElement
 {
 

@@ -103,7 +103,7 @@ public:
 
 public:
 
-	ZTextureResourceData(std::string& path, ZResourceType type, void* buffer = nullptr, unsigned int size = 0)
+	ZTextureResourceData(const std::string& path, ZResourceType type, void* buffer = nullptr, unsigned int size = 0)
 		: ZResourceData(path, type, buffer, size)
 	{ }
 	~ZTextureResourceData();
@@ -117,7 +117,7 @@ public:
 
 	using ptr = std::shared_ptr<ZZofResourceData>;
 
-    std::shared_ptr<struct ZOFTree> objectTree;
+    std::shared_ptr<struct ZOFNode> objectTree;
 
 public:
 

@@ -65,7 +65,7 @@ public:
     void                                        SetTextColor(const glm::vec4& color);
     void                                        SetHighlightBorder(const ZUIBorder& border);
     void                                        SetFocused(bool focused);
-    void                                        SetBackground(const ZTexture::ptr& texture);
+    void                                        SetBackground(const ZHTexture& texture);
     void                                        SetBackground(const glm::vec4& color);
     void                                        SetFontSize(float size);
     void                                        SetFieldPadding(const glm::vec2& padding);

@@ -28,9 +28,7 @@
 */
 
 #include "ZRenderPass.hpp"
-#include "ZServices.hpp"
 #include "ZFramebuffer.hpp"
-#include "ZShader.hpp"
 #include "ZMesh.hpp"
 #include "ZScene.hpp"
 #include "ZSkybox.hpp"
@@ -38,6 +36,7 @@
 #include "ZRenderQueue.hpp"
 #include "ZRenderStateGroup.hpp"
 #include "ZUniformBuffer.hpp"
+#include "ZServices.hpp"
 
 // TODO: Figure out how to move engine passes outside of static scope so the
 // we can use ZServices::AssetStore shaders and other renderpasses without issue, otherwise, we face
@@ -46,7 +45,7 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Depth()
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> depth = std::make_shared<ZDepthPass>(
-        ZShader::Create("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/null.frag"),
+        ZServices::ShaderManager()->Create("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/null.frag"),
         ZFramebuffer::CreateDepth(glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE))
     );
     if (!initialized) {
@@ -61,7 +60,7 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Shadow()
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> shadow = std::make_shared<ZShadowPass>(
-        ZShader::Create("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/null.frag"),
+        ZServices::ShaderManager()->Create("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/null.frag"),
         ZFramebuffer::CreateShadow(glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE), NUM_SHADOW_CASCADES)
     );
     if (!initialized) {
@@ -75,7 +74,7 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Color(const glm::vec2& size)
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> color = std::make_shared<ZColorPass>(
-        ZShader::Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"),
+        ZServices::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"),
         ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f)), true,
         ZRenderPass::Depth(), ZRenderPass::Shadow()
     );
@@ -93,7 +92,7 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Post(const glm::vec2& size)
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> post = std::make_shared<ZPostPass>(
-        ZShader::Create("/Shaders/Vertex/postprocess.vert", "/Shaders/Pixel/postprocess.frag"),
+        ZServices::ShaderManager()->Create("/Shaders/Vertex/postprocess.vert", "/Shaders/Pixel/postprocess.frag"),
         ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f)),
         ZRenderPass::Color(), ZRenderPass::Depth(), ZRenderPass::Shadow()
     );
@@ -111,7 +110,7 @@ std::shared_ptr<ZRenderPass> ZRenderPass::UI(const glm::vec2& size)
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> ui = std::make_shared<ZUIPass>(
-        ZShader::Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"),
+        ZServices::ShaderManager()->Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"),
         ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f))
     );
     if (!initialized) {
@@ -126,7 +125,7 @@ std::shared_ptr<ZRenderPass> ZRenderPass::UI(const glm::vec2& size)
 
 /****************** Render Pass Base ***********************/
 
-ZRenderPass::ZRenderPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies)
+ZRenderPass::ZRenderPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies)
     : shader_(shader), framebuffer_(fbo), dependencies_(dependencies), size_(0.f)
 { }
 

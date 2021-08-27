@@ -32,7 +32,6 @@
 #include "ZServices.hpp"
 #include "ZVertexBuffer.hpp"
 #include "ZFrustum.hpp"
-#include "ZShader.hpp"
 #include "ZFont.hpp"
 
 #include <GL/glew.h>

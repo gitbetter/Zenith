@@ -46,7 +46,6 @@
 #include "ZSceneRoot.hpp"
 #include "ZComponent.hpp"
 #include "ZResourceLoadedEvent.hpp"
-#include "ZResourceExtraData.hpp"
 #include "ZTextureReadyEvent.hpp"
 #include "ZShaderReadyEvent.hpp"
 #include "ZModelReadyEvent.hpp"
@@ -64,7 +63,7 @@ ZScene::ZScene(const std::string& name) : name_(name), playState_(ZPlayState::Lo
 ZScene::ZScene(std::initializer_list<std::string> zofPaths) : ZScene()
 {
 // Make sure scene description paths are cached before loading them asynchronously.
-// This allows us to check if one of our zof files was loaded when receiving events
+// This allows us to check if one of our ZOF files was loaded when receiving events
     for (std::string path : zofPaths)
     {
         pendingSceneDefinitions_[path] = true;
@@ -428,11 +427,11 @@ bool ZScene::RayCast(ZRay& ray, ZIntersectHitResult& hitResult)
     return bvh_->Intersect(ray, hitResult);
 }
 
-std::shared_ptr<ZTexture> ZScene::TargetTexture()
+ZHTexture ZScene::TargetTexture()
 {
     if (targetBuffer_)
         return targetBuffer_->BoundAttachment();
-    return nullptr;
+    return ZHTexture();
 }
 
 void ZScene::SetDefaultSkybox()
@@ -442,7 +441,7 @@ void ZScene::SetDefaultSkybox()
     AddGameObject(skybox_);
 }
 
-void ZScene::LoadSceneData(const std::shared_ptr<ZOFTree>& objectTree)
+void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
 {
     ParseSceneMetadata(objectTree);
 
@@ -467,7 +466,7 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFTree>& objectTree)
     }
 }
 
-void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree)
+void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFNode>& objectTree)
 {
     bool hasSkybox = false;
     for (ZOFChildMap::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++)

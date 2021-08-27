@@ -29,16 +29,12 @@
 
 #pragma once
 
-// Includes
 #include "ZProcess.hpp"
 #include "ZVertexBuffer.hpp"
 
-// Forward Declarations
-class ZShader;
 class ZMaterial;
 class ZRenderStateGroup;
 
-// Class and Data Structure Definitions
 class ZMesh : public ZProcess
 {
 

@@ -29,19 +29,15 @@
 
 #pragma once
 
-// Includes
 #include "ZFramebuffer.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZGLFramebuffer : public ZFramebuffer
 {
 
 public:
 
-    void LoadColor(const glm::vec2& size, const ZTexture::ptr& colorTexture = nullptr, bool multisample = false) override;
-    void LoadDepth(const glm::vec2& size, const ZTexture::ptr& depthTexture = nullptr) override;
+    void LoadColor(const glm::vec2& size, const ZHTexture& colorTexture = ZHTexture(), bool multisample = false) override;
+    void LoadDepth(const glm::vec2& size, const ZHTexture& depthTexture = ZHTexture()) override;
     void LoadCubeMap() override;
 
     void Bind() override;

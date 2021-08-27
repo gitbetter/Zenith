@@ -29,13 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZTexture.hpp"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-// Class and Data Structure Definitions
-class ZResourceHandle;
 class ZResourceLoadedEvent;
 
 struct ZAtlas
@@ -61,11 +58,11 @@ public:
     virtual void Load(const std::string& fontPath, unsigned int fontSize);
     virtual void LoadAsync(const std::string& fontPath, unsigned int fontSize);
 
-    virtual void Load(ZResourceData* resource, unsigned int fontSize) = 0;
+    virtual void Load(class ZResourceData* resource, unsigned int fontSize) = 0;
     virtual void SetSize(unsigned int size) = 0;
 
-    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZFontIDMap& outPendingFonts);
-    static void Create(std::shared_ptr<ZOFTree> data, ZFontMap& outFontMap);
+    static void CreateAsync(std::shared_ptr<ZOFNode> data, ZFontIDMap& outPendingFonts);
+    static void Create(std::shared_ptr<ZOFNode> data, ZFontMap& outFontMap);
     static ZFont::ptr Create(const std::string& fontPath, unsigned int fontSize);
     static ZFont::ptr CreateAsync(const std::string& fontPath, unsigned int fontSize);
 

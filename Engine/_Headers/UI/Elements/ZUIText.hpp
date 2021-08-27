@@ -29,14 +29,11 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
 class ZVertexBuffer;
 class ZFont;
 
-// Class and Data Structure Definitions
 class ZUIText : public ZUIElement
 {
 

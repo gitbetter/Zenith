@@ -29,7 +29,6 @@
 
 #include "ZUIButton.hpp"
 #include "ZServices.hpp"
-#include "ZShader.hpp"
 #include "ZUIClicker.hpp"
 
 ZUIButton::ZUIButton(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)

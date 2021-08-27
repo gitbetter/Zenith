@@ -34,13 +34,11 @@
 
 ZRenderTask::ZRenderTask()
 {
-    resourceState_.textures.fill(nullptr);
     resourceState_.uniformBuffers.fill(nullptr);
 }
 
 ZRenderTask::~ZRenderTask()
 {
-    resourceState_.textures.fill(nullptr);
     resourceState_.uniformBuffers.fill(nullptr);
 }
 

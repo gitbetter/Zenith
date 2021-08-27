@@ -29,15 +29,11 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
-class ZShader;
 class ZTextureReadyEvent;
 class ZTexture;
 
-// Class and Data Structure Definitions
 class ZUIImage : public ZUIElement
 {
 

@@ -29,18 +29,13 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
 class ZFramebuffer;
-class ZShader;
 class ZMesh2D;
 class ZRenderQueue;
 class ZRenderStateGroup;
 class ZRenderTask;
-
-// Class and Data Structure Definitions
 
 class ZRenderPass
 {
@@ -50,9 +45,9 @@ public:
     using ptr = std::shared_ptr<ZRenderPass>;
 
     template<class ...Args>
-    ZRenderPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
+    ZRenderPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
         : ZRenderPass(shader, fbo, { args... }) { }
-    ZRenderPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {});
+    ZRenderPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {});
     virtual ~ZRenderPass() { }
 
     virtual void Initialize();
@@ -73,7 +68,7 @@ public:
 
 protected:
 
-    std::shared_ptr<ZShader> shader_ = nullptr;
+    ZHShader shader_;
     glm::vec2 size_;
     std::shared_ptr<ZFramebuffer> framebuffer_ = nullptr;
     std::vector<ZRenderPass::ptr> dependencies_;
@@ -97,9 +92,9 @@ class ZDepthPass : public ZRenderPass
 public:
 
     template<class ...Args>
-    ZDepthPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
+    ZDepthPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
         : ZDepthPass(shader, fbo, { args... }) { }
-    ZDepthPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
+    ZDepthPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
         : ZRenderPass(shader, fbo, dependencies) { }
     ~ZDepthPass() { }
 
@@ -121,9 +116,9 @@ class ZShadowPass : public ZRenderPass
 public:
 
     template<class ...Args>
-    ZShadowPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
+    ZShadowPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
         : ZShadowPass(shader, fbo, { args... }) { }
-    ZShadowPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
+    ZShadowPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
         : ZRenderPass(shader, fbo, dependencies) { }
     ~ZShadowPass() { }
 
@@ -147,9 +142,9 @@ class ZColorPass : public ZRenderPass
 public:
 
     template<class ...Args>
-    ZColorPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, bool multisample = true, Args... args)
+    ZColorPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, bool multisample = true, Args... args)
         : ZColorPass(shader, fbo, multisample, { args... }) { }
-    ZColorPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, bool multisample = true, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
+    ZColorPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, bool multisample = true, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
         : ZRenderPass(shader, fbo, dependencies), multisample_(multisample) { }
     ~ZColorPass() { }
 
@@ -172,9 +167,9 @@ class ZPostPass : public ZRenderPass
 public:
 
     template<class ...Args>
-    ZPostPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
+    ZPostPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
         : ZPostPass(shader, fbo, { args... }) { }
-    ZPostPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
+    ZPostPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
         : ZRenderPass(shader, fbo, dependencies) { }
     ~ZPostPass() { }
 
@@ -196,9 +191,9 @@ class ZUIPass : public ZRenderPass
 public:
 
     template<class ...Args>
-    ZUIPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
+    ZUIPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, Args... args)
         : ZUIPass(shader, fbo, { args... }) { }
-    ZUIPass(const std::shared_ptr<ZShader>& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
+    ZUIPass(const ZHShader& shader, const std::shared_ptr<ZFramebuffer>& fbo, const std::initializer_list<ZRenderPass::ptr>& dependencies = {})
         : ZRenderPass(shader, fbo, dependencies) { }
     ~ZUIPass() { }
 

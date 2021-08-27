@@ -28,7 +28,6 @@
 */
 
 #include "ZOggResourceLoader.hpp"
-#include "ZResourceExtraData.hpp"
 #include "ZServices.hpp"
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"

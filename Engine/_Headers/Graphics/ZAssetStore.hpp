@@ -29,26 +29,21 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 #include "ZOFTree.hpp"
 
-// Forward Declarations
 class ZGameObject;
 class ZWindow;
-class ZShader;
 class ZLight;
 class ZModel;
 class ZMesh2D;
 class ZTexture;
-class ZResourceHandle;
 class ZModelReadyEvent;
 class ZFontReadyEvent;
 class ZTextureReadyEvent;
 class ZShaderReadyEvent;
 class ZMaterialReadyEvent;
 
-// Class and Data Structure Definitions
 class ZAssetStore
 {
 
@@ -58,18 +53,18 @@ public:
     ~ZAssetStore() = default;
 
     void Initialize();
-    void Load(std::shared_ptr<ZOFTree> root);
-    void LoadAsync(std::shared_ptr<ZOFTree> root);
+    void Load(std::shared_ptr<ZOFNode> root);
+    void LoadAsync(std::shared_ptr<ZOFNode> root);
     void CleanUp();
 
-    const std::shared_ptr<ZShader>& PBRShader() const { return pbrShader_; }
-    const std::shared_ptr<ZShader>& BlinnPhongShader() const { return blinnPhongShader_; }
-    const std::shared_ptr<ZShader>& ShadowShader() const { return shadowShader_; }
-    const std::shared_ptr<ZShader>& DepthShader() const { return depthShader_; }
-    const std::shared_ptr<ZShader>& PostShader() const { return postShader_; }
-    const std::shared_ptr<ZShader>& TextShader() const { return textShader_; }
-    const std::shared_ptr<ZShader>& UIShader() const { return uiShader_; }
-    const std::shared_ptr<ZShader>& DebugShader() const { return debugShader_; }
+    const ZHShader& PBRShader() const { return pbrShader_; }
+    const ZHShader& BlinnPhongShader() const { return blinnPhongShader_; }
+    const ZHShader& ShadowShader() const { return shadowShader_; }
+    const ZHShader& DepthShader() const { return depthShader_; }
+    const ZHShader& PostShader() const { return postShader_; }
+    const ZHShader& TextShader() const { return textShader_; }
+    const ZHShader& UIShader() const { return uiShader_; }
+    const ZHShader& DebugShader() const { return debugShader_; }
     const ZFontMap& Fonts() const { return loadedFonts_; }
     const ZTextureMap& Textures() const { return loadedTextures_; }
     const ZShaderMap& Shaders() const { return loadedShaders_; }
@@ -78,8 +73,8 @@ public:
 
     void RegisterFont(const std::string& fontPath, unsigned int fontSize = 64);
     void AddFont(const std::string& id, std::shared_ptr<ZFont> font);
-    void AddShader(const std::string& id, std::shared_ptr<ZShader> shader);
-    void AddTexture(const std::string& id, const std::shared_ptr<ZTexture>& texture);
+    void AddShader(const std::string& id, const ZHShader& shader);
+    void AddTexture(const std::string& id, const ZHTexture& texture);
     void AddModel(const std::string& id, std::shared_ptr<ZModel> model);
     void AddMaterial(const std::string& id, std::shared_ptr<ZMaterial> material);
 
@@ -90,9 +85,9 @@ public:
     bool HasMaterial(const std::string& id) const;
 
     std::shared_ptr<ZFont> GetFont(const std::string& id);
-    std::shared_ptr<ZTexture> GetTexture(const std::string& id);
+    ZHTexture GetTexture(const std::string& id);
     std::shared_ptr<ZModel> GetModel(const std::string& id);
-    std::shared_ptr<ZShader> GetShader(const std::string& id);
+    ZHShader GetShader(const std::string& id);
     std::shared_ptr<ZMaterial> GetMaterial(const std::string& id);
 
     void HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event);
@@ -103,14 +98,14 @@ public:
 
 protected:
 
-    std::shared_ptr<ZShader> pbrShader_ = nullptr;
-    std::shared_ptr<ZShader> blinnPhongShader_ = nullptr;
-    std::shared_ptr<ZShader> debugShader_ = nullptr;
-    std::shared_ptr<ZShader> shadowShader_ = nullptr;
-    std::shared_ptr<ZShader> depthShader_ = nullptr;
-    std::shared_ptr<ZShader> postShader_ = nullptr;
-    std::shared_ptr<ZShader> uiShader_ = nullptr;
-    std::shared_ptr<ZShader> textShader_ = nullptr;
+	ZHShader pbrShader_;
+	ZHShader blinnPhongShader_;
+	ZHShader debugShader_;
+	ZHShader shadowShader_;
+	ZHShader depthShader_;
+	ZHShader postShader_;
+	ZHShader uiShader_;
+	ZHShader textShader_;
     ZShaderMap loadedShaders_;
     ZTextureMap loadedTextures_;
     ZModelMap loadedModels_;

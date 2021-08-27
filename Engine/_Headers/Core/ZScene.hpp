@@ -83,7 +83,7 @@ public:
     ZLightList& GameLights() { return gameLights_; }
     std::string& Name() { return name_; }
     ZPlayState& PlayState() { return playState_; }
-    std::shared_ptr<ZTexture> TargetTexture();
+    ZHTexture TargetTexture();
     std::shared_ptr<ZPhysicsUniverse> PhysicsUniverse() const { return gameSystems_.physics; }
     std::shared_ptr<ZDomain> Domain() const { return gameSystems_.domain; }
     std::shared_ptr<ZAudio> Audio() const { return gameSystems_.audio; }
@@ -183,8 +183,8 @@ protected:
     void SetupRenderers();
     void SetupTargetDrawBuffer();
     void SetupRenderPasses();
-    void LoadSceneData(const std::shared_ptr<ZOFTree>& objectTree);
-    void ParseSceneMetadata(const std::shared_ptr<ZOFTree>& objectTree);
+    void LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree);
+    void ParseSceneMetadata(const std::shared_ptr<ZOFNode>& objectTree);
     void CheckPendingObjects();
     void CreateSceneRoot(const std::string& name);
     void CreateUICanvas();

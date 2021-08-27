@@ -47,8 +47,8 @@ public:
     ZScriptMap& Scripts() { return scripts_; }
 
     virtual void Initialize() = 0;
-    virtual void Load(std::shared_ptr<ZOFTree> zof);
-    virtual void LoadAsync(std::shared_ptr<ZOFTree> zof);
+    virtual void Load(std::shared_ptr<ZOFNode> zof);
+    virtual void LoadAsync(std::shared_ptr<ZOFNode> zof);
     virtual void ExecuteFile(const std::string& resource) = 0;
     virtual void ExecuteString(const std::string& script) = 0;
 

@@ -29,13 +29,9 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 #include "ZTexture.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZFramebuffer
 {
 
@@ -45,7 +41,7 @@ protected:
     unsigned int id_ = 0;
     unsigned int rboId_ = 0;
     unsigned int boundAttachment_ = 0;
-    std::vector<ZTexture::ptr> attachments_;
+    std::vector<ZHTexture> attachments_;
     bool multisampled_ = false;
 
 public:
@@ -58,13 +54,13 @@ public:
     unsigned int ID() const { return id_; }
     unsigned int RBID() const { return rboId_; }
     glm::vec2 Size() const { return size_; }
-    ZTexture::ptr BoundAttachment() const { return attachments_[boundAttachment_]; }
-    std::vector<ZTexture::ptr> Attachments() const { return attachments_; }
+    ZHTexture BoundAttachment() const { return attachments_[boundAttachment_]; }
+    std::vector<ZHTexture> Attachments() const { return attachments_; }
 
-    void AddAttachment(const ZTexture::ptr& attachment) { attachments_.push_back(attachment); }
+    void AddAttachment(const ZHTexture& attachment) { attachments_.push_back(attachment); }
 
-    virtual void LoadColor(const glm::vec2& size, const ZTexture::ptr& colorTexture = nullptr, bool multisample = false) = 0;
-    virtual void LoadDepth(const glm::vec2& size, const ZTexture::ptr& depthTexture = nullptr) = 0;
+    virtual void LoadColor(const glm::vec2& size, const ZHTexture& colorTexture = ZHTexture(), bool multisample = false) = 0;
+    virtual void LoadDepth(const glm::vec2& size, const ZHTexture& depthTexture = ZHTexture()) = 0;
     virtual void LoadCubeMap() = 0;
 
     virtual void Bind() = 0;

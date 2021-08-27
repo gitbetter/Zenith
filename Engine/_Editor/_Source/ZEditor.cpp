@@ -38,7 +38,7 @@
 void ZEditor::Setup() {
     ZGame::Setup();
 
-	ZServices::ResourceCache()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(EDITOR_ROOT) + "/_Assets")));
+	ZServices::ResourceImporter()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(EDITOR_ROOT) + "/_Assets")));
 
     ZServices::AssetStore()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
 

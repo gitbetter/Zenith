@@ -29,8 +29,7 @@
 
 #pragma once
 
-#include "ZResourceHandle.hpp"
-
+#include "ZCommon.hpp"
 
 class ZIResourceLoader
 {

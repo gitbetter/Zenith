@@ -29,16 +29,12 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
-class ZShader;
 class ZUIImage;
 class ZUIClicker;
 class ZInputButtonEvent;
 
-// Class and Data Structure Definitions
 class ZUICheckBox : public ZUIElement
 {
 

@@ -32,7 +32,6 @@
 #include "ZScene.hpp"
 #include "ZFrustum.hpp"
 #include "ZAssetStore.hpp"
-#include "ZShader.hpp"
 #include "ZCamera.hpp"
 #include "ZRenderTask.hpp"
 #include "ZRenderPass.hpp"

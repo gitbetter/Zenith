@@ -28,12 +28,11 @@
 */
 
 #include "ZALAudioSource.hpp"
-#include "ZResourceExtraData.hpp"
-#include "ZResourceHandle.hpp"
+#include "ZResourceData.hpp"
 #include "ZServices.hpp"
 #include "al.h"
 
-ZALAudioSource::ZALAudioSource(std::shared_ptr<ZResourceHandle> resource) : ZAudioSource(resource)
+ZALAudioSource::ZALAudioSource(std::shared_ptr<ZAudioResourceData> data) : ZAudioSource(data)
 {
     source_ = 0; sampleBuffer_ = 0;
 }
@@ -48,15 +47,14 @@ void ZALAudioSource::Initialize()
 {
     ZProcess::Initialize();
 
-    std::shared_ptr<ZSoundResourceExtraData> extra = std::static_pointer_cast<ZSoundResourceExtraData>(resourceHandle_->ExtraData());
     ALenum format, error;
-    if (extra->WavFormatDesc()->channels == 2)
+    if (data_->wavFormatDesc.channels == 2)
     {
-        format = extra->WavFormatDesc()->blockAlign == 4 ? AL_FORMAT_STEREO16 : AL_FORMAT_STEREO8;
+        format = data_->wavFormatDesc.blockAlign == 4 ? AL_FORMAT_STEREO16 : AL_FORMAT_STEREO8;
     }
     else
     {
-        format = extra->WavFormatDesc()->blockAlign == 2 ? AL_FORMAT_MONO16 : AL_FORMAT_MONO8;
+        format = data_->wavFormatDesc.blockAlign == 2 ? AL_FORMAT_MONO16 : AL_FORMAT_MONO8;
     }
 
     alGetError();
@@ -76,7 +74,7 @@ void ZALAudioSource::Initialize()
     }
 
     alGetError();
-    alBufferData(sampleBuffer_, format, resourceHandle_->Buffer(), resourceHandle_->Size(), extra->WavFormatDesc()->samplesPerSec);
+    alBufferData(sampleBuffer_, format, data_->buffer, data_->size, data_->wavFormatDesc.samplesPerSec);
     if ((error = alGetError()) != AL_NO_ERROR)
     {
         LOG("Error setting up audio buffer data", ZSeverity::Error);

@@ -33,9 +33,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void ZGLFramebuffer::LoadColor(const glm::vec2& size, const ZTexture::ptr& colorTexture, bool multisample)
+void ZGLFramebuffer::LoadColor(const glm::vec2& size, const ZHTexture& colorTexture, bool multisample)
 {  
-    // This framebuffer has already been created, but we can still use this Load method to add texture attachments
+    // This frame buffer has already been created, but we can still use this Load method to add texture attachments
     if (id_ > 0) {
         Delete();
     }
@@ -45,9 +45,9 @@ void ZGLFramebuffer::LoadColor(const glm::vec2& size, const ZTexture::ptr& color
     glGenFramebuffers(1, &id_);
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
 
-    if (colorTexture) {
+    if (!colorTexture.IsNull()) {
         attachments_.push_back(colorTexture);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTexture->multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, colorTexture->id, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ZServices::TextureManager()->IsMultisampled(colorTexture) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, ZServices::TextureManager()->PlatformHandle(colorTexture), 0);
     }
 
     GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
@@ -76,9 +76,9 @@ void ZGLFramebuffer::LoadColor(const glm::vec2& size, const ZTexture::ptr& color
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ZGLFramebuffer::LoadDepth(const glm::vec2& size, const ZTexture::ptr& depthTexture)
+void ZGLFramebuffer::LoadDepth(const glm::vec2& size, const ZHTexture& depthTexture)
 {
-    // This framebuffer has already been created, but we can still use this Load method to add texture attachments
+    // This frame buffer has already been created, but we can still use this Load method to add texture attachments
     if (id_ > 0) {
         Delete();
     }
@@ -89,9 +89,9 @@ void ZGLFramebuffer::LoadDepth(const glm::vec2& size, const ZTexture::ptr& depth
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
-    if (depthTexture) {
+    if (!depthTexture.IsNull()) {
         attachments_.push_back(depthTexture);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture->id, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ZServices::TextureManager()->PlatformHandle(depthTexture), 0);
     }
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT)
@@ -130,21 +130,22 @@ void ZGLFramebuffer::BindAttachment(unsigned int attachmentIndex)
     }
     if (attachmentIndex != boundAttachment_) {
         boundAttachment_ = attachmentIndex;
-        ZTexture::ptr texture = attachments_[boundAttachment_];
-        GLenum textureTarget = texture->type == "color" ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT;
+        ZHTexture texture = attachments_[boundAttachment_];
+        GLenum textureTarget = ZServices::TextureManager()->Type(texture) == "color" ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT;
         // TODO: Do a better check for array textures or move this texture binding logic elsewhere!
-        glFramebufferTexture2D(GL_FRAMEBUFFER, textureTarget, texture->multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, texture->id, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, textureTarget, ZServices::TextureManager()->IsMultisampled(texture) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, ZServices::TextureManager()->PlatformHandle(texture), 0);
     }
 }
 
 void ZGLFramebuffer::BindAttachmentLayer(unsigned int layer) {
-    ZTexture::ptr texture = attachments_[boundAttachment_];
-    if (texture->type.find("Array") == std::string::npos)
+    ZHTexture texture = attachments_[boundAttachment_];
+    std::string textureType = ZServices::TextureManager()->Type(texture);
+    if (textureType.find("Array") == std::string::npos)
         return;
 
-    GLenum textureTarget = texture->type == "colorArray" ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT;
+    GLenum textureTarget = textureType == "colorArray" ? GL_COLOR_ATTACHMENT0 : GL_DEPTH_ATTACHMENT;
     // TODO: Do a better check for array textures or move this texture binding logic elsewhere!
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, textureTarget, texture->id, 0, layer);
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, textureTarget, ZServices::TextureManager()->PlatformHandle(texture), 0, layer);
 }
 
 void ZGLFramebuffer::BindRenderbuffer()
@@ -158,7 +159,7 @@ void ZGLFramebuffer::Resize(unsigned int width, unsigned int height)
 
     size_ = glm::vec2(width, height);
     for (const auto& attachment : attachments_) {
-        attachment->Resize(width, height);
+        ZServices::TextureManager()->Resize(attachment, width, height);
     }
 
     BindRenderbuffer();
@@ -200,7 +201,7 @@ void ZGLFramebuffer::Delete()
 {
     if (id_ > 0) {
         for (const auto& attachment : attachments_) {
-            attachment->Delete();
+            ZServices::TextureManager()->Delete(attachment);
         }
         glDeleteFramebuffers(1, &id_);
     }

@@ -28,7 +28,6 @@
 */
 
 #include "ZWavResourceLoader.hpp"
-#include "ZResourceExtraData.hpp"
 #include "ZServices.hpp"
 
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) \
@@ -94,7 +93,7 @@ unsigned int ZWavResourceLoader::LoadedResourceSize(char* rawBuffer, unsigned in
     return 0;
 }
 
-bool ZWavResourceLoader::LoadResource(char* rawBuffer, unsigned int rawSize, ZAudioResourceData* resource)
+bool ZWavResourceLoader::Load(char* rawBuffer, unsigned int rawSize, ZAudioResourceData* resource)
 {
     resource->soundType = ZSoundType::Wav;
     if (!ParseWav(rawBuffer, rawSize, resource)) return false;

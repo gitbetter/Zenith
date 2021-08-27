@@ -125,7 +125,7 @@ void ZUIInputField::SetFocused(bool focused)
     }
 }
 
-void ZUIInputField::SetBackground(const ZTexture::ptr& texture)
+void ZUIInputField::SetBackground(const ZHTexture& texture)
 {
     SetTexture(texture);
 }

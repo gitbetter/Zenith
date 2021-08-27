@@ -29,7 +29,6 @@
 
 #include "ZServices.hpp"
 #include "ZUIImage.hpp"
-#include "ZShader.hpp"
 #include "ZTextureReadyEvent.hpp"
 
 ZUIImage::ZUIImage(const std::string& path, const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)

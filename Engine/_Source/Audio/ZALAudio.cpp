@@ -33,7 +33,7 @@
 
 bool ZALAudio::Initialize()
 {
-    // TODO: Move audio device managment to a more central location
+    // TODO: Move audio device management to a more central location
     device_ = alcOpenDevice(NULL);
     if (!device_)
     {
@@ -53,9 +53,9 @@ bool ZALAudio::Active()
     return context_ != nullptr;
 }
 
-std::shared_ptr<ZAudioSource> ZALAudio::NewAudioSource(std::shared_ptr<ZResourceHandle> resource, bool playOnLoad)
+std::shared_ptr<ZAudioSource> ZALAudio::NewAudioSource(std::shared_ptr<ZAudioResourceData> data, bool playOnLoad)
 {
-    std::shared_ptr<ZAudioSource> audioSource = std::make_shared<ZALAudioSource>(resource);
+    std::shared_ptr<ZAudioSource> audioSource = std::make_shared<ZALAudioSource>(data);
     audioSource->playOnLoad_ = playOnLoad;
     if (!playOnLoad) audioSource->Initialize();
     allSamples_.push_front(audioSource);

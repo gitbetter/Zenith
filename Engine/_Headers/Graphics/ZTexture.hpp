@@ -34,7 +34,6 @@
 #include "ZHandle.hpp"
 #include "ZResourcePool.hpp"
 
-class ZResourceHandle;
 class ZFramebuffer;
 class ZResourceLoadedEvent;
 struct ZIBLTextureData;
@@ -78,26 +77,28 @@ public:
     ZHTexture Default();
 
     ZHTexture Create();
-    void Create(std::shared_ptr<ZOFTree> data, ZTextureMap& outTextureMap);
-    ZHTexture Create(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
-    void CreateAsync(std::shared_ptr<ZOFTree> data);
+    void Create(std::shared_ptr<ZOFNode> data, ZTextureMap& outTextureMap);
+	ZHTexture Create(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
+	void CreateAsync(std::shared_ptr<ZOFNode> data);
     void CreateAsync(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);
     ZIBLTextureData CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const ZHTexture& cubemap);
 
 	bool IsLoaded(const std::string& name);
 	ZHTexture GetFromName(const std::string& name);
 
+	unsigned int PlatformHandle(const ZHTexture& handle);
 	std::string Name(const ZHTexture& handle);
 	std::string Type(const ZHTexture& handle);
 	std::string Path(const ZHTexture& handle);
 	bool IsMultisampled(const ZHTexture& handle);
 	ZTextureWrapping Wrapping(const ZHTexture& handle);
 
+	void SetPlatformHandle(const ZHTexture& handle, unsigned int pHandle);
 	void SetName(const ZHTexture& handle, const std::string& name);
 	void SetType(const ZHTexture& handle, const std::string& type);
 	void SetPath(const ZHTexture& handle, const std::string& path);
-	bool SetIsMultisampled(const ZHTexture& handle, bool multisampled);
-	ZTextureWrapping SetWrapping(const ZHTexture& handle, ZTextureWrapping wrapping);
+	void SetIsMultisampled(const ZHTexture& handle, bool multisampled);
+	void SetWrapping(const ZHTexture& handle, ZTextureWrapping wrapping);
 
 public:
 

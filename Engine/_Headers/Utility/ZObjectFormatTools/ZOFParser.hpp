@@ -29,13 +29,9 @@
 
 #pragma once
 
-// Includes
-#include "ZOFTree.hpp"
+#include "ZCommon.hpp"
 #include "ZStringHelpers.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZOFParser
 {
 private:
@@ -48,25 +44,25 @@ private:
     std::string Scan();
     void Match(const std::string& token);
     void Match(const std::regex& pattern);
-    void HandleParseError(std::shared_ptr<ZOFNode> node);
+    void HandleParseError(std::shared_ptr<struct ZOFNode> node);
 
-    void Start(std::shared_ptr<ZOFTree> tree);
-    void ObjectList(std::shared_ptr<ZOFTree> node);
-    void Object(std::shared_ptr<ZOFTree> tree);
-    void ObjectType(std::shared_ptr<ZOFObjectNode> node);
+    void Start(std::shared_ptr<ZOFNode> tree);
+    void ObjectList(std::shared_ptr<ZOFNode> node);
+    void Object(std::shared_ptr<ZOFNode> tree);
+    void ObjectType(std::shared_ptr<struct ZOFObjectNode> node);
     void PropsList(std::shared_ptr<ZOFObjectNode> node);
     void Prop(std::shared_ptr<ZOFObjectNode> node);
-    void ValuesList(std::shared_ptr<ZOFPropertyNode> prop);
+    void ValuesList(std::shared_ptr<struct ZOFPropertyNode> prop);
     void Value(std::shared_ptr<ZOFPropertyNode> prop);
     void List(std::shared_ptr<ZOFPropertyNode> prop);
-    void ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal);
+    void ListTail(std::shared_ptr<struct ZOFAbstractTerminal> terminal);
 
 public:
 
     ZOFParser() {}
     ~ZOFParser() {}
 
-    std::shared_ptr<ZOFTree> Parse(const std::string& contents);
+    std::shared_ptr<ZOFNode> Parse(const std::string& contents);
 
 protected:
 

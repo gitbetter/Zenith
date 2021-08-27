@@ -53,7 +53,7 @@ void ZRenderStateGroupWriter::SetBlending(ZBlendMode blendMode)
     currentStateGroup_->pipelineState_.blendState = blendMode;
 }
 
-void ZRenderStateGroupWriter::SetShader(const std::shared_ptr<ZShader>& shader)
+void ZRenderStateGroupWriter::SetShader(const ZHShader& shader)
 {
     currentStateGroup_->resourceState_.shader = shader;
 }

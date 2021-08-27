@@ -203,7 +203,7 @@ public:
         return go;
     }
 
-    static ZGameObjectList Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene);
+    static ZGameObjectList Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
 
     DECLARE_OBJECT_CREATORS(ZGameObject)
 

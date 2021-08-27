@@ -28,19 +28,14 @@
 */
 #pragma once
 
-// Includes
 #include "ZAudioSource.hpp"
 
-// Forward Declarations
-class ZResourceHandle;
-
-// Class and Data Structure Definitions
 class ZALAudioSource : public ZAudioSource
 {
 
 public:
 
-    ZALAudioSource(std::shared_ptr<ZResourceHandle> resource = nullptr);
+    ZALAudioSource(std::shared_ptr<ZAudioResourceData> data = nullptr);
     ~ZALAudioSource();
 
     void Initialize() override;

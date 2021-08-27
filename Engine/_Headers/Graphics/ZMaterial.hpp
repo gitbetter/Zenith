@@ -29,18 +29,13 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 #include "ZOFTree.hpp"
 
-// Forward Declarations
-class ZTexture;
 class ZTextureReadyEvent;
 class ZShaderReadyEvent;
 class ZRenderStateGroup;
 class ZUniformBuffer;
-
-// Class and Data Structure Definitions
 
 struct ZMaterialProperties
 {
@@ -68,8 +63,8 @@ class ZMaterial : public std::enable_shared_from_this<ZMaterial>
 public:
 
     ZMaterial();
-    ZMaterial(const ZMaterialProperties& materialProperties, const std::shared_ptr<ZShader>& shader = nullptr);
-    ZMaterial(const std::vector<std::shared_ptr<ZTexture>>& textures, const std::shared_ptr<ZShader>& shader = nullptr);
+    ZMaterial(const ZMaterialProperties& materialProperties, const ZHShader& shader = ZHShader());
+    ZMaterial(const std::vector<ZHTexture>& textures, const ZHShader& shader = ZHShader());
 
     void Initialize();
 
@@ -82,7 +77,7 @@ public:
     bool HasDisplacement() const { return properties_.hasDisplacement; }
     const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
 
-    void SetShader(const std::shared_ptr<ZShader>& shader);
+    void SetShader(const ZHShader& shader);
     void SetPBR(bool pbr = true) { properties_.isPBR = pbr; }
     void SetProperties(const ZMaterialProperties& properties) { properties_ = properties; }
     void SetAlpha(float alpha) { properties_.alpha = alpha; }
@@ -90,16 +85,16 @@ public:
     void SetProperty(const std::string& property, const glm::vec4& value);
     void SetProperty(const std::string& property, bool value);
 
-    void AddTexture(const std::string& slot, const std::shared_ptr<ZTexture>& texture);
+    void AddTexture(const std::string& slot, const ZHTexture& texture);
     void AddTexture(const std::string& slot, const std::string& textureId) { pendingTextures_[slot] = textureId; }
 
     static std::shared_ptr<ZMaterial> Default();
     static std::shared_ptr<ZMaterial> CreateDefault();
-    static void Create(std::shared_ptr<ZOFTree> data, ZMaterialMap& outTextureMap, const ZTextureMap& textureCache);
-    static void CreateAsync(std::shared_ptr<ZOFTree> data, ZMaterialIDMap& outPendingTextures, ZMaterialMap& outMaterials);
+    static void Create(std::shared_ptr<ZOFNode> data, ZMaterialMap& outTextureMap, const ZTextureMap& textureCache);
+    static void CreateAsync(std::shared_ptr<ZOFNode> data, ZMaterialIDMap& outPendingTextures, ZMaterialMap& outMaterials);
 
-    static std::shared_ptr<ZMaterial> Create(const ZMaterialProperties& materialProperties, const std::shared_ptr<ZShader>& shader = nullptr);
-    static std::shared_ptr<ZMaterial> Create(const std::vector<std::shared_ptr<ZTexture>>& textures, const std::shared_ptr<ZShader>& shader = nullptr);
+    static std::shared_ptr<ZMaterial> Create(const ZMaterialProperties& materialProperties, const ZHShader& shader = ZHShader());
+    static std::shared_ptr<ZMaterial> Create(const std::vector<ZHTexture>& textures, const ZHShader& shader = ZHShader());
 
 private:
 
@@ -109,7 +104,7 @@ private:
     std::unordered_map<std::string, std::string> pendingTextures_;
 
     std::string shaderId_;
-    std::shared_ptr<ZShader> shaderObject_ = nullptr;
+    ZHShader shaderObject_;
 
     std::shared_ptr<ZRenderStateGroup> renderState_;
     std::shared_ptr<ZUniformBuffer> uniformBuffer_;

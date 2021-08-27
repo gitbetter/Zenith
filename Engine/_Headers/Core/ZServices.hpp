@@ -38,6 +38,7 @@
 #include "ZProcessRunner.hpp"
 #include "ZLogger.hpp"
 #include "ZTexture.hpp"
+#include "ZShader.hpp"
 #include "ZAssetStore.hpp"
 
 class ZServices
@@ -50,12 +51,13 @@ public:
     static std::shared_ptr<ZGraphics> Graphics() { return graphics_; }
     static std::shared_ptr<ZInput> Input() { return input_; }
     static std::shared_ptr<ZEventAgent> EventAgent() { return eventAgent_; }
-    static std::shared_ptr<ZResourceImporter> ResourceCache() { return resourceImporter_; }
+    static std::shared_ptr<ZResourceImporter> ResourceImporter() { return resourceImporter_; }
     static std::shared_ptr<ZScriptManager> ScriptManager() { return scriptManager_; }
     static std::shared_ptr<ZProcessRunner> ProcessRunner(const std::string& runner = "Default");
     static std::shared_ptr<ZLogger> Logger(const std::string& logger = "Default");
 
     static std::shared_ptr<ZTextureManager> TextureManager() { return textureManager_; }
+    static std::shared_ptr<ZShaderManager> ShaderManager() { return shaderManager_; }
 
     static std::shared_ptr<ZAssetStore> AssetStore();
 
@@ -66,6 +68,8 @@ public:
     static void Provide(const std::shared_ptr<ZScriptManager>& scriptManager);
 
     static void Provide(const std::shared_ptr<ZTextureManager>& textureManager);
+    static void Provide(const std::shared_ptr<ZShaderManager>& shaderManager);
+
     static void Provide(const std::shared_ptr<ZAssetStore>& assetStore);
 
     static void LoadZOF(const std::string& zofPath);
@@ -77,7 +81,10 @@ private:
     static std::shared_ptr<ZEventAgent> eventAgent_;
     static std::shared_ptr<ZResourceImporter> resourceImporter_;
     static std::shared_ptr<ZScriptManager> scriptManager_;
+
     static std::shared_ptr<ZTextureManager> textureManager_;
+    static std::shared_ptr<ZShaderManager> shaderManager_;
+
     static std::shared_ptr<ZAssetStore> assetStore_;
     static std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> processRunners_;
     static std::unordered_map<std::string, std::shared_ptr<ZLogger>> loggers_;

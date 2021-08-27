@@ -27,22 +27,21 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZServices.hpp"
+#include "ZModel.hpp"
 #include "ZFramebuffer.hpp"
 #include "ZPlane.hpp"
 #include "ZCube.hpp"
 #include "ZSphere.hpp"
 #include "ZCylinder.hpp"
-#include "ZShader.hpp"
 #include "ZMaterial.hpp"
 #include "ZModelImporter.hpp"
 #include "ZAnimation.hpp"
 #include "ZSkeleton.hpp"
 #include "ZResourceLoadedEvent.hpp"
-#include "ZResourceExtraData.hpp"
 #include "ZModelReadyEvent.hpp"
 #include "ZUniformBuffer.hpp"
 #include "ZRenderStateGroup.hpp"
+#include "ZServices.hpp"
 
 ZIDSequence ZModel::idGenerator_;
 
@@ -104,7 +103,7 @@ void ZModel::Initialize(const std::shared_ptr<ZOFNode>& data)
 void ZModel::InitializeAsync()
 {
     ZResourceData::ptr modelResource = std::make_shared<ZResourceData>(modelPath_, ZResourceType::Model);
-    ZServices::ResourceCache()->GetDataAsync(modelResource);
+    ZServices::ResourceImporter()->GetDataAsync(modelResource);
 
     ZServices::EventAgent()->Subscribe(this, &ZModel::HandleModelLoaded);
 }
@@ -297,7 +296,7 @@ void ZModel::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& even
     }
 }
 
-void ZModel::Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap)
+void ZModel::Create(std::shared_ptr<ZOFNode> data, ZModelMap& outModelMap)
 {
     ZModelMap models;
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
@@ -323,7 +322,7 @@ void ZModel::Create(std::shared_ptr<ZOFTree> data, ZModelMap& outModelMap)
     outModelMap = models;
 }
 
-void ZModel::CreateAsync(std::shared_ptr<ZOFTree> data, ZModelIDMap& outPendingModels, ZModelMap& outModelMap)
+void ZModel::CreateAsync(std::shared_ptr<ZOFNode> data, ZModelIDMap& outPendingModels, ZModelMap& outModelMap)
 {
     for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
     {

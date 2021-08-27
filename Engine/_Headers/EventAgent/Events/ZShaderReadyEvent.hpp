@@ -29,25 +29,22 @@
 
 #pragma once
 
-// Includes
 #include "ZEvent.hpp"
 
-// Forward Declarations
 class ZShader;
 
-// Class and Data Structure Definitions
 class ZShaderReadyEvent : public ZEvent
 {
 
 private:
 
-    std::shared_ptr<ZShader> shader_;
+    ZHShader shader_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZShaderReadyEvent(std::shared_ptr<ZShader> shader) : shader_(shader) {}
+    explicit ZShaderReadyEvent(ZHShader shader) : shader_(shader) {}
     explicit ZShaderReadyEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
@@ -55,6 +52,6 @@ public:
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZShaderReadyEvent"; }
 
-    std::shared_ptr<ZShader> Shader() { return shader_; }
+    ZHShader Shader() { return shader_; }
 
 };

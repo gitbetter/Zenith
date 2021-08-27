@@ -28,14 +28,10 @@
 */
 #pragma once
 
-// Includes
 #include "ZAudio.hpp"
 #include "al.h"
 #include "alc.h"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZALAudio : public ZAudio
 {
 
@@ -46,7 +42,7 @@ public:
     bool Initialize() override;
 
     bool Active() override;
-    std::shared_ptr<ZAudioSource> NewAudioSource(std::shared_ptr<ZResourceHandle> resource, bool playOnLoad = false) override;
+    std::shared_ptr<ZAudioSource> NewAudioSource(std::shared_ptr<class ZAudioResourceData> data, bool playOnLoad = false) override;
     bool ReleaseAudioSource(std::shared_ptr<ZAudioSource> audioSource) override;
     void CleanUp() override;
 

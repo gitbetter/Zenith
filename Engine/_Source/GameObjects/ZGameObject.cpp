@@ -467,7 +467,7 @@ void ZGameObject::Translate(const glm::vec3& translation, bool global)
     CalculateDerivedData();
 }
 
-ZGameObjectList ZGameObject::Load(std::shared_ptr<ZOFTree> data, const std::shared_ptr<ZScene>& scene)
+ZGameObjectList ZGameObject::Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene)
 {
     using namespace zenith::strings;
     ZGameObjectList gameObjects;
