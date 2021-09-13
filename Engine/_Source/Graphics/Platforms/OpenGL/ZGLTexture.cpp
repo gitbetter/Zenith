@@ -120,10 +120,18 @@ void ZGLTextureManager::Delete(const ZHTexture& handle)
     texturePool_.Delete(handle);
 }
 
-ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::string& type, ZTextureWrapping wrapping /*= ZTextureWrapping::EdgeClamp*/, bool hdr /*= false*/, bool flip /*= true*/)
+ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::string& type, ZTextureWrapping wrapping /*= ZTextureWrapping::EdgeClamp*/, bool hdr /*= false*/, bool flip /*= true*/, const ZHTexture& restoreHandle /*= ZHTexture()*/)
 {
-	ZHTexture handle;
-	ZTexture* texture = texturePool_.New(handle);
+	ZHTexture handle(restoreHandle);
+	ZTexture* texture = nullptr;
+	if (!handle.IsNull())
+	{
+		texture = texturePool_.Restore(handle);
+	}
+	else
+	{
+		texture = texturePool_.New(handle);
+	}
 
 	if (handle.IsNull())
 	{
@@ -177,7 +185,7 @@ ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::s
     texture->path = resource->path;
 	texture->type = type;
 
-	TrackTexture(handle);
+	Track(handle);
 
     return handle;
 }

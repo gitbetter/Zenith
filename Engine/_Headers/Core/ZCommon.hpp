@@ -435,8 +435,6 @@ class ZGameObject;
 class ZComponent;
 class ZUIElement;
 class ZModel;
-class ZFont;
-class ZShader;
 class ZMesh3D;
 class ZMaterial;
 class ZProcess;
@@ -445,7 +443,6 @@ class ZLight;
 class ZAssetStore;
 struct ZAnimation;
 struct ZBone;
-class ZTexture;
 struct ZCursor;
 struct ZVertex3D;
 struct ZVertex2D;
@@ -459,11 +456,17 @@ using ZHTexture = ZHandle<TextureTag>;
 struct ModelTag { };
 using ZHModel = ZHandle<ModelTag>;
 
+struct FontTag { };
+using ZHFont = ZHandle<FontTag>;
+
 struct ZofTag { };
 using ZHZof = ZHandle<ZofTag>;
 
 struct ShaderTag { };
 using ZHShader = ZHandle<ShaderTag>;
+
+struct MaterialTag { };
+using ZHMaterial = ZHandle<MaterialTag>;
 
 struct AudioTag { };
 using ZHAudio = ZHandle<AudioTag>;
@@ -475,16 +478,16 @@ using ZGameObjectMap = std::unordered_map<std::string, std::shared_ptr<ZGameObje
 using ZLightMap = std::unordered_map<std::string, std::shared_ptr<ZLight>>;
 using ZUIElementMap = std::unordered_map<std::string, std::shared_ptr<ZUIElement>>;
 using ZShaderMap = std::unordered_map<std::string, ZHShader>;
-using ZModelMap = std::unordered_map<std::string, std::shared_ptr<ZModel>>;
-using ZFontMap = std::unordered_map<std::string, std::shared_ptr<ZFont>>;
-using ZMaterialMap = std::unordered_map<std::string, std::shared_ptr<ZMaterial>>;
-using ZShaderIDMap = std::unordered_map<std::shared_ptr<ZShader>, std::string>;
-using ZModelIDMap = std::unordered_map<std::shared_ptr<ZModel>, std::string>;
+using ZModelMap = std::unordered_map<std::string, ZHModel>;
+using ZFontMap = std::unordered_map<std::string, ZHFont>;
+using ZMaterialMap = std::unordered_map<std::string, ZHMaterial>;
+using ZShaderIDMap = std::unordered_map<ZHShader, std::string>;
+using ZModelIDMap = std::unordered_map<unsigned int, std::string>;
 using ZTextureIDMap = std::unordered_map<ZHTexture, std::string>;
-using ZFontIDMap = std::unordered_map<std::shared_ptr<ZFont>, std::string>;
-using ZMaterialIDMap = std::unordered_map<std::shared_ptr<ZMaterial>, std::string>;
+using ZFontIDMap = std::unordered_map<unsigned int, std::string>;
+using ZMaterialIDMap = std::unordered_map<unsigned int, std::string>;
 using ZTextureMap = std::unordered_map<std::string, ZHTexture>;
-using ZMesh3DMap = std::unordered_map<std::string, std::shared_ptr<ZMesh3D>>;
+using ZMesh3DMap = std::unordered_map<std::string, ZMesh3D>;
 using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
 using ZLightList = std::vector<std::shared_ptr<ZLight>>;
 using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
@@ -492,11 +495,11 @@ using ZUIElementList = std::vector<std::shared_ptr<ZUIElement>>;
 using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
 using ZCollisionPair = std::pair<ZGameObject*, ZGameObject*>;
 using ZCollisionPairs = std::set<ZCollisionPair>;
-using ZAnimationMap = std::map<std::string, std::shared_ptr<ZAnimation>>;
+using ZAnimationMap = std::map<std::string, ZAnimation>;
 using ZBoneMap = std::map<std::string, unsigned int>;
 using ZIDMap = std::unordered_map<std::string, unsigned int>;
-using ZBoneList = std::vector<std::shared_ptr<ZBone>>;
-using ZMaterialList = std::vector<std::shared_ptr<ZMaterial>>;
+using ZBoneList = std::vector<ZBone>;
+using ZMaterialList = std::vector<ZHMaterial>;
 using ZTextureList = std::array<ZHTexture, MAX_TEXTURE_SLOTS>;
 using ZUBOList = std::array<std::shared_ptr<ZUniformBuffer>, MAX_UBO_SLOTS>;
 using ZTimedUpdateCallback = std::function<void(float)>;
@@ -664,24 +667,6 @@ struct Light {
     float spotExponent{ 0.f };
     alignas(sizeof(float)) bool isEnabled{ true };
     alignas(sizeof(float)) unsigned int lightType;
-    float padding[1];
-};
-
-struct Material {
-    glm::vec4 albedo;
-    float emission;
-    float ambient;
-    float diffuse;
-    float specular;
-    float shininess;
-    float padding[3];
-};
-
-struct PBRMaterial {
-    glm::vec4 albedo;
-    float metallic;
-    float roughness;
-    float ao;
     float padding[1];
 };
 
@@ -981,8 +966,7 @@ struct ZPostUniforms
 
 struct ZMaterialUniforms
 {
-    Material material;
-    PBRMaterial pbrMaterial;
+    ZMaterialProperties material;
     alignas(sizeof(float)) bool isTextured;
     alignas(sizeof(float)) bool hasDisplacement;
 };

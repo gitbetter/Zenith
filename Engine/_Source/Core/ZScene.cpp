@@ -469,7 +469,7 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
 void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFNode>& objectTree)
 {
     bool hasSkybox = false;
-    for (ZOFChildMap::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++)
+    for (ZOFChildList::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++)
     {
         std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
         if (dataNode->type == ZOFObjectType::Scene)
@@ -564,9 +564,9 @@ void ZScene::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event
 
 void ZScene::HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event)
 {
-    auto shader = event->Shader();
+    ZHShader shader = event->Shader();
     std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
-    auto it = std::find(pendingSceneObjects_.begin(), pendingSceneObjects_.end(), shader->Name());
+    auto it = std::find(pendingSceneObjects_.begin(), pendingSceneObjects_.end(), ZServices::ShaderManager()->Name(shader));
     if (it != pendingSceneObjects_.end())
     {
         pendingSceneObjects_.erase(it);

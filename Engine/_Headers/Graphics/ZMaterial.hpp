@@ -39,81 +39,94 @@ class ZUniformBuffer;
 
 struct ZMaterialProperties
 {
-    float alpha{ 1.f };
-    float tiling{ 1.f };
-    bool isPBR{ false };
-    bool hasDisplacement{ false };
-    union
-    {
-        Material look;
-        PBRMaterial realisticLook;
-    };
-
-    ZMaterialProperties()
-    {
-        look.albedo = glm::vec4(1.f, 1.f, 1.f, 1.f); look.emission = 0.f;
-        look.diffuse = 0.8f; look.ambient = 0.2f;
-        look.specular = 0.5f; look.shininess = 48.f;
-    }
+	glm::vec4 albedo;
+	float alpha{ 1.f };
+	float tiling{ 1.f };
+	float emission;
+	float ambient;
+	float diffuse;
+	float specular;
+	float shininess;
+	float metallic;
+	float roughness;
+	float ao;
+    float padding[2];
 };
 
-class ZMaterial : public std::enable_shared_from_this<ZMaterial>
+struct ZMaterialBase
 {
+    ZMaterialProperties properties;
+	bool hasDisplacement{ false };
 
-public:
+	ZHShader shader;
+	std::string name;
+	ZTextureMap textures;
 
-    ZMaterial();
-    ZMaterial(const ZMaterialProperties& materialProperties, const ZHShader& shader = ZHShader());
-    ZMaterial(const std::vector<ZHTexture>& textures, const ZHShader& shader = ZHShader());
+	std::shared_ptr<ZRenderStateGroup> renderState;
+	std::shared_ptr<ZUniformBuffer> uniformBuffer;
 
-    void Initialize();
-
-    const std::string& ID() const { return id_; }
-    const ZMaterialProperties& Properties() const { return properties_; }
-    const ZTextureMap& Textures() const { return textures_; }
-    float Alpha(float alpha) const { return properties_.alpha; }
-    bool IsPBR() const { return properties_.isPBR; }
-    bool IsTextured() const { return !textures_.empty(); }
-    bool HasDisplacement() const { return properties_.hasDisplacement; }
-    const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
-
-    void SetShader(const ZHShader& shader);
-    void SetPBR(bool pbr = true) { properties_.isPBR = pbr; }
-    void SetProperties(const ZMaterialProperties& properties) { properties_ = properties; }
-    void SetAlpha(float alpha) { properties_.alpha = alpha; }
-    void SetProperty(const std::string& property, float value);
-    void SetProperty(const std::string& property, const glm::vec4& value);
-    void SetProperty(const std::string& property, bool value);
-
-    void AddTexture(const std::string& slot, const ZHTexture& texture);
-    void AddTexture(const std::string& slot, const std::string& textureId) { pendingTextures_[slot] = textureId; }
-
-    static std::shared_ptr<ZMaterial> Default();
-    static std::shared_ptr<ZMaterial> CreateDefault();
-    static void Create(std::shared_ptr<ZOFNode> data, ZMaterialMap& outTextureMap, const ZTextureMap& textureCache);
-    static void CreateAsync(std::shared_ptr<ZOFNode> data, ZMaterialIDMap& outPendingTextures, ZMaterialMap& outMaterials);
-
-    static std::shared_ptr<ZMaterial> Create(const ZMaterialProperties& materialProperties, const ZHShader& shader = ZHShader());
-    static std::shared_ptr<ZMaterial> Create(const std::vector<ZHTexture>& textures, const ZHShader& shader = ZHShader());
+    ZMaterialBase();
 
 private:
 
-    std::string id_;
-    ZMaterialProperties properties_;
-    ZTextureMap textures_;
+	static ZIDSequence idGenerator_;
+
+};
+
+class ZMaterialManager
+{
+
+	using ZMaterialPool = ZResourcePool<ZMaterialBase, ZHMaterial>;
+
+public:
+
+    ZMaterialManager();
+    virtual ~ZMaterialManager() = default;
+
+    void Initialize() { }
+    void CleanUp() { }
+
+    ZHMaterial Create(const ZMaterialProperties& materialProperties, const ZHShader& shader = ZHShader());
+    ZHMaterial Create(const ZTextureMap& textures, const ZHShader& shader = ZHShader());
+    ZHMaterial Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+    void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+
+	bool IsLoaded(const std::string& name);
+    ZHMaterial GetFromName(const std::string& name);
+
+    const std::string& Name(const ZHMaterial& handle) const;
+    const ZTextureMap& Textures(const ZHMaterial& handle) const;
+    const ZHShader& Shader(const ZHMaterial& handle) const;
+    float Alpha(const ZHMaterial& handle) const;
+    bool IsTextured(const ZHMaterial& handle) const;
+    bool HasDisplacement(const ZHMaterial& handle) const;
+    const std::shared_ptr<ZRenderStateGroup>& RenderState(const ZHMaterial& handle) const;
+
+    void SetShader(const ZHMaterial& handle, const ZHShader& shader);
+    void SetAlpha(const ZHMaterial& handle, float alpha);
+    void SetProperty(const ZHMaterial& handle, const std::string& property, float value);
+    void SetProperty(const ZHMaterial& handle, const std::string& property, const glm::vec4& value);
+    void SetProperty(const ZHMaterial& handle, const std::string& property, bool value);
+
+    void AddTexture(const ZHMaterial& handle, const std::string& slot, const ZHTexture& texture);
+    void AddTexture(const ZHMaterial& handle, const std::string& slot, const std::string& textureId) { pendingTextures_[slot] = textureId; }
+
+    ZHMaterial Default();
+    ZHMaterial CreateDefault();
+
+
+protected:
+
+	ZMaterialPool materialPool_;
+	ZMaterialMap loadedMaterials_;
+
     std::unordered_map<std::string, std::string> pendingTextures_;
 
-    std::string shaderId_;
-    ZHShader shaderObject_;
+protected:
 
-    std::shared_ptr<ZRenderStateGroup> renderState_;
-    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
+	/** Adds a material to the internal loaded material map so that we don't accidentally recreate duplicates of the material */
+	void Track(const ZHMaterial& handle);
 
-    static ZIDSequence idGenerator_;
-
-    void UpdateUniformMaterial();
-
-    void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
-    void HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event);
+    void UpdateUniformMaterial(const ZHMaterial& handle);
 
 };

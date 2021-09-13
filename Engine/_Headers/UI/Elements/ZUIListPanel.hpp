@@ -29,13 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
-class ZShader;
-
-// Class and Data Structure Definitions
 class ZUIListPanel : public ZUIElement
 {
 

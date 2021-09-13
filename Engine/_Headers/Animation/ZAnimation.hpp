@@ -55,7 +55,7 @@ struct ZAnimation
     std::string name;
     double ticksPerSecond;
     double duration;
-    std::vector<std::shared_ptr<ZJointAnimation>> channels;
+    std::vector<ZJointAnimation> channels;
 };
 
 struct ZAnimationClip

@@ -53,6 +53,11 @@ ZShader::ZShader(const std::string& vertexShaderPath, const std::string& pixelSh
     name = "Shader_" + std::to_string(idGenerator_.Next());
 }
 
+ZShaderManager::ZShaderManager()
+    : shaderPool_(512)
+{
+}
+
 /**
     Compiles the shader using the individual shader sources.
 
@@ -71,10 +76,18 @@ void ZShaderManager::Compile(const ZHShader& handle)
     int gShader = CompileShader(shader->geometryShaderCode, ZShaderType::Geometry);
 
     shader->id = CreateProgram(vShader, pShader, gShader);
+    Track(handle);
 
     glDeleteShader(vShader);
     glDeleteShader(pShader);
     if (gShader != -1) glDeleteShader(gShader);
+}
+
+void ZShaderManager::Track(const ZHShader& handle)
+{
+	ZShader* shader = shaderPool_.Get(handle);
+	assert(shader != nullptr && "Cannot track this shader since it doesn't exist!");
+	loadedShaders_[shader->name] = handle;
 }
 
 /**
@@ -110,7 +123,6 @@ std::string ZShaderManager::GetShaderCode(const std::string& shaderPath, ZShader
             if (shaderResource->size > 0)
             {               
                 shaderCode = std::string(static_cast<char*>(shaderResource->buffer));
-                ProcessIncludes(shaderCode);
             }
         }
     }
@@ -134,6 +146,7 @@ void ZShaderManager::ProcessIncludes(std::string& shaderCode)
         if (std::regex_search(includeLine, match, includeRegex)) {
             std::string includePath = (match[1].str().front() != '/' ? "/" : "") + match[1].str();
             std::string includeContents = GetShaderCode(includePath, ZShaderType::Other);
+            ProcessIncludes(includeContents);
             shaderCode = shaderCode.replace(start, (end - start), includeContents);
         }
     }
@@ -372,33 +385,27 @@ void ZShaderManager::SetMat4List(const ZHShader& handle, const std::string& name
     }
 }
 
-void ZShaderManager::Use(const ZHShader& handle, const std::shared_ptr<ZMaterial>& material)
+void ZShaderManager::Use(const ZHShader& handle, const ZHMaterial& material)
 {
     Activate(handle);
 
-    SetBool(handle, "isTextured", material->IsTextured());
-    SetBool(handle, "hasDisplacement", material->HasDisplacement());
+    SetBool(handle, "isTextured", ZServices::MaterialManager()->IsTextured(material));
+    SetBool(handle, "hasDisplacement", ZServices::MaterialManager()->HasDisplacement(material));
     // TODO: Move this elsewhere for reconfigurability
     SetFloat(handle, "heightScale", 0.01f);
 
     std::string shaderMaterial = "material";
-    SetVec4(handle, shaderMaterial + ".albedo", material->Properties().look.albedo);
-    if (material->IsPBR())
-    {
-        SetFloat(handle, shaderMaterial + ".metallic", material->Properties().realisticLook.metallic);
-        SetFloat(handle, shaderMaterial + ".roughness", material->Properties().realisticLook.roughness);
-        SetFloat(handle, shaderMaterial + ".ao", material->Properties().realisticLook.ao);
-    }
-    else
-    {
-        SetFloat(handle, shaderMaterial + ".emission", material->Properties().look.emission);
-        SetFloat(handle, shaderMaterial + ".diffuse", material->Properties().look.diffuse);
-        SetFloat(handle, shaderMaterial + ".ambient", material->Properties().look.ambient);
-        SetFloat(handle, shaderMaterial + ".specular", material->Properties().look.specular);
-        SetFloat(handle, shaderMaterial + ".shininess", material->Properties().look.shininess);
-    }
+    SetVec4(handle, shaderMaterial + ".albedo", ZServices::MaterialManager()->Albedo(material));
+	SetFloat(handle, shaderMaterial + ".metallic", ZServices::MaterialManager()->Metallic(material));
+	SetFloat(handle, shaderMaterial + ".roughness", ZServices::MaterialManager()->Roughness(material));
+	SetFloat(handle, shaderMaterial + ".ao", ZServices::MaterialManager()->AmbientOcclusion(material));
+	SetFloat(handle, shaderMaterial + ".emission", ZServices::MaterialManager()->Emission(material));
+	SetFloat(handle, shaderMaterial + ".diffuse", ZServices::MaterialManager()->Diffuse(material));
+	SetFloat(handle, shaderMaterial + ".ambient", ZServices::MaterialManager()->Ambient(material));
+	SetFloat(handle, shaderMaterial + ".specular", ZServices::MaterialManager()->Specular(material));
+	SetFloat(handle, shaderMaterial + ".shininess", ZServices::MaterialManager()->Shininess(material));
 
-    for (auto const& [key, val] : material->Textures())
+    for (auto const& [key, val] : ZServices::MaterialManager()->Textures(material))
     {
         BindAttachment(handle, key, val);
     }
@@ -521,83 +528,138 @@ void ZShaderManager::ClearAttachments(const ZHShader& handle)
     shader->attachmentIndex = 0;
 }
 
-void ZShaderManager::Create(std::shared_ptr<ZOFNode> data, ZShaderMap& outShaderMap)
+ZHShader ZShaderManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
 {
-    ZShaderMap shaders;
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    if (dataNode->type != ZOFObjectType::Shader)
     {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Shader)
-        {
-            std::string vertexPath = "", pixelPath = "", geometryPath = "";
-
-            for (ZOFPropertyMap::iterator it = dataNode->properties.begin(); it != dataNode->properties.end(); it++)
-            {
-                if (!it->second->HasValues()) continue;
-
-                std::shared_ptr<ZOFString> str = it->second->Value<ZOFString>(0);
-                if (it->second->id == "vertex") vertexPath = str->value;
-                else if (it->second->id == "pixel") pixelPath = str->value;
-                else if (it->second->id == "geometry") geometryPath = str->value;
-            }
-
-			shaders[it->first] = ZShaderManager::Create(vertexPath, pixelPath, geometryPath, it->first);
-        }
+        return ZHShader();
     }
-    outShaderMap = shaders;
+
+    ZHShader restoreHandle(dataHandle.value);
+
+	std::string vertexPath = "", pixelPath = "", geometryPath = "", name = "";
+
+	if (dataNode->properties.find("name") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["name"]->Value<ZOFString>(0);
+		name = prop->value;
+	}
+
+	if (dataNode->properties.find("vertex") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["vertex"]->Value<ZOFString>(0);
+		vertexPath = prop->value;
+	}
+
+	if (dataNode->properties.find("pixel") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["pixel"]->Value<ZOFString>(0);
+        pixelPath = prop->value;
+	}
+
+	if (dataNode->properties.find("geometry") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["geometry"]->Value<ZOFString>(0);
+        geometryPath = prop->value;
+	}
+
+	return Create(vertexPath, pixelPath, geometryPath, name);
 }
 
-void ZShaderManager::CreateAsync(std::shared_ptr<ZOFNode> data)
+void ZShaderManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
 {
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Shader)
-        {
-            std::string vertexPath = "", pixelPath = "", geometryPath = "";
+	if (dataNode->type != ZOFObjectType::Shader)
+	{
+		return;
+	}
 
-            for (ZOFPropertyMap::iterator it = dataNode->properties.begin(); it != dataNode->properties.end(); it++)
-            {
-                if (!it->second->HasValues()) continue;
+	ZHShader restoreHandle(dataHandle.value);
 
-                std::shared_ptr<ZOFString> str = it->second->Value<ZOFString>(0);
-                if (it->second->id == "vertex") vertexPath = str->value;
-                else if (it->second->id == "pixel") pixelPath = str->value;
-                else if (it->second->id == "geometry") geometryPath = str->value;
-            }
+	std::string vertexPath = "", pixelPath = "", geometryPath = "", name = "";
 
-            CreateAsync(vertexPath, pixelPath, geometryPath, it->first);
-        }
-    }
+	if (dataNode->properties.find("name") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["name"]->Value<ZOFString>(0);
+		name = prop->value;
+	}
+
+	if (dataNode->properties.find("vertex") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["vertex"]->Value<ZOFString>(0);
+		vertexPath = prop->value;
+	}
+
+	if (dataNode->properties.find("pixel") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["pixel"]->Value<ZOFString>(0);
+		pixelPath = prop->value;
+	}
+
+	if (dataNode->properties.find("geometry") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["geometry"]->Value<ZOFString>(0);
+		geometryPath = prop->value;
+	}
+
+	CreateAsync(vertexPath, pixelPath, geometryPath, name);
 }
 
-ZHShader ZShaderManager::Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath, const std::string& name)
+bool ZShaderManager::IsLoaded(const std::string& name)
 {
-    ZHShader handle;
-    ZShader* shader = shaderPool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+    return loadedShaders_.find(name) != loadedShaders_.end();
+}
+
+ZHShader ZShaderManager::GetFromName(const std::string& name)
+{
+	if (loadedShaders_.find(name) != loadedShaders_.end()) {
+        return loadedShaders_[name];
+	}
+	return ZHShader();
+}
+
+ZHShader ZShaderManager::Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath, const std::string& name, const ZHShader& restoreHandle)
+{
+    ZHShader handle(restoreHandle);
+    ZShader* shader = nullptr;
+    if (!handle.IsNull())
+    {
+        shader = shaderPool_.Restore(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+    }
+    else
+    {
+        shader = shaderPool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+    }
 
     shader->name = !name.empty() ? name : shader->name;
 
-	shader->vertexShaderCode = GetShaderCode(vertexShaderPath, ZShaderType::Vertex);
-	shader->pixelShaderCode = GetShaderCode(pixelShaderPath, ZShaderType::Pixel);
-	shader->geometryShaderCode = GetShaderCode(geomShaderPath, ZShaderType::Geometry);
+	SetCode(handle, GetShaderCode(vertexShaderPath, ZShaderType::Vertex), ZShaderType::Vertex);
+    SetCode(handle, GetShaderCode(pixelShaderPath, ZShaderType::Pixel), ZShaderType::Pixel);
+    SetCode(handle, GetShaderCode(geomShaderPath, ZShaderType::Geometry), ZShaderType::Geometry);
 
 	Compile(handle);
 
     return handle;
 }
 
-void ZShaderManager::CreateAsync(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath, const std::string& name)
+void ZShaderManager::CreateAsync(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath, const std::string& name, const ZHShader& restoreHandle)
 {
-	ZHShader handle;
-	ZShader* shader = shaderPool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+	ZHShader handle(restoreHandle);
+	ZShader* shader = nullptr;
+	if (!handle.IsNull())
+	{
+		shader = shaderPool_.Restore(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+	}
+	else
+	{
+		shader = shaderPool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+	}
 
     shader->name = !name.empty() ? name : shader->name;
 
     loadedShaderFiles_[vertexShaderPath].push_back(handle);
     loadedShaderFiles_[pixelShaderPath].push_back(handle);
     loadedShaderFiles_[geomShaderPath].push_back(handle);
-    shaderLoadMasks_[handle] = 0;
+    shaderLoadMasks_[handle.Handle()] = 0;
 
 	GetShaderCode(vertexShaderPath, ZShaderType::Vertex, true);
 	GetShaderCode(pixelShaderPath, ZShaderType::Pixel, true);
@@ -621,17 +683,17 @@ void ZShaderManager::HandleShaderCodeLoaded(const std::shared_ptr<ZResourceLoade
 		{
             ZHShader handle = *it;
             unsigned int mask = 1 << static_cast<unsigned short>(shaderResource->type);
-			if ((shaderLoadMasks_[handle] & mask) == 0)
+			if ((shaderLoadMasks_[handle.Handle()] & mask) != 0)
 			{
-				shaderLoadMasks_[handle] |= mask;
+				shaderLoadMasks_[handle.Handle()] |= mask;
 				SetCode(handle, shaderResource->code, shaderResource->type);
 			}
 
-			if (shaderLoadMasks_[handle] == 3 || shaderLoadMasks_[handle] == 7)
+			if (shaderLoadMasks_[handle.Handle()] == 3 || shaderLoadMasks_[handle.Handle()] == 7)
 			{
 				Compile(handle);
 
-                shaderLoadMasks_.erase(handle);
+                shaderLoadMasks_.erase(handle.Handle());
                 it = loadedShaderFiles_[shaderResource->path].erase(it);
 
 				std::shared_ptr<ZShaderReadyEvent> shaderReadyEvent = std::make_shared<ZShaderReadyEvent>(handle);

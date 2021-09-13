@@ -33,27 +33,30 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void ZGLFont::Load(ZResourceData* resource, unsigned int fontSize)
+ZHFont ZGLFontManager::Create(ZResourceData* resource, unsigned int fontSize)
 {
+	ZHFont handle;
+	ZFont* font = fontPool_.New(handle);
+
 	if (resource == nullptr)
 	{
-		return;
+		return ZHFont();
 	}
 
 	FT_Face face;
 	if (FT_New_Memory_Face(ft_, (const FT_Byte*)resource->buffer, (FT_Long)resource->size, 0, &face)) {
 		LOG("Could not load font at " + resource->path, ZSeverity::Error);
-		return;
+		return ZHFont();
 	}
 
 	FT_Set_Pixel_Sizes(face, 0, fontSize);
 
 	std::string file = resource->path.substr(resource->path.find_last_of("/\\") + 1);
 	std::string fileName = file.substr(0, file.find_last_of("."));
-	name_ = fileName;
-	size_ = fontSize;
-	atlas_.width = 0;
-	atlas_.height = 0;
+	font->name = fileName;
+	font->size = fontSize;
+	font->atlas.width = 0;
+	font->atlas.height = 0;
 	for (unsigned char c = 0; c < 255; c++)
 	{
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
@@ -62,25 +65,25 @@ void ZGLFont::Load(ZResourceData* resource, unsigned int fontSize)
 			continue;
 		}
 
-		atlas_.width += face->glyph->bitmap.width + 3; // Add an extra few pixels to avoid sampling pixels from previous glyph
-		atlas_.height = std::max(atlas_.height, face->glyph->bitmap.rows);
+		font->atlas.width += face->glyph->bitmap.width + 3; // Add an extra few pixels to avoid sampling pixels from previous glyph
+		font->atlas.height = std::max(font->atlas.height, face->glyph->bitmap.rows);
 	}
 
-	atlas_.texture = ZServices::TextureManager()->Create();
-	ZServices::TextureManager()->SetType(atlas_.texture, "atlas");
-	ZServices::TextureManager()->SetPath(atlas_.texture, fileName);
+	font->atlas.texture = ZServices::TextureManager()->Create();
+	ZServices::TextureManager()->SetType(font->atlas.texture, "atlas");
+	ZServices::TextureManager()->SetPath(font->atlas.texture, fileName);
 
-	ZServices::TextureManager()->Bind(atlas_.texture, 0);
+	ZServices::TextureManager()->Bind(font->atlas.texture, 0);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, atlas_.width, atlas_.height, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, font->atlas.width, font->atlas.height, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	unsigned int x = 0;
-	atlas_.characterInfo.clear();
+	font->atlas.characterInfo.clear();
 	for (unsigned char c = 0; c < 255; c++) {
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
@@ -95,8 +98,8 @@ void ZGLFont::Load(ZResourceData* resource, unsigned int fontSize)
 		character.bitmapSize.y = face->glyph->bitmap.rows;
 		character.bitmapPos.x = face->glyph->bitmap_left;
 		character.bitmapPos.y = face->glyph->bitmap_top;
-		character.xOffset = (double)x / atlas_.width;
-		atlas_.characterInfo[c] = character;
+		character.xOffset = (double)x / font->atlas.width;
+		font->atlas.characterInfo[c] = character;
 
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, face->glyph->bitmap.width, face->glyph->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 
@@ -104,9 +107,8 @@ void ZGLFont::Load(ZResourceData* resource, unsigned int fontSize)
 	}
 
 	FT_Done_Face(face);
-}
 
-void ZGLFont::SetSize(unsigned int size)
-{
-	ZFont::Load(name_, size);
+	Track(handle);
+
+	return handle;
 }

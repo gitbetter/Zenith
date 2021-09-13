@@ -31,12 +31,11 @@
 
 #include "ZFont.hpp"
 
-class ZGLFont : public ZFont
+class ZGLFontManager : public ZFontManager
 {
 
 public:
 
-    void Load(class ZResourceData* resource, unsigned int fontSize) override;
-    void SetSize(unsigned int size) override;
+    ZHFont Create(class ZResourceData* resource, unsigned int fontSize) override;
 
 };

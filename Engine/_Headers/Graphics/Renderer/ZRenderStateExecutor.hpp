@@ -34,7 +34,6 @@
 #include "ZDrawCall.hpp"
 
 class ZVertexBuffer;
-class ZShader;
 
 class ZRenderStateExecutor
 {

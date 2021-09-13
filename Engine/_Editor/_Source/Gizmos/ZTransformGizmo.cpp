@@ -151,7 +151,7 @@ std::shared_ptr<ZGameObject> ZTransformGizmo::CreateAxisArrow(const glm::vec3& a
 
     ZMaterialProperties materialProps;
     materialProps.look.albedo = glm::vec4(glm::abs(axis), 1.f);
-    auto arrowMaterial = ZMaterial::Create(materialProps, ZShader::Create("/Shaders/Vertex/gizmo.vert", "/Shaders/Pixel/gizmo.frag"));
+    auto arrowMaterial = ZMaterial::Create(materialProps, ZServices::ShaderManager()->Create("/Shaders/Vertex/gizmo.vert", "/Shaders/Pixel/gizmo.frag"));
 
     auto axisArrow = ZGameObject::Create();
 

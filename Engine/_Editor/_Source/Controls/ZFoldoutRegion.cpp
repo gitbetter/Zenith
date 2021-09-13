@@ -120,7 +120,7 @@ std::shared_ptr<ZFoldoutRegion> ZFoldoutRegion::Create(const std::string& label,
     imageOptions.positioning = ZPositioning::Relative;
     imageOptions.rect = ZRect(0.f, 0.f, 30.f, 30.f);
     imageOptions.color = glm::vec4(1.f);
-    imageOptions.shader = ZShader::Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/triangle.frag");
+    imageOptions.shader = ZServices::ShaderManager()->Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/triangle.frag");
 
     foldout->arrow_ = ZUIImage::Create(imageOptions, scene);
     foldout->header_->AddChild(foldout->arrow_);

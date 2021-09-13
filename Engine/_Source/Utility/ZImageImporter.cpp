@@ -33,25 +33,22 @@
 
 std::mutex ZImageImporter::importerMutex_;
 
-ZTextureResourceData::ptr ZImageImporter::LoadImage(const std::string& path, bool hdr, bool flipped)
+ZTextureResourceData::ptr ZImageImporter::LoadImage(const std::string& path, bool hdr, bool flipped, ZTextureWrapping wrapping = ZTextureWrapping::Repeat, const std::string& type = "color")
 {
-    ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
+    ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture, wrapping, type);
     ZServices::ResourceImporter()->GetData(resource.get());
-    LoadImage(resource.get(), hdr, flipped);
+    LoadImage(resource.get());
     return resource;
 }
 
-void ZImageImporter::LoadImage(ZTextureResourceData* resource, bool hdr, bool flipped)
+void ZImageImporter::LoadImage(ZTextureResourceData* resource)
 {
     if (resource == nullptr) return;
 
-    resource->hdr = hdr;
-    resource->flipped = flipped;
-
     importerMutex_.lock();
-    stbi_set_flip_vertically_on_load(flipped);
+    stbi_set_flip_vertically_on_load(resource->flipped);
 
-    if (hdr)
+    if (resource->hdr)
     {
         resource->data = stbi_loadf_from_memory((const stbi_uc*) resource->buffer, resource->size, &resource->width, &resource->height, &resource->channels, 0);
     }

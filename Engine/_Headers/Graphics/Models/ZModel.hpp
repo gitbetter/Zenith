@@ -29,13 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZMesh.hpp"
 #include "ZTexture.hpp"
 #include "ZAABBox.hpp"
 
-// Forward Declarations
-class ZShader;
 struct ZSkeleton;
 struct ZJoint;
 struct ZJointAnimation;
@@ -43,21 +40,48 @@ class ZResourceLoadedEvent;
 class ZUniformBuffer;
 class ZRenderStateGroup;
 
-// Class Definitions
+struct ZModel
+{
+	std::string name;
+	std::string modelPath;
+	ZMesh3DMap meshes;
+	ZBoneMap bonesMap;
+	ZBoneList bones;
+	ZAnimationMap animations;
+	ZSkeleton skeleton;
+	ZInstancedDataOptions instanceData;
+	glm::mat4 globalInverseTransform;
+	ZAABBox bounds;
 
-class ZModel : public std::enable_shared_from_this<ZModel>
+	std::shared_ptr<ZRenderStateGroup> renderState;
+	std::shared_ptr<ZUniformBuffer> uniformBuffer;
+
+private:
+
+	static ZIDSequence idGenerator_;
+};
+
+class ZModelManager
 {
 
-    using Creator = std::unique_ptr<ZModel>(*)(const glm::vec3&);
+	using ZModelPool = ZResourcePool<ZModel, ZHModel>;
 
 public:
 
-    ZModel(const std::string& path = "");
-    virtual ~ZModel() {}
+    ZModelManager() = default;
+	~ZModelManager() = default;
+
+    ZHModel Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+    void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+    std::shared_ptr<ZModel> Create(const std::string& type, const std::shared_ptr<ZOFNode>& data = nullptr);
+    std::shared_ptr<ZModel> CreateExternal(const std::string& path, bool async = false);
 
     virtual void Initialize();
     virtual void Initialize(const std::shared_ptr<ZOFNode>& data);
     virtual void InitializeAsync();
+
+	bool IsLoaded(const std::string& name);
+    ZHModel GetFromName(const std::string& name);
 
     const std::string& ID() const { return id_; }
     const std::string& Path() const { return modelPath_; }
@@ -72,32 +96,17 @@ public:
     const std::shared_ptr<ZRenderStateGroup> RenderState() const { return renderState_; }
 
     void SetInstanceData(const ZInstancedDataOptions& instanceData);
-
     void BoneTransform(const std::string& anim, double secondsTime);
-
-    static void Create(std::shared_ptr<ZOFNode> data, ZModelMap& outModelMap);
-    static void CreateAsync(std::shared_ptr<ZOFNode> data, ZModelIDMap& outPendingModels, ZModelMap& outModelMap);
-
-    static std::shared_ptr<ZModel> Create(const std::string& type, const std::shared_ptr<ZOFNode>& data = nullptr);
-    static std::shared_ptr<ZModel> CreateExternal(const std::string& path, bool async = false);
 
 protected:
 
-    std::string id_;
-    std::string modelPath_;
-    ZMesh3DMap meshes_;
-    ZBoneMap bonesMap_;
-    ZBoneList bones_;
-    ZAnimationMap animations_;
-    std::shared_ptr<ZSkeleton> skeleton_;
-    ZInstancedDataOptions instanceData_;
-    glm::mat4 globalInverseTransform_;
-    ZAABBox bounds_;
+    ZModelPool modelPool_;
+	ZModelMap loadedModels_;
 
-    std::shared_ptr<ZRenderStateGroup> renderState_;
-    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
+protected:
 
-    static ZIDSequence idGenerator_;
+	/** Adds a shader to the internal loaded shader map so that we don't accidentally recreate duplicates of the shader */
+	void Track(const ZHModel& handle);
 
     void ComputeBounds();
     void CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);

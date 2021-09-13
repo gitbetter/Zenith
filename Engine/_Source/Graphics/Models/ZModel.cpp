@@ -45,13 +45,102 @@
 
 ZIDSequence ZModel::idGenerator_;
 
-ZModel::ZModel(const std::string& path)
-    : modelPath_(path)
+ZModel::ZModel()
 {
-    id_ = std::to_string(idGenerator_.Next());
+    name = "Model_" + std::to_string(idGenerator_.Next());
 }
 
-void ZModel::Initialize()
+ZHModel ZModelManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
+{
+    if (dataNode->type != ZOFObjectType::Model)
+    {
+        return ZHModel();
+    }
+
+	if (dataNode->properties.find("type") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
+		std::shared_ptr<ZModel> model = ZModel::Create(typeProp->value, it->second);
+		model->id_ = it->first;
+		models[model->id_] = model;
+	}
+	else if (dataNode->properties.find("path") != dataNode->properties.end()) {
+		std::shared_ptr<ZOFString> pathProp = dataNode->properties["path"]->Value<ZOFString>(0);
+		std::shared_ptr<ZModel> model = ZModel::CreateExternal(pathProp->value);
+		model->id_ = it->first;
+		models[model->id_] = model;
+	}
+}
+
+void ZModelManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
+{
+    for (ZOFChildList::iterator it = data->children.begin(); it != data->children.end(); it++)
+    {
+        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        if (dataNode->type == ZOFObjectType::Model)
+        {
+            std::string path;
+            if (dataNode->properties.find("type") != dataNode->properties.end())
+            {
+                std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
+                std::shared_ptr<ZModel> model = ZModel::Create(typeProp->value, it->second);
+                model->id_ = it->first;
+                outModelMap[model->id_] = model;
+            }
+            if (dataNode->properties.find("path") != dataNode->properties.end())
+            {
+                std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
+                std::shared_ptr<ZModel> model = ZModel::CreateExternal(pathStr->value, true);
+                model->id_ = it->first;
+                outPendingModels[model] = it->first;
+            }
+        }
+    }
+}
+
+std::shared_ptr<ZModel> ZModelManager::Create(const std::string& type, const std::shared_ptr<ZOFNode>& data)
+{
+    std::shared_ptr<ZModel> model = nullptr;
+    if (type == "Plane")
+    {
+        model = std::make_shared<ZPlane>();
+    }
+    else if (type == "Cube") {
+        model = std::make_shared<ZCube>();
+    }
+    else if (type == "Sphere") {
+        model = std::make_shared<ZSphere>();
+    }
+    else if (type == "Cylinder") {
+        model = std::make_shared<ZCylinder>();
+    }
+    else if (type == "Cone") {
+        //model = ZCone::Create();
+    }
+
+    if (model) {
+        if (data)
+            model->Initialize(data);
+        else
+            model->Initialize();
+    }
+    else {
+        LOG("Model of type " + type + " is not supported.", ZSeverity::Warning);
+    }
+    return model;
+}
+
+std::shared_ptr<ZModel> ZModelManager::CreateExternal(const std::string& path, bool async)
+{
+    std::shared_ptr<ZModel> model = std::make_shared<ZModel>(path);
+    if (async)
+        model->InitializeAsync();
+    else
+        model->Initialize();
+    return model;
+}
+
+void ZModelManager::Initialize()
 {
     if (!modelPath_.empty() && meshes_.empty())
     {
@@ -80,7 +169,7 @@ void ZModel::Initialize()
     ZServices::EventAgent()->Queue(modelReadyEvent);
 }
 
-void ZModel::Initialize(const std::shared_ptr<ZOFNode>& data)
+void ZModelManager::Initialize(const std::shared_ptr<ZOFNode>& data)
 {
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(data);
     if (!node)
@@ -100,7 +189,7 @@ void ZModel::Initialize(const std::shared_ptr<ZOFNode>& data)
     Initialize();
 }
 
-void ZModel::InitializeAsync()
+void ZModelManager::InitializeAsync()
 {
     ZResourceData::ptr modelResource = std::make_shared<ZResourceData>(modelPath_, ZResourceType::Model);
     ZServices::ResourceImporter()->GetDataAsync(modelResource);
@@ -108,7 +197,20 @@ void ZModel::InitializeAsync()
     ZServices::EventAgent()->Subscribe(this, &ZModel::HandleModelLoaded);
 }
 
-void ZModel::SetInstanceData(const ZInstancedDataOptions& instanceData)
+bool ZModelManager::IsLoaded(const std::string& name)
+{
+    return loadedModels_.find(name) != loadedModels_.end();
+}
+
+ZHModel ZModelManager::GetFromName(const std::string& name)
+{
+	if (loadedModels_.find(name) != loadedModels_.end()) {
+		return loadedModels_[name];
+	}
+	return ZHModel();
+}
+
+void ZModelManager::SetInstanceData(const ZInstancedDataOptions& instanceData)
 {
     instanceData_ = instanceData;
     bool isInstanced = instanceData_.count > 1;
@@ -119,7 +221,7 @@ void ZModel::SetInstanceData(const ZInstancedDataOptions& instanceData)
     }
 }
 
-void ZModel::ComputeBounds()
+void ZModelManager::ComputeBounds()
 {
     bounds_ = ZAABBox();
 
@@ -134,7 +236,7 @@ void ZModel::ComputeBounds()
     }
 }
 
-void ZModel::BoneTransform(const std::string& anim, double secondsTime)
+void ZModelManager::BoneTransform(const std::string& anim, double secondsTime)
 {
     if (animations_.find(anim) != animations_.end())
     {
@@ -148,7 +250,7 @@ void ZModel::BoneTransform(const std::string& anim, double secondsTime)
     }
 }
 
-void ZModel::CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform)
+void ZModelManager::CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform)
 {
     std::shared_ptr<ZAnimation> animation = animations_[animName];
     glm::mat4 jointTransform = joint->transform;
@@ -193,7 +295,7 @@ void ZModel::CalculateTransformsInHierarchy(const std::string& animName, double 
     }
 }
 
-glm::vec3 ZModel::CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
+glm::vec3 ZModelManager::CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
 {
     if (jointAnim->scalingKeys.size() == 1)
     {
@@ -215,10 +317,10 @@ glm::vec3 ZModel::CalculateInterpolatedScaling(double animationTime, std::shared
     glm::vec3 end = jointAnim->scalingKeys[nextScalingIndex].value;
     glm::vec3 delta = end - start;
 
-    return start + (float) factor * delta;
+    return start + (float)factor * delta;
 }
 
-glm::quat ZModel::CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
+glm::quat ZModelManager::CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
 {
     if (jointAnim->rotationKeys.size() == 1)
     {
@@ -238,12 +340,12 @@ glm::quat ZModel::CalculateInterpolatedRotation(double animationTime, std::share
     double factor = (animationTime - jointAnim->rotationKeys[rotationIndex].time) / deltaTime;
     glm::quat start = jointAnim->rotationKeys[rotationIndex].value;
     glm::quat end = jointAnim->rotationKeys[nextRotationIndex].value;
-    glm::quat out = glm::mix(start, end, (float) factor);
+    glm::quat out = glm::mix(start, end, (float)factor);
 
     return glm::normalize(out);
 }
 
-glm::vec3 ZModel::CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
+glm::vec3 ZModelManager::CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
 {
     if (jointAnim->positionKeys.size() == 1)
     {
@@ -265,10 +367,10 @@ glm::vec3 ZModel::CalculateInterpolatedPosition(double animationTime, std::share
     glm::vec3 end = jointAnim->positionKeys[nextPositionIndex].value;
     glm::vec3 delta = end - start;
 
-    return start + (float) factor * delta;
+    return start + (float)factor * delta;
 }
 
-void ZModel::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
+void ZModelManager::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
 {
     if (event->Resource() == nullptr)
     {
@@ -296,96 +398,10 @@ void ZModel::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& even
     }
 }
 
-void ZModel::Create(std::shared_ptr<ZOFNode> data, ZModelMap& outModelMap)
-{
-    ZModelMap models;
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Model)
-        {
-            if (dataNode->properties.find("type") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
-                std::shared_ptr<ZModel> model = ZModel::Create(typeProp->value, it->second);
-                model->id_ = it->first;
-                models[model->id_] = model;
-            }
-            else if (dataNode->properties.find("path") != dataNode->properties.end()) {
-                std::shared_ptr<ZOFString> pathProp = dataNode->properties["path"]->Value<ZOFString>(0);
-                std::shared_ptr<ZModel> model = ZModel::CreateExternal(pathProp->value);
-                model->id_ = it->first;
-                models[model->id_] = model;
-            }
-        }
-    }
-    outModelMap = models;
-}
 
-void ZModel::CreateAsync(std::shared_ptr<ZOFNode> data, ZModelIDMap& outPendingModels, ZModelMap& outModelMap)
+void ZModelManager::Track(const ZHModel& handle)
 {
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Model)
-        {
-            std::string path;
-            if (dataNode->properties.find("type") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
-                std::shared_ptr<ZModel> model = ZModel::Create(typeProp->value, it->second);
-                model->id_ = it->first;
-                outModelMap[model->id_] = model;
-            }
-            if (dataNode->properties.find("path") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
-                std::shared_ptr<ZModel> model = ZModel::CreateExternal(pathStr->value, true);
-                model->id_ = it->first;
-                outPendingModels[model] = it->first;
-            }
-        }
-    }
-}
-
-std::shared_ptr<ZModel> ZModel::Create(const std::string& type, const std::shared_ptr<ZOFNode>& data)
-{
-    std::shared_ptr<ZModel> model = nullptr;
-    if (type == "Plane")
-    {
-        model = std::make_shared<ZPlane>();
-    }
-    else if (type == "Cube") {
-        model = std::make_shared<ZCube>();
-    }
-    else if (type == "Sphere") {
-        model = std::make_shared<ZSphere>();
-    }
-    else if (type == "Cylinder") {
-        model = std::make_shared<ZCylinder>();
-    }
-    else if (type == "Cone") {
-        //model = ZCone::Create();
-    }
-
-    if (model) {
-        if (data)
-            model->Initialize(data);
-        else
-            model->Initialize();
-    }
-    else {
-        LOG("Model of type " + type + " is not supported.", ZSeverity::Warning);
-    }
-    return model;
-}
-
-std::shared_ptr<ZModel> ZModel::CreateExternal(const std::string& path, bool async)
-{
-    std::shared_ptr<ZModel> model = std::make_shared<ZModel>(path);
-    if (async)
-        model->InitializeAsync();
-    else
-        model->Initialize();
-    return model;
+	ZModel* model = modelPool_.Get(handle);
+	assert(model != nullptr && "Cannot track this model since it doesn't exist!");
+	loadedModels_[model->name] = handle;
 }

@@ -33,7 +33,7 @@
 
 void ZScriptManager::Load(std::shared_ptr<ZOFNode> zof)
 {
-    for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++)
+    for (ZOFChildList::iterator it = zof->children.begin(); it != zof->children.end(); it++)
     {
         if (it->first.find("ZSCR") == 0)
         {
@@ -55,7 +55,7 @@ void ZScriptManager::Load(std::shared_ptr<ZOFNode> zof)
 
 void ZScriptManager::LoadAsync(std::shared_ptr<ZOFNode> zof)
 {
-    for (ZOFChildMap::iterator it = zof->children.begin(); it != zof->children.end(); it++)
+    for (ZOFChildList::iterator it = zof->children.begin(); it != zof->children.end(); it++)
     {
         if (it->first.find("ZSCR") == 0)
         {

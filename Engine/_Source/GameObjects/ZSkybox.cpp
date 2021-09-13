@@ -27,8 +27,8 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZServices.hpp"
 #include "ZSkybox.hpp"
+#include "ZServices.hpp"
 #include "ZCube.hpp"
 #include "ZShader.hpp"
 #include "ZMaterial.hpp"
@@ -99,7 +99,7 @@ void ZSkybox::Initialize(const ZHTexture& cubeMap, const ZFramebuffer::ptr& buff
     skyboxGraphicsComponent->Initialize(
         ZCube::Create(glm::vec3(1.f, 1.f, 1.f))
     );
-    skyboxGraphicsComponent->AddMaterial(ZMaterial::Create({ iblTexture_.cubeMap }, ZShader::Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")));
+    skyboxGraphicsComponent->AddMaterial(ZMaterial::Create({ iblTexture_.cubeMap }, ZServices::ShaderManager()->Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")));
 
     ZGameObject::Initialize();
 }

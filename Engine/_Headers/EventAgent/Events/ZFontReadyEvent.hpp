@@ -29,25 +29,20 @@
 
 #pragma once
 
-// Includes
 #include "ZEvent.hpp"
 
-// Forward Declarations
-class ZFont;
-
-// Class and Data Structure Definitions
 class ZFontReadyEvent : public ZEvent
 {
 
 private:
 
-    std::shared_ptr<ZFont> font_;
+    ZHFont font_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZFontReadyEvent(const std::shared_ptr<ZFont>& font) : font_(font) {}
+    explicit ZFontReadyEvent(const ZHFont& font) : font_(font) {}
     explicit ZFontReadyEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
@@ -55,6 +50,6 @@ public:
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZFontReadyEvent"; }
 
-    std::shared_ptr<ZFont> Font() { return font_; }
+    ZHFont Font() { return font_; }
 
 };

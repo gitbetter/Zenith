@@ -63,11 +63,19 @@ class ZShaderManager
 
 public:
 
-    ZShaderManager() = default;
+    ZShaderManager();
     ~ZShaderManager() = default;
 
     void Initialize() { }
     void CleanUp() { }
+
+    ZHShader Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+    void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+    ZHShader Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "", const std::string& name = "", const ZHShader& restoreHandle = ZHShader());
+    void CreateAsync(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "", const std::string& name = "", const ZHShader& restoreHandle = ZHShader());
+
+	bool IsLoaded(const std::string& name);
+    ZHShader GetFromName(const std::string& name);
 
     unsigned int ID(const ZHShader& handle);
     const std::string& Name(const ZHShader& handle);
@@ -96,7 +104,7 @@ public:
     void SetFloatList(const ZHShader& handle, const std::string& name, const std::vector<float>& value);
     void SetMat4List(const ZHShader& handle, const std::string& name, const std::vector<glm::mat4>& value);
 
-    void Use(const ZHShader& handle, const std::shared_ptr<ZMaterial>& material);
+    void Use(const ZHShader& handle, const ZHMaterial& material);
     void Use(const ZHShader& handle, const ZLightMap& lights);
     void Use(const ZHShader& handle, const ZBoneList& bones);
 
@@ -105,10 +113,6 @@ public:
 	void AddAttachment(const ZHShader& handle, const std::string& uniformName, const ZHTexture& attachment);
 	void ClearAttachments(const ZHShader& handle);
 
-    void CreateAsync(std::shared_ptr<struct ZOFNode> data);
-    void Create(std::shared_ptr<ZOFNode> data, ZShaderMap& outShaderMap);
-    ZHShader Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "", const std::string& name = "");
-    void CreateAsync(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "", const std::string& name = "");
 
 protected:
 
@@ -116,7 +120,12 @@ protected:
 	ZShaderMap loadedShaders_;
 
     std::unordered_map<std::string, std::vector<ZHShader>> loadedShaderFiles_;
-    std::unordered_map<ZHShader, unsigned short> shaderLoadMasks_;
+    std::unordered_map<unsigned int, unsigned short> shaderLoadMasks_;
+
+protected:
+
+	/** Adds a shader to the internal loaded shader map so that we don't accidentally recreate duplicates of the shader */
+	void Track(const ZHShader& handle);
 
 private:
 

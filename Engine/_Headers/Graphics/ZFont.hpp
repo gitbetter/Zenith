@@ -43,38 +43,58 @@ struct ZAtlas
     std::map<unsigned char, ZCharacter> characterInfo;
 };
 
-class ZFont
+struct ZFont
 {
+    std::string name;
+    float size;
+    ZAtlas atlas;
+};
+
+class ZFontManager
+{
+	using ZFontPool = ZResourcePool<ZFont, ZHFont>;
 
 public:
 
-    using ptr = std::shared_ptr<ZFont>;
+    ZFontManager();
+	virtual ~ZFontManager() = default;
 
-    const std::string& Name() const { return name_; }
-    float Size() const { return size_; }
-    ZAtlas Atlas() const { return atlas_; }
-    ZCharacter Character(unsigned char c) { return atlas_.characterInfo[c]; }
+	virtual void Initialize();
+	virtual void CleanUp();
 
-    virtual void Load(const std::string& fontPath, unsigned int fontSize);
-    virtual void LoadAsync(const std::string& fontPath, unsigned int fontSize);
+	ZHFont Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+	void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+	virtual ZHFont Create(const std::string& fontPath, unsigned int fontSize);
+	virtual void CreateAsync(const std::string& fontPath, unsigned int fontSize);
 
-    virtual void Load(class ZResourceData* resource, unsigned int fontSize) = 0;
-    virtual void SetSize(unsigned int size) = 0;
+	bool IsLoaded(const std::string& name);
+	ZHFont GetFromName(const std::string& name);
 
-    static void CreateAsync(std::shared_ptr<ZOFNode> data, ZFontIDMap& outPendingFonts);
-    static void Create(std::shared_ptr<ZOFNode> data, ZFontMap& outFontMap);
-    static ZFont::ptr Create(const std::string& fontPath, unsigned int fontSize);
-    static ZFont::ptr CreateAsync(const std::string& fontPath, unsigned int fontSize);
+	const std::string& Name(const ZHFont& handle);
+	float Size(const ZHFont& handle);
+	ZAtlas Atlas(const ZHFont& handle);
+	ZCharacter Character(const ZHFont& handle, unsigned char c);
+
+	virtual ZHFont Create(class ZResourceData* resource, unsigned int fontSize) = 0;
 
 protected:
 
-    std::string name_;
-    float size_;
-    ZAtlas atlas_;
+	ZFontPool fontPool_;
+	ZFontMap loadedFonts_;
 
-    // TODO: Add necessary synchronization primitives
-    static FT_Library ft_;
-    static bool initialized_;
+	std::unordered_map<std::string, unsigned int> pendingFontSizes_;
 
-    static void InitializeFreeType();
+	static FT_Library ft_;
+	static bool initialized_;
+
+protected:
+
+	/** Adds a font to the internal loaded font map so that we don't accidentally recreate duplicates of the font */
+	void Track(const ZHFont& handle);
+
+	static void InitializeFreeTypeIfNecessary();
+
+private:
+
+	void HandleFontLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
 };

@@ -139,80 +139,79 @@ void ZTextureManager::Initialize()
 
 void ZTextureManager::CleanUp()
 {
+    ZServices::EventAgent()->Unsubscribe(this, &ZTextureManager::HandleTextureLoaded);
 }
 
-void ZTextureManager::CreateAsync(std::shared_ptr<ZOFNode> data)
+ZHTexture ZTextureManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
 {
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Texture)
-        {
-            std::string path, type;
-            ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp;
-            if (dataNode->properties.find("path") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
-                path = pathStr->value;
-            }
+	if (dataNode->type != ZOFObjectType::Texture)
+	{
+		return ZHTexture();
+	}
 
-            if (dataNode->properties.find("type") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> typeStr = dataNode->properties["type"]->Value<ZOFString>(0);
-                type = typeStr->value;
-            }
+	ZHTexture restoreHandle(dataHandle.value);
 
-            if (dataNode->properties.find("wrapping") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> wrappingStr = dataNode->properties["wrapping"]->Value<ZOFString>(0);
-                wrapping = wrappingStr->value == "Repeat" ? ZTextureWrapping::Repeat : ZTextureWrapping::EdgeClamp;
-            }
+	std::string path, type;
+	ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp;
+	if (dataNode->properties.find("path") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
+		path = pathStr->value;
+	}
 
-            if (!path.empty())
-            {
-                ZTextureManager::CreateAsync(path, type, wrapping);
-            }
-        }
-    }
+	if (dataNode->properties.find("type") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> typeStr = dataNode->properties["type"]->Value<ZOFString>(0);
+		type = typeStr->value;
+	}
+
+	if (dataNode->properties.find("wrapping") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> wrappingStr = dataNode->properties["wrapping"]->Value<ZOFString>(0);
+		wrapping = wrappingStr->value == "Repeat" ? ZTextureWrapping::Repeat : ZTextureWrapping::EdgeClamp;
+	}
+
+	if (!path.empty())
+	{
+		return Create(path, type, wrapping, false, true, restoreHandle);
+	}
+
+	return ZHTexture();
 }
 
-void ZTextureManager::Create(std::shared_ptr<ZOFNode> data, ZTextureMap& outTextureMap)
+void ZTextureManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
 {
-    ZTextureMap textures;
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    if (dataNode->type != ZOFObjectType::Texture)
     {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Texture)
-        {
-            std::string path, type;
-            ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp;
-            if (dataNode->properties.find("path") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
-                path = pathStr->value;
-            }
-
-            if (dataNode->properties.find("type") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> typeStr = dataNode->properties["type"]->Value<ZOFString>(0);
-                type = typeStr->value;
-            }
-
-            if (dataNode->properties.find("wrapping") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> wrappingStr = dataNode->properties["wrapping"]->Value<ZOFString>(0);
-                wrapping = wrappingStr->value == "Repeat" ? ZTextureWrapping::Repeat : ZTextureWrapping::EdgeClamp;
-            }
-
-            if (!path.empty())
-            {
-                ZHTexture handle = Create(path, type, wrapping);
-                ZTexture* texture = texturePool_.Get(handle);
-                textures[it->first] = handle;
-            }
-        }
+        return;
     }
-    outTextureMap = textures;
+
+	ZHTexture restoreHandle(dataHandle.value);
+
+	std::string path, type;
+	ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp;
+	if (dataNode->properties.find("path") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
+		path = pathStr->value;
+	}
+
+	if (dataNode->properties.find("type") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> typeStr = dataNode->properties["type"]->Value<ZOFString>(0);
+		type = typeStr->value;
+	}
+
+	if (dataNode->properties.find("wrapping") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> wrappingStr = dataNode->properties["wrapping"]->Value<ZOFString>(0);
+		wrapping = wrappingStr->value == "Repeat" ? ZTextureWrapping::Repeat : ZTextureWrapping::EdgeClamp;
+	}
+
+	if (!path.empty())
+	{
+		CreateAsync(path, type, wrapping, false, true, false, restoreHandle);
+	}
 }
 
 ZHTexture ZTextureManager::Create()
@@ -223,14 +222,14 @@ ZHTexture ZTextureManager::Create()
     return handle;
 }
 
-ZHTexture ZTextureManager::Create(const std::string& path, const std::string& type, ZTextureWrapping wrapping, bool hdr, bool flip)
+ZHTexture ZTextureManager::Create(const std::string& path, const std::string& type, ZTextureWrapping wrapping, bool hdr, bool flip, const ZHTexture& restoreHandle)
 {
     // TODO: Switch on constant, variable or define to choose implementation
-	ZTextureResourceData::ptr resource = ZImageImporter::LoadImage(path, hdr, flip);
-	return Create(resource.get(), type, wrapping, hdr, flip);
+	ZTextureResourceData::ptr resource = ZImageImporter::LoadImage(path, hdr, flip, wrapping, type);
+	return Create(resource.get(), type, wrapping, hdr, flip, restoreHandle);
 }
 
-void ZTextureManager::CreateAsync(const std::string& path, const std::string& type, ZTextureWrapping wrapping, bool hdr, bool flip, bool equirect)
+void ZTextureManager::CreateAsync(const std::string& path, const std::string& type, ZTextureWrapping wrapping, bool hdr, bool flip, bool equirect, const ZHTexture& restoreHandle)
 {
     // TODO: Switch on constant, variable or define to choose implementation
 	ZResourceType resourceType = ZResourceType::Other;
@@ -238,10 +237,9 @@ void ZTextureManager::CreateAsync(const std::string& path, const std::string& ty
 	else if (hdr) resourceType = ZResourceType::HDRTexture;
 	else resourceType = ZResourceType::Texture;
 
-	pendingTextureWrappings_[path] = wrapping;
-    pendingTextureTypes_[type] = type;
-
-	ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, resourceType);
+	ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, resourceType, wrapping, type, restoreHandle);
+	resource->flipped = flip;
+	resource->hdr = hdr;
 	ZServices::ResourceImporter()->GetDataAsync(resource);
 }
 
@@ -274,11 +272,11 @@ ZHTexture ZTextureManager::Default()
     return defaultTexture;
 }
 
-void ZTextureManager::TrackTexture(const ZHTexture& handle)
+void ZTextureManager::Track(const ZHTexture& handle)
 {
     ZTexture* texture = texturePool_.Get(handle);
     assert(texture != nullptr && "Cannot track this texture since it doesn't exist!");
-    loadedTextures_[texture->path] = handle;
+    loadedTextures_[texture->name] = handle;
 }
 
 void ZTextureManager::HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
@@ -302,23 +300,16 @@ void ZTextureManager::HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedE
     }
 
     std::shared_ptr<ZTextureReadyEvent> textureReadyEvent;
+	ZHTexture handle = Create(textureData.get(), textureData->textureType, textureData->wrapping, textureData->hdr, textureData->flipped, textureData->restoreHandle);
     if (resource->type == ZResourceType::HDREquirectangularMap)
     {
-        ZHTexture handle = Create(textureData.get(), pendingTextureTypes_[textureData->path], pendingTextureWrappings_[textureData->path], textureData->hdr, textureData->flipped);
-        pendingTextureWrappings_.erase(textureData->path);
-        pendingTextureTypes_.erase(textureData->path);
 
         ZFramebuffer::ptr bufferData;
         ZHTexture cubemap = CreateCubeMap(handle, bufferData);
-
         textureReadyEvent = std::make_shared<ZTextureReadyEvent>(cubemap, bufferData);
     }
     else
     {
-        ZHTexture handle = Create(textureData.get(), pendingTextureTypes_[textureData->path], pendingTextureWrappings_[textureData->path], textureData->hdr, textureData->flipped);
-        pendingTextureWrappings_.erase(textureData->path);
-        pendingTextureTypes_.erase(textureData->path);
-
         textureReadyEvent = std::make_shared<ZTextureReadyEvent>(handle);
     }
     ZServices::EventAgent()->Queue(textureReadyEvent);

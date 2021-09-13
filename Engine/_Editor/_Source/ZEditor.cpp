@@ -40,7 +40,7 @@ void ZEditor::Setup() {
 
 	ZServices::ResourceImporter()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(EDITOR_ROOT) + "/_Assets")));
 
-    ZServices::AssetStore()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
+    ZServices::FontManager()->CreateAsync("/Fonts/earth_orbiter/earthorbiter.ttf", 64);
 
     ZServices::EventAgent()->Subscribe(this, &ZEditor::HandleSceneLoaded);
 

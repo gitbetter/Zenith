@@ -30,51 +30,102 @@
 #include "ZGLFont.hpp"
 #include "ZServices.hpp"
 #include "ZResourceLoadedEvent.hpp"
+#include "ZFontReadyEvent.hpp"
 
-FT_Library ZFont::ft_ = nullptr;
-bool ZFont::initialized_ = false;
+FT_Library ZFontManager::ft_ = nullptr;
+bool ZFontManager::initialized_ = false;
 
-void ZFont::Load(const std::string& fontPath, unsigned int fontSize)
-{
-    InitializeFreeType();
-    ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
-    ZServices::ResourceImporter()->GetData(resource.get());
-    Load(resource.get(), fontSize);
-}
-
-void ZFont::LoadAsync(const std::string& fontPath, unsigned int fontSize)
-{
-    InitializeFreeType();
-    ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
-    ZServices::ResourceImporter()->GetDataAsync(resource);
-}
-
-void ZFont::CreateAsync(std::shared_ptr<ZOFNode> data, ZFontIDMap& outPendingFonts)
+ZFontManager::ZFontManager()
+    : fontPool_(512)
 {
 }
 
-void ZFont::Create(std::shared_ptr<ZOFNode> data, ZFontMap& outFontMap)
+void ZFontManager::Initialize()
+{
+	ZServices::EventAgent()->Subscribe(this, &ZFontManager::HandleFontLoaded);
+	ZHFont defaultFont = Create("/Fonts/arial/arial.ttf", 64.f);
+}
+
+void ZFontManager::CleanUp()
+{
+	ZServices::EventAgent()->Unsubscribe(this, &ZFontManager::HandleFontLoaded);
+}
+
+ZHFont ZFontManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> data)
 {
 }
 
+void ZFontManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> data)
+{
+}
 
-ZFont::ptr ZFont::Create(const std::string& fontPath, unsigned int fontSize)
+const std::string& ZFontManager::Name(const ZHFont& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null font handle!");
+	ZFont* font = fontPool_.Get(handle);
+	return font->name;
+}
+
+float ZFontManager::Size(const ZHFont& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null font handle!");
+	ZFont* font = fontPool_.Get(handle);
+	return font->size;
+}
+
+ZAtlas ZFontManager::Atlas(const ZHFont& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null font handle!");
+	ZFont* font = fontPool_.Get(handle);
+	return font->atlas;
+}
+
+ZCharacter ZFontManager::Character(const ZHFont& handle, unsigned char c)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null font handle!");
+	ZFont* font = fontPool_.Get(handle);
+	return font->atlas.characterInfo[c];
+}
+
+ZHFont ZFontManager::Create(const std::string& fontPath, unsigned int fontSize)
 {
     // TODO: Switch on constant, variable or define to choose implementation
-    ZFont::ptr font = std::make_shared<ZGLFont>();
-    font->Load(fontPath, fontSize);
-    return font;
+	InitializeFreeTypeIfNecessary();
+	ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
+	ZServices::ResourceImporter()->GetData(resource.get());
+	return Create(resource.get(), fontSize);
 }
 
-ZFont::ptr ZFont::CreateAsync(const std::string& fontPath, unsigned int fontSize)
+void ZFontManager::CreateAsync(const std::string& fontPath, unsigned int fontSize)
 {
     // TODO: Switch on constant, variable or define to choose implementation
-    ZFont::ptr font = std::make_shared<ZGLFont>();
-    font->LoadAsync(fontPath, fontSize);
-    return font;
+	InitializeFreeTypeIfNecessary();
+	ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
+	pendingFontSizes_[fontPath] = fontSize;
+	ZServices::ResourceImporter()->GetDataAsync(resource);
 }
 
-void ZFont::InitializeFreeType()
+bool ZFontManager::IsLoaded(const std::string& name)
+{
+	return loadedFonts_.find(name) != loadedFonts_.end();
+}
+
+ZHFont ZFontManager::GetFromName(const std::string& name)
+{
+	if (loadedFonts_.find(name) != loadedFonts_.end()) {
+		return loadedFonts_[name];
+	}
+	return ZHFont();
+}
+
+void ZFontManager::Track(const ZHFont& handle)
+{
+	ZFont* font = fontPool_.Get(handle);
+	assert(font != nullptr && "Cannot track this font since it doesn't exist!");
+	loadedFonts_[font->name] = handle;
+}
+
+void ZFontManager::InitializeFreeTypeIfNecessary()
 {
     if (!initialized_) {
         if (FT_Init_FreeType(&ft_)) {
@@ -83,4 +134,22 @@ void ZFont::InitializeFreeType()
         }
         initialized_ = true;
     }
+}
+
+void ZFontManager::HandleFontLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
+{
+	if (event->Resource() == nullptr)
+	{
+		return;
+	}
+
+	ZResourceData::ptr resource = event->Resource();
+	if (resource->type != ZResourceType::Font)
+		return;
+
+	ZHFont handle = Create(resource.get(), pendingFontSizes_[resource->path]);
+	pendingFontSizes_.erase(resource->path);
+
+	std::shared_ptr<ZFontReadyEvent> fontReadyEvent = std::make_shared<ZFontReadyEvent>(handle);
+	ZServices::EventAgent()->Queue(fontReadyEvent);
 }

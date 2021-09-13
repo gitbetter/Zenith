@@ -66,9 +66,7 @@ void ZResourceLoadTask::Run()
     case ZResourceType::Texture:
     {
         std::shared_ptr<ZTextureResourceData> textureData = std::static_pointer_cast<ZTextureResourceData>(resource_);
-        ZImageImporter::LoadImage(textureData.get(),
-            resource_->type == ZResourceType::HDRTexture || resource_->type == ZResourceType::HDREquirectangularMap,
-            resource_->type == ZResourceType::HDRTexture || resource_->type == ZResourceType::HDREquirectangularMap);
+        ZImageImporter::LoadImage(textureData.get());
         break;
     }
     case ZResourceType::Model:

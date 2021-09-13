@@ -76,11 +76,11 @@ public:
 
     ZHTexture Default();
 
+    ZHTexture Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+	void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
     ZHTexture Create();
-    void Create(std::shared_ptr<ZOFNode> data, ZTextureMap& outTextureMap);
-	ZHTexture Create(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true);
-	void CreateAsync(std::shared_ptr<ZOFNode> data);
-    void CreateAsync(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false);
+	ZHTexture Create(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, const ZHTexture& restoreHandle = ZHTexture());
+    void CreateAsync(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false, const ZHTexture& restoreHandle = ZHTexture());
     ZIBLTextureData CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const ZHTexture& cubemap);
 
 	bool IsLoaded(const std::string& name);
@@ -105,7 +105,7 @@ public:
     virtual void Initialize();
 	virtual void CleanUp();
 
-	virtual ZHTexture Create(class ZTextureResourceData* resource, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) = 0;
+	virtual ZHTexture Create(class ZTextureResourceData* resource, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, const ZHTexture& restoreHandle = ZHTexture()) = 0;
 	virtual ZHTexture CreateDefault() = 0;
 	virtual ZHTexture CreateEmptyLUT() = 0;
 	virtual ZHTexture CreateColor(const glm::vec2& size, bool multisample = false) = 0;
@@ -125,19 +125,18 @@ public:
     virtual void Unbind(const ZHTexture& handle) = 0;
     virtual void Delete(const ZHTexture& handle) = 0;
 
-
 protected:
 
     ZTexturePool texturePool_;
 	ZTextureMap loadedTextures_;
 
-    std::map<std::string, ZTextureWrapping> pendingTextureWrappings_;
-	std::map<std::string, std::string> pendingTextureTypes_;
+    std::unordered_map<std::string, ZTextureWrapping> pendingTextureWrappings_;
+	std::unordered_map<std::string, std::string> pendingTextureTypes_;
 
 protected:
 
 	/** Adds a texture to the internal loaded texture map so that we don't accidentally recreate duplicates of the texture */
-	void TrackTexture(const ZHTexture& handle);
+	void Track(const ZHTexture& handle);
 
 private:
 

@@ -40,13 +40,13 @@ class ZMaterialReadyEvent : public ZEvent
 
 private:
 
-    std::shared_ptr<ZMaterial> material_;
+    ZHMaterial material_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZMaterialReadyEvent(const std::shared_ptr<ZMaterial>& material) : material_(material) {}
+    explicit ZMaterialReadyEvent(const ZHMaterial& material) : material_(material) {}
     explicit ZMaterialReadyEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
@@ -54,6 +54,6 @@ public:
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZMaterialReadyEvent"; }
 
-    std::shared_ptr<ZMaterial> Material() { return material_; }
+    ZHMaterial Material() { return material_; }
 
 };

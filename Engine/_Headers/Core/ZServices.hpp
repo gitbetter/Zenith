@@ -39,6 +39,8 @@
 #include "ZLogger.hpp"
 #include "ZTexture.hpp"
 #include "ZShader.hpp"
+#include "ZFont.hpp"
+#include "ZMaterial.hpp"
 #include "ZAssetStore.hpp"
 
 class ZServices
@@ -58,6 +60,8 @@ public:
 
     static std::shared_ptr<ZTextureManager> TextureManager() { return textureManager_; }
     static std::shared_ptr<ZShaderManager> ShaderManager() { return shaderManager_; }
+    static std::shared_ptr<ZFontManager> FontManager() { return fontManager_; }
+    static std::shared_ptr<ZMaterialManager> MaterialManager() { return materialManager_; }
 
     static std::shared_ptr<ZAssetStore> AssetStore();
 
@@ -69,6 +73,8 @@ public:
 
     static void Provide(const std::shared_ptr<ZTextureManager>& textureManager);
     static void Provide(const std::shared_ptr<ZShaderManager>& shaderManager);
+    static void Provide(const std::shared_ptr<ZFontManager>& fontManager);
+    static void Provide(const std::shared_ptr<ZMaterialManager>& materialManager);
 
     static void Provide(const std::shared_ptr<ZAssetStore>& assetStore);
 
@@ -84,6 +90,8 @@ private:
 
     static std::shared_ptr<ZTextureManager> textureManager_;
     static std::shared_ptr<ZShaderManager> shaderManager_;
+    static std::shared_ptr<ZFontManager> fontManager_;
+    static std::shared_ptr<ZMaterialManager> materialManager_;
 
     static std::shared_ptr<ZAssetStore> assetStore_;
     static std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> processRunners_;

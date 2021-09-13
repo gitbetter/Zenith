@@ -323,7 +323,7 @@ void ZGraphicsComponent::SetOutline(const glm::vec4& color)
     else if (!outlineMaterial_) {
         ZMaterialProperties materialProperties;
         materialProperties.look.albedo = color;
-        outlineMaterial_ = ZMaterial::Create(materialProperties, ZShader::Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/outline.frag"));
+        outlineMaterial_ = ZMaterial::Create(materialProperties, ZServices::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/outline.frag"));
     }
 }
 

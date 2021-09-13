@@ -39,7 +39,7 @@ public:
     ZGLTextureManager() : ZTextureManager()
     { }
 
-	ZHTexture Create(ZTextureResourceData* resource, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true) override;
+	ZHTexture Create(ZTextureResourceData* resource, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, const ZHTexture& restoreHandle = ZHTexture()) override;
 	ZHTexture CreateDefault() override;
 	ZHTexture CreateEmptyLUT() override;
 	ZHTexture CreateColor(const glm::vec2& size, bool multisample = false) override;

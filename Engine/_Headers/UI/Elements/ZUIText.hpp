@@ -32,7 +32,6 @@
 #include "ZUIElement.hpp"
 
 class ZVertexBuffer;
-class ZFont;
 
 class ZUIText : public ZUIElement
 {
@@ -51,7 +50,7 @@ public:
     void Prepare(double deltaTime, unsigned int zOrder = 0) override;
 
     const std::string& Text() const { return text_; }
-    std::shared_ptr<ZFont> Font();
+    ZHFont Font();
     float FontScale() const { return fontScale_; }
     float LineSpacing() const { return lineSpacing_; }
     bool ShouldWrap() const { return wrapToBounds_; }
@@ -78,7 +77,7 @@ protected:
     bool                                     wrapToBounds_;
     ZAlignment                               hAlignment_;
     ZAlignment                               vAlignment_;
-    std::shared_ptr<ZFont>                   font_;
+    ZHFont                                   font_;
     std::shared_ptr<ZVertexBuffer>           bufferData_;
     ZVertex2DDataOptions                     textVertexData_;
 

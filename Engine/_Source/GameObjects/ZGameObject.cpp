@@ -471,7 +471,7 @@ ZGameObjectList ZGameObject::Load(std::shared_ptr<ZOFNode> data, const std::shar
 {
     using namespace zenith::strings;
     ZGameObjectList gameObjects;
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    for (ZOFChildList::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(it->second);
         std::shared_ptr<ZGameObject> gameObject;
@@ -499,7 +499,7 @@ ZGameObjectList ZGameObject::Load(std::shared_ptr<ZOFNode> data, const std::shar
         if (gameObject) {
             gameObjects.push_back(gameObject);
 
-            for (ZOFChildMap::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++)
+            for (ZOFChildList::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++)
             {
                 if (HasComponentPrefix(compIt->first)) {
                     std::shared_ptr<ZOFNode> componentNode = compIt->second;

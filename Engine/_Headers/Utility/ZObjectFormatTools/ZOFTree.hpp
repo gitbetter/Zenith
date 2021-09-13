@@ -29,30 +29,46 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 #include <memory>
 #include <string>
 #include <vector>
 #include <map>
 
-// Forward Declarations
 struct ZOFNode;
 struct ZOFObjectNode;
 struct ZOFPropertyNode;
-struct ZOFAbstractTerminal;
-template<typename T> struct ZOFValueTerminal;
 
-// Class and Data Structure Definitions
-typedef std::map<std::string, std::shared_ptr<ZOFNode>> ZOFChildMap;
-typedef std::map<std::string, std::shared_ptr<ZOFPropertyNode>> ZOFPropertyMap;
-typedef std::vector<std::shared_ptr<ZOFAbstractTerminal>> ZOFAbstractTerminalList;
+struct ZOFAbstractTerminal
+{
+	std::shared_ptr<ZOFNode> root;
+	virtual ~ZOFAbstractTerminal() {};
+	virtual std::string ToString() { return ""; }
+};
+
+template<class T>
+struct ZOFValueTerminal : public ZOFAbstractTerminal
+{
+	T value;
+	~ZOFValueTerminal() {}
+
+	std::string ToString() override { return ""; }
+};
+
+using ZOFHandle = ZOFValueTerminal<unsigned int>;
+using ZOFNumber = ZOFValueTerminal<float>;
+using ZOFString = ZOFValueTerminal<std::string>;
+using ZOFNumberList = ZOFValueTerminal<std::vector<float>>;
+using ZOFStringList = ZOFValueTerminal<std::vector<std::string>>;
+using ZOFChildList = std::vector<std::pair<ZOFHandle, std::shared_ptr<ZOFNode>>>;
+using ZOFPropertyMap = std::map<std::string, std::shared_ptr<ZOFPropertyNode>>;
+using ZOFAbstractTerminalList = std::vector<std::shared_ptr<ZOFAbstractTerminal>>;
 
 struct ZOFNode
 {
     std::string id;
     std::shared_ptr<ZOFNode> root;
-    ZOFChildMap children;
+    ZOFChildList children;
 
     virtual ~ZOFNode() {}
 
@@ -64,26 +80,10 @@ struct ZOFNode
     virtual std::string ToString()
     {
         std::string objString = (root == nullptr) ? std::string(1, NEWLINE) : "";
-        ZOFChildMap::iterator it = children.begin();
+        ZOFChildList::iterator it = children.begin();
         for (; it != children.end(); it++) objString += it->second->ToString();
         return objString;
     }
-};
-
-struct ZOFAbstractTerminal
-{
-    std::shared_ptr<ZOFNode> root;
-    virtual ~ZOFAbstractTerminal() {};
-    virtual std::string ToString() { return ""; }
-};
-
-template<class T>
-struct ZOFValueTerminal : public ZOFAbstractTerminal
-{
-    T value;
-    ~ZOFValueTerminal() {}
-
-    std::string ToString() override { return ""; }
 };
 
 struct ZOFPropertyNode : public ZOFNode
@@ -142,16 +142,18 @@ struct ZOFObjectNode : public ZOFNode
     static ZOFObjectType StringToType(const std::string& type);
 };
 
-using ZOFNumber = ZOFValueTerminal<float>;
-using ZOFString = ZOFValueTerminal<std::string>;
-using ZOFNumberList = ZOFValueTerminal<std::vector<float>>;
-using ZOFStringList = ZOFValueTerminal<std::vector<std::string>>;
-
 // Template specializations
+template<> std::string ZOFHandle::ToString();
 template<> std::string ZOFNumber::ToString();
 template<> std::string ZOFString::ToString();
 template<> std::string ZOFNumberList::ToString();
 template<> std::string ZOFStringList::ToString();
+
+template<> inline std::string ZOFHandle::ToString()
+{
+	std::string valueString = " " + std::to_string(value);
+	return valueString;
+}
 
 template<> inline std::string ZOFNumber::ToString()
 {

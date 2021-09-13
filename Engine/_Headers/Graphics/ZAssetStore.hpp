@@ -37,11 +37,7 @@ class ZWindow;
 class ZLight;
 class ZModel;
 class ZMesh2D;
-class ZTexture;
 class ZModelReadyEvent;
-class ZFontReadyEvent;
-class ZTextureReadyEvent;
-class ZShaderReadyEvent;
 class ZMaterialReadyEvent;
 
 class ZAssetStore
@@ -65,36 +61,15 @@ public:
     const ZHShader& TextShader() const { return textShader_; }
     const ZHShader& UIShader() const { return uiShader_; }
     const ZHShader& DebugShader() const { return debugShader_; }
-    const ZFontMap& Fonts() const { return loadedFonts_; }
-    const ZTextureMap& Textures() const { return loadedTextures_; }
-    const ZShaderMap& Shaders() const { return loadedShaders_; }
     const ZModelMap& Models() const { return loadedModels_; }
-    const ZMaterialMap& Materials() const { return loadedMaterials_; }
 
-    void RegisterFont(const std::string& fontPath, unsigned int fontSize = 64);
-    void AddFont(const std::string& id, std::shared_ptr<ZFont> font);
-    void AddShader(const std::string& id, const ZHShader& shader);
-    void AddTexture(const std::string& id, const ZHTexture& texture);
     void AddModel(const std::string& id, std::shared_ptr<ZModel> model);
-    void AddMaterial(const std::string& id, std::shared_ptr<ZMaterial> material);
 
-    bool HasFont(const std::string& id) const;
-    bool HasTexture(const std::string& id) const;
     bool HasModel(const std::string& id) const;
-    bool HasShader(const std::string& id) const;
-    bool HasMaterial(const std::string& id) const;
 
-    std::shared_ptr<ZFont> GetFont(const std::string& id);
-    ZHTexture GetTexture(const std::string& id);
     std::shared_ptr<ZModel> GetModel(const std::string& id);
-    ZHShader GetShader(const std::string& id);
-    std::shared_ptr<ZMaterial> GetMaterial(const std::string& id);
 
-    void HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event);
-    void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
     void HandleModelReady(const std::shared_ptr<ZModelReadyEvent>& event);
-    void HandleFontReady(const std::shared_ptr<ZFontReadyEvent>& event);
-    void HandleMaterialReady(const std::shared_ptr<ZMaterialReadyEvent>& event);
 
 protected:
 
@@ -106,20 +81,12 @@ protected:
 	ZHShader postShader_;
 	ZHShader uiShader_;
 	ZHShader textShader_;
-    ZShaderMap loadedShaders_;
-    ZTextureMap loadedTextures_;
     ZModelMap loadedModels_;
-    ZFontMap loadedFonts_;
-    ZMaterialMap loadedMaterials_;
 
 private:
 
-    ZShaderIDMap pendingShaders_;
     ZModelIDMap pendingModels_;
-    ZFontIDMap pendingFonts_;
-    ZMaterialIDMap pendingMaterials_;
 
     void InitializeShaders();
-    void InitializeFonts();
 
 };

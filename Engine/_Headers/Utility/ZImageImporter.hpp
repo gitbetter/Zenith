@@ -41,8 +41,8 @@ private:
 
 public:
 
-    static ZTextureResourceData::ptr LoadImage(const std::string& path, bool hdr = false, bool flipped = true);
-    static void LoadImage(class ZTextureResourceData* resource, bool hdr = false, bool flipped = true);
+    static ZTextureResourceData::ptr LoadImage(const std::string& path, bool hdr = false, bool flipped = true, ZTextureWrapping wrapping = ZTextureWrapping::Repeat, const std::string& type = "color");
+    static void LoadImage(class ZTextureResourceData* resource);
     static void FreeImageData(void* data);
 
 };

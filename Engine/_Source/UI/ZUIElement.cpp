@@ -687,7 +687,7 @@ void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& even
 ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene)
 {
     ZUIElementList uiElements;
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
+    for (ZOFChildList::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
         std::shared_ptr<ZOFNode> node = it->second;
         if (zenith::strings::HasUIPrefix(node->id))

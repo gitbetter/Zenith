@@ -94,6 +94,9 @@ public:
 
 	using ptr = std::shared_ptr<ZTextureResourceData>;
     
+	ZTextureWrapping wrapping{ ZTextureWrapping::Repeat };
+	std::string textureType;
+	ZHTexture restoreHandle;
 	bool hdr{ false };
 	bool flipped{ false };
 	int width{ 0 };
@@ -103,8 +106,8 @@ public:
 
 public:
 
-	ZTextureResourceData(const std::string& path, ZResourceType type, void* buffer = nullptr, unsigned int size = 0)
-		: ZResourceData(path, type, buffer, size)
+	ZTextureResourceData(const std::string& path, ZResourceType type, ZTextureWrapping wrapping, const std::string& textureType, const ZHTexture& restoreHandle = ZHTexture(), void* buffer = nullptr, unsigned int size = 0)
+		: ZResourceData(path, type, buffer, size), wrapping(wrapping), textureType(textureType), restoreHandle(restoreHandle)
 	{ }
 	~ZTextureResourceData();
 

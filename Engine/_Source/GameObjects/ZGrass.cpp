@@ -122,8 +122,6 @@ void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
 
     ZOFPropertyMap props = node->properties;
 
-    std::shared_ptr<ZShader> grassShader = nullptr;
-
     if (props.find("texture") != props.end() && props["texture"]->HasValues())
     {
         std::shared_ptr<ZOFString> textureProp = props["texture"]->Value<ZOFString>(0);
@@ -213,7 +211,7 @@ void ZGrass::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event
 {
     if (ZServices::TextureManager()->Name(event->Texture()) == textureId_)
     {
-        auto grassMaterial = ZMaterial::Create({ event->Texture() }, ZShader::Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
+        auto grassMaterial = ZMaterial::Create({ event->Texture() }, ZServices::ShaderManager()->Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
         graphicsComp_->AddMaterial(grassMaterial);
         ZServices::EventAgent()->Unsubscribe(this, &ZGrass::HandleTextureReady);
     }

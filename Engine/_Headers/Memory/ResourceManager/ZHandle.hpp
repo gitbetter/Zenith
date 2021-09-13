@@ -64,6 +64,7 @@ public:
     { }
 
     void Initialize(unsigned int index);
+    void Restore();
 
     unsigned int Index() const { return index_; }
     unsigned int Magic() const { return magic_; }
@@ -72,15 +73,18 @@ public:
 
     operator unsigned int () const { return handle_; }
 
+private:
+
+    static unsigned int autoMagic = 0;
+
 };
 
 template <typename Tag>
 void ZHandle<Tag>::Initialize(unsigned int index)
 {
     assert(IsNull());
-    assert(index_ <= MAX_INDEX);
+    assert(index <= MAX_INDEX);
 
-    static unsigned int autoMagic = 0;
     if (++autoMagic > MAX_MAGIC)
     {
         autoMagic = 1;
@@ -88,6 +92,18 @@ void ZHandle<Tag>::Initialize(unsigned int index)
 
     index_ = index;
     magic_ = autoMagic;
+}
+
+template <typename Tag>
+void ZHandle<Tag>::Restore()
+{
+	assert(!IsNull());
+	assert(index_ <= MAX_INDEX);
+
+	if (magic_ > autoMagic)
+	{
+		autoMagic = magic_;
+	}
 }
 
 template <typename Tag>

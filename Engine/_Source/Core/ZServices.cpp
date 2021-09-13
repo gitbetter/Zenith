@@ -36,6 +36,7 @@
 #include "ZGLGraphics.hpp"
 #include "ZGLInput.hpp"
 #include "ZGLTexture.hpp"
+#include "ZGLFont.hpp"
 
 #ifdef DEV_BUILD
 #include "ZDevResourceFile.hpp"
@@ -48,7 +49,12 @@ std::shared_ptr<ZInput> ZServices::input_ = nullptr;
 std::shared_ptr<ZEventAgent> ZServices::eventAgent_ = nullptr;
 std::shared_ptr<ZResourceImporter> ZServices::resourceImporter_ = nullptr;
 std::shared_ptr<ZScriptManager> ZServices::scriptManager_ = nullptr;
+
 std::shared_ptr<ZTextureManager> ZServices::textureManager_ = nullptr;
+std::shared_ptr<ZShaderManager> ZServices::shaderManager_ = nullptr;
+std::shared_ptr<ZFontManager> ZServices::fontManager_ = nullptr;
+std::shared_ptr<ZMaterialManager> ZServices::materialManager_ = nullptr;
+
 std::shared_ptr<ZAssetStore> ZServices::assetStore_ = nullptr;
 std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
@@ -83,6 +89,14 @@ void ZServices::Initialize()
 
 		/* ========= Shader Manager ============ */
 		Provide(std::make_shared<ZShaderManager>());
+		/* =================================== */
+
+		/* ========= Font Manager ============ */
+		Provide(std::make_shared<ZGLFontManager>());
+		/* =================================== */
+
+		/* ========= Font Manager ============ */
+		Provide(std::make_shared<ZMaterialManager>());
 		/* =================================== */
     }
     initialized_ = true;
@@ -190,6 +204,28 @@ void ZServices::Provide(const std::shared_ptr<ZShaderManager>& shaderManager)
 
     shaderManager_ = shaderManager;
     shaderManager_->Initialize();
+}
+
+void ZServices::Provide(const std::shared_ptr<ZFontManager>& fontManager)
+{
+	if (fontManager_)
+	{
+		fontManager_->CleanUp();
+	}
+
+	fontManager_ = fontManager;
+	fontManager_->Initialize();
+}
+
+void ZServices::Provide(const std::shared_ptr<ZMaterialManager>& materialManager)
+{
+	if (materialManager_)
+	{
+        materialManager_->CleanUp();
+    }
+
+    materialManager_ = materialManager;
+    materialManager_->Initialize();
 }
 
 void ZServices::Provide(const std::shared_ptr<ZAssetStore>& assetStore)

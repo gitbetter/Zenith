@@ -37,377 +37,476 @@
 #include "ZRenderStateGroup.hpp"
 #include "ZUniformBuffer.hpp"
 
-ZIDSequence ZMaterial::idGenerator_;
+ZIDSequence ZMaterialBase::idGenerator_;
 
-ZMaterial::ZMaterial()
+ZMaterialBase::ZMaterialBase()
 { 
-    id_ = "Material_" + std::to_string(idGenerator_.Next());
+    name = "Material_" + std::to_string(idGenerator_.Next());
 }
 
-ZMaterial::ZMaterial(const ZMaterialProperties& materialProperties, const ZHShader& shader) : ZMaterial()
+ZMaterialManager::ZMaterialManager()
+    : materialPool_(512)
 {
-    properties_ = materialProperties;
-    shaderObject_ = shader;
 }
 
-ZMaterial::ZMaterial(const std::vector<ZHTexture>& textures, const ZHShader& shader) : ZMaterial()
-{ 
-    shaderObject_ = shader;
-    for (auto texture : textures)
-    {
-        textures_[ZServices::TextureManager()->Type(texture)] = texture;
-    }
-}
-
-void ZMaterial::Initialize()
+const std::string& ZMaterialManager::Name(const ZHMaterial& handle) const
 {
-    UpdateUniformMaterial();
+	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
+	const ZMaterialBase* material = materialPool_.Get(handle);
+	return material->name;
+}
 
-    ZRenderStateGroupWriter writer;
+const ZTextureMap& ZMaterialManager::Textures(const ZHMaterial& handle) const
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
+	const ZMaterialBase* material = materialPool_.Get(handle);
+	return material->textures;
+}
+
+const ZHShader& ZMaterialManager::Shader(const ZHMaterial& handle) const
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
+	const ZMaterialBase* material = materialPool_.Get(handle);
+	return material->shader;
+}
+
+float ZMaterialManager::Alpha(const ZHMaterial& handle) const
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
+	const ZMaterialBase* material = materialPool_.Get(handle);
+	return material->properties.alpha;
+}
+
+bool ZMaterialManager::IsTextured(const ZHMaterial& handle) const
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
+	const ZMaterialBase* material = materialPool_.Get(handle);
+	return !material->textures.empty();
+}
+
+bool ZMaterialManager::HasDisplacement(const ZHMaterial& handle) const
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
+	const ZMaterialBase* material = materialPool_.Get(handle);
+	return material->hasDisplacement;
+}
+
+const std::shared_ptr<ZRenderStateGroup>& ZMaterialManager::RenderState(const ZHMaterial& handle) const
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
+	const ZMaterialBase* material = materialPool_.Get(handle);
+	return material->renderState;
+}
+
+void ZMaterialManager::SetShader(const ZHMaterial& handle, const ZHShader& shader)
+{
+	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
+    ZMaterialBase* material = materialPool_.Get(handle);
+	material->shader = shader;
+
+    ZRenderStateGroupWriter writer(material->renderState);
     writer.Begin();
-    writer.SetBlending(ZBlendMode::Transluscent);
-    writer.BindUniformBuffer(uniformBuffer_);
-    renderState_ = writer.End();
-
-    for (auto const& [key, val] : textures_)
-        AddTexture(key, val);
-
-    if (!pendingTextures_.empty())
-        ZServices::EventAgent()->Subscribe(this, &ZMaterial::HandleTextureReady);    
-
-    if (!shaderId_.empty()) {
-        if (ZServices::AssetStore()->HasShader(shaderId_))
-            SetShader(ZServices::AssetStore()->GetShader(shaderId_));
-        else
-            ZServices::EventAgent()->Subscribe(this, &ZMaterial::HandleShaderReady);
-    }
-    else if (shaderObject_) {
-        SetShader(shaderObject_);
-    }
-
-    if (pendingTextures_.empty() && shaderObject_)
-        ZServices::EventAgent()->Queue(std::make_shared<ZMaterialReadyEvent>(shared_from_this()));
+    writer.SetShader(shader);
+    material->renderState = writer.End();
 }
 
-void ZMaterial::SetShader(const ZHShader& shader)
+void ZMaterialManager::SetAlpha(const ZHMaterial& handle, float alpha)
 {
-    if (shader.IsNull())
-    {
-        return;
-    }
-
-    shaderObject_ = shader;
-
-    ZRenderStateGroupWriter writer(renderState_);
-    writer.Begin();
-    writer.SetShader(shaderObject_);
-    renderState_ = writer.End();
+	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
+	ZMaterialBase* material = materialPool_.Get(handle);
+	material->properties.alpha = alpha;
 }
 
-void ZMaterial::SetProperty(const std::string& property, float value)
+void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& property, float value)
 {
+	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
+	ZMaterialBase* material = materialPool_.Get(handle);
+
     if (property == "emission")
     {
-        properties_.look.emission = value;
-        UpdateUniformMaterial();
+        material->properties.emission = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "diffuse")
     {
-        properties_.look.diffuse = value;
-        UpdateUniformMaterial();
+        material->properties.diffuse = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "ambient")
     {
-        properties_.look.ambient = value;
-        UpdateUniformMaterial();
+        material->properties.ambient = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "specular")
     {
-        properties_.look.specular = value;
-        UpdateUniformMaterial();
+        material->properties.specular = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "shininess")
     {
-        properties_.look.shininess = value;
-        UpdateUniformMaterial();
+        material->properties.shininess = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "metallic")
     {
-        properties_.realisticLook.metallic = value;
-        UpdateUniformMaterial();
+        material->properties.metallic = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "roughness")
     {
-        properties_.realisticLook.roughness = value;
-        UpdateUniformMaterial();
+        material->properties.roughness = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "ao")
     {
-        properties_.realisticLook.ao = value;
-        UpdateUniformMaterial();
+        material->properties.ao = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "alpha")
     {
-        properties_.alpha = value;
-        UpdateUniformMaterial();
+        material->properties.alpha = value;
+        UpdateUniformMaterial(handle);
     }
     else if (property == "tiling")
     {
-        properties_.tiling = value;
-        UpdateUniformMaterial();
+        material->properties.tiling = value;
+        UpdateUniformMaterial(handle);
     }
 }
 
-void ZMaterial::SetProperty(const std::string& property, const glm::vec4& value)
+void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& property, const glm::vec4& value)
 {
+	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
+	ZMaterialBase* material = materialPool_.Get(handle);
+
     if (property == "albedo")
     {
-        properties_.look.albedo = value;
-        UpdateUniformMaterial();
+        material->properties.albedo = value;
+        UpdateUniformMaterial(handle);
     }
 }
 
-void ZMaterial::SetProperty(const std::string& property, bool value)
+void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& property, bool value)
 {
-    if (property == "isPBR")
+	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
+	ZMaterialBase* material = materialPool_.Get(handle);
+
+    if (property == "hasDisplacement")
     {
-        properties_.isPBR = value;
-        UpdateUniformMaterial();
-    }
-    else if (property == "hasDisplacement")
-    {
-        properties_.hasDisplacement = value;
-        UpdateUniformMaterial();
+        material->hasDisplacement = value;
+        UpdateUniformMaterial(handle);
     }
 }
 
-void ZMaterial::AddTexture(const std::string& slot, const ZHTexture& texture)
+void ZMaterialManager::AddTexture(const ZHMaterial& handle, const std::string& slot, const ZHTexture& texture)
 {
-    textures_[slot] = texture;
+	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
+	ZMaterialBase* material = materialPool_.Get(handle);
 
-    ZRenderStateGroupWriter writer(renderState_);
+    material->textures[slot] = texture;
+
+    ZRenderStateGroupWriter writer(material->renderState);
     writer.Begin();
     writer.BindTexture(texture);
-    renderState_ = writer.End();
+    material->renderState = writer.End();
 
-    UpdateUniformMaterial();
+    UpdateUniformMaterial(handle);
 }
 
-std::shared_ptr<ZMaterial> ZMaterial::Default()
+ZHMaterial ZMaterialManager::Default()
 {
-    static std::shared_ptr<ZMaterial> defaultMaterial = ZMaterial::CreateDefault();
+    static ZHMaterial defaultMaterial = CreateDefault();
     return defaultMaterial;
 }
 
-std::shared_ptr<ZMaterial> ZMaterial::CreateDefault()
+ZHMaterial ZMaterialManager::CreateDefault()
 {
-    if (ZServices::Graphics()->HasPBR())
+	ZMaterialProperties materialProperties;
+	materialProperties.albedo = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+	materialProperties.emission = 0.f;
+	materialProperties.diffuse = 0.5f;
+	materialProperties.ambient = 0.3f;
+	materialProperties.specular = 0.2f;
+	materialProperties.shininess = 0.2f;
+	materialProperties.metallic = 0.1f;
+	materialProperties.roughness = 0.75f;
+	materialProperties.ao = 0.3f;
+	return Create(materialProperties, ZServices::AssetStore()->BlinnPhongShader());
+}
+
+ZHMaterial ZMaterialManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
+{
+    if (dataNode->type != ZOFObjectType::Material)
     {
-        ZMaterialProperties materialProperties;
-        materialProperties.look.albedo = glm::vec4(0.9f, 0.9f, 0.9f, 1.f);
-        materialProperties.realisticLook.metallic = 0.1f;
-        materialProperties.realisticLook.roughness = 0.75f;
-        materialProperties.realisticLook.ao = 0.3f;
-        materialProperties.isPBR = true;
-        return ZMaterial::Create(materialProperties, ZServices::AssetStore()->PBRShader());
-    }
-    else
-    {
-        ZMaterialProperties materialProperties;
-        materialProperties.look.albedo = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-        materialProperties.look.emission = 0.f;
-        materialProperties.look.diffuse = 0.5f;
-        materialProperties.look.ambient = 0.3f;
-        materialProperties.look.specular = 0.2f;
-        materialProperties.look.shininess = 0.2f;
-        return ZMaterial::Create(materialProperties, ZServices::AssetStore()->BlinnPhongShader());
-    }
-}
-
-void ZMaterial::Create(std::shared_ptr<ZOFNode> data, ZMaterialMap& outMaterialMap, const ZTextureMap& textureCache)
-{
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Material)
-        {
-            auto material = std::make_shared<ZMaterial>();
-            material->id_ = it->first;
-
-            for (ZOFPropertyMap::iterator matIt = dataNode->properties.begin(); matIt != dataNode->properties.end(); matIt++)
-            {
-                if (!matIt->second->HasValues()) continue;
-
-                if (matIt->second->id == "shader") {
-                    std::shared_ptr<ZOFString> shaderIdProp = matIt->second->Value<ZOFString>(0);
-                    material->shaderId_ = shaderIdProp->value;
-                    continue;
-                }
-
-                // Sets PBR flag based on present fields.
-                if (!material->IsPBR())
-                    material->SetProperty("isPBR", matIt->second->id == "metallic" || matIt->second->id == "roughness" || matIt->second->id == "ao");
-
-                if (!material->HasDisplacement())
-                    material->SetProperty("hasDisplacement", matIt->second->id == "height");
-
-                // If a field is string based there may be textures associated with that field, otherwise
-                // the material field is simple and programmatic.
-                if (std::shared_ptr<ZOFString> strProp = matIt->second->Value<ZOFString>(0))
-                {
-                    if (textureCache.find(strProp->value) != textureCache.end())
-                    {
-                        ZHTexture texture = textureCache.at(strProp->value);
-                        material->textures_[matIt->second->id] = texture;
-                    }
-                }
-                else if (std::shared_ptr<ZOFNumber> numProp = matIt->second->Value<ZOFNumber>(0))
-                {
-                    material->SetProperty(matIt->second->id, numProp->value);
-                }
-                else if (std::shared_ptr<ZOFNumberList> numListProp = matIt->second->Value<ZOFNumberList>(0))
-                {
-                    material->SetProperty(matIt->second->id, glm::vec4(numListProp->value[0], numListProp->value[1], numListProp->value[2], 1.0));
-                }
-            }
-
-            material->Initialize();
-
-            outMaterialMap[material->ID()] = material;
-        }
-    }
-}
-
-void ZMaterial::CreateAsync(std::shared_ptr<ZOFNode> data, ZMaterialIDMap& outPendingMaterials, ZMaterialMap& outMaterials)
-{
-    for (ZOFChildMap::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Material)
-        {
-            auto material = std::make_shared<ZMaterial>();
-            material->id_ = it->first;
-
-            for (ZOFPropertyMap::iterator matIt = dataNode->properties.begin(); matIt != dataNode->properties.end(); matIt++)
-            {
-                if (!matIt->second->HasValues()) continue;
-
-                if (matIt->second->id == "shader") {
-                    std::shared_ptr<ZOFString> shaderIdProp = matIt->second->Value<ZOFString>(0);
-                    material->shaderId_ = shaderIdProp->value;
-                    continue;
-                }
-
-                // Sets PBR flag based on present fields.
-                if (!material->IsPBR())
-                    material->SetProperty("isPBR", matIt->second->id == "metallic" || matIt->second->id == "roughness" || matIt->second->id == "ao");
-
-                if (!material->HasDisplacement())
-                    material->SetProperty("hasDisplacement", matIt->second->id == "height");
-
-                // If a field is string based there may be textures associated with that field, otherwise
-                // the material field is simple and programmatic.
-                if (std::shared_ptr<ZOFString> strProp = matIt->second->Value<ZOFString>(0))
-                {
-                    material->AddTexture(matIt->second->id, strProp->value);
-                }
-                else if (std::shared_ptr<ZOFNumber> numProp = matIt->second->Value<ZOFNumber>(0))
-                {
-                    material->SetProperty(matIt->second->id, numProp->value);
-                }
-                else if (std::shared_ptr<ZOFNumberList> numListProp = matIt->second->Value<ZOFNumberList>(0))
-                {
-                    material->SetProperty(matIt->second->id, glm::vec4(numListProp->value[0], numListProp->value[1], numListProp->value[2], 1.0));
-                }
-            }
-
-            if (material->pendingTextures_.empty() && material->shaderId_.empty()) {
-                outMaterials[material->ID()] = material;
-            }
-            else {
-                outPendingMaterials[material] = material->ID();
-            }
-
-            material->Initialize();
-        }
-    }
-}
-
-std::shared_ptr<ZMaterial> ZMaterial::Create(const ZMaterialProperties& materialProperties, const ZHShader& shader)
-{
-    auto material = std::make_shared<ZMaterial>(materialProperties, shader);
-    material->Initialize();
-    return material;
-}
-
-std::shared_ptr<ZMaterial> ZMaterial::Create(const std::vector<ZHTexture>& textures, const ZHShader& shader)
-{
-    auto material = std::make_shared<ZMaterial>(textures, shader);
-    material->Initialize();
-    return material;
-}
-
-void ZMaterial::UpdateUniformMaterial()
-{
-    if (!uniformBuffer_)
-        uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::Material, sizeof(ZMaterialUniforms));
-
-    if (properties_.isPBR)
-        uniformBuffer_->Update(offsetof(ZMaterialUniforms, pbrMaterial), sizeof(properties_.realisticLook), &properties_.realisticLook);
-    else
-        uniformBuffer_->Update(offsetof(ZMaterialUniforms, material), sizeof(properties_.look), &properties_.look);
-
-    bool textured = !textures_.empty();
-    uniformBuffer_->Update(offsetof(ZMaterialUniforms, isTextured), sizeof(textured), &textured);
-    uniformBuffer_->Update(offsetof(ZMaterialUniforms, hasDisplacement), sizeof(properties_.hasDisplacement), &properties_.hasDisplacement);
-}
-
-void ZMaterial::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
-{
-    auto texture = event->Texture();
-    if (!texture) return;
-
-    auto it = pendingTextures_.begin();
-    while (it != pendingTextures_.end())
-    {
-        if (it->second == ZServices::TextureManager()->Name(texture))
-        {
-            AddTexture(it->first, texture);
-            it = pendingTextures_.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
+        return ZHMaterial();
     }
 
-    if (pendingTextures_.empty())
-    {
-        if (shaderObject_)
-            ZServices::EventAgent()->Queue(std::make_shared<ZMaterialReadyEvent>(shared_from_this()));
-        ZServices::EventAgent()->Unsubscribe(this, &ZMaterial::HandleTextureReady);
-    }
+	ZHMaterial handle(dataHandle.value);
+	ZMaterialBase* material = materialPool_.Restore(handle);
+
+	if (dataNode->properties.find("albedo") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumberList> prop = dataNode->properties["albedo"]->Value<ZOFNumberList>(0);
+		SetProperty(handle, "albedo", glm::vec4(prop->value[0], prop->value[1], prop->value[2], 1.0));
+	}
+
+	if (dataNode->properties.find("alpha") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["albedo"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "alpha", prop->value);
+	}
+
+	if (dataNode->properties.find("tiling") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["tiling"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "tiling", prop->value);
+	}
+
+	if (dataNode->properties.find("emission") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["emission"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "emission", prop->value);
+	}
+
+	if (dataNode->properties.find("ambient") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["ambient"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "ambient", prop->value);
+	}
+
+	if (dataNode->properties.find("diffuse") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["diffuse"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "diffuse", prop->value);
+	}
+
+	if (dataNode->properties.find("specular") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["specular"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "specular", prop->value);
+	}
+
+	if (dataNode->properties.find("shininess") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["shininess"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "shininess", prop->value);
+	}
+
+	if (dataNode->properties.find("metallic") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["metallic"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "metallic", prop->value);
+	}
+
+	if (dataNode->properties.find("roughness") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["roughness"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "roughness", prop->value);
+	}
+
+	if (dataNode->properties.find("ao") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["ao"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "ao", prop->value);
+	}
+
+	if (dataNode->properties.find("shader") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFHandle> shaderProp = dataNode->properties["shader"]->Value<ZOFHandle>(0);
+		SetShader(handle, ZHShader(shaderProp->value));
+	}
+
+	if (dataNode->properties.find("height") != dataNode->properties.end())
+	{
+		SetProperty(handle, "hasDisplacement", true);
+	}
+
+	if (dataNode->properties.find("name") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["name"]->Value<ZOFString>(0);
+		material->name = prop->value;
+	}
+
+	Track(handle);
+
+	return handle;
 }
 
-void ZMaterial::HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event)
+void ZMaterialManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
 {
-    ZHShader shader = event->Shader();
-    if (shader.IsNull())
+    if (dataNode->type != ZOFObjectType::Material)
     {
         return;
     }
 
-    if (ZServices::ShaderManager()->Name(shader) == shaderId_)
+	ZHMaterial handle(dataHandle.value);
+	ZMaterialBase* material = materialPool_.Restore(handle);
+
+	if (dataNode->properties.find("albedo") != dataNode->properties.end())
+	{
+        std::shared_ptr<ZOFNumberList> prop = dataNode->properties["albedo"]->Value<ZOFNumberList>(0);
+		SetProperty(handle, "albedo", glm::vec4(prop->value[0], prop->value[1], prop->value[2], 1.0));
+	}
+
+	if (dataNode->properties.find("alpha") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["albedo"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "alpha", prop->value);
+	}
+
+	if (dataNode->properties.find("tiling") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["tiling"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "tiling", prop->value);
+	}
+
+	if (dataNode->properties.find("emission") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["emission"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "emission", prop->value);
+	}
+
+	if (dataNode->properties.find("ambient") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["ambient"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "ambient", prop->value);
+	}
+
+	if (dataNode->properties.find("diffuse") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["diffuse"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "diffuse", prop->value);
+	}
+
+	if (dataNode->properties.find("specular") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["specular"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "specular", prop->value);
+	}
+
+	if (dataNode->properties.find("shininess") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["shininess"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "shininess", prop->value);
+	}
+
+	if (dataNode->properties.find("metallic") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["metallic"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "metallic", prop->value);
+	}
+
+	if (dataNode->properties.find("roughness") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["roughness"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "roughness", prop->value);
+	}
+
+	if (dataNode->properties.find("ao") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFNumber> prop = dataNode->properties["ao"]->Value<ZOFNumber>(0);
+		SetProperty(handle, "ao", prop->value);
+	}
+
+    if (dataNode->properties.find("shader") != dataNode->properties.end())
     {
-        SetShader(shader);
+        std::shared_ptr<ZOFHandle> shaderProp = dataNode->properties["shader"]->Value<ZOFHandle>(0);
+        SetShader(handle, ZHShader(shaderProp->value));
     }
 
-    if (shaderObject_)
-    {
-        if (pendingTextures_.empty())
-        {
-            ZServices::EventAgent()->Queue(std::make_shared<ZMaterialReadyEvent>(shared_from_this()));
-        }
-        ZServices::EventAgent()->Unsubscribe(this, &ZMaterial::HandleShaderReady);
-    }
+	if (dataNode->properties.find("height") != dataNode->properties.end())
+	{
+		SetProperty(handle, "hasDisplacement", true);
+	}
+
+	if (dataNode->properties.find("name") != dataNode->properties.end())
+	{
+        std::shared_ptr<ZOFString> prop = dataNode->properties["name"]->Value<ZOFString>(0);
+		material->name = prop->value;
+	}
+
+	Track(handle);
+}
+
+bool ZMaterialManager::IsLoaded(const std::string& name)
+{
+	return loadedMaterials_.find(name) != loadedMaterials_.end();
+}
+
+ZHMaterial ZMaterialManager::GetFromName(const std::string& name)
+{
+	if (loadedMaterials_.find(name) != loadedMaterials_.end()) {
+		return loadedMaterials_[name];
+	}
+	return ZHMaterial();
+}
+
+ZHMaterial ZMaterialManager::Create(const ZMaterialProperties& materialProperties, const ZHShader& shader)
+{
+	ZHMaterial handle;
+	ZMaterialBase* material = materialPool_.New(handle);
+
+    material->properties = materialProperties;
+
+	UpdateUniformMaterial(handle);
+
+	ZRenderStateGroupWriter writer;
+	writer.Begin();
+	writer.SetBlending(ZBlendMode::Transluscent);
+	writer.BindUniformBuffer(material->uniformBuffer);
+    material->renderState = writer.End();
+
+	SetShader(handle, shader);
+
+	ZServices::EventAgent()->Queue(std::make_shared<ZMaterialReadyEvent>(handle));
+
+	Track(handle);
+
+    return handle;
+}
+
+ZHMaterial ZMaterialManager::Create(const ZTextureMap& textures, const ZHShader& shader)
+{
+	ZHMaterial handle;
+	ZMaterialBase* material = materialPool_.New(handle);
+    
+	UpdateUniformMaterial(handle);
+
+	ZRenderStateGroupWriter writer;
+	writer.Begin();
+	writer.SetBlending(ZBlendMode::Transluscent);
+	writer.BindUniformBuffer(material->uniformBuffer);
+	material->renderState = writer.End();
+
+	for (auto const& [key, val] : textures)
+		AddTexture(handle, key, val);
+
+	SetShader(handle, shader);
+
+	ZServices::EventAgent()->Queue(std::make_shared<ZMaterialReadyEvent>(handle));
+
+	Track(handle);
+
+    return handle;
+}
+
+void ZMaterialManager::Track(const ZHMaterial& handle)
+{
+	ZMaterialBase* material = materialPool_.Get(handle);
+	assert(material != nullptr && "Cannot track this material since it doesn't exist!");
+	loadedMaterials_[material->name] = handle;
+}
+
+void ZMaterialManager::UpdateUniformMaterial(const ZHMaterial& handle)
+{
+	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
+	ZMaterialBase* material = materialPool_.Get(handle);
+
+    if (!material->uniformBuffer)
+        material->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Material, sizeof(ZMaterialUniforms));
+
+    bool textured = !material->textures.empty();
+    material->uniformBuffer->Update(offsetof(ZMaterialUniforms, material), sizeof(material->properties), &material->properties);
+    material->uniformBuffer->Update(offsetof(ZMaterialUniforms, isTextured), sizeof(textured), &textured);
+    material->uniformBuffer->Update(offsetof(ZMaterialUniforms, hasDisplacement), sizeof(material->hasDisplacement), &material->hasDisplacement);
 }

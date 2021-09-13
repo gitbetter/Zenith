@@ -69,6 +69,16 @@ public:
 		return &(*(userData_.begin() + index));
 	}
 
+	template <typename ...Args>
+	Data* Restore(Handle& handle, Args && ...args)
+	{
+		handle.Restore();
+		userData_[handle.Index()] = Data(std::forward<Args>(args)...);
+		magicNumbers_[handle.Index()] = handle.Magic();
+
+        return &(*(userData_.begin() + handle.Index()));
+    }
+
     void Delete(const Handle& handle)
     {
         unsigned int index = handle.Index();
@@ -100,7 +110,7 @@ public:
     const Data* Get(const Handle& handle) const
     {
         using ThisType = ZResourcePool<Data, Handle>;
-        return const_cast<ThisType*>(this)->Deref(handle);
+        return const_cast<ThisType*>(this)->Get(handle);
     }
 
     unsigned int GetUsedHandleCount() const
