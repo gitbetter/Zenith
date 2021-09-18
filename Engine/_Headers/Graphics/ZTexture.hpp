@@ -30,9 +30,9 @@
 #pragma once
 
 #include "ZCommon.hpp"
+#include "ZResourceManager.hpp"
 #include "ZOFTree.hpp"
 #include "ZHandle.hpp"
-#include "ZResourcePool.hpp"
 
 class ZFramebuffer;
 class ZResourceLoadedEvent;
@@ -64,14 +64,10 @@ struct ZIBLTextureData
 	ZHTexture brdfLUT;
 };
 
-class ZTextureManager
+class ZTextureManager : public ZResourceManager<ZTexture, ZHTexture>
 {
-
-    using ZTexturePool = ZResourcePool<ZTexture, ZHTexture>;
-
 public:
 
-    ZTextureManager();
     virtual ~ZTextureManager() = default;
 
     ZHTexture Default();
@@ -82,9 +78,6 @@ public:
 	ZHTexture Create(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, const ZHTexture& restoreHandle = ZHTexture());
     void CreateAsync(const std::string& path, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, bool equirect = false, const ZHTexture& restoreHandle = ZHTexture());
     ZIBLTextureData CreateIBL(const std::shared_ptr<ZFramebuffer>& bufferData, const ZHTexture& cubemap);
-
-	bool IsLoaded(const std::string& name);
-	ZHTexture GetFromName(const std::string& name);
 
 	unsigned int PlatformHandle(const ZHTexture& handle);
 	std::string Name(const ZHTexture& handle);
@@ -102,8 +95,8 @@ public:
 
 public:
 
-    virtual void Initialize();
-	virtual void CleanUp();
+	virtual void Initialize() override { }
+	virtual void CleanUp() override { }
 
 	virtual ZHTexture Create(class ZTextureResourceData* resource, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, const ZHTexture& restoreHandle = ZHTexture()) = 0;
 	virtual ZHTexture CreateDefault() = 0;
@@ -127,16 +120,8 @@ public:
 
 protected:
 
-    ZTexturePool texturePool_;
-	ZTextureMap loadedTextures_;
-
     std::unordered_map<std::string, ZTextureWrapping> pendingTextureWrappings_;
 	std::unordered_map<std::string, std::string> pendingTextureTypes_;
-
-protected:
-
-	/** Adds a texture to the internal loaded texture map so that we don't accidentally recreate duplicates of the texture */
-	void Track(const ZHTexture& handle);
 
 private:
 

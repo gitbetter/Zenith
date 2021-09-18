@@ -71,5 +71,25 @@ ZOFObjectType ZOFObjectNode::StringToType(const std::string& type)
 	{
 		return ZOFObjectType::Skybox;
 	}
+	if (type == "Script")
+	{
+		return ZOFObjectType::Script;
+	}
+	if (type == "GraphicsComponent")
+	{
+		return ZOFObjectType::GraphicsComponent;
+	}
+	if (type == "PhysicsComponent")
+	{
+		return ZOFObjectType::PhysicsComponent;
+	}
+	if (type == "ColliderComponent")
+	{
+		return ZOFObjectType::ColliderComponent;
+	}
+	if (type == "AnimatorComponent")
+	{
+		return ZOFObjectType::AnimatorComponent;
+	}
 	return ZOFObjectType::Any;
 }

@@ -73,15 +73,16 @@ public:
 
 	using ptr = std::shared_ptr<ZModelResourceData>;
 
+	ZHModel restoreHandle;
 	ZMesh3DMap meshMap;
 	ZBoneMap boneMap;
 	ZBoneList boneList;
 	ZAnimationMap animationMap;
-	std::shared_ptr<struct ZSkeleton> skeleton;
+	ZSkeleton skeleton;
 
 public:
 
-	ZModelResourceData(const std::string& path, ZResourceType type, void* buffer = nullptr, unsigned int size = 0)
+	ZModelResourceData(const std::string& path, ZResourceType type = ZResourceType::Model, void* buffer = nullptr, unsigned int size = 0)
 		: ZResourceData(path, type, buffer, size)
 	{ }
 
@@ -106,7 +107,7 @@ public:
 
 public:
 
-	ZTextureResourceData(const std::string& path, ZResourceType type, ZTextureWrapping wrapping, const std::string& textureType, const ZHTexture& restoreHandle = ZHTexture(), void* buffer = nullptr, unsigned int size = 0)
+	ZTextureResourceData(const std::string& path, ZTextureWrapping wrapping, const std::string& textureType, const ZHTexture& restoreHandle = ZHTexture(), ZResourceType type = ZResourceType::Texture, void* buffer = nullptr, unsigned int size = 0)
 		: ZResourceData(path, type, buffer, size), wrapping(wrapping), textureType(textureType), restoreHandle(restoreHandle)
 	{ }
 	~ZTextureResourceData();
@@ -124,7 +125,7 @@ public:
 
 public:
 
-	ZZofResourceData(const std::string& path, ZResourceType type, void* buffer = nullptr, unsigned int size = 0)
+	ZZofResourceData(const std::string& path, ZResourceType type = ZResourceType::ZOF, void* buffer = nullptr, unsigned int size = 0)
 		: ZResourceData(path, type, buffer, size)
 	{ }
 
@@ -142,7 +143,7 @@ public:
 
 public:
 
-	ZShaderResourceData(const std::string& path, ZResourceType type, void* buffer = nullptr, unsigned int size = 0)
+	ZShaderResourceData(const std::string& path, ZResourceType type = ZResourceType::VertexShader, void* buffer = nullptr, unsigned int size = 0)
 		: ZResourceData(path, type, buffer, size)
 	{ }
 
@@ -161,7 +162,7 @@ public:
 
 public:
 
-	ZAudioResourceData(const std::string& path, ZResourceType type, void* buffer = nullptr, unsigned int size = 0)
+	ZAudioResourceData(const std::string& path, ZResourceType type = ZResourceType::Sound, void* buffer = nullptr, unsigned int size = 0)
 		: ZResourceData(path, type, buffer, size)
 	{ }
 
@@ -174,7 +175,10 @@ public:
 
 	using ptr = std::shared_ptr<ZScriptResourceData>;
 
-	ZScriptResourceData(const std::string& path, ZResourceType type, void* buffer = nullptr, unsigned int size = 0)
+	ZHScript restoreHandle;
+	std::string code;
+
+	ZScriptResourceData(const std::string& path, ZResourceType type = ZResourceType::Script, void* buffer = nullptr, unsigned int size = 0)
 		: ZResourceData(path, type, buffer, size)
 	{ }
 

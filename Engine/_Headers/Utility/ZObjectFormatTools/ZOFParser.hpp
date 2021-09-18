@@ -38,7 +38,8 @@ private:
 
     std::string currentToken_;
     std::stringstream zof_;
-    std::regex id_ = std::regex("\"[^\"]+\"|[^\\-\\d\"]\\S+");
+    std::regex id_ = std::regex("\\d+");
+    std::regex name_ = std::regex("\"[^\"]+\"|[^\\-\\d\"]\\S+");
     std::regex number_ = std::regex("-?\\d+\\.?\\d*");
 
     std::string Scan();

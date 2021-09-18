@@ -30,7 +30,6 @@
 #include "ZServices.hpp"
 #include "ZEditor.hpp"
 #include "ZEditorScene.hpp"
-#include "ZAssetStore.hpp"
 #include "ZDevResourceFile.hpp"
 #include "ZSceneReadyEvent.hpp"
 #include "ZSkybox.hpp"

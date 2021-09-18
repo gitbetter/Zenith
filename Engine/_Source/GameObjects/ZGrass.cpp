@@ -30,7 +30,6 @@
 #include "ZMaterial.hpp"
 #include "ZServices.hpp"
 #include "ZScene.hpp"
-#include "ZAssetStore.hpp"
 #include "ZPlane.hpp"
 #include "ZShader.hpp"
 #include "ZGraphicsComponent.hpp"

@@ -47,12 +47,9 @@ class ZFramebuffer;
 class ZObjectDestroyedEvent;
 class ZResourceLoadedEvent;
 class ZWindowResizeEvent;
-class ZTextureReadyEvent;
-class ZShaderReadyEvent;
-class ZModelReadyEvent;
-class ZSkyboxReadyEvent;
 class ZRay;
 class ZBVH;
+class ZAssetLoadProgressTracker;
 
 // Class and Data Structure Definitions
 class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene>
@@ -168,6 +165,7 @@ protected:
     std::shared_ptr<ZCamera> activeCamera_ = nullptr;
     std::shared_ptr<ZCamera> primaryCamera_ = nullptr;
     std::shared_ptr<ZBVH> bvh_ = nullptr;
+    std::shared_ptr<ZAssetLoadProgressTracker> loadProgressTracker_ = nullptr;
 
     ZIDMap gameLightIDMap_;
     ZLightList gameLights_;
@@ -185,17 +183,12 @@ protected:
     void SetupRenderPasses();
     void LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree);
     void ParseSceneMetadata(const std::shared_ptr<ZOFNode>& objectTree);
-    void CheckPendingObjects();
     void CreateSceneRoot(const std::string& name);
     void CreateUICanvas();
     void UnregisterLoadDelegates();
 
     void HandleWindowResize(const std::shared_ptr<ZWindowResizeEvent>& event);
     void HandleZOFReady(const std::shared_ptr<ZResourceLoadedEvent>& event);
-    void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
-    void HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event);
-    void HandleModelReady(const std::shared_ptr<ZModelReadyEvent>& event);
-    void HandleSkyboxReady(const std::shared_ptr<ZSkyboxReadyEvent>& event);
     void HandleObjectDestroyed(const std::shared_ptr<ZObjectDestroyedEvent>& event);
     void HandleRaycastEvent(const std::shared_ptr<ZRaycastEvent>& event);
 

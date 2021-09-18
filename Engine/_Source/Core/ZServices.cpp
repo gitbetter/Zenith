@@ -54,8 +54,8 @@ std::shared_ptr<ZTextureManager> ZServices::textureManager_ = nullptr;
 std::shared_ptr<ZShaderManager> ZServices::shaderManager_ = nullptr;
 std::shared_ptr<ZFontManager> ZServices::fontManager_ = nullptr;
 std::shared_ptr<ZMaterialManager> ZServices::materialManager_ = nullptr;
+std::shared_ptr<ZModelManager> ZServices::modelManager_ = nullptr;
 
-std::shared_ptr<ZAssetStore> ZServices::assetStore_ = nullptr;
 std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
 bool ZServices::initialized_ = false;
@@ -98,6 +98,10 @@ void ZServices::Initialize()
 		/* ========= Font Manager ============ */
 		Provide(std::make_shared<ZMaterialManager>());
 		/* =================================== */
+
+				/* ========= Font Manager ============ */
+		Provide(std::make_shared<ZModelManager>());
+		/* =================================== */
     }
     initialized_ = true;
 }
@@ -116,16 +120,6 @@ std::shared_ptr<ZLogger> ZServices::Logger(const std::string& logger)
         loggers_[logger] = std::make_shared<ZLogger>();
     }
     return loggers_[logger];
-}
-
-std::shared_ptr<ZAssetStore> ZServices::AssetStore()
-{
-    // Lazy initialization since this system is dependent on a domain being present first.
-    // NOTE: HARDER TO DEBUG!
-    if (!assetStore_) {
-        Provide(std::make_shared<ZAssetStore>());
-    }
-    return assetStore_;
 }
 
 void ZServices::Provide(const std::shared_ptr<ZGraphics>& graphics)
@@ -228,15 +222,15 @@ void ZServices::Provide(const std::shared_ptr<ZMaterialManager>& materialManager
     materialManager_->Initialize();
 }
 
-void ZServices::Provide(const std::shared_ptr<ZAssetStore>& assetStore)
+void ZServices::Provide(const std::shared_ptr<ZMaterialManager>& modelManager)
 {
-    if (assetStore_)
-    {
-        assetStore_->CleanUp();
-    }
+	if (materialManager_)
+	{
+        modelManager_->CleanUp();
+	}
 
-    assetStore_ = assetStore;
-    assetStore_->Initialize();
+    modelManager_ = modelManager;
+    modelManager_->Initialize();
 }
 
 void ZServices::LoadZOF(const std::string& zofPath)

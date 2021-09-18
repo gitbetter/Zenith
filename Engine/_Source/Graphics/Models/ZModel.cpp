@@ -36,18 +36,52 @@
 #include "ZMaterial.hpp"
 #include "ZModelImporter.hpp"
 #include "ZAnimation.hpp"
-#include "ZSkeleton.hpp"
 #include "ZResourceLoadedEvent.hpp"
 #include "ZModelReadyEvent.hpp"
 #include "ZUniformBuffer.hpp"
 #include "ZRenderStateGroup.hpp"
 #include "ZServices.hpp"
 
+ZModelType ModelTypeFromString(const std::string& type)
+{
+    if (type == "Plane")
+    {
+        return ZModelType::Plane;
+    }
+    else if (type == "Cube")
+    {
+        return ZModelType::Cube;
+    }
+    else if (type == "Sphere")
+    {
+        return ZModelType::Sphere;
+    }
+	else if (type == "Cylinder")
+	{
+        return ZModelType::Cylinder;
+	}
+	else if (type == "Cone")
+	{
+        return ZModelType::Cone;
+	}
+    return ZModelType::Custom;
+}
+
 ZIDSequence ZModel::idGenerator_;
 
 ZModel::ZModel()
 {
     name = "Model_" + std::to_string(idGenerator_.Next());
+}
+
+void ZModelManager::Initialize()
+{
+    ZServices::EventAgent()->Subscribe(this, &ZModelManager::HandleModelLoaded);
+}
+
+void ZModelManager::CleanUp()
+{
+    ZServices::EventAgent()->Unsubscribe(this, &ZModelManager::HandleModelLoaded);
 }
 
 ZHModel ZModelManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
@@ -57,215 +91,315 @@ ZHModel ZModelManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<
         return ZHModel();
     }
 
-	if (dataNode->properties.find("type") != dataNode->properties.end())
-	{
-		std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
-		std::shared_ptr<ZModel> model = ZModel::Create(typeProp->value, it->second);
-		model->id_ = it->first;
-		models[model->id_] = model;
-	}
-	else if (dataNode->properties.find("path") != dataNode->properties.end()) {
-		std::shared_ptr<ZOFString> pathProp = dataNode->properties["path"]->Value<ZOFString>(0);
-		std::shared_ptr<ZModel> model = ZModel::CreateExternal(pathProp->value);
-		model->id_ = it->first;
-		models[model->id_] = model;
+    ZHModel restoreHandle(dataHandle.value);
+
+    if (dataNode->properties.find("type") != dataNode->properties.end())
+    {
+        std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
+        return Create(ModelTypeFromString(typeProp->value), restoreHandle);
+    }
+    else if (dataNode->properties.find("path") != dataNode->properties.end()) {
+        std::shared_ptr<ZOFString> pathProp = dataNode->properties["path"]->Value<ZOFString>(0);
+        return Create(pathProp->value, restoreHandle);
 	}
 }
 
 void ZModelManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
 {
-    for (ZOFChildList::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        if (dataNode->type == ZOFObjectType::Model)
-        {
-            std::string path;
-            if (dataNode->properties.find("type") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
-                std::shared_ptr<ZModel> model = ZModel::Create(typeProp->value, it->second);
-                model->id_ = it->first;
-                outModelMap[model->id_] = model;
-            }
-            if (dataNode->properties.find("path") != dataNode->properties.end())
-            {
-                std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
-                std::shared_ptr<ZModel> model = ZModel::CreateExternal(pathStr->value, true);
-                model->id_ = it->first;
-                outPendingModels[model] = it->first;
-            }
-        }
-    }
-}
-
-std::shared_ptr<ZModel> ZModelManager::Create(const std::string& type, const std::shared_ptr<ZOFNode>& data)
-{
-    std::shared_ptr<ZModel> model = nullptr;
-    if (type == "Plane")
-    {
-        model = std::make_shared<ZPlane>();
-    }
-    else if (type == "Cube") {
-        model = std::make_shared<ZCube>();
-    }
-    else if (type == "Sphere") {
-        model = std::make_shared<ZSphere>();
-    }
-    else if (type == "Cylinder") {
-        model = std::make_shared<ZCylinder>();
-    }
-    else if (type == "Cone") {
-        //model = ZCone::Create();
-    }
-
-    if (model) {
-        if (data)
-            model->Initialize(data);
-        else
-            model->Initialize();
-    }
-    else {
-        LOG("Model of type " + type + " is not supported.", ZSeverity::Warning);
-    }
-    return model;
-}
-
-std::shared_ptr<ZModel> ZModelManager::CreateExternal(const std::string& path, bool async)
-{
-    std::shared_ptr<ZModel> model = std::make_shared<ZModel>(path);
-    if (async)
-        model->InitializeAsync();
-    else
-        model->Initialize();
-    return model;
-}
-
-void ZModelManager::Initialize()
-{
-    if (!modelPath_.empty() && meshes_.empty())
-    {
-        ZModelImporter importer;
-        meshes_ = importer.LoadModel(modelPath_, bonesMap_, bones_, animations_, skeleton_);
-        for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++) it->second->Initialize();
-        if (skeleton_ && skeleton_->rootJoint) globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
-    }
-
-    ComputeBounds();
-
-    bool isRigged = !bonesMap_.empty();
-    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::Model, sizeof(ZModelUniforms));
-    uniformBuffer_->Update(offsetof(ZModelUniforms, rigged), sizeof(isRigged), &isRigged);
-
-    for (auto i = 0; i < bones_.size(); i++) {
-        uniformBuffer_->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * i, sizeof(glm::mat4), glm::value_ptr(bones_[i]->transformation));
-    }
-
-    ZRenderStateGroupWriter writer;
-    writer.Begin();
-    writer.BindUniformBuffer(uniformBuffer_);
-    renderState_ = writer.End();
-
-    std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(shared_from_this());
-    ZServices::EventAgent()->Queue(modelReadyEvent);
-}
-
-void ZModelManager::Initialize(const std::shared_ptr<ZOFNode>& data)
-{
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(data);
-    if (!node)
-    {
-        LOG("Could not initalize ZPlane: node data is invalid", ZSeverity::Error);
-        return;
-    }
-
-    ZOFPropertyMap props = node->properties;
-
-    if (props.find("path") != props.end() && props["path"]->HasValues())
-    {
-        std::shared_ptr<ZOFString> pathProp = props["path"]->Value<ZOFString>(0);
-        modelPath_ = pathProp->value;
-    }
-
-    Initialize();
-}
-
-void ZModelManager::InitializeAsync()
-{
-    ZResourceData::ptr modelResource = std::make_shared<ZResourceData>(modelPath_, ZResourceType::Model);
-    ZServices::ResourceImporter()->GetDataAsync(modelResource);
-
-    ZServices::EventAgent()->Subscribe(this, &ZModel::HandleModelLoaded);
-}
-
-bool ZModelManager::IsLoaded(const std::string& name)
-{
-    return loadedModels_.find(name) != loadedModels_.end();
-}
-
-ZHModel ZModelManager::GetFromName(const std::string& name)
-{
-	if (loadedModels_.find(name) != loadedModels_.end()) {
-		return loadedModels_[name];
+	if (dataNode->type != ZOFObjectType::Model)
+	{
+		return;
 	}
-	return ZHModel();
+
+	ZHModel restoreHandle(dataHandle.value);
+
+	if (dataNode->properties.find("type") != dataNode->properties.end())
+	{
+		std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
+		Create(ModelTypeFromString(typeProp->value), restoreHandle);
+    }
+    if (dataNode->properties.find("path") != dataNode->properties.end())
+    {
+        std::shared_ptr<ZOFString> pathStr = dataNode->properties["path"]->Value<ZOFString>(0);
+        CreateAsync(pathStr->value, restoreHandle);
+	}
 }
 
-void ZModelManager::SetInstanceData(const ZInstancedDataOptions& instanceData)
+ZHModel ZModelManager::Create(const ZModelType& type, const ZHModel& restoreHandle)
 {
-    instanceData_ = instanceData;
-    bool isInstanced = instanceData_.count > 1;
-    uniformBuffer_->Update(offsetof(ZModelUniforms, instanced), sizeof(isInstanced), &isInstanced);
-    for (auto it = meshes_.begin(); it != meshes_.end(); it++)
+    ZHModel handle(restoreHandle);
+	ZModel* model = nullptr;
+	if (!handle.IsNull())
+	{
+        model = resourcePool_.Restore(handle);
+    }
+    else
     {
-        it->second->SetInstanceData(instanceData);
+        model = resourcePool_.New(handle);
+	}
+
+    switch (type)
+    {
+        case ZModelType::Plane:
+            *model = ZPlane();
+            break;
+        case ZModelType::Cube:
+            *model = ZCube();
+            break;
+        case ZModelType::Sphere:
+            *model = ZSphere();
+            break;
+        case ZModelType::Cylinder:
+            *model = ZCylinder();
+            break;
+        case ZModelType::Cone:
+        default: break;
+    }
+
+    if (type != ZModelType::Custom)
+    {
+		ComputeBounds(handle);
+
+		bool isRigged = false;
+        model->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Model, sizeof(ZModelUniforms));
+        model->uniformBuffer->Update(offsetof(ZModelUniforms, rigged), sizeof(isRigged), &isRigged);
+
+		ZRenderStateGroupWriter writer;
+		writer.Begin();
+		writer.BindUniformBuffer(model->uniformBuffer);
+        model->renderState = writer.End();
+
+		std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(handle);
+		ZServices::EventAgent()->Queue(modelReadyEvent);
+    }
+    else
+    {
+        LOG("Model type is not supported.", ZSeverity::Warning);
+    }
+
+    return handle;
+}
+
+ZHModel ZModelManager::Create(const std::string& path, const ZHModel& restoreHandle)
+{
+    if (path.empty())
+    {
+        return ZHModel();
+    }
+
+	ZHModel handle(restoreHandle);
+	ZModel* model = nullptr;
+	if (!handle.IsNull())
+	{
+		model = resourcePool_.Restore(handle);
+	}
+	else
+	{
+		model = resourcePool_.New(handle);
+	}
+
+	ZModelImporter importer;
+    model->meshes = importer.LoadModel(path, model->bonesMap, model->bones, model->animations, model->skeleton);
+
+	for (ZMesh3DMap::iterator it = model->meshes.begin(); it != model->meshes.end(); it++)
+    {
+        it->second.Initialize();
+    }
+
+
+	if (model->skeleton.rootJoint)
+    {
+        model->globalInverseTransform = glm::inverse(model->skeleton.rootJoint->transform);
+    }
+
+	ComputeBounds(handle);
+
+	bool isRigged = !model->bonesMap.empty();
+    model->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Model, sizeof(ZModelUniforms));
+    model->uniformBuffer->Update(offsetof(ZModelUniforms, rigged), sizeof(isRigged), &isRigged);
+
+	for (auto i = 0; i < model->bones.size(); i++) {
+        model->uniformBuffer->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * i, sizeof(glm::mat4), glm::value_ptr(model->bones[i].transformation));
+	}
+
+	ZRenderStateGroupWriter writer;
+	writer.Begin();
+	writer.BindUniformBuffer(model->uniformBuffer);
+    model->renderState = writer.End();
+
+	std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(handle);
+	ZServices::EventAgent()->Queue(modelReadyEvent);
+
+    return handle;
+}
+
+void ZModelManager::CreateAsync(const std::string& path, const ZHModel& restoreHandle)
+{
+	if (path.empty())
+	{
+		return;
+	}
+
+	ZHModel handle(restoreHandle);
+	ZModel* model = nullptr;
+	if (!handle.IsNull())
+	{
+		model = resourcePool_.Restore(handle);
+	}
+	else
+	{
+		model = resourcePool_.New(handle);
+	}
+
+	ZModelImporter importer;
+	model->meshes = importer.LoadModel(path, model->bonesMap, model->bones, model->animations, model->skeleton);
+}
+
+const std::string& ZModelManager::Name(const ZHModel& handle)
+{
+	assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+	ZModel* model = resourcePool_.Get(handle);
+    return model->name;
+}
+
+const std::string& ZModelManager::Path(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+    return model->path;
+}
+
+const ZMesh3DMap& ZModelManager::Meshes(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+    return model->meshes;
+}
+
+const ZBoneList& ZModelManager::Bones(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+	return model->bones;
+}
+
+const ZBoneMap& ZModelManager::BonesMap(const ZHModel& handle)
+{
+	assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+	ZModel* model = resourcePool_.Get(handle);
+    return model->bonesMap;
+}
+
+const ZAnimationMap& ZModelManager::Animations(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+    return model->animations;
+}
+
+const ZInstancedDataOptions& ZModelManager::InstanceData(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+    return model->instanceData;
+}
+
+const ZSkeleton ZModelManager::Skeleton(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+    return model->skeleton;
+}
+
+const glm::mat4 ZModelManager::GlobalInverseTransform(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+    return model->globalInverseTransform;
+}
+
+const ZAABBox& ZModelManager::Bounds(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+    return model->bounds;
+}
+
+const std::shared_ptr<ZRenderStateGroup> ZModelManager::RenderState(const ZHModel& handle)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+	return model->renderState;
+}
+
+void ZModelManager::SetInstanceData(const ZHModel& handle, const ZInstancedDataOptions& instanceData)
+{
+	assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+	ZModel* model = resourcePool_.Get(handle);
+
+    model->instanceData = instanceData;
+    bool isInstanced = model->instanceData.count > 1;
+    model->uniformBuffer->Update(offsetof(ZModelUniforms, instanced), sizeof(isInstanced), &isInstanced);
+    for (auto it = model->meshes.begin(); it != model->meshes.end(); it++)
+    {
+        it->second.SetInstanceData(instanceData);
     }
 }
 
-void ZModelManager::ComputeBounds()
+void ZModelManager::BoneTransform(const ZHModel& handle, const std::string& anim, double secondsTime)
 {
-    bounds_ = ZAABBox();
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
 
-    auto it = meshes_.cbegin(), end = meshes_.cend();
-    for (; it != end; it++)
+    if (model->animations.find(anim) != model->animations.end())
     {
-        const ZVertex3DList& vertices = it->second->Vertices();
-        for (int i = 0; i < vertices.size(); i++)
-        {
-            bounds_ = ZAABBox::Union(bounds_, vertices[i].position);
-        }
-    }
-}
-
-void ZModelManager::BoneTransform(const std::string& anim, double secondsTime)
-{
-    if (animations_.find(anim) != animations_.end())
-    {
-        double ticksPerSecond = animations_[anim]->ticksPerSecond != 0 ? animations_[anim]->ticksPerSecond : 25.0;
+        double ticksPerSecond = model->animations[anim].ticksPerSecond != 0 ? model->animations[anim].ticksPerSecond : 25.0;
         double timeInTicks = secondsTime * ticksPerSecond;
-        double animationTime = fmod(timeInTicks, animations_[anim]->duration);
+        double animationTime = fmod(timeInTicks, model->animations[anim].duration);
 
         glm::mat4 rootTransform = glm::rotate(glm::mat4(1.f), glm::radians(0.f), glm::vec3(1.f, 0.f, 0.f));
 
-        CalculateTransformsInHierarchy(anim, animationTime, skeleton_->rootJoint, rootTransform);
+        CalculateTransformsInHierarchy(handle, anim, animationTime, model->skeleton.rootJoint, rootTransform);
     }
 }
 
-void ZModelManager::CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform)
+void ZModelManager::ComputeBounds(const ZHModel& handle)
 {
-    std::shared_ptr<ZAnimation> animation = animations_[animName];
+	assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+	ZModel* model = resourcePool_.Get(handle);
+
+    model->bounds = ZAABBox();
+
+    auto it = model->meshes.cbegin(), end = model->meshes.cend();
+    for (; it != end; it++)
+    {
+        const ZVertex3DList& vertices = it->second.Vertices();
+        for (int i = 0; i < vertices.size(); i++)
+        {
+            model->bounds = ZAABBox::Union(model->bounds, vertices[i].position);
+        }
+    }
+}
+
+void ZModelManager::CalculateTransformsInHierarchy(const ZHModel& handle, const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform)
+{
+    assert(!handle.IsNull() && "Cannot use model with a null model handle!");
+    ZModel* model = resourcePool_.Get(handle);
+
+    ZAnimation& animation = model->animations[animName];
     glm::mat4 jointTransform = joint->transform;
 
-    std::shared_ptr<ZJointAnimation> jointAnimation;
-    for (unsigned int i = 0, j = animation->channels.size(); i < j; i++)
+    ZJointAnimation jointAnimation;
+    for (unsigned int i = 0, j = animation.channels.size(); i < j; i++)
     {
-        std::shared_ptr<ZJointAnimation> anim = animation->channels[i];
-        if (anim->jointName == joint->name)
+        ZJointAnimation anim = animation.channels[i];
+        if (anim.jointName == joint->name)
         {
             jointAnimation = anim; break;
         }
     }
 
-    if (jointAnimation)
+    if (jointAnimation.IsValid())
     {
         glm::vec3 scale = CalculateInterpolatedScaling(animTime, jointAnimation);
         glm::quat rotation = CalculateInterpolatedRotation(animTime, jointAnimation);
@@ -282,89 +416,89 @@ void ZModelManager::CalculateTransformsInHierarchy(const std::string& animName, 
 
     glm::mat4 globalTransform = parentTransform * jointTransform;
 
-    if (bonesMap_.find(joint->name) != bonesMap_.end())
+    if (model->bonesMap.find(joint->name) != model->bonesMap.end())
     {
-        unsigned int index = bonesMap_[joint->name];
-        bones_[index]->transformation = globalInverseTransform_ * globalTransform * bones_[index]->offset;
-        uniformBuffer_->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * index, sizeof(glm::mat4), glm::value_ptr(bones_[index]->transformation));
+        unsigned int index = model->bonesMap[joint->name];
+        model->bones[index].transformation = model->globalInverseTransform * globalTransform * model->bones[index].offset;
+        model->uniformBuffer->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * index, sizeof(glm::mat4), glm::value_ptr(model->bones[index].transformation));
     }
 
     for (unsigned int i = 0; i < joint->children.size(); i++)
     {
-        CalculateTransformsInHierarchy(animName, animTime, joint->children[i], globalTransform);
+        CalculateTransformsInHierarchy(handle, animName, animTime, joint->children[i], globalTransform);
     }
 }
 
-glm::vec3 ZModelManager::CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
+glm::vec3 ZModelManager::CalculateInterpolatedScaling(double animationTime, const ZJointAnimation& jointAnim)
 {
-    if (jointAnim->scalingKeys.size() == 1)
+    if (jointAnim.scalingKeys.size() == 1)
     {
-        return jointAnim->scalingKeys[0].value;
+        return jointAnim.scalingKeys[0].value;
     }
 
     unsigned int scalingIndex = 0;
-    for (unsigned int i = 0, j = jointAnim->scalingKeys.size() - 1; i < j; i++)
+    for (unsigned int i = 0, j = jointAnim.scalingKeys.size() - 1; i < j; i++)
     {
-        if (animationTime < jointAnim->scalingKeys[i + 1].time)
+        if (animationTime < jointAnim.scalingKeys[i + 1].time)
         {
             scalingIndex = i; break;
         }
     }
     unsigned int nextScalingIndex = scalingIndex + 1;
-    double deltaTime = jointAnim->scalingKeys[nextScalingIndex].time - jointAnim->scalingKeys[scalingIndex].time;
-    double factor = (animationTime - jointAnim->scalingKeys[scalingIndex].time) / deltaTime;
-    glm::vec3 start = jointAnim->scalingKeys[scalingIndex].value;
-    glm::vec3 end = jointAnim->scalingKeys[nextScalingIndex].value;
+    double deltaTime = jointAnim.scalingKeys[nextScalingIndex].time - jointAnim.scalingKeys[scalingIndex].time;
+    double factor = (animationTime - jointAnim.scalingKeys[scalingIndex].time) / deltaTime;
+    glm::vec3 start = jointAnim.scalingKeys[scalingIndex].value;
+    glm::vec3 end = jointAnim.scalingKeys[nextScalingIndex].value;
     glm::vec3 delta = end - start;
 
     return start + (float)factor * delta;
 }
 
-glm::quat ZModelManager::CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
+glm::quat ZModelManager::CalculateInterpolatedRotation(double animationTime, const ZJointAnimation& jointAnim)
 {
-    if (jointAnim->rotationKeys.size() == 1)
+    if (jointAnim.rotationKeys.size() == 1)
     {
-        return jointAnim->rotationKeys[0].value;
+        return jointAnim.rotationKeys[0].value;
     }
 
     unsigned int rotationIndex = 0;
-    for (unsigned int i = 0, j = jointAnim->rotationKeys.size() - 1; i < j; i++)
+    for (unsigned int i = 0, j = jointAnim.rotationKeys.size() - 1; i < j; i++)
     {
-        if (animationTime < jointAnim->rotationKeys[i + 1].time)
+        if (animationTime < jointAnim.rotationKeys[i + 1].time)
         {
             rotationIndex = i; break;
         }
     }
     unsigned int nextRotationIndex = rotationIndex + 1;
-    double deltaTime = jointAnim->rotationKeys[nextRotationIndex].time - jointAnim->rotationKeys[rotationIndex].time;
-    double factor = (animationTime - jointAnim->rotationKeys[rotationIndex].time) / deltaTime;
-    glm::quat start = jointAnim->rotationKeys[rotationIndex].value;
-    glm::quat end = jointAnim->rotationKeys[nextRotationIndex].value;
+    double deltaTime = jointAnim.rotationKeys[nextRotationIndex].time - jointAnim.rotationKeys[rotationIndex].time;
+    double factor = (animationTime - jointAnim.rotationKeys[rotationIndex].time) / deltaTime;
+    glm::quat start = jointAnim.rotationKeys[rotationIndex].value;
+    glm::quat end = jointAnim.rotationKeys[nextRotationIndex].value;
     glm::quat out = glm::mix(start, end, (float)factor);
 
     return glm::normalize(out);
 }
 
-glm::vec3 ZModelManager::CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim)
+glm::vec3 ZModelManager::CalculateInterpolatedPosition(double animationTime, const ZJointAnimation& jointAnim)
 {
-    if (jointAnim->positionKeys.size() == 1)
+    if (jointAnim.positionKeys.size() == 1)
     {
-        return jointAnim->positionKeys[0].value;
+        return jointAnim.positionKeys[0].value;
     }
 
     unsigned int positionIndex = 0;
-    for (unsigned int i = 0, j = jointAnim->positionKeys.size() - 1; i < j; i++)
+    for (unsigned int i = 0, j = jointAnim.positionKeys.size() - 1; i < j; i++)
     {
-        if (animationTime < jointAnim->positionKeys[i + 1].time)
+        if (animationTime < jointAnim.positionKeys[i + 1].time)
         {
             positionIndex = i; break;
         }
     }
     unsigned int nextPositionIndex = positionIndex + 1;
-    double deltaTime = jointAnim->positionKeys[nextPositionIndex].time - jointAnim->positionKeys[positionIndex].time;
-    double factor = (animationTime - jointAnim->positionKeys[positionIndex].time) / deltaTime;
-    glm::vec3 start = jointAnim->positionKeys[positionIndex].value;
-    glm::vec3 end = jointAnim->positionKeys[nextPositionIndex].value;
+    double deltaTime = jointAnim.positionKeys[nextPositionIndex].time - jointAnim.positionKeys[positionIndex].time;
+    double factor = (animationTime - jointAnim.positionKeys[positionIndex].time) / deltaTime;
+    glm::vec3 start = jointAnim.positionKeys[positionIndex].value;
+    glm::vec3 end = jointAnim.positionKeys[nextPositionIndex].value;
     glm::vec3 delta = end - start;
 
     return start + (float)factor * delta;
@@ -379,29 +513,52 @@ void ZModelManager::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent
 
     std::shared_ptr<ZModelResourceData> modelResource = std::static_pointer_cast<ZModelResourceData>(event->Resource());
 
-    if (modelResource->path == modelPath_)
-    {
-        meshes_ = modelResource->meshMap;
-        bonesMap_ = modelResource->boneMap;
-        bones_ = modelResource->boneList;
-        animations_ = modelResource->animationMap;
-        skeleton_ = modelResource->skeleton;
-
-        for (ZMesh3DMap::iterator it = meshes_.begin(); it != meshes_.end(); it++)
-            it->second->Initialize();
-        if (skeleton_ && skeleton_->rootJoint)
-            globalInverseTransform_ = glm::inverse(skeleton_->rootJoint->transform);
-
-        ZServices::EventAgent()->Unsubscribe(this, &ZModel::HandleModelLoaded);
-
-        Initialize();
+	ZHModel handle(modelResource->restoreHandle);
+	ZModel* model = nullptr;
+	if (!handle.IsNull())
+	{
+		model = resourcePool_.Restore(handle);
     }
-}
+    else
+    {
+        model = resourcePool_.New(handle);
+	}
 
+    if (model)
+    {
+        model->path = modelResource->path;
+        model->meshes = modelResource->meshMap;
+        model->bonesMap = modelResource->boneMap;
+        model->bones = modelResource->boneList;
+        model->animations = modelResource->animationMap;
+        model->skeleton = modelResource->skeleton;
 
-void ZModelManager::Track(const ZHModel& handle)
-{
-	ZModel* model = modelPool_.Get(handle);
-	assert(model != nullptr && "Cannot track this model since it doesn't exist!");
-	loadedModels_[model->name] = handle;
+		for (ZMesh3DMap::iterator it = model->meshes.begin(); it != model->meshes.end(); it++)
+		{
+			it->second.Initialize();
+		}
+
+		if (model->skeleton.rootJoint)
+		{
+			model->globalInverseTransform = glm::inverse(model->skeleton.rootJoint->transform);
+		}
+
+		ComputeBounds(handle);
+
+		bool isRigged = !model->bonesMap.empty();
+		model->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Model, sizeof(ZModelUniforms));
+		model->uniformBuffer->Update(offsetof(ZModelUniforms, rigged), sizeof(isRigged), &isRigged);
+
+		for (auto i = 0; i < model->bones.size(); i++) {
+			model->uniformBuffer->Update(offsetof(ZModelUniforms, bones) + sizeof(glm::mat4) * i, sizeof(glm::mat4), glm::value_ptr(model->bones[i].transformation));
+		}
+
+		ZRenderStateGroupWriter writer;
+		writer.Begin();
+		writer.BindUniformBuffer(model->uniformBuffer);
+		model->renderState = writer.End();
+
+		std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(handle);
+		ZServices::EventAgent()->Queue(modelReadyEvent);
+    }
 }

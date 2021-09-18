@@ -29,7 +29,6 @@
 
 #include "ZGraphicsComponent.hpp"
 #include "ZServices.hpp"
-#include "ZAssetStore.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZMaterial.hpp"
@@ -57,7 +56,7 @@ ZGraphicsComponent::~ZGraphicsComponent()
     materials_.clear();
 }
 
-void ZGraphicsComponent::Initialize(std::shared_ptr<ZModel> model)
+void ZGraphicsComponent::Initialize(const ZHModel& model)
 {
     if (model)
     {
@@ -97,16 +96,16 @@ void ZGraphicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
 
     if (props.find("model") != props.end() && props["model"]->HasValues())
     {
-        std::shared_ptr<ZOFString> nameProp = props["model"]->Value<ZOFString>(0);
-        model_ = nameProp->value;
+        std::shared_ptr<ZOFHandle> modelProp = props["model"]->Value<ZOFHandle>(0);
+        model_ = ZHModel(modelProp->value);
     }
 
     if (props.find("materials") != props.end() && props["materials"]->HasValues())
     {
-        std::shared_ptr<ZOFStringList> materialsProp = props["materials"]->Value<ZOFStringList>(0);
-        for (const std::string& id : materialsProp->value)
+        std::shared_ptr<ZOFHandleList> materialsProp = props["materials"]->Value<ZOFHandleList>(0);
+        for (unsigned int handle : materialsProp->value)
         {
-            materialIds_.push_back(id);
+            materials_.push_back(ZHMaterial(handle));
         }
     }
 
@@ -133,7 +132,6 @@ std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
 {
     std::shared_ptr<ZGraphicsComponent> clone = std::make_shared<ZGraphicsComponent>();
     clone->model_ = model_;
-    clone->modelObject_ = modelObject_;
     clone->materials_ = materials_;
     clone->outlineMaterial_ = outlineMaterial_;
     clone->instanceData_ = instanceData_;
@@ -144,25 +142,21 @@ std::shared_ptr<ZComponent> ZGraphicsComponent::Clone()
 void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRenderStateGroup>& additionalState)
 {
 	auto model = Model();
-	if (!model)
-	{
-        // Lazy load the model if not yet set
-        if (ZServices::AssetStore()->HasModel(model_))
-        {
-			SetModel(ZServices::AssetStore()->GetModel(model_));
-			model = Model();
-        }
-		else
-		{
-			return;
-		}
-	}
+    if (model.IsNull())
+    {
+        return;
+    }
 
     auto scene = object_->Scene();
-    if (!scene || !gameCamera_) return;
+    if (!scene || !gameCamera_)
+    {
+        return;
+    }
 
     if (hasAABB_)
+    {
         scene->AddBVHPrimitive(ZBVHPrimitive(object_->ID(), bounds_));
+    }
 
     glm::mat4 modelMatrix = object_->ModelMatrix();
 
@@ -170,60 +164,47 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
 
     ZRenderStateGroupWriter writer(overrideState_);
     writer.Begin();
-    if (hasDepthInfo_) {
+    if (hasDepthInfo_)
+    {
         writer.SetRenderDepth(viewPos.z * 100.f);
     }
-    if (object_->RenderLayer() == ZRenderLayer::UI) {
+    if (object_->RenderLayer() == ZRenderLayer::UI)
+    {
         writer.SetRenderDepth(0.f);
         writer.SetDepthStencilState({ ZDepthStencilState::None });
     }
     else if (outlineMaterial_)
+    {
         writer.SetDepthStencilState({ ZDepthStencilState::Stencil, ZDepthStencilState::Depth });
+    }
     overrideState_ = writer.End();
 
     std::shared_ptr<ZRenderStateGroup> cameraState = gameCamera_->RenderState();
     std::shared_ptr<ZRenderStateGroup> objectState = object_->RenderState();
-    std::shared_ptr<ZRenderStateGroup> modelState = model->RenderState();
+    std::shared_ptr<ZRenderStateGroup> modelState = ZServices::ModelManager()->RenderState(model);
     std::shared_ptr<ZRenderStateGroup> skyboxState = nullptr;
-    if (scene->Skybox()) {
+
+    if (scene->Skybox())
+    {
         skyboxState = scene->Skybox()->RenderState();
     }
 
     if (materials_.empty())
     {
-        // Lazy load materials if not set
-		if (materialIds_.empty())
-        {
-			materials_.push_back(ZMaterial::Default());
-		}
-        else
-        {
-			auto it = materialIds_.begin();
-			while (it != materialIds_.end())
-			{
-				if (ZServices::AssetStore()->HasMaterial(*it))
-				{
-					auto material = ZServices::AssetStore()->GetMaterial(*it);
-					AddMaterial(material);
-					it = materialIds_.erase(it);
-				}
-				else {
-					++it;
-				}
-			}
-        }
+		materials_.push_back(ZServices::MaterialManager()->Default());
     }
-    auto materials = materials_;
 
     // This setup assumes a forward rendering pipeline
-    for (const auto& [meshID, mesh] : model->Meshes()) {
-        ZPR_SESSION_COLLECT_VERTICES(mesh->Vertices().size());
+    for (const auto& [meshID, mesh] : ZServices::ModelManager()->Meshes(model))
+    {
+        ZPR_SESSION_COLLECT_VERTICES(mesh.Vertices().size());
 
-        auto meshState = mesh->RenderState();
+        auto meshState = mesh.RenderState();
 
         ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
 
-        if (hasDepthInfo_) {
+        if (hasDepthInfo_)
+        {
             auto depthTask = ZRenderTask::Compile(drawCall,
                 { cameraState, objectState, modelState, meshState, additionalState, overrideState_ },
                 ZRenderPass::Depth()
@@ -231,7 +212,8 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
             depthTask->Submit({ ZRenderPass::Depth() });
         }
 
-        if (isShadowCaster_) {
+        if (isShadowCaster_)
+        {
             auto shadowTask = ZRenderTask::Compile(drawCall,
                 { cameraState, objectState, modelState, meshState, additionalState, overrideState_ },
                 ZRenderPass::Shadow()
@@ -239,11 +221,14 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
             shadowTask->Submit({ ZRenderPass::Shadow() });
         }
 
-        if (hasLightingInfo_) {
-            for (const auto& light : gameLights_) {
+        if (hasLightingInfo_)
+        {
+            for (const auto& light : gameLights_)
+            {
                 auto lightState = light->RenderState();
-                for (auto material : materials) {
-                    auto materialState = material->RenderState();
+                for (auto material : materials_)
+                {
+                    auto materialState = ZServices::MaterialManager()->RenderState(material);
 
                     auto colorRenderTask = ZRenderTask::Compile(drawCall,
                         { cameraState, objectState, modelState, meshState, additionalState, materialState, lightState, skyboxState, overrideState_ },
@@ -253,9 +238,11 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
                 }
             }
         }
-        else {
-            for (auto material : materials) {
-                auto materialState = material->RenderState();
+        else
+        {
+            for (auto material : materials_)
+            {
+                auto materialState = ZServices::MaterialManager()->RenderState(material);
 
                 auto colorRenderTask = ZRenderTask::Compile(drawCall,
                     { cameraState, objectState, modelState, meshState, additionalState, materialState, skyboxState, overrideState_ },
@@ -266,7 +253,8 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
         }
     }
     
-    if (outlineMaterial_) {
+    if (outlineMaterial_)
+    {
         PrepareOutlineDisplay(modelMatrix, model, additionalState, cameraState);
     }
 
@@ -276,7 +264,7 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
     }
 }
 
-void ZGraphicsComponent::PrepareOutlineDisplay(glm::mat4& modelMatrix, std::shared_ptr<ZModel>& model, const std::shared_ptr<ZRenderStateGroup>& additionalState, const std::shared_ptr<ZRenderStateGroup>& cameraState)
+void ZGraphicsComponent::PrepareOutlineDisplay(glm::mat4& modelMatrix, const ZHModel& model, const std::shared_ptr<ZRenderStateGroup>& additionalState, const std::shared_ptr<ZRenderStateGroup>& cameraState)
 {
     glm::mat4 highlightModelMatrix = glm::scale(modelMatrix, glm::vec3(1.03f, 1.03f, 1.03f));
     object_->SetModelMatrix(highlightModelMatrix);
@@ -288,11 +276,11 @@ void ZGraphicsComponent::PrepareOutlineDisplay(glm::mat4& modelMatrix, std::shar
     overrideState_ = writer.End();
 
     auto objectState = object_->RenderState();
-    auto modelState = model->RenderState();
+    auto modelState = ZServices::ModelManager()->RenderState(model_);
 
-    for (const auto& [meshID, mesh] : model->Meshes()) {
-        auto meshState = mesh->RenderState();
-        auto materialState = outlineMaterial_->RenderState();
+    for (const auto& [meshID, mesh] : ZServices::ModelManager()->Meshes(model_)) {
+        auto meshState = mesh.RenderState();
+        auto materialState = ZServices::MaterialManager()->RenderState(outlineMaterial_);
 
         ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
         auto highlightRenderTask = ZRenderTask::Compile(drawCall,
@@ -305,7 +293,7 @@ void ZGraphicsComponent::PrepareOutlineDisplay(glm::mat4& modelMatrix, std::shar
     object_->SetModelMatrix(modelMatrix);
 }
 
-void ZGraphicsComponent::AddMaterial(const std::shared_ptr<ZMaterial>& material)
+void ZGraphicsComponent::AddMaterial(const ZHMaterial& material)
 {
     if (!material) return;
 
@@ -317,20 +305,22 @@ void ZGraphicsComponent::SetOutline(const glm::vec4& color)
     auto scene = object_->Scene();
     if (!scene) return;
 
-    if (outlineMaterial_ && color == glm::vec4(0.f)) {
-        outlineMaterial_->SetProperty("albedo", color);
+    if (!outlineMaterial_.IsNull() && color == glm::vec4(0.f))
+    {
+        ZServices::MaterialManager()->SetProperty(outlineMaterial_, "albedo", color);
     }
-    else if (!outlineMaterial_) {
+    else if (outlineMaterial_.IsNull())
+    {
         ZMaterialProperties materialProperties;
-        materialProperties.look.albedo = color;
-        outlineMaterial_ = ZMaterial::Create(materialProperties, ZServices::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/outline.frag"));
+        materialProperties.albedo = color;
+        outlineMaterial_ = ZServices::MaterialManager()->Create(materialProperties, ZServices::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/outline.frag"));
     }
 }
 
-void ZGraphicsComponent::SetModel(const std::shared_ptr<ZModel>& model)
+void ZGraphicsComponent::SetModel(const ZHModel& model)
 {
-    modelObject_ = model;
-    modelObject_->SetInstanceData(instanceData_);
+    model_ = model;
+    ZServices::ModelManager()->SetInstanceData(model_, instanceData_);
     SetupAABB();
 }
 
@@ -347,14 +337,14 @@ bool ZGraphicsComponent::IsVisible(ZFrustum frustrum)
 
 void ZGraphicsComponent::Transform(const glm::mat4& mat)
 {
-    auto model = Model();
-    if (!hasAABB_ || !model) return;
-    bounds_ = mat * model->Bounds();
+    const ZHModel model = Model();
+    if (!hasAABB_ || model.IsNull()) return;
+    bounds_ = mat * ZServices::ModelManager()->Bounds(model);
 }
 
 void ZGraphicsComponent::ClearOutline()
 {
-    if (outlineMaterial_ != nullptr) outlineMaterial_ = nullptr;
+    outlineMaterial_ = ZHMaterial();
 }
 
 DEFINE_COMPONENT_CREATORS(ZGraphicsComponent)

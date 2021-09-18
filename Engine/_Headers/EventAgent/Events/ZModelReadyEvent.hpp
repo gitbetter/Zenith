@@ -41,13 +41,13 @@ class ZModelReadyEvent : public ZEvent
 
 private:
 
-    std::shared_ptr<ZModel> model_;
+    ZHModel model_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZModelReadyEvent(std::shared_ptr<ZModel> model) : model_(model) {}
+    explicit ZModelReadyEvent(const ZHModel& model) : model_(model) {}
     explicit ZModelReadyEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
@@ -55,6 +55,6 @@ public:
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZModelReadyEvent"; }
 
-    std::shared_ptr<ZModel> Model() { return model_; }
+    ZHModel Model() { return model_; }
 
 };

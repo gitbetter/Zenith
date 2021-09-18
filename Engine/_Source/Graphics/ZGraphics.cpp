@@ -31,7 +31,6 @@
 #include "ZVertexBuffer.hpp"
 #include "ZScene.hpp"
 #include "ZFrustum.hpp"
-#include "ZAssetStore.hpp"
 #include "ZCamera.hpp"
 #include "ZRenderTask.hpp"
 #include "ZRenderPass.hpp"
@@ -137,7 +136,7 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
     ZRenderStateGroupWriter writer;
     writer.Begin();
     writer.BindVertexBuffer(bufferData);
-    writer.SetShader(ZServices::AssetStore()->DebugShader());
+    writer.SetShader(ZServices::ShaderManager()->DebugShader());
     writer.BindUniformBuffer(colorUniforms);
     auto lineState = writer.End();
 

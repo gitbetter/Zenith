@@ -29,13 +29,13 @@
 
 #include "ZScene.hpp"
 #include "ZServices.hpp"
-#include "ZAssetStore.hpp"
 #include "ZRenderer.hpp"
 #include "ZFramebuffer.hpp"
 #include "ZGame.hpp"
 #include "ZLight.hpp"
 #include "ZSkybox.hpp"
 #include "ZCamera.hpp"
+#include "ZGrass.hpp"
 #include "ZPhysicsUniverse.hpp"
 #include "ZDomain.hpp"
 #include "ZUIText.hpp"
@@ -46,16 +46,13 @@
 #include "ZSceneRoot.hpp"
 #include "ZComponent.hpp"
 #include "ZResourceLoadedEvent.hpp"
-#include "ZTextureReadyEvent.hpp"
-#include "ZShaderReadyEvent.hpp"
-#include "ZModelReadyEvent.hpp"
-#include "ZSkyboxReadyEvent.hpp"
 #include "ZSceneReadyEvent.hpp"
 #include "ZObjectDestroyedEvent.hpp"
 #include "ZRaycastEvent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZWindowResizeEvent.hpp"
 #include "ZStringHelpers.hpp"
+#include "ZAssetLoadProgressTracker.hpp"
 
 ZScene::ZScene(const std::string& name) : name_(name), playState_(ZPlayState::Loading)
 { }
@@ -75,10 +72,6 @@ void ZScene::Initialize()
 {
     ZServices::EventAgent()->Subscribe(this, &ZScene::HandleWindowResize);
     ZServices::EventAgent()->Subscribe(this, &ZScene::HandleZOFReady);
-    ZServices::EventAgent()->Subscribe(this, &ZScene::HandleTextureReady);
-    ZServices::EventAgent()->Subscribe(this, &ZScene::HandleShaderReady);
-    ZServices::EventAgent()->Subscribe(this, &ZScene::HandleModelReady);
-    ZServices::EventAgent()->Subscribe(this, &ZScene::HandleSkyboxReady);
     ZServices::EventAgent()->Subscribe(this, &ZScene::HandleObjectDestroyed);
     ZServices::EventAgent()->Subscribe(this, &ZScene::HandleRaycastEvent);
 
@@ -86,6 +79,7 @@ void ZScene::Initialize()
     CreateUICanvas();
 
     bvh_ = std::make_shared<ZBVH>(4, ZBVHSplitMethod::SAH);
+    loadProgressTracker_ = std::make_shared<ZAssetLoadProgressTracker>();
 
     for (auto it = pendingSceneDefinitions_.begin(); it != pendingSceneDefinitions_.end(); it++)
     {
@@ -129,14 +123,21 @@ void ZScene::SetupRenderPasses()
 
 void ZScene::Update(double deltaTime)
 {
-    if (playState_ == ZPlayState::Playing || playState_ == ZPlayState::Paused) {
+    if (playState_ == ZPlayState::Playing || playState_ == ZPlayState::Paused)
+    {
         root_->Prepare(deltaTime);
         canvas_->Prepare(deltaTime);
         renderer_->Render(deltaTime);
         bvh_->Build();
     }
-    else if (playState_ == ZPlayState::Loading) {
-        CheckPendingObjects();
+    else if (playState_ == ZPlayState::Loading)
+    {
+        if (loadProgressTracker_->Completed())
+        {
+			playState_ = ZPlayState::Ready;
+			std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::make_shared<ZSceneReadyEvent>(shared_from_this());
+			ZServices::EventAgent()->Queue(sceneReadyEvent);
+        }
     }
 }
 
@@ -430,7 +431,9 @@ bool ZScene::RayCast(ZRay& ray, ZIntersectHitResult& hitResult)
 ZHTexture ZScene::TargetTexture()
 {
     if (targetBuffer_)
+    {
         return targetBuffer_->BoundAttachment();
+    }
     return ZHTexture();
 }
 
@@ -445,20 +448,78 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
 {
     ParseSceneMetadata(objectTree);
 
-    // TODO: The more systems are populated this way, the more of a hamper we place on
-    // load times. Refactor this so the object tree is only traversed once, or erase
-    // ZOF iterators as items are created.
-    ZServices::ScriptManager()->LoadAsync(objectTree);
-    ZServices::AssetStore()->LoadAsync(objectTree);
+	for (ZOFChildList::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++)
+	{
+		std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
+        std::shared_ptr<ZGameObject> gameObject;
+        switch (dataNode->type)
+        {
+            case ZOFObjectType::Script:
+            {
+                ZServices::ScriptManager()->DeserializeAsync(dataNode->id, dataNode);
+                break;
+            }
+            case ZOFObjectType::Texture:
+            {
+                ZServices::FontManager()->DeserializeAsync(dataNode->id, dataNode);
+                break;
+            }
+            case ZOFObjectType::Shader:
+            {
+		        ZServices::ShaderManager()->DeserializeAsync(dataNode->id, dataNode);
+                break;
+            }
+            case ZOFObjectType::Model:
+            {
+                ZServices::ModelManager()->DeserializeAsync(dataNode->id, dataNode);
+                break;
+            }
+            case ZOFObjectType::Material:
+            {
+                ZServices::MaterialManager()->DeserializeAsync(dataNode->id, dataNode);
+                break;
+            }
+			case ZOFObjectType::GameObject:
+            {
+				gameObject = ZGameObject::Create(dataNode, shared_from_this());
+				break;
+            }
+            case ZOFObjectType::Light:
+            {
+                gameObject = ZLight::Create(dataNode, shared_from_this());
+                break;
+            }
+            case ZOFObjectType::Camera:
+            {
+                gameObject = ZCamera::Create(dataNode, shared_from_this());
+                break;
+            }
+            case ZOFObjectType::Skybox:
+            {
+                gameObject = ZSkybox::Create(dataNode, shared_from_this());
+                break;
+            }
+            case ZOFObjectType::Grass:
+            {
+                gameObject = ZGrass::Create(dataNode, shared_from_this());
+                break;
+            }
+            default: break;
+        }
 
-    ZOFLoadResult zofResults;
-    zofResults.gameObjects = ZGameObject::Load(objectTree, shared_from_this());
-    zofResults.uiElements = ZUIElement::Load(objectTree, shared_from_this());
-
-    for (ZGameObjectList::iterator it = zofResults.gameObjects.begin(); it != zofResults.gameObjects.end(); it++)
-    {
-        AddGameObject(*it);
+		if (gameObject) {
+			for (ZOFChildList::iterator compIt = dataNode->children.begin(); compIt != dataNode->children.end(); compIt++)
+			{
+				std::shared_ptr<ZOFObjectNode> componentNode = std::static_pointer_cast<ZOFObjectNode>(compIt->second);
+				ZComponent::CreateIn(gameObject, componentNode);
+			}
+            AddGameObject(gameObject);
+		}
     }
+
+	ZOFLoadResult zofResults;
+	zofResults.gameObjects = ZGameObject::Load(objectTree, shared_from_this());
+    zofResults.uiElements = ZUIElement::Load(objectTree, shared_from_this());
 
     for (ZUIElementList::iterator it = zofResults.uiElements.begin(); it != zofResults.uiElements.end(); it++)
     {
@@ -481,41 +542,49 @@ void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFNode>& objectTree)
                 root_->SetName(name_);
             }
 		}
-		else if (dataNode->type == ZOFObjectType::Texture || dataNode->type == ZOFObjectType::Model || dataNode->type == ZOFObjectType::Shader ||
-            dataNode->type == ZOFObjectType::Skybox)
+		else if (dataNode->type == ZOFObjectType::Texture)
         {
-            std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
-            pendingSceneObjects_.push_back(it->first);
-            if (dataNode->type == ZOFObjectType::Skybox)
-            {
-                hasSkybox = true;
-            }
+            loadProgressTracker_->TrackTexture(ZHTexture(it->first.value));
+        }
+		else if (dataNode->type == ZOFObjectType::Model)
+		{
+			loadProgressTracker_->TrackModel(ZHModel(it->first.value));
+		}
+		else if (dataNode->type == ZOFObjectType::Material)
+		{
+			loadProgressTracker_->TrackMaterial(ZHMaterial(it->first.value));
+		}
+		else if (dataNode->type == ZOFObjectType::Audio)
+		{
+			loadProgressTracker_->TrackAudio(ZHAudio(it->first.value));
+		}
+		else if (dataNode->type == ZOFObjectType::Shader)
+		{
+			loadProgressTracker_->TrackShader(ZHShader(it->first.value));
+		}
+		else if (dataNode->type == ZOFObjectType::Font)
+		{
+			loadProgressTracker_->TrackFont(ZHFont(it->first.value));
+		}
+		else if (dataNode->type == ZOFObjectType::Script)
+		{
+			loadProgressTracker_->TrackScript(ZHScript(it->first.value));
+		}
+        else if (dataNode->type == ZOFObjectType::Skybox)
+        {
+            hasSkybox = true;
         }
     }
 
     if (!hasSkybox && gameConfig_.graphics.clearColor == glm::vec4(0.f, 0.f, 0.f, 1.f))
+    {
         SetDefaultSkybox();
+    }
 }
 
 void ZScene::UnregisterLoadDelegates()
 {
     ZServices::EventAgent()->Unsubscribe(this, &ZScene::HandleZOFReady);
-    ZServices::EventAgent()->Unsubscribe(this, &ZScene::HandleTextureReady);
-    ZServices::EventAgent()->Unsubscribe(this, &ZScene::HandleShaderReady);
-    ZServices::EventAgent()->Unsubscribe(this, &ZScene::HandleModelReady);
-    ZServices::EventAgent()->Unsubscribe(this, &ZScene::HandleSkyboxReady);
-}
-
-void ZScene::CheckPendingObjects()
-{
-    std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
-    if (pendingSceneObjects_.empty())
-    {
-        UnregisterLoadDelegates();
-        playState_ = ZPlayState::Ready;
-        std::shared_ptr<ZSceneReadyEvent> sceneReadyEvent = std::make_shared<ZSceneReadyEvent>(shared_from_this());
-        ZServices::EventAgent()->Queue(sceneReadyEvent);
-    }
 }
 
 void ZScene::HandleWindowResize(const std::shared_ptr<ZWindowResizeEvent>& event)
@@ -551,50 +620,6 @@ void ZScene::HandleZOFReady(const std::shared_ptr<ZResourceLoadedEvent>& event)
     }
 }
 
-void ZScene::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
-{
-    ZHTexture textureHandle = event->Texture();
-    std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
-    auto it = std::find(pendingSceneObjects_.begin(), pendingSceneObjects_.end(), ZServices::TextureManager()->Name(textureHandle));
-    if (it != pendingSceneObjects_.end())
-    {
-        pendingSceneObjects_.erase(it);
-    }
-}
-
-void ZScene::HandleShaderReady(const std::shared_ptr<ZShaderReadyEvent>& event)
-{
-    ZHShader shader = event->Shader();
-    std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
-    auto it = std::find(pendingSceneObjects_.begin(), pendingSceneObjects_.end(), ZServices::ShaderManager()->Name(shader));
-    if (it != pendingSceneObjects_.end())
-    {
-        pendingSceneObjects_.erase(it);
-    }
-}
-
-void ZScene::HandleSkyboxReady(const std::shared_ptr<ZSkyboxReadyEvent>& event)
-{
-    auto skybox = event->Skybox();
-    std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
-    auto it = std::find(pendingSceneObjects_.begin(), pendingSceneObjects_.end(), skybox->ID());
-    if (it != pendingSceneObjects_.end())
-    {
-        pendingSceneObjects_.erase(it);
-    }
-}
-
-void ZScene::HandleModelReady(const std::shared_ptr<ZModelReadyEvent>& event)
-{
-    auto model = event->Model();
-    std::lock_guard<std::mutex> pendingObjectsLock(sceneMutexes_.pendingObjects);
-    auto it = std::find(pendingSceneObjects_.begin(), pendingSceneObjects_.end(), model->ID());
-    if (it != pendingSceneObjects_.end())
-    {
-        pendingSceneObjects_.erase(it);
-    }
-}
-
 void ZScene::HandleObjectDestroyed(const std::shared_ptr<ZObjectDestroyedEvent>& event)
 {
     RemoveGameObject(event->Object());
@@ -606,7 +631,7 @@ void ZScene::HandleRaycastEvent(const std::shared_ptr<ZRaycastEvent>& event)
     if (hitResult.hasHit)
     {
         // TODO: Rename to ZObjectRayHit event or something similar
-        std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(hitResult.objectHit->ID(), hitResult.hitPosition));
+        std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent = std::make_shared<ZObjectSelectedEvent>(hitResult.objectHit->ID(), hitResult.hitPosition);
         ZServices::EventAgent()->Trigger(objectSelectEvent);
     }
 }

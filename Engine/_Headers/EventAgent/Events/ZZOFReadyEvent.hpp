@@ -29,25 +29,25 @@
 
 #pragma once
 
-// Includes
 #include "ZEvent.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZZOFReadyEvent : public ZEvent
 {
+
+    ZHZof zof_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZZOFReadyEvent() {}
+    explicit ZZOFReadyEvent(const ZHZof& zof) : zof_(zof) {}
     explicit ZZOFReadyEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
-    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZZOFReadyEvent>(new ZZOFReadyEvent); }
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZZOFReadyEvent>(new ZZOFReadyEvent(zof_)); }
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZZOFReadyEvent"; }
+
+    ZHZof ZOF() const { return zof_; }
 
 };

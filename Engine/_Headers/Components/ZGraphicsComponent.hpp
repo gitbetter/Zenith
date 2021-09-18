@@ -30,13 +30,13 @@ public:
 
     void Initialize() override { ZComponent::Initialize(); }
     void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Initialize(std::shared_ptr<ZModel> model);
+    void Initialize(const ZHModel& model);
 
     std::shared_ptr<ZComponent> Clone() override;
 
     void Prepare(double deltaTime, const std::shared_ptr<ZRenderStateGroup>& additionalState = nullptr);
 
-    const std::shared_ptr<ZModel>& Model() const { return modelObject_; }
+    const ZHModel& Model() const { return model_; }
     const ZMaterialList& Materials() const { return materials_; }
     bool HasAABB() const { return hasAABB_; }
     bool IsShadowCaster() const { return isShadowCaster_; }
@@ -49,14 +49,14 @@ public:
 
     void SetGameLights(const ZLightList& lights) { gameLights_ = lights; }
     void SetGameCamera(const std::shared_ptr<ZCamera>& camera) { gameCamera_ = camera; }
-    void SetModel(const std::shared_ptr<ZModel>& model);
+    void SetModel(const ZHModel& model);
     void SetMaterials(const ZMaterialList& materials) { materials_ = materials; }
     void SetHasAABB(bool hasAABB) { hasAABB_ = hasAABB; }
     void SetIsShadowCaster(bool isShadowCaster) { isShadowCaster_ = isShadowCaster; }
     void SetHasDepthInfo(bool hasDepthInfo) { hasDepthInfo_ = hasDepthInfo; }
     void SetHasLightingInfo(bool hasLightingInfo) { hasLightingInfo_ = hasLightingInfo; }
 
-    void AddMaterial(const std::shared_ptr<ZMaterial>& material);
+    void AddMaterial(const ZHMaterial& material);
 
     bool IsVisible(ZFrustum frustrum);
 
@@ -68,17 +68,12 @@ protected:
 
     ZLightList gameLights_;
     std::shared_ptr<ZCamera> gameCamera_ = nullptr;
-
-    std::string model_;
-    std::shared_ptr<ZModel> modelObject_ = nullptr;
+    ZHModel model_;
     ZInstancedDataOptions instanceData_;
-
-    std::vector<std::string> materialIds_;
     ZMaterialList materials_;
-
-    std::shared_ptr<ZMaterial> outlineMaterial_ = nullptr;
-
+    ZHMaterial outlineMaterial_;
     std::shared_ptr<ZRenderStateGroup> overrideState_ = nullptr;
+    ZAABBox bounds_;
 
     // TODO: Implement billboarding
     bool isBillboard_ = false;
@@ -87,9 +82,8 @@ protected:
     bool hasDepthInfo_ = true;
     bool hasLightingInfo_ = true;
 
-    ZAABBox bounds_;
 
     void SetupAABB();
-    void PrepareOutlineDisplay(glm::mat4& modelMatrix, std::shared_ptr<ZModel>& model, const std::shared_ptr<ZRenderStateGroup>& additionalState, const std::shared_ptr<ZRenderStateGroup>& cameraState);
+    void PrepareOutlineDisplay(glm::mat4& modelMatrix, const ZHModel& model, const std::shared_ptr<ZRenderStateGroup>& additionalState, const std::shared_ptr<ZRenderStateGroup>& cameraState);
 
 };

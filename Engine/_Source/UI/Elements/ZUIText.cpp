@@ -30,7 +30,6 @@
 #include "ZUIText.hpp"
 #include "ZServices.hpp"
 #include "ZScene.hpp"
-#include "ZAssetStore.hpp"
 #include "ZFont.hpp"
 #include "ZVertexBuffer.hpp"
 #include "ZRenderTask.hpp"
@@ -57,7 +56,7 @@ void ZUIText::Initialize() {
     bufferData_ = ZVertexBuffer::Create(options);
 
     if (auto scene = Scene()) {
-        options_.shader = ZServices::AssetStore()->TextShader();
+        options_.shader = ZServices::ShaderManager()->TextShader();
         if (fontName_.empty()) fontName_ = "arial";
     }
 

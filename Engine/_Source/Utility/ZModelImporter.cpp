@@ -30,7 +30,6 @@
 #include "ZServices.hpp"
 #include "ZModelImporter.hpp"
 #include "ZResourceData.hpp"
-#include "ZSkeleton.hpp"
 #include "ZAnimation.hpp"
 #include <assimp/Importer.hpp>
 
@@ -40,7 +39,7 @@
  @param shaderPath the path to the model file.
  @param outMeshes the mesh vector to populate.
  */
-ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton)
+ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton)
 {
     std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
 
@@ -51,7 +50,7 @@ ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& out
     return LoadModel(resource.get(), outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
 }
 
-ZMesh3DMap ZModelImporter::LoadModel(ZModelResourceData* const resource, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, std::shared_ptr<ZSkeleton>& outSkeleton, const std::string& modelDirectory)
+ZMesh3DMap ZModelImporter::LoadModel(ZModelResourceData* const resource, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton, const std::string& modelDirectory)
 {
     ZMesh3DMap meshes;
 
@@ -76,7 +75,7 @@ ZMesh3DMap ZModelImporter::LoadModel(ZModelResourceData* const resource, ZBoneMa
 
     // If we load another model with this ZModelImporter instance, we want to make sure there is no bone data
     // from previous loads.
-    currentBonesMap_.clear(); currentAnimations_.clear(); currentSkeleton_.reset(); currentBones_.clear();
+    currentBonesMap_.clear(); currentAnimations_.clear(); currentBones_.clear(); currentSkeleton_ = ZSkeleton();
 
     return meshes;
 }
@@ -94,8 +93,8 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, const std::
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        std::shared_ptr<ZMesh3D> outMesh = ProcessMesh(mesh, scene, directory);
-        outMeshes[outMesh->ID()] = outMesh;
+        ZMesh3D outMesh = ProcessMesh(mesh, scene, directory);
+        outMeshes[outMesh.ID()] = outMesh;
     }
 
     // Recursively visit the node's children in order to process their meshes
@@ -116,7 +115,7 @@ void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, const std::
  @param directory the model directory, used for loading the textures for the materials.
  @return a ZMesh3D instance with all the relevant data
  */
-std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory)
+ZMesh3D ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory)
 {
     ZVertex3DDataOptions options;
     options.vertices = LoadVertexData(mesh);
@@ -124,9 +123,7 @@ std::shared_ptr<ZMesh3D> ZModelImporter::ProcessMesh(aiMesh* mesh, const aiScene
 
     LoadBones(mesh, options.vertices);
 
-    std::shared_ptr<ZMesh3D> mesh3D = std::make_shared<ZMesh3D>(options);
-
-    return mesh3D;
+    return ZMesh3D(options);
 }
 
 /**
@@ -197,8 +194,8 @@ std::vector<unsigned int> ZModelImporter::LoadIndexData(const aiMesh* mesh)
  */
 void ZModelImporter::LoadSkeleton(const aiScene* scene)
 {
-    currentSkeleton_ = std::make_shared<ZSkeleton>();
-    currentSkeleton_->rootJoint = LoadSkeletonJoint(scene->mRootNode);
+    currentSkeleton_ = ZSkeleton();
+    currentSkeleton_.rootJoint = LoadSkeletonJoint(scene->mRootNode);
 }
 
 /**
@@ -241,8 +238,7 @@ void ZModelImporter::LoadBones(const aiMesh* mesh, ZVertex3DList& vertices)
         if (currentBonesMap_.find(boneName) == currentBonesMap_.end())
         {
             boneIndex = currentBoneIndex++;
-            std::shared_ptr<ZBone> bone = std::make_shared<ZBone>(boneName);
-            currentBones_.push_back(bone);
+            currentBones_.push_back(ZBone(boneName));
             currentBonesMap_[boneName] = boneIndex;
         }
         else
@@ -250,7 +246,7 @@ void ZModelImporter::LoadBones(const aiMesh* mesh, ZVertex3DList& vertices)
             boneIndex = currentBonesMap_[boneName];
         }
 
-        currentBones_[boneIndex]->offset = AssimpToGLMMat4(mesh->mBones[i]->mOffsetMatrix);
+        currentBones_[boneIndex].offset = AssimpToGLMMat4(mesh->mBones[i]->mOffsetMatrix);
 
         for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++)
         {
@@ -274,24 +270,24 @@ void ZModelImporter::LoadAnimations(const aiScene* scene)
     for (unsigned int i = 0; i < scene->mNumAnimations; i++)
     {
         aiAnimation* anim = scene->mAnimations[i];
-        std::shared_ptr<ZAnimation> animation = std::make_shared<ZAnimation>();
-        animation->name = std::string(anim->mName.data);
-        if (animation->name.empty()) animation->name = "z_anim" + std::to_string(i + 1);
-        animation->ticksPerSecond = anim->mTicksPerSecond;
-        animation->duration = anim->mDuration;
+        ZAnimation animation;
+        animation.name = std::string(anim->mName.data);
+        if (animation.name.empty()) animation.name = "z_anim" + std::to_string(i + 1);
+        animation.ticksPerSecond = anim->mTicksPerSecond;
+        animation.duration = anim->mDuration;
 
         for (unsigned int j = 0; j < anim->mNumChannels; j++)
         {
             aiNodeAnim* nodeAnim = anim->mChannels[j];
-            std::shared_ptr<ZJointAnimation> jointAnimation = std::make_shared<ZJointAnimation>();
-            jointAnimation->jointName = std::string(nodeAnim->mNodeName.data);
+            ZJointAnimation jointAnimation;
+            jointAnimation.jointName = std::string(nodeAnim->mNodeName.data);
 
             for (unsigned int k = 0; k < nodeAnim->mNumScalingKeys; k++)
             {
                 ZAnimationKey<glm::vec3> scalingKey;
                 scalingKey.time = nodeAnim->mScalingKeys[k].mTime;
                 scalingKey.value = AssimpToGLMVec3(nodeAnim->mScalingKeys[k].mValue);
-                jointAnimation->scalingKeys.push_back(scalingKey);
+                jointAnimation.scalingKeys.push_back(scalingKey);
             }
 
             for (unsigned int k = 0; k < nodeAnim->mNumRotationKeys; k++)
@@ -299,7 +295,7 @@ void ZModelImporter::LoadAnimations(const aiScene* scene)
                 ZAnimationKey<glm::quat> rotationKey;
                 rotationKey.time = nodeAnim->mRotationKeys[k].mTime;
                 rotationKey.value = AssimpToGLMQuat(nodeAnim->mRotationKeys[k].mValue);
-                jointAnimation->rotationKeys.push_back(rotationKey);
+                jointAnimation.rotationKeys.push_back(rotationKey);
             }
 
             for (unsigned int k = 0; k < nodeAnim->mNumPositionKeys; k++)
@@ -307,13 +303,13 @@ void ZModelImporter::LoadAnimations(const aiScene* scene)
                 ZAnimationKey<glm::vec3> positionKey;
                 positionKey.time = nodeAnim->mPositionKeys[k].mTime;
                 positionKey.value = AssimpToGLMVec3(nodeAnim->mPositionKeys[k].mValue);
-                jointAnimation->positionKeys.push_back(positionKey);
+                jointAnimation.positionKeys.push_back(positionKey);
             }
 
-            animation->channels.push_back(jointAnimation);
+            animation.channels.push_back(jointAnimation);
         }
 
-        animations[animation->name] = animation;
+        animations[animation.name] = animation;
     }
     currentAnimations_ = animations;
 }

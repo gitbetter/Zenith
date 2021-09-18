@@ -38,16 +38,20 @@
 class ZSoundReadyEvent : public ZEvent
 {
 
+    ZHAudio audio_;
+
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZSoundReadyEvent() {}
+    explicit ZSoundReadyEvent(const ZHAudio& audio) : audio_(audio) {}
     explicit ZSoundReadyEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
-    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZSoundReadyEvent>(new ZSoundReadyEvent); }
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZSoundReadyEvent>(new ZSoundReadyEvent(audio_)); }
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZSoundReadyEvent"; }
+
+    ZHAudio Audio() const { return audio_; }
 
 };

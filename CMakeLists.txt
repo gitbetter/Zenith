@@ -211,7 +211,6 @@ if (USER_PROJECT_NAME AND (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${USER_PROJEC
 #include \"ZScene.hpp\"
 #include \"ZSceneReadyEvent.hpp\"
 #include \"ZInput.hpp\"
-#include \"ZAssetStore.hpp\"
 
 void onSceneLoad(std::shared_ptr<ZSceneReadyEvent> event);
 
@@ -227,7 +226,7 @@ int main(int argc, const char* argv[]) {
     game->Initialize(gameOptions);
 
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    ZServices::AssetStore()->RegisterFont(\"/Fonts/earth_orbiter/earthorbiter.ttf\");
+    ZServices::FontManager()->CreateAsync(\"/Fonts/earth_orbiter/earthorbiter.ttf\");
 
     // Load a default scene from the engine
     ZScene::LoadIn({ \"/demo_scene.zof\" });

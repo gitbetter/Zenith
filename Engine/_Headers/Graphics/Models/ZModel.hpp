@@ -29,6 +29,7 @@
 
 #pragma once
 
+#include "ZResourceManager.hpp"
 #include "ZMesh.hpp"
 #include "ZTexture.hpp"
 #include "ZAABBox.hpp"
@@ -40,10 +41,15 @@ class ZResourceLoadedEvent;
 class ZUniformBuffer;
 class ZRenderStateGroup;
 
+enum class ZModelType
+{
+    Plane, Cube, Sphere, Cylinder, Cone, Custom
+};
+
 struct ZModel
 {
 	std::string name;
-	std::string modelPath;
+	std::string path;
 	ZMesh3DMap meshes;
 	ZBoneMap bonesMap;
 	ZBoneList bones;
@@ -61,58 +67,45 @@ private:
 	static ZIDSequence idGenerator_;
 };
 
-class ZModelManager
+class ZModelManager : public ZResourceManager<ZModel, ZHModel>
 {
-
-	using ZModelPool = ZResourcePool<ZModel, ZHModel>;
 
 public:
 
     ZModelManager() = default;
 	~ZModelManager() = default;
 
+	virtual void Initialize() override;
+    virtual void CleanUp() override;
+
     ZHModel Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
     void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
-    std::shared_ptr<ZModel> Create(const std::string& type, const std::shared_ptr<ZOFNode>& data = nullptr);
-    std::shared_ptr<ZModel> CreateExternal(const std::string& path, bool async = false);
+    ZHModel Create(const ZModelType& type, const ZHModel& restoreHandle = ZHModel());
+    ZHModel Create(const std::string& path, const ZHModel& restoreHandle = ZHModel());
+    void CreateAsync(const std::string& path, const ZHModel& restoreHandle = ZHModel());
 
-    virtual void Initialize();
-    virtual void Initialize(const std::shared_ptr<ZOFNode>& data);
-    virtual void InitializeAsync();
+    const std::string& Name(const ZHModel& handle);
+    const std::string& Path(const ZHModel& handle);
+    const ZMesh3DMap& Meshes(const ZHModel& handle);
+    const ZBoneList& Bones(const ZHModel& handle);
+    const ZBoneMap& BonesMap(const ZHModel& handle);
+    const ZAnimationMap& Animations(const ZHModel& handle);
+    const ZInstancedDataOptions& InstanceData(const ZHModel& handle);
+	const ZSkeleton Skeleton(const ZHModel& handle);
+    const glm::mat4 GlobalInverseTransform(const ZHModel& handle);
+    const ZAABBox& Bounds(const ZHModel& handle);
+    const std::shared_ptr<ZRenderStateGroup> RenderState(const ZHModel& handle);
 
-	bool IsLoaded(const std::string& name);
-    ZHModel GetFromName(const std::string& name);
-
-    const std::string& ID() const { return id_; }
-    const std::string& Path() const { return modelPath_; }
-    const ZMesh3DMap& Meshes() const { return meshes_; }
-    const ZBoneList& Bones() const { return bones_; }
-    const ZBoneMap& BonesMap() const { return bonesMap_; }
-    const ZAnimationMap& Animations() const { return animations_; }
-    const ZInstancedDataOptions& InstanceData() const { return instanceData_; }
-    const std::shared_ptr<ZSkeleton> Skeleton() const { return skeleton_; }
-    const glm::mat4 GlobalInverseTransform() const { return globalInverseTransform_; }
-    const ZAABBox& Bounds() const { return bounds_; }
-    const std::shared_ptr<ZRenderStateGroup> RenderState() const { return renderState_; }
-
-    void SetInstanceData(const ZInstancedDataOptions& instanceData);
-    void BoneTransform(const std::string& anim, double secondsTime);
+    void SetInstanceData(const ZHModel& handle, const ZInstancedDataOptions& instanceData);
+    void BoneTransform(const ZHModel& handle, const std::string& anim, double secondsTime);
 
 protected:
 
-    ZModelPool modelPool_;
-	ZModelMap loadedModels_;
-
-protected:
-
-	/** Adds a shader to the internal loaded shader map so that we don't accidentally recreate duplicates of the shader */
-	void Track(const ZHModel& handle);
-
-    void ComputeBounds();
-    void CalculateTransformsInHierarchy(const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
-    glm::vec3 CalculateInterpolatedScaling(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
-    glm::quat CalculateInterpolatedRotation(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
-    glm::vec3 CalculateInterpolatedPosition(double animationTime, std::shared_ptr<ZJointAnimation> jointAnim);
+    void ComputeBounds(const ZHModel& handle);
+    void CalculateTransformsInHierarchy(const ZHModel& handle, const std::string& animName, double animTime, const std::shared_ptr<ZJoint> joint, const glm::mat4& parentTransform);
+    glm::vec3 CalculateInterpolatedScaling(double animationTime, const ZJointAnimation& jointAnim);
+    glm::quat CalculateInterpolatedRotation(double animationTime, const ZJointAnimation& jointAnim);
+    glm::vec3 CalculateInterpolatedPosition(double animationTime, const ZJointAnimation& jointAnim);
 
     void HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
 

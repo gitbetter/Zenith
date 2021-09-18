@@ -29,31 +29,47 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
+#include "ZResourceManager.hpp"
 #include "ZOFTree.hpp"
+#include "ZHandle.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
-class ZScriptManager
+struct ZScript
 {
-    typedef std::map<std::string, bool> ZScriptMap;
+	std::string path;
+    std::string name;
+    std::string code;
+
+    ZScript();
+
+private:
+
+	static ZIDSequence idGenerator_;
+};
+
+class ZScriptManager : public ZResourceManager<ZScript, ZHScript>
+{
+public:
+
+	~ZScriptManager() = default;
+
+    virtual void Initialize() override { }
+    virtual void CleanUp() override { }
+
+    virtual void Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+    virtual void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
+
+	std::string Name(const ZHScript& handle);
+	std::string Code(const ZHScript& handle);
 
 public:
 
-    virtual ~ZScriptManager() {}
-
-    ZScriptMap& Scripts() { return scripts_; }
-
     virtual void Initialize() = 0;
-    virtual void Load(std::shared_ptr<ZOFNode> zof);
-    virtual void LoadAsync(std::shared_ptr<ZOFNode> zof);
     virtual void ExecuteFile(const std::string& resource) = 0;
     virtual void ExecuteString(const std::string& script) = 0;
 
 private:
 
-    ZScriptMap scripts_;
+	void HandleScriptLoaded(const std::shared_ptr<class ZResourceLoadedEvent>& event);
 
 };

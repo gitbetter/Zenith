@@ -75,7 +75,7 @@ public:
 
 private:
 
-    static unsigned int autoMagic = 0;
+    static inline unsigned int autoMagic = 0;
 
 };
 

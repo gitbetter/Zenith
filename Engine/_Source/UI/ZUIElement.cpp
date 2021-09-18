@@ -30,7 +30,6 @@
 #include "ZServices.hpp"
 #include "ZScene.hpp"
 #include "ZMesh.hpp"
-#include "ZAssetStore.hpp"
 #include "ZDomain.hpp"
 #include "ZUIButton.hpp"
 #include "ZUIImage.hpp"
@@ -56,13 +55,13 @@ ZIDSequence ZUIElement::idGenerator_;
 
 ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f), projectionMatrix_(1.f)
 {
-    id_ = "ZUI_" + std::to_string(idGenerator_.Next());
+    name_ = "ZUI_" + std::to_string(idGenerator_.Next());
     type_ = ZUIElementType::Unknown;
     SetPosition(position); SetSize(scale);
 }
 
 ZUIElement::ZUIElement(const ZUIElementOptions& options) : modelMatrix_(1.f), projectionMatrix_(1.f) {
-    id_ = "ZUI_" + std::to_string(idGenerator_.Next());
+    name_ = "ZUI_" + std::to_string(idGenerator_.Next());
     type_ = ZUIElementType::Unknown;
     options_ = options;
 }
@@ -127,9 +126,13 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
         return;
     }
 
-    id_ = node->id;
-
     ZOFPropertyMap props = node->properties;
+
+	if (props.find("name") != props.end() && props["name"]->HasValues())
+	{
+		std::shared_ptr<ZOFString> nameProp = props["name"]->Value<ZOFString>(0);
+		name_ = nameProp->value;
+	}
 
     if (props.find("positioning") != props.end() && props["positioning"]->HasValues())
     {
@@ -220,7 +223,7 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
     if (props.find("zIndex") != props.end() && props["zIndex"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> zIndexProp = props["zIndex"]->Value<ZOFNumber>(0);
-        id_ = id_.substr(0, id_.find("_")) + "_" + std::to_string(static_cast<int>(zIndexProp->value)) + id_.substr(id_.find("_"));
+        name_ = name_.substr(0, name_.find("_")) + "_" + std::to_string(static_cast<int>(zIndexProp->value)) + name_.substr(name_.find("_"));
     }
 
     Initialize();
@@ -514,7 +517,7 @@ bool ZUIElement::TrySelect(const glm::vec3& position)
 
         if (!selectedChild)
         {
-            std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(id_, position));
+            std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(name_, position));
             ZServices::EventAgent()->Queue(objectSelectEvent);
         }
 

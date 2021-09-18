@@ -44,64 +44,59 @@ ZMaterialBase::ZMaterialBase()
     name = "Material_" + std::to_string(idGenerator_.Next());
 }
 
-ZMaterialManager::ZMaterialManager()
-    : materialPool_(512)
-{
-}
-
 const std::string& ZMaterialManager::Name(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
-	const ZMaterialBase* material = materialPool_.Get(handle);
+	const ZMaterialBase* material = resourcePool_.Get(handle);
 	return material->name;
 }
 
 const ZTextureMap& ZMaterialManager::Textures(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
-	const ZMaterialBase* material = materialPool_.Get(handle);
+	const ZMaterialBase* material = resourcePool_.Get(handle);
 	return material->textures;
 }
 
 const ZHShader& ZMaterialManager::Shader(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
-	const ZMaterialBase* material = materialPool_.Get(handle);
+	const ZMaterialBase* material = resourcePool_.Get(handle);
 	return material->shader;
 }
 
 float ZMaterialManager::Alpha(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
-	const ZMaterialBase* material = materialPool_.Get(handle);
+	const ZMaterialBase* material = resourcePool_.Get(handle);
 	return material->properties.alpha;
 }
 
 bool ZMaterialManager::IsTextured(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
-	const ZMaterialBase* material = materialPool_.Get(handle);
+	const ZMaterialBase* material = resourcePool_.Get(handle);
 	return !material->textures.empty();
 }
 
 bool ZMaterialManager::HasDisplacement(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
-	const ZMaterialBase* material = materialPool_.Get(handle);
+	const ZMaterialBase* material = resourcePool_.Get(handle);
 	return material->hasDisplacement;
 }
 
 const std::shared_ptr<ZRenderStateGroup>& ZMaterialManager::RenderState(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
-	const ZMaterialBase* material = materialPool_.Get(handle);
+	const ZMaterialBase* material = resourcePool_.Get(handle);
 	return material->renderState;
 }
 
 void ZMaterialManager::SetShader(const ZHMaterial& handle, const ZHShader& shader)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
-    ZMaterialBase* material = materialPool_.Get(handle);
+    ZMaterialBase* material = resourcePool_.Get(handle);
 	material->shader = shader;
 
     ZRenderStateGroupWriter writer(material->renderState);
@@ -113,14 +108,14 @@ void ZMaterialManager::SetShader(const ZHMaterial& handle, const ZHShader& shade
 void ZMaterialManager::SetAlpha(const ZHMaterial& handle, float alpha)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
-	ZMaterialBase* material = materialPool_.Get(handle);
+	ZMaterialBase* material = resourcePool_.Get(handle);
 	material->properties.alpha = alpha;
 }
 
 void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& property, float value)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
-	ZMaterialBase* material = materialPool_.Get(handle);
+	ZMaterialBase* material = resourcePool_.Get(handle);
 
     if (property == "emission")
     {
@@ -177,7 +172,7 @@ void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& 
 void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& property, const glm::vec4& value)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
-	ZMaterialBase* material = materialPool_.Get(handle);
+	ZMaterialBase* material = resourcePool_.Get(handle);
 
     if (property == "albedo")
     {
@@ -189,7 +184,7 @@ void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& 
 void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& property, bool value)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
-	ZMaterialBase* material = materialPool_.Get(handle);
+	ZMaterialBase* material = resourcePool_.Get(handle);
 
     if (property == "hasDisplacement")
     {
@@ -201,7 +196,7 @@ void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& 
 void ZMaterialManager::AddTexture(const ZHMaterial& handle, const std::string& slot, const ZHTexture& texture)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
-	ZMaterialBase* material = materialPool_.Get(handle);
+	ZMaterialBase* material = resourcePool_.Get(handle);
 
     material->textures[slot] = texture;
 
@@ -231,7 +226,7 @@ ZHMaterial ZMaterialManager::CreateDefault()
 	materialProperties.metallic = 0.1f;
 	materialProperties.roughness = 0.75f;
 	materialProperties.ao = 0.3f;
-	return Create(materialProperties, ZServices::AssetStore()->BlinnPhongShader());
+	return Create(materialProperties, ZServices::ShaderManager()->BlinnPhongShader());
 }
 
 ZHMaterial ZMaterialManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
@@ -242,7 +237,7 @@ ZHMaterial ZMaterialManager::Deserialize(const ZOFHandle& dataHandle, std::share
     }
 
 	ZHMaterial handle(dataHandle.value);
-	ZMaterialBase* material = materialPool_.Restore(handle);
+	ZMaterialBase* material = resourcePool_.Restore(handle);
 
 	if (dataNode->properties.find("albedo") != dataNode->properties.end())
 	{
@@ -340,7 +335,7 @@ void ZMaterialManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared
     }
 
 	ZHMaterial handle(dataHandle.value);
-	ZMaterialBase* material = materialPool_.Restore(handle);
+	ZMaterialBase* material = resourcePool_.Restore(handle);
 
 	if (dataNode->properties.find("albedo") != dataNode->properties.end())
 	{
@@ -428,23 +423,10 @@ void ZMaterialManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared
 	Track(handle);
 }
 
-bool ZMaterialManager::IsLoaded(const std::string& name)
-{
-	return loadedMaterials_.find(name) != loadedMaterials_.end();
-}
-
-ZHMaterial ZMaterialManager::GetFromName(const std::string& name)
-{
-	if (loadedMaterials_.find(name) != loadedMaterials_.end()) {
-		return loadedMaterials_[name];
-	}
-	return ZHMaterial();
-}
-
 ZHMaterial ZMaterialManager::Create(const ZMaterialProperties& materialProperties, const ZHShader& shader)
 {
 	ZHMaterial handle;
-	ZMaterialBase* material = materialPool_.New(handle);
+	ZMaterialBase* material = resourcePool_.New(handle);
 
     material->properties = materialProperties;
 
@@ -468,8 +450,8 @@ ZHMaterial ZMaterialManager::Create(const ZMaterialProperties& materialPropertie
 ZHMaterial ZMaterialManager::Create(const ZTextureMap& textures, const ZHShader& shader)
 {
 	ZHMaterial handle;
-	ZMaterialBase* material = materialPool_.New(handle);
-    
+	ZMaterialBase* material = resourcePool_.New(handle);
+
 	UpdateUniformMaterial(handle);
 
 	ZRenderStateGroupWriter writer;
@@ -487,20 +469,13 @@ ZHMaterial ZMaterialManager::Create(const ZTextureMap& textures, const ZHShader&
 
 	Track(handle);
 
-    return handle;
-}
-
-void ZMaterialManager::Track(const ZHMaterial& handle)
-{
-	ZMaterialBase* material = materialPool_.Get(handle);
-	assert(material != nullptr && "Cannot track this material since it doesn't exist!");
-	loadedMaterials_[material->name] = handle;
+	return handle;
 }
 
 void ZMaterialManager::UpdateUniformMaterial(const ZHMaterial& handle)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
-	ZMaterialBase* material = materialPool_.Get(handle);
+	ZMaterialBase* material = resourcePool_.Get(handle);
 
     if (!material->uniformBuffer)
         material->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Material, sizeof(ZMaterialUniforms));

@@ -29,6 +29,7 @@
 
 #pragma once
 
+#include "ZResourceManager.hpp"
 #include "ZLight.hpp"
 
 class ZMaterial;
@@ -56,26 +57,19 @@ private:
 	static ZIDSequence idGenerator_;
 };
 
-class ZShaderManager
+class ZShaderManager : ZResourceManager<ZShader, ZHShader>
 {
-
-    using ZShaderPool = ZResourcePool<ZShader, ZHShader>;
-
 public:
 
-    ZShaderManager();
     ~ZShaderManager() = default;
 
-    void Initialize() { }
-    void CleanUp() { }
+    virtual void Initialize() override;
+    virtual void CleanUp() override { }
 
     ZHShader Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
     void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
     ZHShader Create(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "", const std::string& name = "", const ZHShader& restoreHandle = ZHShader());
     void CreateAsync(const std::string& vertexShaderPath, const std::string& pixelShaderPath, const std::string& geomShaderPath = "", const std::string& name = "", const ZHShader& restoreHandle = ZHShader());
-
-	bool IsLoaded(const std::string& name);
-    ZHShader GetFromName(const std::string& name);
 
     unsigned int ID(const ZHShader& handle);
     const std::string& Name(const ZHShader& handle);
@@ -113,19 +107,28 @@ public:
 	void AddAttachment(const ZHShader& handle, const std::string& uniformName, const ZHTexture& attachment);
 	void ClearAttachments(const ZHShader& handle);
 
+	const ZHShader& PBRShader() const { return pbrShader_; }
+	const ZHShader& BlinnPhongShader() const { return blinnPhongShader_; }
+	const ZHShader& ShadowShader() const { return shadowShader_; }
+	const ZHShader& DepthShader() const { return depthShader_; }
+	const ZHShader& PostShader() const { return postShader_; }
+	const ZHShader& TextShader() const { return textShader_; }
+	const ZHShader& UIShader() const { return uiShader_; }
+	const ZHShader& DebugShader() const { return debugShader_; }
 
 protected:
-
-	ZShaderPool shaderPool_;
-	ZShaderMap loadedShaders_;
 
     std::unordered_map<std::string, std::vector<ZHShader>> loadedShaderFiles_;
     std::unordered_map<unsigned int, unsigned short> shaderLoadMasks_;
 
-protected:
-
-	/** Adds a shader to the internal loaded shader map so that we don't accidentally recreate duplicates of the shader */
-	void Track(const ZHShader& handle);
+	ZHShader pbrShader_;
+	ZHShader blinnPhongShader_;
+	ZHShader debugShader_;
+	ZHShader shadowShader_;
+	ZHShader depthShader_;
+	ZHShader postShader_;
+	ZHShader uiShader_;
+	ZHShader textShader_;
 
 private:
 

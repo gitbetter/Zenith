@@ -30,50 +30,102 @@
 #include "ZServices.hpp"
 #include "ZScriptManager.hpp"
 #include "ZResourceData.hpp"
+#include "ZResourceLoadedEvent.hpp"
 
-void ZScriptManager::Load(std::shared_ptr<ZOFNode> zof)
+ZScript::ZScript()
 {
-    for (ZOFChildList::iterator it = zof->children.begin(); it != zof->children.end(); it++)
-    {
-        if (it->first.find("ZSCR") == 0)
-        {
-
-            std::shared_ptr<ZOFObjectNode> scriptNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-
-            ZOFPropertyMap props = scriptNode->properties;
-
-            if (props.find("path") != props.end() && props["path"]->HasValues())
-            {
-                std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
-                ZResourceData::ptr scriptResource = std::make_shared<ZResourceData>(prop->value, ZResourceType::Script);
-                ZServices::ResourceImporter()->GetData(scriptResource.get());
-                scripts_[it->first] = true;
-            }
-        }
-    }
+	name = "Script_" + idGenerator_.Next();
 }
 
-void ZScriptManager::LoadAsync(std::shared_ptr<ZOFNode> zof)
+std::string ZScriptManager::Name(const ZHScript& handle)
 {
-    for (ZOFChildList::iterator it = zof->children.begin(); it != zof->children.end(); it++)
-    {
-        if (it->first.find("ZSCR") == 0)
-        {
-
-            std::shared_ptr<ZOFObjectNode> scriptNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-
-            ZOFPropertyMap props = scriptNode->properties;
-
-            if (props.find("path") != props.end() && props["path"]->HasValues())
-            {
-                std::shared_ptr<ZOFString> prop = props["path"]->Value<ZOFString>(0);
-                ZResourceData::ptr scriptResource = std::make_shared<ZResourceData>(prop->value, ZResourceType::Script);
-                ZServices::ResourceImporter()->GetDataAsync(scriptResource);
-                // TODO: Create a ZScriptReadyEvent that we can catch in order to cache the script properly.
-                // Might also want to refactor the scripts into separate ZScript objects where we can store extra
-                // data.
-                scripts_[it->first] = true;
-            }
-        }
-    }
+	assert(!handle.IsNull() && "Cannot get property with a null script handle!");
+	ZScript* script = resourcePool_.Get(handle);
+	return script->name;
 }
+
+std::string ZScriptManager::Code(const ZHScript& handle)
+{
+	assert(!handle.IsNull() && "Cannot get property with a null script handle!");
+	ZScript* script = resourcePool_.Get(handle);
+	return script->code;
+}
+
+void ZScriptManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
+{
+	if (dataNode->type != ZOFObjectType::Script)
+	{
+		return;
+	}
+
+	ZHScript restoreHandle(dataHandle.value);
+	ZScript* script = nullptr;
+	if (restoreHandle.IsNull())
+	{
+		script = resourcePool_.New(restoreHandle);
+	}
+	else
+	{
+		script = resourcePool_.Restore(restoreHandle);
+	}
+
+	if (dataNode->properties.find("path") != dataNode->properties.end() && dataNode->properties["path"]->HasValues())
+	{
+		std::shared_ptr<ZOFString> prop = dataNode->properties["path"]->Value<ZOFString>(0);
+		ZScriptResourceData::ptr scriptResource = std::make_shared<ZScriptResourceData>(prop->value);
+		ZServices::ResourceImporter()->GetData(scriptResource.get());
+		script->code = scriptResource->code;
+		script->path = scriptResource->path;
+	}
+
+	Track(restoreHandle);
+}
+
+void ZScriptManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
+{
+	if (dataNode->type != ZOFObjectType::Script)
+	{
+		return;
+	}
+
+	ZHScript restoreHandle(dataHandle.value);
+
+    if (dataNode->properties.find("path") != dataNode->properties.end() && dataNode->properties["path"]->HasValues())
+    {
+        std::shared_ptr<ZOFString> prop = dataNode->properties["path"]->Value<ZOFString>(0);
+		ZScriptResourceData::ptr scriptResource = std::make_shared<ZScriptResourceData>(prop->value);
+		scriptResource->restoreHandle = restoreHandle;
+        ZServices::ResourceImporter()->GetDataAsync(scriptResource);
+    }
+
+	Track(restoreHandle);
+}
+
+void ZScriptManager::HandleScriptLoaded(const std::shared_ptr<class ZResourceLoadedEvent>& event)
+{
+	if (event->Resource() == nullptr)
+	{
+		return;
+	}
+
+	if (event->Resource()->type != ZResourceType::Script)
+	{
+		return;
+	}
+
+	ZScriptResourceData::ptr scriptData = std::static_pointer_cast<ZScriptResourceData>(event->Resource());
+	ZScript* script = nullptr;
+	if (scriptData->restoreHandle.IsNull())
+	{
+		script = resourcePool_.New(scriptData->restoreHandle);
+	}
+	else
+	{
+		script = resourcePool_.Restore(scriptData->restoreHandle);
+	}
+	script->code = scriptData->code;
+	script->path = scriptData->path;
+
+	Track(scriptData->restoreHandle);
+}
+

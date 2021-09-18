@@ -33,7 +33,6 @@
 #include "ZGLInput.hpp"
 #include "ZBulletPhysicsUniverse.hpp"
 #include "ZALAudio.hpp"
-#include "ZAssetStore.hpp"
 #include "ZIDSequence.hpp"
 #include "ZOFParser.hpp"
 

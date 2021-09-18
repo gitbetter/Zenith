@@ -30,6 +30,7 @@
 #pragma once
 
 #include "ZTexture.hpp"
+#include "ZResourceManager.hpp"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -50,25 +51,19 @@ struct ZFont
     ZAtlas atlas;
 };
 
-class ZFontManager
+class ZFontManager : public ZResourceManager<ZFont, ZHFont>
 {
-	using ZFontPool = ZResourcePool<ZFont, ZHFont>;
-
 public:
 
-    ZFontManager();
-	virtual ~ZFontManager() = default;
+	~ZFontManager() = default;
 
-	virtual void Initialize();
-	virtual void CleanUp();
+	virtual void Initialize() override;
+	virtual void CleanUp() override;
 
 	ZHFont Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
 	void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
 	virtual ZHFont Create(const std::string& fontPath, unsigned int fontSize);
 	virtual void CreateAsync(const std::string& fontPath, unsigned int fontSize);
-
-	bool IsLoaded(const std::string& name);
-	ZHFont GetFromName(const std::string& name);
 
 	const std::string& Name(const ZHFont& handle);
 	float Size(const ZHFont& handle);
@@ -79,18 +74,12 @@ public:
 
 protected:
 
-	ZFontPool fontPool_;
-	ZFontMap loadedFonts_;
-
 	std::unordered_map<std::string, unsigned int> pendingFontSizes_;
 
 	static FT_Library ft_;
 	static bool initialized_;
 
 protected:
-
-	/** Adds a font to the internal loaded font map so that we don't accidentally recreate duplicates of the font */
-	void Track(const ZHFont& handle);
 
 	static void InitializeFreeTypeIfNecessary();
 

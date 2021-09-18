@@ -43,92 +43,87 @@ ZTexture::ZTexture()
 	name = "Texture_" + idGenerator_.Next();
 }
 
-ZTextureManager::ZTextureManager()
-    : texturePool_(512)
-{
-}
-
 unsigned int ZTextureManager::PlatformHandle(const ZHTexture& handle)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	return texture->id;
 }
 
 std::string ZTextureManager::Name(const ZHTexture& handle)
 {
     assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
-    ZTexture* texture = texturePool_.Get(handle);
-    return texture->name;
+    ZTexture* texture = resourcePool_.Get(handle);
+	return texture->name;
 }
 
 std::string ZTextureManager::Type(const ZHTexture& handle)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	return texture->type;
 }
 
 std::string ZTextureManager::Path(const ZHTexture& handle)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	return texture->path;
 }
 
 bool ZTextureManager::IsMultisampled(const ZHTexture& handle)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	return texture->multisampled;
 }
 
 ZTextureWrapping ZTextureManager::Wrapping(const ZHTexture& handle)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	return texture->wrapping;
 }
 
 void ZTextureManager::SetPlatformHandle(const ZHTexture& handle, unsigned int pHandle)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	texture->id = pHandle;
 }
 
 void ZTextureManager::SetName(const ZHTexture& handle, const std::string& name)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	texture->name = name;
 }
 
 void ZTextureManager::SetType(const ZHTexture& handle, const std::string& type)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	texture->type = type;
 }
 
 void ZTextureManager::SetPath(const ZHTexture& handle, const std::string& path)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	texture->path = path;
 }
 
 void ZTextureManager::SetIsMultisampled(const ZHTexture& handle, bool multisampled)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	texture->multisampled = multisampled;
 }
 
 void ZTextureManager::SetWrapping(const ZHTexture& handle, ZTextureWrapping wrapping)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null texture handle!");
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	texture->wrapping = wrapping;
 }
 
@@ -218,7 +213,7 @@ ZHTexture ZTextureManager::Create()
 {
     // TODO: Switch on constant, variable or define to choose implementation
     ZHTexture handle;
-    ZTexture* texture = texturePool_.New(handle);
+    ZTexture* texture = resourcePool_.New(handle);
     return handle;
 }
 
@@ -253,30 +248,10 @@ ZIBLTextureData ZTextureManager::CreateIBL(const std::shared_ptr<ZFramebuffer>& 
     return generatedIBLTexture;
 }
 
-bool ZTextureManager::IsLoaded(const std::string& name)
-{
-    return loadedTextures_.find(name) != loadedTextures_.end();
-}
-
-ZHTexture ZTextureManager::GetFromName(const std::string& name)
-{
-	if (loadedTextures_.find(name) != loadedTextures_.end()) {
-		return loadedTextures_[name];
-	}
-	return ZHTexture();
-}
-
 ZHTexture ZTextureManager::Default()
 {
     static ZHTexture defaultTexture = CreateDefault();
     return defaultTexture;
-}
-
-void ZTextureManager::Track(const ZHTexture& handle)
-{
-    ZTexture* texture = texturePool_.Get(handle);
-    assert(texture != nullptr && "Cannot track this texture since it doesn't exist!");
-    loadedTextures_[texture->name] = handle;
 }
 
 void ZTextureManager::HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
@@ -294,7 +269,7 @@ void ZTextureManager::HandleTextureLoaded(const std::shared_ptr<ZResourceLoadedE
 
     std::shared_ptr<ZTextureResourceData> textureData = std::static_pointer_cast<ZTextureResourceData>(resource);
 
-    if (loadedTextures_.find(textureData->path) != loadedTextures_.end())
+    if (loadedResources_.find(textureData->path) != loadedResources_.end())
     {
         return;
     }

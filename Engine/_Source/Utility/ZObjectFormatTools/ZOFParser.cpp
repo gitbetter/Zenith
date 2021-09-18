@@ -123,9 +123,9 @@ void ZOFParser::Object(std::shared_ptr<ZOFNode> node)
     {
         // Push a new object node onto the tree
         std::shared_ptr<ZOFObjectNode> objectNode = std::make_shared<ZOFObjectNode>();
-        objectNode->id = currentToken_;
+        objectNode->id = ZOFHandle(std::stoi(currentToken_));
         objectNode->root = node;
-        node->children[objectNode->id] = objectNode;
+        node->children.push_back(std::make_pair(objectNode->id, objectNode));
 
         Match(id_); Match(">"); ObjectType(objectNode); PropsList(objectNode); Match("^");
     }
@@ -137,12 +137,12 @@ void ZOFParser::Object(std::shared_ptr<ZOFNode> node)
 
 void ZOFParser::ObjectType(std::shared_ptr<ZOFObjectNode> node)
 {
-	if (std::regex_match(currentToken_, id_))
+	if (std::regex_match(currentToken_, name_))
 	{
 		// Push a new object node onto the tree
         node->type = ZOFObjectNode::StringToType(currentToken_);
 
-		Match(id_);
+		Match(name_);
 	}
 	else
 	{
@@ -167,15 +167,15 @@ void ZOFParser::PropsList(std::shared_ptr<ZOFObjectNode> node)
 
 void ZOFParser::Prop(std::shared_ptr<ZOFObjectNode> objectNode)
 {
-    if (std::regex_match(currentToken_, id_))
+    if (std::regex_match(currentToken_, name_))
     {
         // Push a new prop onto the object node
         std::shared_ptr<ZOFPropertyNode> propNode = std::make_shared<ZOFPropertyNode>();
-        propNode->id = currentToken_;
+        propNode->name = currentToken_;
         propNode->root = objectNode->root;
         objectNode->properties[currentToken_] = propNode;
 
-        Match(id_); ValuesList(propNode); Match(":");
+        Match(name_); ValuesList(propNode); Match(":");
     }
     else
     {
@@ -197,7 +197,7 @@ void ZOFParser::Value(std::shared_ptr<ZOFPropertyNode> prop)
     {
         Match("["); List(prop); Match("]");
     }
-    else if (std::regex_match(currentToken_, id_))
+    else if (std::regex_match(currentToken_, name_))
     {
         // Push a new string onto the prop
         std::shared_ptr<ZOFString> terminal = std::make_shared<ZOFString>();
@@ -208,7 +208,7 @@ void ZOFParser::Value(std::shared_ptr<ZOFPropertyNode> prop)
         terminal->root = prop->root;
         prop->values.push_back(terminal);
 
-        Match(id_);
+        Match(name_);
     }
     else if (std::regex_match(currentToken_, number_))
     {
@@ -230,7 +230,7 @@ void ZOFParser::List(std::shared_ptr<ZOFPropertyNode> prop)
 {
     if (currentToken_ != "" && currentToken_ != "]")
     {
-        if (std::regex_match(currentToken_, id_))
+        if (std::regex_match(currentToken_, name_))
         {
             // Push a new list of strings onto the list
             std::shared_ptr<ZOFStringList> terminal = std::make_shared<ZOFStringList>();
@@ -240,7 +240,7 @@ void ZOFParser::List(std::shared_ptr<ZOFPropertyNode> prop)
             terminal->root = prop->root;
             prop->values.push_back(terminal);
 
-            Match(id_); ListTail(terminal);
+            Match(name_); ListTail(terminal);
         }
         else if (std::regex_match(currentToken_, number_))
         {
@@ -267,7 +267,7 @@ void ZOFParser::ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal)
         {
             Match(","); ListTail(terminal);
         }
-        else if (std::regex_match(currentToken_, id_))
+        else if (std::regex_match(currentToken_, name_))
         {
             // Push a new string onto the list of strings
             std::shared_ptr<ZOFStringList> term = std::static_pointer_cast<ZOFStringList>(terminal);
@@ -278,7 +278,7 @@ void ZOFParser::ListTail(std::shared_ptr<ZOFAbstractTerminal> terminal)
                 term->value.push_back(s);
             }
 
-            Match(id_), ListTail(term);
+            Match(name_), ListTail(term);
         }
         else if (std::regex_match(currentToken_, number_))
         {

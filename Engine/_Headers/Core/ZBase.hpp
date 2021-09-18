@@ -29,16 +29,12 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
 class ZDomain;
 class ZPhysicsUniverse;
 class ZAudio;
-class ZAssetStore;
 
-// Definitions
 class ZBase
 {
 

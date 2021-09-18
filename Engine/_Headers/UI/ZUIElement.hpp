@@ -49,21 +49,17 @@ std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::
     return element;\
 }
 
-// Includes
 #include "ZTexture.hpp"
 #include "ZProcess.hpp"
 #include "ZUIHelpers.hpp"
 #include "ZOFTree.hpp"
 
-// Forward Declarations
 class ZScene;
 class ZMesh2D;
 class ZUILayout;
 class ZUniformBuffer;
 class ZRenderStateGroup;
 class ZWindowResizeEvent;
-
-// Class and Data Structure Definitions
 
 struct ZUIBorder
 {
@@ -216,8 +212,6 @@ public:
 
 protected:
 
-    bool                                     dirty_;
-    bool                                     renderable_;
     std::weak_ptr<ZUIElement>                parent_;
     std::weak_ptr<ZScene>                    scene_;
     glm::mat4                                modelMatrix_;
@@ -225,6 +219,7 @@ protected:
     ZUIElementMap                            children_;
     ZUIElementType                           type_;
     ZUIElementOptions                        options_;
+    std::string                              name_;
 
     std::shared_ptr<ZUniformBuffer>          uniformBuffer_;
     std::shared_ptr<ZRenderStateGroup>       renderState_;

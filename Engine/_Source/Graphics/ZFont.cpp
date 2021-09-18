@@ -35,11 +35,6 @@
 FT_Library ZFontManager::ft_ = nullptr;
 bool ZFontManager::initialized_ = false;
 
-ZFontManager::ZFontManager()
-    : fontPool_(512)
-{
-}
-
 void ZFontManager::Initialize()
 {
 	ZServices::EventAgent()->Subscribe(this, &ZFontManager::HandleFontLoaded);
@@ -62,28 +57,28 @@ void ZFontManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr
 const std::string& ZFontManager::Name(const ZHFont& handle)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null font handle!");
-	ZFont* font = fontPool_.Get(handle);
+	ZFont* font = resourcePool_.Get(handle);
 	return font->name;
 }
 
 float ZFontManager::Size(const ZHFont& handle)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null font handle!");
-	ZFont* font = fontPool_.Get(handle);
+	ZFont* font = resourcePool_.Get(handle);
 	return font->size;
 }
 
 ZAtlas ZFontManager::Atlas(const ZHFont& handle)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null font handle!");
-	ZFont* font = fontPool_.Get(handle);
+	ZFont* font = resourcePool_.Get(handle);
 	return font->atlas;
 }
 
 ZCharacter ZFontManager::Character(const ZHFont& handle, unsigned char c)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null font handle!");
-	ZFont* font = fontPool_.Get(handle);
+	ZFont* font = resourcePool_.Get(handle);
 	return font->atlas.characterInfo[c];
 }
 
@@ -103,26 +98,6 @@ void ZFontManager::CreateAsync(const std::string& fontPath, unsigned int fontSiz
 	ZResourceData::ptr resource = std::make_shared<ZResourceData>(fontPath, ZResourceType::Font);
 	pendingFontSizes_[fontPath] = fontSize;
 	ZServices::ResourceImporter()->GetDataAsync(resource);
-}
-
-bool ZFontManager::IsLoaded(const std::string& name)
-{
-	return loadedFonts_.find(name) != loadedFonts_.end();
-}
-
-ZHFont ZFontManager::GetFromName(const std::string& name)
-{
-	if (loadedFonts_.find(name) != loadedFonts_.end()) {
-		return loadedFonts_[name];
-	}
-	return ZHFont();
-}
-
-void ZFontManager::Track(const ZHFont& handle)
-{
-	ZFont* font = fontPool_.Get(handle);
-	assert(font != nullptr && "Cannot track this font since it doesn't exist!");
-	loadedFonts_[font->name] = handle;
 }
 
 void ZFontManager::InitializeFreeTypeIfNecessary()

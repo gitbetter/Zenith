@@ -4,6 +4,7 @@ set(ENGINE_HEADERS_DIR ${ENGINE_DIRECTORY}/_Headers)
 set(ENGINE_SOURCE_DIR ${ENGINE_DIRECTORY}/_Source)
 
 set(ENGINE_SOURCES
+${ENGINE_SOURCE_DIR}/Utility/ZAssetLoadProgressTracker.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZUIHelpers.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZStringHelpers.cpp
 ${ENGINE_SOURCE_DIR}/Utility/ZEasing.cpp
@@ -40,6 +41,7 @@ ${ENGINE_SOURCE_DIR}/Input/ZGLInput.cpp
 ${ENGINE_SOURCE_DIR}/Input/ZInput.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceManager/ZHandle.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceManager/ZResourcePool.cpp
+${ENGINE_SOURCE_DIR}/Memory/ResourceManager/ZResourceManager.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZWavResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZScriptResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZOggResourceLoader.cpp
@@ -90,7 +92,6 @@ ${ENGINE_SOURCE_DIR}/Graphics/ZDomain.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZVertexBuffer.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZUniformBuffer.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/ZFramebuffer.cpp
-${ENGINE_SOURCE_DIR}/Graphics/ZAssetStore.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/Renderer/ZRenderPass.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/Renderer/ZDrawCall.cpp
 ${ENGINE_SOURCE_DIR}/Graphics/Renderer/ZRenderStateGroup.cpp
@@ -145,11 +146,9 @@ ${ENGINE_SOURCE_DIR}/Audio/ZAudioSource.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZAudio.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZALAudio.cpp
 ${ENGINE_SOURCE_DIR}/Audio/ZALAudioSource.cpp
-${ENGINE_SOURCE_DIR}/Animation/ZSkeleton.cpp
 ${ENGINE_SOURCE_DIR}/Animation/ZAnimation.cpp
 ${ENGINE_SOURCE_DIR}/Analysis/ZFrameProfiler.cpp
 ${ENGINE_HEADERS_DIR}/Analysis/ZFrameProfiler.hpp
-${ENGINE_HEADERS_DIR}/Animation/ZSkeleton.hpp
 ${ENGINE_HEADERS_DIR}/Audio/ZAudioSource.hpp
 ${ENGINE_HEADERS_DIR}/Audio/ZAudio.hpp
 ${ENGINE_HEADERS_DIR}/Audio/ZALAudio.hpp
@@ -210,7 +209,6 @@ ${ENGINE_HEADERS_DIR}/Graphics/ZTexture.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZVertexBuffer.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZUniformBuffer.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/ZFramebuffer.hpp
-${ENGINE_HEADERS_DIR}/Graphics/ZAssetStore.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/Acceleration/ZBVH.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/Acceleration/ZAABBox.hpp
 ${ENGINE_HEADERS_DIR}/Graphics/Acceleration/ZFrustum.hpp
@@ -264,6 +262,7 @@ ${ENGINE_HEADERS_DIR}/Memory/ResourceLoaders/ZWavResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceLoaders/ZOggResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceManager/ZHandle.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceManager/ZResourcePool.hpp
+${ENGINE_HEADERS_DIR}/Memory/ResourceManager/ZResourceManager.hpp
 ${ENGINE_HEADERS_DIR}/Scripting/ZLuaScriptManager.hpp
 ${ENGINE_HEADERS_DIR}/Scripting/ZScriptManager.hpp
 ${ENGINE_HEADERS_DIR}/UI/ZUILayout.hpp
@@ -291,6 +290,7 @@ ${ENGINE_HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFParser.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZObjectFormatTools/ZOFTree.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZModelImporter.hpp
 ${ENGINE_HEADERS_DIR}/Utility/ZImageImporter.hpp
+${ENGINE_HEADERS_DIR}/Utility/ZAssetLoadProgressTracker.hpp
 )
 
 SET(ENGINE_INCLUDES

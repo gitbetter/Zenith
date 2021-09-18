@@ -29,12 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZModel.hpp"
 
-// Forward Declarations
-
-// Class Definitions
 class ZCylinder : public ZModel
 {
 

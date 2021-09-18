@@ -440,8 +440,6 @@ class ZMaterial;
 class ZProcess;
 class ZEvent;
 class ZLight;
-class ZAssetStore;
-struct ZAnimation;
 struct ZBone;
 struct ZCursor;
 struct ZVertex3D;
@@ -473,39 +471,6 @@ using ZHAudio = ZHandle<AudioTag>;
 
 struct ScriptTag { };
 using ZHScript = ZHandle<ScriptTag>;
-
-using ZGameObjectMap = std::unordered_map<std::string, std::shared_ptr<ZGameObject>>;
-using ZLightMap = std::unordered_map<std::string, std::shared_ptr<ZLight>>;
-using ZUIElementMap = std::unordered_map<std::string, std::shared_ptr<ZUIElement>>;
-using ZShaderMap = std::unordered_map<std::string, ZHShader>;
-using ZModelMap = std::unordered_map<std::string, ZHModel>;
-using ZFontMap = std::unordered_map<std::string, ZHFont>;
-using ZMaterialMap = std::unordered_map<std::string, ZHMaterial>;
-using ZShaderIDMap = std::unordered_map<ZHShader, std::string>;
-using ZModelIDMap = std::unordered_map<unsigned int, std::string>;
-using ZTextureIDMap = std::unordered_map<ZHTexture, std::string>;
-using ZFontIDMap = std::unordered_map<unsigned int, std::string>;
-using ZMaterialIDMap = std::unordered_map<unsigned int, std::string>;
-using ZTextureMap = std::unordered_map<std::string, ZHTexture>;
-using ZMesh3DMap = std::unordered_map<std::string, ZMesh3D>;
-using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
-using ZLightList = std::vector<std::shared_ptr<ZLight>>;
-using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
-using ZUIElementList = std::vector<std::shared_ptr<ZUIElement>>;
-using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
-using ZCollisionPair = std::pair<ZGameObject*, ZGameObject*>;
-using ZCollisionPairs = std::set<ZCollisionPair>;
-using ZAnimationMap = std::map<std::string, ZAnimation>;
-using ZBoneMap = std::map<std::string, unsigned int>;
-using ZIDMap = std::unordered_map<std::string, unsigned int>;
-using ZBoneList = std::vector<ZBone>;
-using ZMaterialList = std::vector<ZHMaterial>;
-using ZTextureList = std::array<ZHTexture, MAX_TEXTURE_SLOTS>;
-using ZUBOList = std::array<std::shared_ptr<ZUniformBuffer>, MAX_UBO_SLOTS>;
-using ZTimedUpdateCallback = std::function<void(float)>;
-using ZTypeIdentifier = unsigned long;
-using ZVertex3DList = std::vector<ZVertex3D>;
-using ZVertex2DList = std::vector<ZVertex2D>;
 
 enum ZPriority
 {
@@ -651,7 +616,9 @@ enum class ZFaceCullState
 
 enum class ZOFObjectType
 {
-    Any = 0, GameObject, Light, Camera, Grass, Material, Texture, Shader, Scene, Model, Skybox
+    Any = 0, GameObject, Light, Camera, Grass, Material, Texture,
+    Shader, Scene, Model, Skybox, Script, Audio, Font, UI,
+    GraphicsComponent, PhysicsComponent, ColliderComponent, AnimatorComponent
 };
 
 struct Light {
@@ -669,6 +636,25 @@ struct Light {
     alignas(sizeof(float)) unsigned int lightType;
     float padding[1];
 };
+
+struct ZMaterialProperties
+{
+	glm::vec4 albedo;
+	float alpha{ 1.f };
+	float tiling{ 1.f };
+	float emission;
+	float ambient;
+	float diffuse;
+	float specular;
+	float shininess;
+	float metallic;
+	float roughness;
+	float ao;
+	float padding[2];
+};
+
+using ZVertex3DList = std::vector<ZVertex3D>;
+using ZVertex2DList = std::vector<ZVertex2D>;
 
 struct ZVertex3D
 {
@@ -773,12 +759,6 @@ struct ZCharacter
     float xOffset;
 };
 
-struct ZOFLoadResult
-{
-    ZGameObjectList gameObjects;
-    ZUIElementList uiElements;
-};
-
 struct ZWavFormatDesc
 {
     unsigned short formatTag;
@@ -840,6 +820,73 @@ struct ZVertex2DDataOptions
     ZVertex2DList vertices;
     unsigned int numVertices;
     ZInstancedDataOptions instanced;
+};
+
+template<class T>
+struct ZAnimationKey
+{
+	double time;
+	T value;
+};
+
+struct ZJointAnimation
+{
+	std::string jointName;
+	std::vector<ZAnimationKey<glm::vec3>> scalingKeys;
+	std::vector<ZAnimationKey<glm::quat>> rotationKeys;
+	std::vector<ZAnimationKey<glm::vec3>> positionKeys;
+
+	inline bool IsValid() const { return !jointName.empty(); }
+};
+
+struct ZAnimation
+{
+	std::string name;
+	double ticksPerSecond;
+	double duration;
+	std::vector<ZJointAnimation> channels;
+};
+
+struct ZAnimationClip
+{
+	std::string name;
+	double startTime;
+	double endTime;
+	double currentTime;
+	ZHModel model;
+	ZAnimationState state;
+};
+
+struct ZJoint
+{
+	std::string name;
+	glm::mat4 transform;
+	ZJoint* parent = nullptr;
+	std::vector<std::shared_ptr<ZJoint>> children;
+
+	ZJoint()
+	{
+		transform = glm::mat4(1.f);
+	}
+};
+
+struct ZBone
+{
+	glm::mat4 offset;
+	glm::mat4 transformation;
+	std::string name;
+
+	ZBone(const std::string& name = "")
+	{
+		this->offset = glm::mat4(1.f);
+		this->transformation = glm::mat4(1.f);
+		this->name = name;
+	}
+};
+
+struct ZSkeleton
+{
+	std::shared_ptr<ZJoint> rootJoint;
 };
 
 struct ZGameSystems
@@ -970,6 +1017,38 @@ struct ZMaterialUniforms
     alignas(sizeof(float)) bool isTextured;
     alignas(sizeof(float)) bool hasDisplacement;
 };
+
+using ZGameObjectMap = std::unordered_map<std::string, std::shared_ptr<ZGameObject>>;
+using ZLightMap = std::unordered_map<std::string, std::shared_ptr<ZLight>>;
+using ZUIElementMap = std::unordered_map<std::string, std::shared_ptr<ZUIElement>>;
+using ZShaderMap = std::unordered_map<std::string, ZHShader>;
+using ZModelMap = std::unordered_map<std::string, ZHModel>;
+using ZFontMap = std::unordered_map<std::string, ZHFont>;
+using ZMaterialMap = std::unordered_map<std::string, ZHMaterial>;
+using ZScriptMap = std::unordered_map<std::string, ZHScript>;
+using ZShaderIDMap = std::unordered_map<ZHShader, std::string>;
+using ZModelIDMap = std::unordered_map<unsigned int, std::string>;
+using ZTextureIDMap = std::unordered_map<ZHTexture, std::string>;
+using ZFontIDMap = std::unordered_map<unsigned int, std::string>;
+using ZMaterialIDMap = std::unordered_map<unsigned int, std::string>;
+using ZTextureMap = std::unordered_map<std::string, ZHTexture>;
+using ZMesh3DMap = std::unordered_map<std::string, ZMesh3D>;
+using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
+using ZLightList = std::vector<std::shared_ptr<ZLight>>;
+using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
+using ZUIElementList = std::vector<std::shared_ptr<ZUIElement>>;
+using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
+using ZCollisionPair = std::pair<ZGameObject*, ZGameObject*>;
+using ZCollisionPairs = std::set<ZCollisionPair>;
+using ZAnimationMap = std::map<std::string, ZAnimation>;
+using ZBoneMap = std::map<std::string, unsigned int>;
+using ZIDMap = std::unordered_map<std::string, unsigned int>;
+using ZBoneList = std::vector<ZBone>;
+using ZMaterialList = std::vector<ZHMaterial>;
+using ZTextureList = std::array<ZHTexture, MAX_TEXTURE_SLOTS>;
+using ZUBOList = std::array<std::shared_ptr<ZUniformBuffer>, MAX_UBO_SLOTS>;
+using ZTimedUpdateCallback = std::function<void(float)>;
+using ZTypeIdentifier = unsigned long;
 
 // TODO: Is there a better way we can write this type trait?
 template<typename T>

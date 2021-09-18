@@ -42,7 +42,7 @@ struct ZOFPropertyNode;
 struct ZOFAbstractTerminal
 {
 	std::shared_ptr<ZOFNode> root;
-	virtual ~ZOFAbstractTerminal() {};
+	virtual ~ZOFAbstractTerminal() = default;
 	virtual std::string ToString() { return ""; }
 };
 
@@ -50,6 +50,9 @@ template<class T>
 struct ZOFValueTerminal : public ZOFAbstractTerminal
 {
 	T value;
+    ZOFValueTerminal(const T& val)
+        : value(val)
+    { }
 	~ZOFValueTerminal() {}
 
 	std::string ToString() override { return ""; }
@@ -58,6 +61,7 @@ struct ZOFValueTerminal : public ZOFAbstractTerminal
 using ZOFHandle = ZOFValueTerminal<unsigned int>;
 using ZOFNumber = ZOFValueTerminal<float>;
 using ZOFString = ZOFValueTerminal<std::string>;
+using ZOFHandleList = ZOFValueTerminal<std::vector<unsigned int>>;
 using ZOFNumberList = ZOFValueTerminal<std::vector<float>>;
 using ZOFStringList = ZOFValueTerminal<std::vector<std::string>>;
 using ZOFChildList = std::vector<std::pair<ZOFHandle, std::shared_ptr<ZOFNode>>>;
@@ -66,7 +70,7 @@ using ZOFAbstractTerminalList = std::vector<std::shared_ptr<ZOFAbstractTerminal>
 
 struct ZOFNode
 {
-    std::string id;
+    ZOFHandle id;
     std::shared_ptr<ZOFNode> root;
     ZOFChildList children;
 
@@ -88,6 +92,7 @@ struct ZOFNode
 
 struct ZOFPropertyNode : public ZOFNode
 {
+    std::string name;
     ZOFAbstractTerminalList values;
 
     ~ZOFPropertyNode()
@@ -111,7 +116,7 @@ struct ZOFPropertyNode : public ZOFNode
 
     std::string ToString() override
     {
-        std::string propString = "\t:" + id;
+        std::string propString = "\t:" + std::to_string(id.value);
         for (std::shared_ptr<ZOFAbstractTerminal> val : values) propString += val->ToString();
         propString += ZOFNode::ToString();
         propString += ":" + NEWLINE;
@@ -131,7 +136,7 @@ struct ZOFObjectNode : public ZOFNode
 
     std::string ToString() override
     {
-        std::string objString = id + NEWLINE;
+        std::string objString = std::to_string(id.value) + NEWLINE;
         for (ZOFPropertyMap::iterator it = properties.begin(); it != properties.end(); it++)
             objString += it->second->ToString();
         objString += ZOFNode::ToString();

@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZScriptReadyEvent.hpp
+	ZResourceManager.cpp
 
-    Created by Adrian Sanchez on 12/05/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 09/15/2021.
+	Copyright Â© 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,31 +27,4 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-// Includes
-#include "ZEvent.hpp"
-
-// Forward Declarations
-
-// Class and Data Structure Definitions
-class ZScriptReadyEvent : public ZEvent
-{
-
-    ZHScript script_;
-
-public:
-
-    static const ZTypeIdentifier Type;
-
-    explicit ZScriptReadyEvent(const ZHScript& script) : script_(script) {}
-    explicit ZScriptReadyEvent(std::istringstream& in) {}
-
-    const ZTypeIdentifier& EventType() const override { return Type; };
-    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZScriptReadyEvent>(new ZScriptReadyEvent(script_)); }
-    void Serialize(std::ostringstream& out) const override {}
-    std::string Name() const override { return "ZScriptReadyEvent"; }
-
-    ZHScript Script() const { return script_; }
-
-};
+#include "ZResourceManager.hpp"

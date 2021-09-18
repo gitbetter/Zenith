@@ -30,28 +30,13 @@
 #pragma once
 
 #include "ZCommon.hpp"
+#include "ZResourceManager.hpp"
 #include "ZOFTree.hpp"
 
 class ZTextureReadyEvent;
 class ZShaderReadyEvent;
 class ZRenderStateGroup;
 class ZUniformBuffer;
-
-struct ZMaterialProperties
-{
-	glm::vec4 albedo;
-	float alpha{ 1.f };
-	float tiling{ 1.f };
-	float emission;
-	float ambient;
-	float diffuse;
-	float specular;
-	float shininess;
-	float metallic;
-	float roughness;
-	float ao;
-    float padding[2];
-};
 
 struct ZMaterialBase
 {
@@ -73,26 +58,19 @@ private:
 
 };
 
-class ZMaterialManager
+class ZMaterialManager : public ZResourceManager<ZMaterialBase, ZHMaterial>
 {
-
-	using ZMaterialPool = ZResourcePool<ZMaterialBase, ZHMaterial>;
-
 public:
 
-    ZMaterialManager();
     virtual ~ZMaterialManager() = default;
 
-    void Initialize() { }
-    void CleanUp() { }
+	virtual void Initialize() override { }
+	virtual void CleanUp() override { }
 
     ZHMaterial Create(const ZMaterialProperties& materialProperties, const ZHShader& shader = ZHShader());
     ZHMaterial Create(const ZTextureMap& textures, const ZHShader& shader = ZHShader());
     ZHMaterial Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
     void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
-
-	bool IsLoaded(const std::string& name);
-    ZHMaterial GetFromName(const std::string& name);
 
     const std::string& Name(const ZHMaterial& handle) const;
     const ZTextureMap& Textures(const ZHMaterial& handle) const;
@@ -117,15 +95,9 @@ public:
 
 protected:
 
-	ZMaterialPool materialPool_;
-	ZMaterialMap loadedMaterials_;
-
     std::unordered_map<std::string, std::string> pendingTextures_;
 
 protected:
-
-	/** Adds a material to the internal loaded material map so that we don't accidentally recreate duplicates of the material */
-	void Track(const ZHMaterial& handle);
 
     void UpdateUniformMaterial(const ZHMaterial& handle);
 

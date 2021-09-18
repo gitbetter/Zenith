@@ -77,6 +77,12 @@ void ZResourceLoadTask::Run()
         modelData->meshMap = importer.LoadModel(modelData.get(), modelData->boneMap, modelData->boneList, modelData->animationMap, modelData->skeleton, modelDirectory);
         break;
     }
+    case ZResourceType::Script:
+    {
+		std::shared_ptr<ZScriptResourceData> scriptData = std::static_pointer_cast<ZScriptResourceData>(resource_);
+        scriptData->code = std::string(static_cast<char*>(resource_->buffer));
+        break;
+    }
     default: break;
     }
 
