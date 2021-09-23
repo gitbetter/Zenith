@@ -433,7 +433,6 @@ class ZIDSequence;
 class ZScene;
 class ZGameObject;
 class ZComponent;
-class ZUIElement;
 class ZModel;
 class ZMesh3D;
 class ZMaterial;
@@ -471,6 +470,9 @@ using ZHAudio = ZHandle<AudioTag>;
 
 struct ScriptTag { };
 using ZHScript = ZHandle<ScriptTag>;
+
+struct UIElementTag { };
+using ZHUIElement = ZHandle<UIElementTag>;
 
 enum ZPriority
 {
@@ -1020,7 +1022,7 @@ struct ZMaterialUniforms
 
 using ZGameObjectMap = std::unordered_map<std::string, std::shared_ptr<ZGameObject>>;
 using ZLightMap = std::unordered_map<std::string, std::shared_ptr<ZLight>>;
-using ZUIElementMap = std::unordered_map<std::string, std::shared_ptr<ZUIElement>>;
+using ZUIElementMap = std::unordered_map<std::string, ZHUIElement>;
 using ZShaderMap = std::unordered_map<std::string, ZHShader>;
 using ZModelMap = std::unordered_map<std::string, ZHModel>;
 using ZFontMap = std::unordered_map<std::string, ZHFont>;
@@ -1036,7 +1038,7 @@ using ZMesh3DMap = std::unordered_map<std::string, ZMesh3D>;
 using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
 using ZLightList = std::vector<std::shared_ptr<ZLight>>;
 using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
-using ZUIElementList = std::vector<std::shared_ptr<ZUIElement>>;
+using ZUIElementList = std::vector<ZHUIElement>;
 using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
 using ZCollisionPair = std::pair<ZGameObject*, ZGameObject*>;
 using ZCollisionPairs = std::set<ZCollisionPair>;

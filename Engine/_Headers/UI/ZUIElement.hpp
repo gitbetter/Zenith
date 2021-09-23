@@ -49,14 +49,12 @@ std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::
     return element;\
 }
 
-#include "ZTexture.hpp"
-#include "ZProcess.hpp"
+#include "ZUILayout.hpp"
 #include "ZUIHelpers.hpp"
 #include "ZOFTree.hpp"
 
 class ZScene;
 class ZMesh2D;
-class ZUILayout;
 class ZUniformBuffer;
 class ZRenderStateGroup;
 class ZWindowResizeEvent;
@@ -97,147 +95,163 @@ struct ZUIElementOptions
     std::shared_ptr<ZUILayout>               layout;
 };
 
-class ZUIElement : public ZProcess, public std::enable_shared_from_this<ZUIElement>
+struct ZUIElement
 {
 
-    friend class ZScene;
-    friend class ZUI;
+    ZHUIElement                              parent;
+    std::weak_ptr<ZScene>                    scene;
+    glm::mat4                                modelMatrix;
+    glm::mat4                                projectionMatrix;
+    ZUIElementMap                            children;
+    ZUIElementType                           type;
+    ZUIElementOptions                        options;
+    std::string                              name;
 
-public:
+    std::shared_ptr<ZUniformBuffer>          uniformBuffer;
+    std::shared_ptr<ZRenderStateGroup>       renderState;
 
-    ZUIElement(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
-    ZUIElement(const ZUIElementOptions& options);
-    virtual ~ZUIElement();
-
-    virtual void                        Initialize() override;
-    virtual void                        Initialize(const std::shared_ptr<ZOFNode>& root);
-
-    virtual void                        Prepare(double deltaTime, unsigned int zOrder = 0);
-    virtual unsigned int                PrepareChildren(double deltaTime, unsigned int zOrder = 0);
-
-    ZUIElementType                      Type() const { return type_; }
-    bool                                Enabled() const { return options_.enabled; }
-    bool                                Hidden() const { return  options_.hidden; }
-    bool                                Selected() const { return  options_.selected; }
-    bool                                Flipped() const { return options_.flipped; }
-    ZPositioning                        Positioning() const { return options_.positioning; }
-    ZPositioning                        Scaling() const { return options_.scaling; }
-    glm::vec2                           Position() const { return options_.rect.position; }
-    glm::vec2                           Size() const { return options_.rect.size; }
-    glm::vec2                           MaxSize() const { return options_.maxSize; }
-    ZRect                               Rect() const { return options_.rect; }
-    ZRect                               CalculatedRect() const { return options_.calculatedRect; }
-    glm::vec2                           Padding() const { return options_.padding; }
-    float                               Angle() const { return options_.orientation; }
-    glm::vec4                           Color() const { return  options_.color; }
-    float                               Opacity() const { return  options_.opacity; }
-    glm::vec4                           TranslationBounds() const { return  options_.translationBounds; }
-    const ZHTexture&                    Texture() const { return  options_.texture; }
-    const ZUIBorder&                    Border() const { return options_.border; }
-    const ZHShader&                     Shader() const { return  options_.shader; }
-    const ZUIElementMap&                Children() const { return children_; }
-    const std::shared_ptr<ZUILayout>&   Layout() const { return options_.layout; }
-    glm::mat4                           ModelMatrix() const { return modelMatrix_; }
-    glm::mat4                           ProjectionMatrix() const { return projectionMatrix_; }
-    ZUIElementOptions                   Options() const { return options_; }
-    ZRect                               PaddedRect() const;
-    std::shared_ptr<ZUIElement>         Parent() const;
-    std::shared_ptr<ZScene>             Scene() const;
-
-    void                                SetPositioning(const ZPositioning& positioning) { options_.positioning = positioning; }
-    void                                SetScaling(const ZPositioning& scaling) { options_.scaling = scaling; }
-    void                                SetPadding(const glm::vec2& padding);
-    void                                SetRect(const ZRect& rect, const ZRect& relativeTo = ZRect());
-    void                                SetSize(const glm::vec2& size, const ZRect& relativeTo = ZRect());
-    void                                SetMaxSize(const glm::vec2& size);
-    void                                SetPosition(const glm::vec2& position, const ZRect& relativeTo = ZRect());
-    void                                SetRotation(float angle);
-    void                                SetTexture(const ZHTexture& texture);
-    void                                SetBorder(const ZUIBorder& border);
-    virtual void                        SetColor(const glm::vec4& newColor);
-    void                                SetOpacity(float opacity, bool relativeToAlpha = false);
-    void                                SetTranslationBounds(float left, float right, float bottom, float top);
-    void                                SetShader(const ZHShader& shader);
-    void                                SetLayout(const std::shared_ptr<ZUILayout>& layout) { options_.layout = layout; }
-    void                                SetParent(std::shared_ptr<ZUIElement> parent) { parent_ = parent; }
-    void                                SetScene(const std::shared_ptr<ZScene> scene) { scene_ = scene; }
-    void                                SetFlipped(bool flipped);
-    void                                SetZOrder(unsigned int zOrder);
-
-    void                                ResetModelMatrix() { modelMatrix_ = glm::mat4(1.f); }
-    void                                Translate(const glm::vec2& translation);
-    void                                Rotate(float angle);
-    void                                Scale(const glm::vec2& factor);
-
-    void                                Hide() { options_.hidden = true; }
-    void                                Show() { options_.hidden = false; }
-    void                                Enable() { options_.enabled = true; }
-    void                                Disable() { options_.enabled = false; }
-    void                                Select() { options_.selected = options_.enabled; }
-    void                                Deselect() { options_.selected = false; }
-
-    bool                                HasChildren() const { return !children_.empty(); }
-    virtual void                        AddChild(const std::shared_ptr<ZUIElement>& element);
-    void                                RemoveChild(const std::shared_ptr<ZUIElement>& element, bool recurse = false);
-    void                                DoRecursiveChildUpdate(std::function<void(std::shared_ptr<ZUIElement>)> callback);
-    void                                RemoveParent();
-
-    virtual std::shared_ptr<ZMesh2D>    ElementShape();
-
-    bool                                TrySelect(const glm::vec3& position);
-    bool                                Contains(const glm::vec2& point);
-
-    void                                CleanUp() override;
-
-    template<class T>
-    std::shared_ptr<T> Child(const std::string& id)
-    {
-        if (!std::is_base_of<ZUIElement, T>::value) return nullptr;
-
-        std::shared_ptr<T> el;
-        for (auto it = children_.begin(); it != children_.end(); it++)
-        {
-            if ((el = std::dynamic_pointer_cast<T>(it->second)) && zenith::strings::HasSuffix(it->first, id))
-            {
-                return el;
-            }
-            el = nullptr;
-        }
-
-        return el;
-    }
-
-    static ZUIElementList               Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
-    static std::shared_ptr<ZUIElement>  Create(const std::string& type);
-
-protected:
-
-    std::weak_ptr<ZUIElement>                parent_;
-    std::weak_ptr<ZScene>                    scene_;
-    glm::mat4                                modelMatrix_;
-    glm::mat4                                projectionMatrix_;
-    ZUIElementMap                            children_;
-    ZUIElementType                           type_;
-    ZUIElementOptions                        options_;
-    std::string                              name_;
-
-    std::shared_ptr<ZUniformBuffer>          uniformBuffer_;
-    std::shared_ptr<ZRenderStateGroup>       renderState_;
+	ZUIElement();
     
-    static ZIDSequence                       idGenerator_;
-
-    virtual void                        OnRectChanged() { };
-
-    void                                LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force = false);
-    void                                LayoutChildren(const std::shared_ptr<ZUIElement>& element, bool force = false);
+    virtual void                             OnRectChanged() { };
 
 private:
 
-    void                                ClampToSizeLimits();
-    void                                ClampToBounds();
-    void                                RecalculateRect(bool force = false);
-    void                                RecalculateModelMatrix();
-    void                                RecalculateProjectionMatrix();
-    void                                OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event);
+    static ZIDSequence                       idGenerator_;
+
+};
+
+class ZUIElementManager : public ZResourceManager<ZUIElement, ZHUIElement>
+{
+public:
+
+	virtual ~ZUIElementManager() = default;
+
+public:
+
+	virtual void Initialize() override;
+	virtual void CleanUp() override;
+
+public:
+
+	ZUIElementList                      Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
+	std::shared_ptr<ZUIElement>         Create(const std::string& type);
+
+	virtual void                        Initialize(const std::shared_ptr<ZOFNode>& root);
+
+	virtual void                        Prepare(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
+	virtual unsigned int                PrepareChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
+
+	std::string						    Name(const ZHUIElement& handle);
+	ZUIElementType                      Type(const ZHUIElement& handle);
+	bool                                Enabled(const ZHUIElement& handle);
+	bool                                Hidden(const ZHUIElement& handle);
+	bool                                Selected(const ZHUIElement& handle);
+	bool                                Flipped(const ZHUIElement& handle);
+	ZPositioning                        Positioning(const ZHUIElement& handle);
+	ZPositioning                        Scaling(const ZHUIElement& handle);
+	glm::vec2                           Position(const ZHUIElement& handle);
+	glm::vec2                           Size(const ZHUIElement& handle);
+	glm::vec2                           MaxSize(const ZHUIElement& handle);
+	glm::vec2                           MinSize(const ZHUIElement& handle);
+	ZRect                               Rect(const ZHUIElement& handle);
+	ZRect                               CalculatedRect(const ZHUIElement& handle);
+	glm::vec2                           Padding(const ZHUIElement& handle);
+	float                               Angle(const ZHUIElement& handle);
+	glm::vec4                           Color(const ZHUIElement& handle);
+	float                               Opacity(const ZHUIElement& handle);
+	glm::vec4                           TranslationBounds(const ZHUIElement& handle);
+	const ZHTexture&                    Texture(const ZHUIElement& handle);
+	const ZUIBorder&                    Border(const ZHUIElement& handle);
+	const ZHShader&                     Shader(const ZHUIElement& handle);
+	const ZUIElementMap&                Children(const ZHUIElement& handle);
+	const std::shared_ptr<ZUILayout>&   Layout(const ZHUIElement& handle);
+	glm::mat4                           ModelMatrix(const ZHUIElement& handle);
+	glm::mat4                           ProjectionMatrix(const ZHUIElement& handle);
+	ZUIElementOptions                   Options(const ZHUIElement& handle);
+	ZRect                               PaddedRect(const ZHUIElement& handle);
+	ZHUIElement                         Parent(const ZHUIElement& handle);
+	std::shared_ptr<ZScene>             Scene(const ZHUIElement& handle);
+
+	void                                SetPositioning(const ZHUIElement& handle, const ZPositioning& positioning);
+	void                                SetScaling(const ZHUIElement& handle, const ZPositioning& scaling);
+	void                                SetPadding(const ZHUIElement& handle, const glm::vec2& padding);
+	void                                SetRect(const ZHUIElement& handle, const ZRect& rect, const ZRect& relativeTo = ZRect());
+	void                                SetSize(const ZHUIElement& handle, const glm::vec2& size, const ZRect& relativeTo = ZRect());
+	void                                SetMaxSize(const ZHUIElement& handle, const glm::vec2& size);
+	void                                SetPosition(const ZHUIElement& handle, const glm::vec2& position, const ZRect& relativeTo = ZRect());
+	void                                SetRotation(const ZHUIElement& handle, float angle);
+	void                                SetTexture(const ZHUIElement& handle, const ZHTexture& texture);
+	void                                SetBorder(const ZHUIElement& handle, const ZUIBorder& border);
+	virtual void                        SetColor(const ZHUIElement& handle, const glm::vec4& newColor);
+	void                                SetOpacity(const ZHUIElement& handle, float opacity, bool relativeToAlpha = false);
+	void                                SetTranslationBounds(const ZHUIElement& handle, float left, float right, float bottom, float top);
+	void                                SetShader(const ZHUIElement& handle, const ZHShader& shader);
+	void                                SetLayout(const ZHUIElement& handle, const std::shared_ptr<ZUILayout>& layout);
+	void                                SetParent(const ZHUIElement& handle, const ZHUIElement& parent);
+	void                                SetScene(const ZHUIElement& handle, const std::shared_ptr<ZScene> scene);
+	void                                SetFlipped(const ZHUIElement& handle, bool flipped);
+	void                                SetZOrder(const ZHUIElement& handle, unsigned int zOrder);
+
+	void                                ResetModelMatrix(const ZHUIElement& handle);
+	void                                Translate(const ZHUIElement& handle, const glm::vec2& translation);
+	void                                Rotate(const ZHUIElement& handle, float angle);
+	void                                Scale(const ZHUIElement& handle, const glm::vec2& factor);
+
+	void                                Hide(const ZHUIElement& handle);
+	void                                Show(const ZHUIElement& handle);
+	void                                Enable(const ZHUIElement& handle);
+	void                                Disable(const ZHUIElement& handle);
+	void                                Select(const ZHUIElement& handle);
+	void                                Deselect(const ZHUIElement& handle);
+
+	bool                                HasChildren(const ZHUIElement& handle);
+	virtual void                        AddChild(const ZHUIElement& handle, const ZHUIElement& element);
+	void                                RemoveChild(const ZHUIElement& handle, const ZHUIElement& element, bool recurse = false);
+	void                                DoRecursiveChildUpdate(const ZHUIElement& handle, std::function<void(ZHUIElement)> callback);
+	void                                RemoveParent(const ZHUIElement& handle);
+
+	virtual std::shared_ptr<ZMesh2D>    ElementShape(const ZHUIElement& handle);
+
+	bool                                TrySelect(const ZHUIElement& handle, const glm::vec3& position);
+	bool                                Contains(const ZHUIElement& handle, const glm::vec2& point);
+
+	template<class T>
+	ZHUIElement ChildByName(const ZHUIElement& handle, const std::string& name)
+	{
+		assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+		ZUIElement* uiElement = resourcePool_.Get(handle);
+
+		if (!std::is_base_of<ZUIElement, T>::value) return nullptr;
+
+		for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+		{
+			ZUIElement* childElement = resourcePool_.Get(it->second);
+			if ((dynamic_cast<T*>(childElement)) && zenith::strings::HasSuffix(it->first, name))
+			{
+				return it->second;
+			}
+		}
+
+		return ZHUIElement();
+	}
+
+protected:
+
+	virtual void                        OnRectChanged() { };
+
+	void                                LayoutChild(const ZHUIElement& handle, const ZHUIElement& child, bool force = false);
+	void                                LayoutChildren(const ZHUIElement& handle, bool force = false);
+
+private:
+
+	void                                ClampToSizeLimits(const ZHUIElement& handle);
+	void                                ClampToBounds(const ZHUIElement& handle);
+	void                                RecalculateRect(const ZHUIElement& handle, bool force = false);
+	void                                RecalculateModelMatrix(const ZHUIElement& handle);
+	void                                RecalculateProjectionMatrix(const ZHUIElement& handle);
+
+private:
+
+	void                                OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event);
 
 };

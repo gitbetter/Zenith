@@ -53,22 +53,9 @@
 
 ZIDSequence ZUIElement::idGenerator_;
 
-ZUIElement::ZUIElement(const glm::vec2& position, const glm::vec2& scale) : modelMatrix_(1.f), projectionMatrix_(1.f)
+ZUIElement::ZUIElement()
 {
-    name_ = "ZUI_" + std::to_string(idGenerator_.Next());
-    type_ = ZUIElementType::Unknown;
-    SetPosition(position); SetSize(scale);
-}
-
-ZUIElement::ZUIElement(const ZUIElementOptions& options) : modelMatrix_(1.f), projectionMatrix_(1.f) {
-    name_ = "ZUI_" + std::to_string(idGenerator_.Next());
-    type_ = ZUIElementType::Unknown;
-    options_ = options;
-}
-
-ZUIElement::~ZUIElement()
-{
-    CleanUp();
+    name = "UIElement_" + std::to_string(idGenerator_.Next());
 }
 
 void ZUIElement::Initialize() {
@@ -81,7 +68,8 @@ void ZUIElement::Initialize() {
 
     uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::UI, sizeof(ZUIUniforms));
 
-    if (!options_.texture) {
+    if (!options_.texture)
+	{
         SetTexture(ZServices::TextureManager()->Default());
     }
 
@@ -107,8 +95,6 @@ void ZUIElement::Initialize() {
     writer.BindUniformBuffer(uniformBuffer_);
     writer.SetShader(options_.shader);
     renderState_ = writer.End();
-
-    ZServices::EventAgent()->Subscribe(this, &ZUIElement::OnWindowResized);
 }
 
 void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
@@ -229,464 +215,6 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
     Initialize();
 }
 
-void ZUIElement::Prepare(double deltaTime, unsigned int zOrder)
-{
-    // Only render the top level elements that are not hidden. The children will
-    // be rendered within the respective parent elements.
-    if (options_.hidden) return;
-
-    SetZOrder(zOrder);
-
-    std::shared_ptr<ZMesh2D> mesh = ElementShape();
-
-    ZPR_SESSION_COLLECT_VERTICES(mesh->Vertices().size());
-
-    auto meshState = mesh->RenderState();
-
-    ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::TriangleFan);
-    auto uiTask = ZRenderTask::Compile(drawCall,
-        { meshState, renderState_ },
-        ZRenderPass::UI()
-    );
-    uiTask->Submit({ ZRenderPass::UI() });
-}
-
-unsigned int ZUIElement::PrepareChildren(double deltaTime, unsigned int zOrder)
-{
-    if (options_.hidden) return zOrder;
-
-    unsigned int lastZOrder = zOrder;
-    for (auto it = children_.begin(); it != children_.end(); it++)
-    {
-        it->second->Prepare(deltaTime, ++lastZOrder);
-        lastZOrder = it->second->PrepareChildren(deltaTime, lastZOrder);
-    }
-    return lastZOrder;
-}
-
-void ZUIElement::AddChild(const std::shared_ptr<ZUIElement>& element)
-{ 
-    children_[element->ID()] = element;
-
-    element->SetOpacity(Opacity(), true);
-    element->SetTranslationBounds(options_.translationBounds.x, options_.translationBounds.y, options_.translationBounds.z, options_.translationBounds.w);
-
-    element->SetParent(shared_from_this());
-    element->SetScene(Scene());
-
-    LayoutChild(element);
-}
-
-void ZUIElement::RemoveChild(const std::shared_ptr<ZUIElement>& element, bool recurse)
-{
-    if (children_.find(element->ID()) != children_.end())
-    {
-        element->RemoveParent();
-        children_.erase(element->ID());
-        if (options_.layout) {
-            options_.layout->RemoveRect(element->ID());
-        }
-    }
-
-    if (recurse) {
-        for (auto it = children_.begin(), end = children_.end(); it != end; it++)
-        {
-            it->second->RemoveChild(element, recurse);
-        }
-    }
-}
-
-void ZUIElement::DoRecursiveChildUpdate(std::function<void(std::shared_ptr<ZUIElement>)> callback)
-{
-    for (auto it = children_.begin(); it != children_.end(); it++)
-    {
-        callback(it->second);
-        if (it->second->HasChildren())
-        {
-            it->second->DoRecursiveChildUpdate(callback);
-        }
-    }
-}
-
-void ZUIElement::RemoveParent()
-{
-    parent_.reset();
-}
-
-std::shared_ptr<ZScene> ZUIElement::Scene() const
-{
-    return scene_.lock();
-}
-
-ZRect ZUIElement::PaddedRect() const
-{
-    auto rect = options_.calculatedRect;
-    rect.size -= options_.padding * 2.f;
-    rect.position += options_.padding;
-    return rect;
-}
-
-std::shared_ptr<ZUIElement> ZUIElement::Parent() const
-{
-    return parent_.lock();
-}
-
-void ZUIElement::SetPadding(const glm::vec2& padding)
-{
-    options_.padding = padding;
-    if (options_.layout) {
-        options_.layout->SetDimensions(PaddedRect());
-    }
-}
-
-void ZUIElement::SetRect(const ZRect& rect, const ZRect& relativeTo)
-{
-    SetSize(rect.size, relativeTo);
-    SetPosition(rect.position, relativeTo);
-    if (options_.layout) {
-        options_.layout->SetDimensions(PaddedRect());
-    }
-    OnRectChanged();
-}
-
-void ZUIElement::SetSize(const glm::vec2& size, const ZRect& relativeTo)
-{
-    auto scene = Scene();
-    if (!scene) return;
-
-    options_.rect.size = size;
-    if (options_.scaling == ZPositioning::Relative) {
-        options_.calculatedRect.size = ZUIHelpers::RelativeToAbsoluteCoords(
-            size,
-            relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
-        );
-    }
-    else {
-        options_.calculatedRect.size = options_.rect.size;
-    }
-
-    ClampToSizeLimits();
-
-    uniformBuffer_->Update(offsetof(ZUIUniforms, pixelSize), sizeof(options_.calculatedRect.size), glm::value_ptr(options_.calculatedRect.size));
-
-    RecalculateModelMatrix();
-}
-
-void ZUIElement::SetMaxSize(const glm::vec2& size)
-{
-    options_.maxSize = size;
-    RecalculateRect(true);
-}
-
-void ZUIElement::SetPosition(const glm::vec2& position, const ZRect& relativeTo)
-{
-    auto scene = Scene();
-    if (!scene) return;
-
-    options_.rect.position = position;
-    if (options_.positioning == ZPositioning::Relative) {
-        auto parent = Parent();
-        glm::vec2 offset = parent && !parent->options_.layout ? parent->options_.calculatedRect.position : glm::vec2(0.f);
-        options_.calculatedRect.position = offset + ZUIHelpers::RelativeToAbsoluteCoords(
-            position,
-            relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
-        );
-    }
-    else {
-        options_.calculatedRect.position = options_.rect.position;
-    }
-    ClampToBounds();
-    RecalculateModelMatrix();
-}
-
-void ZUIElement::SetRotation(float angle)
-{
-    options_.orientation = angle;
-    RecalculateModelMatrix();
-}
-
-void ZUIElement::SetTexture(const ZHTexture& texture)
-{
-    options_.texture = texture;
-
-    ZRenderStateGroupWriter writer(renderState_);
-    writer.Begin();
-    writer.ClearTextures();
-    writer.BindTexture(options_.texture);
-    renderState_ = writer.End();
-}
-
-void ZUIElement::SetBorder(const ZUIBorder& border)
-{
-    options_.border = border;
-    uniformBuffer_->Update(offsetof(ZUIUniforms, borderColor), sizeof(options_.border.color), glm::value_ptr(options_.border.color));
-    uniformBuffer_->Update(offsetof(ZUIUniforms, borderWidth), sizeof(options_.border.width), &options_.border.width);
-    uniformBuffer_->Update(offsetof(ZUIUniforms, borderRadius), sizeof(options_.border.radius), &options_.border.radius);
-}
-
-void ZUIElement::SetTranslationBounds(float left, float right, float bottom, float top)
-{
-    options_.translationBounds = glm::vec4(left, right, bottom, top);
-    for (auto it = children_.begin(); it != children_.end(); it++)
-    {
-        it->second->SetTranslationBounds(left, right, bottom, top);
-    }
-}
-
-void ZUIElement::SetShader(const ZHShader& shader)
-{
-    options_.shader = shader;
-    ZRenderStateGroupWriter writer(renderState_);
-    writer.Begin();
-    writer.SetShader(options_.shader);
-    renderState_ = writer.End();
-}
-
-void ZUIElement::SetColor(const glm::vec4& newColor)
-{
-    options_.color = newColor;
-    uniformBuffer_->Update(offsetof(ZUIUniforms, color), sizeof(options_.color), glm::value_ptr(options_.color));
-}
-
-void ZUIElement::SetOpacity(float opacity, bool relativeToAlpha)
-{
-    options_.opacity = opacity;
-    options_.color.a = relativeToAlpha ? options_.color.a * options_.opacity : options_.opacity;
-    options_.border.color.a = relativeToAlpha ? options_.border.color.a * options_.opacity : options_.opacity;
-    for (auto it = children_.begin(); it != children_.end(); it++)
-    {
-        it->second->SetOpacity(opacity, relativeToAlpha);
-    }
-}
-
-void ZUIElement::SetFlipped(bool flipped)
-{
-    options_.flipped = flipped;
-    RecalculateProjectionMatrix();
-}
-
-void ZUIElement::SetZOrder(unsigned int zOrder)
-{
-    ZRenderStateGroupWriter writer(renderState_);
-    writer.Begin();
-    writer.SetRenderDepth(zOrder);
-    renderState_ = writer.End();
-}
-
-void ZUIElement::Translate(const glm::vec2& translation)
-{
-    options_.calculatedRect.position += translation;
-    ClampToBounds();
-    RecalculateModelMatrix();
-
-    for (auto it = children_.begin(); it != children_.end(); it++)
-    {
-        it->second->Translate(translation);
-    }
-}
-
-void ZUIElement::Rotate(float angle)
-{
-    options_.orientation += angle;
-    RecalculateModelMatrix();
-
-    for (auto it = children_.begin(); it != children_.end(); it++)
-    {
-        it->second->Rotate(angle);
-    }
-}
-
-void ZUIElement::Scale(const glm::vec2& factor)
-{
-    options_.rect.size *= factor;
-    options_.calculatedRect.size *= factor;
-    ClampToSizeLimits();
-    RecalculateModelMatrix();
-}
-
-bool ZUIElement::TrySelect(const glm::vec3& position)
-{
-    bool selected = false;
-    if (options_.enabled && Contains(position))
-    {
-        bool selectedChild = false;
-        for (auto it = children_.begin(); it != children_.end(); it++)
-        {
-            selectedChild = it->second->TrySelect(position);
-        }
-
-        if (!selectedChild)
-        {
-            std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(name_, position));
-            ZServices::EventAgent()->Queue(objectSelectEvent);
-        }
-
-        selected = true;
-    }
-    return selected;
-}
-
-bool ZUIElement::Contains(const glm::vec2& point)
-{
-    return options_.calculatedRect.Contains(point);
-}
-
-std::shared_ptr<ZMesh2D> ZUIElement::ElementShape()
-{
-    static std::shared_ptr<ZMesh2D> mesh = ZMesh2D::NewQuad();
-    return mesh;
-};
-
-void ZUIElement::CleanUp()
-{
-    ZUIElementMap childrenCopy(children_);
-    for (auto it = childrenCopy.begin(); it != childrenCopy.end(); it++)
-    {
-        RemoveChild(it->second);
-    }
-    ZServices::EventAgent()->Unsubscribe(this, &ZUIElement::OnWindowResized);
-}
-
-void ZUIElement::ClampToSizeLimits()
-{
-    if (options_.minSize.x > 0) {
-        options_.calculatedRect.size.x =
-            glm::clamp(options_.calculatedRect.size.x, options_.minSize.x, std::numeric_limits<float>::max());
-    }
-    if (options_.minSize.y > 0) {
-        options_.calculatedRect.size.y =
-            glm::clamp(options_.calculatedRect.size.y, options_.minSize.y, std::numeric_limits<float>::max());
-    }
-    if (options_.maxSize.x > 0) {
-        options_.calculatedRect.size.x =
-            glm::clamp(options_.calculatedRect.size.x, 0.f, options_.maxSize.x);
-    }
-    if (options_.maxSize.y > 0) {
-        options_.calculatedRect.size.y =
-            glm::clamp(options_.calculatedRect.size.y, 0.f, options_.maxSize.y);
-    }
-}
-
-void ZUIElement::ClampToBounds()
-{
-    auto scene = Scene();
-    if (!scene) return;
-
-    glm::vec2 resolution = scene->Domain()->Resolution();
-
-    options_.calculatedRect.position.x = 
-        glm::sign(options_.calculatedRect.position.x) *
-        glm::clamp(glm::abs(options_.calculatedRect.position.x),
-            options_.translationBounds.x * resolution.x,
-            options_.translationBounds.y * resolution.x);
-    options_.calculatedRect.position.y =
-        glm::sign(options_.calculatedRect.position.y) * 
-        glm::clamp(glm::abs(options_.calculatedRect.position.y),
-            options_.translationBounds.z * resolution.y,
-            options_.translationBounds.w * resolution.y);
-}
-
-void ZUIElement::RecalculateRect(bool force)
-{
-    auto parent = Parent();
-    if (!parent || !parent->options_.layout || force) {
-        SetRect(options_.rect, parent ? parent->PaddedRect() : ZRect());
-    }
-
-    for (auto it = children_.begin(); it != children_.end(); it++) {
-        LayoutChild(it->second, true);
-    }
-}
-
-void ZUIElement::RecalculateModelMatrix()
-{
-    // By default we want to draw with the top left as (0, 0), so we use an identity vector to flip since openGL coordinates
-    // begin at the bottom left and by default textures must be flipped to orient correctly. This might
-    // do better as a global vector that changes based on the graphics implementation
-    glm::vec3 flipVector = options_.flipped ? glm::vec3(1.f) : glm::vec3(1.f, -1.f, 1.f);
-    glm::mat4 scale = glm::scale(glm::mat4(1.f), glm::vec3(options_.calculatedRect.size * 0.5f, 0.f) * flipVector);
-    glm::mat4 rotate = glm::rotate(glm::mat4(1.f), options_.orientation, glm::vec3(0.f, 0.f, 1.f));
-    glm::mat4 translate = glm::translate(glm::mat4(1.f), glm::vec3(options_.calculatedRect.position + options_.calculatedRect.size * 0.5f, 0.f));
-    modelMatrix_ = translate * rotate * scale;
-
-    uniformBuffer_->Update(offsetof(ZUIUniforms, M), sizeof(modelMatrix_), glm::value_ptr(modelMatrix_));
-}
-
-void ZUIElement::RecalculateProjectionMatrix()
-{
-    if (auto scene = Scene()) {
-        glm::vec2 resolution = scene->Domain()->Resolution();
-        projectionMatrix_ = glm::ortho(0.f, (float)resolution.x, (float)resolution.y, 0.f, -1.f, 1.f);
-        uniformBuffer_->Update(offsetof(ZUIUniforms, P), sizeof(projectionMatrix_), glm::value_ptr(projectionMatrix_));
-    }
-}
-
-void ZUIElement::LayoutChild(const std::shared_ptr<ZUIElement>& element, bool force)
-{
-    auto scene = Scene();
-    if (!scene) return;
-
-    auto paddedRect = PaddedRect();
-    element->SetRect(element->Rect(), paddedRect);
-    if (options_.layout) {
-        ZRect rect = options_.layout->GetRect(element->ID(), element->CalculatedRect().size, force);
-        if (element->Positioning() == ZPositioning::Relative) {
-            rect.position = ZUIHelpers::AbsoluteToRelativeCoords(
-                rect.position,
-                options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : paddedRect.size
-            );
-        }
-        if (element->Scaling() == ZPositioning::Relative) {
-            // We want to lock the relative position of the rect if it is at or past its minimum or maximum size
-            if (element->options_.calculatedRect.size.x <= element->options_.minSize.x
-                || element->options_.calculatedRect.size.y <= element->options_.minSize.y
-                || element->options_.calculatedRect.size.x >= element->options_.maxSize.x
-                || element->options_.calculatedRect.size.y >= element->options_.maxSize.x) {
-                rect.size = element->options_.rect.size;
-            }
-            else {
-                rect.size = ZUIHelpers::AbsoluteToRelativeCoords(
-                    rect.size,
-                    options_.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : paddedRect.size
-                );
-            }
-        }
-        element->SetRect(rect, paddedRect);
-    }
-
-    LayoutChildren(element, true);
-}
-
-void ZUIElement::LayoutChildren(const std::shared_ptr<ZUIElement>& element, bool force)
-{
-    // If there's a layout for the given element we want to traverse the children in order of the calculated rects
-    // in the layout object, otherwise we might update the rect for an element and miss updating dependent rects
-    // in the layout if those objects were already traversed.
-    if (element->options_.layout) {
-        std::vector<std::shared_ptr<ZUIElement>> layoutList;
-        for (auto it = element->options_.layout->Rects().begin(); it != element->options_.layout->Rects().end(); it++) {
-            auto elIt = element->children_.find((*it).id);
-            if (elIt != element->children_.end()) {
-                layoutList.push_back(elIt->second);
-            }
-        }
-        for (auto it = layoutList.begin(); it != layoutList.end(); it++) {
-            element->LayoutChild((*it), force);
-        }
-    }
-    else {
-        for (auto it = element->children_.begin(); it != element->children_.end(); it++) {
-            element->LayoutChild(it->second, force);
-        }
-    }
-}
-
-void ZUIElement::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event)
-{
-    RecalculateProjectionMatrix();
-    RecalculateRect();
-}
-
 ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene)
 {
     ZUIElementList uiElements;
@@ -746,4 +274,851 @@ std::shared_ptr<ZUIElement> ZUIElement::Create(const std::string& type)
     }
     LOG("Could not create a UI element of type " + type, ZSeverity::Error);
     return nullptr;
+}
+
+void ZUIElementManager::Initialize()
+{
+	ZServices::EventAgent()->Subscribe(this, &ZUIElementManager::OnWindowResized);
+}
+
+void ZUIElementManager::CleanUp()
+{
+	ZServices::EventAgent()->Unsubscribe(this, &ZUIElementManager::OnWindowResized);
+}
+
+void ZUIElementManager::Prepare(const ZHUIElement& handle, double deltaTime, unsigned int zOrder)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	// Only render the top level elements that are not hidden. The children will
+	// be rendered within the respective parent elements.
+	if (uiElement->options.hidden) return;
+
+	SetZOrder(handle, zOrder);
+
+	std::shared_ptr<ZMesh2D> mesh = ElementShape(handle);
+
+	ZPR_SESSION_COLLECT_VERTICES(mesh->Vertices().size());
+
+	auto meshState = mesh->RenderState();
+
+	ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::TriangleFan);
+	auto uiTask = ZRenderTask::Compile(drawCall,
+		{ meshState, uiElement->renderState },
+		ZRenderPass::UI()
+	);
+	uiTask->Submit({ ZRenderPass::UI() });
+}
+
+unsigned int ZUIElementManager::PrepareChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	if (uiElement->options.hidden) return zOrder;
+
+	unsigned int lastZOrder = zOrder;
+	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+	{
+		Prepare(it->second, deltaTime, ++lastZOrder);
+		lastZOrder = PrepareChildren(it->second, deltaTime, lastZOrder);
+	}
+	return lastZOrder;
+}
+
+std::string ZUIElementManager::Name(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->name;
+}
+
+ZUIElementType ZUIElementManager::Type(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->type;
+}
+
+bool ZUIElementManager::Enabled(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.enabled;
+}
+
+bool ZUIElementManager::Hidden(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.hidden;
+}
+
+bool ZUIElementManager::Selected(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.selected;
+}
+
+bool ZUIElementManager::Flipped(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.flipped;
+}
+
+ZPositioning ZUIElementManager::Positioning(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.positioning;
+}
+
+ZPositioning ZUIElementManager::Scaling(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.scaling;
+}
+
+glm::vec2 ZUIElementManager::Position(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.rect.position;
+}
+
+glm::vec2 ZUIElementManager::Size(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.rect.size;
+}
+
+glm::vec2 ZUIElementManager::MaxSize(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.maxSize;
+}
+
+glm::vec2 ZUIElementManager::MinSize(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.minSize;
+}
+
+ZRect ZUIElementManager::Rect(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.rect;
+}
+
+ZRect ZUIElementManager::CalculatedRect(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.calculatedRect;
+}
+
+glm::vec2 ZUIElementManager::Padding(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.padding;
+}
+
+float ZUIElementManager::Angle(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.orientation;
+}
+
+glm::vec4 ZUIElementManager::Color(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.color;
+}
+
+float ZUIElementManager::Opacity(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.opacity;
+}
+
+glm::vec4 ZUIElementManager::TranslationBounds(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.translationBounds;
+}
+
+const ZHTexture& ZUIElementManager::Texture(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.texture;
+}
+
+const ZUIBorder& ZUIElementManager::Border(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.border;
+}
+
+const ZHShader& ZUIElementManager::Shader(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.shader;
+}
+
+const ZUIElementMap& ZUIElementManager::Children(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->children;
+}
+
+const std::shared_ptr<ZUILayout>& ZUIElementManager::Layout(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.layout;
+}
+
+glm::mat4 ZUIElementManager::ModelMatrix(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->modelMatrix;
+}
+
+glm::mat4 ZUIElementManager::ProjectionMatrix(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->projectionMatrix;
+}
+
+ZUIElementOptions ZUIElementManager::Options(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options;
+}
+
+ZRect ZUIElementManager::PaddedRect(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	auto rect = uiElement->options.calculatedRect;
+	rect.size -= uiElement->options.padding * 2.f;
+	rect.position += uiElement->options.padding;
+	return rect;
+}
+
+ZHUIElement ZUIElementManager::Parent(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->parent;;
+}
+
+std::shared_ptr<ZScene> ZUIElementManager::Scene(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->scene.lock();
+}
+
+void ZUIElementManager::SetPositioning(const ZHUIElement& handle, const ZPositioning& positioning)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	uiElement->options.positioning = positioning;
+}
+
+void ZUIElementManager::SetScaling(const ZHUIElement& handle, const ZPositioning& scaling)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	uiElement->options.scaling = scaling;
+}
+
+void ZUIElementManager::SetPadding(const ZHUIElement& handle, const glm::vec2& padding)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	uiElement->options.padding = padding;
+	if (uiElement->options.layout) {
+        uiElement->options.layout->SetDimensions(PaddedRect(handle));
+	}
+}
+
+void ZUIElementManager::SetRect(const ZHUIElement& handle, const ZRect& rect, const ZRect& relativeTo)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	SetSize(handle, rect.size, relativeTo);
+	SetPosition(handle, rect.position, relativeTo);
+	if (uiElement->options.layout) {
+        uiElement->options.layout->SetDimensions(PaddedRect(handle));
+	}
+	OnRectChanged();
+}
+
+void ZUIElementManager::SetSize(const ZHUIElement& handle, const glm::vec2& size, const ZRect& relativeTo)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	auto scene = Scene(handle);
+	if (!scene) return;
+
+    uiElement->options.rect.size = size;
+	if (uiElement->options.scaling == ZPositioning::Relative) {
+        uiElement->options.calculatedRect.size = ZUIHelpers::RelativeToAbsoluteCoords(
+			size,
+			relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
+		);
+	}
+	else {
+        uiElement->options.calculatedRect.size = uiElement->options.rect.size;
+	}
+
+	ClampToSizeLimits(handle);
+
+	uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, pixelSize), sizeof(uiElement->options.calculatedRect.size), glm::value_ptr(uiElement->options.calculatedRect.size));
+
+	RecalculateModelMatrix(handle);
+}
+
+void ZUIElementManager::SetMaxSize(const ZHUIElement& handle, const glm::vec2& size)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.maxSize = size;
+	RecalculateRect(handle, true);
+}
+
+void ZUIElementManager::SetPosition(const ZHUIElement& handle, const glm::vec2& position, const ZRect& relativeTo)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	auto scene = Scene(handle);
+	if (!scene) return;
+
+    uiElement->options.rect.position = position;
+	if (uiElement->options.positioning == ZPositioning::Relative) {
+		ZHUIElement parentHandle = Parent(handle);
+        ZUIElement* parentElement = resourcePool_.Get(parentHandle);
+		glm::vec2 offset = parentElement && !parentElement->options.layout ? parentElement->options.calculatedRect.position : glm::vec2(0.f);
+        uiElement->options.calculatedRect.position = offset + ZUIHelpers::RelativeToAbsoluteCoords(
+			position,
+			relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
+		);
+	}
+	else {
+        uiElement->options.calculatedRect.position = uiElement->options.rect.position;
+	}
+	ClampToBounds(handle);
+	RecalculateModelMatrix(handle);
+}
+
+void ZUIElementManager::SetRotation(const ZHUIElement& handle, float angle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.orientation = angle;
+	RecalculateModelMatrix(handle);
+}
+
+void ZUIElementManager::SetTexture(const ZHUIElement& handle, const ZHTexture& texture)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.texture = texture;
+
+	ZRenderStateGroupWriter writer(uiElement->renderState);
+	writer.Begin();
+	writer.ClearTextures();
+	writer.BindTexture(uiElement->options.texture);
+    uiElement->renderState = writer.End();
+}
+
+void ZUIElementManager::SetBorder(const ZHUIElement& handle, const ZUIBorder& border)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.border = border;
+    uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, borderColor), sizeof(uiElement->options.border.color), glm::value_ptr(uiElement->options.border.color));
+    uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, borderWidth), sizeof(uiElement->options.border.width), &uiElement->options.border.width);
+    uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, borderRadius), sizeof(uiElement->options.border.radius), &uiElement->options.border.radius);
+}
+
+void ZUIElementManager::SetColor(const ZHUIElement& handle, const glm::vec4& newColor)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.color = newColor;
+    uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, color), sizeof(uiElement->options.color), glm::value_ptr(uiElement->options.color));
+}
+
+void ZUIElementManager::SetOpacity(const ZHUIElement& handle, float opacity, bool relativeToAlpha)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.opacity = opacity;
+    uiElement->options.color.a = relativeToAlpha ? uiElement->options.color.a * uiElement->options.opacity : uiElement->options.opacity;
+    uiElement->options.border.color.a = relativeToAlpha ? uiElement->options.border.color.a * uiElement->options.opacity : uiElement->options.opacity;
+	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+	{
+		SetOpacity(it->second, opacity, relativeToAlpha);
+	}
+}
+
+void ZUIElementManager::SetTranslationBounds(const ZHUIElement& handle, float left, float right, float bottom, float top)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.translationBounds = glm::vec4(left, right, bottom, top);
+	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+	{
+		SetTranslationBounds(it->second, left, right, bottom, top);
+	}
+}
+
+void ZUIElementManager::SetShader(const ZHUIElement& handle, const ZHShader& shader)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.shader = shader;
+	ZRenderStateGroupWriter writer(uiElement->renderState);
+	writer.Begin();
+	writer.SetShader(uiElement->options.shader);
+    uiElement->renderState = writer.End();
+}
+
+void ZUIElementManager::SetLayout(const ZHUIElement& handle, const std::shared_ptr<ZUILayout>& layout)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->options.layout = layout;
+}
+
+void ZUIElementManager::SetParent(const ZHUIElement& handle, const ZHUIElement& parent)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	uiElement->parent = parent;
+}
+
+void ZUIElementManager::SetScene(const ZHUIElement& handle, const std::shared_ptr<ZScene> scene)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	uiElement->scene = scene;
+}
+
+void ZUIElementManager::SetFlipped(const ZHUIElement& handle, bool flipped)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.flipped = flipped;
+	RecalculateProjectionMatrix(handle);
+}
+
+void ZUIElementManager::SetZOrder(const ZHUIElement& handle, unsigned int zOrder)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	ZRenderStateGroupWriter writer(uiElement->renderState);
+	writer.Begin();
+	writer.SetRenderDepth(zOrder);
+    uiElement->renderState = writer.End();
+}
+
+void ZUIElementManager::ResetModelMatrix(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->modelMatrix = glm::mat4(1.f);
+}
+
+void ZUIElementManager::Translate(const ZHUIElement& handle, const glm::vec2& translation)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.calculatedRect.position += translation;
+	ClampToBounds(handle);
+	RecalculateModelMatrix(handle);
+
+	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+	{
+		Translate(it->second, translation);
+	}
+}
+
+void ZUIElementManager::Rotate(const ZHUIElement& handle, float angle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.orientation += angle;
+	RecalculateModelMatrix(handle);
+
+	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+	{
+		Rotate(it->second, angle);
+	}
+}
+
+void ZUIElementManager::Scale(const ZHUIElement& handle, const glm::vec2& factor)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+    uiElement->options.rect.size *= factor;
+    uiElement->options.calculatedRect.size *= factor;
+	ClampToSizeLimits(handle);
+	RecalculateModelMatrix(handle);
+}
+
+void ZUIElementManager::Hide(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->options.hidden = true;
+}
+
+void ZUIElementManager::Show(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->options.hidden = false;
+}
+
+void ZUIElementManager::Enable(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->options.enabled = true;
+}
+
+void ZUIElementManager::Disable(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->options.enabled = false;
+}
+
+void ZUIElementManager::Select(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->options.selected = uiElement->options.enabled;
+}
+
+void ZUIElementManager::Deselect(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->options.selected = false;
+}
+
+bool ZUIElementManager::HasChildren(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    return !uiElement->children.empty();
+}
+
+void ZUIElementManager::AddChild(const ZHUIElement& handle, const ZHUIElement& element)
+{
+	assert(!handle.IsNull() && !element.IsNull() && "Cannot add null ui element as child!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    ZUIElement* childElement = resourcePool_.Get(element);
+    
+    uiElement->children[childElement->name] = element;
+
+	SetOpacity(element, Opacity(handle), true);
+	SetTranslationBounds(element, uiElement->options.translationBounds.x, uiElement->options.translationBounds.y, uiElement->options.translationBounds.z, uiElement->options.translationBounds.w);
+
+	SetParent(element, handle);
+	SetScene(element, Scene(handle));
+
+	LayoutChild(handle, element);
+}
+
+void ZUIElementManager::RemoveChild(const ZHUIElement& handle, const ZHUIElement& element, bool recurse)
+{
+	assert(!handle.IsNull() && !element.IsNull() && "Cannot remove null ui element!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	ZUIElement* childElement = resourcePool_.Get(element);
+
+	if (uiElement->children.find(childElement->name) != uiElement->children.end())
+	{
+		RemoveParent(element);
+        uiElement->children.erase(childElement->name);
+		if (uiElement->options.layout) {
+            uiElement->options.layout->RemoveRect(childElement->name);
+		}
+	}
+
+	if (recurse) {
+		for (auto it = uiElement->children.begin(), end = uiElement->children.end(); it != end; it++)
+		{
+			RemoveChild(it->second, element, recurse);
+		}
+	}
+}
+
+void ZUIElementManager::DoRecursiveChildUpdate(const ZHUIElement& handle, std::function<void(ZHUIElement)> callback)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+	{
+		callback(it->second);
+		if (HasChildren(it->second))
+		{
+			DoRecursiveChildUpdate(it->second, callback);
+		}
+	}
+}
+
+void ZUIElementManager::RemoveParent(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+    uiElement->parent = ZHUIElement();
+}
+
+std::shared_ptr<ZMesh2D> ZUIElementManager::ElementShape(const ZHUIElement& handle)
+{
+	static std::shared_ptr<ZMesh2D> mesh = ZMesh2D::NewQuad();
+	return mesh;
+};
+
+bool ZUIElementManager::TrySelect(const ZHUIElement& handle, const glm::vec3& position)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	bool selected = false;
+	if (uiElement->options.enabled && Contains(handle, position))
+	{
+		bool selectedChild = false;
+		for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+		{
+			selectedChild = TrySelect(it->second, position);
+		}
+
+		if (!selectedChild)
+		{
+			std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(uiElement->name, position));
+			ZServices::EventAgent()->Queue(objectSelectEvent);
+		}
+
+		selected = true;
+	}
+	return selected;
+}
+
+bool ZUIElementManager::Contains(const ZHUIElement& handle, const glm::vec2& point)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.calculatedRect.Contains(point);
+}
+
+void ZUIElementManager::LayoutChild(const ZHUIElement& handle, const ZHUIElement& child, bool force)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	auto scene = Scene(handle);
+	if (!scene) return;
+
+	auto paddedRect = PaddedRect(handle);
+	SetRect(child, Rect(child), paddedRect);
+	if (uiElement->options.layout) {
+		ZRect rect = uiElement->options.layout->GetRect(Name(child), CalculatedRect(child).size, force);
+		if (Positioning(child) == ZPositioning::Relative) {
+			rect.position = ZUIHelpers::AbsoluteToRelativeCoords(
+				rect.position,
+                uiElement->options.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : paddedRect.size
+            );
+        }
+        if (Scaling(child) == ZPositioning::Relative) {
+            // We want to lock the relative position of the rect if it is at or past its minimum or maximum size
+            ZRect childCalcRect = CalculatedRect(child);
+            glm::vec2 childMaxSize = MaxSize(child);
+            glm::vec2 childMinSize = MinSize(child);
+            if (childCalcRect.size.x <= childMinSize.x || childCalcRect.size.y <= childMinSize.y
+                || childCalcRect.size.x >= childMaxSize.x || childCalcRect.size.y >= childMaxSize.x) {
+                rect.size = Rect(child).size;
+            }
+            else {
+                rect.size = ZUIHelpers::AbsoluteToRelativeCoords(
+                    rect.size,
+                    uiElement->options.calculatedRect.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : paddedRect.size
+				);
+			}
+		}
+		SetRect(child, rect, paddedRect);
+	}
+
+	LayoutChildren(child, true);
+}
+
+void ZUIElementManager::LayoutChildren(const ZHUIElement& handle, bool force)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	// If there's a layout for the given element we want to traverse the children in order of the calculated rects
+	// in the layout object, otherwise we might update the rect for an element and miss updating dependent rects
+	// in the layout if those objects were already traversed.
+	if (uiElement->options.layout) {
+		std::vector<ZHUIElement> layoutList;
+		for (auto it = uiElement->options.layout->Rects().begin(); it != uiElement->options.layout->Rects().end(); it++)
+		{
+			auto elIt = uiElement->children.find((*it).id);
+			if (elIt != uiElement->children.end())
+			{
+				layoutList.push_back(elIt->second);
+			}
+		}
+		for (auto it = layoutList.begin(); it != layoutList.end(); it++)
+		{
+			LayoutChild(handle, (*it), force);
+		}
+	}
+	else {
+		for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
+		{
+			LayoutChild(handle, it->second, force);
+		}
+	}
+}
+
+void ZUIElementManager::ClampToSizeLimits(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	if (uiElement->options.minSize.x > 0) {
+		uiElement->options.calculatedRect.size.x =
+			glm::clamp(uiElement->options.calculatedRect.size.x, uiElement->options.minSize.x, std::numeric_limits<float>::max());
+	}
+	if (uiElement->options.minSize.y > 0) {
+		uiElement->options.calculatedRect.size.y =
+			glm::clamp(uiElement->options.calculatedRect.size.y, uiElement->options.minSize.y, std::numeric_limits<float>::max());
+	}
+	if (uiElement->options.maxSize.x > 0) {
+		uiElement->options.calculatedRect.size.x =
+			glm::clamp(uiElement->options.calculatedRect.size.x, 0.f, uiElement->options.maxSize.x);
+	}
+	if (uiElement->options.maxSize.y > 0) {
+		uiElement->options.calculatedRect.size.y =
+			glm::clamp(uiElement->options.calculatedRect.size.y, 0.f, uiElement->options.maxSize.y);
+	}
+}
+
+void ZUIElementManager::ClampToBounds(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	auto scene = Scene(handle);
+	if (!scene) return;
+
+	glm::vec2 resolution = scene->Domain()->Resolution();
+
+	uiElement->options.calculatedRect.position.x =
+		glm::sign(uiElement->options.calculatedRect.position.x) *
+		glm::clamp(glm::abs(uiElement->options.calculatedRect.position.x),
+			uiElement->options.translationBounds.x * resolution.x,
+			uiElement->options.translationBounds.y * resolution.x);
+	uiElement->options.calculatedRect.position.y =
+		glm::sign(uiElement->options.calculatedRect.position.y) *
+		glm::clamp(glm::abs(uiElement->options.calculatedRect.position.y),
+			uiElement->options.translationBounds.z * resolution.y,
+			uiElement->options.translationBounds.w * resolution.y);
+}
+
+void ZUIElementManager::RecalculateRect(const ZHUIElement& handle, bool force)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	auto parent = Parent(handle);
+	if (parent.IsNull() || !Layout(parent) || force) {
+		SetRect(handle, uiElement->options.rect, parent ? PaddedRect(parent) : ZRect());
+	}
+
+	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++) {
+		LayoutChild(handle, it->second, true);
+	}
+}
+
+void ZUIElementManager::RecalculateModelMatrix(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	// By default we want to draw with the top left as (0, 0), so we use an identity vector to flip since openGL coordinates
+	// begin at the bottom left and by default textures must be flipped to orient correctly. This might
+	// do better as a global vector that changes based on the graphics implementation
+	glm::vec3 flipVector = uiElement->options.flipped ? glm::vec3(1.f) : glm::vec3(1.f, -1.f, 1.f);
+	glm::mat4 scale = glm::scale(glm::mat4(1.f), glm::vec3(uiElement->options.calculatedRect.size * 0.5f, 0.f) * flipVector);
+	glm::mat4 rotate = glm::rotate(glm::mat4(1.f), uiElement->options.orientation, glm::vec3(0.f, 0.f, 1.f));
+	glm::mat4 translate = glm::translate(glm::mat4(1.f), glm::vec3(uiElement->options.calculatedRect.position + uiElement->options.calculatedRect.size * 0.5f, 0.f));
+	uiElement->modelMatrix = translate * rotate * scale;
+
+	uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, M), sizeof(uiElement->modelMatrix), glm::value_ptr(uiElement->modelMatrix));
+}
+
+void ZUIElementManager::RecalculateProjectionMatrix(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	if (auto scene = Scene(handle)) {
+		glm::vec2 resolution = scene->Domain()->Resolution();
+		uiElement->projectionMatrix = glm::ortho(0.f, (float)resolution.x, (float)resolution.y, 0.f, -1.f, 1.f);
+		uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, P), sizeof(uiElement->projectionMatrix), glm::value_ptr(uiElement->projectionMatrix));
+	}
+}
+
+void ZUIElementManager::OnWindowResized(const std::shared_ptr<ZWindowResizeEvent>& event)
+{
+	for (auto it = loadedResources_.begin(); it != loadedResources_.end(); it++)
+	{
+		RecalculateProjectionMatrix(it->second);
+		RecalculateRect(it->second);
+	}
 }

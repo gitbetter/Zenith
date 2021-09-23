@@ -29,10 +29,7 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
-
-// Class and Data Structure Definitions
 
 struct ZUILayoutOptions
 {
