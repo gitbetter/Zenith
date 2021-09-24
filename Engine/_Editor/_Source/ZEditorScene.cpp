@@ -291,7 +291,7 @@ void ZEditorScene::LoadObjectTemplates(std::shared_ptr<ZOFNode> objectTree) {
     for (auto object : gameObjects)
         gameObjectTemplates_[object->ID()] = object;
 
-    auto uiElements = ZUIElement::Load(objectTree, shared_from_this());
+    auto uiElements = ZUIElement::Deserialize(objectTree, shared_from_this());
     for (auto el : uiElements)
         uiElementTemplates_[el->ID()] = el;
 }

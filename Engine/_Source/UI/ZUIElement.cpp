@@ -58,61 +58,16 @@ ZUIElement::ZUIElement()
     name = "UIElement_" + std::to_string(idGenerator_.Next());
 }
 
-void ZUIElement::Initialize() {
-    auto scene = Scene();
-    if (!scene)
-    {
-        LOG("ZUIElement was not attached to scene during initialization", ZSeverity::Error);
-        return;
-    }
-
-    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::UI, sizeof(ZUIUniforms));
-
-    if (!options_.texture)
-	{
-        SetTexture(ZServices::TextureManager()->Default());
-    }
-
-    SetRect(options_.rect);
-    RecalculateProjectionMatrix();
-
-    auto mesh = ElementShape();
-    auto isInstanced = mesh->Instanced();
-
-    uniformBuffer_->Update(offsetof(ZUIUniforms, color), sizeof(options_.color), glm::value_ptr(options_.color));
-    uniformBuffer_->Update(offsetof(ZUIUniforms, borderColor), sizeof(options_.border.color), glm::value_ptr(options_.border.color));
-    uniformBuffer_->Update(offsetof(ZUIUniforms, borderWidth), sizeof(options_.border.width), &options_.border.width);
-    uniformBuffer_->Update(offsetof(ZUIUniforms, borderRadius), sizeof(options_.border.radius), &options_.border.radius);
-    uniformBuffer_->Update(offsetof(ZUIUniforms, instanced), sizeof(isInstanced), &isInstanced);
-
-
-    ZRenderStateGroupWriter writer;
-    writer.Begin();
-    writer.SetBlending(ZBlendMode::Transluscent);
-    writer.SetFullScreenLayer(ZFullScreenLayer::UI);
-    writer.SetRenderLayer(ZRenderLayer::UI);
-    writer.BindTexture(options_.texture);
-    writer.BindUniformBuffer(uniformBuffer_);
-    writer.SetShader(options_.shader);
-    renderState_ = writer.End();
-}
-
-void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
+ZHUIElement ZUIElementManager::Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene)
 {
-    auto node = std::static_pointer_cast<ZOFObjectNode>(root);
-    if (!node)
-    {
-        LOG("Could not initalize ZUIElement", ZSeverity::Error);
-        return;
-    }
-    auto scene = Scene();
-    if (!scene)
-    {
-        LOG("ZUIElement was not attached to scene during initialization", ZSeverity::Error);
-        return;
-    }
+	if (dataNode->type != ZOFObjectType::UI)
+	{
+		return ZHUIElement();
+	}
 
-    ZOFPropertyMap props = node->properties;
+	ZHUIElement restoreHandle(dataHandle.value);
+
+    ZOFPropertyMap props = dataNode->properties;
 
 	if (props.find("name") != props.end() && props["name"]->HasValues())
 	{
@@ -215,7 +170,7 @@ void ZUIElement::Initialize(const std::shared_ptr<ZOFNode>& root)
     Initialize();
 }
 
-ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene)
+ZUIElementList ZUIElementManager::Deserialize(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene)
 {
     ZUIElementList uiElements;
     for (ZOFChildList::iterator it = data->children.begin(); it != data->children.end(); it++)
@@ -233,13 +188,13 @@ ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFNode> data, const std::shared
                 std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
                 element = ZUIElement::Create(typeProp->value);
                 element->SetScene(scene);
-                element->Initialize(uiNode);
+                element->Deserialize(uiNode);
             }
 
             // Recursively create children if there are any nested UI nodes
             if (element)
             {
-                ZUIElementList uiChildren = Load(uiNode, scene);
+                ZUIElementList uiChildren = Deserialize(uiNode, scene);
                 for (ZUIElementList::iterator it = uiChildren.begin(); it != uiChildren.end(); it++)
                 {
                     element->AddChild(*it);
@@ -252,24 +207,30 @@ ZUIElementList ZUIElement::Load(std::shared_ptr<ZOFNode> data, const std::shared
     return uiElements;
 }
 
-std::shared_ptr<ZUIElement> ZUIElement::Create(const std::string& type)
+ZHUIElement ZUIElementManager::Create(const std::string& type)
 {
-    if (type == "Button") {
+    if (type == "Button")
+	{
         return ZUIButton::Create();
     }
-    else if (type == "Image") {
+    else if (type == "Image")
+	{
         return ZUIImage::Create();
     }
-    else if (type == "Panel") {
+    else if (type == "Panel")
+	{
         return ZUIPanel::Create();
     }
-    else if (type == "Text") {
+    else if (type == "Text")
+	{
         return ZUIText::Create();
     }
-    else if (type == "Checkbox") {
+    else if (type == "Checkbox")
+	{
         return ZUICheckBox::Create();
     }
-    else if (type == "ListPanel") {
+    else if (type == "ListPanel")
+	{
         return ZUIListPanel::Create();
     }
     LOG("Could not create a UI element of type " + type, ZSeverity::Error);
@@ -279,6 +240,49 @@ std::shared_ptr<ZUIElement> ZUIElement::Create(const std::string& type)
 void ZUIElementManager::Initialize()
 {
 	ZServices::EventAgent()->Subscribe(this, &ZUIElementManager::OnWindowResized);
+}
+
+void ZUIElementManager::Initialize(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+
+	auto scene = Scene(handle);
+	if (!scene)
+	{
+		LOG("ZUIElement was not attached to scene during initialization", ZSeverity::Error);
+		return;
+	}
+
+	uiElement->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::UI, sizeof(ZUIUniforms));
+
+	if (uiElement->options.texture.IsNull())
+	{
+		SetTexture(handle, ZServices::TextureManager()->Default());
+	}
+
+	SetRect(handle, uiElement->options.rect);
+	RecalculateProjectionMatrix(handle);
+
+	auto mesh = ElementShape(handle);
+	auto isInstanced = mesh->Instanced();
+
+	uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, color), sizeof(uiElement->options.color), glm::value_ptr(uiElement->options.color));
+	uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, borderColor), sizeof(uiElement->options.border.color), glm::value_ptr(uiElement->options.border.color));
+	uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, borderWidth), sizeof(uiElement->options.border.width), &uiElement->options.border.width);
+	uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, borderRadius), sizeof(uiElement->options.border.radius), &uiElement->options.border.radius);
+	uiElement->uniformBuffer->Update(offsetof(ZUIUniforms, instanced), sizeof(isInstanced), &isInstanced);
+
+
+	ZRenderStateGroupWriter writer;
+	writer.Begin();
+	writer.SetBlending(ZBlendMode::Transluscent);
+	writer.SetFullScreenLayer(ZFullScreenLayer::UI);
+	writer.SetRenderLayer(ZRenderLayer::UI);
+	writer.BindTexture(uiElement->options.texture);
+	writer.BindUniformBuffer(uiElement->uniformBuffer);
+	writer.SetShader(uiElement->options.shader);
+	uiElement->renderState = writer.End();
 }
 
 void ZUIElementManager::CleanUp()
@@ -573,7 +577,7 @@ void ZUIElementManager::SetRect(const ZHUIElement& handle, const ZRect& rect, co
 	if (uiElement->options.layout) {
         uiElement->options.layout->SetDimensions(PaddedRect(handle));
 	}
-	OnRectChanged();
+	uiElement->OnRectChanged();
 }
 
 void ZUIElementManager::SetSize(const ZHUIElement& handle, const glm::vec2& size, const ZRect& relativeTo)

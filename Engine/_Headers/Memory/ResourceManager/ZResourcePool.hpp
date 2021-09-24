@@ -48,36 +48,35 @@ public:
     }
     ~ZResourcePool() { }
 
-    template <typename ...Args>
+    template <typename Type = Data, typename ...Args>
     Data* New(Handle& handle, Args && ...args)
 	{
-		unsigned int index;
-		if (freeSlots_.empty())
-		{
-			index = magicNumbers_.size();
-			handle.Initialize(index);
-			userData_.push_back(Data(std::forward<Args>(args)...));
-			magicNumbers_.push_back(handle.Magic());
-		}
-		else
-		{
-			index = freeSlots_.back();
-			freeSlots_.pop_back();
-			handle.Initialize(index);
-			magicNumbers_[index] = handle.Magic();
-		}
-		return &(*(userData_.begin() + index));
+        static_assert(std::is_base_of<Data, Type>::value, "Type is not derived from Data");
+
+        if (!handle.IsNull())
+        {
+            return Restore<Type>(handle, args);
+        }
+        else
+        {
+			unsigned int index;
+			if (freeSlots_.empty())
+			{
+				index = magicNumbers_.size();
+				handle.Initialize(index);
+				userData_.push_back(Type(std::forward<Args>(args)...));
+				magicNumbers_.push_back(handle.Magic());
+			}
+			else
+			{
+				index = freeSlots_.back();
+				freeSlots_.pop_back();
+				handle.Initialize(index);
+				magicNumbers_[index] = handle.Magic();
+			}
+			return &(*(userData_.begin() + index));
+        }
 	}
-
-	template <typename ...Args>
-	Data* Restore(Handle& handle, Args && ...args)
-	{
-		handle.Restore();
-		userData_[handle.Index()] = Data(std::forward<Args>(args)...);
-		magicNumbers_[handle.Index()] = handle.Magic();
-
-        return &(*(userData_.begin() + handle.Index()));
-    }
 
     void Delete(const Handle& handle)
     {
@@ -122,6 +121,20 @@ public:
     {
         return GetUsedHandleCount() > 0;
     }
+
+protected:
+
+	template <typename Type = Data, typename ...Args>
+	Data* Restore(Handle& handle, Args && ...args)
+	{
+		static_assert(std::is_base_of<Data, Type>::value, "Type is not derived from Data");
+
+		handle.Restore();
+		userData_[handle.Index()] = Type(std::forward<Args>(args)...);
+		magicNumbers_[handle.Index()] = handle.Magic();
+
+		return &(*(userData_.begin() + handle.Index()));
+	}
 
 private:
 

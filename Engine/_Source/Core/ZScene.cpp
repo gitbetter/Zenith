@@ -519,7 +519,7 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
 
 	ZOFLoadResult zofResults;
 	zofResults.gameObjects = ZGameObject::Load(objectTree, shared_from_this());
-    zofResults.uiElements = ZUIElement::Load(objectTree, shared_from_this());
+    zofResults.uiElements = ZUIElement::Deserialize(objectTree, shared_from_this());
 
     for (ZUIElementList::iterator it = zofResults.uiElements.begin(); it != zofResults.uiElements.end(); it++)
     {

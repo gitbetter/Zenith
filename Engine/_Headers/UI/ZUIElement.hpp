@@ -30,21 +30,23 @@
 #pragma once
 
 #define DECLARE_UI_CREATORS(Type)\
-static std::shared_ptr<Type> Create();\
-static std::shared_ptr<Type> Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene = nullptr);
+static ZHUIElement Create();\
+static ZHUIElement Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene = nullptr);
 
 #define DEFINE_UI_CREATORS(Type)\
-std::shared_ptr<Type> Type::Create()\
+ZHUIElement Type::Create()\
 {\
-    std::shared_ptr<Type> element = std::make_shared<Type>();\
-    return element;\
+	ZHUIElement handle;
+	Type* element = resourcePool_.New<Type>(handle);
+	return handle
 }\
-std::shared_ptr<Type> Type::Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene)\
+ZHUIElement Type::Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene)\
 {\
-    std::shared_ptr<Type> element = std::make_shared<Type>(options);\
+	ZHUIElement handle;
+	Type* element = resourcePool_.New(handle);
     if (scene) {\
-        element->SetScene(scene);\
-        element->Initialize();\
+        SetScene(handle, scene);\
+        Initialize(handle);\
     }\
     return element;\
 }
@@ -98,6 +100,7 @@ struct ZUIElementOptions
 struct ZUIElement
 {
 
+	ZHUIElement								 handle;
     ZHUIElement                              parent;
     std::weak_ptr<ZScene>                    scene;
     glm::mat4                                modelMatrix;
@@ -111,6 +114,8 @@ struct ZUIElement
     std::shared_ptr<ZRenderStateGroup>       renderState;
 
 	ZUIElement();
+
+public:
     
     virtual void                             OnRectChanged() { };
 
@@ -133,10 +138,11 @@ public:
 
 public:
 
-	ZUIElementList                      Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
-	std::shared_ptr<ZUIElement>         Create(const std::string& type);
+	void							    Initialize(const ZHUIElement& handle);
 
-	virtual void                        Initialize(const std::shared_ptr<ZOFNode>& root);
+	virtual ZHUIElement                 Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene);
+	ZUIElementList                      Deserialize(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
+	ZHUIElement				            Create(const std::string& type);
 
 	virtual void                        Prepare(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
 	virtual unsigned int                PrepareChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
@@ -236,8 +242,6 @@ public:
 	}
 
 protected:
-
-	virtual void                        OnRectChanged() { };
 
 	void                                LayoutChild(const ZHUIElement& handle, const ZHUIElement& child, bool force = false);
 	void                                LayoutChildren(const ZHUIElement& handle, bool force = false);

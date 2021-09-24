@@ -45,7 +45,7 @@
 
 void ZGLTextureManager::Resize(const ZHTexture& handle, unsigned int width, unsigned int height)
 {
-    ZTexture* texture = texturePool_.Get(handle);
+    ZTexture* texture = resourcePool_.Get(handle);
     assert(texture != nullptr && "Trying to resize a null texture!");
 	GLenum target = texture->multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 	if (texture->type.find("Array") != std::string::npos) {
@@ -72,7 +72,7 @@ void ZGLTextureManager::Resize(const ZHTexture& handle, unsigned int width, unsi
 
 void ZGLTextureManager::Bind(const ZHTexture& handle, unsigned int index)
 {
-    ZTexture* texture = texturePool_.Get(handle);
+    ZTexture* texture = resourcePool_.Get(handle);
     assert(texture != nullptr && "Trying to bind a null texture!");
 	glActiveTexture(GL_TEXTURE0 + index);
 	if (texture->type == "cubemap" || texture->type == "irradiance" || texture->type == "prefilter")
@@ -92,7 +92,7 @@ void ZGLTextureManager::Bind(const ZHTexture& handle, unsigned int index)
 
 void ZGLTextureManager::Unbind(const ZHTexture& handle)
 {
-    ZTexture* texture = texturePool_.Get(handle);
+    ZTexture* texture = resourcePool_.Get(handle);
     assert(texture != nullptr && "Trying to unbind a null texture!");
 	glActiveTexture(GL_TEXTURE0 + texture->index);
 	if (texture->type == "cubemap" || texture->type == "irradiance" || texture->type == "prefilter")
@@ -111,27 +111,20 @@ void ZGLTextureManager::Unbind(const ZHTexture& handle)
 
 void ZGLTextureManager::Delete(const ZHTexture& handle)
 {
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 	assert(texture != nullptr && "Trying to delete a null texture!");
     if (texture->id > 0)
     {
         glDeleteTextures(1, &(texture->id));
     }
-    texturePool_.Delete(handle);
+    resourcePool_.Delete(handle);
 }
 
 ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::string& type, ZTextureWrapping wrapping /*= ZTextureWrapping::EdgeClamp*/, bool hdr /*= false*/, bool flip /*= true*/, const ZHTexture& restoreHandle /*= ZHTexture()*/)
 {
 	ZHTexture handle(restoreHandle);
-	ZTexture* texture = nullptr;
-	if (!handle.IsNull())
-	{
-		texture = texturePool_.Restore(handle);
-	}
-	else
-	{
-		texture = texturePool_.New(handle);
-	}
+
+	ZTexture* texture = resourcePool_.New(handle);
 
 	if (handle.IsNull())
 	{
@@ -158,7 +151,7 @@ ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::s
 		else
 		{
 			LOG("ZGLTexture Error: Failed to load HDR texture at " + resource->path, ZSeverity::Error);
-			texturePool_.Delete(handle);
+			resourcePool_.Delete(handle);
 			return ZHTexture();
 		}
 	}
@@ -177,7 +170,7 @@ ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::s
 		else
 		{
 			LOG("ZGLTexture Error: Failed to load texture at " + resource->path, ZSeverity::Error);
-			texturePool_.Delete(handle);
+			resourcePool_.Delete(handle);
 			return ZHTexture();
 		}
 	}
@@ -193,7 +186,7 @@ ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::s
 ZHTexture ZGLTextureManager::CreateDefault()
 {
 	ZHTexture handle;
-	ZTexture* texture = texturePool_.New(handle);
+	ZTexture* texture = resourcePool_.New(handle);
 
     texture->type = "color";
 	GLubyte textureData[] = { 255, 255, 255, 255 };
@@ -212,7 +205,7 @@ ZHTexture ZGLTextureManager::CreateDefault()
 ZHTexture ZGLTextureManager::CreateEmptyLUT()
 {
 	ZHTexture handle;
-	ZTexture* texture = texturePool_.New(handle);
+	ZTexture* texture = resourcePool_.New(handle);
 
     texture->type = "lut";
 	glGenTextures(1, &texture->id);
@@ -230,7 +223,7 @@ ZHTexture ZGLTextureManager::CreateEmptyLUT()
 ZHTexture ZGLTextureManager::CreateColor(const glm::vec2& size, bool multisample /*= false*/)
 {
 	ZHTexture handle;
-	ZTexture* texture = texturePool_.New(handle);
+	ZTexture* texture = resourcePool_.New(handle);
 
     texture->type = "color";
     texture->multisampled = multisample;
@@ -260,7 +253,7 @@ ZHTexture ZGLTextureManager::CreateColor(const glm::vec2& size, bool multisample
 ZHTexture ZGLTextureManager::CreateDepth(const glm::vec2& size)
 {
 	ZHTexture handle;
-	ZTexture* texture = texturePool_.New(handle);
+	ZTexture* texture = resourcePool_.New(handle);
 
     texture->type = "depth";
 	glGenTextures(1, &texture->id);
@@ -281,7 +274,7 @@ ZHTexture ZGLTextureManager::CreateDepth(const glm::vec2& size)
 ZHTexture ZGLTextureManager::CreateDepthArray(const glm::vec2& size, int layers)
 {
 	ZHTexture handle;
-	ZTexture* texture = texturePool_.New(handle);
+	ZTexture* texture = resourcePool_.New(handle);
 
     texture->type = "depthArray";
 	glGenTextures(1, &texture->id);
@@ -303,7 +296,7 @@ ZHTexture ZGLTextureManager::CreateDepthArray(const glm::vec2& size, int layers)
 ZHTexture ZGLTextureManager::CreateCubeMap(const std::vector<std::string>& faces)
 {
 	ZHTexture handle;
-	ZTexture* texture = texturePool_.New(handle);
+	ZTexture* texture = resourcePool_.New(handle);
 
     texture->type = "cubemap";
 	glGenTextures(1, &texture->id);
@@ -345,8 +338,8 @@ ZHTexture ZGLTextureManager::CreateCubeMap(const ZHTexture& hdrTexture, std::sha
 {
 	bufferData = ZFramebuffer::CreateCubeMap();
 	ZHTexture cubemap = CreateEmptyCubeMap();
-	ZTexture* texture = texturePool_.Get(cubemap);
-	ZTexture* hdr = texturePool_.Get(hdrTexture);
+	ZTexture* texture = resourcePool_.Get(cubemap);
+	ZTexture* hdr = resourcePool_.Get(hdrTexture);
 	texture->path = hdr->path;
 
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.f, 0.1f, 100.0f);
@@ -391,7 +384,7 @@ ZHTexture ZGLTextureManager::CreateCubeMap(const ZHTexture& hdrTexture, std::sha
 ZHTexture ZGLTextureManager::CreateEmptyCubeMap(ZCubemapTextureType type /*= ZCubemapTextureType::Normal*/)
 {
 	ZHTexture handle;
-	ZTexture* texture = texturePool_.New(handle);
+	ZTexture* texture = resourcePool_.New(handle);
 
 	texture->type = "cubemap";
 	glGenTextures(1, &texture->id);
@@ -447,8 +440,8 @@ void ZGLTextureManager::CreateHDRIAsync(const std::string& hdriPath)
 ZHTexture ZGLTextureManager::CreateIrradianceMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZHTexture& cubemapTexture)
 {
 	ZHTexture handle = CreateEmptyCubeMap(ZCubemapTextureType::Irradiance);
-	ZTexture* texture = texturePool_.Get(handle);
-	ZTexture* cubemap = texturePool_.Get(cubemapTexture);
+	ZTexture* texture = resourcePool_.Get(handle);
+	ZTexture* cubemap = resourcePool_.Get(cubemapTexture);
 	texture->type = "irradiance";
 
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.f, 0.1f, 100.0f);
@@ -492,8 +485,8 @@ ZHTexture ZGLTextureManager::CreateIrradianceMap(const std::shared_ptr<ZFramebuf
 ZHTexture ZGLTextureManager::CreatePrefilterMap(const std::shared_ptr<ZFramebuffer>& cubemapBufferData, const ZHTexture& cubemapTexture)
 {
 	ZHTexture handle = CreateEmptyCubeMap(ZCubemapTextureType::Prefilter);
-	ZTexture* texture = texturePool_.Get(handle);
-	ZTexture* cubemap = texturePool_.Get(cubemapTexture);
+	ZTexture* texture = resourcePool_.Get(handle);
+	ZTexture* cubemap = resourcePool_.Get(cubemapTexture);
 	texture->type = "prefilter";
 
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.f, 0.1f, 100.0f);
@@ -548,7 +541,7 @@ ZHTexture ZGLTextureManager::CreatePrefilterMap(const std::shared_ptr<ZFramebuff
 ZHTexture ZGLTextureManager::CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& cubemapBufferData)
 {
 	ZHTexture handle = CreateEmptyLUT();
-	ZTexture* texture = texturePool_.Get(handle);
+	ZTexture* texture = resourcePool_.Get(handle);
 
 	ZVertex2DDataOptions options;
 	options.vertices = ZVertex2DList{

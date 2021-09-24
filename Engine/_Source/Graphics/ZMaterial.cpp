@@ -237,7 +237,8 @@ ZHMaterial ZMaterialManager::Deserialize(const ZOFHandle& dataHandle, std::share
     }
 
 	ZHMaterial handle(dataHandle.value);
-	ZMaterialBase* material = resourcePool_.Restore(handle);
+
+	ZMaterialBase* material = resourcePool_.New(handle);
 
 	if (dataNode->properties.find("albedo") != dataNode->properties.end())
 	{
@@ -335,7 +336,8 @@ void ZMaterialManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared
     }
 
 	ZHMaterial handle(dataHandle.value);
-	ZMaterialBase* material = resourcePool_.Restore(handle);
+
+	ZMaterialBase* material = resourcePool_.New(handle);
 
 	if (dataNode->properties.find("albedo") != dataNode->properties.end())
 	{

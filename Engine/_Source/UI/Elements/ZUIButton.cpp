@@ -47,11 +47,6 @@ void ZUIButton::Initialize()
     clicker_ = std::make_shared<ZUIClicker>();
 }
 
-void ZUIButton::Initialize(const std::shared_ptr<ZOFNode>& root)
-{
-    ZUIElement::Initialize(root);
-}
-
 bool ZUIButton::Clicked()
 {
     return clicker_->Click(options_.calculatedRect);

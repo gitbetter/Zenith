@@ -129,34 +129,26 @@ ZHModel ZModelManager::Create(const ZModelType& type, const ZHModel& restoreHand
 {
     ZHModel handle(restoreHandle);
 	ZModel* model = nullptr;
-	if (!handle.IsNull())
-	{
-        model = resourcePool_.Restore(handle);
-    }
-    else
-    {
-        model = resourcePool_.New(handle);
-	}
 
     switch (type)
     {
         case ZModelType::Plane:
-            *model = ZPlane();
+            model = resourcePool_.New<ZPlane>(handle);
             break;
         case ZModelType::Cube:
-            *model = ZCube();
+			model = resourcePool_.New<ZCube>(handle);
             break;
         case ZModelType::Sphere:
-            *model = ZSphere();
+			model = resourcePool_.New<ZSphere>(handle);
             break;
         case ZModelType::Cylinder:
-            *model = ZCylinder();
+			model = resourcePool_.New<ZCylinder>(handle);
             break;
         case ZModelType::Cone:
         default: break;
     }
 
-    if (type != ZModelType::Custom)
+    if (model != nullptr && type != ZModelType::Custom)
     {
 		ComputeBounds(handle);
 
@@ -188,15 +180,8 @@ ZHModel ZModelManager::Create(const std::string& path, const ZHModel& restoreHan
     }
 
 	ZHModel handle(restoreHandle);
-	ZModel* model = nullptr;
-	if (!handle.IsNull())
-	{
-		model = resourcePool_.Restore(handle);
-	}
-	else
-	{
-		model = resourcePool_.New(handle);
-	}
+
+	ZModel* model = resourcePool_.New(handle);
 
 	ZModelImporter importer;
     model->meshes = importer.LoadModel(path, model->bonesMap, model->bones, model->animations, model->skeleton);
@@ -241,15 +226,8 @@ void ZModelManager::CreateAsync(const std::string& path, const ZHModel& restoreH
 	}
 
 	ZHModel handle(restoreHandle);
-	ZModel* model = nullptr;
-	if (!handle.IsNull())
-	{
-		model = resourcePool_.Restore(handle);
-	}
-	else
-	{
-		model = resourcePool_.New(handle);
-	}
+
+	ZModel* model = resourcePool_.New(handle);
 
 	ZModelImporter importer;
 	model->meshes = importer.LoadModel(path, model->bonesMap, model->bones, model->animations, model->skeleton);
@@ -514,15 +492,8 @@ void ZModelManager::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent
     std::shared_ptr<ZModelResourceData> modelResource = std::static_pointer_cast<ZModelResourceData>(event->Resource());
 
 	ZHModel handle(modelResource->restoreHandle);
-	ZModel* model = nullptr;
-	if (!handle.IsNull())
-	{
-		model = resourcePool_.Restore(handle);
-    }
-    else
-    {
-        model = resourcePool_.New(handle);
-	}
+
+	ZModel* model = resourcePool_.New(handle);
 
     if (model)
     {

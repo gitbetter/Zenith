@@ -607,14 +607,8 @@ ZHShader ZShaderManager::Create(const std::string& vertexShaderPath, const std::
 {
     ZHShader handle(restoreHandle);
     ZShader* shader = nullptr;
-    if (!handle.IsNull())
-    {
-        shader = resourcePool_.Restore(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
-    }
-    else
-    {
-        shader = resourcePool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
-    }
+
+    shader = resourcePool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
 
     shader->name = !name.empty() ? name : shader->name;
 
@@ -631,14 +625,8 @@ void ZShaderManager::CreateAsync(const std::string& vertexShaderPath, const std:
 {
 	ZHShader handle(restoreHandle);
 	ZShader* shader = nullptr;
-	if (!handle.IsNull())
-	{
-		shader = resourcePool_.Restore(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
-    }
-    else
-    {
-        shader = resourcePool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
-	}
+
+    shader = resourcePool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
 
     shader->name = !name.empty() ? name : shader->name;
 

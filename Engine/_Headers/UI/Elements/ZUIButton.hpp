@@ -43,7 +43,6 @@ public:
     ~ZUIButton() {}
 
     void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
 
     bool Clicked();
     bool Pressed();

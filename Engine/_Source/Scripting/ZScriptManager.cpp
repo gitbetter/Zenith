@@ -59,15 +59,8 @@ void ZScriptManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZO
 	}
 
 	ZHScript restoreHandle(dataHandle.value);
-	ZScript* script = nullptr;
-	if (restoreHandle.IsNull())
-	{
-		script = resourcePool_.New(restoreHandle);
-	}
-	else
-	{
-		script = resourcePool_.Restore(restoreHandle);
-	}
+
+	ZScript* script = resourcePool_.New(restoreHandle);
 
 	if (dataNode->properties.find("path") != dataNode->properties.end() && dataNode->properties["path"]->HasValues())
 	{
@@ -114,15 +107,9 @@ void ZScriptManager::HandleScriptLoaded(const std::shared_ptr<class ZResourceLoa
 	}
 
 	ZScriptResourceData::ptr scriptData = std::static_pointer_cast<ZScriptResourceData>(event->Resource());
-	ZScript* script = nullptr;
-	if (scriptData->restoreHandle.IsNull())
-	{
-		script = resourcePool_.New(scriptData->restoreHandle);
-	}
-	else
-	{
-		script = resourcePool_.Restore(scriptData->restoreHandle);
-	}
+
+	ZScript* script = resourcePool_.New(scriptData->restoreHandle);
+
 	script->code = scriptData->code;
 	script->path = scriptData->path;
 
