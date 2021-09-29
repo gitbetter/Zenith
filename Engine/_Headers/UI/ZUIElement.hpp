@@ -61,6 +61,11 @@ class ZUniformBuffer;
 class ZRenderStateGroup;
 class ZWindowResizeEvent;
 
+enum class ZUIElementType
+{
+	Canvas, Panel, Button, CheckBox, Image, InputField, LabeledElement, ListPanel, Text
+};
+
 struct ZUIBorder
 {
     float width{ 0.f };

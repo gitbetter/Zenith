@@ -66,105 +66,106 @@ ZHUIElement ZUIElementManager::Deserialize(const ZOFHandle& dataHandle, const st
 	}
 
 	ZHUIElement restoreHandle(dataHandle.value);
+	ZUIElement* element = resourcePool_.New(restoreHandle);
 
     ZOFPropertyMap props = dataNode->properties;
 
 	if (props.find("name") != props.end() && props["name"]->HasValues())
 	{
 		std::shared_ptr<ZOFString> nameProp = props["name"]->Value<ZOFString>(0);
-		name_ = nameProp->value;
+		element->name = nameProp->value;
 	}
 
     if (props.find("positioning") != props.end() && props["positioning"]->HasValues())
     {
         std::shared_ptr<ZOFString> positioningProp = props["positioning"]->Value<ZOFString>(0);
-        options_.positioning = positioningProp->value == "Relative" ? ZPositioning::Relative : ZPositioning::Absolute;
+		element->options.positioning = positioningProp->value == "Relative" ? ZPositioning::Relative : ZPositioning::Absolute;
     }
 
     if (props.find("scaling") != props.end() && props["scaling"]->HasValues())
     {
         std::shared_ptr<ZOFString> scalingProp = props["scaling"]->Value<ZOFString>(0);
-        options_.scaling = scalingProp->value == "Relative" ? ZPositioning::Relative : ZPositioning::Absolute;
-    }
+		element->options.scaling = scalingProp->value == "Relative" ? ZPositioning::Relative : ZPositioning::Absolute;
+	}
 
-    if (props.find("scale") != props.end() && props["scale"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-        float x = scaleProp->value[0] * 0.01;
-        float y = scaleProp->value[1] * 0.01;
-        options_.rect.size = glm::vec2(x, y);
-    }
+	if (props.find("scale") != props.end() && props["scale"]->HasValues())
+	{
+		std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
+		float x = scaleProp->value[0] * 0.01;
+		float y = scaleProp->value[1] * 0.01;
+		element->options.rect.size = glm::vec2(x, y);
+	}
 
-    if (props.find("position") != props.end() && props["position"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
-        float x = posProp->value[0] * 0.01;
-        float y = posProp->value[1] * 0.01;
-        options_.rect.position = glm::vec2(x, y);
-    }
+	if (props.find("position") != props.end() && props["position"]->HasValues())
+	{
+		std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
+		float x = posProp->value[0] * 0.01;
+		float y = posProp->value[1] * 0.01;
+		element->options.rect.position = glm::vec2(x, y);
+	}
 
-    if (props.find("anchor") != props.end() && props["anchor"]->HasValues())
-    {
-        std::shared_ptr<ZOFString> hAnchorProp = props["anchor"]->Value<ZOFString>(0);
-        std::shared_ptr<ZOFString> vAnchorProp = props["anchor"]->Value<ZOFString>(1);
-        // TODO: A parent pointer is needed to determine the bounds and therefore the anchor relative positioning.
-        // if there is no parent we simply anchor to the screen/resolution bounds
-    }
+	if (props.find("anchor") != props.end() && props["anchor"]->HasValues())
+	{
+		std::shared_ptr<ZOFString> hAnchorProp = props["anchor"]->Value<ZOFString>(0);
+		std::shared_ptr<ZOFString> vAnchorProp = props["anchor"]->Value<ZOFString>(1);
+		// TODO: A parent pointer is needed to determine the bounds and therefore the anchor relative positioning.
+		// if there is no parent we simply anchor to the screen/resolution bounds
+	}
 
-    if (props.find("color") != props.end() && props["color"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumberList> colorProp = props["color"]->Value<ZOFNumberList>(0);
-        options_.color = glm::vec4(colorProp->value[0], colorProp->value[1], colorProp->value[2], colorProp->value[3]);
-    }
+	if (props.find("color") != props.end() && props["color"]->HasValues())
+	{
+		std::shared_ptr<ZOFNumberList> colorProp = props["color"]->Value<ZOFNumberList>(0);
+		element->options.color = glm::vec4(colorProp->value[0], colorProp->value[1], colorProp->value[2], colorProp->value[3]);
+	}
 
-    if (props.find("isHidden") != props.end() && props["isHidden"]->HasValues())
-    {
-        std::shared_ptr<ZOFString> hiddenProp = props["isHidden"]->Value<ZOFString>(0);
-        options_.hidden = hiddenProp->value == "Yes";
+	if (props.find("isHidden") != props.end() && props["isHidden"]->HasValues())
+	{
+		std::shared_ptr<ZOFString> hiddenProp = props["isHidden"]->Value<ZOFString>(0);
+		element->options.hidden = hiddenProp->value == "Yes";
     }
 
     if (props.find("isEnabled") != props.end() && props["isEnabled"]->HasValues())
     {
         std::shared_ptr<ZOFString> enabledProp = props["isEnabled"]->Value<ZOFString>(0);
-        options_.enabled = enabledProp->value == "Yes";
-    }
+		element->options.enabled = enabledProp->value == "Yes";
+	}
 
-    if (props.find("texture") != props.end() && props["texture"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumber> texProp = props["texture"]->Value<ZOFNumber>(0);
-        options_.texture = ZHTexture(texProp->value);
-    }
+	if (props.find("texture") != props.end() && props["texture"]->HasValues())
+	{
+		std::shared_ptr<ZOFNumber> texProp = props["texture"]->Value<ZOFNumber>(0);
+		element->options.texture = ZHTexture(texProp->value);
+	}
 
-    if (props.find("borderWidth") != props.end() && props["borderWidth"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumber> borderWidthProp = props["borderWidth"]->Value<ZOFNumber>(0);
-        options_.border.width = borderWidthProp->value;
-    }
+	if (props.find("borderWidth") != props.end() && props["borderWidth"]->HasValues())
+	{
+		std::shared_ptr<ZOFNumber> borderWidthProp = props["borderWidth"]->Value<ZOFNumber>(0);
+		element->options.border.width = borderWidthProp->value;
+	}
 
-    if (props.find("borderColor") != props.end() && props["borderColor"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumberList> borderColorProp = props["borderColor"]->Value<ZOFNumberList>(0);
-        options_.border.color = glm::vec4(borderColorProp->value[0], borderColorProp->value[1], borderColorProp->value[2], borderColorProp->value[3]);
-    }
+	if (props.find("borderColor") != props.end() && props["borderColor"]->HasValues())
+	{
+		std::shared_ptr<ZOFNumberList> borderColorProp = props["borderColor"]->Value<ZOFNumberList>(0);
+		element->options.border.color = glm::vec4(borderColorProp->value[0], borderColorProp->value[1], borderColorProp->value[2], borderColorProp->value[3]);
+	}
 
-    if (props.find("borderRadius") != props.end() && props["borderRadius"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumber> borderRadiusProp = props["borderRadius"]->Value<ZOFNumber>(0);
-        options_.border.radius = borderRadiusProp->value;
-    }
+	if (props.find("borderRadius") != props.end() && props["borderRadius"]->HasValues())
+	{
+		std::shared_ptr<ZOFNumber> borderRadiusProp = props["borderRadius"]->Value<ZOFNumber>(0);
+		element->options.border.radius = borderRadiusProp->value;
+	}
 
-    if (props.find("opacity") != props.end() && props["opacity"]->HasValues())
-    {
-        std::shared_ptr<ZOFNumber> opacityProp = props["opacity"]->Value<ZOFNumber>(0);
-        options_.opacity = opacityProp->value;
-        options_.color.a = options_.opacity;
-        options_.border.color.a = options_.opacity;
+	if (props.find("opacity") != props.end() && props["opacity"]->HasValues())
+	{
+		std::shared_ptr<ZOFNumber> opacityProp = props["opacity"]->Value<ZOFNumber>(0);
+		element->options.opacity = opacityProp->value;
+		element->options.color.a = element->options.opacity;
+		element->options.border.color.a = element->options.opacity;
     }
 
     if (props.find("zIndex") != props.end() && props["zIndex"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> zIndexProp = props["zIndex"]->Value<ZOFNumber>(0);
-        name_ = name_.substr(0, name_.find("_")) + "_" + std::to_string(static_cast<int>(zIndexProp->value)) + name_.substr(name_.find("_"));
+		element->name = element->name.substr(0, element->name.find("_")) + "_" + std::to_string(static_cast<int>(zIndexProp->value)) + element->name.substr(element->name.find("_"));
     }
 
     Initialize();
