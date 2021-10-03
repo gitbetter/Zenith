@@ -173,5 +173,3 @@ void ZUIInputField::HandleButtonPressed(const std::shared_ptr<ZInputButtonEvent>
         SetFocused(ZServices::UIElementManager()->Contains(handle, ZServices::Input()->GetCursorPosition()));
     }
 }
-
-DEFINE_UI_CREATORS(ZUIInputField)

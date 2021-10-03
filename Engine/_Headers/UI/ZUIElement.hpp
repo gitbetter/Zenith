@@ -29,28 +29,6 @@
 
 #pragma once
 
-#define DECLARE_UI_CREATORS(Type)\
-static ZHUIElement Create();\
-static ZHUIElement Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene = nullptr);
-
-#define DEFINE_UI_CREATORS(Type)\
-ZHUIElement Type::Create()\
-{\
-	ZHUIElement handle;
-	Type* element = resourcePool_.New<Type>(handle);
-	return handle
-}\
-ZHUIElement Type::Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene)\
-{\
-	ZHUIElement handle;
-	Type* element = resourcePool_.New<Type>(handle);
-    if (scene) {\
-        SetScene(handle, scene);\
-        Initialize(handle);\
-    }\
-    return element;\
-}
-
 #include "ZResourceManager.hpp"
 #include "ZUILayout.hpp"
 #include "ZUIHelpers.hpp"
@@ -61,11 +39,6 @@ class ZMesh2D;
 class ZUniformBuffer;
 class ZRenderStateGroup;
 class ZWindowResizeEvent;
-
-enum class ZUIElementType
-{
-	Canvas, Panel, Button, CheckBox, Image, InputField, LabeledElement, ListPanel, Text
-};
 
 struct ZUIBorder
 {
@@ -154,7 +127,8 @@ public:
 
 	virtual ZHUIElement                 Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene);
 	ZUIElementList                      Deserialize(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
-	ZHUIElement				            Create(const std::string& type);
+	ZHUIElement				            Create(const ZUIElementType& type);
+	ZHUIElement							Create(const ZUIElementType& type, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene = nullptr);
 
 	virtual void                        Prepare(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
 	virtual unsigned int                PrepareChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);

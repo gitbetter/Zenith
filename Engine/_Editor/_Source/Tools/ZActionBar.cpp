@@ -39,8 +39,8 @@
 
 void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
-    container_->SetColor(theme_.primaryColor);
-    container_->SetRect(ZRect(0.f, 0.35f, 1.f, 0.65f));
+    ZServices::UIElementManager()->SetColor(container_, theme_.primaryColor);
+    ZServices::UIElementManager()->SetRect(container_, ZRect(0.f, 0.35f, 1.f, 0.65f));
 
     ZUIElementOptions listOptions;
     listOptions.positioning = ZPositioning::Relative;
@@ -50,46 +50,47 @@ void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
     layoutOptions.itemSpacing = 10.f;
     layoutOptions.verticalAlign = ZAlignment::Middle;
     listOptions.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
-    auto actionButtonList = ZUIPanel::Create(listOptions, scene);
+    auto actionButtonList = ZServices::UIElementManager()->Create(ZUIElementType::Panel, listOptions, scene);
 
     playButton_ = CreateActionButton("/Images/play_icon.png", scene);
     pauseButton_ = CreateActionButton("/Images/pause_icon.png", scene);
     stopButton_ = CreateActionButton("/Images/stop_icon.png", scene);
 
-    actionButtonList->AddChild(playButton_);
-    actionButtonList->AddChild(pauseButton_);
-    actionButtonList->AddChild(stopButton_);
+    ZServices::UIElementManager()->AddChild(actionButtonList, playButton_);
+    ZServices::UIElementManager()->AddChild(actionButtonList, pauseButton_);
+    ZServices::UIElementManager()->AddChild(actionButtonList, stopButton_);
 
-    container_->AddChild(actionButtonList);
+    ZServices::UIElementManager()->AddChild(container_, actionButtonList);
 }
 
 void ZActionBar::Update() {
-    if (playButton_->Clicked()) {
+    if (ZServices::UIElementManager()->Dereference<ZUIButton>(playButton_)->Clicked()) {
         activeProjectScene_->Play();
         ZServices::Input()->CaptureCursor();
     }
-    if (stopButton_->Clicked()) {
+    if (ZServices::UIElementManager()->Dereference<ZUIButton>(stopButton_)->Clicked()) {
         activeProjectScene_->Stop();
     }
-    if (pauseButton_->Clicked()) {
+    if (ZServices::UIElementManager()->Dereference<ZUIButton>(pauseButton_)->Clicked()) {
         activeProjectScene_->Pause();
     }
 }
 
-std::shared_ptr<ZUIButton> ZActionBar::CreateActionButton(const std::string& iconPath, const std::shared_ptr<ZScene>& scene)
+ZHUIElement ZActionBar::CreateActionButton(const std::string& iconPath, const std::shared_ptr<ZScene>& scene)
 {
     ZUIElementOptions buttonOptions;
     buttonOptions.positioning = ZPositioning::Relative;
     buttonOptions.rect = ZRect(0.f, 0.f, 30.0f, 30.0f);
-    auto button = ZUIButton::Create(buttonOptions, scene);
+    auto button = ZServices::UIElementManager()->Create(ZUIElementType::Button, buttonOptions, scene);
     ZUIElementOptions iconOptions;
     iconOptions.positioning = ZPositioning::Relative;
     iconOptions.scaling = ZPositioning::Relative;
     iconOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     iconOptions.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-    auto icon = ZUIImage::Create(iconOptions, scene);
-    icon->SetImage(iconPath);
-    button->AddChild(icon);
+    auto icon = ZServices::UIElementManager()->Create(ZUIElementType::Image, iconOptions, scene);
+    auto iconElement = ZServices::UIElementManager()->Dereference<ZUIImage>(icon);
+    iconElement->SetImage(iconPath);
+    ZServices::UIElementManager()->AddChild(button, icon);
 
     return button;
 }

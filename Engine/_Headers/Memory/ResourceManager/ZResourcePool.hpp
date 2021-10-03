@@ -49,7 +49,7 @@ public:
     ~ZResourcePool() { }
 
     template <typename Type = Data, typename ...Args>
-    Data* New(Handle& handle, Args && ...args)
+    Type* New(Handle& handle, Args && ...args)
 	{
         static_assert(std::is_base_of<Data, Type>::value, "Type is not derived from Data");
 

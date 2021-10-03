@@ -126,7 +126,7 @@ void ZScene::Update(double deltaTime)
     if (playState_ == ZPlayState::Playing || playState_ == ZPlayState::Paused)
     {
         root_->Prepare(deltaTime);
-        canvas_->Prepare(deltaTime);
+        ZServices::UIElementManager()->Prepare(canvas_, deltaTime);
         renderer_->Render(deltaTime);
         bvh_->Build();
     }
@@ -242,7 +242,7 @@ void ZScene::CreateUICanvas()
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     elementOptions.color = glm::vec4(1.f);
-    canvas_ = ZUICanvas::Create(elementOptions, shared_from_this());
+    canvas_ = ZServices::UIElementManager()->Create(ZUIElementType::Canvas, elementOptions, shared_from_this());
 }
 
 void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately)
@@ -353,11 +353,11 @@ std::shared_ptr<ZGameObject> ZScene::FindGameObject(const std::string& id)
     return nullptr;
 }
 
-void ZScene::AddUIElement(std::shared_ptr<ZUIElement> element)
+void ZScene::AddUIElement(const ZHUIElement& element)
 {
     if (element && uiElementIDMap_.find(element->ID()) == uiElementIDMap_.end())
     {
-        canvas_->AddChild(element);
+        ZServices::UIElementManager()->AddChild(canvas_, element);
         uiElementIDMap_[element->ID()] = uiElements_.size();
         uiElements_.push_back(element);
     }

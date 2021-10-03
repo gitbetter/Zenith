@@ -55,5 +55,3 @@ bool ZUIButton::Released()
 {
     return clicker_->Release(options.calculatedRect);
 }
-
-DEFINE_UI_CREATORS(ZUIButton)

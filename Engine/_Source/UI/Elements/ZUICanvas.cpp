@@ -34,5 +34,3 @@ ZUICanvas::ZUICanvas() : ZUIElement()
 {
     type = ZUIElementType::Canvas;
 }
-
-DEFINE_UI_CREATORS(ZUICanvas)

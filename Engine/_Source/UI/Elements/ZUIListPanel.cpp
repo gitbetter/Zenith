@@ -56,5 +56,3 @@ void ZUIListPanel::OnChildAdded(const ZHUIElement& element)
 
     ZServices::UIElementManager()->SetSize(handle, glm::vec2(thisSize.x, glm::max(thisSize.y, itemHeight_ * thisNumChildren)));
 }
-
-DEFINE_UI_CREATORS(ZUIListPanel)

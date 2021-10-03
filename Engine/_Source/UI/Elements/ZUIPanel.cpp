@@ -33,5 +33,3 @@ ZUIPanel::ZUIPanel() : ZUIElement()
 {
     type = ZUIElementType::Panel;
 }
-
-DEFINE_UI_CREATORS(ZUIPanel)

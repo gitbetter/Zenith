@@ -47,8 +47,6 @@ public:
     void SetImage(const std::string& path);
     void SetImage(const ZHTexture& texture);
 
-    DECLARE_UI_CREATORS(ZUIImage)
-
 protected:
 
     void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);

@@ -541,7 +541,7 @@ enum class ZPrimitiveType
 
 enum class ZUIElementType
 {
-    Canvas, Button, CheckBox, Image, InputField, ListPanel, Panel, Text, Unknown
+    Canvas, Panel, Button, CheckBox, Image, InputField, LabeledElement, ListPanel, Text, Unknown
 };
 
 enum class ZShaderType

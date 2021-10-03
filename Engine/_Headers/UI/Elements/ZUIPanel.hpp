@@ -40,8 +40,4 @@ public:
     ZUIPanel();
     ~ZUIPanel() = default;
 
-    DECLARE_UI_CREATORS(ZUIPanel)
-
-protected:
-
 };

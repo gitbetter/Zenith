@@ -29,15 +29,12 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
 class ZScene;
 class ZUIText;
 class ZUIPanel;
 
-// Class and Data Structure Definitions
 class ZUILabeledElement : public ZUIElement
 {
 
@@ -50,9 +47,7 @@ public:
     ZUILabeledElement();
     ~ZUILabeledElement() = default;
 
-    void                                        Initialize();
-
-    void                                        Initialize(const std::shared_ptr<ZOFNode>& root);
+    void                                        OnInitialize();
 
     const ZHUIElement                           LabelField() const { return labelText_; }
     const ZHUIElement                           Element() const { return element_; }
@@ -63,8 +58,10 @@ public:
     void                                        SetLabelBackgroundColor(const glm::vec4& color);
     void                                        SetLabelFontSize(float size);
     void                                        SetLabelTextAlignment(ZAlignment alignment);
+    void                                        SetElement(const ZHUIElement& element);
+    void                                        SetLabelPosition(Position labelPosition);
 
-    static std::shared_ptr<ZUILabeledElement>   Create(const std::string& label, const std::shared_ptr<ZUIElement>& element, Position labelPosition = Position::Left);
+    static ZHUIElement                          Create(const std::string& label, const ZHUIElement& element, Position labelPosition = Position::Left);
 
 protected:
 

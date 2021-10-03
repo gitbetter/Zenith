@@ -64,8 +64,6 @@ public:
 
     void                                        OnInputChanged(const std::function<void(const std::string&)>& cb) { onInputChangedCallback_ = cb; }
 
-    DECLARE_UI_CREATORS(ZUIInputField)
-
 protected:
 
     std::string                             placeholder_;

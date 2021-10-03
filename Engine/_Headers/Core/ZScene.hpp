@@ -106,10 +106,10 @@ public:
     std::shared_ptr<ZGameObject> FindGameObject(const std::string& id);
     void RemoveGameObject(std::shared_ptr<ZGameObject> gameObject);
 
-    void AddUIElement(std::shared_ptr<ZUIElement> element);
-    void AddUIElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements);
-    std::shared_ptr<ZUIElement> FindUIElement(const std::string& id);
-    void RemoveUIElement(std::shared_ptr<ZUIElement> element);
+    void AddUIElement(const ZHUIElement& element);
+    void AddUIElements(std::initializer_list<ZHUIElement> elements);
+    ZHUIElement FindUIElement(const std::string& id);
+    void RemoveUIElement(const ZHUIElement& element);
 
     ZRay ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions = glm::vec2(0.f));
     bool RayCast(ZRay& ray, ZIntersectHitResult& hitResult);
@@ -161,7 +161,7 @@ protected:
     // TODO: Create a light manager class to handle the scene lights
     std::shared_ptr<ZSkybox> skybox_ = nullptr;
     std::shared_ptr<ZGameObject> root_ = nullptr;
-    std::shared_ptr<ZUICanvas> canvas_ = nullptr;
+    ZHUIElement                 canvas_;
     std::shared_ptr<ZCamera> activeCamera_ = nullptr;
     std::shared_ptr<ZCamera> primaryCamera_ = nullptr;
     std::shared_ptr<ZBVH> bvh_ = nullptr;

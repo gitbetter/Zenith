@@ -61,8 +61,6 @@ public:
     void SetHorizontalAlignment(ZAlignment alignment);
     void SetVerticalAlignment(ZAlignment alignment);
 
-    DECLARE_UI_CREATORS(ZUIText)
-
 protected:
 
     std::string                              text_;

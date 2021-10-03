@@ -47,8 +47,6 @@ public:
     bool Pressed();
     bool Released();
 
-    DECLARE_UI_CREATORS(ZUIButton)
-
 protected:
 
     bool activated_ = false;

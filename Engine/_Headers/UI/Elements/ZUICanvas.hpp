@@ -39,6 +39,4 @@ public:
     ZUICanvas();
     ~ZUICanvas() = default;
 
-    DECLARE_UI_CREATORS(ZUICanvas)
-
 };

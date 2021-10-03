@@ -52,8 +52,6 @@ public:
 
     void Toggle();
 
-    DECLARE_UI_CREATORS(ZUICheckBox)
-
 protected:
 
     ZHUIElement checkImage_;

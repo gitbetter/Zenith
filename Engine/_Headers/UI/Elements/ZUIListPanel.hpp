@@ -50,8 +50,4 @@ public:
 
     void OnChildAdded(const ZHUIElement& element) override;
 
-    DECLARE_UI_CREATORS(ZUIListPanel)
-
-protected:
-
 };

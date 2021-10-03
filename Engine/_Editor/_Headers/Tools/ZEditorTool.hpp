@@ -29,15 +29,11 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorEntity.hpp"
 
-// Forward Declarations
 class ZEditorScene;
-class ZUIPanel;
 class ZUIScene;
 
-// Definitions
 class ZEditorTool : public ZEditorEntity {
 
 public:
@@ -48,15 +44,13 @@ public:
     
 	virtual void Initialize(const std::shared_ptr<ZScene>& scene)  override;
 
-	virtual void CleanUp() override;
-
-	std::shared_ptr<ZUIPanel> Container() const { return container_; }
+	ZHUIElement Container() const { return container_; }
 	
 protected:
 
-	std::shared_ptr<ZUIPanel>                   container_;
-	std::string name_;
-	ZUITheme theme_;
-	bool visible_;
+	ZHUIElement                   container_;
+	std::string					  name_;
+	ZUITheme					  theme_;
+	bool						  visible_;
 
 };

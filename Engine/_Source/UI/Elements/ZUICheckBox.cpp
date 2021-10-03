@@ -80,5 +80,3 @@ void ZUICheckBox::Toggle()
 {
     SetChecked(!checked_);
 }
-
-DEFINE_UI_CREATORS(ZUICheckBox)

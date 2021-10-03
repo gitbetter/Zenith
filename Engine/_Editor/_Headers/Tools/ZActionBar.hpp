@@ -29,14 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorTool.hpp"
 
-// Forward Declarations
-class ZUIPanel;
-class ZUIButton;
-
-// Definitions
 class ZActionBar : public ZEditorTool {
 
 public:
@@ -50,8 +44,8 @@ public:
 
 protected:
 
-    std::shared_ptr<ZUIButton> playButton_, pauseButton_, stopButton_;
+    ZHUIElement playButton_, pauseButton_, stopButton_;
 
-    std::shared_ptr<ZUIButton> CreateActionButton(const std::string& iconPath, const std::shared_ptr<ZScene>& scene);
+    ZHUIElement CreateActionButton(const std::string& iconPath, const std::shared_ptr<ZScene>& scene);
 
 };

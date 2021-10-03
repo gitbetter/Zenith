@@ -31,14 +31,7 @@
 #include "ZScene.hpp"
 #include "ZMesh.hpp"
 #include "ZDomain.hpp"
-#include "ZUIButton.hpp"
-#include "ZUIImage.hpp"
-#include "ZUIPanel.hpp"
-#include "ZUIText.hpp"
-#include "ZUICheckbox.hpp"
-#include "ZUIListPanel.hpp"
 #include "ZShader.hpp"
-#include "ZUIText.hpp"
 #include "ZUILayout.hpp"
 #include "ZMesh.hpp"
 #include "ZRenderTask.hpp"
@@ -47,6 +40,16 @@
 #include "ZWindowResizeEvent.hpp"
 #include "ZObjectSelectedEvent.hpp"
 #include "ZWindowResizeEvent.hpp"
+
+#include "ZUIButton.hpp"
+#include "ZUICanvas.hpp"
+#include "ZUICheckbox.hpp"
+#include "ZUIImage.hpp"
+#include "ZUIInputField.hpp"
+#include "ZUILabeledElement.hpp"
+#include "ZUIListPanel.hpp"
+#include "ZUIPanel.hpp"
+#include "ZUIText.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
@@ -173,34 +176,89 @@ ZHUIElement ZUIElementManager::Deserialize(const ZOFHandle& dataHandle, const st
     Initialize(restoreHandle);
 }
 
-ZHUIElement ZUIElementManager::Create(const std::string& type)
+ZHUIElement ZUIElementManager::Create(const ZUIElementType& type)
 {
-    if (type == "Button")
+	ZHUIElement handle;
+
+	switch (type)
 	{
-        return ZUIButton::Create();
-    }
-    else if (type == "Image")
+		case ZUIElementType::Button:
+			ZUIButton* element = resourcePool_.New<ZUIButton>(handle);
+			break;
+		case ZUIElementType::Canvas:
+			ZUICanvas* element = resourcePool_.New<ZUICanvas>(handle);
+			break;
+		case ZUIElementType::CheckBox:
+			ZUICheckBox* element = resourcePool_.New<ZUICheckBox>(handle);
+			break;
+		case ZUIElementType::Image:
+			ZUIImage* element = resourcePool_.New<ZUIImage>(handle);
+			break;
+		case ZUIElementType::InputField:
+			ZUIInputField* element = resourcePool_.New<ZUIInputField>(handle);
+			break;
+		case ZUIElementType::LabeledElement:
+			ZUILabeledElement* element = resourcePool_.New<ZUILabeledElement>(handle);
+			break;
+		case ZUIElementType::ListPanel:
+			ZUIListPanel* element = resourcePool_.New<ZUIListPanel>(handle);
+			break;
+		case ZUIElementType::Panel:
+			ZUIPanel* element = resourcePool_.New<ZUIPanel>(handle);
+			break;
+		case ZUIElementType::Text:
+			ZUIText* element = resourcePool_.New<ZUIText>(handle);
+			break;
+		default: break;
+	}
+
+    return handle;
+}
+
+ZHUIElement ZUIElementManager::Create(const ZUIElementType& type, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene)
+{
+	ZHUIElement handle;
+	ZUIElement* element = nullptr;
+
+	switch (type)
 	{
-        return ZUIImage::Create();
-    }
-    else if (type == "Panel")
-	{
-        return ZUIPanel::Create();
-    }
-    else if (type == "Text")
-	{
-        return ZUIText::Create();
-    }
-    else if (type == "Checkbox")
-	{
-        return ZUICheckBox::Create();
-    }
-    else if (type == "ListPanel")
-	{
-        return ZUIListPanel::Create();
-    }
-    LOG("Could not create a UI element of type " + type, ZSeverity::Error);
-    return ZHUIElement();
+	case ZUIElementType::Button:
+		element = resourcePool_.New<ZUIButton>(handle);
+		break;
+	case ZUIElementType::Canvas:
+		element = resourcePool_.New<ZUICanvas>(handle);
+		break;
+	case ZUIElementType::CheckBox:
+		element = resourcePool_.New<ZUICheckBox>(handle);
+		break;
+	case ZUIElementType::Image:
+		element = resourcePool_.New<ZUIImage>(handle);
+		break;
+	case ZUIElementType::InputField:
+		element = resourcePool_.New<ZUIInputField>(handle);
+		break;
+	case ZUIElementType::LabeledElement:
+		element = resourcePool_.New<ZUILabeledElement>(handle);
+		break;
+	case ZUIElementType::ListPanel:
+		element = resourcePool_.New<ZUIListPanel>(handle);
+		break;
+	case ZUIElementType::Panel:
+		element = resourcePool_.New<ZUIPanel>(handle);
+		break;
+	case ZUIElementType::Text:
+		element = resourcePool_.New<ZUIText>(handle);
+		break;
+	default: break;
+	}
+
+	if (scene != nullptr && element != nullptr) {
+		element->options = options;
+		SetScene(handle, scene);
+		Initialize(handle);
+	}
+
+	return handle;
 }
 
 void ZUIElementManager::Initialize()

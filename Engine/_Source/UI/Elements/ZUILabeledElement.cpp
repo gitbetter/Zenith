@@ -33,35 +33,19 @@
 #include "ZUIText.hpp"
 #include "ZUIPanel.hpp"
 
-ZUILabeledElement::ZUILabeledElement(const std::string& label, const std::shared_ptr<ZUIElement>& element, Position labelPosition)
-    : ZUIElement()
+ZUILabeledElement::ZUILabeledElement() : ZUIElement()
 {
     // A labeled element is just a wrapper/decorator object, so it should inherit most of the
     // properties of the wrapped element
-    element_ = element;
-    label_ = label;
-    labelPosition_ = labelPosition;
-    options_ = element_->Options();
-    type_ = element->Type();
-    scene_ = element->Scene();
-    options_.color = glm::vec4(0.f);
+    options.color = glm::vec4(0.f);
 }
 
-void ZUILabeledElement::Initialize()
+void ZUILabeledElement::OnInitialize()
 {
-    ZUIElement::Initialize();
-
-    auto scene = Scene();
-    if (!scene)
-    {
-        LOG("ZUILabeledElement was not attached to scene during initialization", ZSeverity::Error);
-        return;
-    }
-
     ZUILayoutOptions layoutOptions;
     layoutOptions.verticalAlign = ZAlignment::Middle;
-    layoutOptions.dimensions = options_.calculatedRect;
-    options_.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
+    layoutOptions.dimensions = options.calculatedRect;
+    options.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
 
     // A horizontal layout will layout elements based on sequential calls to
     // AddChild on the layout container. If we want to change the label position
@@ -76,62 +60,73 @@ void ZUILabeledElement::Initialize()
     }
 }
 
-void ZUILabeledElement::Initialize(const std::shared_ptr<ZOFNode>& root)
-{
-    ZUIElement::Initialize(root);
-}
-
 void ZUILabeledElement::SetLabel(const std::string& label)
 {
-    labelText_->SetText(label);
+    ZUIText* textLabel = ZServices::UIElementManager()->Dereference<ZUIText>(labelText_);
+    textLabel->SetText(label);
     float labelWidth = label.empty() ? 0.f : labelWidth_;
-    labelText_->SetRect(ZRect(0.f, 0.f, labelWidth, 1.f), options_.calculatedRect);
-    element_->SetRect(ZRect(0.f, 0.f, 1.f - labelWidth, 1.f), options_.calculatedRect);
+    ZServices::UIElementManager()->SetRect(labelText_, ZRect(0.f, 0.f, labelWidth, 1.f), options.calculatedRect);
+    ZServices::UIElementManager()->SetRect(element_, ZRect(0.f, 0.f, 1.f - labelWidth, 1.f), options.calculatedRect);
 }
 
 void ZUILabeledElement::SetLabelWidth(float width)
 {
     labelWidth_ = width;
-    if (labelText_) {
-        labelText_->SetRect(ZRect(0.f, 0.f, labelWidth_, 1.f), options_.calculatedRect);
-        element_->SetRect(ZRect(0.f, 0.f, 1.f - labelWidth_, 1.f), options_.calculatedRect);
+    if (!labelText_.IsNull()) {
+        ZServices::UIElementManager()->SetRect(labelText_, ZRect(0.f, 0.f, labelWidth_, 1.f), options.calculatedRect);
+        ZServices::UIElementManager()->SetRect(element_, ZRect(0.f, 0.f, 1.f - labelWidth_, 1.f), options.calculatedRect);
     }
 }
 
 void ZUILabeledElement::SetLabelFontSize(float size)
 {
     labelFontSize_ = size;
-    if (labelText_) {
-        labelText_->SetFontScale(labelFontSize_);
+    if (!labelText_.IsNull()) {
+        ZUIText* textLabel = ZServices::UIElementManager()->Dereference<ZUIText>(labelText_);
+        textLabel->SetFontScale(labelFontSize_);
     }
 }
 
 void ZUILabeledElement::SetLabelTextAlignment(ZAlignment alignment)
 {
-    if (labelText_) {
-        labelText_->SetHorizontalAlignment(alignment);
+    if (!labelText_.IsNull()) {
+        ZUIText* textLabel = ZServices::UIElementManager()->Dereference<ZUIText>(labelText_);
+        textLabel->SetHorizontalAlignment(alignment);
     }
+}
+
+void ZUILabeledElement::SetElement(const ZHUIElement& element)
+{
+    element_ = element;
+    options = ZServices::UIElementManager()->Options(element);
+    type = ZServices::UIElementManager()->Type(element);
+    scene = ZServices::UIElementManager()->Scene(element);
+}
+
+void ZUILabeledElement::SetLabelPosition(Position labelPosition)
+{
+    labelPosition_ = labelPosition;
 }
 
 void ZUILabeledElement::SetLabelTextColor(const glm::vec4& color)
 {
     labelTextColor_ = color;
-    if (labelText_) {
-        labelText_->SetColor(labelTextColor_);
+    if (!labelText_.IsNull()) {
+        ZServices::UIElementManager()->SetColor(labelText_, labelTextColor_);
     }
 }
 
 void ZUILabeledElement::SetLabelBackgroundColor(const glm::vec4& color)
 {
-    if (background_) {
-        background_->SetColor(color);
+    if (!background_.IsNull()) {
+        ZServices::UIElementManager()->SetColor(background_, color);
     }
 }
 
 void ZUILabeledElement::CreateLabelField()
 {
-    auto scene = Scene();
-    if (!scene) return;
+    auto sceneSP = scene.lock();
+    if (!sceneSP) return;
 
     float labelWidth = label_.empty() ? 0.f : labelWidth_;
 
@@ -140,33 +135,38 @@ void ZUILabeledElement::CreateLabelField()
     options.scaling = ZPositioning::Relative;
     options.rect = ZRect(0.f, 0.f, labelWidth, 1.f);
 
-    background_ = ZUIPanel::Create(options, scene);
+    background_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, options, sceneSP);
 
     options.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     options.color = labelTextColor_;
-    labelText_ = ZUIText::Create(options, scene);
-    labelText_->SetText(label_);
-    labelText_->SetFontScale(labelFontSize_);
+    labelText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, options, sceneSP);
+    ZUIText* textLabel = ZServices::UIElementManager()->Dereference<ZUIText>(labelText_);
+    textLabel->SetText(label_);
+    textLabel->SetFontScale(labelFontSize_);
 
-    background_->AddChild(labelText_);
+    ZServices::UIElementManager()->AddChild(background_, labelText_);
 
-    AddChild(background_);
+    ZServices::UIElementManager()->AddChild(handle, background_);
 }
 
 void ZUILabeledElement::SetupElement()
 {
     float labelWidth = label_.empty() ? 0.f : labelWidth_;
 
-    element_->SetPositioning(ZPositioning::Relative);
-    element_->SetScaling(ZPositioning::Relative);
-    element_->SetRect(ZRect(0.f, 0.f, 1.f - labelWidth, 1.f), options_.calculatedRect);
+    ZServices::UIElementManager()->SetPositioning(element_, ZPositioning::Relative);
+    ZServices::UIElementManager()->SetScaling(element_, ZPositioning::Relative);
+    ZServices::UIElementManager()->SetRect(element_, ZRect(0.f, 0.f, 1.f - labelWidth, 1.f), options.calculatedRect);
 
-    AddChild(element_);
+    ZServices::UIElementManager()->AddChild(handle, element_);
 }
 
-std::shared_ptr<ZUILabeledElement> ZUILabeledElement::Create(const std::string& label, const std::shared_ptr<ZUIElement>& element, Position labelPosition)
+ZHUIElement ZUILabeledElement::Create(const std::string& label, const ZHUIElement& element, Position labelPosition)
 {
-    auto labeledElement = std::make_shared<ZUILabeledElement>(label, element, labelPosition);
-    labeledElement->Initialize();
-    return labeledElement;
+    ZHUIElement handle = ZServices::UIElementManager()->Create(ZUIElementType::LabeledElement);
+    ZUILabeledElement* labeledElement = ZServices::UIElementManager()->Dereference<ZUILabeledElement>(handle);
+    labeledElement->SetLabel(label);
+    labeledElement->SetElement(element);
+    labeledElement->SetLabelPosition(labelPosition);
+    ZServices::UIElementManager()->Initialize(handle);
+    return handle;
 }

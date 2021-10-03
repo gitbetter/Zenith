@@ -264,5 +264,3 @@ void ZUIText::SetVerticalAlignment(ZAlignment alignment)
     vAlignment_ = alignment;
     RecalculateBufferData();
 }
-
-DEFINE_UI_CREATORS(ZUIText)

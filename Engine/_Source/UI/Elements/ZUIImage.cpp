@@ -75,5 +75,3 @@ void ZUIImage::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& eve
         ZServices::EventAgent()->Unsubscribe(this, &ZUIImage::HandleTextureReady);
     }
 }
-
-DEFINE_UI_CREATORS(ZUIImage)
