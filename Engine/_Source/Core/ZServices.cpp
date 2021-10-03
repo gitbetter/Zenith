@@ -55,6 +55,7 @@ std::shared_ptr<ZShaderManager> ZServices::shaderManager_ = nullptr;
 std::shared_ptr<ZFontManager> ZServices::fontManager_ = nullptr;
 std::shared_ptr<ZMaterialManager> ZServices::materialManager_ = nullptr;
 std::shared_ptr<ZModelManager> ZServices::modelManager_ = nullptr;
+std::shared_ptr<ZUIElementManager> ZServices::uiElementManager_ = nullptr;
 
 std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
@@ -95,13 +96,17 @@ void ZServices::Initialize()
 		Provide(std::make_shared<ZGLFontManager>());
 		/* =================================== */
 
-		/* ========= Font Manager ============ */
+		/* ========= Material Manager ============ */
 		Provide(std::make_shared<ZMaterialManager>());
 		/* =================================== */
 
-				/* ========= Font Manager ============ */
+		/* ========= Model Manager ============ */
 		Provide(std::make_shared<ZModelManager>());
 		/* =================================== */
+
+        /* ========= UI Element Manager ============ */
+        Provide(std::make_shared<ZUIElementManager>());
+        /* =================================== */
     }
     initialized_ = true;
 }
@@ -231,6 +236,17 @@ void ZServices::Provide(const std::shared_ptr<ZMaterialManager>& modelManager)
 
     modelManager_ = modelManager;
     modelManager_->Initialize();
+}
+
+void ZServices::Provide(const std::shared_ptr<ZUIElementManager>& uiElementManager)
+{
+    if (uiElementManager_)
+    {
+        uiElementManager_->CleanUp();
+    }
+
+    uiElementManager_ = uiElementManager;
+    uiElementManager_->Initialize();
 }
 
 void ZServices::LoadZOF(const std::string& zofPath)

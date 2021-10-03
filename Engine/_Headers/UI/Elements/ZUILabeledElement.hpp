@@ -47,15 +47,15 @@ public:
         Left, Right
     };
 
-    ZUILabeledElement(const std::string& label, const std::shared_ptr<ZUIElement>& element, Position labelPosition = Position::Left);
-    ~ZUILabeledElement() {}
+    ZUILabeledElement();
+    ~ZUILabeledElement() = default;
 
     void                                        Initialize();
 
     void                                        Initialize(const std::shared_ptr<ZOFNode>& root);
 
-    const std::shared_ptr<ZUIText>              LabelField() const { return labelText_; }
-    const std::shared_ptr<ZUIElement>           Element() const { return element_; }
+    const ZHUIElement                           LabelField() const { return labelText_; }
+    const ZHUIElement                           Element() const { return element_; }
 
     void                                        SetLabel(const std::string& label);
     void                                        SetLabelWidth(float width);
@@ -74,9 +74,9 @@ protected:
     float                                   labelFontSize_ = 14.f;
     Position                                labelPosition_;
 
-    std::shared_ptr<ZUIText>                labelText_;
-    std::shared_ptr<ZUIPanel>               background_;
-    std::shared_ptr<ZUIElement>             element_;
+    ZHUIElement                             labelText_;
+    ZHUIElement                             background_;
+    ZHUIElement                             element_;
 
     void                                        CreateLabelField();
     void                                        SetupElement();

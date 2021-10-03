@@ -29,25 +29,15 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZUICanvas : public ZUIElement
 {
 
 public:
 
-    ZUICanvas(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
-    ZUICanvas(const ZUIElementOptions& options);
-    ~ZUICanvas() {}
-
-    void                                Initialize() override;
-    void                                Initialize(const std::shared_ptr<ZOFNode>& root) override;
-
-    void                                Prepare(double deltaTime, unsigned int zOrder = 0) override;
+    ZUICanvas();
+    ~ZUICanvas() = default;
 
     DECLARE_UI_CREATORS(ZUICanvas)
 

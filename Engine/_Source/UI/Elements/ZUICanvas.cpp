@@ -30,30 +30,9 @@
 #include "ZUICanvas.hpp"
 #include "ZMesh.hpp"
 
-ZUICanvas::ZUICanvas(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
+ZUICanvas::ZUICanvas() : ZUIElement()
 {
-    type_ = ZUIElementType::Canvas;
-}
-
-ZUICanvas::ZUICanvas(const ZUIElementOptions& options) : ZUIElement(options)
-{
-    type_ = ZUIElementType::Canvas;
-}
-
-void ZUICanvas::Initialize()
-{
-    ZUIElement::Initialize();
-}
-
-void ZUICanvas::Initialize(const std::shared_ptr<ZOFNode>& root)
-{
-    ZUIElement::Initialize(root);
-}
-
-void ZUICanvas::Prepare(double deltaTime, unsigned int zOrder)
-{
-    SetZOrder(zOrder);
-    PrepareChildren(deltaTime, zOrder);
+    type = ZUIElementType::Canvas;
 }
 
 DEFINE_UI_CREATORS(ZUICanvas)

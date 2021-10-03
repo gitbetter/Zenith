@@ -31,23 +31,18 @@
 
 #include "ZUIElement.hpp"
 
-class ZVertexBuffer;
-
 class ZUIText : public ZUIElement
 {
 
-    friend class ZUI;
-
 public:
 
-    ZUIText(const std::string& text = "", const std::string& font = "", float fontSize = 1.f, const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.1f));
-    ZUIText(const ZUIElementOptions& options, const std::string& text = "", const std::string& font = "", float fontSize = 1.f);
-    ~ZUIText() {}
+    ZUIText();
+    ~ZUIText() = default;
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    void OnInitialize() override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
     
-    void Prepare(double deltaTime, unsigned int zOrder = 0) override;
+    void OnPrepare(double deltaTime, unsigned int zOrder = 0) override;
 
     const std::string& Text() const { return text_; }
     ZHFont Font();
@@ -78,7 +73,7 @@ protected:
     ZAlignment                               hAlignment_;
     ZAlignment                               vAlignment_;
     ZHFont                                   font_;
-    std::shared_ptr<ZVertexBuffer>           bufferData_;
+    std::shared_ptr<class ZVertexBuffer>     bufferData_;
     ZVertex2DDataOptions                     textVertexData_;
 
     void OnRectChanged() override;

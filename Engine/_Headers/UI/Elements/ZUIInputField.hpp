@@ -29,16 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
-class ZUIPanel;
-class ZUIText;
-class ZInputKeyEvent;
-class ZInputButtonEvent;
-
-// Class and Data Structure Definitions
 class ZUIInputField : public ZUIElement
 {
 
@@ -46,19 +38,18 @@ class ZUIInputField : public ZUIElement
 
 public:
 
-    ZUIInputField(const std::string& placeholder = "", const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.1f));
-    ZUIInputField(const ZUIElementOptions& options, const std::string& placeholder = "");
-    ~ZUIInputField() {}
+    ZUIInputField();
+    ~ZUIInputField() = default;
 
-    virtual void                                Initialize() override;
-    virtual void                                Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    virtual void                                OnInitialize() override;
+    virtual void                                OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
 
     const std::string&                          Placeholder() const { return placeholder_; }
     const std::string&                          Text() const { return text_; }
     const glm::vec4&                            TextColor() const { return textColor_; }
     const glm::vec2&                            FieldPadding() const { return fieldPadding_; }
     bool                                        Focused() const { return focused_; }
-    const std::shared_ptr<ZUIText>              TextField() const { return fieldText_; }
+    const ZHUIElement                           TextField() const { return fieldText_; }
 
     void                                        SetPlaceholder(const std::string& placeholder) { placeholder_ = placeholder; }
     void                                        SetText(const std::string& text);
@@ -87,13 +78,13 @@ protected:
     std::function<bool(char)>               filter_ = nullptr;
     std::function<void(const std::string&)> onInputChangedCallback_ = nullptr;
 
-    std::shared_ptr<ZUIText>                fieldText_;
+    ZHUIElement                             fieldText_;
 
     void                                    CreateTextArea();
 
     void                                    ProcessKey(const ZKey& key);
 
-    void                                    HandleKeyPressed(const std::shared_ptr<ZInputKeyEvent>& event);
-    void                                    HandleButtonPressed(const std::shared_ptr<ZInputButtonEvent>& event);
+    void                                    HandleKeyPressed(const std::shared_ptr<class ZInputKeyEvent>& event);
+    void                                    HandleButtonPressed(const std::shared_ptr<class ZInputButtonEvent>& event);
 
 };

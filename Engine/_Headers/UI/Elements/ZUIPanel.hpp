@@ -29,25 +29,16 @@
 
 #pragma once
 
-// Includes
 #include "ZUIElement.hpp"
 
-// Forward Declarations
-class ZScene;
-
-// Class and Data Structure Definitions
 class ZUIPanel : public ZUIElement
 {
 private:
 
 public:
 
-    ZUIPanel(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
-    ZUIPanel(const ZUIElementOptions& options);
-    ~ZUIPanel() {}
-
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    ZUIPanel();
+    ~ZUIPanel() = default;
 
     DECLARE_UI_CREATORS(ZUIPanel)
 

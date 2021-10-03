@@ -43,21 +43,48 @@ class ZResourceManager
 
 public:
 
-    ZResourceManager();
+    ZResourceManager() : resourcePool_(512)
+	{ }
+
     virtual ~ZResourceManager() = default;
 
 	virtual void Initialize() = 0;
 	virtual void CleanUp() = 0;
 
-	bool IsLoaded(const std::string& name);
-	Handle GetFromName(const std::string& name);
-	Data* Dereference(const Handle& handle);
-	const Data* Dereference(const Handle& handle) const;
+	inline bool IsLoaded(const std::string& name)
+	{
+		return loadedResources_.find(name) != loadedResources_.end();
+	}
+
+	inline Handle GetFromName(const std::string& name)
+	{
+		if (loadedResources_.find(name) != loadedResources_.end()) {
+			return loadedResources_[name];
+		}
+		return Handle();
+	}
+
+	template <typename Type = Data>
+	inline Type* Dereference(const Handle& handle)
+	{
+		return static_cast<Type*>(resourcePool_.Get(handle));
+	}
+
+	template <typename Type = Data>
+	inline const Type* Dereference(const Handle& handle) const
+	{
+		return static_cast<Type*>(resourcePool_.Get(handle));
+	}
 
 protected:
 
 	/** Adds a resource to the internal loaded resource map so that we don't accidentally recreate duplicates of the resource */
-	void Track(const Handle& handle);
+	void Track(const Handle& handle)
+	{
+		Data* resource = resourcePool_.Get(handle);
+		assert(resource != nullptr && "Cannot track this resource since it doesn't exist!");
+		loadedResources_[resource->name] = handle;
+	}
 
 protected:
 
@@ -65,43 +92,3 @@ protected:
 	std::unordered_map<std::string, Handle> loadedResources_;
 
 };
-
-template <typename Data, typename Handle>
-ZResourceManager<Data, Handle>::ZResourceManager()
-    : resourcePool_(512)
-{ }
-
-template <typename Data, typename Handle>
-bool ZResourceManager<Data, Handle>::IsLoaded(const std::string& name)
-{
-    return loadedResources_.find(name) != loadedResources_.end();
-}
-
-template <typename Data, typename Handle>
-Handle ZResourceManager<Data, Handle>::GetFromName(const std::string& name)
-{
-	if (loadedResources_.find(name) != loadedResources_.end()) {
-		return loadedResources_[name];
-	}
-	return Handle();
-}
-
-template <typename Data, typename Handle>
-Data* ZResourceManager<Data, Handle>::Dereference(const Handle& handle)
-{
-	return resourcePool_.Get(handle);
-}
-
-template <typename Data, typename Handle>
-const Data* ZResourceManager<Data, Handle>::Dereference(const Handle& handle) const
-{
-	return resourcePool_.Get(handle);
-}
-
-template <typename Data, typename Handle>
-void ZResourceManager<Data, Handle>::Track(const Handle& handle)
-{
-	Data* resource = resourcePool_.Get(handle);
-	assert(resource != nullptr && "Cannot track this resource since it doesn't exist!");
-	loadedResources_[resource->name] = handle;
-}

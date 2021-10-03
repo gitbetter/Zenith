@@ -31,39 +31,14 @@
 #include "ZUIImage.hpp"
 #include "ZTextureReadyEvent.hpp"
 
-ZUIImage::ZUIImage(const std::string& path, const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
+ZUIImage::ZUIImage() : ZUIElement()
 {
-    options_.enabled = false;
-    path_ = path;
-    type_ = ZUIElementType::Image;
-    SetImage(path_);
+    type = ZUIElementType::Image;
 }
 
-ZUIImage::ZUIImage(const ZUIElementOptions& options, const std::string& path) : ZUIElement(options)
+void ZUIImage::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    options_.enabled = false;
-    path_ = path;
-    type_ = ZUIElementType::Image;
-    SetImage(path_);
-}
-
-void ZUIImage::Initialize()
-{
-    ZUIElement::Initialize();
-}
-
-void ZUIImage::Initialize(const std::shared_ptr<ZOFNode>& root)
-{
-    ZUIElement::Initialize(root);
-
-    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
-    if (node == nullptr)
-    {
-        LOG("Could not initalize ZUIImage", ZSeverity::Error);
-        return;
-    }
-
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap& props = dataNode->properties;
 
     if (props.find("path") != props.end() && props["path"]->HasValues())
     {
@@ -88,7 +63,7 @@ void ZUIImage::SetImage(const ZHTexture& texture)
     if (texture)
     {
         ZServices::TextureManager()->SetType(texture, "color");
-        SetTexture(texture);
+        ZServices::UIElementManager()->SetTexture(handle, texture);
     }
 }
 

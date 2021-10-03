@@ -168,44 +168,9 @@ ZHUIElement ZUIElementManager::Deserialize(const ZOFHandle& dataHandle, const st
 		element->name = element->name.substr(0, element->name.find("_")) + "_" + std::to_string(static_cast<int>(zIndexProp->value)) + element->name.substr(element->name.find("_"));
     }
 
-    Initialize();
-}
+	element->OnDeserialize(dataNode);
 
-ZUIElementList ZUIElementManager::Deserialize(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene)
-{
-    ZUIElementList uiElements;
-    for (ZOFChildList::iterator it = data->children.begin(); it != data->children.end(); it++)
-    {
-        std::shared_ptr<ZOFNode> node = it->second;
-        if (zenith::strings::HasUIPrefix(node->id))
-        {
-            std::shared_ptr<ZOFObjectNode> uiNode = std::static_pointer_cast<ZOFObjectNode>(node);
-            ZOFPropertyMap props = uiNode->properties;
-
-            std::shared_ptr<ZUIElement> element;
-
-            if (props.find("type") != props.end() && props["type"]->HasValues())
-            {
-                std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
-                element = ZUIElement::Create(typeProp->value);
-                element->SetScene(scene);
-                element->Deserialize(uiNode);
-            }
-
-            // Recursively create children if there are any nested UI nodes
-            if (element)
-            {
-                ZUIElementList uiChildren = Deserialize(uiNode, scene);
-                for (ZUIElementList::iterator it = uiChildren.begin(); it != uiChildren.end(); it++)
-                {
-                    element->AddChild(*it);
-                }
-
-                uiElements.push_back(element);
-            }
-        }
-    }
-    return uiElements;
+    Initialize(restoreHandle);
 }
 
 ZHUIElement ZUIElementManager::Create(const std::string& type)
@@ -235,7 +200,7 @@ ZHUIElement ZUIElementManager::Create(const std::string& type)
         return ZUIListPanel::Create();
     }
     LOG("Could not create a UI element of type " + type, ZSeverity::Error);
-    return nullptr;
+    return ZHUIElement();
 }
 
 void ZUIElementManager::Initialize()
@@ -284,6 +249,8 @@ void ZUIElementManager::Initialize(const ZHUIElement& handle)
 	writer.BindUniformBuffer(uiElement->uniformBuffer);
 	writer.SetShader(uiElement->options.shader);
 	uiElement->renderState = writer.End();
+
+	uiElement->OnInitialize();
 }
 
 void ZUIElementManager::CleanUp()
@@ -308,12 +275,16 @@ void ZUIElementManager::Prepare(const ZHUIElement& handle, double deltaTime, uns
 
 	auto meshState = mesh->RenderState();
 
-	ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::TriangleFan);
+	ZDrawCall drawCall = ZDrawCall::Create(uiElement->options.drawStyle);
 	auto uiTask = ZRenderTask::Compile(drawCall,
 		{ meshState, uiElement->renderState },
 		ZRenderPass::UI()
 	);
 	uiTask->Submit({ ZRenderPass::UI() });
+
+	PrepareChildren(handle, deltaTime, zOrder);
+
+	uiElement->OnPrepare(deltaTime, zOrder);
 }
 
 unsigned int ZUIElementManager::PrepareChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder)

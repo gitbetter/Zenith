@@ -29,24 +29,9 @@
 
 #include "ZUIPanel.hpp"
 
-ZUIPanel::ZUIPanel(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
+ZUIPanel::ZUIPanel() : ZUIElement()
 {
-    type_ = ZUIElementType::Panel;
-}
-
-ZUIPanel::ZUIPanel(const ZUIElementOptions& options) : ZUIElement(options)
-{
-    type_ = ZUIElementType::Panel;
-}
-
-void ZUIPanel::Initialize()
-{
-    ZUIElement::Initialize();
-}
-
-void ZUIPanel::Initialize(const std::shared_ptr<ZOFNode>& root)
-{
-    ZUIElement::Initialize(root);
+    type = ZUIElementType::Panel;
 }
 
 DEFINE_UI_CREATORS(ZUIPanel)

@@ -42,6 +42,7 @@
 #include "ZFont.hpp"
 #include "ZMaterial.hpp"
 #include "ZModel.hpp"
+#include "ZUIElement.hpp"
 
 class ZServices
 {
@@ -63,6 +64,7 @@ public:
     static std::shared_ptr<ZFontManager> FontManager() { return fontManager_; }
     static std::shared_ptr<ZMaterialManager> MaterialManager() { return materialManager_; }
     static std::shared_ptr<ZModelManager> ModelManager() { return modelManager_; }
+    static std::shared_ptr<ZUIElementManager> UIElementManager() { return uiElementManager_; }
 
     static void Provide(const std::shared_ptr<ZGraphics>& graphics);
     static void Provide(const std::shared_ptr<ZInput>& input);
@@ -75,6 +77,7 @@ public:
     static void Provide(const std::shared_ptr<ZFontManager>& fontManager);
     static void Provide(const std::shared_ptr<ZMaterialManager>& materialManager);
     static void Provide(const std::shared_ptr<ZModelManager>& modelManager);
+    static void Provide(const std::shared_ptr<ZUIElementManager>& uiElementManager);
 
     static void LoadZOF(const std::string& zofPath);
 
@@ -91,6 +94,7 @@ private:
     static std::shared_ptr<ZFontManager> fontManager_;
     static std::shared_ptr<ZMaterialManager> materialManager_;
     static std::shared_ptr<ZModelManager> modelManager_;
+    static std::shared_ptr<ZUIElementManager> uiElementManager_;
 
     static std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> processRunners_;
     static std::unordered_map<std::string, std::shared_ptr<ZLogger>> loggers_;

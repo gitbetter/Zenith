@@ -37,18 +37,12 @@ class ZTexture;
 class ZUIImage : public ZUIElement
 {
 
-private:
-
-    std::string path_;
-
 public:
 
-    ZUIImage(const std::string& path = "", const glm::vec2& position = glm::vec2(0.5f), const glm::vec2& scale = glm::vec2(0.25f));
-    ZUIImage(const ZUIElementOptions& options, const std::string& path = "");
-    ~ZUIImage() {}
+    ZUIImage();
+    ~ZUIImage() = default;
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
 
     void SetImage(const std::string& path);
     void SetImage(const ZHTexture& texture);
@@ -58,5 +52,9 @@ public:
 protected:
 
     void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
+
+private:
+
+    std::string path_;
 
 };

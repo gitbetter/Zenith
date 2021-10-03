@@ -38,11 +38,10 @@ class ZUIButton : public ZUIElement
 
 public:
 
-    ZUIButton(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
-    ZUIButton(const ZUIElementOptions& options);
-    ~ZUIButton() {}
+    ZUIButton();
+    ~ZUIButton() = default;
 
-    void Initialize() override;
+    void OnInitialize() override;
 
     bool Clicked();
     bool Pressed();

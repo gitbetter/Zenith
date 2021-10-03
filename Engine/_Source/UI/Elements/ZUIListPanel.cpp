@@ -30,33 +30,14 @@
 #include "ZUIListPanel.hpp"
 #include "ZServices.hpp"
 
-ZUIListPanel::ZUIListPanel(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
+ZUIListPanel::ZUIListPanel()
 {
-    type_ = ZUIElementType::ListPanel;
+    type = ZUIElementType::ListPanel;
 }
 
-ZUIListPanel::ZUIListPanel(const ZUIElementOptions& options) : ZUIElement(options)
+void ZUIListPanel::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    type_ = ZUIElementType::ListPanel;
-}
-
-void ZUIListPanel::Initialize()
-{
-    ZUIElement::Initialize();
-}
-
-void ZUIListPanel::Initialize(const std::shared_ptr<ZOFNode>& root)
-{
-    ZUIElement::Initialize(root);
-
-    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
-    if (node == nullptr)
-    {
-        LOG("Could not initalize ZUIElement", ZSeverity::Error);
-        return;
-    }
-
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap& props = dataNode->properties;
 
     if (props.find("itemHeight") != props.end() && props["itemHeight"]->HasValues())
     {
@@ -65,14 +46,15 @@ void ZUIListPanel::Initialize(const std::shared_ptr<ZOFNode>& root)
     }
 }
 
-void ZUIListPanel::AddChild(const std::shared_ptr<ZUIElement>& element)
+void ZUIListPanel::OnChildAdded(const ZHUIElement& element)
 {
-    element->SetPosition(glm::vec2(Size().x, 2.f * itemHeight_ * children_.size() + itemHeight_));
-    element->SetSize(glm::vec2(Size().x, itemHeight_));
+    const glm::vec2 thisSize = ZServices::UIElementManager()->Size(handle);
+    const size_t thisNumChildren = ZServices::UIElementManager()->Children(handle).size();
 
-    SetSize(glm::vec2(Size().x, glm::max(Size().y, itemHeight_ * children_.size())));
+    ZServices::UIElementManager()->SetPosition(element, glm::vec2(thisSize.x, 2.f * itemHeight_ * thisNumChildren + itemHeight_));
+    ZServices::UIElementManager()->SetSize(element, glm::vec2(thisSize.x, itemHeight_));
 
-    ZUIElement::AddChild(element);
+    ZServices::UIElementManager()->SetSize(handle, glm::vec2(thisSize.x, glm::max(thisSize.y, itemHeight_ * thisNumChildren)));
 }
 
 DEFINE_UI_CREATORS(ZUIListPanel)

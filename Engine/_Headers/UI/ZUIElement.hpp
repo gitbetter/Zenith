@@ -43,7 +43,7 @@ ZHUIElement Type::Create()\
 ZHUIElement Type::Create(const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene)\
 {\
 	ZHUIElement handle;
-	Type* element = resourcePool_.New(handle);
+	Type* element = resourcePool_.New<Type>(handle);
     if (scene) {\
         SetScene(handle, scene);\
         Initialize(handle);\
@@ -51,6 +51,7 @@ ZHUIElement Type::Create(const ZUIElementOptions& options, const std::shared_ptr
     return element;\
 }
 
+#include "ZResourceManager.hpp"
 #include "ZUILayout.hpp"
 #include "ZUIHelpers.hpp"
 #include "ZOFTree.hpp"
@@ -100,6 +101,7 @@ struct ZUIElementOptions
     ZHTexture                                texture;
     ZUIBorder                                border;
     std::shared_ptr<ZUILayout>               layout;
+	ZMeshDrawStyle							 drawStyle{ ZMeshDrawStyle::TriangleFan };
 };
 
 struct ZUIElement
@@ -119,9 +121,14 @@ struct ZUIElement
     std::shared_ptr<ZRenderStateGroup>       renderState;
 
 	ZUIElement();
+	virtual ~ZUIElement() = default;
 
 public:
     
+	virtual void							 OnInitialize() { };
+	virtual void							 OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) { };
+	virtual void							 OnPrepare(double deltaTime, unsigned int zOrder = 0) { };
+	virtual void							 OnChildAdded(const ZHUIElement& element) { };
     virtual void                             OnRectChanged() { };
 
 private:

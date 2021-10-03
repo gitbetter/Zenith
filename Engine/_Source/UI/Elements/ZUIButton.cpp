@@ -31,35 +31,29 @@
 #include "ZServices.hpp"
 #include "ZUIClicker.hpp"
 
-ZUIButton::ZUIButton(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
+ZUIButton::ZUIButton() : ZUIElement()
 {
-    type_ = ZUIElementType::Button;
+    type = ZUIElementType::Button;
 }
 
-ZUIButton::ZUIButton(const ZUIElementOptions& options) : ZUIElement(options)
+void ZUIButton::OnInitialize()
 {
-    type_ = ZUIElementType::Button;
-}
-
-void ZUIButton::Initialize()
-{
-    ZUIElement::Initialize();
     clicker_ = std::make_shared<ZUIClicker>();
 }
 
 bool ZUIButton::Clicked()
 {
-    return clicker_->Click(options_.calculatedRect);
+    return clicker_->Click(options.calculatedRect);
 }
 
 bool ZUIButton::Pressed()
 {
-    return clicker_->Press(options_.calculatedRect);
+    return clicker_->Press(options.calculatedRect);
 }
 
 bool ZUIButton::Released()
 {
-    return clicker_->Release(options_.calculatedRect);
+    return clicker_->Release(options.calculatedRect);
 }
 
 DEFINE_UI_CREATORS(ZUIButton)

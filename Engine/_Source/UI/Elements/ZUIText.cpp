@@ -36,51 +36,34 @@
 #include "ZRenderPass.hpp"
 #include "ZDomain.hpp"
 
-ZUIText::ZUIText(const std::string& text, const std::string& font, float fontSize, const glm::vec2& position, const glm::vec2& scale)
-    : ZUIElement(position, scale), fontName_(font), text_(text), fontScale_(fontSize), lineSpacing_(0.f), wrapToBounds_(false)
+ZUIText::ZUIText() : ZUIElement()
 {
-    options_.enabled = false;
-    type_ = ZUIElementType::Text;
+    options.drawStyle = ZMeshDrawStyle::Triangle;
+    type = ZUIElementType::Text;
 }
 
-ZUIText::ZUIText(const ZUIElementOptions& options, const std::string& text, const std::string& font, float fontSize)
-    : ZUIElement(options), fontName_(font), text_(text), fontScale_(fontSize), lineSpacing_(0.f), wrapToBounds_(false)
-{
-    options_.enabled = false;
-    type_ = ZUIElementType::Text;
-}
+void ZUIText::OnInitialize() {
+    ZServices::UIElementManager()->Disable(handle);
 
-void ZUIText::Initialize() {
-    ZVertex2DDataOptions options;
-    options.numVertices = 4;
-    bufferData_ = ZVertexBuffer::Create(options);
+    ZVertex2DDataOptions vertexOptions;
+    vertexOptions.numVertices = 4;
+    bufferData_ = ZVertexBuffer::Create(vertexOptions);
 
-    if (auto scene = Scene()) {
-        options_.shader = ZServices::ShaderManager()->TextShader();
+    if (auto scene = ZServices::UIElementManager()->Scene(handle)) {
+        options.shader = ZServices::ShaderManager()->TextShader();
         if (fontName_.empty()) fontName_ = "arial";
     }
 
-    ZUIElement::Initialize();
-
-    ZRenderStateGroupWriter writer(renderState_);
+    ZRenderStateGroupWriter writer(renderState);
     writer.Begin();
-    writer.SetShader(options_.shader);
+    writer.SetShader(options.shader);
     writer.BindVertexBuffer(bufferData_);
-    renderState_ = writer.End();
+    renderState = writer.End();
 }
 
-void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
+void ZUIText::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    ZUIElement::Initialize(root);
-
-    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
-    if (node == nullptr)
-    {
-        LOG("Could not initalize ZUIElement", ZSeverity::Error);
-        return;
-    }
-
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap& props = dataNode->properties;
 
     if (props.find("font") != props.end() && props["font"]->HasValues())
     {
@@ -110,16 +93,13 @@ void ZUIText::Initialize(const std::shared_ptr<ZOFNode>& root)
         std::shared_ptr<ZOFNumber> lineSpacingProp = props["lineSpacing"]->Value<ZOFNumber>(0);
         lineSpacing_ = lineSpacingProp->value;
     }
-
-    Initialize();
 }
 
 ZHFont ZUIText::Font()
 {
     if (font_) return font_;
 
-    auto scene = Scene();
-    if (!scene) return ZHFont();
+    if (!scene.lock()) return ZHFont();
 
     if (!ZServices::FontManager()->IsLoaded(fontName_)) {
         LOG("The font " + fontName_ + " has not been loaded.", ZSeverity::Warning);
@@ -128,39 +108,21 @@ ZHFont ZUIText::Font()
     font_ = ZServices::FontManager()->GetFromName(fontName_);
     RecalculateBufferData();
 
-    ZRenderStateGroupWriter writer(renderState_);
+    ZRenderStateGroupWriter writer(renderState);
     writer.Begin();
     writer.BindTexture(ZServices::FontManager()->Atlas(font_).texture);
-    renderState_ = writer.End();
+    renderState = writer.End();
 
     return font_;
 }
 
-void ZUIText::Prepare(double deltaTime, unsigned int zOrder)
+void ZUIText::OnPrepare(double deltaTime, unsigned int zOrder)
 {
-    if (text_.empty() || options_.hidden) return;
-
-    auto scene = Scene();
-    if (!scene) return;
-
-    auto font = Font();
-    if (!font) return;
-
     ZPR_SESSION_COLLECT_VERTICES(textVertexData_.vertices.size());
-
-    SetZOrder(zOrder);
-
-    ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
-    auto uiTask = ZRenderTask::Compile(drawCall,
-        { renderState_ },
-        ZRenderPass::UI()
-    );
-    uiTask->Submit({ ZRenderPass::UI() });
 }
 
 void ZUIText::OnRectChanged()
 {
-    ZUIElement::OnRectChanged();
     RecalculateBufferData();
 }
 
@@ -168,7 +130,7 @@ void ZUIText::RecalculateBufferData()
 {
     if (text_.empty() || !font_) return;
 
-    auto pos = options_.calculatedRect.position;
+    auto pos = options.calculatedRect.position;
     float x = pos.x, y = pos.y;
 
     float oneOverFontScale = 1.f / ZServices::FontManager()->Size(font_);
@@ -185,7 +147,7 @@ void ZUIText::RecalculateBufferData()
     {
         ZCharacter character = ZServices::FontManager()->Atlas(font_).characterInfo[*it];
         width += character.advance.x * fontSize;
-        if (width >= options_.calculatedRect.size.x)
+        if (width >= options.calculatedRect.size.x)
             break;
         ++it;
     }
@@ -197,10 +159,10 @@ void ZUIText::RecalculateBufferData()
 
     switch (hAlignment_) {
     case ZAlignment::Middle:
-        x += glm::clamp(options_.calculatedRect.size.x - width, 0.f, options_.calculatedRect.size.x) * 0.5f;
+        x += glm::clamp(options.calculatedRect.size.x - width, 0.f, options.calculatedRect.size.x) * 0.5f;
         break;
     case ZAlignment::Right:
-        x += glm::clamp(options_.calculatedRect.size.x - width, 0.f, options_.calculatedRect.size.x);
+        x += glm::clamp(options.calculatedRect.size.x - width, 0.f, options.calculatedRect.size.x);
         break;
     default:
         break;
@@ -208,10 +170,10 @@ void ZUIText::RecalculateBufferData()
 
     switch (vAlignment_) {
     case ZAlignment::Middle:
-        y += glm::clamp(options_.calculatedRect.size.y - atlasH, 0.f, options_.calculatedRect.size.y) * 0.5f;
+        y += glm::clamp(options.calculatedRect.size.y - atlasH, 0.f, options.calculatedRect.size.y) * 0.5f;
         break;
     case ZAlignment::Bottom:
-        y += glm::clamp(options_.calculatedRect.size.y - atlasH, 0.f, options_.calculatedRect.size.y);
+        y += glm::clamp(options.calculatedRect.size.y - atlasH, 0.f, options.calculatedRect.size.y);
         break;
     default:
         break;
@@ -236,7 +198,7 @@ void ZUIText::RecalculateBufferData()
             auto maxX = maxWrap - w * 2.f;
             if (x > maxX)
             {
-                y += std::floor(x / maxX) * (atlasH + lineSpacing_);
+                y += floor(x / maxX) * (atlasH + lineSpacing_);
                 x = pos.x;
             }
         }
@@ -256,8 +218,7 @@ void ZUIText::RecalculateBufferData()
 
 float ZUIText::MaxWrapBounds() const
 {
-    auto parent = Parent();
-    return parent ? Position().x + parent->Size().x * 2.f : Position().x + Size().x;
+    return !parent.IsNull() ? options.rect.position.x + ZServices::UIElementManager()->Size(parent).x * 2.f : options.rect.position.x + options.rect.size.x;
 }
 
 void ZUIText::SetText(const std::string& text)

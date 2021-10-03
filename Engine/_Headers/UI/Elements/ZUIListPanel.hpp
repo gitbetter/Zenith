@@ -40,17 +40,15 @@ private:
 
 public:
 
-    ZUIListPanel(const glm::vec2& position = glm::vec2(0.f), const glm::vec2& scale = glm::vec2(1.f));
-    ZUIListPanel(const ZUIElementOptions& options);
-    ~ZUIListPanel() {}
+    ZUIListPanel();
+    ~ZUIListPanel() = default;
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
 
     float ItemHeight() const { return itemHeight_; }
     void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
 
-    void AddChild(const std::shared_ptr<ZUIElement>& element) override;
+    void OnChildAdded(const ZHUIElement& element) override;
 
     DECLARE_UI_CREATORS(ZUIListPanel)
 

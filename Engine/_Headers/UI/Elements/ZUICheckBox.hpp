@@ -40,12 +40,11 @@ class ZUICheckBox : public ZUIElement
 
 public:
 
-    ZUICheckBox(const glm::vec2& position = glm::vec2(0.1f), const glm::vec2& scale = glm::vec2(0.07f, 0.03f));
-    ZUICheckBox(const ZUIElementOptions& options);
-    ~ZUICheckBox() {}
+    ZUICheckBox();
+    ~ZUICheckBox() = default;
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& root) override;
+    void OnInitialize() override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
 
     bool Checked() const { return checked_; }
 
@@ -57,7 +56,7 @@ public:
 
 protected:
 
-    std::shared_ptr<ZUIImage> checkImage_ = nullptr;
+    ZHUIElement checkImage_;
     bool checked_ = false;
 
 };

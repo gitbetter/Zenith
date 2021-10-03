@@ -33,24 +33,12 @@
 #include "ZUIClicker.hpp"
 #include "ZInputButtonEvent.hpp"
 
-ZUICheckBox::ZUICheckBox(const glm::vec2& position, const glm::vec2& scale) : ZUIElement(position, scale)
+ZUICheckBox::ZUICheckBox() : ZUIElement()
 {
-    type_ = ZUIElementType::CheckBox;
+    type = ZUIElementType::CheckBox;
 }
 
-ZUICheckBox::ZUICheckBox(const ZUIElementOptions& options) : ZUIElement(options)
-{
-    type_ = ZUIElementType::CheckBox;
-}
-
-void ZUICheckBox::Initialize() {
-    ZUIElement::Initialize();
-
-    auto scene = Scene();
-    if (!scene) {
-        LOG("Cannot initialize a ZUICheckbox that is not attached to a scene", ZSeverity::Error);
-    }
-
+void ZUICheckBox::OnInitialize() {
     ZUIElementOptions options;
     options.positioning = ZPositioning::Relative;
     options.scaling = ZPositioning::Relative;
@@ -58,27 +46,20 @@ void ZUICheckBox::Initialize() {
     options.color = glm::vec4(1.f);
     options.flipped = true;
     options.hidden = !checked_;
-    checkImage_ = ZUIImage::Create(options, Scene());
-    checkImage_->SetImage("/Textures/UI/checkmark.png");
-    AddChild(checkImage_);
+    checkImage_ = ZUIImage::Create(options, ZServices::UIElementManager()->Scene(handle));
+    ZUIImage* image = ZServices::UIElementManager()->Dereference<ZUIImage>(checkImage_);
+    image->SetImage("/Textures/UI/checkmark.png");
+    ZServices::UIElementManager()->AddChild(handle, checkImage_);
 }
 
-void ZUICheckBox::Initialize(const std::shared_ptr<ZOFNode>& root)
+void ZUICheckBox::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    ZUIElement::Initialize(root);
-
-    std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(root);
-    if (node == nullptr)
-    {
-        LOG("Could not initalize ZUICheckbox", ZSeverity::Error); return;
-    }
-
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap& props = dataNode->properties;
 
     if (props.find("checkColor") != props.end() && props["checkColor"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> chkColorProp = props["checkColor"]->Value<ZOFNumberList>(0);
-        checkImage_->SetColor(glm::vec4(chkColorProp->value[0], chkColorProp->value[1], chkColorProp->value[2], chkColorProp->value[3]));
+        ZServices::UIElementManager()->SetColor(checkImage_, glm::vec4(chkColorProp->value[0], chkColorProp->value[1], chkColorProp->value[2], chkColorProp->value[3]));
     }
 }
 
@@ -87,11 +68,11 @@ void ZUICheckBox::SetChecked(bool checked)
     checked_ = checked;
     if (checked_)
     {
-        checkImage_->Show();
+        ZServices::UIElementManager()->Show(handle);
     }
     else
     {
-        checkImage_->Hide();
+        ZServices::UIElementManager()->Hide(handle);
     }
 }
 
