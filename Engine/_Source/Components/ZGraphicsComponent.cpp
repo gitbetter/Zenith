@@ -195,11 +195,11 @@ void ZGraphicsComponent::Prepare(double deltaTime, const std::shared_ptr<ZRender
     }
 
     // This setup assumes a forward rendering pipeline
-    for (const auto& [meshID, mesh] : ZServices::ModelManager()->Meshes(model))
+    for (const auto& mesh : ZServices::ModelManager()->Meshes(model))
     {
         ZPR_SESSION_COLLECT_VERTICES(mesh.Vertices().size());
 
-        auto meshState = mesh.RenderState();
+        auto meshState = mesh.renderState;
 
         ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
 
@@ -278,8 +278,8 @@ void ZGraphicsComponent::PrepareOutlineDisplay(glm::mat4& modelMatrix, const ZHM
     auto objectState = object_->RenderState();
     auto modelState = ZServices::ModelManager()->RenderState(model_);
 
-    for (const auto& [meshID, mesh] : ZServices::ModelManager()->Meshes(model_)) {
-        auto meshState = mesh.RenderState();
+    for (const auto& mesh : ZServices::ModelManager()->Meshes(model_)) {
+        auto meshState = mesh.renderState;
         auto materialState = ZServices::MaterialManager()->RenderState(outlineMaterial_);
 
         ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);

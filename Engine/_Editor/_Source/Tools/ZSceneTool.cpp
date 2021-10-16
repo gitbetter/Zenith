@@ -41,7 +41,7 @@
 
 void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZEditorTool::Initialize(scene);
-    container_->SetColor(glm::vec4(1.f));
+    ZServices::UIElementManager()->SetColor(container_, glm::vec4(1.f));
 
     selectClicker_ = std::make_shared<ZUIClicker>();
     selectClicker_->WrapToBounds();
@@ -64,7 +64,7 @@ void ZSceneTool::SetSelectedObject(const std::shared_ptr<ZGameObject>& object)
 void ZSceneTool::OnProjectSceneChanged()
 {
     if (activeProjectScene_) {
-        container_->SetTexture(activeProjectScene_->TargetTexture());
+        ZServices::UIElementManager()->SetTexture(container_, activeProjectScene_->TargetTexture());
         if (currentGizmo_) {
             currentGizmo_->SetActiveProjectScene(activeProjectScene_);
         }
@@ -73,7 +73,7 @@ void ZSceneTool::OnProjectSceneChanged()
 
 void ZSceneTool::Update()
 {
-    auto rect = container_->CalculatedRect();
+    auto rect = ZServices::UIElementManager()->CalculatedRect(container_);
     if (currentGizmo_->Showing()) {
         currentGizmo_->Update();
         currentGizmo_->SetPosition(selectedObject_->ModelMatrix()[3]);

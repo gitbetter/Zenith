@@ -29,28 +29,20 @@
 
 #pragma once
 
-// Includes
 #include "ZModel.hpp"
 
-// Forward Declarations
-
-// Class Definitions
-class ZCompositeModel : public ZModel
+struct ZCompositeModel : public ZModel
 {
-
-public:
 
     ZCompositeModel(const std::initializer_list<std::shared_ptr<ZModel>>& models)
         : ZModel(), models_(models)
     { }
-    virtual ~ZCompositeModel() {}
+    virtual ~ZCompositeModel() = default;
 
-    void Initialize() override;
-
-    static std::shared_ptr<ZCompositeModel> Create(const std::initializer_list<std::shared_ptr<ZModel>>& models);
+    void OnCreate() override;
 
 protected:
 
-    std::vector<std::shared_ptr<ZModel>> models_;
+    std::vector<ZHModel> models_;
 
 };

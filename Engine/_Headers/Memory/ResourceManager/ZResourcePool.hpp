@@ -125,7 +125,7 @@ public:
 protected:
 
 	template <typename Type = Data, typename ...Args>
-	Data* Restore(Handle& handle, Args && ...args)
+	Type* Restore(Handle& handle, Args && ...args)
 	{
 		static_assert(std::is_base_of<Data, Type>::value, "Type is not derived from Data");
 

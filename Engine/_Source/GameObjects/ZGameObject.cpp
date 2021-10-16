@@ -48,32 +48,15 @@
 
 ZIDSequence ZGameObject::idGenerator_;
 
-ZGameObject::ZGameObject(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
+ZGameObject::ZGameObject()
 {
-    properties_.previousPosition = properties_.position = position, 1.f;
-    properties_.previousOrientation = properties_.orientation = orientation;
-    properties_.previousScale = properties_.scale = scale;
-    properties_.modelMatrix = properties_.localModelMatrix = glm::mat4(1.f);
-    properties_.renderOrder = ZRenderLayer::Static;
-    id_ = "GameObject" + std::to_string(idGenerator_.Next());
-    CalculateDerivedData();
+    properties.modelMatrix = properties.localModelMatrix = glm::mat4(1.f);
+    properties.renderOrder = ZRenderLayer::Static;
+    name = "GameObject" + std::to_string(idGenerator_.Next());
+    //CalculateDerivedData();
 }
 
-void ZGameObject::Initialize()
-{
-    ZProcess::Initialize();
-
-    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::Object, sizeof(ZObjectUniforms));
-    
-    ZRenderStateGroupWriter writer;
-    writer.Begin();
-    writer.BindUniformBuffer(uniformBuffer_);
-    renderState_ = writer.End();
-
-    CalculateDerivedData();
-}
-
-void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root)
+void ZGameObjectManager::Initialize(std::shared_ptr<ZOFNode> root)
 {
     std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
     if (!node)
@@ -107,12 +90,27 @@ void ZGameObject::Initialize(std::shared_ptr<ZOFNode> root)
     Initialize();
 }
 
-void ZGameObject::Prepare(double deltaTime)
+void ZGameObjectManager::Initialize(const ZHGameObject& handle)
 {
-    auto scene = Scene();
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Object, sizeof(ZObjectUniforms));
+
+	ZRenderStateGroupWriter writer;
+	writer.Begin();
+	writer.BindUniformBuffer(gameObject->uniformBuffer);
+    gameObject->renderState = writer.End();
+
+	CalculateDerivedData(handle);
+}
+
+void ZGameObjectManager::Prepare(const ZHGameObject& handle, double deltaTime)
+{
+    auto scene = Scene(handle);
     if (!scene) return;
 
-    if (std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>())
+    if (std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>(handle))
     {
         graphicsComp->SetGameLights(scene->GameLights());
         graphicsComp->SetGameCamera(scene->ActiveCamera());
@@ -120,395 +118,544 @@ void ZGameObject::Prepare(double deltaTime)
     }
 }
 
-void ZGameObject::PrepareChildren(double deltaTime)
+void ZGameObjectManager::PrepareChildren(const ZHGameObject& handle, double deltaTime)
 {
-    ZGameObjectList::iterator it = children_.begin(), end = children_.end();
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    ZGameObjectList::iterator it = gameObject->children.begin(), end = gameObject->children.end();
     for (; it != end; it++)
     {
-        auto go = *it;
-        if (go->IsVisible())
+        const ZHGameObject child = *it;
+        if (IsVisible(child))
         {
-            go->Prepare(deltaTime);
+            Prepare(child, deltaTime);
         }
-        go->PrepareChildren(deltaTime);
+        PrepareChildren(child, deltaTime);
     }
 }
 
-void ZGameObject::CalculateDerivedData()
+void ZGameObjectManager::CalculateDerivedData(const ZHGameObject& handle)
 {
-    objectMutexes_.position.lock();
-    glm::mat4 translation = glm::translate(glm::mat4(1.f), properties_.position);
-    objectMutexes_.position.unlock();
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
 
-    objectMutexes_.orientation.lock();
-    properties_.orientation = glm::normalize(properties_.orientation);
-    glm::mat4 rotation = glm::mat4_cast(properties_.orientation);
-    objectMutexes_.orientation.unlock();
+    gameObject->objectMutexes.position.lock();
+    glm::mat4 translation = glm::translate(glm::mat4(1.f), gameObject->properties.position);
+    gameObject->objectMutexes.position.unlock();
 
-    objectMutexes_.scale.lock();
-    glm::mat4 scale = glm::scale(glm::mat4(1.f), properties_.scale);
-    objectMutexes_.scale.unlock();
+    gameObject->objectMutexes.orientation.lock();
+    gameObject->properties.orientation = glm::normalize(gameObject->properties.orientation);
+    glm::mat4 rotation = glm::mat4_cast(gameObject->properties.orientation);
+    gameObject->objectMutexes.orientation.unlock();
 
-    SetLocalModelMatrix(translation * rotation * scale);
+    gameObject->objectMutexes.scale.lock();
+    glm::mat4 scale = glm::scale(glm::mat4(1.f), gameObject->properties.scale);
+    gameObject->objectMutexes.scale.unlock();
+
+    SetLocalModelMatrix(handle, translation * rotation * scale);
 }
 
-std::shared_ptr<ZGameObject> ZGameObject::Clone()
+ZHGameObject ZGameObjectManager::Clone(const ZHGameObject& handle)
 {
-    std::shared_ptr<ZGameObject> clone = std::make_shared<ZGameObject>();
-    clone->properties_ = properties_;
-    clone->scene_ = scene_;
-    clone->parent_ = parent_;
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    ZHGameObject clone = Create();
+    ZGameObject* cloneObject = resourcePool_.Get(clone);
+    cloneObject->properties = gameObject->properties;
+    cloneObject->scene = gameObject->scene;
+    cloneObject->parent = gameObject->parent;
 
     // TODO: Can we template the component Clone method somehow?
-    for (std::shared_ptr<ZComponent> comp : components_)
+    for (const std::shared_ptr<ZComponent>& comp : gameObject->components)
     {
         std::shared_ptr<ZComponent> compClone = comp->Clone();
-        clone->AddComponent(compClone);
+        AddComponent(clone, compClone);
         if (auto physicsComp = std::dynamic_pointer_cast<ZPhysicsComponent>(compClone))
         {
-            physicsComp->RigidBody()->SetGameObject(clone.get());
+            physicsComp->RigidBody()->SetGameObject(clone);
         }
     }
 
-    for (std::shared_ptr<ZGameObject> object : children_)
-        clone->AddChild(object->Clone());
+    for (const ZHGameObject& object : gameObject->children)
+    {
+        AddChild(clone, Clone(object));
+    }
 
     return clone;
 }
 
-void ZGameObject::AddChild(std::shared_ptr<ZGameObject> gameObject)
+void ZGameObjectManager::AddChild(const ZHGameObject& handle, const ZHGameObject& child)
 {
-    if (std::find(children_.begin(), children_.end(), gameObject) == children_.end())
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    if (std::find(gameObject->children.begin(), gameObject->children.end(), child) == gameObject->children.end())
     {
-        children_.push_back(gameObject);
+        ZGameObject* childObject = resourcePool_.Get(child);
+        gameObject->children.push_back(child);
 
-        if (auto parent = gameObject->Parent())
-            parent->RemoveChild(gameObject);
-        gameObject->parent_ = shared_from_this();
+        if (const auto& parent = childObject->parent)
+        {
+            RemoveChild(parent, child);
+        }
+        childObject->parent = handle;
 
-        if (auto scene = Scene())
-            scene->AddGameObject(gameObject);
+        if (auto scene = Scene(handle))
+        {
+            scene->AddGameObject(child);
+        }
 
-        if (!properties_.active)
-            gameObject->SetActive(properties_.active);
+        if (!gameObject->properties.active)
+        {
+            SetActive(child, gameObject->properties.active);
+        }
 
-        gameObject->SetModelMatrix(properties_.modelMatrix * gameObject->properties_.localModelMatrix);
+        SetModelMatrix(child, gameObject->properties.modelMatrix * childObject->properties.localModelMatrix);
     }
 }
 
-void ZGameObject::RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse)
+void ZGameObjectManager::RemoveChild(const ZHGameObject& handle, const ZHGameObject& child, bool recurse)
 {
-    ZGameObjectList::iterator it = std::find(children_.begin(), children_.end(), gameObject);
-    if (it != children_.end())
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    ZGameObjectList::iterator it = std::find(gameObject->children.begin(), gameObject->children.end(), child);
+    if (it != gameObject->children.end())
     {
-        gameObject->parent_.reset();
-        children_.erase(it);
+        ZGameObject* childObject = resourcePool_.Get(child);
+        childObject->parent = ZHGameObject();
+        gameObject->children.erase(it);
     }
 
     if (recurse)
     {
-        for (auto it = children_.begin(), end = children_.end(); it != end; it++)
+        for (auto it = gameObject->children.begin(), end = gameObject->children.end(); it != end; it++)
         {
-            (*it)->RemoveChild(gameObject, recurse);
+            RemoveChild(*it, child, recurse);
         }
     }
 }
 
-bool ZGameObject::IsVisible()
+bool ZGameObjectManager::HasChildren(const ZHGameObject& handle)
 {
-    auto scene = Scene();
-    if (!scene) return false;
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+    return gameObject->children.size() > 0;
+}
 
-    std::shared_ptr<ZCamera> activeCamera = scene->ActiveCamera();
-    if (auto graphicsComp = FindComponent<ZGraphicsComponent>()) {
-        return activeCamera && graphicsComp->IsVisible(activeCamera->Frustum()) && properties_.active;
+bool ZGameObjectManager::IsVisible(const ZHGameObject& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    auto scene = Scene(handle);
+    if (!scene)
+    {
+        return false;
     }
+
+    ZHGameObject activeCamera = scene->ActiveCamera();
+    ZCamera* activeCameraObject = Dereference<ZCamera>(activeCamera);
+    if (auto graphicsComp = FindComponent<ZGraphicsComponent>(handle)) {
+        return activeCamera && graphicsComp->IsVisible(activeCameraObject->Frustum()) && gameObject->properties.active;
+    }
+
     return false;
 }
 
-void ZGameObject::Destroy()
+void ZGameObjectManager::Destroy(const ZHGameObject& handle)
 {
-    CleanUp();
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
 
-    for (auto object : children_)
-        object->Destroy();
-    for (auto comp : components_)
+    for (const ZHGameObject& child : gameObject->children)
+    {
+        Destroy(child);
+    }
+    for (auto comp : gameObject->components)
+    {
         comp->CleanUp();
+    }
 
-    std::shared_ptr<ZObjectDestroyedEvent> destroyEvent(new ZObjectDestroyedEvent(shared_from_this()));
+    std::shared_ptr<ZObjectDestroyedEvent> destroyEvent(new ZObjectDestroyedEvent(handle));
     ZServices::EventAgent()->Trigger(destroyEvent);
 }
 
-std::shared_ptr<ZScene> ZGameObject::Scene() const
+std::shared_ptr<ZScene> ZGameObjectManager::Scene(const ZHGameObject& handle)
 {
-    return scene_.lock();
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    return gameObject->scene.lock();
 }
 
-std::shared_ptr<ZGameObject> ZGameObject::Parent() const
+ZHGameObject ZGameObjectManager::Parent(const ZHGameObject& handle)
 {
-    return parent_.lock();
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    return gameObject->parent;
 }
 
-glm::vec3 ZGameObject::Position()
+std::string ZGameObjectManager::Name(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    return gameObject->name;
+}
+
+ZRenderLayer ZGameObjectManager::RenderLayer(const ZHGameObject& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    return gameObject->properties.renderOrder;
+}
+
+const ZComponentList& ZGameObjectManager::Components(const ZHGameObject& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    return gameObject->components;
+}
+
+const ZGameObjectList& ZGameObjectManager::Children(const ZHGameObject& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    return gameObject->children;
+}
+
+glm::vec3 ZGameObjectManager::Position(const ZHGameObject& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 pos;
-    objectMutexes_.position.lock();
-    pos = properties_.position;
-    objectMutexes_.position.unlock();
+    gameObject->objectMutexes.position.lock();
+    pos = gameObject->properties.position;
+    gameObject->objectMutexes.position.unlock();
     return pos;
 
 }
 
-glm::vec3 ZGameObject::Scale()
+glm::vec3 ZGameObjectManager::Scale(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 scale;
-    objectMutexes_.scale.lock();
-    scale = properties_.scale;
-    objectMutexes_.scale.unlock();
+    gameObject->objectMutexes.scale.lock();
+    scale = gameObject->properties.scale;
+    gameObject->objectMutexes.scale.unlock();
     return scale;
 
 }
 
-glm::quat ZGameObject::Orientation()
+glm::quat ZGameObjectManager::Orientation(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::quat orn;
-    objectMutexes_.orientation.lock();
-    orn = properties_.orientation;
-    objectMutexes_.orientation.unlock();
+    gameObject->objectMutexes.orientation.lock();
+    orn = gameObject->properties.orientation;
+    gameObject->objectMutexes.orientation.unlock();
     return orn;
 
 }
 
-glm::vec3 ZGameObject::Front()
+glm::vec3 ZGameObjectManager::Front(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 front;
-    objectMutexes_.orientation.lock();
-    front = glm::conjugate(properties_.orientation) * glm::vec3(0.f, 0.f, -1.f);
-    objectMutexes_.orientation.unlock();
+    gameObject->objectMutexes.orientation.lock();
+    front = glm::conjugate(gameObject->properties.orientation) * glm::vec3(0.f, 0.f, -1.f);
+    gameObject->objectMutexes.orientation.unlock();
     return front;
 
 }
 
-glm::vec3 ZGameObject::Up()
+glm::vec3 ZGameObjectManager::Up(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 up;
-    objectMutexes_.orientation.lock();
-    up = glm::conjugate(properties_.orientation) * glm::vec3(0.f, 1.f, 0.f);
-    objectMutexes_.orientation.unlock();
+    gameObject->objectMutexes.orientation.lock();
+    up = glm::conjugate(gameObject->properties.orientation) * glm::vec3(0.f, 1.f, 0.f);
+    gameObject->objectMutexes.orientation.unlock();
     return up;
 }
 
-glm::vec3 ZGameObject::Right()
+glm::vec3 ZGameObjectManager::Right(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 right;
-    objectMutexes_.orientation.lock();
-    right = glm::conjugate(properties_.orientation) * glm::vec3(-1.f, 0.f, 0.f);
-    objectMutexes_.orientation.unlock();
+    gameObject->objectMutexes.orientation.lock();
+    right = glm::conjugate(gameObject->properties.orientation) * glm::vec3(-1.f, 0.f, 0.f);
+    gameObject->objectMutexes.orientation.unlock();
     return right;
 
 }
 
-glm::mat4 ZGameObject::ModelMatrix()
+glm::mat4 ZGameObjectManager::ModelMatrix(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::mat4 M;
-    objectMutexes_.modelMatrix.lock();
-    M = properties_.modelMatrix;
-    objectMutexes_.modelMatrix.unlock();
+    gameObject->objectMutexes.modelMatrix.lock();
+    M = gameObject->properties.modelMatrix;
+    gameObject->objectMutexes.modelMatrix.unlock();
     return M;
 
 }
 
-glm::vec3 ZGameObject::PreviousPosition()
+glm::vec3 ZGameObjectManager::PreviousPosition(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 prev;
-    objectMutexes_.position.lock();
-    prev = glm::vec3(properties_.previousPosition);
-    objectMutexes_.position.unlock();
+    gameObject->objectMutexes.position.lock();
+    prev = glm::vec3(gameObject->properties.previousPosition);
+    gameObject->objectMutexes.position.unlock();
     return prev;
 }
 
-glm::vec3 ZGameObject::PreviousFront()
+glm::vec3 ZGameObjectManager::PreviousFront(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 prev;
-    objectMutexes_.orientation.lock();
-    prev = glm::conjugate(properties_.previousOrientation) * glm::vec3(0.f, 0.f, -1.f);
-    objectMutexes_.orientation.unlock();
+    gameObject->objectMutexes.orientation.lock();
+    prev = glm::conjugate(gameObject->properties.previousOrientation) * glm::vec3(0.f, 0.f, -1.f);
+    gameObject->objectMutexes.orientation.unlock();
     return prev;
 }
 
-glm::vec3 ZGameObject::PreviousUp()
+glm::vec3 ZGameObjectManager::PreviousUp(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 prev;
-    objectMutexes_.orientation.lock();
-    prev = glm::conjugate(properties_.previousOrientation) * glm::vec3(0.f, 1.f, 0.f);
-    objectMutexes_.orientation.unlock();
+    gameObject->objectMutexes.orientation.lock();
+    prev = glm::conjugate(gameObject->properties.previousOrientation) * glm::vec3(0.f, 1.f, 0.f);
+    gameObject->objectMutexes.orientation.unlock();
     return prev;
 }
 
-glm::vec3 ZGameObject::PreviousRight()
+glm::vec3 ZGameObjectManager::PreviousRight(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     glm::vec3 prev;
-    objectMutexes_.orientation.lock();
-    prev = glm::conjugate(properties_.previousOrientation) * glm::vec3(-1.f, 0.f, 0.f);
-    objectMutexes_.orientation.unlock();
+    gameObject->objectMutexes.orientation.lock();
+    prev = glm::conjugate(gameObject->properties.previousOrientation) * glm::vec3(-1.f, 0.f, 0.f);
+    gameObject->objectMutexes.orientation.unlock();
     return prev;
 }
 
-void ZGameObject::SetScene(const std::shared_ptr<ZScene>& scene)
+std::shared_ptr<ZRenderStateGroup> ZGameObjectManager::RenderState(const ZHGameObject& handle)
 {
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    return gameObject->renderState;
+}
+
+void ZGameObjectManager::SetParent(const ZHGameObject& handle, const ZHGameObject& parent)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->parent = parent;
+}
+
+void ZGameObjectManager::SetScene(const ZHGameObject& handle, const std::shared_ptr<ZScene>& scene)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
     if (!scene)
-        scene_.reset();
-    else 
-        scene_ = scene;
-    for (auto object : children_)
-        object->SetScene(scene);
-}
-
-void ZGameObject::SetPosition(const glm::vec3& position)
-{
-    objectMutexes_.position.lock();
-    properties_.previousPosition = properties_.position;
-    properties_.position = position;
-    objectMutexes_.position.unlock();
-
-    CalculateDerivedData();
-}
-
-void ZGameObject::SetScale(const glm::vec3& scale)
-{
-    objectMutexes_.scale.lock();
-    properties_.previousScale = properties_.scale;
-    properties_.scale = scale;
-    objectMutexes_.scale.unlock();
-
-    CalculateDerivedData();
-}
-
-void ZGameObject::SetOrientation(const glm::quat& quaternion)
-{
-    objectMutexes_.orientation.lock();
-    properties_.previousOrientation = properties_.orientation;
-    properties_.orientation = quaternion;
-    objectMutexes_.orientation.unlock();
-
-    CalculateDerivedData();
-}
-
-void ZGameObject::SetOrientation(const glm::vec3& euler)
-{
-    objectMutexes_.orientation.lock();
-    properties_.previousOrientation = properties_.orientation;
-    properties_.orientation = glm::quat(euler);
-    objectMutexes_.orientation.unlock();
-
-    CalculateDerivedData();
-}
-
-void ZGameObject::SetLocalModelMatrix(const glm::mat4& modelMatrix)
-{
-    objectMutexes_.localModelMatrix.lock();
-    properties_.localModelMatrix = modelMatrix;
-    objectMutexes_.localModelMatrix.unlock();
-
-    if (auto parent = Parent())
-        SetModelMatrix(parent->ModelMatrix() * properties_.localModelMatrix);
-    else
-        SetModelMatrix(properties_.localModelMatrix);
-}
-
-void ZGameObject::SetModelMatrix(const glm::mat4& modelMatrix)
-{
-    objectMutexes_.modelMatrix.lock();
-    properties_.modelMatrix = modelMatrix;
-    objectMutexes_.modelMatrix.unlock();
-
-    if (uniformBuffer_)
-        uniformBuffer_->Update(offsetof(ZObjectUniforms, M), sizeof(glm::mat4), glm::value_ptr(properties_.modelMatrix));
-
-    if (auto graphicsComp = FindComponent<ZGraphicsComponent>())
-        graphicsComp->Transform(properties_.modelMatrix);
-
-    if (auto physicsComp = FindComponent<ZPhysicsComponent>())
-        physicsComp->SetTransform(properties_.modelMatrix);
-
-    for (auto child : children_) {
-        child->SetModelMatrix(properties_.modelMatrix * child->properties_.localModelMatrix);
-    }
-}
-
-void ZGameObject::SetRenderOrder(ZRenderLayer renderOrder)
-{
-    properties_.renderOrder = renderOrder;
-}
-
-void ZGameObject::SetActive(bool active)
-{
-    properties_.active = active;
-    for (auto object : children_)
-        object->SetActive(active);
-}
-
-void ZGameObject::Translate(const glm::vec3& translation, bool global)
-{
-    if (global) {
-        //glm::vec3 localTranslation = glm::rotate(Orientation(), translation);
-        objectMutexes_.position.lock();
-        properties_.previousPosition = properties_.position;
-        properties_.position += translation, 0.f;
-        objectMutexes_.position.unlock();
-    }
-    else {
-        objectMutexes_.position.lock();
-        properties_.previousPosition = properties_.position;
-        properties_.position += translation, 0.f;
-        objectMutexes_.position.unlock();
-    }
-
-    CalculateDerivedData();
-}
-
-ZGameObjectList ZGameObject::Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene)
-{
-    using namespace zenith::strings;
-    ZGameObjectList gameObjects;
-    for (ZOFChildList::iterator it = data->children.begin(); it != data->children.end(); it++)
     {
-        std::shared_ptr<ZOFObjectNode> node = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        std::shared_ptr<ZGameObject> gameObject;
-        if (node->type == ZOFObjectType::GameObject)
-        {
-            gameObject = ZGameObject::Create(node, scene);
-        }
-        else if (node->type == ZOFObjectType::Light)
-        {
-            gameObject = ZLight::Create(node, scene);
-        }
-        else if (node->type == ZOFObjectType::Camera)
-        {
-            gameObject = ZCamera::Create(node, scene);
-        }
-        else if (node->type == ZOFObjectType::Skybox)
-        {
-            gameObject = ZSkybox::Create(node, scene);
-        }
-        else if (node->type == ZOFObjectType::Grass)
-        {
-            gameObject = ZGrass::Create(node, scene);
-        }
-
-        if (gameObject) {
-            gameObjects.push_back(gameObject);
-
-            for (ZOFChildList::iterator compIt = node->children.begin(); compIt != node->children.end(); compIt++)
-            {
-                if (HasComponentPrefix(compIt->first)) {
-                    std::shared_ptr<ZOFNode> componentNode = compIt->second;
-                    ZComponent::CreateIn(compIt->first, gameObject, componentNode);
-                }
-            }
-        }
+        gameObject->scene.reset();
     }
-    return gameObjects;
+    else
+    {
+        gameObject->scene = scene;
+    }
+
+    for (const ZHGameObject& child : gameObject->children)
+    {
+        SetScene(child, scene);
+    }
+}
+
+void ZGameObjectManager::SetPosition(const ZHGameObject& handle, const glm::vec3& position)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->objectMutexes.position.lock();
+    gameObject->properties.previousPosition = gameObject->properties.position;
+    gameObject->properties.position = position;
+    gameObject->objectMutexes.position.unlock();
+
+    CalculateDerivedData(handle);
+}
+
+void ZGameObjectManager::SetScale(const ZHGameObject& handle, const glm::vec3& scale)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->objectMutexes.scale.lock();
+    gameObject->properties.previousScale = gameObject->properties.scale;
+    gameObject->properties.scale = scale;
+    gameObject->objectMutexes.scale.unlock();
+
+    CalculateDerivedData(handle);
+}
+
+void ZGameObjectManager::SetOrientation(const ZHGameObject& handle, const glm::quat& quaternion)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->objectMutexes.orientation.lock();
+    gameObject->properties.previousOrientation = gameObject->properties.orientation;
+    gameObject->properties.orientation = quaternion;
+    gameObject->objectMutexes.orientation.unlock();
+
+    CalculateDerivedData(handle);
+}
+
+void ZGameObjectManager::SetOrientation(const ZHGameObject& handle, const glm::vec3& euler)
+{
+    assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+    ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->objectMutexes.orientation.lock();
+    gameObject->properties.previousOrientation = gameObject->properties.orientation;
+    gameObject->properties.orientation = glm::quat(euler);
+    gameObject->objectMutexes.orientation.unlock();
+
+    CalculateDerivedData(handle);
+}
+
+void ZGameObjectManager::SetLocalModelMatrix(const ZHGameObject& handle, const glm::mat4& modelMatrix)
+{
+    assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+    ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->objectMutexes.localModelMatrix.lock();
+    gameObject->properties.localModelMatrix = modelMatrix;
+    gameObject->objectMutexes.localModelMatrix.unlock();
+
+    if (!gameObject->parent.IsNull())
+    {
+        SetModelMatrix(handle, ModelMatrix(gameObject->parent) * gameObject->properties.localModelMatrix);
+    }
+    else
+    {
+        SetModelMatrix(handle, gameObject->properties.localModelMatrix);
+    }
+}
+
+void ZGameObjectManager::SetModelMatrix(const ZHGameObject& handle, const glm::mat4& modelMatrix)
+{
+    assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+    ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->objectMutexes.modelMatrix.lock();
+    gameObject->properties.modelMatrix = modelMatrix;
+    gameObject->objectMutexes.modelMatrix.unlock();
+
+    if (gameObject->uniformBuffer)
+    {
+        gameObject->uniformBuffer->Update(offsetof(ZObjectUniforms, M), sizeof(glm::mat4), glm::value_ptr(gameObject->properties.modelMatrix));
+    }
+
+    if (auto graphicsComp = FindComponent<ZGraphicsComponent>(handle))
+    {
+        graphicsComp->Transform(gameObject->properties.modelMatrix);
+    }
+
+    if (auto physicsComp = FindComponent<ZPhysicsComponent>(handle))
+    {
+        physicsComp->SetTransform(gameObject->properties.modelMatrix);
+    }
+
+    for (const ZHGameObject& child : gameObject->children)
+    {
+        ZGameObject* childObject = resourcePool_.Get(child);
+        SetModelMatrix(child, gameObject->properties.modelMatrix * childObject->properties.localModelMatrix);
+    }
+}
+
+void ZGameObjectManager::SetRenderOrder(const ZHGameObject& handle, ZRenderLayer renderOrder)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->properties.renderOrder = renderOrder;
+}
+
+void ZGameObjectManager::SetName(const ZHGameObject& handle, const std::string& name)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->name = name;
+}
+
+void ZGameObjectManager::SetActive(const ZHGameObject& handle, bool active)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    gameObject->properties.active = active;
+    for (const ZHGameObject& child : gameObject->children)
+    {
+        SetActive(child, active);
+    }
+}
+
+void ZGameObjectManager::Translate(const ZHGameObject& handle, const glm::vec3& translation, bool global)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+    if (global)
+    {
+        gameObject->objectMutexes.position.lock();
+        gameObject->properties.previousPosition = gameObject->properties.position;
+        gameObject->properties.position += translation;
+        gameObject->objectMutexes.position.unlock();
+    }
+    else
+    {
+        gameObject->objectMutexes.position.lock();
+        gameObject->properties.previousPosition = gameObject->properties.position;
+        gameObject->properties.position += translation;
+        gameObject->objectMutexes.position.unlock();
+    }
+
+    CalculateDerivedData(handle);
 }
 
 DEFINE_OBJECT_CREATORS(ZGameObject)

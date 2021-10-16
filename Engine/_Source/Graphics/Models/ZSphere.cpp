@@ -32,26 +32,27 @@
 #include "ZSphere.hpp"
 #include "ZServices.hpp"
 
-void ZSphere::Initialize()
+void ZSphere::OnCreate()
 {
     if (smooth_)
+    {
         BuildSmooth();
+    }
     else
+    {
         BuildFlat();
-
-    ZModel::Initialize();
+    }
 }
 
-void ZSphere::Initialize(const std::shared_ptr<ZOFNode>& data)
+void ZSphere::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(data);
-    if (!node)
+    if (!dataNode)
     {
         LOG("Could not initalize ZSphere: node data is invalid", ZSeverity::Error);
         return;
     }
 
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
 
     if (props.find("radius") != props.end() && props["radius"]->HasValues())
     {
@@ -71,14 +72,14 @@ void ZSphere::Initialize(const std::shared_ptr<ZOFNode>& data)
         smooth_ = smoothProp->value == "Yes";
     }
 
-    Initialize();
-}
-
-std::shared_ptr<ZSphere> ZSphere::Create(float radius, const glm::vec2& segments, bool smooth)
-{
-    auto sphere = std::make_shared<ZSphere>(radius, segments, smooth);
-    sphere->Initialize();
-    return sphere;
+	if (smooth_)
+	{
+		BuildSmooth();
+	}
+	else
+	{
+		BuildFlat();
+	}
 }
 
 void ZSphere::BuildSmooth()
@@ -148,10 +149,10 @@ void ZSphere::BuildSmooth()
         }
     }
 
-    meshes_.clear();
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
-    mesh->Initialize();
-    meshes_[mesh->ID()] = mesh;
+    meshes.clear();
+    ZMesh3D mesh(options);
+    mesh.Initialize();
+    meshes.emplace_back(mesh);
 }
 
 void ZSphere::BuildFlat()
@@ -298,8 +299,8 @@ void ZSphere::BuildFlat()
         }
     }
 
-    meshes_.clear();
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
-    mesh->Initialize();
-    meshes_[mesh->ID()] = mesh;
+    meshes.clear();
+    ZMesh3D mesh(options);
+    mesh.Initialize();
+    meshes.emplace_back(mesh);
 }

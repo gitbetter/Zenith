@@ -97,9 +97,9 @@ void ZSkybox::Initialize(const ZHTexture& cubeMap, const ZFramebuffer::ptr& buff
     skyboxGraphicsComponent->SetIsShadowCaster(false);
     skyboxGraphicsComponent->SetHasDepthInfo(false);
     skyboxGraphicsComponent->Initialize(
-        ZCube::Create(glm::vec3(1.f, 1.f, 1.f))
+        ZServices::ModelManager()->Create(ZModelType::Cube)
     );
-    skyboxGraphicsComponent->AddMaterial(ZMaterial::Create({ iblTexture_.cubeMap }, ZServices::ShaderManager()->Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")));
+    skyboxGraphicsComponent->AddMaterial(ZServices::MaterialManager()->Create({ iblTexture_.cubeMap }, ZServices::ShaderManager()->Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")));
 
     ZGameObject::Initialize();
 }

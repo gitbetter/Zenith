@@ -126,9 +126,8 @@ public:
 	void							    Initialize(const ZHUIElement& handle);
 
 	virtual ZHUIElement                 Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene);
-	ZUIElementList                      Deserialize(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
-	ZHUIElement				            Create(const ZUIElementType& type);
-	ZHUIElement							Create(const ZUIElementType& type, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene = nullptr);
+	ZHUIElement				            Create(const ZUIElementType& type, const ZHUIElement& restoreHandle = ZHUIElement());
+	ZHUIElement							Create(const ZUIElementType& type, const ZUIElementOptions& options, const ZHUIElement& restoreHandle = ZHUIElement(), const std::shared_ptr<ZScene>& scene = nullptr);
 
 	virtual void                        Prepare(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
 	virtual unsigned int                PrepareChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
@@ -207,7 +206,7 @@ public:
 	bool                                TrySelect(const ZHUIElement& handle, const glm::vec3& position);
 	bool                                Contains(const ZHUIElement& handle, const glm::vec2& point);
 
-	template<class T>
+	template<class T = ZUIElement>
 	ZHUIElement ChildByName(const ZHUIElement& handle, const std::string& name)
 	{
 		assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");

@@ -32,26 +32,27 @@
 #include "ZCylinder.hpp"
 #include "ZServices.hpp"
 
-void ZCylinder::Initialize()
+void ZCylinder::OnCreate()
 {
-    if (smooth_)
-        BuildSmooth();
-    else
-        BuildFlat();
-
-    ZModel::Initialize();
+	if (smooth_)
+	{
+		BuildSmooth();
+	}
+	else
+	{
+		BuildFlat();
+	}
 }
 
-void ZCylinder::Initialize(const std::shared_ptr<ZOFNode>& data)
+void ZCylinder::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(data);
-    if (!node)
+    if (!dataNode)
     {
         LOG("Could not initalize ZCylinder: node data is invalid", ZSeverity::Error);
         return;
     }
 
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
 
     if (props.find("topRadius") != props.end() && props["topRadius"]->HasValues())
     {
@@ -83,14 +84,14 @@ void ZCylinder::Initialize(const std::shared_ptr<ZOFNode>& data)
         smooth_ = smoothProp->value == "Yes";
     }
 
-    Initialize();
-}
-
-std::shared_ptr<ZCylinder> ZCylinder::Create(float topRadius, float baseRadius, float height, const glm::vec2& segments, bool smooth)
-{
-    auto cylinder = std::make_shared<ZCylinder>(topRadius, baseRadius, height, segments, smooth);
-    cylinder->Initialize();
-    return cylinder;
+    if (smooth_)
+    {
+		BuildSmooth();
+    }
+    else
+    {
+		BuildFlat();
+    }
 }
 
 std::vector<glm::vec3> ZCylinder::GetSideNormals()
@@ -234,10 +235,10 @@ void ZCylinder::BuildSmooth()
         );
     }
 
-    meshes_.clear();
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
-    mesh->Initialize();
-    meshes_[mesh->ID()] = mesh;
+    meshes.clear();
+    ZMesh3D mesh(options);
+    mesh.Initialize();
+    meshes.emplace_back(mesh);
 }
 
 void ZCylinder::BuildFlat()
@@ -392,8 +393,8 @@ void ZCylinder::BuildFlat()
             );
     }
 
-    meshes_.clear();
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
-    mesh->Initialize();
-    meshes_[mesh->ID()] = mesh;
+	meshes.clear();
+	ZMesh3D mesh(options);
+	mesh.Initialize();
+	meshes.emplace_back(mesh);
 }

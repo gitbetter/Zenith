@@ -29,24 +29,16 @@
 
 #pragma once
 
-// Includes
 #include "ZEvent.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZObjectDestroyedEvent : public ZEvent
 {
-
-private:
-
-    std::shared_ptr<ZGameObject> object_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZObjectDestroyedEvent(std::shared_ptr<ZGameObject> destroyed) : object_(destroyed) {}
+    explicit ZObjectDestroyedEvent(const ZHGameObject& destroyed) : object_(destroyed) {}
     explicit ZObjectDestroyedEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
@@ -54,8 +46,10 @@ public:
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZObjectDestroyedEvent"; }
 
-    std::shared_ptr<ZGameObject> Object() { return object_; }
+    ZHGameObject Object() { return object_; }
 
-protected:
+private:
+
+    ZHGameObject object_;
 
 };

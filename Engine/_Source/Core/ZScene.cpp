@@ -125,7 +125,7 @@ void ZScene::Update(double deltaTime)
 {
     if (playState_ == ZPlayState::Playing || playState_ == ZPlayState::Paused)
     {
-        root_->Prepare(deltaTime);
+        ZServices::GameObjectManager()->Prepare(root_, deltaTime);
         ZServices::UIElementManager()->Prepare(canvas_, deltaTime);
         renderer_->Render(deltaTime);
         bvh_->Build();
@@ -145,9 +145,10 @@ void ZScene::Play()
 {
     playState_ = ZPlayState::Playing;
     gameSystems_.physics->Resume();
-    if (activeCamera_) {
-        activeCamera_->EnableLook();
-        activeCamera_->EnableMovement();
+    if (!activeCamera_.IsNull()) {
+        ZCamera* camera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeCamera_);
+        camera->EnableLook();
+        camera->EnableMovement();
     }
 }
 
@@ -155,9 +156,10 @@ void ZScene::Pause()
 {
     playState_ = ZPlayState::Paused;
     gameSystems_.physics->Pause();
-    if (activeCamera_) {
-        activeCamera_->DisableLook();
-        activeCamera_->DisableMovement();
+    if (!activeCamera_.IsNull()) {
+        ZCamera* camera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeCamera_);
+        camera->DisableLook();
+        camera->DisableMovement();
     }
 }
 
@@ -165,18 +167,26 @@ void ZScene::Stop()
 {
     playState_ = ZPlayState::Ready;
     gameSystems_.physics->Pause();
-    if (activeCamera_) {
-        activeCamera_->DisableLook();
-        activeCamera_->DisableMovement();
+    if (!activeCamera_.IsNull()) {
+        ZCamera* camera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeCamera_);
+        camera->DisableLook();
+        camera->DisableMovement();
     }
 }
 
 void ZScene::UpdateLightspaceMatrices()
 {
-    if (gameLights_.empty() || !activeCamera_->Moving()) return;
-    ZFrustum frustum = activeCamera_->Frustum();
-    for (const auto& light : gameLights_) {
-        light->UpdateLightspaceMatrices(frustum);
+    ZCamera* camera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeCamera_);
+    if (gameLights_.empty() || !camera->Moving())
+    {
+        return;
+    }
+
+    ZFrustum frustum = camera->Frustum();
+    for (const auto& light : gameLights_)
+    {
+        ZLight* lightObject = ZServices::GameObjectManager()->Dereference<ZLight>(light);
+        lightObject->UpdateLightspaceMatrices(frustum);
     }
 }
 
@@ -188,12 +198,16 @@ ZSceneSnapshot ZScene::Snapshot()
     sceneClone->playState_ = playState_;
     sceneClone->state_ = state_;
 
-    sceneClone->AddGameObject(skybox_->Clone(), false);
+    sceneClone->AddGameObject(ZServices::GameObjectManager()->Clone(skybox_), false);
     for (const auto& obj : gameObjects_)
-        sceneClone->AddGameObject(obj->Clone(), false);
+    {
+        sceneClone->AddGameObject(ZServices::GameObjectManager()->Clone(obj), false);
+    }
 
     for (const auto& el : uiElements_)
+    {
         sceneClone->AddUIElement(el); // TODO: Clone UI Elements too
+    }
 
     snapshot.scene = sceneClone;
     snapshot.time = SECONDS_TIME;
@@ -209,17 +223,28 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot)
     state_ = snapshot.scene->state_;
 
     while (!gameObjects_.empty())
-        (*gameObjects_.begin())->Destroy();
+    {
+        ZServices::GameObjectManager()->Destroy(*gameObjects_.begin());
+    }
 
-    gameObjects_.clear(); uiElements_.clear(); gameLights_.clear();
-    gameObjectIDMap_.clear(); uiElementIDMap_.clear(); gameLightIDMap_.clear();
+    gameObjects_.clear();
+    uiElements_.clear();
+    gameLights_.clear();
+    gameObjectIDMap_.clear();
+    uiElementIDMap_.clear();
+    gameLightIDMap_.clear();
 
     AddGameObject(snapshot.scene->skybox_);
+
     for (const auto& obj : snapshot.scene->gameObjects_)
+    {
         AddGameObject(obj);
+    }
 
     for (const auto& el : snapshot.scene->uiElements_)
+    {
         AddUIElement(el);
+    }
 }
 
 void ZScene::AddBVHPrimitive(const ZBVHPrimitive& primitive)
@@ -230,9 +255,9 @@ void ZScene::AddBVHPrimitive(const ZBVHPrimitive& primitive)
 void ZScene::CreateSceneRoot(const std::string& name)
 {
     root_ = ZSceneRoot::Create();
-    root_->SetName(name);
-    root_->SetScene(shared_from_this());
-    root_->Initialize();
+    ZServices::GameObjectManager()->SetName(root_, name);
+    ZServices::GameObjectManager()->SetScene(root_, shared_from_this());
+    ZServices::GameObjectManager()->Initialize(root_);
 }
 
 void ZScene::CreateUICanvas()
@@ -242,185 +267,214 @@ void ZScene::CreateUICanvas()
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     elementOptions.color = glm::vec4(1.f);
-    canvas_ = ZServices::UIElementManager()->Create(ZUIElementType::Canvas, elementOptions, shared_from_this());
+    canvas_ = ZServices::UIElementManager()->Create(ZUIElementType::Canvas, elementOptions, ZHUIElement(), shared_from_this());
 }
 
-void ZScene::AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately)
+void ZScene::AddGameObjects(std::initializer_list<ZHGameObject> gameObjects, bool runImmediately)
 {
-    for (std::shared_ptr<ZGameObject> object : gameObjects)
+    for (const ZHGameObject& object : gameObjects)
     {
         AddGameObject(object, runImmediately);
     }
 }
 
-void ZScene::AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImmediately)
+void ZScene::AddGameObject(const ZHGameObject& gameObject, bool runImmediately)
 {
-    if (gameObject != nullptr)
+    if (!gameObject.IsNull())
     {
-        gameObject->SetScene(shared_from_this());
-        if (auto camera = std::dynamic_pointer_cast<ZCamera>(gameObject))
+        ZServices::GameObjectManager()->SetScene(gameObject, shared_from_this());
+        std::string objectName = ZServices::GameObjectManager()->Name(gameObject);
+        if (ZCamera* camera = ZServices::GameObjectManager()->Dereference<ZCamera>(gameObject))
         {
-            if (camera->IsPrimary()) primaryCamera_ = camera;
-            activeCamera_ = camera;
+            if (camera->IsPrimary())
+            {
+                primaryCamera_ = gameObject;
+            }
+            activeCamera_ = gameObject;
         } 
-        else if (auto light = std::dynamic_pointer_cast<ZLight>(gameObject))
+        else if (ZLight* light = ZServices::GameObjectManager()->Dereference<ZLight>(gameObject))
         {
-            if (gameLightIDMap_.find(gameObject->ID()) == gameLightIDMap_.end()) {
-                gameLightIDMap_[gameObject->ID()] = gameLights_.size();
-                gameLights_.push_back(light);
+            if (gameLightIDMap_.find(objectName) == gameLightIDMap_.end()) {
+                gameLightIDMap_[objectName] = gameLights_.size();
+                gameLights_.push_back(gameObject);
             }
         }
 
-        if (auto skybox = std::dynamic_pointer_cast<ZSkybox>(gameObject))
+        if (ZSkybox* skybox = ZServices::GameObjectManager()->Dereference<ZSkybox>(gameObject))
         {
-            skybox_ = skybox;
+            skybox_ = gameObject;
         }
         else
         {
-            if (gameObjectIDMap_.find(gameObject->ID()) == gameObjectIDMap_.end()) {
-                gameObjectIDMap_[gameObject->ID()] = gameObjects_.size();
+            if (gameObjectIDMap_.find(objectName) == gameObjectIDMap_.end()) {
+                gameObjectIDMap_[objectName] = gameObjects_.size();
                 gameObjects_.push_back(gameObject);
             }
         }
 
-        if (!gameObject->Parent())
-            root_->AddChild(gameObject);
-
-        if (runImmediately) {
-            for (auto comp : gameObject->components_)
-                ZServices::ProcessRunner(gameName_)->AttachProcess(comp);
+        if (!ZServices::GameObjectManager()->Parent(gameObject))
+        {
+            ZServices::GameObjectManager()->AddChild(root_, gameObject);
         }
 
-        for (auto child : gameObject->Children()) {
+        if (runImmediately)
+        {
+            for (auto comp : ZServices::GameObjectManager()->Components(gameObject))
+            {
+                ZServices::ProcessRunner(gameName_)->AttachProcess(comp);
+            }
+        }
+
+        for (const ZHGameObject& child : ZServices::GameObjectManager()->Children(gameObject))
+        {
             AddGameObject(child);
         }
     }
 }
 
-void ZScene::RemoveGameObject(std::shared_ptr<ZGameObject> gameObject)
+void ZScene::RemoveGameObject(const ZHGameObject& gameObject)
 {
-    if (gameObject != nullptr)
+    if (!gameObject.IsNull())
     {
         if (primaryCamera_ == gameObject)
         {
-            primaryCamera_ = nullptr;
+            primaryCamera_ = ZHGameObject();
         }
         else if (activeCamera_ == gameObject)
         {
-            activeCamera_ = nullptr;
+            activeCamera_ = ZHGameObject();
         }
 
-        auto objectID = gameObject->ID();
-        if (gameLightIDMap_.find(objectID) != gameLightIDMap_.end()) {
-            gameLights_.erase(gameLights_.begin() + gameLightIDMap_[objectID]);
-            gameLightIDMap_.erase(objectID);
+        std::string objectName = ZServices::GameObjectManager()->Name(gameObject);
+
+        if (gameLightIDMap_.find(objectName) != gameLightIDMap_.end())
+        {
+            gameLights_.erase(gameLights_.begin() + gameLightIDMap_[objectName]);
+            gameLightIDMap_.erase(objectName);
         }
-        if (gameObjectIDMap_.find(objectID) != gameObjectIDMap_.end()) {
-            gameObjects_.erase(gameObjects_.begin() + gameObjectIDMap_[objectID]);
-            gameObjectIDMap_.erase(objectID);
+        if (gameObjectIDMap_.find(objectName) != gameObjectIDMap_.end())
+        {
+            gameObjects_.erase(gameObjects_.begin() + gameObjectIDMap_[objectName]);
+            gameObjectIDMap_.erase(objectName);
         }
 
-        if (auto parent = gameObject->Parent()) {
+        if (const ZHGameObject& parent = ZServices::GameObjectManager()->Parent(gameObject))
+        {
             if (parent == root_)
-                root_->RemoveChild(gameObject, true);
+            {
+                ZServices::GameObjectManager()->RemoveChild(root_, gameObject, true);
+            }
         }
-        gameObject->parent_.reset();
-        gameObject->SetScene(nullptr);
+        ZServices::GameObjectManager()->SetParent(gameObject, ZHGameObject());
+        ZServices::GameObjectManager()->SetScene(gameObject, nullptr);
 
-        for (const auto& child : gameObject->Children()) {
+        for (const ZHGameObject& child : ZServices::GameObjectManager()->Children(gameObject))
+        {
             RemoveGameObject(child);
         }
     }
 }
 
-std::shared_ptr<ZGameObject> ZScene::FindGameObject(const std::string& id)
+ZHGameObject ZScene::FindGameObjectByName(const std::string& name)
 {
-    if (!id.empty())
+    if (!name.empty())
     {
         for (const auto& obj : gameObjects_)
         {
-            if (zenith::strings::HasSuffix(obj->ID(), id))
+            if (zenith::strings::HasSuffix(ZServices::GameObjectManager()->Name(obj), name))
             {
                 return obj;
             }
-            else if (obj->HasChildren())
+            else if (ZServices::GameObjectManager()->HasChildren(obj))
             {
-                const auto& found = obj->Child<ZGameObject>(id);
-                if (found) return found;
+                const ZHGameObject& found = ZServices::GameObjectManager()->Child<ZGameObject>(obj, name);
+                if (!found.IsNull())
+                {
+                    return found;
+                }
             }
         }
     }
-    return nullptr;
+    return ZHGameObject();
 }
 
 void ZScene::AddUIElement(const ZHUIElement& element)
 {
-    if (element && uiElementIDMap_.find(element->ID()) == uiElementIDMap_.end())
+    const std::string elementName = ZServices::UIElementManager()->Name(element);
+    if (element && uiElementIDMap_.find(elementName) == uiElementIDMap_.end())
     {
         ZServices::UIElementManager()->AddChild(canvas_, element);
-        uiElementIDMap_[element->ID()] = uiElements_.size();
+        uiElementIDMap_[elementName] = uiElements_.size();
         uiElements_.push_back(element);
     }
 }
 
-void ZScene::AddUIElements(std::initializer_list<std::shared_ptr<ZUIElement>> elements)
+void ZScene::AddUIElements(std::initializer_list<ZHUIElement> elements)
 {
-    for (std::shared_ptr<ZUIElement> element : elements)
+    for (const ZHUIElement& element : elements)
     {
         AddUIElement(element);
     }
 }
 
-void ZScene::RemoveUIElement(std::shared_ptr<ZUIElement> element)
+void ZScene::RemoveUIElement(const ZHUIElement& element)
 {
-    auto id = element->ID();
-    if (element && uiElementIDMap_.find(id) != uiElementIDMap_.end())
+    auto elementName = ZServices::UIElementManager()->Name(element);
+    if (element && uiElementIDMap_.find(elementName) != uiElementIDMap_.end())
     {
-        uiElements_.erase(uiElements_.begin() + uiElementIDMap_[id]);
-        uiElementIDMap_.erase(id);
-        canvas_->RemoveChild(element, true);
-        element->parent_.reset();
-        element->scene_.reset();
+        uiElements_.erase(uiElements_.begin() + uiElementIDMap_[elementName]);
+        uiElementIDMap_.erase(elementName);
+        ZServices::UIElementManager()->RemoveChild(canvas_, element, true);
+        ZServices::UIElementManager()->SetParent(element, ZHUIElement());
+        ZServices::UIElementManager()->SetScene(element, nullptr);
     }
 }
 
-std::shared_ptr<ZUIElement> ZScene::FindUIElement(const std::string& id)
+ZHUIElement ZScene::FindUIElement(const std::string& name)
 {
-    if (!id.empty())
+    if (!name.empty())
     {
-        for (const auto& el : uiElements_)
+        for (const ZHUIElement& el : uiElements_)
         {
-            if (zenith::strings::HasSuffix(el->ID(), id))
+            const std::string elementName = ZServices::UIElementManager()->Name(el);
+            if (zenith::strings::HasSuffix(elementName, name))
             {
                 return el;
             }
-            else if (el->HasChildren())
+            else if (ZServices::UIElementManager()->HasChildren(el))
             {
-                const auto& found = el->Child<ZUIElement>(id);
-                if (found) return found;
+                const ZHUIElement& found = ZServices::UIElementManager()->ChildByName(el, name);
+                if (!found.IsNull())
+                {
+                    return found;
+                }
             }
         }
     }
-    return nullptr;
+    return ZHUIElement();
 }
 
 ZRay ZScene::ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions)
 {
     auto cam = ActiveCamera();
-    if (!cam)
+    if (cam.IsNull())
+    {
         return ZRay(glm::vec3(0.f), glm::vec3(0.f));
+    }
+
+    ZCamera* camObject = ZServices::GameObjectManager()->Dereference<ZCamera>(cam);
 
     auto rectRes = dimensions == glm::vec2(0.f) ? gameSystems_.domain->Resolution() : dimensions;
     float x = (2.f * point.x) / rectRes.x - 1.f;
     float y = (2.f * point.y) / rectRes.y - 1.f;
 
-    glm::vec4 start = glm::normalize(cam->InverseViewProjectionMatrix() * glm::vec4(x, -y, 0.f, 1.f));
+    glm::vec4 start = glm::normalize(camObject->InverseViewProjectionMatrix() * glm::vec4(x, -y, 0.f, 1.f));
     start /= start.w;
-    glm::vec4 end = glm::normalize(cam->InverseViewProjectionMatrix() * glm::vec4(x, -y, 1.f, 1.f));
+    glm::vec4 end = glm::normalize(camObject->InverseViewProjectionMatrix() * glm::vec4(x, -y, 1.f, 1.f));
     end /= end.w;
     glm::vec4 direction = glm::normalize(end - start);
 
-    return ZRay(cam->Position(), direction);
+    return ZRay(ZServices::GameObjectManager()->Position(cam), direction);
 }
 
 bool ZScene::RayCast(ZRay& ray, ZIntersectHitResult& hitResult)
@@ -451,7 +505,7 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
 	for (ZOFChildList::iterator it = objectTree->children.begin(); it != objectTree->children.end(); it++)
 	{
 		std::shared_ptr<ZOFObjectNode> dataNode = std::static_pointer_cast<ZOFObjectNode>(it->second);
-        std::shared_ptr<ZGameObject> gameObject;
+        ZHGameObject gameObject;
         switch (dataNode->type)
         {
             case ZOFObjectType::Script:
@@ -504,10 +558,16 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
                 gameObject = ZGrass::Create(dataNode, shared_from_this());
                 break;
             }
+            case ZOFObjectType::UI:
+            {
+                ZHUIElement element = ZServices::UIElementManager()->Deserialize(dataNode->id, dataNode, shared_from_this());
+                AddUIElement(element);
+            }
             default: break;
         }
 
-		if (gameObject) {
+		if (gameObject)
+        {
 			for (ZOFChildList::iterator compIt = dataNode->children.begin(); compIt != dataNode->children.end(); compIt++)
 			{
 				std::shared_ptr<ZOFObjectNode> componentNode = std::static_pointer_cast<ZOFObjectNode>(compIt->second);
@@ -515,15 +575,6 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
 			}
             AddGameObject(gameObject);
 		}
-    }
-
-	ZOFLoadResult zofResults;
-	zofResults.gameObjects = ZGameObject::Load(objectTree, shared_from_this());
-    zofResults.uiElements = ZUIElement::Deserialize(objectTree, shared_from_this());
-
-    for (ZUIElementList::iterator it = zofResults.uiElements.begin(); it != zofResults.uiElements.end(); it++)
-    {
-        AddUIElement(*it);
     }
 }
 
@@ -539,7 +590,7 @@ void ZScene::ParseSceneMetadata(const std::shared_ptr<ZOFNode>& objectTree)
             if (sceneDataNode->properties.find("name") != sceneDataNode->properties.end())
             {
                 name_ = sceneDataNode->properties["name"]->Value<ZOFString>(0)->value;
-                root_->SetName(name_);
+                ZServices::GameObjectManager()->SetName(root_, name_);
             }
 		}
 		else if (dataNode->type == ZOFObjectType::Texture)
@@ -644,17 +695,15 @@ void ZScene::CleanUp()
     ZServices::EventAgent()->Unsubscribe(this, &ZScene::HandleWindowResize);
     ZServices::EventAgent()->Unsubscribe(this, &ZScene::HandleRaycastEvent);
 
-    for (const auto& obj : gameObjects_)
-        obj->Destroy();
+    for (const ZHGameObject& obj : gameObjects_)
+    {
+        ZServices::GameObjectManager()->Destroy(obj);
+    }
+
     gameObjects_.clear();
     gameObjectIDMap_.clear();
-
-    for (const auto& el : uiElements_)
-        el->CleanUp();
     uiElements_.clear();
     uiElementIDMap_.clear();
-
-    skybox_ = nullptr; root_ = nullptr; activeCamera_ = nullptr;
 }
 
 void ZScene::Finish()

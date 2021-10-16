@@ -30,19 +30,11 @@
 #include "ZCompositeModel.hpp"
 #include "ZServices.hpp"
 
-void ZCompositeModel::Initialize()
+void ZCompositeModel::OnCreate()
 {
-    for (auto model : models_) {
-        for (auto const& [key, val] : model->Meshes()) {
-            meshes_[key] = val;
+    for (const ZHModel& model : models_) {
+        for (auto const& mesh : ZServices::ModelManager()->Meshes(model)) {
+            meshes.emplace_back(mesh);
         }
     }
-    ZModel::Initialize();
-}
-
-std::shared_ptr<ZCompositeModel> ZCompositeModel::Create(const std::initializer_list<std::shared_ptr<ZModel>>& models)
-{
-    auto compositeModel = std::make_shared<ZCompositeModel>(models);
-    compositeModel->Initialize();
-    return compositeModel;
 }

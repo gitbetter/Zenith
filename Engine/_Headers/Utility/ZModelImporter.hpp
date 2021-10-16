@@ -48,7 +48,7 @@ class ZModelImporter
 
 private:
 
-    void ProcessNode(aiNode* node, const aiScene* scene, const std::string& directory, ZMesh3DMap& outMeshes);
+    void ProcessNode(aiNode* node, const aiScene* scene, const std::string& directory, ZMesh3DList& outMeshes);
     ZMesh3D ProcessMesh(aiMesh* mesh, const aiScene* scene, const std::string& directory);
 
     ZVertex3DList LoadVertexData(const aiMesh* mesh);
@@ -60,8 +60,8 @@ private:
 
 public:
 
-    ZMesh3DMap LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton);
-    ZMesh3DMap LoadModel(class ZModelResourceData* const modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton, const std::string& modelDirectory = "");
+    ZMesh3DList LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton);
+    ZMesh3DList LoadModel(class ZModelResourceData* const modelHandle, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton, const std::string& modelDirectory = "");
 
     glm::vec3 AssimpToGLMVec3(const aiVector3D& vec);
     glm::quat AssimpToGLMQuat(const aiQuaternion& quat);

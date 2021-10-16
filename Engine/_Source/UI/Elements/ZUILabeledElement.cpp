@@ -135,11 +135,11 @@ void ZUILabeledElement::CreateLabelField()
     options.scaling = ZPositioning::Relative;
     options.rect = ZRect(0.f, 0.f, labelWidth, 1.f);
 
-    background_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, options, sceneSP);
+    background_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, options, ZHUIElement(), sceneSP);
 
     options.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     options.color = labelTextColor_;
-    labelText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, options, sceneSP);
+    labelText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, options, ZHUIElement(), sceneSP);
     ZUIText* textLabel = ZServices::UIElementManager()->Dereference<ZUIText>(labelText_);
     textLabel->SetText(label_);
     textLabel->SetFontScale(labelFontSize_);

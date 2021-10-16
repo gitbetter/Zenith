@@ -56,6 +56,7 @@ std::shared_ptr<ZFontManager> ZServices::fontManager_ = nullptr;
 std::shared_ptr<ZMaterialManager> ZServices::materialManager_ = nullptr;
 std::shared_ptr<ZModelManager> ZServices::modelManager_ = nullptr;
 std::shared_ptr<ZUIElementManager> ZServices::uiElementManager_ = nullptr;
+std::shared_ptr<ZGameObjectManager> ZServices::gameObjectManager_ = nullptr;
 
 std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
@@ -107,6 +108,10 @@ void ZServices::Initialize()
         /* ========= UI Element Manager ============ */
         Provide(std::make_shared<ZUIElementManager>());
         /* =================================== */
+
+		/* ========= Game Object Manager ============ */
+		Provide(std::make_shared<ZGameObjectManager>());
+		/* =================================== */
     }
     initialized_ = true;
 }
@@ -227,9 +232,9 @@ void ZServices::Provide(const std::shared_ptr<ZMaterialManager>& materialManager
     materialManager_->Initialize();
 }
 
-void ZServices::Provide(const std::shared_ptr<ZMaterialManager>& modelManager)
+void ZServices::Provide(const std::shared_ptr<ZModelManager>& modelManager)
 {
-	if (materialManager_)
+	if (modelManager_)
 	{
         modelManager_->CleanUp();
 	}
@@ -247,6 +252,17 @@ void ZServices::Provide(const std::shared_ptr<ZUIElementManager>& uiElementManag
 
     uiElementManager_ = uiElementManager;
     uiElementManager_->Initialize();
+}
+
+void ZServices::Provide(const std::shared_ptr<ZGameObjectManager>& gameObjectManager)
+{
+	if (gameObjectManager_)
+	{
+        gameObjectManager_->CleanUp();
+    }
+
+    gameObjectManager_ = gameObjectManager;
+    gameObjectManager_->Initialize();
 }
 
 void ZServices::LoadZOF(const std::string& zofPath)

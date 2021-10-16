@@ -43,14 +43,14 @@ class ZRenderStateGroup;
 
 enum class ZModelType
 {
-    Plane, Cube, Sphere, Cylinder, Cone, Custom
+    Plane, Cube, Sphere, Cylinder, Cone, Composite, Custom
 };
 
 struct ZModel
 {
 	std::string name;
 	std::string path;
-	ZMesh3DMap meshes;
+    ZMesh3DList meshes;
 	ZBoneMap bonesMap;
 	ZBoneList bones;
 	ZAnimationMap animations;
@@ -61,6 +61,9 @@ struct ZModel
 
 	std::shared_ptr<ZRenderStateGroup> renderState;
 	std::shared_ptr<ZUniformBuffer> uniformBuffer;
+
+    virtual void OnCreate() { };
+    virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) { };
 
 private:
 
@@ -80,13 +83,13 @@ public:
 
     ZHModel Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
     void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
-    ZHModel Create(const ZModelType& type, const ZHModel& restoreHandle = ZHModel());
-    ZHModel Create(const std::string& path, const ZHModel& restoreHandle = ZHModel());
-    void CreateAsync(const std::string& path, const ZHModel& restoreHandle = ZHModel());
+    ZHModel Create(const ZModelType& type, const ZHModel& restoreHandle = ZHModel(), const std::shared_ptr<ZOFObjectNode>& deserializedNode = nullptr);
+    ZHModel Create(const std::string& path, const ZHModel& restoreHandle = ZHModel(), const std::shared_ptr<ZOFObjectNode>& deserializedNode = nullptr);
+    void CreateAsync(const std::string& path, const ZHModel& restoreHandle = ZHModel(), const std::shared_ptr<ZOFObjectNode>& deserializedNode = nullptr);
 
     const std::string& Name(const ZHModel& handle);
     const std::string& Path(const ZHModel& handle);
-    const ZMesh3DMap& Meshes(const ZHModel& handle);
+    const ZMesh3DList& Meshes(const ZHModel& handle);
     const ZBoneList& Bones(const ZHModel& handle);
     const ZBoneMap& BonesMap(const ZHModel& handle);
     const ZAnimationMap& Animations(const ZHModel& handle);
@@ -108,5 +111,9 @@ protected:
     glm::vec3 CalculateInterpolatedPosition(double animationTime, const ZJointAnimation& jointAnim);
 
     void HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event);
+
+protected:
+
+    std::unordered_map<unsigned int, std::shared_ptr<ZOFObjectNode>> asyncDeserializeDataNodes_;
 
 };

@@ -474,6 +474,9 @@ using ZHScript = ZHandle<ScriptTag>;
 struct UIElementTag { };
 using ZHUIElement = ZHandle<UIElementTag>;
 
+struct GameObjectTag { };
+using ZHGameObject = ZHandle<GameObjectTag>;
+
 enum ZPriority
 {
     FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority
@@ -1034,9 +1037,9 @@ using ZTextureIDMap = std::unordered_map<ZHTexture, std::string>;
 using ZFontIDMap = std::unordered_map<unsigned int, std::string>;
 using ZMaterialIDMap = std::unordered_map<unsigned int, std::string>;
 using ZTextureMap = std::unordered_map<std::string, ZHTexture>;
-using ZMesh3DMap = std::unordered_map<std::string, ZMesh3D>;
-using ZGameObjectList = std::vector<std::shared_ptr<ZGameObject>>;
-using ZLightList = std::vector<std::shared_ptr<ZLight>>;
+using ZMesh3DList = std::vector<ZMesh3D>;
+using ZGameObjectList = std::vector<ZHGameObject>;
+using ZLightList = std::vector<ZHGameObject>;
 using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
 using ZUIElementList = std::vector<ZHUIElement>;
 using ZProcessList = std::list<std::shared_ptr<ZProcess>>;

@@ -64,7 +64,6 @@ public:
 
 public:
 
-    virtual void Initialize() = 0;
     virtual void ExecuteFile(const std::string& resource) = 0;
     virtual void ExecuteString(const std::string& script) = 0;
 

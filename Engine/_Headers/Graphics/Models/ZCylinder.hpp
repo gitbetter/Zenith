@@ -31,20 +31,16 @@
 
 #include "ZModel.hpp"
 
-class ZCylinder : public ZModel
+struct ZCylinder : public ZModel
 {
-
-public:
 
     ZCylinder(float topRadius = 1.f, float baseRadius = 1.f, float height = 1.f, const glm::vec2& segments = glm::vec2(16.f), bool smooth = true)
         : ZModel(), topRadius_(topRadius), baseRadius_(baseRadius), height_(height), segments_(segments), smooth_(smooth)
     { };
-    virtual ~ZCylinder() {}
+    virtual ~ZCylinder() = default;
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& data) override;
-
-    static std::shared_ptr<ZCylinder> Create(float topRadius = 1.f, float baseRadius = 1.f, float height = 1.f, const glm::vec2& segments = glm::vec2(16.f), bool smooth = true);
+    void OnCreate() override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
 
 protected:
 

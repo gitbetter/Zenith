@@ -33,6 +33,7 @@
 #include "ZCube.hpp"
 #include "ZSphere.hpp"
 #include "ZCylinder.hpp"
+#include "ZCompositeModel.hpp"
 #include "ZMaterial.hpp"
 #include "ZModelImporter.hpp"
 #include "ZAnimation.hpp"
@@ -96,12 +97,18 @@ ZHModel ZModelManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<
     if (dataNode->properties.find("type") != dataNode->properties.end())
     {
         std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
-        return Create(ModelTypeFromString(typeProp->value), restoreHandle);
+        ZHModel handle = Create(ModelTypeFromString(typeProp->value), restoreHandle);
+        Dereference(handle)->OnDeserialize(dataNode);
+        return handle;
     }
     else if (dataNode->properties.find("path") != dataNode->properties.end()) {
         std::shared_ptr<ZOFString> pathProp = dataNode->properties["path"]->Value<ZOFString>(0);
-        return Create(pathProp->value, restoreHandle);
+        ZHModel handle = Create(pathProp->value, restoreHandle);
+        Dereference(handle)->OnDeserialize(dataNode);
+        return handle;
 	}
+
+    return ZHModel();
 }
 
 void ZModelManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
@@ -116,7 +123,8 @@ void ZModelManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_pt
 	if (dataNode->properties.find("type") != dataNode->properties.end())
 	{
 		std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
-		Create(ModelTypeFromString(typeProp->value), restoreHandle);
+        ZHModel handle = Create(ModelTypeFromString(typeProp->value), restoreHandle);
+        Dereference(handle)->OnDeserialize(dataNode);
     }
     if (dataNode->properties.find("path") != dataNode->properties.end())
     {
@@ -125,10 +133,12 @@ void ZModelManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_pt
 	}
 }
 
-ZHModel ZModelManager::Create(const ZModelType& type, const ZHModel& restoreHandle)
+ZHModel ZModelManager::Create(const ZModelType& type, const ZHModel& restoreHandle, const std::shared_ptr<ZOFObjectNode>& deserializedNode)
 {
     ZHModel handle(restoreHandle);
 	ZModel* model = nullptr;
+
+    bool isDeserialized = !handle.IsNull();
 
     switch (type)
     {
@@ -144,12 +154,26 @@ ZHModel ZModelManager::Create(const ZModelType& type, const ZHModel& restoreHand
         case ZModelType::Cylinder:
 			model = resourcePool_.New<ZCylinder>(handle);
             break;
+        case ZModelType::Composite:
+            model = resourcePool_.New<ZCompositeModel>(handle);
+            break;
+        case ZModelType::Custom:
+            model = resourcePool_.New(handle);
         case ZModelType::Cone:
         default: break;
     }
 
-    if (model != nullptr && type != ZModelType::Custom)
+    if (model != nullptr)
     {
+        if (isDeserialized)
+        {
+            model->OnDeserialize(deserializedNode);
+        }
+        else
+        {
+            model->OnCreate();
+        }
+
 		ComputeBounds(handle);
 
 		bool isRigged = false;
@@ -172,7 +196,7 @@ ZHModel ZModelManager::Create(const ZModelType& type, const ZHModel& restoreHand
     return handle;
 }
 
-ZHModel ZModelManager::Create(const std::string& path, const ZHModel& restoreHandle)
+ZHModel ZModelManager::Create(const std::string& path, const ZHModel& restoreHandle, const std::shared_ptr<ZOFObjectNode>& deserializedNode)
 {
     if (path.empty())
     {
@@ -181,16 +205,26 @@ ZHModel ZModelManager::Create(const std::string& path, const ZHModel& restoreHan
 
 	ZHModel handle(restoreHandle);
 
+    bool isDeserialized = !handle.IsNull();
+
 	ZModel* model = resourcePool_.New(handle);
 
 	ZModelImporter importer;
     model->meshes = importer.LoadModel(path, model->bonesMap, model->bones, model->animations, model->skeleton);
 
-	for (ZMesh3DMap::iterator it = model->meshes.begin(); it != model->meshes.end(); it++)
+	for (ZMesh3DList::iterator it = model->meshes.begin(); it != model->meshes.end(); it++)
     {
-        it->second.Initialize();
+        it->Initialize();
     }
 
+	if (isDeserialized)
+	{
+		model->OnDeserialize(deserializedNode);
+	}
+	else
+	{
+		model->OnCreate();
+	}
 
 	if (model->skeleton.rootJoint)
     {
@@ -212,13 +246,14 @@ ZHModel ZModelManager::Create(const std::string& path, const ZHModel& restoreHan
 	writer.BindUniformBuffer(model->uniformBuffer);
     model->renderState = writer.End();
 
+
 	std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(handle);
 	ZServices::EventAgent()->Queue(modelReadyEvent);
 
     return handle;
 }
 
-void ZModelManager::CreateAsync(const std::string& path, const ZHModel& restoreHandle)
+void ZModelManager::CreateAsync(const std::string& path, const ZHModel& restoreHandle, const std::shared_ptr<ZOFObjectNode>& deserializedNode)
 {
 	if (path.empty())
 	{
@@ -231,6 +266,11 @@ void ZModelManager::CreateAsync(const std::string& path, const ZHModel& restoreH
 
 	ZModelImporter importer;
 	model->meshes = importer.LoadModel(path, model->bonesMap, model->bones, model->animations, model->skeleton);
+
+    if (!handle.IsNull())
+    {
+        asyncDeserializeDataNodes_[handle.Handle()] = deserializedNode;
+    }
 }
 
 const std::string& ZModelManager::Name(const ZHModel& handle)
@@ -247,7 +287,7 @@ const std::string& ZModelManager::Path(const ZHModel& handle)
     return model->path;
 }
 
-const ZMesh3DMap& ZModelManager::Meshes(const ZHModel& handle)
+const ZMesh3DList& ZModelManager::Meshes(const ZHModel& handle)
 {
     assert(!handle.IsNull() && "Cannot use model with a null model handle!");
     ZModel* model = resourcePool_.Get(handle);
@@ -320,7 +360,7 @@ void ZModelManager::SetInstanceData(const ZHModel& handle, const ZInstancedDataO
     model->uniformBuffer->Update(offsetof(ZModelUniforms, instanced), sizeof(isInstanced), &isInstanced);
     for (auto it = model->meshes.begin(); it != model->meshes.end(); it++)
     {
-        it->second.SetInstanceData(instanceData);
+        it->SetInstanceData(instanceData);
     }
 }
 
@@ -351,7 +391,7 @@ void ZModelManager::ComputeBounds(const ZHModel& handle)
     auto it = model->meshes.cbegin(), end = model->meshes.cend();
     for (; it != end; it++)
     {
-        const ZVertex3DList& vertices = it->second.Vertices();
+        const ZVertex3DList& vertices = it->Vertices();
         for (int i = 0; i < vertices.size(); i++)
         {
             model->bounds = ZAABBox::Union(model->bounds, vertices[i].position);
@@ -504,9 +544,19 @@ void ZModelManager::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent
         model->animations = modelResource->animationMap;
         model->skeleton = modelResource->skeleton;
 
-		for (ZMesh3DMap::iterator it = model->meshes.begin(); it != model->meshes.end(); it++)
+        if (asyncDeserializeDataNodes_.find(handle.Handle()) != asyncDeserializeDataNodes_.end())
+        {
+            model->OnDeserialize(asyncDeserializeDataNodes_[handle.Handle()]);
+            asyncDeserializeDataNodes_.erase(handle.Handle());
+        }
+        else
+        {
+            model->OnCreate();
+        }
+
+		for (ZMesh3DList::iterator it = model->meshes.begin(); it != model->meshes.end(); it++)
 		{
-			it->second.Initialize();
+			it->Initialize();
 		}
 
 		if (model->skeleton.rootJoint)
@@ -528,6 +578,8 @@ void ZModelManager::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent
 		writer.Begin();
 		writer.BindUniformBuffer(model->uniformBuffer);
 		model->renderState = writer.End();
+
+        model->OnCreate();
 
 		std::shared_ptr<ZModelReadyEvent> modelReadyEvent = std::make_shared<ZModelReadyEvent>(handle);
 		ZServices::EventAgent()->Queue(modelReadyEvent);

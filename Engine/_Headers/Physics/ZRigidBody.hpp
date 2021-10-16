@@ -67,7 +67,7 @@ public:
     virtual void SetLinearDamping(float damping) = 0;
     virtual void SetAngularDamping(float damping) = 0;
     virtual void SetRestitution(float restitution) = 0;
-    virtual void SetGameObject(ZGameObject* gameObject) { gameObject_ = gameObject; }
+    virtual void SetGameObject(const ZHGameObject& gameObject) { gameObject_ = gameObject; }
     virtual void SetTransformMatrix(const glm::mat4& matrix) = 0;
     virtual void SetPosition(const glm::vec3& position) = 0;
     virtual void SetRotation(const glm::quat& rotation) = 0;
@@ -77,7 +77,7 @@ public:
 protected:
 
     void* ptr_ = nullptr;
-    ZGameObject* gameObject_ = nullptr;
+    ZHGameObject gameObject_;
     ZPhysicsBodyType type_;
 
 };

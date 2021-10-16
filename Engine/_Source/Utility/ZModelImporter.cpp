@@ -39,7 +39,7 @@
  @param shaderPath the path to the model file.
  @param outMeshes the mesh vector to populate.
  */
-ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton)
+ZMesh3DList ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton)
 {
     std::string modelDirectory = modelPath.substr(0, modelPath.find_last_of("/\\"));
 
@@ -50,9 +50,9 @@ ZMesh3DMap ZModelImporter::LoadModel(const std::string& modelPath, ZBoneMap& out
     return LoadModel(resource.get(), outBoneMap, outBoneList, outAnimationMap, outSkeleton, modelDirectory);
 }
 
-ZMesh3DMap ZModelImporter::LoadModel(ZModelResourceData* const resource, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton, const std::string& modelDirectory)
+ZMesh3DList ZModelImporter::LoadModel(ZModelResourceData* const resource, ZBoneMap& outBoneMap, ZBoneList& outBoneList, ZAnimationMap& outAnimationMap, ZSkeleton& outSkeleton, const std::string& modelDirectory)
 {
-    ZMesh3DMap meshes;
+    ZMesh3DList meshes;
 
     // TODO: Might want to add more ReadFile Assimp flags such as aiProcess_GenNormals and aiProcess_OptimizeMeshes
     Assimp::Importer import;
@@ -87,14 +87,13 @@ ZMesh3DMap ZModelImporter::LoadModel(ZModelResourceData* const resource, ZBoneMa
  @param shaderPath the path to the model file.
  @param outMeshes the mesh vector to populate.
  */
-void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, const std::string& directory, ZMesh3DMap& outMeshes)
+void ZModelImporter::ProcessNode(aiNode* node, const aiScene* scene, const std::string& directory, ZMesh3DList& outMeshes)
 {
 // Process the node's meshes and add them to the out parameter
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        ZMesh3D outMesh = ProcessMesh(mesh, scene, directory);
-        outMeshes[outMesh.ID()] = outMesh;
+        outMeshes.emplace_back(ProcessMesh(mesh, scene, directory));
     }
 
     // Recursively visit the node's children in order to process their meshes

@@ -29,12 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZProcess.hpp"
 #include "ZOFTree.hpp"
 #include "ZBVH.hpp"
 
-// Forward Declarations
 class ZGame;
 class ZLight;
 class ZSkybox;
@@ -51,7 +49,6 @@ class ZRay;
 class ZBVH;
 class ZAssetLoadProgressTracker;
 
-// Class and Data Structure Definitions
 class ZScene : public ZProcess, public std::enable_shared_from_this<ZScene>
 {
 
@@ -71,10 +68,10 @@ public:
     virtual void Stop();
     virtual void Finish() override;
 
-    std::shared_ptr<ZGameObject> Root() { return root_; }
-    std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
-    std::shared_ptr<ZCamera> ActiveCamera() { return activeCamera_; }
-    std::shared_ptr<ZCamera> PrimaryCamera() { return primaryCamera_; }
+    ZHGameObject Root() { return root_; }
+    ZHGameObject Skybox() { return skybox_; }
+    ZHGameObject ActiveCamera() { return activeCamera_; }
+    ZHGameObject PrimaryCamera() { return primaryCamera_; }
     ZGameObjectList& GameObjects() { return gameObjects_; }
     ZUIElementList& UIElements() { return uiElements_; }
     ZLightList& GameLights() { return gameLights_; }
@@ -91,9 +88,9 @@ public:
     void SetGameSystems(const ZGameSystems& systems) { gameSystems_ = systems; }
     void SetGameConfig(const ZGameOptions& options) { gameConfig_ = options; }
     void SetGameName(const std::string& name) { gameName_ = name; }
-    void SetPrimaryCamera(std::shared_ptr<ZCamera> camera) { primaryCamera_ = camera; }
-    void SetActiveCamera(std::shared_ptr<ZCamera> camera) { activeCamera_ = camera; }
-    void SetSkybox(std::shared_ptr<ZSkybox> skybox) { skybox_ = skybox; }
+    void SetPrimaryCamera(const ZHGameObject& camera) { primaryCamera_ = camera; }
+    void SetActiveCamera(const ZHGameObject& camera) { activeCamera_ = camera; }
+    void SetSkybox(const ZHGameObject& skybox) { skybox_ = skybox; }
     void SetDefaultSkybox();
 
     ZSceneSnapshot Snapshot();
@@ -101,14 +98,14 @@ public:
 
     void AddBVHPrimitive(const ZBVHPrimitive& primitive);
 
-    void AddGameObject(std::shared_ptr<ZGameObject> gameObject, bool runImmediately = true);
-    void AddGameObjects(std::initializer_list<std::shared_ptr<ZGameObject>> gameObjects, bool runImmediately = true);
-    std::shared_ptr<ZGameObject> FindGameObject(const std::string& id);
-    void RemoveGameObject(std::shared_ptr<ZGameObject> gameObject);
+    void AddGameObject(const ZHGameObject& gameObject, bool runImmediately = true);
+    void AddGameObjects(std::initializer_list<ZHGameObject> gameObjects, bool runImmediately = true);
+    ZHGameObject FindGameObjectByName(const std::string& name);
+    void RemoveGameObject(const ZHGameObject& gameObject);
 
     void AddUIElement(const ZHUIElement& element);
     void AddUIElements(std::initializer_list<ZHUIElement> elements);
-    ZHUIElement FindUIElement(const std::string& id);
+    ZHUIElement FindUIElement(const std::string& name);
     void RemoveUIElement(const ZHUIElement& element);
 
     ZRay ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dimensions = glm::vec2(0.f));
@@ -148,35 +145,37 @@ protected:
         std::mutex pendingObjects;
     } sceneMutexes_;
 
-    std::map<std::string, bool> pendingSceneDefinitions_;
-    std::vector<std::string> pendingSceneObjects_;
+    std::map<std::string, bool>                 pendingSceneDefinitions_;
+    std::vector<std::string>                    pendingSceneObjects_;
 
-    std::string name_;
-    std::string gameName_;
-    ZPlayState playState_;
+    std::string                                 name_;
+    std::string                                 gameName_;
+    ZPlayState                                  playState_;
 
-    std::shared_ptr<ZRenderer> renderer_ = nullptr;
-    std::shared_ptr<ZFramebuffer> targetBuffer_ = nullptr;
+    std::shared_ptr<ZRenderer>                  renderer_ = nullptr;
+    std::shared_ptr<ZFramebuffer>               targetBuffer_ = nullptr;
 
     // TODO: Create a light manager class to handle the scene lights
-    std::shared_ptr<ZSkybox> skybox_ = nullptr;
-    std::shared_ptr<ZGameObject> root_ = nullptr;
-    ZHUIElement                 canvas_;
-    std::shared_ptr<ZCamera> activeCamera_ = nullptr;
-    std::shared_ptr<ZCamera> primaryCamera_ = nullptr;
-    std::shared_ptr<ZBVH> bvh_ = nullptr;
-    std::shared_ptr<ZAssetLoadProgressTracker> loadProgressTracker_ = nullptr;
+    ZHGameObject                                skybox_;
+    ZHGameObject                                root_;
+    ZHUIElement                                 canvas_;
+    ZHGameObject                                activeCamera_;
+    ZHGameObject                                primaryCamera_;
+    std::shared_ptr<ZBVH>                       bvh_ = nullptr;
+    std::shared_ptr<ZAssetLoadProgressTracker>  loadProgressTracker_ = nullptr;
 
-    ZIDMap gameLightIDMap_;
-    ZLightList gameLights_;
-    ZIDMap gameObjectIDMap_;
-    ZGameObjectList gameObjects_;
-    ZIDMap uiElementIDMap_;
-    ZUIElementList uiElements_;
+    ZIDMap                                      gameLightIDMap_;
+    ZLightList                                  gameLights_;
+    ZIDMap                                      gameObjectIDMap_;
+    ZGameObjectList                             gameObjects_;
+    ZIDMap                                      uiElementIDMap_;
+    ZUIElementList                              uiElements_;
 
-    ZGameSystems gameSystems_;
-    ZGameOptions gameConfig_;
-    ZFrameStats frameStats_;
+    ZGameSystems                                gameSystems_;
+    ZGameOptions                                gameConfig_;
+    ZFrameStats                                 frameStats_;
+
+protected:
 
     void SetupRenderers();
     void SetupTargetDrawBuffer();

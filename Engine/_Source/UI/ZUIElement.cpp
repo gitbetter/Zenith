@@ -54,6 +54,47 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
 
+ZUIElementType ElementTypeFromString(const std::string& type)
+{
+	if (type == "Button")
+	{
+		return ZUIElementType::Button;
+	}
+	else if (type == "Canvas")
+	{
+		return ZUIElementType::Canvas;
+	}
+	else if (type == "Checkbox")
+	{
+		return ZUIElementType::CheckBox;
+	}
+	else if (type == "Image")
+	{
+		return ZUIElementType::Image;
+	}
+	else if (type == "InputField")
+	{
+		return ZUIElementType::InputField;
+	}
+	else if (type == "LabeledElement")
+	{
+		return ZUIElementType::LabeledElement;
+	}
+	else if (type == "ListPanel")
+	{
+		return ZUIElementType::ListPanel;
+	}
+	else if (type == "Panel")
+	{
+		return ZUIElementType::Panel;
+	}
+	else if (type == "Text")
+	{
+		return ZUIElementType::Text;
+	}
+	return ZUIElementType::Unknown;
+}
+
 ZIDSequence ZUIElement::idGenerator_;
 
 ZUIElement::ZUIElement()
@@ -69,9 +110,21 @@ ZHUIElement ZUIElementManager::Deserialize(const ZOFHandle& dataHandle, const st
 	}
 
 	ZHUIElement restoreHandle(dataHandle.value);
-	ZUIElement* element = resourcePool_.New(restoreHandle);
 
     ZOFPropertyMap props = dataNode->properties;
+
+	if (props.find("type") != props.end() && props["type"]->HasValues())
+	{
+		std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
+		restoreHandle = Create(ElementTypeFromString(typeProp->value), restoreHandle);
+	}
+
+	ZUIElement* element = resourcePool_.Get(restoreHandle);
+
+	if (element == nullptr)
+	{
+		return ZHUIElement();
+	}
 
 	if (props.find("name") != props.end() && props["name"]->HasValues())
 	{
@@ -176,48 +229,66 @@ ZHUIElement ZUIElementManager::Deserialize(const ZOFHandle& dataHandle, const st
     Initialize(restoreHandle);
 }
 
-ZHUIElement ZUIElementManager::Create(const ZUIElementType& type)
+ZHUIElement ZUIElementManager::Create(const ZUIElementType& type, const ZHUIElement& restoreHandle)
 {
-	ZHUIElement handle;
+	ZHUIElement handle(restoreHandle);
 
 	switch (type)
 	{
 		case ZUIElementType::Button:
+		{
 			ZUIButton* element = resourcePool_.New<ZUIButton>(handle);
 			break;
+		}
 		case ZUIElementType::Canvas:
+		{
 			ZUICanvas* element = resourcePool_.New<ZUICanvas>(handle);
 			break;
+		}
 		case ZUIElementType::CheckBox:
+		{
 			ZUICheckBox* element = resourcePool_.New<ZUICheckBox>(handle);
 			break;
+		}
 		case ZUIElementType::Image:
+		{
 			ZUIImage* element = resourcePool_.New<ZUIImage>(handle);
 			break;
+		}
 		case ZUIElementType::InputField:
+		{
 			ZUIInputField* element = resourcePool_.New<ZUIInputField>(handle);
 			break;
+		}
 		case ZUIElementType::LabeledElement:
+		{
 			ZUILabeledElement* element = resourcePool_.New<ZUILabeledElement>(handle);
 			break;
+		}
 		case ZUIElementType::ListPanel:
+		{
 			ZUIListPanel* element = resourcePool_.New<ZUIListPanel>(handle);
 			break;
+		}
 		case ZUIElementType::Panel:
+		{
 			ZUIPanel* element = resourcePool_.New<ZUIPanel>(handle);
 			break;
+		}
 		case ZUIElementType::Text:
+		{
 			ZUIText* element = resourcePool_.New<ZUIText>(handle);
 			break;
+		}
 		default: break;
 	}
 
     return handle;
 }
 
-ZHUIElement ZUIElementManager::Create(const ZUIElementType& type, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene)
+ZHUIElement ZUIElementManager::Create(const ZUIElementType& type, const ZUIElementOptions& options, const ZHUIElement& restoreHandle, const std::shared_ptr<ZScene>& scene)
 {
-	ZHUIElement handle;
+	ZHUIElement handle(restoreHandle);
 	ZUIElement* element = nullptr;
 
 	switch (type)
@@ -331,7 +402,7 @@ void ZUIElementManager::Prepare(const ZHUIElement& handle, double deltaTime, uns
 
 	ZPR_SESSION_COLLECT_VERTICES(mesh->Vertices().size());
 
-	auto meshState = mesh->RenderState();
+	auto meshState = mesh->renderState;
 
 	ZDrawCall drawCall = ZDrawCall::Create(uiElement->options.drawStyle);
 	auto uiTask = ZRenderTask::Compile(drawCall,

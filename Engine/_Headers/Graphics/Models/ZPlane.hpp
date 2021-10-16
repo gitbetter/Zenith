@@ -29,26 +29,18 @@
 
 #pragma once
 
-// Includes
 #include "ZModel.hpp"
 
-// Forward Declarations
-
-// Class Definitions
-class ZPlane : public ZModel
+struct ZPlane : public ZModel
 {
-
-public:
 
     ZPlane(const glm::vec2& size = glm::vec2(1.f))
         : ZModel(), size_(size)
     { };
     virtual ~ZPlane() {}
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& data) override;
-
-    static std::shared_ptr<ZPlane> Create(const glm::vec2& size);
+    void OnCreate() override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
 
 protected:
 

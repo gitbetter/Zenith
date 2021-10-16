@@ -74,7 +74,7 @@ public:
 	using ptr = std::shared_ptr<ZModelResourceData>;
 
 	ZHModel restoreHandle;
-	ZMesh3DMap meshMap;
+	ZMesh3DList meshMap;
 	ZBoneMap boneMap;
 	ZBoneList boneList;
 	ZAnimationMap animationMap;

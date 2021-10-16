@@ -136,7 +136,7 @@ void ZUIInputField::CreateTextArea()
     fieldTextOptions.scaling = ZPositioning::Relative;
     fieldTextOptions.rect = ZRect(fieldPadding_.x * 2.f, fieldPadding_.y * 2.f, 1.f - fieldPadding_.x, 1.f - fieldPadding_.y);
     fieldTextOptions.color = textColor_;
-    fieldText_ = ZUIText::Create(fieldTextOptions, scene);
+    fieldText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, fieldTextOptions, ZHUIElement(), scene);
     ZUIText* textElement = ZServices::UIElementManager()->Dereference<ZUIText>(fieldText_);
     textElement->SetFontScale(fontSize_);
 

@@ -64,7 +64,7 @@ void ZSceneRoot::Prepare(double deltaTime)
 
     auto mesh = ScreenTri();
 
-    auto meshState = mesh->RenderState();
+    auto meshState = mesh->renderState;
     auto cameraState = cam->RenderState();
 
     ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);

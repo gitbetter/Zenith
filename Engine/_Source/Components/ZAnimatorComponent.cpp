@@ -58,7 +58,7 @@ void ZAnimatorComponent::Update(double deltaTime)
         currentClip_.currentTime += deltaTime;
         if (currentClip_.startTime + currentClip_.currentTime <= currentClip_.endTime)
         {
-            currentClip_.model->BoneTransform(currentClip_.name, currentClip_.currentTime);
+            ZServices::ModelManager()->BoneTransform(currentClip_.model, currentClip_.name, currentClip_.currentTime);
         }
         else if (currentClip_.state == ZAnimationState::Looping)
         {
@@ -90,7 +90,7 @@ void ZAnimatorComponent::Play(const std::string& animationName, bool looping)
         return;
     }
 
-    if (currentClip_.state == ZAnimationState::Paused && currentClip_.model != nullptr)
+    if (currentClip_.state == ZAnimationState::Paused && !currentClip_.model.IsNull())
     {
         currentClip_.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
     }
@@ -100,12 +100,12 @@ void ZAnimatorComponent::Play(const std::string& animationName, bool looping)
 
         if (currentClip_.model)
         {
-            auto animations = currentClip_.model->Animations();
-            std::shared_ptr<ZAnimation> animation = animations[animationName];
+            auto animations = ZServices::ModelManager()->Animations(currentClip_.model);
+            const ZAnimation& animation = animations[animationName];
             currentClip_.name = animationName;
             currentClip_.currentTime = 0.0;
             currentClip_.startTime = SECONDS_TIME;
-            currentClip_.endTime = currentClip_.startTime + animation->duration;
+            currentClip_.endTime = currentClip_.startTime + animation.duration;
             currentClip_.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
         }
     }

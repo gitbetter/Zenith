@@ -29,26 +29,18 @@
 
 #pragma once
 
-// Includes
 #include "ZModel.hpp"
 
-// Forward Declarations
-
-// Class Definitions
-class ZSphere : public ZModel
+struct ZSphere : public ZModel
 {
-
-public:
 
     ZSphere(float radius = 1.f, const glm::vec2& segments = glm::vec2(16.f), bool smooth = true)
         : ZModel(), radius_(radius), segments_(segments), smooth_(smooth)
     { };
-    virtual ~ZSphere() {}
+    virtual ~ZSphere() = default;
 
-    void Initialize() override;
-    void Initialize(const std::shared_ptr<ZOFNode>& data) override;
-
-    static std::shared_ptr<ZSphere> Create(float radius = 1.f, const glm::vec2& segments = glm::vec2(16.f), bool smooth = true);
+    void OnCreate() override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
 
 protected:
 

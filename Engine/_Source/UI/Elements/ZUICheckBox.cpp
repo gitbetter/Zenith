@@ -46,7 +46,7 @@ void ZUICheckBox::OnInitialize() {
     options.color = glm::vec4(1.f);
     options.flipped = true;
     options.hidden = !checked_;
-    checkImage_ = ZUIImage::Create(options, ZServices::UIElementManager()->Scene(handle));
+    checkImage_ = ZServices::UIElementManager()->Create(ZUIElementType::Image, options, ZHUIElement(), ZServices::UIElementManager()->Scene(handle));
     ZUIImage* image = ZServices::UIElementManager()->Dereference<ZUIImage>(checkImage_);
     image->SetImage("/Textures/UI/checkmark.png");
     ZServices::UIElementManager()->AddChild(handle, checkImage_);

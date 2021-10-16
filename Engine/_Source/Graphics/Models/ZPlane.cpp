@@ -30,7 +30,7 @@
 #include "ZPlane.hpp"
 #include "ZServices.hpp"
 
-void ZPlane::Initialize()
+void ZPlane::OnCreate()
 {
     float textureTiling = 1.f;
 
@@ -50,24 +50,20 @@ void ZPlane::Initialize()
         0, 2, 3
     };
 
-
-    std::shared_ptr<ZMesh3D> mesh = std::make_shared<ZMesh3D>(options);
-    mesh->Initialize();
-    meshes_[mesh->ID()] = mesh;
-
-    ZModel::Initialize();
+    ZMesh3D mesh = ZMesh3D(options);
+    mesh.Initialize();
+    meshes.emplace_back(mesh);
 }
 
-void ZPlane::Initialize(const std::shared_ptr<ZOFNode>& data)
+void ZPlane::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(data);
-    if (!node)
+    if (!dataNode)
     {
         LOG("Could not initalize ZPlane: node data is invalid", ZSeverity::Error);
         return;
     }
 
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
 
     if (props.find("size") != props.end() && props["size"]->HasValues())
     {
@@ -75,12 +71,25 @@ void ZPlane::Initialize(const std::shared_ptr<ZOFNode>& data)
         size_ = glm::vec2(lengthProp->value[0], lengthProp->value[1]);
     }
 
-    Initialize();
-}
+	float textureTiling = 1.f;
 
-std::shared_ptr<ZPlane> ZPlane::Create(const glm::vec2& size)
-{
-    auto plane = std::make_shared<ZPlane>(size);
-    plane->Initialize();
-    return plane;
+	ZVertex3D topLeft(glm::vec3(-size_.x, 0.f, -size_.y)); topLeft.uv = glm::vec2(0.f, textureTiling);
+	ZVertex3D bottomLeft(glm::vec3(-size_.x, 0.f, size_.y)); bottomLeft.uv = glm::vec2(0.f, 0.f);
+	ZVertex3D bottomRight(glm::vec3(size_.x, 0.f, size_.y)); bottomRight.uv = glm::vec2(textureTiling, 0.f);
+	ZVertex3D topRight(glm::vec3(size_.x, 0.f, -size_.y)); topRight.uv = glm::vec2(textureTiling, textureTiling);
+	ZVertex3D::ComputeTangentBitangent(bottomLeft, bottomRight, topRight);
+	ZVertex3D::ComputeTangentBitangent(bottomLeft, topRight, topLeft);
+
+	ZVertex3DDataOptions options;
+	options.vertices = ZVertex3DList{
+		topLeft, bottomLeft, bottomRight, topRight
+	};
+	options.indices = std::vector<unsigned int>{
+		0, 1, 2,
+		0, 2, 3
+	};
+
+	ZMesh3D mesh = ZMesh3D(options);
+	mesh.Initialize();
+	meshes.emplace_back(mesh);
 }

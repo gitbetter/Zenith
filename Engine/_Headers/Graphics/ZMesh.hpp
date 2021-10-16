@@ -35,38 +35,30 @@
 class ZMaterial;
 class ZRenderStateGroup;
 
-class ZMesh : public ZProcess
+struct ZMesh
 {
 
-public:
-
-    ZMesh() { }
-    virtual ~ZMesh() {}
+    ZMesh() = default;
+    virtual ~ZMesh() = default;
 
     virtual void Initialize() = 0;
 
-    const ZVertexBuffer::ptr& BufferData() const { return bufferData_; }
-    const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
+    ZVertexBuffer::ptr bufferData = nullptr;
+    std::shared_ptr<ZRenderStateGroup> renderState = nullptr;
 
 protected:
-
-    ZVertexBuffer::ptr bufferData_;
-
-    std::shared_ptr<ZRenderStateGroup> renderState_;
 
     static ZIDSequence idGenerator_;
 
 };
 
-class ZMesh2D : public ZMesh
+struct ZMesh2D : public ZMesh
 {
-
-public:
 
     ZMesh2D(const ZVertex2DDataOptions& vertexData)
         : ZMesh(), vertexData_(vertexData)
     { }
-    ~ZMesh2D() {}
+    ~ZMesh2D() = default;
 
     void Initialize() override;
 
@@ -82,13 +74,10 @@ protected:
 
 };
 
-class ZMesh3D : public ZMesh
+struct ZMesh3D : public ZMesh
 {
 
-    friend class ZModel;
     friend class ZModelImporter;
-
-public:
 
     ZMesh3D(const ZVertex3DDataOptions& vertexData);
     ~ZMesh3D();

@@ -30,41 +30,42 @@
 #pragma once
 
 #define DECLARE_OBJECT_CREATORS(Type)\
-static std::shared_ptr<Type> Create();\
-static std::shared_ptr<Type> Create(const glm::vec3& position, const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f), const std::shared_ptr<ZScene>& scene = nullptr);\
-static std::shared_ptr<Type> Create(const std::shared_ptr<ZOFNode>& root, const std::shared_ptr<ZScene>& scene = nullptr);
+ZHGameObject Create();\
+ZHGameObject Create(const glm::vec3& position, const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f), const std::shared_ptr<ZScene>& scene = nullptr);\
+ZHGameObject Create(const std::shared_ptr<ZOFObjectNode>& root, const std::shared_ptr<ZScene>& scene = nullptr);
 
 #define DEFINE_OBJECT_CREATORS(Type)\
-std::shared_ptr<Type> Type::Create()\
+ZHGameObject Type::Create()\
 {\
-    std::shared_ptr<Type> obj = std::make_shared<Type>();\
-    return obj;\
+	ZHGameObject handle;\
+    Type* obj = resourcePool_.New<Type>(handle);\
+    return handle;\
 }\
-std::shared_ptr<Type> Type::Create(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale, const std::shared_ptr<ZScene>& scene)\
+ZHGameObject Type::Create(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale, const std::shared_ptr<ZScene>& scene)\
 {\
-    std::shared_ptr<Type> obj = std::make_shared<Type>(position, orientation, scale);\
+	ZHGameObject handle;\
+    Type* obj = resourcePool_.New<Type>(handle);\
     if (scene) {\
-        obj->scene_ = scene;\
+        obj->scene = scene;\
     }\
-    obj->Initialize();\
-    return obj;\
+    obj->OnCreate();\
+    return handle;\
 }\
-std::shared_ptr<Type> Type::Create(const std::shared_ptr<ZOFNode>& root, const std::shared_ptr<ZScene>& scene)\
+ZHGameObject Type::Create(const std::shared_ptr<ZOFObjectNode>& root, const std::shared_ptr<ZScene>& scene)\
 {\
-    std::shared_ptr<Type> obj = std::make_shared<Type>();\
+	ZHGameObject handle;\
+    Type* obj = resourcePool_.New<Type>(handle);\
     if (scene) {\
-        obj->scene_ = scene;\
+        obj->scene = scene;\
     }\
-    obj->Initialize(root);\
-    return obj;\
+    obj->OnDeserialize(root);\
+    return handle;\
 }
 
-// Includes
 #include "ZProcess.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZOFTree.hpp"
 
-// Forward Declarations
 class ZGame;
 class ZScene;
 class ZSkybox;
@@ -72,7 +73,6 @@ class ZGrass;
 class ZUniformBuffer;
 class ZRenderStateGroup;
 
-// Class Definitions
 struct ZGameObjectProperties
 {
     ZRenderLayer renderOrder{ ZRenderLayer::Static };
@@ -84,69 +84,102 @@ struct ZGameObjectProperties
     bool active = true;
 };
 
-class ZGameObject : public ZProcess, public std::enable_shared_from_this<ZGameObject>
+struct ZGameObject
 {
+    
+    ZGameObject();
 
-    friend class ZScene;
-    friend class ZSceneRoot;
-    friend class ZGOFactory;
+    std::string name;
+	std::weak_ptr<ZScene> scene;
+	ZHGameObject parent;
+	ZComponentList components;
+	ZGameObjectList children;
+	ZGameObjectProperties properties;
+
+	std::shared_ptr<ZRenderStateGroup> renderState;
+	std::shared_ptr<ZUniformBuffer> uniformBuffer;
+
+	struct
+	{
+		std::mutex position;
+		std::mutex orientation;
+		std::mutex scale;
+		std::mutex modelMatrix;
+		std::mutex localModelMatrix;
+	} objectMutexes;
+
+    virtual void OnCreate() { }
+    virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) { }
+
+private:
+
+	static ZIDSequence idGenerator_;
+
+};
+
+class ZGameObjectManager : public ZResourceManager<ZGameObject, ZHGameObject>
+{
 
 public:
 
-    ZGameObject(const glm::vec3& position = glm::vec3(0.f, 0.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f));
-    ZGameObject(const std::string& name) : ZGameObject() { properties_.name = name; }
-    virtual ~ZGameObject() {}
+    virtual ~ZGameObjectManager() = default;
 
-    virtual void Initialize() override;
-    virtual void Initialize(std::shared_ptr<ZOFNode> root);
+public:
 
-    virtual void Prepare(double deltaTime);
-    virtual void PrepareChildren(double deltaTime);
+    virtual void Initialize() override { }
+    virtual void CleanUp() override { }
 
-    void CalculateDerivedData();
-    virtual std::shared_ptr<ZGameObject> Clone();
-    virtual void AddChild(std::shared_ptr<ZGameObject> gameObject);
-    virtual void RemoveChild(std::shared_ptr<ZGameObject> gameObject, bool recurse = false);
-    bool HasChildren() { return !children_.empty(); }
-    virtual bool IsVisible();
-    virtual void Destroy();
+public:
 
-    bool Active() const { return properties_.active; }
-    std::shared_ptr<ZScene> Scene() const;
-    std::shared_ptr<ZGameObject> Parent() const;
-    std::string Name() const { return properties_.name; }
-    ZRenderLayer RenderLayer() const { return properties_.renderOrder; }
-    const ZComponentList& Components() const { return components_; }
-    virtual ZGameObjectList& Children() { return children_; }
-    glm::vec3 Position();
-    glm::vec3 Scale();
-    glm::quat Orientation();
-    glm::vec3 Front();
-    glm::vec3 Up();
-    glm::vec3 Right();
-    glm::mat4 ModelMatrix();
-    glm::vec3 PreviousPosition();
-    glm::vec3 PreviousFront();
-    glm::vec3 PreviousUp();
-    glm::vec3 PreviousRight();
-    std::shared_ptr<ZRenderStateGroup> RenderState() const { return renderState_; }
+    void Initialize(const ZHGameObject& handle);
+    void Prepare(const ZHGameObject& handle, double deltaTime);
+    void PrepareChildren(const ZHGameObject& handle, double deltaTime);
 
-    void SetScene(const std::shared_ptr<ZScene>& scene);
-    void SetPosition(const glm::vec3& position);
-    void SetScale(const glm::vec3& scale);
-    void SetOrientation(const glm::quat& quaternion);
-    void SetOrientation(const glm::vec3& euler);
-    void SetLocalModelMatrix(const glm::mat4& modelMatrix);
-    void SetModelMatrix(const glm::mat4& modelMatrix);
-    void SetRenderOrder(ZRenderLayer renderOrder);
-    void SetName(const std::string& name) { properties_.name = name; }
-    void SetActive(bool active = true);
+    void CalculateDerivedData(const ZHGameObject& handle);
+    ZHGameObject Clone(const ZHGameObject& handle);
+    void AddChild(const ZHGameObject& handle, const ZHGameObject& child);
+    void RemoveChild(const ZHGameObject& handle, const ZHGameObject& child, bool recurse = false);
+    bool HasChildren(const ZHGameObject& handle);
+    bool IsVisible(const ZHGameObject& handle);
+    void Destroy(const ZHGameObject& handle);
 
-    void Translate(const glm::vec3& translation, bool global = false);
+    bool Active(const ZHGameObject& handle) const;
+    std::shared_ptr<ZScene> Scene(const ZHGameObject& handle);
+    ZHGameObject Parent(const ZHGameObject& handle);
+    std::string Name(const ZHGameObject& handle);
+    ZRenderLayer RenderLayer(const ZHGameObject& handle);
+    const ZComponentList& Components(const ZHGameObject& handle);
+    const ZGameObjectList& Children(const ZHGameObject& handle);
+    glm::vec3 Position(const ZHGameObject& handle);
+    glm::vec3 Scale(const ZHGameObject& handle);
+    glm::quat Orientation(const ZHGameObject& handle);
+    glm::vec3 Front(const ZHGameObject& handle);
+    glm::vec3 Up(const ZHGameObject& handle);
+    glm::vec3 Right(const ZHGameObject& handle);
+    glm::mat4 ModelMatrix(const ZHGameObject& handle);
+    glm::vec3 PreviousPosition(const ZHGameObject& handle);
+    glm::vec3 PreviousFront(const ZHGameObject& handle);
+    glm::vec3 PreviousUp(const ZHGameObject& handle);
+    glm::vec3 PreviousRight(const ZHGameObject& handle);
+    std::shared_ptr<ZRenderStateGroup> RenderState(const ZHGameObject& handle);
+
+    void SetParent(const ZHGameObject& handle, const ZHGameObject& parent);
+    void SetScene(const ZHGameObject& handle, const std::shared_ptr<ZScene>& scene);
+    void SetPosition(const ZHGameObject& handle, const glm::vec3& position);
+    void SetScale(const ZHGameObject& handle, const glm::vec3& scale);
+    void SetOrientation(const ZHGameObject& handle, const glm::quat& quaternion);
+    void SetOrientation(const ZHGameObject& handle, const glm::vec3& euler);
+    void SetLocalModelMatrix(const ZHGameObject& handle, const glm::mat4& modelMatrix);
+    void SetModelMatrix(const ZHGameObject& handle, const glm::mat4& modelMatrix);
+    void SetRenderOrder(const ZHGameObject& handle, ZRenderLayer renderOrder);
+    void SetName(const ZHGameObject& handle, const std::string& name);
+    void SetActive(const ZHGameObject& handle, bool active = true);
+
+    void Translate(const ZHGameObject& handle, const glm::vec3& translation, bool global = false);
 
     template<class T>
     typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
-        AddComponent(std::shared_ptr<T> component)
+        AddComponent(const ZHGameObject& handle, std::shared_ptr<T> component)
     {
         std::shared_ptr<T> foundComponent = FindComponent<T>();
         if (foundComponent == nullptr || is_multiple_components_supported<T>::value)
@@ -157,7 +190,7 @@ public:
     }
 
     template<class T>
-    std::shared_ptr<T> RemoveComponent(const std::string& id = "")
+    std::shared_ptr<T> RemoveComponent(const ZHGameObject& handle, const std::string& id = "")
     {
         std::shared_ptr<T> removed = nullptr;
         if (removed = FindComponent<T>(id)) {
@@ -167,7 +200,7 @@ public:
     }
 
     template<class T>
-    std::shared_ptr<T> FindComponent(const std::string& id = "")
+    std::shared_ptr<T> FindComponent(const ZHGameObject& handle, const std::string& id = "")
     {
         ZComponentList::iterator found;
         if (is_multiple_components_supported<T>::value && !id.empty()) {
@@ -185,48 +218,25 @@ public:
         return nullptr;
     }
 
-    template<class T>
-    std::shared_ptr<T> Child(const std::string& id)
+    template<class T = ZGameObject>
+    ZHGameObject Child(const ZHGameObject& handle, const std::string& name)
     {
         if (!std::is_base_of<ZGameObject, T>::value) return nullptr;
 
-        std::shared_ptr<T> go;
-        for (auto it = children_.begin(); it != children_.end(); it++)
+		assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+		ZGameObject* gameObject = resourcePool_.Get(handle);
+
+        for (auto it = gameObject->children.begin(); it != gameObject->children.end(); it++)
         {
-            if ((go = std::dynamic_pointer_cast<T>(*it)) && zenith::strings::HasSuffix(go->ID(), id))
+            T* childGameObject = resourcePool_.Get<T>(*it);
+            if (childGameObject != nullptr && zenith::strings::HasSuffix(childGameObject->name, name))
             {
-                return go;
+                return *it;
             }
-            go = nullptr;
         }
 
-        return go;
+        return ZHGameObject();
     }
 
-    static ZGameObjectList Load(std::shared_ptr<ZOFNode> data, const std::shared_ptr<ZScene>& scene);
-
     DECLARE_OBJECT_CREATORS(ZGameObject)
-
-protected:
-
-    std::weak_ptr<ZScene> scene_;
-    std::weak_ptr<ZGameObject> parent_;
-    ZComponentList components_;
-    ZGameObjectList children_;
-    ZGameObjectProperties properties_;
-
-    std::shared_ptr<ZRenderStateGroup> renderState_;
-    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
-
-    struct
-    {
-        std::mutex position;
-        std::mutex orientation;
-        std::mutex scale;
-        std::mutex modelMatrix;
-        std::mutex localModelMatrix;
-    } objectMutexes_;
-
-    static ZIDSequence idGenerator_;
-
 };
