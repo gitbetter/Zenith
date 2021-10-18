@@ -29,53 +29,37 @@
 
 #pragma once
 
-// Includes
 #include "ZGameObject.hpp"
 #include "ZFrustum.hpp"
 
-// Forward Declarations
 class ZScene;
 class ZRenderStateGroup;
 
-// Class and Data Structure Definitions
-
-class ZLight : public ZGameObject
+struct ZLight : public ZGameObject
 {
+
+public:
+
+    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f));
+    ZLight(ZLightType lightType);
+    ~ZLight() = default;
+
+    virtual void OnCreate() override;
+    virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
+    virtual void OnPrepare(double deltaTime) override;
+    virtual void OnCloned(ZGameObject* original) override;
+
+    void UpdateLightspaceMatrices(const ZFrustum& frustum);
 
 public:
 
     ZLightType type;
     Light properties;
-
-    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f));
-    ZLight(ZLightType lightType);
-    ~ZLight() {}
-
-    void Initialize() override;
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
-
-    bool IsVisible() override { return true; }
-    void Prepare(double deltaTime) override;
-
-    std::shared_ptr<ZGameObject> Clone() override;
-
-    std::vector<glm::mat4> LightSpaceMatrices() const { return lightspaceMatrices_; }
-    const ZAABBox& LightSpaceRegion() const { return lightspaceRegion_; }
-    const glm::vec4 ShadowFarPlaneSplits() const { return shadowFarPlaneSplits_; }
-    const std::shared_ptr<ZRenderStateGroup> RenderState() const { return renderState_; }
-
-    void UpdateLightspaceMatrices(const ZFrustum& frustum);
-
-    DECLARE_OBJECT_CREATORS(ZLight)
+    glm::vec4 shadowFarPlaneSplits;
+    std::vector<glm::mat4> lightspaceMatrices;
+    ZAABBox lightspaceRegion;
 
 private:
-
-    glm::vec4 shadowFarPlaneSplits_;
-    std::vector<glm::mat4> lightspaceMatrices_;
-    ZAABBox lightspaceRegion_;
-
-    std::shared_ptr<ZRenderStateGroup> renderState_;
-    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
 
     static std::map<std::string, ZLightType> lightTypesMap;
 

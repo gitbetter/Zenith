@@ -28,32 +28,27 @@
 */
 
 #include "ZParticle.hpp"
+#include "ZServices.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZPhysicsComponent.hpp"
 
-void ZParticle::Initialize()
+void ZParticle::OnCreate()
 {
 // TODO: Uncomment once approriate model and shader is chosen for
 // displaying a particle
-// if (FindComponent<ZGraphicsComponent>() == nullptr) {
+// if (FindComponent<ZGraphicsComponent>() == nullptr)
+// {
 //   AddComponent(new ZGraphicsComponent(the-model, the-shader));
 // }
 
-    if (FindComponent<ZPhysicsComponent>() == nullptr)
+    if (ZServices::GameObjectManager()->FindComponent<ZPhysicsComponent>(handle) == nullptr)
     {
-        AddComponent(std::shared_ptr<ZPhysicsComponent>(new ZPhysicsComponent));
+        ZServices::GameObjectManager()->AddComponent(handle, std::shared_ptr<ZPhysicsComponent>(new ZPhysicsComponent));
     }
 }
 
-void ZParticle::Update(double deltaTime)
+void ZParticle::OnPrepare(double deltaTime)
 {
-    ZGameObject::Update(deltaTime);
-    age_ -= UPDATE_STEP_SIZE;
+    age -= deltaTime;
+    // TODO: Render a particle as a quad that rotates with the camera
 }
-
-void ZParticle::Prepare(double deltaTime)
-{
-// TODO: Render a particle as a quad that rotates with the camera
-}
-
-DEFINE_OBJECT_CREATORS(ZParticle)

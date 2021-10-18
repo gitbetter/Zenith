@@ -29,13 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
-// class SomeClass;
-
-// Class and Data Structure Definitions
 class ZProcess
 {
 

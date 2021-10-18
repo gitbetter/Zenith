@@ -38,49 +38,46 @@
 #include "ZRenderStateGroup.hpp"
 
 ZGrass::ZGrass(unsigned int instances) : 
-    ZGameObject(), textureId_(std::string()), instanceCount_(instances), windDirection_(1.f), windStrength_(5.f), time_(0.f), objectHeight_(1.f)
+    ZGameObject(), texture(ZHTexture()), instanceCount(instances), windDirection(1.f), windStrength(5.f), objectHeight(1.f), time_(0.f)
 {
     ZServices::EventAgent()->Subscribe(this, &ZGrass::HandleTextureReady);
 }
 
-void ZGrass::Initialize()
+void ZGrass::OnCreate()
 {
-    graphicsComp_ = std::static_pointer_cast<ZGraphicsComponent>(ZGraphicsComponent::CreateIn(shared_from_this()));
+    graphicsComp_ = ZGraphicsComponent::CreateIn(handle);
     graphicsComp_->Initialize();
     graphicsComp_->SetIsShadowCaster(false);
     graphicsComp_->SetHasLightingInfo(false);
 
-    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::UserDefined, sizeof(ZGrassUniforms));
-    uniformBuffer_->Update(offsetof(ZGrassUniforms, windDirection), sizeof(windDirection_), glm::value_ptr(windDirection_));
-    uniformBuffer_->Update(offsetof(ZGrassUniforms, windStrength), sizeof(windStrength_), &windStrength_);
-    uniformBuffer_->Update(offsetof(ZGrassUniforms, objectHeight), sizeof(objectHeight_), &objectHeight_);
-
-    ZRenderStateGroupWriter writer;
-    writer.Begin();
-    writer.BindUniformBuffer(uniformBuffer_);
-    renderState_ = writer.End();
+    uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::UserDefined, sizeof(ZGrassUniforms));
+    uniformBuffer->Update(offsetof(ZGrassUniforms, windDirection), sizeof(windDirection), glm::value_ptr(windDirection));
+    uniformBuffer->Update(offsetof(ZGrassUniforms, windStrength), sizeof(windStrength), &windStrength);
+    uniformBuffer->Update(offsetof(ZGrassUniforms, objectHeight), sizeof(objectHeight), &objectHeight);
 
     std::vector<ZInstancedDataOptions> instanceDatas;
     for (unsigned int i = 0; i < cPolygonCount; i++)
     {
-        std::shared_ptr<ZModel> model = ZPlane::Create(glm::vec2(1.f));
+        ZHModel model = ZServices::ModelManager()->Create(ZModelType::Plane);
         UpdateVertexNormals(model);
         polygons_.push_back(model);
 
         ZInstancedDataOptions instanceData;
-        instanceData.count = instanceCount_;
+        instanceData.count = instanceCount;
         instanceDatas.push_back(instanceData);
+
+        graphicsComp_->AddModel(model);
     }
 
-    auto length = static_cast<unsigned int>(std::sqrt(instanceCount_));
+    auto length = static_cast<unsigned int>(std::sqrt(instanceCount));
     for (unsigned int i = 0; i < length; i++)
     {
         for (unsigned int j = 0; j < length; j++)
         {
-            auto scale = Scale();
+            auto scale = ZServices::GameObjectManager()->Scale(handle);
             auto x = -(length * 0.5f) + i + (-2 + std::rand() % 4);
             auto z = -(length * 0.5f) + j + (-2 + std::rand() % 4);
-            auto translation = Position() + glm::vec3(scale.x * 2.f * x, scale.y * 2.f, scale.z * 2.f * z);
+            auto translation = ZServices::GameObjectManager()->Position(handle) + glm::vec3(scale.x * 2.f * x, scale.y * 2.f, scale.z * 2.f * z);
             for (unsigned int k = 0; k < cPolygonCount; k++)
             {
                 auto rotation = glm::quat(glm::vec3(glm::radians(-90.f), glm::radians(k == 2 ? 135.f : k * 45.f), glm::radians(0.f)));
@@ -93,7 +90,7 @@ void ZGrass::Initialize()
         }
     }
 
-    auto leftover = instanceCount_ - (length * length);
+    auto leftover = instanceCount - (length * length);
     for (unsigned int i = 0; i < leftover; i++)
     {
         for (unsigned int k = 0; k < cPolygonCount; k++)
@@ -104,33 +101,30 @@ void ZGrass::Initialize()
 
     for (unsigned int k = 0; k < cPolygonCount; k++)
     {
-        polygons_[k]->SetInstanceData(instanceDatas[k]);
+        ZServices::ModelManager()->SetInstanceData(polygons_[k], instanceDatas[k]);
     }
-
-    ZGameObject::Initialize();
 }
 
-void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
+void ZGrass::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-    if (!node)
+    if (dataNode == nullptr)
     {
         LOG("Could not initalize ZGrass", ZSeverity::Error);
         return;
     }
 
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
 
     if (props.find("texture") != props.end() && props["texture"]->HasValues())
     {
-        std::shared_ptr<ZOFString> textureProp = props["texture"]->Value<ZOFString>(0);
-        textureId_ = textureProp->value;
+        std::shared_ptr<ZOFHandle> textureProp = props["texture"]->Value<ZOFHandle>(0);
+        texture = ZHTexture(textureProp->value);
     }
 
     if (props.find("instances") != props.end() && props["instances"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> instancesProp = props["instances"]->Value<ZOFNumber>(0);
-        instanceCount_ = instancesProp->value;
+        instanceCount = instancesProp->value;
     }
 
     if (props.find("shader") != props.end() && props["shader"]->HasValues())
@@ -146,35 +140,28 @@ void ZGrass::Initialize(std::shared_ptr<ZOFNode> root)
     if (props.find("windDirection") != props.end() && props["windDirection"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> windDirectionProp = props["windDirection"]->Value<ZOFNumberList>(0);
-        windDirection_ = glm::vec3(windDirectionProp->value[0], windDirectionProp->value[1], windDirectionProp->value[2]);
+        windDirection = glm::vec3(windDirectionProp->value[0], windDirectionProp->value[1], windDirectionProp->value[2]);
     }
 
     if (props.find("windStrength") != props.end() && props["windStrength"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> windStrengthProp = props["windStrength"]->Value<ZOFNumber>(0);
-        windStrength_ = windStrengthProp->value;
+        windStrength = windStrengthProp->value;
     }
-
-    ZGameObject::Initialize(root);
 }
 
-void ZGrass::Prepare(double deltaTime)
+void ZGrass::OnPrepare(double deltaTime)
 {
-    auto scene = Scene();
-    if (!scene) return;
-
-    time_ += deltaTime;
-    if (scene->PlayState() == ZPlayState::Playing) {
-        uniformBuffer_->Update(offsetof(ZGrassUniforms, timestamp), sizeof(time_), &time_);
+    auto sceneSP = scene.lock();
+    if (sceneSP == nullptr)
+    {
+        return;
     }
 
-    graphicsComp_->SetGameLights(scene->GameLights());
-    graphicsComp_->SetGameCamera(scene->ActiveCamera());
-
-    for (auto it = polygons_.begin(); it != polygons_.end(); it++)
+    time_ += deltaTime;
+    if (sceneSP->PlayState() == ZPlayState::Playing)
     {
-        graphicsComp_->SetModel(*it);
-        graphicsComp_->Prepare(deltaTime, { renderState_ });
+        uniformBuffer->Update(offsetof(ZGrassUniforms, timestamp), sizeof(time_), &time_);
     }
 }
 
@@ -183,37 +170,36 @@ void ZGrass::TrimPatch(const glm::vec3& position, const glm::vec3& size)
     for (unsigned int i = 0; i < cPolygonCount; i++)
     {
         auto polygon = polygons_[i];
-        auto instanceData = polygon->InstanceData();
+        auto instanceData = ZServices::ModelManager()->InstanceData(polygon);
         instanceData.translations.erase(std::remove_if(instanceData.translations.begin(), instanceData.translations.end(), [position, size] (const glm::mat4& translation) {
             return translation[3][0] >= position.x && translation[3][0] <= position.x + size.x &&
                 translation[3][2] >= position.z && translation[3][2] <= position.z + size.z;
         }), instanceData.translations.end());
         instanceData.count = instanceData.translations.size();
-        polygon->SetInstanceData(instanceData);
+        ZServices::ModelManager()->SetInstanceData(polygon, instanceData);
     }
 }
 
-void ZGrass::UpdateVertexNormals(std::shared_ptr<ZModel>& model)
+void ZGrass::UpdateVertexNormals(const ZHModel& model)
 {
-    for (auto meshIt = model->Meshes().begin(); meshIt != model->Meshes().end(); meshIt++)
+    ZMesh3DList meshes = ZServices::ModelManager()->Meshes(model);
+    for (auto meshIt = meshes.begin(); meshIt != meshes.end(); meshIt++)
     {
-        auto vertices = meshIt->second->Vertices();
+        auto vertices = (*meshIt).Vertices();
         for (auto vertexIt = vertices.begin(); vertexIt != vertices.end(); vertexIt++)
         {
             vertexIt->normal = glm::vec3(1.f, 1.f, 0.f);
         }
-        meshIt->second->SetVertices(vertices);
+        (*meshIt).SetVertices(vertices);
     }
 }
 
 void ZGrass::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
-    if (ZServices::TextureManager()->Name(event->Texture()) == textureId_)
+    if (event->Texture() == texture)
     {
-        auto grassMaterial = ZMaterial::Create({ event->Texture() }, ZServices::ShaderManager()->Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
+        auto grassMaterial = ZServices::MaterialManager()->Create({ event->Texture() }, ZServices::ShaderManager()->Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
         graphicsComp_->AddMaterial(grassMaterial);
         ZServices::EventAgent()->Unsubscribe(this, &ZGrass::HandleTextureReady);
     }
 }
-
-DEFINE_OBJECT_CREATORS(ZGrass)

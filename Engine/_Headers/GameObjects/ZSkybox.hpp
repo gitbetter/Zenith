@@ -35,41 +35,32 @@
 class ZTextureReadyEvent;
 class ZRenderStateGroup;
 
-class ZSkybox : public ZGameObject
+struct ZSkybox : public ZGameObject
 {
+
+
+public:
+
+    ZSkybox();
+    ~ZSkybox() {}
+
+    virtual void OnCreate() override;
+    virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
+    virtual void OnCloned(ZGameObject* original) override;
+
+    void LoadCubemap(const std::string& hdr);
+
+public:
+
+    ZIBLTextureData iblTexture;
+
+private:
+
+    void LoadCubemap(const ZHTexture& cubeMap, const ZFramebuffer::ptr& bufferData);
+    void HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& event);
 
 private:
 
     std::string hdrPath_;
-
-    void Initialize(const ZHTexture& cubeMap, const ZFramebuffer::ptr& bufferData);
-
-public:
-
-    ZSkybox(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
-        : ZGameObject(position, orientation, scale) { }
-    ZSkybox(const std::string& hdr = "");
-    ~ZSkybox() {}
-
-    void Initialize() override;
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void InitializeAsync();
-
-    std::shared_ptr<ZGameObject> Clone() override;
-
-    bool IsVisible() override { return true; }
-
-    ZIBLTextureData IBLTexture() const { return iblTexture_; }
-    const std::shared_ptr<ZRenderStateGroup>& RenderState() const { return renderState_; }
-
-    DECLARE_OBJECT_CREATORS(ZSkybox)
-
-protected:
-
-    ZIBLTextureData iblTexture_;
-
-    std::shared_ptr<ZRenderStateGroup> renderState_;
-
-    void HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& event);
 
 };

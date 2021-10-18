@@ -29,16 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZGameObject.hpp"
 
-// Forward Declarations
 class ZTextureReadyEvent;
-class ZGraphicsComponent;
-class ZUniformBuffer;
-class ZRenderStateGroup;
 
-// Class and Data Structure Definitions
 struct ZGrassUniforms
 {
     glm::vec4 windDirection;
@@ -47,42 +41,37 @@ struct ZGrassUniforms
     float windStrength;
 };
 
-class ZGrass : public ZGameObject
+struct ZGrass : public ZGameObject
 {
 
 public:
 
-    ZGrass(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
-        : ZGameObject(position, orientation, scale) { }
     ZGrass(unsigned int instances = 0);
-    ~ZGrass() {}
+    ~ZGrass() = default;
 
-    void Initialize() override;
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Prepare(double deltaTime) override;
-    bool IsVisible() override { return true; }
+    void OnCreate() override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
+    void OnPrepare(double deltaTime) override;
 
     void TrimPatch(const glm::vec3& position, const glm::vec3& size);
 
-    DECLARE_OBJECT_CREATORS(ZGrass)
+    static constexpr unsigned int const& cPolygonCount = 3;
+
+    ZHTexture texture;
+    unsigned int instanceCount = 0;
+    glm::vec3 windDirection;
+    float objectHeight;
+    float windStrength;
 
 private:
 
-    static constexpr unsigned int const& cPolygonCount = 3;
-
-    std::shared_ptr<ZGraphicsComponent> graphicsComp_;
-    std::string textureId_;
-    unsigned int instanceCount_ = 0;
-    std::vector<std::shared_ptr<ZModel>> polygons_;
-    glm::vec3 windDirection_;
-    float objectHeight_;
-    float windStrength_;
-    float time_;
-
-    std::shared_ptr<ZUniformBuffer> uniformBuffer_;
-    std::shared_ptr<ZRenderStateGroup> renderState_;
-
-    void UpdateVertexNormals(std::shared_ptr<ZModel>& model);
+    void UpdateVertexNormals(const ZHModel& model);
     void HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event);
+
+private:
+
+    float time_;
+    std::shared_ptr<class ZGraphicsComponent> graphicsComp_;
+    std::vector<ZHModel> polygons_;
 
 };

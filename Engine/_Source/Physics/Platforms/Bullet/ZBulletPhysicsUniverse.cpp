@@ -104,7 +104,7 @@ ZRaycastHitResult ZBulletPhysicsUniverse::Raycast(const glm::vec3& start, const 
     hitResult.hasHit = false;
     if (rayCallback.hasHit())
     {
-        hitResult.objectHit = static_cast<ZGameObject*>(rayCallback.m_collisionObject->getUserPointer());
+        hitResult.objectHit = *(static_cast<ZHGameObject*>(rayCallback.m_collisionObject->getUserPointer()));
         hitResult.hitPosition = glm::vec3(rayCallback.m_hitPointWorld.x(), rayCallback.m_hitPointWorld.y(), rayCallback.m_hitPointWorld.z());
         hitResult.hasHit = true;
     }
@@ -140,8 +140,8 @@ void ZBulletPhysicsUniverse::TickCallback(btDynamicsWorld* world, btScalar timeS
 
         btRigidBody const* sortedBody1 = swapped ? body2 : body1;
         btRigidBody const* sortedBody2 = swapped ? body1 : body2;
-        ZGameObject* body1GO = static_cast<ZGameObject*>(sortedBody1->getUserPointer());
-        ZGameObject* body2GO = static_cast<ZGameObject*>(sortedBody2->getUserPointer());
+        ZHGameObject body1GO = *(static_cast<ZHGameObject*>(sortedBody1->getUserPointer()));
+        ZHGameObject body2GO = *(static_cast<ZHGameObject*>(sortedBody2->getUserPointer()));
 
         ZCollisionPair pair = std::make_pair(body1GO, body2GO);
         collisionPairs.insert(pair);

@@ -29,15 +29,12 @@
 
 #pragma once
 
-// Includes
 #include "ZPhysicsUniverse.hpp"
 #include "ZBulletRigidBody.hpp"
 #include "btBulletDynamicsCommon.h"
 
-// Forward Declarations
 class ZScene;
 
-// Class and Data Structure Definitions
 class ZBulletPhysicsUniverse : public ZPhysicsUniverse, public btIDebugDraw
 {
 

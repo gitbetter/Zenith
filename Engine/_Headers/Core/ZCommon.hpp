@@ -777,7 +777,7 @@ struct ZWavFormatDesc
 
 struct ZRaycastHitResult
 {
-    ZGameObject* objectHit;
+    ZHGameObject objectHit;
     glm::vec3 hitPosition;
     bool hasHit;
 };
@@ -1036,14 +1036,15 @@ using ZModelIDMap = std::unordered_map<unsigned int, std::string>;
 using ZTextureIDMap = std::unordered_map<ZHTexture, std::string>;
 using ZFontIDMap = std::unordered_map<unsigned int, std::string>;
 using ZMaterialIDMap = std::unordered_map<unsigned int, std::string>;
-using ZTextureMap = std::unordered_map<std::string, ZHTexture>;
+using ZTextureList = std::vector<ZHTexture>;
 using ZMesh3DList = std::vector<ZMesh3D>;
+using ZModelList = std::vector<ZHModel>;
 using ZGameObjectList = std::vector<ZHGameObject>;
 using ZLightList = std::vector<ZHGameObject>;
 using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
 using ZUIElementList = std::vector<ZHUIElement>;
 using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
-using ZCollisionPair = std::pair<ZGameObject*, ZGameObject*>;
+using ZCollisionPair = std::pair<ZHGameObject, ZHGameObject>;
 using ZCollisionPairs = std::set<ZCollisionPair>;
 using ZAnimationMap = std::map<std::string, ZAnimation>;
 using ZBoneMap = std::map<std::string, unsigned int>;

@@ -31,6 +31,8 @@
 #include "ZSkybox.hpp"
 #include "ZGrass.hpp"
 #include "ZCamera.hpp"
+#include "ZParticle.hpp"
+#include "ZSceneRoot.hpp"
 #include "ZGame.hpp"
 #include "ZScene.hpp"
 #include "ZModel.hpp"
@@ -46,6 +48,35 @@
 #include "ZUniformBuffer.hpp"
 #include "ZRenderStateGroup.hpp"
 
+ZGameObjectType ObjectTypeFromString(const std::string& str)
+{
+    if (str == "Camera")
+    {
+        return ZGameObjectType::Camera;
+    }
+    else if (str == "Grass")
+    {
+        return ZGameObjectType::Grass;
+    }
+    else if (str == "Light")
+    {
+        return ZGameObjectType::Light;
+    }
+    else if (str == "Particle")
+    {
+        return ZGameObjectType::Particle;
+    }
+    else if (str == "SceneRoot")
+    {
+        return ZGameObjectType::SceneRoot;
+    }
+    else if (str == "Skybox")
+    {
+        return ZGameObjectType::Skybox;
+    }
+    return ZGameObjectType::Custom;
+}
+
 ZIDSequence ZGameObject::idGenerator_;
 
 ZGameObject::ZGameObject()
@@ -53,62 +84,148 @@ ZGameObject::ZGameObject()
     properties.modelMatrix = properties.localModelMatrix = glm::mat4(1.f);
     properties.renderOrder = ZRenderLayer::Static;
     name = "GameObject" + std::to_string(idGenerator_.Next());
-    //CalculateDerivedData();
 }
 
-void ZGameObjectManager::Initialize(std::shared_ptr<ZOFNode> root)
+ZHGameObject ZGameObjectManager::Create(const ZGameObjectType& type, const ZHGameObject& restoreHandle)
 {
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-    if (!node)
+    ZHGameObject handle(restoreHandle);
+    ZGameObject* object = nullptr;
+
+    switch (type)
+    {
+    case ZGameObjectType::Custom:
+        object = resourcePool_.New(handle);
+        break;
+    case ZGameObjectType::Camera:
+        object = resourcePool_.New<ZCamera>(handle);
+        break;
+    case ZGameObjectType::Grass:
+        object = resourcePool_.New<ZGrass>(handle);
+        break;
+    case ZGameObjectType::Light:
+        object = resourcePool_.New<ZLight>(handle);
+        break;
+    case ZGameObjectType::Particle:
+        object = resourcePool_.New<ZParticle>(handle);
+        break;
+    case ZGameObjectType::SceneRoot:
+        object = resourcePool_.New<ZSceneRoot>(handle);
+        break;
+    case ZGameObjectType::Skybox:
+        object = resourcePool_.New<ZSkybox>(handle);
+        break;
+    default: break;
+    }
+
+    if (object != nullptr)
+    {
+        object->type = type;
+    }
+
+    return handle;
+}
+
+ZHGameObject ZGameObjectManager::CreateReady(const ZGameObjectType& type, const std::shared_ptr<ZScene>& scene, const ZHGameObject& restoreHandle)
+{
+    ZHGameObject handle = Create(type, restoreHandle);
+
+    if (!handle.IsNull())
+    {
+        ZGameObject* object = resourcePool_.Get(handle);
+        object->handle = handle;
+        object->scene = scene;
+
+        CalculateDerivedData(handle);
+        object->OnCreate();
+
+        // Give subclasses a chance to create custom uniform buffers before creating a default
+        if (object->uniformBuffer == nullptr)
+        {
+            object->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Object, sizeof(ZObjectUniforms));
+        }
+
+        ZRenderStateGroupWriter writer;
+        writer.Begin();
+        writer.BindUniformBuffer(object->uniformBuffer);
+        object->renderState = writer.End();
+    }
+
+    return handle;
+}
+
+ZHGameObject ZGameObjectManager::Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene)
+{
+    if (!dataNode)
     {
         LOG("Could not initalize ZGameObject", ZSeverity::Error);
         return;
     }
 
-    id_ = node->id;
+    ZHGameObject handle(dataHandle.value);
 
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
+
+    if (props.find("type") != props.end() && props["type"]->HasValues())
+    {
+        std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
+        handle = Create(ObjectTypeFromString(typeProp->value), handle);
+    }
+
+    if (handle.IsNull())
+    {
+        return handle;
+    }
+
+    ZGameObject* object = resourcePool_.Get(handle);
 
     if (props.find("position") != props.end() && props["position"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
-        properties_.previousPosition = properties_.position = glm::vec3(posProp->value[0], posProp->value[1], posProp->value[2]);
+        object->properties.previousPosition = object->properties.position = glm::vec3(posProp->value[0], posProp->value[1], posProp->value[2]);
+    }
+
+    if (props.find("position") != props.end() && props["position"]->HasValues())
+    {
+        std::shared_ptr<ZOFNumberList> posProp = props["position"]->Value<ZOFNumberList>(0);
+        object->properties.previousPosition = object->properties.position = glm::vec3(posProp->value[0], posProp->value[1], posProp->value[2]);
     }
 
     if (props.find("orientation") != props.end() && props["orientation"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> ornProp = props["orientation"]->Value<ZOFNumberList>(0);
-        properties_.previousOrientation = properties_.orientation = glm::quat(glm::vec3(glm::radians(ornProp->value[0]), glm::radians(ornProp->value[1]), glm::radians(ornProp->value[2])));
+        object->properties.previousOrientation = object->properties.orientation = glm::quat(glm::vec3(glm::radians(ornProp->value[0]), glm::radians(ornProp->value[1]), glm::radians(ornProp->value[2])));
     }
 
     if (props.find("scale") != props.end() && props["scale"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> scaleProp = props["scale"]->Value<ZOFNumberList>(0);
-        properties_.previousScale = properties_.scale = glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]);
+        object->properties.previousScale = object->properties.scale = glm::vec3(scaleProp->value[0], scaleProp->value[1], scaleProp->value[2]);
     }
 
-    Initialize();
-}
+    object->handle = handle;
+    object->scene = scene;
+    object->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Object, sizeof(ZObjectUniforms));
 
-void ZGameObjectManager::Initialize(const ZHGameObject& handle)
-{
-	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
-	ZGameObject* gameObject = resourcePool_.Get(handle);
+    ZRenderStateGroupWriter writer;
+    writer.Begin();
+    writer.BindUniformBuffer(object->uniformBuffer);
+    object->renderState = writer.End();
 
-    gameObject->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Object, sizeof(ZObjectUniforms));
+    CalculateDerivedData(handle);
+    object->OnDeserialize(dataNode);
 
-	ZRenderStateGroupWriter writer;
-	writer.Begin();
-	writer.BindUniformBuffer(gameObject->uniformBuffer);
-    gameObject->renderState = writer.End();
-
-	CalculateDerivedData(handle);
+    return handle;
 }
 
 void ZGameObjectManager::Prepare(const ZHGameObject& handle, double deltaTime)
 {
     auto scene = Scene(handle);
-    if (!scene) return;
+    if (scene == nullptr)
+    {   
+        return;
+    }
+
+    ZGameObject* object = Dereference(handle);
 
     if (std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>(handle))
     {
@@ -116,6 +233,8 @@ void ZGameObjectManager::Prepare(const ZHGameObject& handle, double deltaTime)
         graphicsComp->SetGameCamera(scene->ActiveCamera());
         graphicsComp->Prepare(deltaTime);
     }
+
+    object->OnPrepare(deltaTime);
 }
 
 void ZGameObjectManager::PrepareChildren(const ZHGameObject& handle, double deltaTime)
@@ -161,13 +280,12 @@ ZHGameObject ZGameObjectManager::Clone(const ZHGameObject& handle)
 	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
 	ZGameObject* gameObject = resourcePool_.Get(handle);
 
-    ZHGameObject clone = Create();
+    ZHGameObject clone = CreateReady(gameObject->type, gameObject->scene.lock());
     ZGameObject* cloneObject = resourcePool_.Get(clone);
     cloneObject->properties = gameObject->properties;
-    cloneObject->scene = gameObject->scene;
     cloneObject->parent = gameObject->parent;
+    CalculateDerivedData(clone);
 
-    // TODO: Can we template the component Clone method somehow?
     for (const std::shared_ptr<ZComponent>& comp : gameObject->components)
     {
         std::shared_ptr<ZComponent> compClone = comp->Clone();
@@ -182,6 +300,8 @@ ZHGameObject ZGameObjectManager::Clone(const ZHGameObject& handle)
     {
         AddChild(clone, Clone(object));
     }
+
+    cloneObject->OnCloned(gameObject);
 
     return clone;
 }
@@ -251,18 +371,21 @@ bool ZGameObjectManager::IsVisible(const ZHGameObject& handle)
 	ZGameObject* gameObject = resourcePool_.Get(handle);
 
     auto scene = Scene(handle);
-    if (!scene)
+    if (scene == nullptr)
     {
         return false;
     }
 
-    ZHGameObject activeCamera = scene->ActiveCamera();
-    ZCamera* activeCameraObject = Dereference<ZCamera>(activeCamera);
-    if (auto graphicsComp = FindComponent<ZGraphicsComponent>(handle)) {
-        return activeCamera && graphicsComp->IsVisible(activeCameraObject->Frustum()) && gameObject->properties.active;
+    bool isObjectVisible = gameObject->properties.active && gameObject->properties.visible;
+
+    ZCamera* activeCameraObject = Dereference<ZCamera>(scene->ActiveCamera());
+    if (const auto& graphicsComp = FindComponent<ZGraphicsComponent>(handle))
+    {
+        bool isInCameraFrustum = activeCameraObject != nullptr && graphicsComp->IsVisible(activeCameraObject->frustum);
+        return isInCameraFrustum && isObjectVisible;
     }
 
-    return false;
+    return isObjectVisible;
 }
 
 void ZGameObjectManager::Destroy(const ZHGameObject& handle)
@@ -657,5 +780,3 @@ void ZGameObjectManager::Translate(const ZHGameObject& handle, const glm::vec3& 
 
     CalculateDerivedData(handle);
 }
-
-DEFINE_OBJECT_CREATORS(ZGameObject)

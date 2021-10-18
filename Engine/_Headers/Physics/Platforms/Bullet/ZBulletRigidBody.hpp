@@ -62,7 +62,7 @@ public:
     void SetLinearDamping(float damping) override;
     void SetAngularDamping(float damping) override;
     void SetRestitution(float restitution) override;
-    void SetGameObject(ZGameObject* gameObject) override;
+    void SetGameObject(const ZHGameObject& gameObject) override;
     void SetTransformMatrix(const glm::mat4& matrix) override;
     void SetPosition(const glm::vec3& position) override;
     void SetRotation(const glm::quat& rotation) override;

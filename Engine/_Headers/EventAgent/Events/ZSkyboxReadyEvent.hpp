@@ -29,25 +29,22 @@
 
 #pragma once
 
-// Includes
 #include "ZEvent.hpp"
 
-// Forward Declarations
 class ZSkybox;
 
-// Class and Data Structure Definitions
 class ZSkyboxReadyEvent : public ZEvent
 {
 
 private:
 
-    std::shared_ptr<ZSkybox> skybox_;
+    ZHGameObject skybox_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZSkyboxReadyEvent(std::shared_ptr<ZSkybox> skybox) : skybox_(skybox) {}
+    explicit ZSkyboxReadyEvent(const ZHGameObject& skybox) : skybox_(skybox) {}
     explicit ZSkyboxReadyEvent(std::istringstream& in) {}
 
     const ZTypeIdentifier& EventType() const override { return Type; };
@@ -55,6 +52,6 @@ public:
     void Serialize(std::ostringstream& out) const override {}
     std::string Name() const override { return "ZSkyboxReadyEvent"; }
 
-    std::shared_ptr<ZSkybox> Skybox() { return skybox_; }
+    ZHGameObject Skybox() { return skybox_; }
 
 };

@@ -35,7 +35,8 @@
 #include "ZUniformBuffer.hpp"
 #include "ZRenderStateGroup.hpp"
 
-std::map<std::string, ZLightType> ZLight::lightTypesMap = {
+std::map<std::string, ZLightType> ZLight::lightTypesMap =
+{
     {"Directional", ZLightType::Directional},
     {"Point", ZLightType::Point},
     {"Spot", ZLightType::Spot}

@@ -104,7 +104,9 @@ void ZGame::Tick()
     ZPR_SESSION_BEGIN(name_)
 
     if (previousTime_ == 0.0)
+    {
         previousTime_ = SECONDS_TIME;
+    }
 
     double currentTime = SECONDS_TIME;
     deltaTime_ = glm::min(currentTime - previousTime_, 0.1);
@@ -114,15 +116,21 @@ void ZGame::Tick()
     // We tick the default process runner to update global systems like input
     // and concurrent tasks, only if we are the top level game base
     if (isTopLevel_)
+    {
         ZServices::ProcessRunner()->UpdateTick(deltaTime_);
+    }
 
     if (onUpdateTickCallback_)
+    {
         onUpdateTickCallback_();
+    }
 
     ZPR_SESSION_END();
 
     if (!gameOptions_.domain.offline)
+    {
         Domain()->SwapBuffers();
+    }
 }
 
 bool ZGame::Running()

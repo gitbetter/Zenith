@@ -177,16 +177,15 @@ void ZScene::Stop()
 void ZScene::UpdateLightspaceMatrices()
 {
     ZCamera* camera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeCamera_);
-    if (gameLights_.empty() || !camera->Moving())
+    if (gameLights_.empty() || !camera->isMoving)
     {
         return;
     }
 
-    ZFrustum frustum = camera->Frustum();
     for (const auto& light : gameLights_)
     {
         ZLight* lightObject = ZServices::GameObjectManager()->Dereference<ZLight>(light);
-        lightObject->UpdateLightspaceMatrices(frustum);
+        lightObject->UpdateLightspaceMatrices(camera->frustum);
     }
 }
 
@@ -254,10 +253,9 @@ void ZScene::AddBVHPrimitive(const ZBVHPrimitive& primitive)
 
 void ZScene::CreateSceneRoot(const std::string& name)
 {
-    root_ = ZSceneRoot::Create();
+    root_ = ZServices::GameObjectManager()->CreateReady(ZGameObjectType::SceneRoot);
     ZServices::GameObjectManager()->SetName(root_, name);
     ZServices::GameObjectManager()->SetScene(root_, shared_from_this());
-    ZServices::GameObjectManager()->Initialize(root_);
 }
 
 void ZScene::CreateUICanvas()
@@ -286,7 +284,7 @@ void ZScene::AddGameObject(const ZHGameObject& gameObject, bool runImmediately)
         std::string objectName = ZServices::GameObjectManager()->Name(gameObject);
         if (ZCamera* camera = ZServices::GameObjectManager()->Dereference<ZCamera>(gameObject))
         {
-            if (camera->IsPrimary())
+            if (camera->isPrimary)
             {
                 primaryCamera_ = gameObject;
             }
@@ -468,9 +466,9 @@ ZRay ZScene::ScreenPointToWorldRay(const glm::vec2& point, const glm::vec2& dime
     float x = (2.f * point.x) / rectRes.x - 1.f;
     float y = (2.f * point.y) / rectRes.y - 1.f;
 
-    glm::vec4 start = glm::normalize(camObject->InverseViewProjectionMatrix() * glm::vec4(x, -y, 0.f, 1.f));
+    glm::vec4 start = glm::normalize(camObject->inverseViewProjection * glm::vec4(x, -y, 0.f, 1.f));
     start /= start.w;
-    glm::vec4 end = glm::normalize(camObject->InverseViewProjectionMatrix() * glm::vec4(x, -y, 1.f, 1.f));
+    glm::vec4 end = glm::normalize(camObject->inverseViewProjection * glm::vec4(x, -y, 1.f, 1.f));
     end /= end.w;
     glm::vec4 direction = glm::normalize(end - start);
 
@@ -493,8 +491,9 @@ ZHTexture ZScene::TargetTexture()
 
 void ZScene::SetDefaultSkybox()
 {
-    skybox_ = std::shared_ptr<ZSkybox>(new ZSkybox(DEFAULT_HDR_CUBEMAP));
-    skybox_->InitializeAsync();
+    skybox_ = ZServices::GameObjectManager()->CreateReady(ZGameObjectType::Skybox);
+    ZSkybox* skyboxObject = ZServices::GameObjectManager()->Dereference<ZSkybox>(skybox_);
+    skyboxObject->LoadCubemap(DEFAULT_HDR_CUBEMAP);
     AddGameObject(skybox_);
 }
 
@@ -534,28 +533,12 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
                 break;
             }
 			case ZOFObjectType::GameObject:
-            {
-				gameObject = ZGameObject::Create(dataNode, shared_from_this());
-				break;
-            }
             case ZOFObjectType::Light:
-            {
-                gameObject = ZLight::Create(dataNode, shared_from_this());
-                break;
-            }
             case ZOFObjectType::Camera:
-            {
-                gameObject = ZCamera::Create(dataNode, shared_from_this());
-                break;
-            }
             case ZOFObjectType::Skybox:
-            {
-                gameObject = ZSkybox::Create(dataNode, shared_from_this());
-                break;
-            }
             case ZOFObjectType::Grass:
             {
-                gameObject = ZGrass::Create(dataNode, shared_from_this());
+                gameObject = ZServices::GameObjectManager()->Deserialize(dataNode->id, dataNode, shared_from_this());
                 break;
             }
             case ZOFObjectType::UI:
@@ -566,7 +549,7 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
             default: break;
         }
 
-		if (gameObject)
+		if (!gameObject.IsNull())
         {
 			for (ZOFChildList::iterator compIt = dataNode->children.begin(); compIt != dataNode->children.end(); compIt++)
 			{
@@ -682,7 +665,7 @@ void ZScene::HandleRaycastEvent(const std::shared_ptr<ZRaycastEvent>& event)
     if (hitResult.hasHit)
     {
         // TODO: Rename to ZObjectRayHit event or something similar
-        std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent = std::make_shared<ZObjectSelectedEvent>(hitResult.objectHit->ID(), hitResult.hitPosition);
+        std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent = std::make_shared<ZObjectSelectedEvent>(hitResult.objectHit, hitResult.hitPosition);
         ZServices::EventAgent()->Trigger(objectSelectEvent);
     }
 }

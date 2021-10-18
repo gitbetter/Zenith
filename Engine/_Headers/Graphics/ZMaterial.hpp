@@ -45,7 +45,7 @@ struct ZMaterialBase
 
 	ZHShader shader;
 	std::string name;
-	ZTextureMap textures;
+	ZTextureList textures;
 
 	std::shared_ptr<ZRenderStateGroup> renderState;
 	std::shared_ptr<ZUniformBuffer> uniformBuffer;
@@ -68,12 +68,12 @@ public:
 	virtual void CleanUp() override { }
 
     ZHMaterial Create(const ZMaterialProperties& materialProperties, const ZHShader& shader = ZHShader());
-    ZHMaterial Create(const ZTextureMap& textures, const ZHShader& shader = ZHShader());
+    ZHMaterial Create(const ZTextureList& textures, const ZHShader& shader = ZHShader());
     ZHMaterial Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
     void DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode);
 
     const std::string& Name(const ZHMaterial& handle) const;
-    const ZTextureMap& Textures(const ZHMaterial& handle) const;
+    const ZTextureList& Textures(const ZHMaterial& handle) const;
     const ZHShader& Shader(const ZHMaterial& handle) const;
     float Alpha(const ZHMaterial& handle) const;
     bool IsTextured(const ZHMaterial& handle) const;

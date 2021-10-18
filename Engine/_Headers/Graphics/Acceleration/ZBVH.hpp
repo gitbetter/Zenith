@@ -41,10 +41,10 @@ enum class ZBVHSplitMethod
 
 struct ZBVHPrimitive
 {
-    std::string objectId;
+    ZHGameObject objectHandle;
     ZAABBox bounds;
 
-    ZBVHPrimitive(const std::string& id, const ZAABBox& bounds) : objectId(id), bounds(bounds) { }
+    ZBVHPrimitive(const ZHGameObject& object, const ZAABBox& bounds) : objectHandle(object), bounds(bounds) { }
 };
 
 struct ZBVHPrimitiveInfo
@@ -83,7 +83,7 @@ struct ZBVHBuildNode
 
 struct ZIntersectHitResult
 {
-    std::string objectId;
+    ZHGameObject objectHandle;
 };
 
 struct ZLinearBVHNode

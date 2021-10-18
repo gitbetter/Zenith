@@ -67,7 +67,7 @@ bool ZBVH::Intersect(ZRay& ray, ZIntersectHitResult& hitResult)
 
     int toVisitOffset = 0, currentNodeIndex = 0;
     int nodesToVisit[64];
-    std::map<int, std::string> hits;
+    std::map<int, ZHGameObject> hits;
     while (true) {
         ZLinearBVHNode& node = nodes_[currentNodeIndex];
         if (node.bounds.Intersects(ray)) {
@@ -75,8 +75,8 @@ bool ZBVH::Intersect(ZRay& ray, ZIntersectHitResult& hitResult)
                 for (auto i = 0; i < node.primitiveCount; ++i) {
                     auto& prim = primitives_[static_cast<size_t>(node.primitiveOffset) + i];
                     if (prim.bounds.Intersects(ray) && ray.tMax > 0) {
-                        hits[ray.tMax] = prim.objectId;
-                        hitResult.objectId = prim.objectId;
+                        hits[ray.tMax] = prim.objectHandle;
+                        hitResult.objectHandle = prim.objectHandle;
                         hit = true;
                     }
                 }
@@ -101,7 +101,9 @@ bool ZBVH::Intersect(ZRay& ray, ZIntersectHitResult& hitResult)
     }
 
     if (!hits.empty())
-        hitResult.objectId = hits.begin()->second;
+    {
+        hitResult.objectHandle = hits.begin()->second;
+    }
 
     return hit;
 }

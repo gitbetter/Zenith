@@ -29,35 +29,29 @@
 
 #pragma once
 
-// Includes
 #include "ZEvent.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZObjectSelectedEvent : public ZEvent
 {
 
 private:
 
-    std::string objectId_;
+    ZHGameObject object_;
     glm::vec3 position_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZObjectSelectedEvent(const std::string& objectId, const glm::vec3& pos) : objectId_(objectId), position_(pos) {}
-    explicit ZObjectSelectedEvent(std::istringstream& in) { in >> objectId_; }
+    explicit ZObjectSelectedEvent(const ZHGameObject& object, const glm::vec3& pos) : object_(object), position_(pos) {}
+    explicit ZObjectSelectedEvent(std::istringstream& in) { /* in >> object_; */ }
 
     const ZTypeIdentifier& EventType() const override { return Type; };
-    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectSelectedEvent>(new ZObjectSelectedEvent(objectId_, position_)); }
-    void Serialize(std::ostringstream& out) const override { out << objectId_; }
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZObjectSelectedEvent>(new ZObjectSelectedEvent(object_, position_)); }
+    void Serialize(std::ostringstream& out) const override { out << object_; }
     std::string Name() const override { return "ZObjectSelectedEvent"; }
 
-    const std::string& ObjectID() const { return objectId_; }
+    const ZHGameObject& Object() const { return object_; }
     const glm::vec3& Position() const { return position_; }
-
-protected:
 
 };

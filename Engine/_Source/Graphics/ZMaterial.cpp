@@ -51,7 +51,7 @@ const std::string& ZMaterialManager::Name(const ZHMaterial& handle) const
 	return material->name;
 }
 
-const ZTextureMap& ZMaterialManager::Textures(const ZHMaterial& handle) const
+const ZTextureList& ZMaterialManager::Textures(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
 	const ZMaterialBase* material = resourcePool_.Get(handle);
@@ -449,7 +449,7 @@ ZHMaterial ZMaterialManager::Create(const ZMaterialProperties& materialPropertie
     return handle;
 }
 
-ZHMaterial ZMaterialManager::Create(const ZTextureMap& textures, const ZHShader& shader)
+ZHMaterial ZMaterialManager::Create(const ZTextureList& textures, const ZHShader& shader)
 {
 	ZHMaterial handle;
 	ZMaterialBase* material = resourcePool_.New(handle);

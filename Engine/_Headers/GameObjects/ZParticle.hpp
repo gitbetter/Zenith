@@ -29,36 +29,25 @@
 
 #pragma once
 
-// Includes
 #include "ZGameObject.hpp"
 
-// Forward Declarations
-class ZGraphicsComponent;
-class ZPhysicsComponent;
-
-// Class and Data Structure Definitions
-class ZParticle : public ZGameObject
+struct ZParticle : public ZGameObject
 {
-private:
-
-    float age_;
-    bool active_;
 
 public:
 
-    ZParticle(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f))
-        : ZGameObject(position, orientation, scale) { }
+    ZParticle()
+        : ZGameObject()
+    { }
     ~ZParticle() {}
 
-    void Initialize() override;
-    void Initialize(std::shared_ptr<ZOFNode> root) override { ZGameObject::Initialize(root); }
+    void OnCreate() override;
+    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override { }
+    void OnPrepare(double deltaTime) override;
 
-    void Update(double deltaTime) override;
-    void Prepare(double deltaTime) override;
+public:
 
-    float Age() { return age_; }
-    bool Active() { return active_; }
-
-    DECLARE_OBJECT_CREATORS(ZParticle)
+    float age;
+    bool active;
 
 };

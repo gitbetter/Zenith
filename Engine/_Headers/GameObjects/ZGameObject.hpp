@@ -29,49 +29,18 @@
 
 #pragma once
 
-#define DECLARE_OBJECT_CREATORS(Type)\
-ZHGameObject Create();\
-ZHGameObject Create(const glm::vec3& position, const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f), const std::shared_ptr<ZScene>& scene = nullptr);\
-ZHGameObject Create(const std::shared_ptr<ZOFObjectNode>& root, const std::shared_ptr<ZScene>& scene = nullptr);
-
-#define DEFINE_OBJECT_CREATORS(Type)\
-ZHGameObject Type::Create()\
-{\
-	ZHGameObject handle;\
-    Type* obj = resourcePool_.New<Type>(handle);\
-    return handle;\
-}\
-ZHGameObject Type::Create(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale, const std::shared_ptr<ZScene>& scene)\
-{\
-	ZHGameObject handle;\
-    Type* obj = resourcePool_.New<Type>(handle);\
-    if (scene) {\
-        obj->scene = scene;\
-    }\
-    obj->OnCreate();\
-    return handle;\
-}\
-ZHGameObject Type::Create(const std::shared_ptr<ZOFObjectNode>& root, const std::shared_ptr<ZScene>& scene)\
-{\
-	ZHGameObject handle;\
-    Type* obj = resourcePool_.New<Type>(handle);\
-    if (scene) {\
-        obj->scene = scene;\
-    }\
-    obj->OnDeserialize(root);\
-    return handle;\
-}
-
 #include "ZProcess.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZOFTree.hpp"
 
-class ZGame;
 class ZScene;
-class ZSkybox;
-class ZGrass;
 class ZUniformBuffer;
 class ZRenderStateGroup;
+
+enum class ZGameObjectType
+{
+    Custom, Camera, Grass, Light, Particle, SceneRoot, Skybox
+};
 
 struct ZGameObjectProperties
 {
@@ -82,6 +51,7 @@ struct ZGameObjectProperties
     glm::mat4 localModelMatrix, modelMatrix;
     std::string name;
     bool active = true;
+    bool visible = true;
 };
 
 struct ZGameObject
@@ -89,6 +59,8 @@ struct ZGameObject
     
     ZGameObject();
 
+    ZHGameObject handle;
+    ZGameObjectType type;
     std::string name;
 	std::weak_ptr<ZScene> scene;
 	ZHGameObject parent;
@@ -110,6 +82,8 @@ struct ZGameObject
 
     virtual void OnCreate() { }
     virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) { }
+    virtual void OnCloned(ZGameObject* original) { }
+    virtual void OnPrepare(double deltaTime) { }
 
 private:
 
@@ -131,7 +105,10 @@ public:
 
 public:
 
-    void Initialize(const ZHGameObject& handle);
+    ZHGameObject Create(const ZGameObjectType& type, const ZHGameObject& restoreHandle = ZHGameObject());
+    ZHGameObject CreateReady(const ZGameObjectType& type, const std::shared_ptr<ZScene>& scene = nullptr, const ZHGameObject& restoreHandle = ZHGameObject());
+    ZHGameObject Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene = nullptr);
+
     void Prepare(const ZHGameObject& handle, double deltaTime);
     void PrepareChildren(const ZHGameObject& handle, double deltaTime);
 
@@ -237,6 +214,4 @@ public:
 
         return ZHGameObject();
     }
-
-    DECLARE_OBJECT_CREATORS(ZGameObject)
 };

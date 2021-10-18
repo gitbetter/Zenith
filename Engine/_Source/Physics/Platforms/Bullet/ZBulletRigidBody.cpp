@@ -54,7 +54,8 @@ ZBulletRigidBody::ZBulletRigidBody(ZPhysicsBodyType type, float mass, const glm:
 
 void ZBulletRigidBody::Initialize()
 {
-    if (type_ == ZPhysicsBodyType::Trigger) {
+    if (type_ == ZPhysicsBodyType::Trigger)
+    {
         DisableContactResponse();
     }
 }
@@ -225,13 +226,16 @@ void ZBulletRigidBody::SetRestitution(float restitution)
     body->setRestitution(restitution);
 }
 
-void ZBulletRigidBody::SetGameObject(ZGameObject* gameObject)
+void ZBulletRigidBody::SetGameObject(const ZHGameObject& gameObject)
 {
-    ZRigidBody::SetGameObject(gameObject);
     btRigidBody* body = static_cast<btRigidBody*>(ptr_);
-    if (!body) return;
+    if (body == nullptr)
+    {
+        return;
+    }
 
-    body->setUserPointer(gameObject);
+    gameObject_ = gameObject;
+    body->setUserPointer(&gameObject_);
 }
 
 void ZBulletRigidBody::SetTransformMatrix(const glm::mat4& matrix)

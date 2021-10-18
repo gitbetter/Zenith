@@ -37,82 +37,96 @@
 #include "ZSkyboxReadyEvent.hpp"
 #include "ZRenderStateGroup.hpp"
 
-ZSkybox::ZSkybox(const std::string& hdr) : ZGameObject(glm::vec3(0.f)), hdrPath_(hdr)
+ZSkybox::ZSkybox() : ZGameObject()
 {
-    properties_.renderOrder = ZRenderLayer::Sky;
+    properties.renderOrder = ZRenderLayer::Sky;
 }
 
-void ZSkybox::Initialize(std::shared_ptr<ZOFNode> root)
+void ZSkybox::OnCreate()
 {
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
+    ZFramebuffer::ptr cubemapBuffer;
+    ZHTexture cubeMap;
+    if (!hdrPath_.empty())
+    {
+        cubeMap = ZServices::TextureManager()->CreateHDRI(hdrPath_, cubemapBuffer);
+    }
+    LoadCubemap(cubeMap, cubemapBuffer);
+}
 
-    if (!node)
+void ZSkybox::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
+{
+    if (dataNode == nullptr)
     {
         LOG("Could not initalize ZSkybox", ZSeverity::Error);
         return;
     }
 
-    id_ = node->id;
-
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
 
     if (props.find("hdr") != props.end() && props["hdr"]->HasValues())
     {
         std::shared_ptr<ZOFString> hdrProp = props["hdr"]->Value<ZOFString>(0);
-        hdrPath_ = hdrProp->value;
-        InitializeAsync();
+        LoadCubemap(hdrProp->value);
     }
 }
 
-void ZSkybox::Initialize()
+void ZSkybox::OnCloned(ZGameObject* original)
 {
-    ZFramebuffer::ptr cubemapBuffer;
-    ZHTexture cubeMap;
-    if (!hdrPath_.empty()) {
-        cubeMap = ZServices::TextureManager()->CreateHDRI(hdrPath_, cubemapBuffer);
+    if (ZSkybox* originalSkybox = dynamic_cast<ZSkybox*>(original))
+    {
+        hdrPath_ = originalSkybox->hdrPath_;
+        iblTexture = originalSkybox->iblTexture;
+        if (std::shared_ptr<ZGraphicsComponent> graphicsComp = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(original->handle))
+        {
+            ZServices::GameObjectManager()->AddComponent(handle, graphicsComp->Clone());
+        }
     }
-    Initialize(cubeMap, cubemapBuffer);
 }
 
-void ZSkybox::InitializeAsync()
+void ZSkybox::LoadCubemap(const std::string& hdr)
 {
+    hdrPath_ = hdr;
     ZServices::EventAgent()->Subscribe(this, &ZSkybox::HandleCubemapReady);
-
     ZServices::TextureManager()->CreateHDRIAsync(hdrPath_);
 }
 
-void ZSkybox::Initialize(const ZHTexture& cubeMap, const ZFramebuffer::ptr& bufferData)
+void ZSkybox::LoadCubemap(const ZHTexture& cubeMap, const ZFramebuffer::ptr& bufferData)
 {
-    iblTexture_ = ZServices::TextureManager()->CreateIBL(bufferData, cubeMap);
-
     ZRenderStateGroupWriter writer;
     writer.Begin();
-    writer.BindTexture(iblTexture_.irradiance);
-    writer.BindTexture(iblTexture_.prefiltered);
-    writer.BindTexture(iblTexture_.brdfLUT);
-    renderState_ = writer.End();
 
-    auto skyboxGraphicsComponent = ZGraphicsComponent::CreateIn(shared_from_this());
-    skyboxGraphicsComponent->SetHasAABB(false);
-    skyboxGraphicsComponent->SetIsShadowCaster(false);
-    skyboxGraphicsComponent->SetHasDepthInfo(false);
-    skyboxGraphicsComponent->Initialize(
-        ZServices::ModelManager()->Create(ZModelType::Cube)
+    if (!iblTexture.cubeMap.IsNull())
+    {
+        writer.ClearTextures();
+    }
+
+    iblTexture = ZServices::TextureManager()->CreateIBL(bufferData, cubeMap);
+
+    writer.BindTexture(iblTexture.irradiance);
+    writer.BindTexture(iblTexture.prefiltered);
+    writer.BindTexture(iblTexture.brdfLUT);
+    renderState = writer.End();
+
+    auto skyboxGraphicsComponent = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(handle);
+    if (skyboxGraphicsComponent == nullptr)
+    {
+        skyboxGraphicsComponent = ZGraphicsComponent::CreateIn(handle);
+        skyboxGraphicsComponent->SetHasAABB(false);
+        skyboxGraphicsComponent->SetIsShadowCaster(false);
+        skyboxGraphicsComponent->SetHasDepthInfo(false);
+        skyboxGraphicsComponent->Initialize(ZServices::ModelManager()->Create(ZModelType::Cube));
+    }
+    else
+    {
+        skyboxGraphicsComponent->SetMaterials({});
+    }
+
+    skyboxGraphicsComponent->AddMaterial(
+        ZServices::MaterialManager()->Create(
+            { iblTexture.cubeMap },
+            ZServices::ShaderManager()->Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")
+        )
     );
-    skyboxGraphicsComponent->AddMaterial(ZServices::MaterialManager()->Create({ iblTexture_.cubeMap }, ZServices::ShaderManager()->Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")));
-
-    ZGameObject::Initialize();
-}
-
-std::shared_ptr<ZGameObject> ZSkybox::Clone()
-{
-    std::shared_ptr<ZSkybox> clone = ZSkybox::Create();
-    clone->id_ = id_;
-    clone->hdrPath_ = hdrPath_;
-    clone->iblTexture_ = iblTexture_;
-    if (std::shared_ptr<ZGraphicsComponent> graphicsComp = FindComponent<ZGraphicsComponent>())
-        clone->AddComponent(graphicsComp->Clone());
-    return clone;
 }
 
 void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& event)
@@ -120,15 +134,13 @@ void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& even
     std::string texturePath = ZServices::TextureManager()->Path(event->Texture());
     if (texturePath == hdrPath_)
     {
-        ZHTexture texture = event->Texture();
-        ZFramebuffer::ptr bufferData = event->BufferData();
-        Initialize(texture, bufferData);
-
         ZServices::EventAgent()->Unsubscribe(this, &ZSkybox::HandleCubemapReady);
 
-        std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(std::static_pointer_cast<ZSkybox>(shared_from_this()));
+        ZHTexture texture = event->Texture();
+        ZFramebuffer::ptr bufferData = event->BufferData();
+        LoadCubemap(texture, bufferData);
+
+        std::shared_ptr<ZSkyboxReadyEvent> skyboxReadyEvent = std::make_shared<ZSkyboxReadyEvent>(handle);
         ZServices::EventAgent()->Queue(skyboxReadyEvent);
     }
 }
-
-DEFINE_OBJECT_CREATORS(ZSkybox)
