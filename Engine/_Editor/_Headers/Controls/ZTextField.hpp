@@ -29,17 +29,13 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorControl.hpp"
-#include "ZUILabeledElement.hpp"
+#include "ZUIHoverer.hpp"
+#include "ZUIElement.hpp"
 
- // Forward Declarations
 class ZUIScene;
-class ZUIHoverer;
-class ZUIInputField;
 
-// Definitions
-class ZTextField : public ZTypedEditorControl<ZUILabeledElement, std::string> {
+class ZTextField : public ZTypedEditorControl<std::string> {
 
 public:
 
@@ -60,7 +56,7 @@ public:
 
 protected:
 
-    std::shared_ptr<ZUIInputField> inputField_ = nullptr;
-    std::shared_ptr<ZUIHoverer> hoverer_ = nullptr;
+    ZHUIElement inputField_;
+    ZUIHoverer hoverer_;
 
 };

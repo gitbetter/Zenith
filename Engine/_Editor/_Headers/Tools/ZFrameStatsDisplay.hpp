@@ -29,13 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorTool.hpp"
 
-// Forward Declarations
-class ZUIText;
-
-// Definitions
 class ZFrameStatsDisplay : public ZEditorTool {
 
 public:
@@ -49,11 +44,11 @@ public:
 
 protected:
 
-    std::shared_ptr<ZUIText> drawCallsText_ = nullptr;
-    std::shared_ptr<ZUIText> verticesText_ = nullptr;
-    std::shared_ptr<ZUIText> renderPassesText_ = nullptr;
-    std::shared_ptr<ZUIText> frameTimeText_ = nullptr;
-    std::shared_ptr<ZUIText> fpsText_ = nullptr;
+	ZHUIElement drawCallsText_;
+    ZHUIElement verticesText_;
+    ZHUIElement renderPassesText_;
+    ZHUIElement frameTimeText_;
+    ZHUIElement fpsText_;
 
     void SetupStatFields(const std::shared_ptr<ZScene>& scene);
 

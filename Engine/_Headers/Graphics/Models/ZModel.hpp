@@ -62,6 +62,9 @@ struct ZModel
 	std::shared_ptr<ZRenderStateGroup> renderState;
 	std::shared_ptr<ZUniformBuffer> uniformBuffer;
 
+    ZModel();
+    virtual ~ZModel() = default;
+
     virtual void OnCreate() { };
     virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) { };
 

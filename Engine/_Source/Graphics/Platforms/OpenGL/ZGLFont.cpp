@@ -36,7 +36,7 @@
 ZHFont ZGLFontManager::Create(ZResourceData* resource, unsigned int fontSize)
 {
 	ZHFont handle;
-	ZFont* font = fontPool_.New(handle);
+	ZFont* font = resourcePool_.New(handle);
 
 	if (resource == nullptr)
 	{

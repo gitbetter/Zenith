@@ -29,13 +29,9 @@
 
 #pragma once
 
-// Includes
 #include "ZUIClicker.hpp"
 #include "ZServices.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZUIScrubber : public ZUIClicker
 {
 

@@ -29,17 +29,13 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorControl.hpp"
-#include "ZUILabeledElement.hpp"
+#include "ZUIElement.hpp"
 
- // Forward Declarations
-class ZUIScene;
-class ZUIScrubber;
+class ZScene;
 class ZFloatField;
 
-// Definitions
-class ZVec4Field : public ZTypedEditorControl<ZUILabeledElement, glm::vec4> {
+class ZVec4Field : public ZTypedEditorControl<glm::vec4> {
 
 public:
 

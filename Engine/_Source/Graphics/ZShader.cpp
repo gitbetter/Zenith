@@ -394,19 +394,19 @@ void ZShaderManager::Use(const ZHShader& handle, const ZHMaterial& material)
     SetFloat(handle, "heightScale", 0.01f);
 
     std::string shaderMaterial = "material";
-    SetVec4(handle, shaderMaterial + ".albedo", ZServices::MaterialManager()->Albedo(material));
-	SetFloat(handle, shaderMaterial + ".metallic", ZServices::MaterialManager()->Metallic(material));
-	SetFloat(handle, shaderMaterial + ".roughness", ZServices::MaterialManager()->Roughness(material));
-	SetFloat(handle, shaderMaterial + ".ao", ZServices::MaterialManager()->AmbientOcclusion(material));
-	SetFloat(handle, shaderMaterial + ".emission", ZServices::MaterialManager()->Emission(material));
-	SetFloat(handle, shaderMaterial + ".diffuse", ZServices::MaterialManager()->Diffuse(material));
-	SetFloat(handle, shaderMaterial + ".ambient", ZServices::MaterialManager()->Ambient(material));
-	SetFloat(handle, shaderMaterial + ".specular", ZServices::MaterialManager()->Specular(material));
-	SetFloat(handle, shaderMaterial + ".shininess", ZServices::MaterialManager()->Shininess(material));
+    SetVec4(handle, shaderMaterial + ".albedo", ZServices::MaterialManager()->Properties(material).albedo);
+	SetFloat(handle, shaderMaterial + ".metallic", ZServices::MaterialManager()->Properties(material).metallic);
+	SetFloat(handle, shaderMaterial + ".roughness", ZServices::MaterialManager()->Properties(material).roughness);
+	SetFloat(handle, shaderMaterial + ".ao", ZServices::MaterialManager()->Properties(material).ao);
+	SetFloat(handle, shaderMaterial + ".emission", ZServices::MaterialManager()->Properties(material).emission);
+	SetFloat(handle, shaderMaterial + ".diffuse", ZServices::MaterialManager()->Properties(material).diffuse);
+	SetFloat(handle, shaderMaterial + ".ambient", ZServices::MaterialManager()->Properties(material).ambient);
+	SetFloat(handle, shaderMaterial + ".specular", ZServices::MaterialManager()->Properties(material).specular);
+	SetFloat(handle, shaderMaterial + ".shininess", ZServices::MaterialManager()->Properties(material).shininess);
 
-    for (auto const& [key, val] : ZServices::MaterialManager()->Textures(material))
+    for (auto const& texture : ZServices::MaterialManager()->Textures(material))
     {
-        BindAttachment(handle, key, val);
+        BindAttachment(handle, ZServices::TextureManager()->Name(texture), texture);
     }
 }
 
@@ -417,31 +417,32 @@ void ZShaderManager::Use(const ZHShader& handle, const ZLightMap& lights)
     unsigned int i = 0;
     for (auto it = lights.begin(); it != lights.end(); it++)
     {
-        std::shared_ptr<ZLight> light = it->second;
+        ZHGameObject light = it->second;
+        ZLight* lightObj = ZServices::GameObjectManager()->Dereference<ZLight>(light);
         std::string shaderLight = "light";
-        SetInt(handle, shaderLight + ".lightType", static_cast<unsigned int>(light->type));
-        SetBool(handle, shaderLight + ".isEnabled", light->properties.isEnabled);
-        SetVec3(handle, shaderLight + ".ambient", light->properties.ambient);
-        SetVec3(handle, shaderLight + ".color", light->properties.color);
-        SetVec3(handle, shaderLight + ".position", light->Position());
+        SetInt(handle, shaderLight + ".lightType", static_cast<unsigned int>(lightObj->lightType));
+        SetBool(handle, shaderLight + ".isEnabled", lightObj->lightProperties.isEnabled);
+        SetVec3(handle, shaderLight + ".ambient", lightObj->lightProperties.ambient);
+        SetVec3(handle, shaderLight + ".color", lightObj->lightProperties.color);
+        SetVec3(handle, shaderLight + ".position", ZServices::GameObjectManager()->Position(light));
 
-        switch (light->type)
+        switch (lightObj->lightType)
         {
         case ZLightType::Directional:
-			SetVec3(handle, shaderLight + ".direction", glm::eulerAngles(light->Orientation()));
+            SetVec3(handle, shaderLight + ".direction", glm::eulerAngles(ZServices::GameObjectManager()->Orientation(light)));
             break;
         case ZLightType::Point:
-            SetFloat(handle, shaderLight + ".constantAttenuation", light->properties.constantAttenuation);
-            SetFloat(handle, shaderLight + ".linearAttenuation", light->properties.linearAttenuation);
-            SetFloat(handle, shaderLight + ".quadraticAttenuation", light->properties.quadraticAttenuation);
+            SetFloat(handle, shaderLight + ".constantAttenuation", lightObj->lightProperties.constantAttenuation);
+            SetFloat(handle, shaderLight + ".linearAttenuation", lightObj->lightProperties.linearAttenuation);
+            SetFloat(handle, shaderLight + ".quadraticAttenuation", lightObj->lightProperties.quadraticAttenuation);
             break;
         case ZLightType::Spot:
-            SetFloat(handle, shaderLight + ".constantAttenuation", light->properties.constantAttenuation);
-            SetFloat(handle, shaderLight + ".linearAttenuation", light->properties.linearAttenuation);
-            SetFloat(handle, shaderLight + ".quadraticAttenuation", light->properties.quadraticAttenuation);
-            SetVec3(handle, shaderLight + ".coneDirection", light->properties.coneDirection);
-            SetFloat(handle, shaderLight + ".cutoff", light->properties.spotCutoff);
-            SetFloat(handle, shaderLight + ".exponent", light->properties.spotExponent);
+            SetFloat(handle, shaderLight + ".constantAttenuation", lightObj->lightProperties.constantAttenuation);
+            SetFloat(handle, shaderLight + ".linearAttenuation", lightObj->lightProperties.linearAttenuation);
+            SetFloat(handle, shaderLight + ".quadraticAttenuation", lightObj->lightProperties.quadraticAttenuation);
+            SetVec3(handle, shaderLight + ".coneDirection", lightObj->lightProperties.coneDirection);
+            SetFloat(handle, shaderLight + ".cutoff", lightObj->lightProperties.spotCutoff);
+            SetFloat(handle, shaderLight + ".exponent", lightObj->lightProperties.spotExponent);
             break;
         default: break;
         }

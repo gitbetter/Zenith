@@ -29,12 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZUIClicker
 {
 

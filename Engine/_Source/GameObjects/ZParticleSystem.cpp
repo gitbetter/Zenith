@@ -28,21 +28,20 @@
 */
 
 #include "ZParticleSystem.hpp"
+#include "ZServices.hpp"
 
 ZParticleSystem::ZParticleSystem(std::initializer_list<ZParticleRule> rules)
 {
-    for (ZParticle* particle : particles_)
-    {
-        particles_.push_back(particle);
-    }
+	for (const ZParticleRule& rule : rules)
+	{
+		particles.push_back(ZServices::GameObjectManager()->CreateReady(ZGameObjectType::Particle));
+	}
 }
 
-void ZParticleSystem::Update(double deltaTime)
+void ZParticleSystem::OnUpdate(double deltaTime)
 {
 // TODO: Create a particle based on a particle rule and set its age randomly between the min and max ages.
 // Also set the velocity randomly between the min and max velocities. If emitting randomly,
-// pick randmly from the list of provided particles rules to create the particle.
+// pick randomly from the list of provided particles rules to create the particle.
 // Make sure emissionRate time has elapsed before the previous emission to emit a new particle.
 }
-
-DEFINE_OBJECT_CREATORS(ZParticleSystem)

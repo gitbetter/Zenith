@@ -55,7 +55,7 @@ public:
 
         if (!handle.IsNull())
         {
-            return Restore<Type>(handle, args);
+            return Restore<Type>(handle, std::forward<Args>(args)...);
         }
         else
         {
@@ -74,7 +74,7 @@ public:
 				handle.Initialize(index);
 				magicNumbers_[index] = handle.Magic();
 			}
-			return &(*(userData_.begin() + index));
+			return static_cast<Type*>(&(*(userData_.begin() + index)));
         }
 	}
 
@@ -133,7 +133,7 @@ protected:
 		userData_[handle.Index()] = Type(std::forward<Args>(args)...);
 		magicNumbers_[handle.Index()] = handle.Magic();
 
-		return &(*(userData_.begin() + handle.Index()));
+		return static_cast<Type*>(&(*(userData_.begin() + handle.Index())));
 	}
 
 private:

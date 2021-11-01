@@ -45,6 +45,7 @@ struct ZMesh
 
     ZVertexBuffer::ptr bufferData = nullptr;
     std::shared_ptr<ZRenderStateGroup> renderState = nullptr;
+    std::string name;
 
 protected:
 

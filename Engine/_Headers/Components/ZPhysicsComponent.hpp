@@ -29,15 +29,12 @@
 
 #pragma once
 
-// Includes
 #include "ZComponent.hpp"
 
-// Forward Declarations
 class ZRigidBody;
 class ZCollider;
 
-// Class and Data Structure Definitions
-class ZPhysicsComponent : public ZComponent
+struct ZPhysicsComponent : public ZComponent
 {
 
     RTTR_ENABLE(ZComponent)
@@ -45,16 +42,14 @@ class ZPhysicsComponent : public ZComponent
 public:
 
     ZPhysicsComponent();
-    ~ZPhysicsComponent() {}
+    ~ZPhysicsComponent() = default;
 
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
+    virtual void OnDeserialize(const std::shared_ptr<struct ZOFObjectNode>& dataNode) override;
+    virtual void OnCloned(const ZHComponent& original) override;
+    virtual void OnUpdate(double deltaTime) override;
+    virtual void OnCleanUp() override;
+
     void Initialize(ZPhysicsBodyType bodyType, float mass, bool hasGravityInfluence = false);
-
-    std::shared_ptr<ZComponent> Clone() override;
-
-    void Update(double deltaTime) override;
-
-    void CleanUp() override;
 
     void SetLinearDamping(float damping);
     void SetAngularDamping(float damping);
@@ -68,13 +63,16 @@ public:
     void AddTorque(const glm::vec3& torque);
     bool HasFiniteMass();
 
-    std::shared_ptr<ZRigidBody> RigidBody() { return body_; }
+public:
 
-    DECLARE_COMPONENT_CREATORS(ZPhysicsComponent)
+    std::shared_ptr<ZRigidBody> body;
 
 protected:
 
-    std::shared_ptr<ZRigidBody> body_;
     bool inUniverse_ = false;
+
+private:
+
+	static ZIDSequence idGenerator_;
 
 };

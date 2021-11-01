@@ -51,7 +51,7 @@ public:
 
     void OnCreate() override;
     void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
-    void OnPrepare(double deltaTime) override;
+    void OnUpdate(double deltaTime) override;
 
     void TrimPatch(const glm::vec3& position, const glm::vec3& size);
 
@@ -71,7 +71,7 @@ private:
 private:
 
     float time_;
-    std::shared_ptr<class ZGraphicsComponent> graphicsComp_;
+    ZHComponent graphicsComp_;
     std::vector<ZHModel> polygons_;
 
 };

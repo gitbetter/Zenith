@@ -43,7 +43,7 @@ public:
 
     void OnCreate() override;
     void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override { }
-    void OnPrepare(double deltaTime) override;
+    void OnUpdate(double deltaTime) override;
 
 public:
 

@@ -29,12 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorTool.hpp"
 
-// Forward Declarations
-
-// Definitions
 class ZProjectTool : public ZEditorTool {
 
 public:
@@ -42,7 +38,7 @@ public:
 	ZProjectTool(const ZUITheme& theme = ZUITheme())
         : ZEditorTool("Project", theme) {}
 
-    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+    void Initialize(const std::shared_ptr<class ZScene>& scene) override;
 
 	void Update() override;
 

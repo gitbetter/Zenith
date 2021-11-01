@@ -56,26 +56,26 @@ void ZProcessRunner::UpdateProcesses(double deltaTime, ZPriority priority)
         ZProcessList::iterator thisIt = it;
         ++it;
 
-        if (process->State() == ZProcessState::Uninitialized)
+        if (process->state == ZProcessState::Uninitialized)
         {
             process->Initialize();
         }
 
-        if (process->State() == ZProcessState::Running)
+        if (process->state == ZProcessState::Running)
         {
             process->Update(deltaTime);
         }
 
         if (process->IsDead())
         {
-            switch (process->State())
+            switch (process->state)
             {
             case ZProcessState::Finished:
             {
                 std::shared_ptr<ZProcess> child = process->RemoveChild();
                 if (child)
                 {
-                    child->SetState(ZProcessState::Uninitialized);
+                    child->state = ZProcessState::Uninitialized;
                     if (child) AttachProcess(child);
                 }
                 else ++successCount;

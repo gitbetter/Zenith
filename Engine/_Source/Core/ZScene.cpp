@@ -125,8 +125,8 @@ void ZScene::Update(double deltaTime)
 {
     if (playState_ == ZPlayState::Playing || playState_ == ZPlayState::Paused)
     {
-        ZServices::GameObjectManager()->Prepare(root_, deltaTime);
-        ZServices::UIElementManager()->Prepare(canvas_, deltaTime);
+        ZServices::GameObjectManager()->Update(root_, deltaTime);
+        ZServices::UIElementManager()->Update(canvas_, deltaTime);
         renderer_->Render(deltaTime);
         bvh_->Build();
     }
@@ -195,12 +195,12 @@ ZSceneSnapshot ZScene::Snapshot()
     std::shared_ptr<ZScene> sceneClone = std::make_shared<ZScene>(name_);
 
     sceneClone->playState_ = playState_;
-    sceneClone->state_ = state_;
+    sceneClone->state = state;
 
-    sceneClone->AddGameObject(ZServices::GameObjectManager()->Clone(skybox_), false);
+    sceneClone->AddGameObject(ZServices::GameObjectManager()->Clone(skybox_));
     for (const auto& obj : gameObjects_)
     {
-        sceneClone->AddGameObject(ZServices::GameObjectManager()->Clone(obj), false);
+        sceneClone->AddGameObject(ZServices::GameObjectManager()->Clone(obj));
     }
 
     for (const auto& el : uiElements_)
@@ -219,7 +219,7 @@ void ZScene::RestoreSnapshot(ZSceneSnapshot& snapshot)
     CreateSceneRoot(name_);
 
     playState_ = snapshot.scene->playState_;
-    state_ = snapshot.scene->state_;
+    state = snapshot.scene->state;
 
     while (!gameObjects_.empty())
     {
@@ -268,15 +268,15 @@ void ZScene::CreateUICanvas()
     canvas_ = ZServices::UIElementManager()->Create(ZUIElementType::Canvas, elementOptions, ZHUIElement(), shared_from_this());
 }
 
-void ZScene::AddGameObjects(std::initializer_list<ZHGameObject> gameObjects, bool runImmediately)
+void ZScene::AddGameObjects(std::initializer_list<ZHGameObject> gameObjects)
 {
     for (const ZHGameObject& object : gameObjects)
     {
-        AddGameObject(object, runImmediately);
+        AddGameObject(object);
     }
 }
 
-void ZScene::AddGameObject(const ZHGameObject& gameObject, bool runImmediately)
+void ZScene::AddGameObject(const ZHGameObject& gameObject)
 {
     if (!gameObject.IsNull())
     {
@@ -313,14 +313,6 @@ void ZScene::AddGameObject(const ZHGameObject& gameObject, bool runImmediately)
         if (!ZServices::GameObjectManager()->Parent(gameObject))
         {
             ZServices::GameObjectManager()->AddChild(root_, gameObject);
-        }
-
-        if (runImmediately)
-        {
-            for (auto comp : ZServices::GameObjectManager()->Components(gameObject))
-            {
-                ZServices::ProcessRunner(gameName_)->AttachProcess(comp);
-            }
         }
 
         for (const ZHGameObject& child : ZServices::GameObjectManager()->Children(gameObject))
@@ -554,7 +546,11 @@ void ZScene::LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree)
 			for (ZOFChildList::iterator compIt = dataNode->children.begin(); compIt != dataNode->children.end(); compIt++)
 			{
 				std::shared_ptr<ZOFObjectNode> componentNode = std::static_pointer_cast<ZOFObjectNode>(compIt->second);
-				ZComponent::CreateIn(gameObject, componentNode);
+                if (componentNode->properties.find("type") != componentNode->properties.end() && componentNode->properties["type"]->HasValues())
+                {
+                    std::shared_ptr<ZOFString> typeProp = componentNode->properties["type"]->Value<ZOFString>(0);
+    				ZServices::ComponentManager()->CreateIn(ZComponent::StringToComponentType(typeProp->value), gameObject, componentNode);
+                }
 			}
             AddGameObject(gameObject);
 		}

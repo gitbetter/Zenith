@@ -49,7 +49,7 @@ public:
     virtual void OnCreate() override;
     virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
     virtual void OnCloned(ZGameObject* original) override;
-    virtual void OnPrepare(double deltaTime) override;
+    virtual void OnUpdate(double deltaTime) override;
 
     void Move(float z, float x, bool useWorldFront = false);
     void EnableMovement() { movementEnabled_ = true; }

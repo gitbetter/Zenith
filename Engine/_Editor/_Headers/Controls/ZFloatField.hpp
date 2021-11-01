@@ -29,18 +29,14 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorControl.hpp"
 #include "ZUILabeledElement.hpp"
+#include "ZUIScrubber.hpp"
+#include "ZUIHoverer.hpp"
 
- // Forward Declarations
 class ZUIScene;
-class ZUIScrubber;
-class ZUIHoverer;
-class ZUIInputField;
 
-// Definitions
-class ZFloatField : public ZTypedEditorControl<ZUILabeledElement, float> {
+class ZFloatField : public ZTypedEditorControl<float> {
 
 public:
 
@@ -49,7 +45,7 @@ public:
     {
         value_ = 0;
     }
-    ~ZFloatField() {}
+    ~ZFloatField() = default;
 
     void Initialize(const std::shared_ptr<ZScene>& scene) override;
 
@@ -61,9 +57,9 @@ public:
 
 protected:
 
-    std::shared_ptr<ZUIInputField> inputField_ = nullptr;
-    std::shared_ptr<ZUIScrubber> scrubber_ = nullptr;
-    std::shared_ptr<ZUIHoverer> hoverer_ = nullptr;
+    ZHUIElement inputField_;
+    ZUIScrubber scrubber_;
+    ZUIHoverer hoverer_;
     float lastScrubbedValue_{ 0.f };
 
 };

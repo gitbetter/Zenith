@@ -35,6 +35,7 @@
 #include "ZUniformBuffer.hpp"
 #include "ZRenderStateGroup.hpp"
 
+ZIDSequence ZLight::idGenerator_;
 std::map<std::string, ZLightType> ZLight::lightTypesMap =
 {
     {"Directional", ZLightType::Directional},
@@ -42,170 +43,156 @@ std::map<std::string, ZLightType> ZLight::lightTypesMap =
     {"Spot", ZLightType::Spot}
 };
 
-ZLight::ZLight(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale) : ZGameObject(position, orientation, scale)
+ZLight::ZLight(ZLightType lightType) : ZGameObject(), lightType(lightType)
 {
-    properties.lightType = static_cast<unsigned int>(ZLightType::Point);
+    name = "Light_" + std::to_string(idGenerator_.Next());
+    lightProperties.isEnabled = true;
 }
 
-ZLight::ZLight(ZLightType lightType) : ZGameObject(glm::vec3(1.f))
+void ZLight::OnCreate()
 {
-    type = lightType;
-    properties.isEnabled = true;
-    id_ = "Light_" + std::to_string(idGenerator_.Next());
+    lightProperties.lightType = static_cast<unsigned int>(lightType);
+    lightProperties.direction = glm::vec4(glm::eulerAngles(ZServices::GameObjectManager()->Orientation(handle)), 0.f);
+    lightProperties.position = glm::vec4(ZServices::GameObjectManager()->Position(handle), 1.f);
+
+    lightspaceMatrices = std::vector<glm::mat4>(NUM_SHADOW_CASCADES, glm::mat4(1.f));
+
+    uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Light, sizeof(ZLightUniforms));
+    uniformBuffer->Update(offsetof(ZLightUniforms, light), sizeof(lightProperties), &lightProperties);
 }
 
-void ZLight::Initialize()
+void ZLight::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    ZGameObject::Initialize();
-
-    properties.lightType = static_cast<unsigned int>(type);
-    properties.direction = glm::vec4(glm::eulerAngles(Orientation()), 0.f);
-    properties.position = glm::vec4(Position(), 1.f);
-
-    lightspaceMatrices_ = std::vector<glm::mat4>(NUM_SHADOW_CASCADES, glm::mat4(1.f));
-
-    uniformBuffer_ = ZUniformBuffer::Create(ZUniformBufferType::Light, sizeof(ZLightUniforms));
-    uniformBuffer_->Update(offsetof(ZLightUniforms, light), sizeof(properties), &properties);
-
-    ZRenderStateGroupWriter writer;
-    writer.Begin();
-    writer.BindUniformBuffer(uniformBuffer_);
-    renderState_ = writer.End();
-}
-
-void ZLight::Initialize(std::shared_ptr<ZOFNode> root)
-{
-    ZGameObject::Initialize(root);
-
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-    if (!node)
+    if (dataNode == nullptr)
     {
         LOG("Could not initalize ZLight", ZSeverity::Error);
         return;
     }
 
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
 
     if (props.find("type") != props.end() && props["type"]->HasValues())
     {
         std::shared_ptr<ZOFString> prop = props["type"]->Value<ZOFString>(0);
-        type = lightTypesMap[prop->value];
+        lightType = lightTypesMap[prop->value];
     }
 
     if (props.find("enabled") != props.end() && props["enabled"]->HasValues())
     {
         std::shared_ptr<ZOFString> prop = props["enabled"]->Value<ZOFString>(0);
-        properties.isEnabled = prop->value == "Yes";
+        lightProperties.isEnabled = prop->value == "Yes";
     }
 
     if (props.find("ambient") != props.end() && props["ambient"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> prop = props["ambient"]->Value<ZOFNumberList>(0);
-        properties.ambient = glm::vec4(prop->value[0], prop->value[1], prop->value[2], 1.f);
+        lightProperties.ambient = glm::vec4(prop->value[0], prop->value[1], prop->value[2], 1.f);
     }
 
     if (props.find("color") != props.end() && props["color"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> prop = props["color"]->Value<ZOFNumberList>(0);
-        properties.color = glm::vec4(prop->value[0], prop->value[1], prop->value[2], 1.f);
+        lightProperties.color = glm::vec4(prop->value[0], prop->value[1], prop->value[2], 1.f);
     }
 
     if (props.find("constantAttenuation") != props.end() && props["constantAttenuation"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> prop = props["constantAttenuation"]->Value<ZOFNumber>(0);
-        properties.constantAttenuation = prop->value;
+        lightProperties.constantAttenuation = prop->value;
     }
 
     if (props.find("linearAttenuation") != props.end() && props["linearAttenuation"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> prop = props["linearAttenuation"]->Value<ZOFNumber>(0);
-        properties.linearAttenuation = prop->value;
+        lightProperties.linearAttenuation = prop->value;
     }
 
     if (props.find("quadraticProp") != props.end() && props["quadraticProp"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> prop = props["quadraticProp"]->Value<ZOFNumber>(0);
-        properties.quadraticAttenuation = prop->value;
+        lightProperties.quadraticAttenuation = prop->value;
     }
 
     if (props.find("spotConeDirection") != props.end() && props["spotConeDirection"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> prop = props["spotConeDirection"]->Value<ZOFNumberList>(0);
-        properties.coneDirection = glm::vec4(prop->value[0], prop->value[1], prop->value[2], 0.f);
+        lightProperties.coneDirection = glm::vec4(prop->value[0], prop->value[1], prop->value[2], 0.f);
     }
 
     if (props.find("spotCutoff") != props.end() && props["spotCutoff"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> prop = props["spotCutoff"]->Value<ZOFNumber>(0);
-        properties.spotCutoff = prop->value;
+        lightProperties.spotCutoff = prop->value;
     }
 
     if (props.find("spotExponent") != props.end() && props["spotExponent"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> prop = props["spotExponent"]->Value<ZOFNumber>(0);
-        properties.spotExponent = prop->value;
-    }
-
-    Initialize();
-}
-
-void ZLight::Prepare(double deltaTime)
-{
-    auto scene = Scene();
-    if (!scene) return;
-
-    auto cam = scene->ActiveCamera();
-    if (cam && cam->Moving()) {
-        UpdateLightspaceMatrices(cam->Frustum());
-    }
-
-    if (scene->GameConfig().graphics.drawAABBDebug) {
-        ZServices::Graphics()->DebugDraw(scene, lightspaceRegion_, glm::vec4(1.f));
+        lightProperties.spotExponent = prop->value;
     }
 }
 
-std::shared_ptr<ZGameObject> ZLight::Clone()
+void ZLight::OnUpdate(double deltaTime)
 {
-    std::shared_ptr<ZLight> clone = ZLight::Create();
-    clone->type = type;
-    clone->id_ = id_;
-    clone->properties = properties;
+    auto sceneSP = scene.lock();
+    if (sceneSP == nullptr)
+    {
+        return;
+    }
 
-    clone->SetPosition(Position());
-    clone->SetOrientation(Orientation());
-    clone->SetScale(Scale());
+    ZCamera* camObject = ZServices::GameObjectManager()->Dereference<ZCamera>(sceneSP->ActiveCamera());
+    if (camObject != nullptr && camObject->isMoving)
+    {
+        UpdateLightspaceMatrices(camObject->frustum);
+    }
 
-    return clone;
+    if (sceneSP->GameConfig().graphics.drawAABBDebug)
+    {
+        ZServices::Graphics()->DebugDraw(sceneSP, lightspaceRegion, glm::vec4(1.f));
+    }
+}
+
+void ZLight::OnCloned(ZGameObject* original)
+{
+    if (ZLight* originalLight = dynamic_cast<ZLight*>(original))
+    {
+        lightType = originalLight->lightType;
+        lightProperties = originalLight->lightProperties;
+
+        ZServices::GameObjectManager()->SetPosition(handle, ZServices::GameObjectManager()->Position(originalLight->handle));
+        ZServices::GameObjectManager()->SetOrientation(handle, ZServices::GameObjectManager()->Orientation(originalLight->handle));
+        ZServices::GameObjectManager()->SetScale(handle, ZServices::GameObjectManager()->Scale(originalLight->handle));
+    }
 }
 
 void ZLight::UpdateLightspaceMatrices(const ZFrustum& frustum)
 {
-    if (type == ZLightType::Directional) {
-        shadowFarPlaneSplits_ = glm::vec4(frustum.far * 0.2f, frustum.far * 0.35f, frustum.far * 0.75f, frustum.far);
-        lightspaceMatrices_.clear();
+    if (lightType == ZLightType::Directional)
+    {
+        shadowFarPlaneSplits = glm::vec4(frustum.far * 0.2f, frustum.far * 0.35f, frustum.far * 0.75f, frustum.far);
+        lightspaceMatrices.clear();
         for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
             ZFrustum splitFrustum = frustum;
-            splitFrustum.far = shadowFarPlaneSplits_[i];
+            splitFrustum.far = shadowFarPlaneSplits[i];
             splitFrustum.Recalculate();
 
-            glm::mat4 lightV = glm::lookAt(splitFrustum.center + glm::eulerAngles(glm::normalize(Orientation())), splitFrustum.center, WORLD_UP);
+            const glm::quat orientation = ZServices::GameObjectManager()->Orientation(handle);
+            glm::mat4 lightV = glm::lookAt(splitFrustum.center + glm::eulerAngles(glm::normalize(orientation)), splitFrustum.center, WORLD_UP);
 
-            lightspaceRegion_ = ZAABBox();
+            lightspaceRegion = ZAABBox();
             for (const auto& corner : splitFrustum.corners) {
                 auto transformedCorner = glm::vec4(corner, 1.0) * lightV;
-                lightspaceRegion_ = ZAABBox::Union(lightspaceRegion_, transformedCorner);
+                lightspaceRegion = ZAABBox::Union(lightspaceRegion, transformedCorner);
             }
 
-            glm::vec3 extents = glm::vec3(glm::abs(lightspaceRegion_.maximum.x - lightspaceRegion_.minimum.x),
-                                          glm::abs(lightspaceRegion_.maximum.y - lightspaceRegion_.minimum.y),
-                                          glm::abs(lightspaceRegion_.maximum.z - lightspaceRegion_.minimum.z)) * 0.5f;
+			glm::vec3 extents = glm::vec3(glm::abs(lightspaceRegion.maximum.x - lightspaceRegion.minimum.x),
+                                          glm::abs(lightspaceRegion.maximum.y - lightspaceRegion.minimum.y),
+                                          glm::abs(lightspaceRegion.maximum.z - lightspaceRegion.minimum.z)) * 0.5f;
 
-            lightspaceMatrices_.push_back(glm::ortho(-extents.x, extents.x, -extents.y, extents.y, -extents.z, extents.z) * lightV);
+            lightspaceMatrices.push_back(glm::ortho(-extents.x, extents.x, -extents.y, extents.y, -extents.z, extents.z) * lightV);
         }
 
-        uniformBuffer_->Update(offsetof(ZLightUniforms, ViewProjectionsLightSpace), sizeof(glm::mat4) * NUM_SHADOW_CASCADES, lightspaceMatrices_.data());
-        uniformBuffer_->Update(offsetof(ZLightUniforms, shadowFarPlanes), sizeof(glm::vec4), glm::value_ptr(shadowFarPlaneSplits_));
+        uniformBuffer->Update(offsetof(ZLightUniforms, ViewProjectionsLightSpace), sizeof(glm::mat4) * NUM_SHADOW_CASCADES, lightspaceMatrices.data());
+        uniformBuffer->Update(offsetof(ZLightUniforms, shadowFarPlanes), sizeof(glm::vec4), glm::value_ptr(shadowFarPlaneSplits));
     }
 }
-
-DEFINE_OBJECT_CREATORS(ZLight)

@@ -95,8 +95,8 @@ public:
 
 public:
 
-	virtual void Initialize() override { }
-	virtual void CleanUp() override { }
+	virtual void Initialize() override;
+	virtual void CleanUp() override;
 
 	virtual ZHTexture Create(class ZTextureResourceData* resource, const std::string& type = "", ZTextureWrapping wrapping = ZTextureWrapping::EdgeClamp, bool hdr = false, bool flip = true, const ZHTexture& restoreHandle = ZHTexture()) = 0;
 	virtual ZHTexture CreateDefault() = 0;

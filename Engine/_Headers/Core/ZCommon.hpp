@@ -477,6 +477,12 @@ using ZHUIElement = ZHandle<UIElementTag>;
 struct GameObjectTag { };
 using ZHGameObject = ZHandle<GameObjectTag>;
 
+struct ComponentTag { };
+using ZHComponent = ZHandle<ComponentTag>;
+
+struct ProcessTag { };
+using ZHProcess = ZHandle<ProcessTag>;
+
 enum ZPriority
 {
     FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority
@@ -621,7 +627,7 @@ enum class ZFaceCullState
 
 enum class ZOFObjectType
 {
-    Any = 0, GameObject, Light, Camera, Grass, Material, Texture,
+    Any = 0, Config, Theme, GameObject, Light, Camera, Grass, Material, Texture,
     Shader, Scene, Model, Skybox, Script, Audio, Font, UI,
     GraphicsComponent, PhysicsComponent, ColliderComponent, AnimatorComponent
 };
@@ -1023,8 +1029,8 @@ struct ZMaterialUniforms
     alignas(sizeof(float)) bool hasDisplacement;
 };
 
-using ZGameObjectMap = std::unordered_map<std::string, std::shared_ptr<ZGameObject>>;
-using ZLightMap = std::unordered_map<std::string, std::shared_ptr<ZLight>>;
+using ZGameObjectMap = std::unordered_map<std::string, ZHGameObject>;
+using ZLightMap = std::unordered_map<std::string, ZHGameObject>;
 using ZUIElementMap = std::unordered_map<std::string, ZHUIElement>;
 using ZShaderMap = std::unordered_map<std::string, ZHShader>;
 using ZModelMap = std::unordered_map<std::string, ZHModel>;
@@ -1041,7 +1047,7 @@ using ZMesh3DList = std::vector<ZMesh3D>;
 using ZModelList = std::vector<ZHModel>;
 using ZGameObjectList = std::vector<ZHGameObject>;
 using ZLightList = std::vector<ZHGameObject>;
-using ZComponentList = std::vector<std::shared_ptr<ZComponent>>;
+using ZComponentList = std::vector<ZHComponent>;
 using ZUIElementList = std::vector<ZHUIElement>;
 using ZProcessList = std::list<std::shared_ptr<ZProcess>>;
 using ZCollisionPair = std::pair<ZHGameObject, ZHGameObject>;
@@ -1051,24 +1057,11 @@ using ZBoneMap = std::map<std::string, unsigned int>;
 using ZIDMap = std::unordered_map<std::string, unsigned int>;
 using ZBoneList = std::vector<ZBone>;
 using ZMaterialList = std::vector<ZHMaterial>;
-using ZTextureList = std::array<ZHTexture, MAX_TEXTURE_SLOTS>;
+using ZTextureSlotList = std::array<ZHTexture, MAX_TEXTURE_SLOTS>;
 using ZUBOList = std::array<std::shared_ptr<ZUniformBuffer>, MAX_UBO_SLOTS>;
 using ZTimedUpdateCallback = std::function<void(float)>;
 using ZTypeIdentifier = unsigned long;
 
-// TODO: Is there a better way we can write this type trait?
-template<typename T>
-struct is_multiple_components_supported {
-    static constexpr bool value = false;
-};
-template<>
-struct is_multiple_components_supported<ZColliderComponent> {
-    static constexpr bool value = true;
-};
-template<>
-struct is_multiple_components_supported<ZScriptComponent> {
-    static constexpr bool value = true;
-};
 
 #if defined _WIN64 || defined _WIN32
 #define NEWLINE (char)'\r\n'

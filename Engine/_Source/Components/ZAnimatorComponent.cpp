@@ -37,93 +37,98 @@
 
 #include <rttr/registration>
 
+ZIDSequence ZAnimatorComponent::idGenerator_;
+
 ZAnimatorComponent::ZAnimatorComponent()
 {
-    currentClip_.state = ZAnimationState::Invalid;
-    id_ = "ZCOMP_ANIMATOR_" + std::to_string(idGenerator_.Next());
+    currentClip.state = ZAnimationState::Invalid;
+    name = "AnimatorComponent" + std::to_string(idGenerator_.Next());
 }
 
-void ZAnimatorComponent::Initialize(std::shared_ptr<ZOFNode> root)
+void ZAnimatorComponent::OnUpdate(double deltaTime)
 {
-// TODO: Load from zof tree as usual
-}
-
-void ZAnimatorComponent::Update(double deltaTime)
-{
-    if (object_->Scene()->PlayState() != ZPlayState::Playing)
+    if (ZServices::GameObjectManager()->Scene(rootObject)->PlayState() != ZPlayState::Playing)
         return;
 
-    if (currentClip_.state == ZAnimationState::Playing || currentClip_.state == ZAnimationState::Looping)
+    if (currentClip.state == ZAnimationState::Playing || currentClip.state == ZAnimationState::Looping)
     {
-        currentClip_.currentTime += deltaTime;
-        if (currentClip_.startTime + currentClip_.currentTime <= currentClip_.endTime)
+        currentClip.currentTime += deltaTime;
+        if (currentClip.startTime + currentClip.currentTime <= currentClip.endTime)
         {
-            ZServices::ModelManager()->BoneTransform(currentClip_.model, currentClip_.name, currentClip_.currentTime);
+            ZServices::ModelManager()->BoneTransform(currentClip.model, currentClip.name, currentClip.currentTime);
         }
-        else if (currentClip_.state == ZAnimationState::Looping)
+        else if (currentClip.state == ZAnimationState::Looping)
         {
-            double duration = currentClip_.endTime - currentClip_.startTime;
-            currentClip_.startTime = SECONDS_TIME;
-            currentClip_.endTime = currentClip_.startTime + duration;
-            currentClip_.currentTime = 0.0;
+            double duration = currentClip.endTime - currentClip.startTime;
+            currentClip.startTime = SECONDS_TIME;
+            currentClip.endTime = currentClip.startTime + duration;
+            currentClip.currentTime = 0.0;
         }
         else
         {
-            currentClip_.state = ZAnimationState::Stopped;
+            currentClip.state = ZAnimationState::Stopped;
         }
     }
 }
 
-std::shared_ptr<ZComponent> ZAnimatorComponent::Clone()
+void ZAnimatorComponent::OnCloned(const ZHComponent& original)
 {
-    std::shared_ptr<ZAnimatorComponent> clone = std::make_shared<ZAnimatorComponent>();
-    clone->currentClip_ = currentClip_;
-    return clone;
+    ZAnimatorComponent* originalObj = ZServices::ComponentManager()->Dereference<ZAnimatorComponent>(original);
+    currentClip = originalObj->currentClip;
 }
 
 void ZAnimatorComponent::Play(const std::string& animationName, bool looping)
 {
-    std::shared_ptr<ZGraphicsComponent> graphics = object_->FindComponent<ZGraphicsComponent>();
-    if (!graphics)
+    ZHComponent graphics = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(rootObject);
+    if (graphics.IsNull())
     {
         LOG("Could not play animator animation. No graphics component exists for this game object.", ZSeverity::Error);
         return;
     }
 
-    if (currentClip_.state == ZAnimationState::Paused && !currentClip_.model.IsNull())
+    ZGraphicsComponent* graphicsObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphics);
+
+    if (currentClip.state == ZAnimationState::Paused && !currentClip.model.IsNull())
     {
-        currentClip_.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
+        currentClip.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
     }
     else
     {
-        currentClip_.model = graphics->Model();
-
-        if (currentClip_.model)
+        // TODO: Update animator to support multiple models on graphics component
+        // multiple simultaneous clips on separate models with the same animation name might be the way to go
+        for (const ZHModel& model : graphicsObj->models)
         {
-            auto animations = ZServices::ModelManager()->Animations(currentClip_.model);
-            const ZAnimation& animation = animations[animationName];
-            currentClip_.name = animationName;
-            currentClip_.currentTime = 0.0;
-            currentClip_.startTime = SECONDS_TIME;
-            currentClip_.endTime = currentClip_.startTime + animation.duration;
-            currentClip_.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
+            if (!model.IsNull())
+            {
+                currentClip.model = model;
+                auto animations = ZServices::ModelManager()->Animations(currentClip.model);
+                const ZAnimation& animation = animations[animationName];
+                currentClip.name = animationName;
+                currentClip.currentTime = 0.0;
+                currentClip.startTime = SECONDS_TIME;
+                currentClip.endTime = currentClip.startTime + animation.duration;
+                currentClip.state = looping ? ZAnimationState::Looping : ZAnimationState::Playing;
+                break;
+            }
         }
     }
 }
 
 void ZAnimatorComponent::Pause()
 {
-    if (currentClip_.state == ZAnimationState::Playing)
-        currentClip_.state = ZAnimationState::Paused;
+    if (currentClip.state == ZAnimationState::Playing)
+    {
+        currentClip.state = ZAnimationState::Paused;
+    }
 }
 
 void ZAnimatorComponent::Stop()
 {
-    if (currentClip_.state == ZAnimationState::Playing)
-        currentClip_.state = ZAnimationState::Stopped;
+    if (currentClip.state == ZAnimationState::Playing)
+    {
+        currentClip.state = ZAnimationState::Stopped;
+    }
 }
-
-DEFINE_COMPONENT_CREATORS(ZAnimatorComponent)
 
 RTTR_REGISTRATION
 {

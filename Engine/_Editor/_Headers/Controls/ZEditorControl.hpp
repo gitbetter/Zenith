@@ -29,12 +29,8 @@
 
 #pragma once
 
- // Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
-
-// Definitions
 class ZEditorControl
 {
 public:
@@ -55,7 +51,7 @@ protected:
 
 };
 
-template<typename T, typename V>
+template<typename V>
 class ZTypedEditorControl : public ZEditorControl {
 
 public:
@@ -72,12 +68,12 @@ public:
 
     virtual void CleanUp() override { }
 
-    std::shared_ptr<T> Control() const { return control_; }
+    ZHUIElement Control() const { return control_; }
     bool Value(V& ref) const { ref = value_; return lastValue_ != value_; }
 
 protected:
 
-    std::shared_ptr<T>                          control_;
-    V                                           value_, lastValue_;
+    ZHUIElement                          control_;
+    V                                    value_, lastValue_;
 
 };

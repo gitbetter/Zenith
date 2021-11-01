@@ -39,51 +39,57 @@
 #include "ZComponent.hpp"
 #include <rttr/type>
 
-void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene)
+{
     ZEditorTool::Initialize(scene);
-    container_->SetColor(theme_.secondaryColor);
-    container_->SetPadding(glm::vec2(10.f, 10.f));
+
+    ZServices::UIElementManager()->SetColor(container_, theme_.secondaryColor);
+    ZServices::UIElementManager()->SetPadding(container_, glm::vec2(10.f, 10.f));
 
     ZUILayoutOptions layoutOptions;
     layoutOptions.itemSpacing = 10.f;
-    container_->SetLayout(std::make_shared<ZUIVerticalLayout>(layoutOptions));
+    ZServices::UIElementManager()->SetLayout(container_, std::make_shared<ZUIVerticalLayout>(layoutOptions));
 
-    gameObjectControls_ = ZGameObjectControls::Create(nullptr, scene, theme_);
+    gameObjectControls_ = ZGameObjectControls::Create(ZHGameObject(), scene, theme_);
 
     ZServices::EventAgent()->Subscribe(this, &ZInspectorTool::HandleEditorObjectSelected);
 }
 
 void ZInspectorTool::Update()
 {
-    if (gameObjectControls_->Active()) {
+    if (gameObjectControls_->Active())
+    {
         gameObjectControls_->Update();
     }
 }
 
 void ZInspectorTool::CleanUp()
 {
-    if (gameObjectControls_) {
+    if (gameObjectControls_)
+    {
         gameObjectControls_->CleanUp();
     }
 }
 
 void ZInspectorTool::HandleEditorObjectSelected(const std::shared_ptr<ZEditorObjectSelectedEvent>& event)
 {
-    if (event->ObjectID().empty()) {
-        selectedObject_ = nullptr;
+    if (event->ObjectID().empty())
+    {
+        selectedObject_ = ZHGameObject();
         gameObjectControls_->SetGameObject(selectedObject_);
-        container_->RemoveChild(gameObjectControls_->Header());
-        container_->RemoveChild(gameObjectControls_->TransformFields()->Container());
+        ZServices::UIElementManager()->RemoveChild(container_, gameObjectControls_->Header());
+        ZServices::UIElementManager()->RemoveChild(container_, gameObjectControls_->TransformFields()->Container());
     }
-    else if (auto obj = activeProjectScene_->FindGameObject(event->ObjectID())) {
+    else if (auto obj = activeProjectScene_->FindGameObjectByName(event->ObjectID()))
+    {
         selectedObject_ = obj;
         gameObjectControls_->SetGameObject(selectedObject_);
-        container_->AddChild(gameObjectControls_->Header());
-        container_->AddChild(gameObjectControls_->TransformFields()->Container());
+        ZServices::UIElementManager()->AddChild(container_, gameObjectControls_->Header());
+        ZServices::UIElementManager()->AddChild(container_, gameObjectControls_->TransformFields()->Container());
 
-        for (const auto& comp : selectedObject_->Components())
+        for (const auto& comp : ZServices::GameObjectManager()->Components(selectedObject_))
         {
-            auto type = rttr::type::get(*comp.get());
+            auto type = rttr::type::get(*ZServices::ComponentManager()->Dereference(comp));
             for (auto prop : type.get_properties())
             {
                 ILOG(prop.get_name().to_string());

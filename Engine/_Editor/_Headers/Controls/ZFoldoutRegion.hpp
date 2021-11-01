@@ -29,18 +29,13 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorControl.hpp"
 #include "ZUIElement.hpp"
 
- // Forward Declarations
 class ZUIScene;
 class ZUIHoverer;
 class ZUIClicker;
-class ZUIImage;
-class ZUIPanel;
 
-// Definitions
 class ZFoldoutRegion : public ZEditorControl {
 
 public:
@@ -54,20 +49,20 @@ public:
     void Update() override;
     void CleanUp() override { }
 
-    std::shared_ptr<ZUIPanel> Container() const { return container_; }
+    ZHUIElement Container() const { return container_; }
 
     void Toggle();
-    void AddChild(const std::shared_ptr<ZUIElement>& element);
-    void RemoveChild(const std::shared_ptr<ZUIElement>& element, bool recurse = false);
+    void AddChild(const ZHUIElement& element);
+    void RemoveChild(const ZHUIElement& element, bool recurse = false);
 
     static std::shared_ptr<ZFoldoutRegion> Create(const std::string& label = "", const ZUIElementOptions& options = ZUIElementOptions(), const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
 
 protected:
 
-    std::shared_ptr<ZUIPanel> header_ = nullptr;
-    std::shared_ptr<ZUIPanel> container_ = nullptr;
-    std::shared_ptr<ZUIPanel> children_ = nullptr;
-    std::shared_ptr<ZUIImage> arrow_ = nullptr;
+    ZHUIElement header_;
+    ZHUIElement container_;
+    ZHUIElement children_;
+    ZHUIElement arrow_;
     std::shared_ptr<ZUIHoverer> hoverer_ = nullptr;
     std::shared_ptr<ZUIClicker> clicker_ = nullptr;
     bool expanded_{ true };

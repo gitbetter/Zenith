@@ -126,6 +126,7 @@ ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZQuitEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZRaycastEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZFireEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZObjectSelectedEvent.cpp
+${ENGINE_SOURCE_DIR}/EventAgent/Events/ZElementSelectedEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZDragEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZResourceLoadedEvent.cpp
 ${ENGINE_SOURCE_DIR}/EventAgent/Events/ZModelReadyEvent.cpp
@@ -174,6 +175,7 @@ ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZDragEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZLookEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZMoveEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZObjectSelectedEvent.hpp
+${ENGINE_HEADERS_DIR}/EventAgent/Events/ZElementSelectedEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZResourceLoadedEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZQuitEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZRaycastEvent.hpp

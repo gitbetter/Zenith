@@ -34,14 +34,7 @@
 
 void ZCylinder::OnCreate()
 {
-	if (smooth_)
-	{
-		BuildSmooth();
-	}
-	else
-	{
-		BuildFlat();
-	}
+    Rebuild(topRadius_, baseRadius_, height_, segments_, smooth_);
 }
 
 void ZCylinder::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
@@ -92,6 +85,30 @@ void ZCylinder::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
     {
 		BuildFlat();
     }
+}
+
+void ZCylinder::Rebuild(float topRadius /*= 1.f*/, float baseRadius /*= 1.f*/, float height /*= 1.f*/, const glm::vec2& segments /*= glm::vec2(16.f)*/, bool smooth /*= true*/)
+{
+    if (topRadius_ == topRadius && baseRadius_ == baseRadius && height_ == height 
+        && segments_ == segments && smooth_ == smooth)
+    {
+        return;
+    }
+
+    topRadius_ = topRadius;
+    baseRadius_ = baseRadius;
+    height_ = height;
+    segments_ = segments_;
+    smooth_ = smooth;
+
+	if (smooth_)
+	{
+		BuildSmooth();
+	}
+	else
+	{
+		BuildFlat();
+	}
 }
 
 std::vector<glm::vec3> ZCylinder::GetSideNormals()

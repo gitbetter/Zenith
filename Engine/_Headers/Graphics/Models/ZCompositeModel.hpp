@@ -34,7 +34,7 @@
 struct ZCompositeModel : public ZModel
 {
 
-    ZCompositeModel(const std::initializer_list<std::shared_ptr<ZModel>>& models)
+    ZCompositeModel(const std::initializer_list<ZHModel>& models)
         : ZModel(), models_(models)
     { }
     virtual ~ZCompositeModel() = default;

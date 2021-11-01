@@ -40,21 +40,20 @@ struct ZLight : public ZGameObject
 
 public:
 
-    ZLight(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f));
     ZLight(ZLightType lightType);
     ~ZLight() = default;
 
     virtual void OnCreate() override;
     virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
-    virtual void OnPrepare(double deltaTime) override;
+    virtual void OnUpdate(double deltaTime) override;
     virtual void OnCloned(ZGameObject* original) override;
 
     void UpdateLightspaceMatrices(const ZFrustum& frustum);
 
 public:
 
-    ZLightType type;
-    Light properties;
+    ZLightType lightType;
+    Light lightProperties;
     glm::vec4 shadowFarPlaneSplits;
     std::vector<glm::mat4> lightspaceMatrices;
     ZAABBox lightspaceRegion;
@@ -62,5 +61,6 @@ public:
 private:
 
     static std::map<std::string, ZLightType> lightTypesMap;
+    static ZIDSequence idGenerator_;
 
 };

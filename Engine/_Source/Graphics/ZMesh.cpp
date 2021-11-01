@@ -38,12 +38,12 @@ ZIDSequence ZMesh::idGenerator_;
 
 void ZMesh2D::Initialize()
 {
-    bufferData_ = ZVertexBuffer::Create(vertexData_);
+    bufferData = ZVertexBuffer::Create(vertexData_);
 
     ZRenderStateGroupWriter writer;
     writer.Begin();
-    writer.BindVertexBuffer(bufferData_);
-    renderState_ = writer.End();
+	writer.BindVertexBuffer(bufferData);
+    renderState = writer.End();
 }
 
 std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad()
@@ -78,7 +78,7 @@ std::shared_ptr<ZMesh2D> ZMesh2D::NewScreenTriangle()
 ZMesh3D::ZMesh3D(const ZVertex3DDataOptions& vertexData)
     : ZMesh(), vertexData_(vertexData)
 {
-    id_ = "ZMSH3D_" + std::to_string(idGenerator_.Next());
+    name = "ZMSH3D_" + std::to_string(idGenerator_.Next());
 }
 
 ZMesh3D::~ZMesh3D()
@@ -89,28 +89,28 @@ ZMesh3D::~ZMesh3D()
 
 void ZMesh3D::Initialize()
 {
-    bufferData_ = ZVertexBuffer::Create(vertexData_);
+    bufferData = ZVertexBuffer::Create(vertexData_);
 
     ZRenderStateGroupWriter writer;
     writer.Begin();
-    writer.BindVertexBuffer(bufferData_);
-    renderState_ = writer.End();
+    writer.BindVertexBuffer(bufferData);
+    renderState = writer.End();
 }
 
 void ZMesh3D::SetInstanceData(const ZInstancedDataOptions& data)
 {
     vertexData_.instanced = data;
-    bufferData_->Update(vertexData_);
+    bufferData->Update(vertexData_);
 }
 
 void ZMesh3D::SetVertices(const ZVertex3DList& vertices)
 {
     vertexData_.vertices = vertices;
-    bufferData_->Update(vertexData_);
+    bufferData->Update(vertexData_);
 }
 
 void ZMesh3D::SetIndices(const std::vector<unsigned int>& indices)
 {
     vertexData_.indices = indices;
-    bufferData_->Update(vertexData_);
+    bufferData->Update(vertexData_);
 }

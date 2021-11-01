@@ -42,7 +42,7 @@ public:
     void OnInitialize() override;
     void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
     
-    void OnPrepare(double deltaTime, unsigned int zOrder = 0) override;
+    void OnUpdate(double deltaTime, unsigned int zOrder = 0) override;
 
     const std::string& Text() const { return text_; }
     ZHFont Font();

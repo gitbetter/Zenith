@@ -44,21 +44,24 @@ void ZFoldoutRegion::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     hoverer_ = std::make_shared<ZUIHoverer>();
     clicker_ = std::make_shared<ZUIClicker>();
-    expandedMaxSize_ = container_->MaxSize();
+    expandedMaxSize_ = ZServices::UIElementManager()->MaxSize(container_);
 }
 
 void ZFoldoutRegion::Update()
 {
-    auto elementRect = header_->CalculatedRect();
+    auto elementRect = ZServices::UIElementManager()->CalculatedRect(header_);
 
-    if (hoverer_->Entered(elementRect)) {
-        header_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Hand));
+    if (hoverer_->Entered(elementRect))
+    {
+        ZServices::UIElementManager()->Scene(header_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Hand));
     }
-    else if (hoverer_->Exited(elementRect)) {
-        header_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
+    else if (hoverer_->Exited(elementRect))
+    {
+        ZServices::UIElementManager()->Scene(header_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
     }
 
-    if (clicker_->Click(elementRect)) {
+    if (clicker_->Click(elementRect))
+    {
         Toggle();
     }
 }
@@ -66,25 +69,27 @@ void ZFoldoutRegion::Update()
 void ZFoldoutRegion::Toggle()
 {
     expanded_ = !expanded_;
-    arrow_->Rotate(expanded_ ? glm::radians(90.f) : glm::radians(-90.f));
-    if (expanded_) {
-        container_->SetMaxSize(expandedMaxSize_);
-        container_->AddChild(children_);
+    ZServices::UIElementManager()->Rotate(arrow_, expanded_ ? glm::radians(90.f) : glm::radians(-90.f));
+    if (expanded_)
+    {
+        ZServices::UIElementManager()->SetMaxSize(container_, expandedMaxSize_);
+        ZServices::UIElementManager()->AddChild(container_, children_);
     }
-    else {
-        container_->RemoveChild(children_);
-        container_->SetMaxSize(glm::vec2(0.f, 30.f));
+    else
+    {
+        ZServices::UIElementManager()->RemoveChild(container_, children_);
+        ZServices::UIElementManager()->SetMaxSize(container_, glm::vec2(0.f, 30.f));
     }
 }
 
-void ZFoldoutRegion::AddChild(const std::shared_ptr<ZUIElement>& element)
+void ZFoldoutRegion::AddChild(const ZHUIElement& element)
 {
-    children_->AddChild(element);
+    ZServices::UIElementManager()->AddChild(children_, element);
 }
 
-void ZFoldoutRegion::RemoveChild(const std::shared_ptr<ZUIElement>& element, bool recurse)
+void ZFoldoutRegion::RemoveChild(const ZHUIElement& element, bool recurse)
 {
-    children_->RemoveChild(element, recurse);
+    ZServices::UIElementManager()->RemoveChild(children_, element, recurse);
 }
 
 std::shared_ptr<ZFoldoutRegion> ZFoldoutRegion::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
@@ -99,7 +104,7 @@ std::shared_ptr<ZFoldoutRegion> ZFoldoutRegion::Create(const std::string& label,
     layoutOptions.horizontalAlign = ZAlignment::Right;
     containerOptions.layout = std::make_shared<ZUIVerticalLayout>(layoutOptions);
 
-    foldout->container_ = ZUIPanel::Create(containerOptions, scene);
+    foldout->container_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, containerOptions, ZHUIElement(), scene);
 
     ZUIElementOptions headerOptions;
     headerOptions.positioning = ZPositioning::Relative;
@@ -113,8 +118,8 @@ std::shared_ptr<ZFoldoutRegion> ZFoldoutRegion::Create(const std::string& label,
     layoutOptions.defaultItemSize = glm::vec2(30.f, 30.f);
     headerOptions.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
 
-    foldout->header_ = ZUIPanel::Create(headerOptions, scene);
-    foldout->container_->AddChild(foldout->header_);
+    foldout->header_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, headerOptions, ZHUIElement(), scene);
+    ZServices::UIElementManager()->AddChild(foldout->container_, foldout->header_);
 
     ZUIElementOptions imageOptions;
     imageOptions.positioning = ZPositioning::Relative;
@@ -122,8 +127,8 @@ std::shared_ptr<ZFoldoutRegion> ZFoldoutRegion::Create(const std::string& label,
     imageOptions.color = glm::vec4(1.f);
     imageOptions.shader = ZServices::ShaderManager()->Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/triangle.frag");
 
-    foldout->arrow_ = ZUIImage::Create(imageOptions, scene);
-    foldout->header_->AddChild(foldout->arrow_);
+    foldout->arrow_ = ZServices::UIElementManager()->Create(ZUIElementType::Image, imageOptions, ZHUIElement(), scene);
+    ZServices::UIElementManager()->AddChild(foldout->header_, foldout->arrow_);
 
     ZUIElementOptions textOptions;
     textOptions.positioning = ZPositioning::Relative;
@@ -131,11 +136,12 @@ std::shared_ptr<ZFoldoutRegion> ZFoldoutRegion::Create(const std::string& label,
     textOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     textOptions.color = glm::vec4(1.f);
 
-    auto transformHeaderText = ZUIText::Create(textOptions, scene);
-    transformHeaderText->SetText("Transform");
-    transformHeaderText->SetVerticalAlignment(ZAlignment::Middle);
-    transformHeaderText->SetFontScale(16.0);
-    foldout->header_->AddChild(transformHeaderText);
+    ZHUIElement transformHeaderText = ZServices::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
+    ZUIText* transformHeaderTextObj = ZServices::UIElementManager()->Dereference<ZUIText>(transformHeaderText);
+    transformHeaderTextObj->SetText("Transform");
+    transformHeaderTextObj->SetVerticalAlignment(ZAlignment::Middle);
+    transformHeaderTextObj->SetFontScale(16.0);
+    ZServices::UIElementManager()->AddChild(foldout->header_, transformHeaderText);
 
     ZUIElementOptions childrenOptions = options;
     childrenOptions.positioning = ZPositioning::Relative;
@@ -145,8 +151,8 @@ std::shared_ptr<ZFoldoutRegion> ZFoldoutRegion::Create(const std::string& label,
     layoutOptions.itemSpacing = 5.f;
     childrenOptions.layout = std::make_shared<ZUIVerticalLayout>(layoutOptions);
 
-    foldout->children_ = ZUIPanel::Create(childrenOptions, scene);
-    foldout->container_->AddChild(foldout->children_);
+    foldout->children_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, childrenOptions, ZHUIElement(), scene);
+    ZServices::UIElementManager()->AddChild(foldout->container_, foldout->children_);
 
     foldout->Initialize(scene);
 

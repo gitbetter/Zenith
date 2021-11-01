@@ -217,9 +217,11 @@ void ZShadowPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
 {
     clearFlags_ = static_cast<uint8_t>(ZClearFlags::Depth);
     auto lights = scene->GameLights();
-    for (int j = 0; j < NUM_SHADOW_CASCADES; j++) {
-        if (!lights.empty()) {
-            auto lightspaceMatrix = (*lights.begin())->LightSpaceMatrices()[j];
+    for (int j = 0; j < NUM_SHADOW_CASCADES; j++)
+    {
+        if (!lights.empty())
+        {
+            auto lightspaceMatrix = ZServices::GameObjectManager()->Dereference<ZLight>(*lights.begin())->lightspaceMatrices[j];
             uniformBuffer_->Update(offsetof(ZLightUniforms, ViewProjectionLightSpace), sizeof(lightspaceMatrix), glm::value_ptr(lightspaceMatrix));
         }
         framebuffer_->BindAttachmentLayer(j);

@@ -45,10 +45,11 @@ ZGrass::ZGrass(unsigned int instances) :
 
 void ZGrass::OnCreate()
 {
-    graphicsComp_ = ZGraphicsComponent::CreateIn(handle);
-    graphicsComp_->Initialize();
-    graphicsComp_->SetIsShadowCaster(false);
-    graphicsComp_->SetHasLightingInfo(false);
+    graphicsComp_ = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, handle);
+    auto graphicsCompObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp_);
+    graphicsCompObj->Initialize(ZHModel());
+    graphicsCompObj->isShadowCaster = false;
+    graphicsCompObj->hasLightingInfo = false;
 
     uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::UserDefined, sizeof(ZGrassUniforms));
     uniformBuffer->Update(offsetof(ZGrassUniforms, windDirection), sizeof(windDirection), glm::value_ptr(windDirection));
@@ -66,7 +67,7 @@ void ZGrass::OnCreate()
         instanceData.count = instanceCount;
         instanceDatas.push_back(instanceData);
 
-        graphicsComp_->AddModel(model);
+        graphicsCompObj->AddModel(model);
     }
 
     auto length = static_cast<unsigned int>(std::sqrt(instanceCount));
@@ -150,7 +151,7 @@ void ZGrass::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
     }
 }
 
-void ZGrass::OnPrepare(double deltaTime)
+void ZGrass::OnUpdate(double deltaTime)
 {
     auto sceneSP = scene.lock();
     if (sceneSP == nullptr)
@@ -199,7 +200,7 @@ void ZGrass::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event
     if (event->Texture() == texture)
     {
         auto grassMaterial = ZServices::MaterialManager()->Create({ event->Texture() }, ZServices::ShaderManager()->Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
-        graphicsComp_->AddMaterial(grassMaterial);
+        ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp_)->AddMaterial(grassMaterial);
         ZServices::EventAgent()->Unsubscribe(this, &ZGrass::HandleTextureReady);
     }
 }

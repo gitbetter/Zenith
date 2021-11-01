@@ -28,13 +28,16 @@
  */
 
 #include "ZProjectTool.hpp"
+#include "ZServices.hpp"
 #include "ZUIPanel.hpp"
 
-void ZProjectTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+void ZProjectTool::Initialize(const std::shared_ptr<ZScene>& scene)
+{
     ZEditorTool::Initialize(scene);
-    container_->SetColor(theme_.primaryColor);
+
+    ZServices::UIElementManager()->SetColor(container_, theme_.primaryColor);
 }
 
-void ZProjectTool::Update() {
-
+void ZProjectTool::Update()
+{
 }

@@ -29,12 +29,8 @@
 
 #pragma once
 
- // Includes
 #include "ZEditorTool.hpp"
 
-// Forward Declarations
-
-// Definitions
 class ZHierarchyTool : public ZEditorTool {
 
 public:
@@ -42,7 +38,7 @@ public:
     ZHierarchyTool(const ZUITheme& theme = ZUITheme())
         : ZEditorTool("Hierarchy", theme) { }
 
-    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+    void Initialize(const std::shared_ptr<class ZScene>& scene) override;
 
     void Update() override;
 

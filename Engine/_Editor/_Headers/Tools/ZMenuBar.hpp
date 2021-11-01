@@ -29,20 +29,17 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorTool.hpp"
 
-// Forward Declarations
-
-// Definitions
-class ZMenuBar : public ZEditorTool {
+class ZMenuBar : public ZEditorTool
+{
 
 public:
 
     ZMenuBar(const ZUITheme& theme = ZUITheme())
         : ZEditorTool("MenuBar", theme) { }
 
-    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+    void Initialize(const std::shared_ptr<class ZScene>& scene) override;
 
 	void Update() override;
 

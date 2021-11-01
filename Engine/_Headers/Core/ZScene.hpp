@@ -98,8 +98,8 @@ public:
 
     void AddBVHPrimitive(const ZBVHPrimitive& primitive);
 
-    void AddGameObject(const ZHGameObject& gameObject, bool runImmediately = true);
-    void AddGameObjects(std::initializer_list<ZHGameObject> gameObjects, bool runImmediately = true);
+    void AddGameObject(const ZHGameObject& gameObject);
+    void AddGameObjects(std::initializer_list<ZHGameObject> gameObjects);
     ZHGameObject FindGameObjectByName(const std::string& name);
     void RemoveGameObject(const ZHGameObject& gameObject);
 

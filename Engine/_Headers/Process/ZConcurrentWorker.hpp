@@ -29,13 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZProcess.hpp"
 
-// Forward Declarations
-// class SomeClass;
-
-// Class and Data Structure Definitions
 class ZConcurrentWorker : public ZProcess, public std::enable_shared_from_this<ZConcurrentWorker>
 {
 

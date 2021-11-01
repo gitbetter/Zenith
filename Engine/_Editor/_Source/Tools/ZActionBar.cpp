@@ -37,8 +37,10 @@
 #include "ZUIHorizontalLayout.hpp"
 #include "ZAnimatorComponent.hpp"
 
-void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
+void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene)
+{
     ZEditorTool::Initialize(scene);
+
     ZServices::UIElementManager()->SetColor(container_, theme_.primaryColor);
     ZServices::UIElementManager()->SetRect(container_, ZRect(0.f, 0.35f, 1.f, 0.65f));
 
@@ -50,7 +52,8 @@ void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
     layoutOptions.itemSpacing = 10.f;
     layoutOptions.verticalAlign = ZAlignment::Middle;
     listOptions.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
-    auto actionButtonList = ZServices::UIElementManager()->Create(ZUIElementType::Panel, listOptions, scene);
+
+    auto actionButtonList = ZServices::UIElementManager()->Create(ZUIElementType::Panel, listOptions, ZHUIElement(), scene);
 
     playButton_ = CreateActionButton("/Images/play_icon.png", scene);
     pauseButton_ = CreateActionButton("/Images/pause_icon.png", scene);
@@ -63,15 +66,19 @@ void ZActionBar::Initialize(const std::shared_ptr<ZScene>& scene) {
     ZServices::UIElementManager()->AddChild(container_, actionButtonList);
 }
 
-void ZActionBar::Update() {
-    if (ZServices::UIElementManager()->Dereference<ZUIButton>(playButton_)->Clicked()) {
+void ZActionBar::Update()
+{
+    if (ZServices::UIElementManager()->Dereference<ZUIButton>(playButton_)->Clicked())
+    {
         activeProjectScene_->Play();
         ZServices::Input()->CaptureCursor();
     }
-    if (ZServices::UIElementManager()->Dereference<ZUIButton>(stopButton_)->Clicked()) {
+    if (ZServices::UIElementManager()->Dereference<ZUIButton>(stopButton_)->Clicked())
+    {
         activeProjectScene_->Stop();
     }
-    if (ZServices::UIElementManager()->Dereference<ZUIButton>(pauseButton_)->Clicked()) {
+    if (ZServices::UIElementManager()->Dereference<ZUIButton>(pauseButton_)->Clicked())
+    {
         activeProjectScene_->Pause();
     }
 }
@@ -81,15 +88,16 @@ ZHUIElement ZActionBar::CreateActionButton(const std::string& iconPath, const st
     ZUIElementOptions buttonOptions;
     buttonOptions.positioning = ZPositioning::Relative;
     buttonOptions.rect = ZRect(0.f, 0.f, 30.0f, 30.0f);
-    auto button = ZServices::UIElementManager()->Create(ZUIElementType::Button, buttonOptions, scene);
+    auto button = ZServices::UIElementManager()->Create(ZUIElementType::Button, buttonOptions, ZHUIElement(), scene);
     ZUIElementOptions iconOptions;
     iconOptions.positioning = ZPositioning::Relative;
     iconOptions.scaling = ZPositioning::Relative;
     iconOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
     iconOptions.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-    auto icon = ZServices::UIElementManager()->Create(ZUIElementType::Image, iconOptions, scene);
+    auto icon = ZServices::UIElementManager()->Create(ZUIElementType::Image, iconOptions, ZHUIElement(), scene);
     auto iconElement = ZServices::UIElementManager()->Dereference<ZUIImage>(icon);
     iconElement->SetImage(iconPath);
+
     ZServices::UIElementManager()->AddChild(button, icon);
 
     return button;

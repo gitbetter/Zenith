@@ -34,38 +34,44 @@
 #include "ZDomain.hpp"
 #include "ZScene.hpp"
 #include "ZTransformGizmo.hpp"
-#include "ZUIClicker.hpp"
 #include "ZCamera.hpp"
 #include "ZFrameStatsDisplay.hpp"
 #include "ZEditorObjectSelectedEvent.hpp"
 
-void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene)
+{
     ZEditorTool::Initialize(scene);
+
     ZServices::UIElementManager()->SetColor(container_, glm::vec4(1.f));
 
-    selectClicker_ = std::make_shared<ZUIClicker>();
-    selectClicker_->WrapToBounds();
-    travelClicker_ = std::make_shared<ZUIClicker>(ZMouse::RIGHT_MB);
+    selectClicker_.WrapToBounds();
+    travelClicker_ = ZUIClicker(ZMouse::RIGHT_MB);
 
     SetupGizmos(scene);
 }
 
-void ZSceneTool::SetSelectedObject(const std::shared_ptr<ZGameObject>& object)
+void ZSceneTool::SetSelectedObject(const ZHGameObject& object)
 {
     selectedObject_ = object;
-    if (currentGizmo_->Showing()) {
-        currentGizmo_->SetPosition(selectedObject_->ModelMatrix()[3]);
+
+    if (currentGizmo_->Showing())
+    {
+        currentGizmo_->SetPosition(ZServices::GameObjectManager()->ModelMatrix(selectedObject_)[3]);
     }
 
-    auto selectedEvent = std::make_shared<ZEditorObjectSelectedEvent>(selectedObject_ ? selectedObject_->ID() : "");
+    auto selectedEvent = std::make_shared<ZEditorObjectSelectedEvent>(!selectedObject_.IsNull() ? ZServices::GameObjectManager()->Name(selectedObject_) : "");
+
     ZServices::EventAgent()->Trigger(selectedEvent);
 }
 
 void ZSceneTool::OnProjectSceneChanged()
 {
-    if (activeProjectScene_) {
+    if (activeProjectScene_)
+    {
         ZServices::UIElementManager()->SetTexture(container_, activeProjectScene_->TargetTexture());
-        if (currentGizmo_) {
+
+        if (currentGizmo_)
+        {
             currentGizmo_->SetActiveProjectScene(activeProjectScene_);
         }
     }
@@ -74,49 +80,65 @@ void ZSceneTool::OnProjectSceneChanged()
 void ZSceneTool::Update()
 {
     auto rect = ZServices::UIElementManager()->CalculatedRect(container_);
-    if (currentGizmo_->Showing()) {
+
+    if (currentGizmo_->Showing())
+    {
         currentGizmo_->Update();
-        currentGizmo_->SetPosition(selectedObject_->ModelMatrix()[3]);
+        currentGizmo_->SetPosition(ZServices::GameObjectManager()->ModelMatrix(selectedObject_)[3]);
     }
 
-    if (selectClicker_->Release(rect)) {
+    if (selectClicker_.Release(rect))
+    {
         if (currentGizmo_->Showing())
+        {
             currentGizmo_->Deactivate();
-    }
-    else if (selectClicker_->Press(rect)) {
-        if (currentGizmo_->Showing()) {
-            auto transform = selectedObject_->ModelMatrix();
-            currentGizmo_->Manipulate(rect, transform);
-            selectedObject_->SetModelMatrix(transform);
         }
     }
-    else if (selectClicker_->Click(rect)) {
-        if (!currentGizmo_->Showing() || !currentGizmo_->TryActivate(rect)) {
+    else if (selectClicker_.Press(rect))
+    {
+        if (currentGizmo_->Showing())
+        {
+            auto transform = ZServices::GameObjectManager()->ModelMatrix(selectedObject_);
+            currentGizmo_->Manipulate(rect, transform);
+            ZServices::GameObjectManager()->SetModelMatrix(selectedObject_, transform);
+        }
+    }
+    else if (selectClicker_.Click(rect))
+    {
+        if (!currentGizmo_->Showing() || !currentGizmo_->TryActivate(rect))
+        {
             auto cursorPos = ZServices::Input()->GetCursorPosition() - rect.position;
             auto ray = activeProjectScene_->ScreenPointToWorldRay(cursorPos, rect.size);
 
             ZIntersectHitResult hitResult;
             bool hasHit = activeProjectScene_->RayCast(ray, hitResult);
-            std::shared_ptr<ZGameObject> foundObj = hasHit ? activeProjectScene_->FindGameObject(hitResult.objectId) : nullptr;
+            ZHGameObject foundObj = hitResult.objectHandle;
 
-            if (hasHit && foundObj) {
+            if (!foundObj.IsNull())
+            {
                 currentGizmo_->Show();
                 SetSelectedObject(foundObj);
             }
-            else if (currentGizmo_->Showing()) {
+            else if (currentGizmo_->Showing())
+            {
                 currentGizmo_->Hide();
-                SetSelectedObject(nullptr);
+                SetSelectedObject(ZHGameObject());
             }
         }
     }
 
-    if (travelClicker_->Release(rect)) {
-        activeProjectScene_->ActiveCamera()->DisableLook();
-        activeProjectScene_->ActiveCamera()->DisableMovement();
+    if (travelClicker_.Release(rect))
+    {
+        auto sceneCamera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeProjectScene_->ActiveCamera());
+        sceneCamera->DisableLook();
+        sceneCamera->DisableMovement();
         ZServices::Input()->ReleaseCursor();
-    } else if (travelClicker_->Click(rect)) {
-        activeProjectScene_->ActiveCamera()->EnableLook();
-        activeProjectScene_->ActiveCamera()->EnableMovement();
+    }
+    else if (travelClicker_.Click(rect))
+    {
+        auto sceneCamera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeProjectScene_->ActiveCamera());
+        sceneCamera->EnableLook();
+        sceneCamera->EnableMovement();
         ZServices::Input()->CaptureCursor();
     }
 }

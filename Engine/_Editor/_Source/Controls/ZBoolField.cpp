@@ -45,20 +45,23 @@ void ZBoolField::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZBoolField::Update()
 {
-    auto elementRect = checkbox_->CalculatedRect();
+    auto elementRect = ZServices::UIElementManager()->CalculatedRect(checkbox_);
 
-    if (hoverer_->Entered(elementRect)) {
-        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Hand));
+    if (hoverer_->Entered(elementRect))
+    {
+        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Hand));
     }
-    else if (hoverer_->Exited(elementRect)) {
-        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
-    }
-
-    if (clicker_->Click(elementRect)) {
-        checkbox_->Toggle();
+    else if (hoverer_->Exited(elementRect))
+    {
+        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
     }
 
-    value_ = checkbox_->Checked();
+    if (clicker_->Click(elementRect))
+    {
+        ZServices::UIElementManager()->Dereference<ZUICheckBox>(checkbox_)->Toggle();
+    }
+
+    value_ = ZServices::UIElementManager()->Dereference<ZUICheckBox>(checkbox_)->Checked();
 }
 
 void ZBoolField::SetValue(const bool& val)
@@ -66,7 +69,7 @@ void ZBoolField::SetValue(const bool& val)
     if (val == lastValue_) return;
     lastValue_ = value_;
     value_ = val;
-    checkbox_->SetChecked(val);
+    ZServices::UIElementManager()->Dereference<ZUICheckBox>(checkbox_)->SetChecked(val);
 }
 
 std::shared_ptr<ZBoolField> ZBoolField::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
@@ -75,9 +78,8 @@ std::shared_ptr<ZBoolField> ZBoolField::Create(const std::string& label, const Z
 
     ZUIElementOptions checkboxOptions = options;
     checkboxOptions.maxSize = glm::vec2(100.f, 0.f);
-    boolField->checkbox_ = ZUICheckBox::Create(checkboxOptions, scene);
-
-    boolField->control_ = ZUILabeledElement::Create(label, boolField->checkbox_);
+    boolField->checkbox_ = ZServices::UIElementManager()->Create(ZUIElementType::CheckBox, checkboxOptions, ZHUIElement(), scene);
+    boolField->control_ = ZServices::UIElementManager()->Create(ZUIElementType::LabeledElement);
 
     boolField->Initialize(scene);
 

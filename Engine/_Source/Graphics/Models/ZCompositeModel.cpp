@@ -32,8 +32,10 @@
 
 void ZCompositeModel::OnCreate()
 {
-    for (const ZHModel& model : models_) {
-        for (auto const& mesh : ZServices::ModelManager()->Meshes(model)) {
+    for (const ZHModel& model : models_)
+    {
+        for (auto const& mesh : ZServices::ModelManager()->Meshes(model))
+        {
             meshes.emplace_back(mesh);
         }
     }

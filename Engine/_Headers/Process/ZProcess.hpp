@@ -40,45 +40,66 @@ private:
 
 public:
 
-    ZProcess() : state_(ZProcessState::Uninitialized) {}
-    virtual ~ZProcess() {}
+    ZProcess() = default;
+    virtual ~ZProcess() = default;
 
-    virtual void Initialize() { state_ = ZProcessState::Running; OnInitialize(); };
-    virtual void OnInitialize() {};
-    virtual void Update(double deltaTime) { OnUpdate(deltaTime); };
-    virtual void OnUpdate(double deltaTime) {};
-    virtual void Pause() { state_ = ZProcessState::Paused; OnPause(); };
-    virtual void OnPause() {};
-    virtual void Resume() { state_ = ZProcessState::Running; OnResume(); };
-    virtual void OnResume() {};
-    virtual void Finish() { state_ = ZProcessState::Finished; OnFinish(); };
-    virtual void OnFinish() {};
-    virtual void Fail() { state_ = ZProcessState::Failed; OnFail(); };
+    virtual void Initialize()
+    {
+        state = ZProcessState::Running;
+        OnInitialize();
+    };
+    virtual void OnInitialize() { };
+    virtual void Update(double deltaTime)
+    {
+        OnUpdate(deltaTime);
+    };
+    virtual void OnUpdate(double deltaTime) { };
+    virtual void Pause()
+    {
+        state = ZProcessState::Paused;
+        OnPause();
+    };
+    virtual void OnPause() { };
+    virtual void Resume()
+    {
+        state = ZProcessState::Running;
+        OnResume();
+    };
+    virtual void OnResume() { };
+    virtual void Finish()
+    {
+        state = ZProcessState::Finished;
+        OnFinish();
+    };
+    virtual void OnFinish() { };
+    virtual void Fail()
+    {
+        state = ZProcessState::Failed;
+        OnFail();
+    };
     virtual void OnFail() {};
-    virtual void Abort() { state_ = ZProcessState::Aborted; OnAbort(); };
-    virtual void OnAbort() {};
-    virtual void CleanUp() {};
+    virtual void Abort()
+    {
+        state = ZProcessState::Aborted;
+        OnAbort();
+    };
+    virtual void OnAbort() { };
+    virtual void CleanUp() { };
 
-    std::string ID() const { return id_; }
-
-    ZProcessState State() const { return state_; }
     std::shared_ptr<ZProcess> Child() const { return child_; }
 
-    bool IsAlive() const { return state_ == ZProcessState::Running || state_ == ZProcessState::Paused; }
+    bool IsAlive() const { return state == ZProcessState::Running || state == ZProcessState::Paused; }
     bool IsDead() const
     {
-        return state_ == ZProcessState::Finished || state_ == ZProcessState::Failed ||
-            state_ == ZProcessState::Aborted;
+        return state == ZProcessState::Finished || state == ZProcessState::Failed ||
+            state == ZProcessState::Aborted;
     }
-    bool IsPaused() const { return state_ == ZProcessState::Paused; }
+    bool IsPaused() const { return state == ZProcessState::Paused; }
 
-    void SetState(ZProcessState state) { state_ = state; }
     void AttachChild(std::shared_ptr<ZProcess> child);
     std::shared_ptr<ZProcess> RemoveChild();
 
-protected:
-
-    std::string id_;
-    ZProcessState state_;
+    std::string id;
+    ZProcessState state = ZProcessState::Uninitialized;
 
 };

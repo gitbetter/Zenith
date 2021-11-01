@@ -31,7 +31,7 @@
 
 #include "ZComponent.hpp"
 
-class ZScriptComponent : public ZComponent
+struct ZScriptComponent : public ZComponent
 {
 
     RTTR_ENABLE(ZComponent)
@@ -39,16 +39,10 @@ class ZScriptComponent : public ZComponent
 public:
 
     ZScriptComponent();
-    ~ZScriptComponent() {}
+    ~ZScriptComponent() = default;
 
-    void Initialize(std::shared_ptr<ZOFNode> root) override {}
+private:
 
-    std::shared_ptr<ZComponent> Clone() override;
-
-    void Update(double deltaTime) override {}
-
-    DECLARE_COMPONENT_CREATORS(ZScriptComponent)
-
-protected:
+	static ZIDSequence idGenerator_;
 
 };

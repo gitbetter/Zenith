@@ -29,14 +29,11 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorTool.hpp"
 #include "ZEditorControl.hpp"
 
-// Forward Declarations
 class ZEditorObjectSelectedEvent;
 class ZGameObjectControls;
-class ZGameObject;
 
 class ZInspectorTool : public ZEditorTool {
 
@@ -55,7 +52,7 @@ protected:
 
     std::shared_ptr<ZGameObjectControls> gameObjectControls_ = nullptr;
 
-    std::shared_ptr<ZGameObject> selectedObject_ = nullptr;
+    ZHGameObject selectedObject_;
 
     void HandleEditorObjectSelected(const std::shared_ptr<ZEditorObjectSelectedEvent>& event);
 

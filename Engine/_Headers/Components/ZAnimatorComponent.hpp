@@ -40,21 +40,21 @@ class ZAnimatorComponent : public ZComponent
 public:
 
     ZAnimatorComponent();
-    ~ZAnimatorComponent() {}
+    ~ZAnimatorComponent() = default;
 
-    void Initialize(std::shared_ptr<ZOFNode> root) override;
-    void Update(double deltaTime) override;
+    virtual void OnUpdate(double deltaTime) override;
+    virtual void OnCloned(const ZHComponent& original) override;
+
+public:
 
     void Play(const std::string& animationName, bool looping = false);
-    void Pause() override;
+    void Pause();
     void Stop();
 
-    std::shared_ptr<ZComponent> Clone() override;
+    ZAnimationClip currentClip;
 
-    DECLARE_COMPONENT_CREATORS(ZAnimatorComponent)
+private:
 
-protected:
-
-    ZAnimationClip currentClip_;
+	static ZIDSequence idGenerator_;
 
 };

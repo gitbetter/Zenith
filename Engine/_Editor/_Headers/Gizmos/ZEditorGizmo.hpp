@@ -29,14 +29,10 @@
 
 #pragma once
 
- // Includes
 #include "ZEditorEntity.hpp"
 
-// Forward Declarations
-class ZGameObject;
 class ZRay;
 
-// Definitions
 class ZEditorGizmo : public ZEditorEntity
 {
 public:
@@ -59,7 +55,7 @@ public:
 
 protected:
 
-    std::shared_ptr<ZGameObject> gizmo_;
+    ZHGameObject gizmo_;
     bool active_ = false;
 
 };

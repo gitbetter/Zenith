@@ -41,7 +41,7 @@ std::shared_ptr<ZProcess> ZProcess::RemoveChild()
     if (child_)
     {
         child = child_;
-        child_->SetState(ZProcessState::Removed);
+        child_->state = ZProcessState::Removed;
         child_ = nullptr;
     }
     return child;

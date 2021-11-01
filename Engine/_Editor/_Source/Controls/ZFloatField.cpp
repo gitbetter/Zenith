@@ -29,8 +29,6 @@
 
 #include "ZFloatField.hpp"
 #include "ZUIInputField.hpp"
-#include "ZUIScrubber.hpp"
-#include "ZUIHoverer.hpp"
 #include "ZUIText.hpp"
 #include "ZServices.hpp"
 #include "ZScene.hpp"
@@ -39,14 +37,16 @@
 
 void ZFloatField::Initialize(const std::shared_ptr<ZScene>& scene)
 {
-    scrubber_ = std::make_shared<ZUIScrubber>();
-    scrubber_->SetSensitivity(0.001f);
-    hoverer_ = std::make_shared<ZUIHoverer>();
-    inputField_->OnInputChanged([this](const std::string& newVal) {
-        try {
+    scrubber_.SetSensitivity(0.001f);
+
+    ZServices::UIElementManager()->Dereference<ZUIInputField>(inputField_)->OnInputChanged([this](const std::string& newVal)
+    {
+        try
+        {
             value_ = std::stof(newVal);
         }
-        catch (const std::exception& e) {
+        catch (const std::exception& e)
+        {
             value_ = -std::numeric_limits<float>::infinity();
         }
     });
@@ -54,48 +54,60 @@ void ZFloatField::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZFloatField::Update()
 {
-    auto labelRect = control_->LabelField()->CalculatedRect();
-    auto elementRect = inputField_->CalculatedRect();
+    auto labelRect = ZServices::UIElementManager()->CalculatedRect(ZServices::UIElementManager()->Dereference<ZUILabeledElement>(control_)->LabelField());
+    auto elementRect = ZServices::UIElementManager()->CalculatedRect(inputField_);
 
-    if (scrubber_) {
-        float scrubbedVal = scrubber_->Scrub<float>(labelRect);
-        if (scrubbedVal != 0) {
-            SetValue(lastScrubbedValue_ + scrubbedVal);
-        }
-        else {
-            lastScrubbedValue_ = value_;
-        }
-    }
+	float scrubbedVal = scrubber_.Scrub<float>(labelRect);
+	if (scrubbedVal != 0)
+	{
+		SetValue(lastScrubbedValue_ + scrubbedVal);
+	}
+	else
+	{
+		lastScrubbedValue_ = value_;
+	}
     
-    if (hoverer_->Entered(labelRect)) {
-        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::HorizontalResize));
+    if (hoverer_.Entered(labelRect))
+    {
+        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::HorizontalResize));
     }
-    else if (hoverer_->Entered(elementRect)) {
-        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
+    else if (hoverer_.Entered(elementRect))
+    {
+        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
     }
-    else if (hoverer_->Exited(labelRect) || hoverer_->Exited(elementRect)) {
-        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
+    else if (hoverer_.Exited(labelRect) || hoverer_.Exited(elementRect))
+    {
+        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
     }
 }
 
 void ZFloatField::SetValue(const float& val)
 {
-    if (val == lastValue_) return;
+    if (val == lastValue_)
+    {
+        return;
+    }
+
     lastValue_ = value_;
     value_ = val;
+
     std::stringstream stream;
     stream << std::fixed << std::setprecision(4) << value_;
-    inputField_->SetText(stream.str());
+
+    ZServices::UIElementManager()->Dereference<ZUIInputField>(inputField_)->SetText(stream.str());
 }
 
 std::shared_ptr<ZFloatField> ZFloatField::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
 {
     auto floatField = std::make_shared<ZFloatField>(theme);
 
-    floatField->inputField_ = ZUIInputField::Create(options, scene);
-    floatField->inputField_->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '.' || c == '-'; });
-    floatField->inputField_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+    floatField->inputField_ = ZServices::UIElementManager()->Create(ZUIElementType::InputField, options, ZHUIElement(), scene);
+    auto inputFieldObj = ZServices::UIElementManager()->Dereference<ZUIInputField>(floatField->inputField_);
+    inputFieldObj->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '.' || c == '-'; });
+    inputFieldObj->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+
     floatField->control_ = ZUILabeledElement::Create(label, floatField->inputField_);
+
     floatField->Initialize(scene);
 
     return floatField;

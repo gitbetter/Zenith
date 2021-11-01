@@ -86,6 +86,13 @@ bool ZMaterialManager::HasDisplacement(const ZHMaterial& handle) const
 	return material->hasDisplacement;
 }
 
+const ZMaterialProperties& ZMaterialManager::Properties(const ZHMaterial& handle) const
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
+	const ZMaterialBase* material = resourcePool_.Get(handle);
+	return material->properties;
+}
+
 const std::shared_ptr<ZRenderStateGroup>& ZMaterialManager::RenderState(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
@@ -193,12 +200,17 @@ void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& 
     }
 }
 
-void ZMaterialManager::AddTexture(const ZHMaterial& handle, const std::string& slot, const ZHTexture& texture)
+void ZMaterialManager::AddTexture(const ZHMaterial& handle, const ZHTexture& texture)
 {
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
 	ZMaterialBase* material = resourcePool_.Get(handle);
 
-    material->textures[slot] = texture;
+	if (std::find(material->textures.begin(), material->textures.end(), texture) != material->textures.end())
+	{
+		return;
+	}
+
+	material->textures.push_back(texture);
 
     ZRenderStateGroupWriter writer(material->renderState);
     writer.Begin();
@@ -462,8 +474,10 @@ ZHMaterial ZMaterialManager::Create(const ZTextureList& textures, const ZHShader
 	writer.BindUniformBuffer(material->uniformBuffer);
 	material->renderState = writer.End();
 
-	for (auto const& [key, val] : textures)
-		AddTexture(handle, key, val);
+	for (auto const& texture : textures)
+	{
+		AddTexture(handle, texture);
+	}
 
 	SetShader(handle, shader);
 

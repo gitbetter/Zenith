@@ -41,13 +41,13 @@ void ZParticle::OnCreate()
 //   AddComponent(new ZGraphicsComponent(the-model, the-shader));
 // }
 
-    if (ZServices::GameObjectManager()->FindComponent<ZPhysicsComponent>(handle) == nullptr)
+    if (ZServices::GameObjectManager()->FindComponent<ZPhysicsComponent>(handle).IsNull())
     {
-        ZServices::GameObjectManager()->AddComponent(handle, std::shared_ptr<ZPhysicsComponent>(new ZPhysicsComponent));
+        ZServices::ComponentManager()->CreateIn(ZComponentType::Physics, handle);
     }
 }
 
-void ZParticle::OnPrepare(double deltaTime)
+void ZParticle::OnUpdate(double deltaTime)
 {
     age -= deltaTime;
     // TODO: Render a particle as a quad that rotates with the camera

@@ -29,37 +29,28 @@
 
 #pragma once
 
-// Includes
 #include "ZGameObject.hpp"
 
-// Forward Declarations
 class ZMesh2D;
 class ZRenderStateGroup;
 
-// Class Definitions
 class ZSceneRoot : public ZGameObject
 {
 
 public:
 
-    ZSceneRoot(const glm::vec3& position, const glm::quat& orientation, const glm::vec3& scale)
-        : ZGameObject(position, orientation, scale) { }
-    ZSceneRoot(const std::string& name = "Root");
+    ZSceneRoot()
+        : ZGameObject()
+    { }
 
-    void Initialize() override;
-    void Initialize(std::shared_ptr<ZOFNode> root) override { ZGameObject::Initialize(root); }
+    void OnCreate() override;
+    void OnUpdate(double deltaTime) override;
+    void OnUpdateChildren(double deltaTime) override;
 
     std::shared_ptr<ZMesh2D> ScreenTri();
-
-    void Prepare(double deltaTime) override;
-    void PrepareChildren(double deltaTime) override;
-    bool IsVisible() override { return true; }
-
-    DECLARE_OBJECT_CREATORS(ZSceneRoot)
 
 private:
 
     ZGameObjectList publicChildren_;
-    std::shared_ptr<ZRenderStateGroup> renderState_;
 
 };

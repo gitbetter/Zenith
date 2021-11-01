@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZEditorObjectSelectedEvent.hpp
+    ZElementSelectedEvent.hpp
 
-    Created by Adrian Sanchez on 03/13/2021.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 10/21/2021.
+    Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -31,27 +31,27 @@
 
 #include "ZEvent.hpp"
 
-class ZEditorObjectSelectedEvent : public ZEvent
+class ZElementSelectedEvent : public ZEvent
 {
 
 private:
 
-    std::string objectId_;
+    ZHUIElement element_;
+    glm::vec3 position_;
 
 public:
 
     static const ZTypeIdentifier Type;
 
-    explicit ZEditorObjectSelectedEvent(const std::string& objectId) : objectId_(objectId) { }
-    explicit ZEditorObjectSelectedEvent(std::istringstream& in) { in >> objectId_; }
+    explicit ZElementSelectedEvent(const ZHUIElement& element, const glm::vec3& pos) : element_(element), position_(pos) {}
+    explicit ZElementSelectedEvent(std::istringstream& in) { /* in >> element_; */ }
 
     const ZTypeIdentifier& EventType() const override { return Type; };
-    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZEditorObjectSelectedEvent>(new ZEditorObjectSelectedEvent(objectId_)); }
-    void Serialize(std::ostringstream& out) const override { out << objectId_; }
-    std::string Name() const override { return "ZEditorObjectSelectedEvent"; }
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZElementSelectedEvent>(new ZElementSelectedEvent(element_, position_)); }
+    void Serialize(std::ostringstream& out) const override { out << element_; }
+    std::string Name() const override { return "ZElementSelectedEvent"; }
 
-    const std::string& ObjectID() const { return objectId_; }
-
-protected:
+    const ZHUIElement& Element() const { return element_; }
+    const glm::vec3& Position() const { return position_; }
 
 };

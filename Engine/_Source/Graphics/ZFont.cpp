@@ -48,6 +48,7 @@ void ZFontManager::CleanUp()
 
 ZHFont ZFontManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> data)
 {
+	return ZHFont();
 }
 
 void ZFontManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> data)

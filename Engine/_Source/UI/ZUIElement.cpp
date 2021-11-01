@@ -38,7 +38,7 @@
 #include "ZRenderPass.hpp"
 #include "ZUniformBuffer.hpp"
 #include "ZWindowResizeEvent.hpp"
-#include "ZObjectSelectedEvent.hpp"
+#include "ZElementSelectedEvent.hpp"
 #include "ZWindowResizeEvent.hpp"
 
 #include "ZUIButton.hpp"
@@ -227,6 +227,8 @@ ZHUIElement ZUIElementManager::Deserialize(const ZOFHandle& dataHandle, const st
 	element->OnDeserialize(dataNode);
 
     Initialize(restoreHandle);
+
+	return restoreHandle;
 }
 
 ZHUIElement ZUIElementManager::Create(const ZUIElementType& type, const ZHUIElement& restoreHandle)
@@ -387,7 +389,7 @@ void ZUIElementManager::CleanUp()
 	ZServices::EventAgent()->Unsubscribe(this, &ZUIElementManager::OnWindowResized);
 }
 
-void ZUIElementManager::Prepare(const ZHUIElement& handle, double deltaTime, unsigned int zOrder)
+void ZUIElementManager::Update(const ZHUIElement& handle, double deltaTime, unsigned int zOrder)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
 	ZUIElement* uiElement = resourcePool_.Get(handle);
@@ -411,12 +413,12 @@ void ZUIElementManager::Prepare(const ZHUIElement& handle, double deltaTime, uns
 	);
 	uiTask->Submit({ ZRenderPass::UI() });
 
-	PrepareChildren(handle, deltaTime, zOrder);
+	UpdateChildren(handle, deltaTime, zOrder);
 
-	uiElement->OnPrepare(deltaTime, zOrder);
+	uiElement->OnUpdate(deltaTime, zOrder);
 }
 
-unsigned int ZUIElementManager::PrepareChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder)
+unsigned int ZUIElementManager::UpdateChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder)
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
 	ZUIElement* uiElement = resourcePool_.Get(handle);
@@ -426,8 +428,8 @@ unsigned int ZUIElementManager::PrepareChildren(const ZHUIElement& handle, doubl
 	unsigned int lastZOrder = zOrder;
 	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
 	{
-		Prepare(it->second, deltaTime, ++lastZOrder);
-		lastZOrder = PrepareChildren(it->second, deltaTime, lastZOrder);
+		Update(it->second, deltaTime, ++lastZOrder);
+		lastZOrder = UpdateChildren(it->second, deltaTime, lastZOrder);
 	}
 	return lastZOrder;
 }
@@ -1043,7 +1045,7 @@ bool ZUIElementManager::TrySelect(const ZHUIElement& handle, const glm::vec3& po
 
 		if (!selectedChild)
 		{
-			std::shared_ptr<ZObjectSelectedEvent> objectSelectEvent(new ZObjectSelectedEvent(uiElement->name, position));
+			std::shared_ptr<ZElementSelectedEvent> objectSelectEvent(new ZElementSelectedEvent(handle, position));
 			ZServices::EventAgent()->Queue(objectSelectEvent);
 		}
 

@@ -232,7 +232,7 @@ void ZTextureManager::CreateAsync(const std::string& path, const std::string& ty
 	else if (hdr) resourceType = ZResourceType::HDRTexture;
 	else resourceType = ZResourceType::Texture;
 
-	ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, resourceType, wrapping, type, restoreHandle);
+	ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, wrapping, type, resourceType, restoreHandle);
 	resource->flipped = flip;
 	resource->hdr = hdr;
 	ZServices::ResourceImporter()->GetDataAsync(resource);

@@ -139,7 +139,7 @@ void ZCamera::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
     }
 }
 
-void ZCamera::OnPrepare(double deltaTime)
+void ZCamera::OnUpdate(double deltaTime)
 {
     lastDeltaTime_ = currentDeltaTime_;
     currentDeltaTime_ = deltaTime;

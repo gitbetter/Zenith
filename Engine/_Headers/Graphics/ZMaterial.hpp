@@ -78,6 +78,7 @@ public:
     float Alpha(const ZHMaterial& handle) const;
     bool IsTextured(const ZHMaterial& handle) const;
     bool HasDisplacement(const ZHMaterial& handle) const;
+    const ZMaterialProperties& Properties(const ZHMaterial& handle) const;
     const std::shared_ptr<ZRenderStateGroup>& RenderState(const ZHMaterial& handle) const;
 
     void SetShader(const ZHMaterial& handle, const ZHShader& shader);
@@ -86,7 +87,7 @@ public:
     void SetProperty(const ZHMaterial& handle, const std::string& property, const glm::vec4& value);
     void SetProperty(const ZHMaterial& handle, const std::string& property, bool value);
 
-    void AddTexture(const ZHMaterial& handle, const std::string& slot, const ZHTexture& texture);
+    void AddTexture(const ZHMaterial& handle, const ZHTexture& texture);
     void AddTexture(const ZHMaterial& handle, const std::string& slot, const std::string& textureId) { pendingTextures_[slot] = textureId; }
 
     ZHMaterial Default();

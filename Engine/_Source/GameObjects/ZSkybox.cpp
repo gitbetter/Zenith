@@ -76,9 +76,9 @@ void ZSkybox::OnCloned(ZGameObject* original)
     {
         hdrPath_ = originalSkybox->hdrPath_;
         iblTexture = originalSkybox->iblTexture;
-        if (std::shared_ptr<ZGraphicsComponent> graphicsComp = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(original->handle))
+        if (const ZHComponent& graphicsComp = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(original->handle))
         {
-            ZServices::GameObjectManager()->AddComponent(handle, graphicsComp->Clone());
+            ZServices::GameObjectManager()->AddComponent(handle, ZServices::ComponentManager()->Clone(graphicsComp));
         }
     }
 }
@@ -107,21 +107,22 @@ void ZSkybox::LoadCubemap(const ZHTexture& cubeMap, const ZFramebuffer::ptr& buf
     writer.BindTexture(iblTexture.brdfLUT);
     renderState = writer.End();
 
-    auto skyboxGraphicsComponent = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(handle);
-    if (skyboxGraphicsComponent == nullptr)
+    ZHComponent skyboxGraphicsComponent = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(handle);
+    if (skyboxGraphicsComponent.IsNull())
     {
-        skyboxGraphicsComponent = ZGraphicsComponent::CreateIn(handle);
-        skyboxGraphicsComponent->SetHasAABB(false);
-        skyboxGraphicsComponent->SetIsShadowCaster(false);
-        skyboxGraphicsComponent->SetHasDepthInfo(false);
-        skyboxGraphicsComponent->Initialize(ZServices::ModelManager()->Create(ZModelType::Cube));
+        skyboxGraphicsComponent = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, handle);
+        ZGraphicsComponent* skyboxGraphicsCompObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent);
+        skyboxGraphicsCompObj->hasAABB = false;
+        skyboxGraphicsCompObj->isShadowCaster = false;
+        skyboxGraphicsCompObj->hasDepthInfo = false;
+        skyboxGraphicsCompObj->Initialize(ZServices::ModelManager()->Create(ZModelType::Cube));
     }
     else
     {
-        skyboxGraphicsComponent->SetMaterials({});
+        ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent)->materials = {};
     }
 
-    skyboxGraphicsComponent->AddMaterial(
+    ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent)->AddMaterial(
         ZServices::MaterialManager()->Create(
             { iblTexture.cubeMap },
             ZServices::ShaderManager()->Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")

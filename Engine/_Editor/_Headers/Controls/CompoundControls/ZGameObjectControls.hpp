@@ -29,23 +29,18 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorControl.hpp"
 
- // Forward Declarations
-class ZGameObject;
-class ZUIPanel;
 class ZTextField;
 class ZBoolField;
 class ZVec3Field;
 class ZFoldoutRegion;
 
-// Definitions
 class ZGameObjectControls : public ZEditorControl {
 
 public:
 
-    ZGameObjectControls(const std::shared_ptr<ZGameObject>& object, const ZUITheme& theme = ZUITheme())
+    ZGameObjectControls(const ZHGameObject& object, const ZUITheme& theme = ZUITheme())
         : ZEditorControl(theme), gameObject_(object)
     { }
     ~ZGameObjectControls() {}
@@ -54,21 +49,21 @@ public:
     void Update() override;
     void CleanUp() override { };
 
-    bool Active() const { return gameObject_ != nullptr; }
-    std::shared_ptr<ZUIPanel> Header() const { return objectHeader_; }
+    bool Active() const { return !gameObject_.IsNull(); }
+    ZHUIElement Header() const { return objectHeader_; }
     std::shared_ptr<ZFoldoutRegion> TransformFields() const { return transformFields_; }
 
-    void SetGameObject(const std::shared_ptr<ZGameObject>& gameObject) { gameObject_ = gameObject; }
+    void SetGameObject(const ZHGameObject& gameObject) { gameObject_ = gameObject; }
 
-    static std::shared_ptr<ZGameObjectControls> Create(const std::shared_ptr<ZGameObject>& object, const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
+    static std::shared_ptr<ZGameObjectControls> Create(const ZHGameObject& object, const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
 
 protected:
 
-    std::shared_ptr<ZGameObject> gameObject_ = nullptr;
+    ZHGameObject gameObject_;
 
-    std::shared_ptr<ZUIPanel> objectHeader_ = nullptr;
+    ZHUIElement objectHeader_;
+
     std::shared_ptr<ZFoldoutRegion> transformFields_ = nullptr;
-
     std::shared_ptr<ZTextField> nameField_ = nullptr;
     std::shared_ptr<ZBoolField> activeField_ = nullptr;
     std::shared_ptr<ZVec3Field> positionField_ = nullptr;

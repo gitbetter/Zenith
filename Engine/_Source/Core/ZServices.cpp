@@ -57,6 +57,7 @@ std::shared_ptr<ZMaterialManager> ZServices::materialManager_ = nullptr;
 std::shared_ptr<ZModelManager> ZServices::modelManager_ = nullptr;
 std::shared_ptr<ZUIElementManager> ZServices::uiElementManager_ = nullptr;
 std::shared_ptr<ZGameObjectManager> ZServices::gameObjectManager_ = nullptr;
+std::shared_ptr<ZComponentManager> ZServices::componentManager_ = nullptr;
 
 std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
@@ -111,6 +112,10 @@ void ZServices::Initialize()
 
 		/* ========= Game Object Manager ============ */
 		Provide(std::make_shared<ZGameObjectManager>());
+		/* =================================== */
+
+		/* ========= Component Manager ============ */
+		Provide(std::make_shared<ZComponentManager>());
 		/* =================================== */
     }
     initialized_ = true;
@@ -263,6 +268,17 @@ void ZServices::Provide(const std::shared_ptr<ZGameObjectManager>& gameObjectMan
 
     gameObjectManager_ = gameObjectManager;
     gameObjectManager_->Initialize();
+}
+
+void ZServices::Provide(const std::shared_ptr<ZComponentManager>& componentManager)
+{
+	if (componentManager_)
+	{
+        componentManager_->CleanUp();
+	}
+
+    componentManager_ = componentManager;
+    componentManager_->Initialize();
 }
 
 void ZServices::LoadZOF(const std::string& zofPath)

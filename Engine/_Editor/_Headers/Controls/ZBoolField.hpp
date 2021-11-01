@@ -29,18 +29,14 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorControl.hpp"
 #include "ZUILabeledElement.hpp"
 
- // Forward Declarations
 class ZUIScene;
-class ZUICheckBox;
 class ZUIHoverer;
 class ZUIClicker;
 
-// Definitions
-class ZBoolField : public ZTypedEditorControl<ZUILabeledElement, bool> {
+class ZBoolField : public ZTypedEditorControl<bool> {
 
 public:
 
@@ -59,7 +55,7 @@ public:
 
 protected:
 
-    std::shared_ptr<ZUICheckBox> checkbox_ = nullptr;
+    ZHUIElement checkbox_;
     std::shared_ptr<ZUIHoverer> hoverer_ = nullptr;
     std::shared_ptr<ZUIClicker> clicker_ = nullptr;
     bool lastValue_{ false };

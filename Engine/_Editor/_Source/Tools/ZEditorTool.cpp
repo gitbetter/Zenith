@@ -32,10 +32,11 @@
 #include "ZScene.hpp"
 #include "ZUIPanel.hpp"
 
-void ZEditorTool::Initialize(const std::shared_ptr<ZScene>& scene) {
+void ZEditorTool::Initialize(const std::shared_ptr<ZScene>& scene)
+{
 	ZUIElementOptions elementOptions;
 	elementOptions.positioning = ZPositioning::Relative;
 	elementOptions.scaling = ZPositioning::Relative;
 	elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
-	container_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, scene);
+	container_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), scene);
 }

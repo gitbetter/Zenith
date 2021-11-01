@@ -29,8 +29,6 @@
 
 #include "ZIntField.hpp"
 #include "ZUIInputField.hpp"
-#include "ZUIScrubber.hpp"
-#include "ZUIHoverer.hpp"
 #include "ZScene.hpp"
 #include "ZDomain.hpp"
 #include "ZUIText.hpp"
@@ -38,14 +36,15 @@
 
 void ZIntField::Initialize(const std::shared_ptr<ZScene>& scene)
 {
-    scrubber_ = std::make_shared<ZUIScrubber>();
-    scrubber_->SetSensitivity(0.1f);
-    hoverer_ = std::make_shared<ZUIHoverer>();
-    inputField_->OnInputChanged([this](const std::string& newVal) {
-        try {
+    scrubber_.SetSensitivity(0.1f);
+    ZServices::UIElementManager()->Dereference<ZUIInputField>(inputField_)->OnInputChanged([this](const std::string& newVal) 
+    {
+        try
+        {
             value_ = std::stoi(newVal);
         }
-        catch (const std::exception& e) {
+        catch (const std::exception& e)
+        {
             value_ = -std::numeric_limits<int>::infinity();
         }
     });
@@ -53,46 +52,56 @@ void ZIntField::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZIntField::Update()
 {
-    auto labelRect = control_->LabelField()->CalculatedRect();
-    auto elementRect = inputField_->CalculatedRect();
+    auto label = ZServices::UIElementManager()->Dereference<ZUILabeledElement>(control_)->LabelField();
+    auto labelRect = ZServices::UIElementManager()->CalculatedRect(label);
+    auto elementRect = ZServices::UIElementManager()->CalculatedRect(inputField_);
 
-    if (scrubber_) {
-        int scrubbedVal = scrubber_->Scrub<int>(labelRect);
-        if (scrubbedVal != 0) {
-            SetValue(lastValue_ + scrubbedVal);
-        }
-        else {
-            lastValue_ = value_;
-        }
-    }
+	int scrubbedVal = scrubber_.Scrub<int>(labelRect);
+	if (scrubbedVal != 0)
+    {
+		SetValue(lastValue_ + scrubbedVal);
+	}
+	else
+    {
+		lastValue_ = value_;
+	}
 
-    if (hoverer_->Entered(labelRect)) {
-        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::HorizontalResize));
+    if (hoverer_.Entered(labelRect))
+    {
+        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::HorizontalResize));
     }
-    else if (hoverer_->Entered(elementRect)) {
-        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
+    else if (hoverer_.Entered(elementRect))
+    {
+        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
     }
-    else if (hoverer_->Exited(labelRect) || hoverer_->Exited(elementRect)) {
-        control_->Scene()->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
+    else if (hoverer_.Exited(labelRect) || hoverer_.Exited(elementRect))
+    {
+        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
     }
 }
 
 void ZIntField::SetValue(const int& val)
 {
-    if (val == lastValue_) return;
+    if (val == lastValue_)
+    {
+        return;
+    }
     lastValue_ = value_;
     value_ = val;
-    inputField_->SetText(std::to_string(value_));
+    ZServices::UIElementManager()->Dereference<ZUIInputField>(inputField_)->SetText(std::to_string(value_));
 }
 
 std::shared_ptr<ZIntField> ZIntField::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
 {
     auto intField = std::make_shared<ZIntField>(theme);
 
-    intField->inputField_ = ZUIInputField::Create(options, scene);
-    intField->inputField_->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '-'; });
-    intField->inputField_->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+    intField->inputField_ = ZServices::UIElementManager()->Create(ZUIElementType::InputField, options, ZHUIElement(), scene);
+    auto inputFieldObj = ZServices::UIElementManager()->Dereference<ZUIInputField>(intField->inputField_);
+    inputFieldObj->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '-'; });
+    inputFieldObj->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
+
     intField->control_ = ZUILabeledElement::Create(label, intField->inputField_);
+
     intField->Initialize(scene);
 
     return intField;

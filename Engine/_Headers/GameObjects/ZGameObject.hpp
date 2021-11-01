@@ -29,8 +29,7 @@
 
 #pragma once
 
-#include "ZProcess.hpp"
-#include "ZProcessRunner.hpp"
+#include "ZResourceManager.hpp"
 #include "ZOFTree.hpp"
 
 class ZScene;
@@ -83,7 +82,8 @@ struct ZGameObject
     virtual void OnCreate() { }
     virtual void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) { }
     virtual void OnCloned(ZGameObject* original) { }
-    virtual void OnPrepare(double deltaTime) { }
+    virtual void OnUpdate(double deltaTime) { }
+    virtual void OnUpdateChildren(double deltaTime) { }
 
 private:
 
@@ -109,8 +109,8 @@ public:
     ZHGameObject CreateReady(const ZGameObjectType& type, const std::shared_ptr<ZScene>& scene = nullptr, const ZHGameObject& restoreHandle = ZHGameObject());
     ZHGameObject Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene = nullptr);
 
-    void Prepare(const ZHGameObject& handle, double deltaTime);
-    void PrepareChildren(const ZHGameObject& handle, double deltaTime);
+    void Update(const ZHGameObject& handle, double deltaTime);
+    void UpdateChildren(const ZHGameObject& handle, double deltaTime);
 
     void CalculateDerivedData(const ZHGameObject& handle);
     ZHGameObject Clone(const ZHGameObject& handle);
@@ -120,7 +120,7 @@ public:
     bool IsVisible(const ZHGameObject& handle);
     void Destroy(const ZHGameObject& handle);
 
-    bool Active(const ZHGameObject& handle) const;
+    bool Active(const ZHGameObject& handle);
     std::shared_ptr<ZScene> Scene(const ZHGameObject& handle);
     ZHGameObject Parent(const ZHGameObject& handle);
     std::string Name(const ZHGameObject& handle);
@@ -154,51 +154,47 @@ public:
 
     void Translate(const ZHGameObject& handle, const glm::vec3& translation, bool global = false);
 
-    template<class T>
-    typename std::enable_if<std::is_base_of<ZComponent, T>::value>::type
-        AddComponent(const ZHGameObject& handle, std::shared_ptr<T> component)
-    {
-        std::shared_ptr<T> foundComponent = FindComponent<T>();
-        if (foundComponent == nullptr || is_multiple_components_supported<T>::value)
-        {
-            component->object_ = this;
-            components_.push_back(component);
-        }
-    }
+    void AddComponent(const ZHGameObject& handle, const ZHComponent& component);
+    ZHComponent RemoveComponent(const ZHGameObject& handle, const std::string& name = "");
+	ZHComponent RemoveComponent(const ZHGameObject& handle, const ZHComponent& component);
 
-    template<class T>
-    std::shared_ptr<T> RemoveComponent(const ZHGameObject& handle, const std::string& id = "")
+    template<class T = ZComponent>
+    ZHComponent FindComponent(const ZHGameObject& handle, const std::string& name = "")
     {
-        std::shared_ptr<T> removed = nullptr;
-        if (removed = FindComponent<T>(id)) {
-            components_.erase(found);
-        }
-        return removed;
-    }
+		assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+		ZGameObject* gameObject = resourcePool_.Get(handle);
 
-    template<class T>
-    std::shared_ptr<T> FindComponent(const ZHGameObject& handle, const std::string& id = "")
-    {
         ZComponentList::iterator found;
-        if (is_multiple_components_supported<T>::value && !id.empty()) {
-            found = std::find_if(components_.begin(), components_.end(), [&id](const auto& comp) {
-                return std::dynamic_pointer_cast<T>(comp) != nullptr && id == comp->ID();
+
+        if (!name.empty())
+        {
+            found = std::find_if(gameObject->components.begin(), gameObject->components.end(), [&name](const auto& comp) {
+                ZComponent* compObj = ZServices::ComponentManager()->Dereference(comp);    
+                return compObj != nullptr && name == compObj->name;
             });
         }
-        else {
-            found = std::find_if(components_.begin(), components_.end(), [&id](const auto& comp) {
-                return std::dynamic_pointer_cast<T>(comp) != nullptr;
+        else
+        {
+            found = std::find_if(gameObject->components.begin(), gameObject->components.end(), [&name](const auto& comp) {
+                return ZServices::ComponentManager()->Dereference<T>(comp) != nullptr;
             });
         }
-        if (found != components_.end())
-            return std::dynamic_pointer_cast<T>(*found);
-        return nullptr;
+
+        if (found != gameObject->components.end())
+        {
+            return *found;
+        }
+
+        return ZHComponent();
     }
 
     template<class T = ZGameObject>
     ZHGameObject Child(const ZHGameObject& handle, const std::string& name)
     {
-        if (!std::is_base_of<ZGameObject, T>::value) return nullptr;
+        if (!std::is_base_of<ZGameObject, T>::value)
+        {
+            return ZHGameObject();
+        }
 
 		assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
 		ZGameObject* gameObject = resourcePool_.Get(handle);

@@ -29,18 +29,11 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorTool.hpp"
+#include "ZUIClicker.hpp"
 
-// Forward Declarations
-class ZGameObject;
-class ZUIImage;
 class ZEditorGizmo;
-class ZUIClicker;
-class ZFrameStatsDisplay;
-class ZGameObject;
 
-// Definitions
 class ZSceneTool : public ZEditorTool {
     
 public:
@@ -50,7 +43,7 @@ public:
 
     void Initialize(const std::shared_ptr<ZScene>& scene) override;
 
-    void SetSelectedObject(const std::shared_ptr<ZGameObject>& object);
+    void SetSelectedObject(const ZHGameObject& object);
     
 	void Update() override;
 
@@ -59,10 +52,10 @@ private:
     std::shared_ptr<ZEditorGizmo> currentGizmo_ = nullptr;
     std::vector<std::shared_ptr<ZEditorGizmo>> gizmos_;
 
-    std::shared_ptr<ZUIClicker> selectClicker_ = nullptr;
-    std::shared_ptr<ZUIClicker> travelClicker_ = nullptr;
+    ZUIClicker selectClicker_;
+    ZUIClicker travelClicker_;
 
-    std::shared_ptr<ZGameObject> selectedObject_ = nullptr;
+    ZHGameObject selectedObject_;
 
     void OnProjectSceneChanged() override;
 

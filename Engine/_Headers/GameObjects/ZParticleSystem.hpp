@@ -29,13 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZGameObject.hpp"
 
-// Forward Declarations
 class ZParticle;
 
-// Class and Data Structure Definitions
 struct ZParticleRule
 {
     float minAge = 0.5f;
@@ -45,30 +42,25 @@ struct ZParticleRule
     float damping = 0.1f;
 };
 
-class ZParticleSystem : public ZGameObject
+struct ZParticleSystem : public ZGameObject
 {
-private:
-
-    std::vector<ZParticle*> particles_;
-    bool isAlive_ = false;
 
 public:
 
-    ZParticleSystem(const glm::vec3& position = glm::vec3(0.f, 1.f, 0.f), const glm::quat& orientation = glm::quat(glm::vec3(0.f)), const glm::vec3& scale = glm::vec3(1.f))
-        : ZGameObject(position, orientation, scale) { }
+    ZParticleSystem()
+        : ZGameObject()
+    { }
     ZParticleSystem(std::initializer_list<ZParticleRule> rules);
-    ~ZParticleSystem() {}
+    ~ZParticleSystem() = default;
 
-    void Start() { isAlive_ = true; }
-    void Stop() { isAlive_ = false; }
+    void Start() { isAlive = true; }
+    void Stop() { isAlive = false; }
 
-    bool Alive() { return isAlive_; }
+    void OnUpdate(double deltaTime) override;
 
-    void Update(double deltaTime) override;
+public:
 
-    DECLARE_OBJECT_CREATORS(ZParticleSystem)
-
-protected:
-
+    ZGameObjectList particles;
+    bool isAlive = false;
 
 };

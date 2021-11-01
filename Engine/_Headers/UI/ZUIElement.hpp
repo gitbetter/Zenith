@@ -100,7 +100,7 @@ public:
     
 	virtual void							 OnInitialize() { };
 	virtual void							 OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) { };
-	virtual void							 OnPrepare(double deltaTime, unsigned int zOrder = 0) { };
+	virtual void							 OnUpdate(double deltaTime, unsigned int zOrder = 0) { };
 	virtual void							 OnChildAdded(const ZHUIElement& element) { };
     virtual void                             OnRectChanged() { };
 
@@ -129,8 +129,8 @@ public:
 	ZHUIElement				            Create(const ZUIElementType& type, const ZHUIElement& restoreHandle = ZHUIElement());
 	ZHUIElement							Create(const ZUIElementType& type, const ZUIElementOptions& options, const ZHUIElement& restoreHandle = ZHUIElement(), const std::shared_ptr<ZScene>& scene = nullptr);
 
-	virtual void                        Prepare(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
-	virtual unsigned int                PrepareChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
+	virtual void                        Update(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
+	virtual unsigned int                UpdateChildren(const ZHUIElement& handle, double deltaTime, unsigned int zOrder = 0);
 
 	std::string						    Name(const ZHUIElement& handle);
 	ZUIElementType                      Type(const ZHUIElement& handle);
@@ -212,7 +212,10 @@ public:
 		assert(!handle.IsNull() && "Cannot fetch property with a null ui element handle!");
 		ZUIElement* uiElement = resourcePool_.Get(handle);
 
-		if (!std::is_base_of<ZUIElement, T>::value) return nullptr;
+		if (!std::is_base_of<ZUIElement, T>::value)
+		{
+			return ZHUIElement();
+		}
 
 		for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
 		{

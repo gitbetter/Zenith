@@ -116,7 +116,7 @@ ZHFont ZUIText::Font()
     return font_;
 }
 
-void ZUIText::OnPrepare(double deltaTime, unsigned int zOrder)
+void ZUIText::OnUpdate(double deltaTime, unsigned int zOrder)
 {
     ZPR_SESSION_COLLECT_VERTICES(textVertexData_.vertices.size());
 }

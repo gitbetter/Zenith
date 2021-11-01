@@ -29,13 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZCommon.hpp"
 
-// Forward Declarations
-// class SomeClass;
-
-// Class and Data Structure Definitions
 class ZProcessRunner
 {
 
@@ -52,7 +47,8 @@ public:
     void AttachProcess(std::shared_ptr<ZProcess> process, ZPriority priority = ZPriority::FirstPriority);
     void AbortAllProcesses(bool immediate);
 
-    unsigned int ProcessCount(ZPriority priority) const { 
+    unsigned int ProcessCount(ZPriority priority) const
+    { 
         assert(priority >= ZPriority::FirstPriority && priority < ZPriority::LastPriority); 
         return processList_[priority].size();
     }

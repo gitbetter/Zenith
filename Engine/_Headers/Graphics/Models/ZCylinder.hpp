@@ -34,21 +34,20 @@
 struct ZCylinder : public ZModel
 {
 
-    ZCylinder(float topRadius = 1.f, float baseRadius = 1.f, float height = 1.f, const glm::vec2& segments = glm::vec2(16.f), bool smooth = true)
-        : ZModel(), topRadius_(topRadius), baseRadius_(baseRadius), height_(height), segments_(segments), smooth_(smooth)
-    { };
     virtual ~ZCylinder() = default;
 
     void OnCreate() override;
     void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
 
+    void Rebuild(float topRadius = 1.f, float baseRadius = 1.f, float height = 1.f, const glm::vec2& segments = glm::vec2(16.f), bool smooth = true);
+
 protected:
 
-    float topRadius_;
-    float baseRadius_;
-    float height_;
-    glm::vec2 segments_;
-    bool smooth_;
+    float topRadius_ = -1.0f;
+    float baseRadius_ = -1.0f;
+    float height_ = -1.0f;
+    glm::vec2 segments_{ -1.0f };
+    bool smooth_ = false;
 
     std::vector<glm::vec3> GetSideNormals();
     void BuildSmooth();

@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZColliderComponent.hpp
+	ZElementSelectedEvent.hpp
 
-    Created by Adrian Sanchez on 02/20/2021.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 10/21/2021.
+	Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,35 +27,6 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZElementSelectedEvent.hpp"
 
-#include "ZComponent.hpp"
-
-class ZCollider;
-
-struct ZColliderComponent : public ZComponent
-{
-
-    RTTR_ENABLE(ZComponent)
-
-public:
-
-    ZColliderComponent();
-    ~ZColliderComponent() = default;
-
-    virtual void OnDeserialize(const std::shared_ptr<struct ZOFObjectNode>& dataNode) override;
-    virtual void OnUpdate(double deltaTime) override;
-
-public:
-
-    void Initialize(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset = glm::vec3(0.f));
-    void AddColliderIfNecessary();
-
-    std::shared_ptr<ZCollider> collider = nullptr;
-
-private:
-
-    bool added_ = false;
-	static ZIDSequence idGenerator_;
-
-};
+const ZTypeIdentifier ZElementSelectedEvent::Type(TYPE_ID(ZElementSelectedEvent));

@@ -114,13 +114,18 @@ void ZGraphics::DebugDrawGrid(const std::shared_ptr<ZScene>& scene, const glm::v
     }
 }
 
-// TODO: Pass pointer to scene to this method
 void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::vec3& from, const glm::vec3& to, const glm::vec4& color)
 {
-    if (!scene) return;
+    if (!scene)
+    {
+        return;
+    }
 
     auto cam = scene->ActiveCamera();
-    if (!cam) return;
+    if (cam.IsNull())
+    {
+        return;
+    }
 
     ZPR_SESSION_COLLECT_VERTICES(2);
 
@@ -142,7 +147,7 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
 
     ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Line);
     auto renderTask = ZRenderTask::Compile(drawCall,
-        { cam->RenderState(), lineState },
+        { ZServices::GameObjectManager()->RenderState(cam), lineState },
         ZRenderPass::Color()
     );
     renderTask->Submit({ ZRenderPass::Color() });

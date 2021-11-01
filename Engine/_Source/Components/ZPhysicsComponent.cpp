@@ -38,15 +38,17 @@
 
 #include <rttr/registration>
 
-ZPhysicsComponent::ZPhysicsComponent() : ZComponent()
+ZIDSequence ZPhysicsComponent::idGenerator_;
+
+ZPhysicsComponent::ZPhysicsComponent()
+    : ZComponent()
 {
-    id_ = "ZCOMP_PHYSICS_" + std::to_string(idGenerator_.Next());
+    name = "PhysicsComponent_" + std::to_string(idGenerator_.Next());
 }
 
-void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
+void ZPhysicsComponent::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-    if (!node)
+    if (dataNode == nullptr)
     {
         LOG("Could not initalize ZPhysicsComponent", ZSeverity::Error);
         return;
@@ -56,20 +58,29 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
     ZPhysicsBodyType type = ZPhysicsBodyType::Static;
     bool gravity = false;
 
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
 
     if (props.find("mass") != props.end() && props["mass"]->HasValues())
     {
         std::shared_ptr<ZOFNumber> massProp = props["mass"]->Value<ZOFNumber>(0);
-        if (mass == -1.f) mass = massProp->value;
+        if (mass == -1.f)
+        {
+            mass = massProp->value;
+        }
     }
 
     if (props.find("type") != props.end() && props["type"]->HasValues())
     {
         std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
 
-        if (typeProp->value == "Static") mass = 0.f;
-        else object_->SetRenderOrder(ZRenderLayer::Dynamic);
+        if (typeProp->value == "Static")
+        {
+            mass = 0.f;
+        }
+        else
+        {
+            ZServices::GameObjectManager()->SetRenderOrder(rootObject, ZRenderLayer::Dynamic);
+        }
 
         if (typeProp->value == "Dynamic") type = ZPhysicsBodyType::Dynamic;
         else if (typeProp->value == "Static") type = ZPhysicsBodyType::Static;
@@ -110,115 +121,112 @@ void ZPhysicsComponent::Initialize(std::shared_ptr<ZOFNode> root)
 
 void ZPhysicsComponent::Initialize(ZPhysicsBodyType bodyType, float mass, bool hasGravityInfluence)
 {
-    body_ = std::make_shared<ZBulletRigidBody>(bodyType, mass, object_->Position(), object_->Scale(), object_->Orientation());
-    body_->Initialize();
-    body_->SetGameObject(object_);
+    body = std::make_shared<ZBulletRigidBody>(bodyType, mass, ZServices::GameObjectManager()->Position(rootObject), ZServices::GameObjectManager()->Scale(rootObject), ZServices::GameObjectManager()->Orientation(rootObject));
+    body->Initialize();
+	body->SetGameObject(rootObject);
     if (hasGravityInfluence)
     {
-        body_->SetGravity(glm::vec3(0.f, -9.8f, 0.f));
+        body->SetGravity(glm::vec3(0.f, -9.8f, 0.f));
     }
 }
 
-void ZPhysicsComponent::Update(double deltaTime)
+void ZPhysicsComponent::OnUpdate(double deltaTime)
 {
-    assert(object_ != nullptr && body_ != nullptr);
+    assert(!rootObject.IsNull() && body != nullptr);
 
-    if (!inUniverse_ && object_->Scene()) {
-        object_->Scene()->PhysicsUniverse()->AddRigidBody(body_);
+    if (!inUniverse_ && ZServices::GameObjectManager()->Scene(rootObject)) {
+        ZServices::GameObjectManager()->Scene(rootObject)->PhysicsUniverse()->AddRigidBody(body);
         inUniverse_ = true;
     }
 
-    if (body_->Type() == ZPhysicsBodyType::Trigger)
-        body_->SetTransformMatrix(object_->ModelMatrix());
+    if (body->Type() == ZPhysicsBodyType::Trigger)
+        body->SetTransformMatrix(ZServices::GameObjectManager()->ModelMatrix(rootObject));
 
-    if (object_->Scene()->PlayState() != ZPlayState::Playing)
+    if (ZServices::GameObjectManager()->Scene(rootObject)->PlayState() != ZPlayState::Playing)
         return;
 
     // Don't update static rigid bodies with the physic engine, since the physics engine cannot affect them
-    if (body_->InverseMass() == 0.0) return;
+    if (body->InverseMass() == 0.0) return;
 
-    glm::mat4 M = body_->TransformMatrix();
-    M = glm::scale(M, object_->Scale());
-    object_->SetModelMatrix(M);
+    glm::mat4 M = body->TransformMatrix();
+    M = glm::scale(M, ZServices::GameObjectManager()->Scale(rootObject));
+    ZServices::GameObjectManager()->SetModelMatrix(rootObject, M);
 }
 
-std::shared_ptr<ZComponent> ZPhysicsComponent::Clone()
+void ZPhysicsComponent::OnCloned(const ZHComponent& original)
 {
-    assert(body_ != nullptr);
-    std::shared_ptr<ZPhysicsComponent> clone = std::make_shared<ZPhysicsComponent>();
-    clone->body_ = body_->Clone();
-    return clone;
+    assert(body != nullptr);
+    ZPhysicsComponent* originalComp = ZServices::ComponentManager()->Dereference<ZPhysicsComponent>(original);
+    body = originalComp->body->Clone();
 }
 
-void ZPhysicsComponent::CleanUp()
+void ZPhysicsComponent::OnCleanUp()
 {
-    ZComponent::CleanUp();
-    if (object_ && body_) {
-        object_->Scene()->PhysicsUniverse()->RemoveRigidBody(body_);
+    if (!rootObject.IsNull() && body != nullptr)
+    {
+        ZServices::GameObjectManager()->Scene(rootObject)->PhysicsUniverse()->RemoveRigidBody(body);
     }
 }
 
 void ZPhysicsComponent::SetLinearDamping(float damping)
 {
-    assert(body_ != nullptr);
-    body_->SetLinearDamping(damping);
+    assert(body != nullptr);
+    body->SetLinearDamping(damping);
 }
 
 void ZPhysicsComponent::SetAngularDamping(float damping)
 {
-    assert(body_ != nullptr);
-    body_->SetAngularDamping(damping);
+    assert(body != nullptr);
+    body->SetAngularDamping(damping);
 }
 
 void ZPhysicsComponent::SetRestitution(float restitution)
 {
-    assert(body_ != nullptr);
-    body_->SetRestitution(restitution);
+    assert(body != nullptr);
+    body->SetRestitution(restitution);
 }
 
 void ZPhysicsComponent::SetTransform(const glm::mat4& transform)
 {
-    assert(body_ != nullptr);
-    body_->SetTransformMatrix(transform);
+    assert(body != nullptr);
+    body->SetTransformMatrix(transform);
 }
 
 void ZPhysicsComponent::AddCollider(const std::shared_ptr<ZCollider>& collider)
 {
-    assert(body_ != nullptr);
-    body_->AddCollider(collider);
+    assert(body != nullptr);
+    body->AddCollider(collider);
 }
 
 void ZPhysicsComponent::DisableCollisionResponse()
 {
-    assert(body_ != nullptr);
-    body_->DisableContactResponse();
+    assert(body != nullptr);
+    body->DisableContactResponse();
 }
 
 void ZPhysicsComponent::AddForce(const glm::vec3& force)
 {
-    assert(body_ != nullptr);
-    body_->ApplyForce(force);
+    assert(body != nullptr);
+    body->ApplyForce(force);
 }
 
 void ZPhysicsComponent::AddForceAtPoint(const glm::vec3& force, const glm::vec3& point)
 {
-    assert(body_ != nullptr);
-    body_->ApplyForceAtPoint(force, point);
+    assert(body != nullptr);
+    body->ApplyForceAtPoint(force, point);
 }
 
 void ZPhysicsComponent::AddTorque(const glm::vec3& torque)
 {
-    assert(body_ != nullptr);
-    body_->ApplyTorque(torque);
+    assert(body != nullptr);
+    body->ApplyTorque(torque);
 }
 
 bool ZPhysicsComponent::HasFiniteMass()
 {
-    assert(body_ != nullptr);
-    return body_->InverseMass() != 0.0;
+    assert(body != nullptr);
+    return body->InverseMass() != 0.0;
 }
-
-DEFINE_COMPONENT_CREATORS(ZPhysicsComponent)
 
 RTTR_REGISTRATION
 {

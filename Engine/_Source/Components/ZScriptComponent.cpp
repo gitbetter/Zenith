@@ -32,18 +32,12 @@
 
 #include <rttr/registration>
 
+ZIDSequence ZScriptComponent::idGenerator_;
+
 ZScriptComponent::ZScriptComponent()
 {
-    id_ = "ZCOMP_SCRIPT_" + std::to_string(idGenerator_.Next());
+    name = "ScriptComponent_" + std::to_string(idGenerator_.Next());
 }
-
-std::shared_ptr<ZComponent> ZScriptComponent::Clone()
-{
-    std::shared_ptr<ZScriptComponent> clone = std::make_shared<ZScriptComponent>();
-    return clone;
-}
-
-DEFINE_COMPONENT_CREATORS(ZScriptComponent)
 
 RTTR_REGISTRATION
 {

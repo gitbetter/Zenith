@@ -28,31 +28,32 @@
  */
 
 #include "ZEditorGizmo.hpp"
+#include "ZServices.hpp"
 #include "ZGameObject.hpp"
 
 void ZEditorGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
 {
-    gizmo_ = std::make_shared<ZGameObject>();
-    gizmo_->SetRenderOrder(ZRenderLayer::UI);
-    gizmo_->SetActive(false);
+    gizmo_ = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZServices::GameObjectManager()->SetRenderOrder(gizmo_, ZRenderLayer::UI);
+    ZServices::GameObjectManager()->SetActive(gizmo_, false);
 }
 
 bool ZEditorGizmo::Showing()
 {
-    return gizmo_->Active();
+    return ZServices::GameObjectManager()->Active(gizmo_);
 }
 
 void ZEditorGizmo::SetPosition(const glm::vec3& position)
 {
-    gizmo_->SetPosition(position);
+    ZServices::GameObjectManager()->SetPosition(gizmo_, position);
 }
 
 void ZEditorGizmo::Hide()
 {
-    gizmo_->SetActive(false);
+    ZServices::GameObjectManager()->SetActive(gizmo_, false);
 }
 
 void ZEditorGizmo::Show()
 {
-    gizmo_->SetActive(true);
+    ZServices::GameObjectManager()->SetActive(gizmo_, true);
 }

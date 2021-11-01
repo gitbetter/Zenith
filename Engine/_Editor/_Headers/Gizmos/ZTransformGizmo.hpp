@@ -29,14 +29,11 @@
 
 #pragma once
 
- // Includes
 #include "ZEditorGizmo.hpp"
 
-// Forward Declarations
 class ZScene;
 class ZGameObject;
 
-// Definitions
 class ZTransformGizmo : public ZEditorGizmo
 {
 public:
@@ -61,7 +58,7 @@ public:
 protected:
 
     std::shared_ptr<ZScene> previousActiveProjectScene_ = nullptr;
-    std::array<std::shared_ptr<ZGameObject>, 3> axisArrows_;
+    std::array<ZHGameObject, 3> axisArrows_;
     int selectedAxis_ = -1;
     glm::vec3 previousAxisPoint_{ 0.f };
     glm::vec2 previousCursorPos_{ 0.f };
@@ -69,6 +66,6 @@ protected:
 
     void OnProjectSceneChanged() override;
 
-    std::shared_ptr<ZGameObject> CreateAxisArrow(const glm::vec3& axis);
+    ZHGameObject CreateAxisArrow(const glm::vec3& axis);
 
 };

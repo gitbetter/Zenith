@@ -38,38 +38,46 @@
 void ZFrameStatsDisplay::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     ZEditorTool::Initialize(scene);
-    container_->SetColor(theme_.secondaryColor * 0.75f);
-    container_->SetRect(ZRect(0.01f, 0.01f, 0.35f, 0.25f));
-    container_->SetPadding(glm::vec2(5.f));
+
+    ZServices::UIElementManager()->SetColor(container_, theme_.secondaryColor * 0.75f);
+    ZServices::UIElementManager()->SetRect(container_, ZRect(0.01f, 0.01f, 0.35f, 0.25f));
+    ZServices::UIElementManager()->SetPadding(container_, glm::vec2(5.f));
 
     ZUILayoutOptions layoutOptions;
     layoutOptions.itemSpacing = 5.f;
-    layoutOptions.dimensions = container_->CalculatedRect();
-    container_->SetLayout(std::make_shared<ZUIVerticalLayout>(layoutOptions));
+    layoutOptions.dimensions = ZServices::UIElementManager()->CalculatedRect(container_);
+    ZServices::UIElementManager()->SetLayout(container_, std::make_shared<ZUIVerticalLayout>(layoutOptions));
 
-    container_->Hide();
+    ZServices::UIElementManager()->Hide(container_);
 
     SetupStatFields(scene);
 }
 
 void ZFrameStatsDisplay::Update()
 {
-    if (ZServices::Input()->Key(ZKey::Q)) {
-        if (container_->Hidden())
-            container_->Show();
+    if (ZServices::Input()->Key(ZKey::Q))
+    {
+        if (ZServices::UIElementManager()->Hidden(container_))
+        {
+            ZServices::UIElementManager()->Show(container_);
+        }
     }
-    else {
-        if (!container_->Hidden())
-            container_->Hide();
+    else
+    {
+        if (!ZServices::UIElementManager()->Hidden(container_))
+        {
+            ZServices::UIElementManager()->Hide(container_);
+        }
     }
 
-    if (!container_->Hidden()) {
+    if (!ZServices::UIElementManager()->Hidden(container_))
+    {
         ZFrameStats frameStats = ZPR_SESSION_STATS(activeProjectScene_->GameName());
-        drawCallsText_->SetText(std::to_string(frameStats.totalDrawCalls));
-        verticesText_->SetText(std::to_string(frameStats.totalVertices));
-        renderPassesText_->SetText(std::to_string(frameStats.totalRenderPasses));
-        frameTimeText_->SetText(std::to_string(frameStats.frameTime));
-        fpsText_->SetText(std::to_string(frameStats.framesPerSecond));
+        ZServices::UIElementManager()->Dereference<ZUIText>(drawCallsText_)->SetText(std::to_string(frameStats.totalDrawCalls));
+        ZServices::UIElementManager()->Dereference<ZUIText>(verticesText_)->SetText(std::to_string(frameStats.totalVertices));
+        ZServices::UIElementManager()->Dereference<ZUIText>(renderPassesText_)->SetText(std::to_string(frameStats.totalRenderPasses));
+        ZServices::UIElementManager()->Dereference<ZUIText>(frameTimeText_)->SetText(std::to_string(frameStats.frameTime));
+        ZServices::UIElementManager()->Dereference<ZUIText>(fpsText_)->SetText(std::to_string(frameStats.framesPerSecond));
     }
 }
 
@@ -82,29 +90,29 @@ void ZFrameStatsDisplay::SetupStatFields(const std::shared_ptr<ZScene>& scene)
     textOptions.maxSize = glm::vec2(0.f, 25.f);
     textOptions.color = glm::vec4(1.f);
 
-    drawCallsText_ = ZUIText::Create(textOptions, scene);
-    drawCallsText_->SetFontScale(14.f);
+    drawCallsText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
+    ZServices::UIElementManager()->Dereference<ZUIText>(drawCallsText_)->SetFontScale(14.f);
     auto drawCallsField = ZUILabeledElement::Create("Draw Calls: ", drawCallsText_);
 
-    verticesText_ = ZUIText::Create(textOptions, scene);
-    verticesText_->SetFontScale(14.f);
+    verticesText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
+    ZServices::UIElementManager()->Dereference<ZUIText>(verticesText_)->SetFontScale(14.f);
     auto verticesField = ZUILabeledElement::Create("Vertices: ", verticesText_);
 
-    renderPassesText_ = ZUIText::Create(textOptions, scene);
-    renderPassesText_->SetFontScale(14.f);
+    renderPassesText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
+    ZServices::UIElementManager()->Dereference<ZUIText>(renderPassesText_)->SetFontScale(14.f);
     auto renderPassesField = ZUILabeledElement::Create("Render Passes: ", renderPassesText_);
 
-    frameTimeText_ = ZUIText::Create(textOptions, scene);
-    frameTimeText_->SetFontScale(14.f);
+    frameTimeText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
+    ZServices::UIElementManager()->Dereference<ZUIText>(frameTimeText_)->SetFontScale(14.f);
     auto frameTimeField = ZUILabeledElement::Create("Frame Time: ", frameTimeText_);
 
-    fpsText_ = ZUIText::Create(textOptions, scene);
-    fpsText_->SetFontScale(14.f);
+    fpsText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
+    ZServices::UIElementManager()->Dereference<ZUIText>(fpsText_)->SetFontScale(14.f);
     auto fpsField = ZUILabeledElement::Create("FPS: ", fpsText_);
 
-    container_->AddChild(drawCallsField);
-    container_->AddChild(verticesField);
-    container_->AddChild(renderPassesField);
-    container_->AddChild(frameTimeField);
-    container_->AddChild(fpsField);
+    ZServices::UIElementManager()->AddChild(container_, drawCallsField);
+    ZServices::UIElementManager()->AddChild(container_, verticesField);
+    ZServices::UIElementManager()->AddChild(container_, renderPassesField);
+    ZServices::UIElementManager()->AddChild(container_, frameTimeField);
+    ZServices::UIElementManager()->AddChild(container_, fpsField);
 }

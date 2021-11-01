@@ -352,14 +352,14 @@ ZHTexture ZGLTextureManager::CreateCubeMap(const ZHTexture& hdrTexture, std::sha
 		glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
 	};
 
-	std::shared_ptr<ZCube> cube = ZCube::Create(glm::vec3(1.f, 1.f, 1.f));
+	ZHModel cube = ZServices::ModelManager()->Create(ZModelType::Cube);
 	ZHShader equirectToCubemapShader = ZServices::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/equirect_to_cube.frag");
 	ZServices::ShaderManager()->Activate(equirectToCubemapShader);
 	ZServices::ShaderManager()->SetMat4(equirectToCubemapShader, "P", captureProjection);
 
 	ZServices::ShaderManager()->BindAttachment(equirectToCubemapShader, "equirectangularMapSampler0", hdrTexture);
 
-	ZServices::ShaderManager()->Use(equirectToCubemapShader, ZMaterial::Default());
+	ZServices::ShaderManager()->Use(equirectToCubemapShader, ZServices::MaterialManager()->Default());
 
 	bufferData->Bind();
 	ZServices::Graphics()->UpdateViewport(glm::vec2(CUBE_MAP_SIZE, CUBE_MAP_SIZE));
@@ -368,8 +368,9 @@ ZHTexture ZGLTextureManager::CreateCubeMap(const ZHTexture& hdrTexture, std::sha
 		ZServices::ShaderManager()->SetMat4(equirectToCubemapShader, "V", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture->id, 0);
 		ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
-		for (const auto& [id, mesh] : cube->Meshes()) {
-			ZServices::Graphics()->Draw(mesh->BufferData());
+		for (const auto& mesh : ZServices::ModelManager()->Meshes(cube))
+		{
+			ZServices::Graphics()->Draw(mesh.bufferData);
 		}
 	}
 	bufferData->Unbind();
@@ -454,14 +455,14 @@ ZHTexture ZGLTextureManager::CreateIrradianceMap(const std::shared_ptr<ZFramebuf
 		glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
 	};
 
-	std::shared_ptr<ZCube> cube = ZCube::Create(glm::vec3(1.f, 1.f, 1.f));
+	ZHModel cube = ZServices::ModelManager()->Create(ZModelType::Cube);
 	ZHShader irradianceShader = ZServices::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/irradiance.frag");
 	ZServices::ShaderManager()->Activate(irradianceShader);
 	ZServices::ShaderManager()->SetMat4(irradianceShader, "P", captureProjection);
 
 	ZServices::ShaderManager()->BindAttachment(irradianceShader, "environmentMapSampler0", cubemapTexture);
 
-	ZServices::ShaderManager()->Use(irradianceShader, ZMaterial::Default());
+	ZServices::ShaderManager()->Use(irradianceShader, ZServices::MaterialManager()->Default());
 
 	cubemapBufferData->Bind();
 	cubemapBufferData->BindRenderbuffer();
@@ -472,8 +473,9 @@ ZHTexture ZGLTextureManager::CreateIrradianceMap(const std::shared_ptr<ZFramebuf
 		ZServices::ShaderManager()->SetMat4(irradianceShader, "V", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture->id, 0);
 		ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
-		for (const auto& [id, mesh] : cube->Meshes()) {
-			ZServices::Graphics()->Draw(mesh->BufferData());
+		for (const auto& mesh : ZServices::ModelManager()->Meshes(cube))
+		{
+			ZServices::Graphics()->Draw(mesh.bufferData);
 		}
 	}
 	cubemapBufferData->UnbindRenderbuffer();
@@ -499,7 +501,7 @@ ZHTexture ZGLTextureManager::CreatePrefilterMap(const std::shared_ptr<ZFramebuff
 		glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
 	};
 
-	std::shared_ptr<ZCube> cube = ZCube::Create(glm::vec3(1.f, 1.f, 1.f));
+	ZHModel cube = ZServices::ModelManager()->Create(ZModelType::Cube);
 	ZHShader prefilterShader = ZServices::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/prefilter_convolution.frag");
 	ZServices::ShaderManager()->Activate(prefilterShader);
 	ZServices::ShaderManager()->SetMat4(prefilterShader, "P", captureProjection);
@@ -507,7 +509,7 @@ ZHTexture ZGLTextureManager::CreatePrefilterMap(const std::shared_ptr<ZFramebuff
 
 	ZServices::ShaderManager()->BindAttachment(prefilterShader, "environmentMapSampler0", cubemapTexture);
 
-	ZServices::ShaderManager()->Use(prefilterShader, ZMaterial::Default());
+	ZServices::ShaderManager()->Use(prefilterShader, ZServices::MaterialManager()->Default());
 
 	cubemapBufferData->Bind();
 
@@ -527,8 +529,9 @@ ZHTexture ZGLTextureManager::CreatePrefilterMap(const std::shared_ptr<ZFramebuff
 			ZServices::ShaderManager()->SetMat4(prefilterShader, "V", captureViews[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture->id, mip);
 			ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
-			for (const auto& [id, mesh] : cube->Meshes()) {
-				ZServices::Graphics()->Draw(mesh->BufferData());
+			for (const auto& mesh : ZServices::ModelManager()->Meshes(cube))
+			{
+				ZServices::Graphics()->Draw(mesh.bufferData);
 			}
 		}
 	}

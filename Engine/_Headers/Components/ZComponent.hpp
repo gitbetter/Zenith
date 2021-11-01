@@ -49,43 +49,63 @@ std::shared_ptr<Type> Type::CreateIn(const ZHGameObject& gameObject, const std::
     return comp;\
 }
 
+#include "ZResourceManager.hpp"
 #include "ZIDSequence.hpp"
-#include "ZProcess.hpp"
+#include "ZOFTree.hpp"
 #include <rttr/type>
 
-class ZComponent : public ZProcess
+enum class ZComponentType
+{
+    Graphics, Physics, Animator, Collider, Script, Other
+};
+
+struct ZComponent
 {
     RTTR_ENABLE()
 
-    friend class ZGameObject;
+public:
 
-    using Creator = std::shared_ptr<ZComponent>(*)(const ZHGameObject&, const std::shared_ptr<struct ZOFObjectNode>&);
+    virtual ~ZComponent() = default;
+
+	virtual void OnCreate() { }
+	virtual void OnDeserialize(const std::shared_ptr<struct ZOFObjectNode>& dataNode) { }
+    virtual void OnUpdate(double deltaTime) { };
+    virtual void OnCloned(const ZHComponent& original) { };
+    virtual void OnCleanUp() { };
+
+    ZComponentType type;
+    ZHGameObject rootObject;
+    std::string name;
 
 public:
 
-    virtual ~ZComponent() {}
+    static bool MultipleSupported(ZComponentType type);
+    static ZComponentType StringToComponentType(const std::string& type);
 
-    virtual void Initialize() override { ZProcess::Initialize(); }
-    virtual void Initialize(std::shared_ptr<struct ZOFNode> root) = 0;
+};
 
-    virtual void CleanUp() { Abort(); }
+class ZComponentManager : public ZResourceManager<ZComponent, ZHComponent>
+{
 
-    virtual std::shared_ptr<ZComponent> Clone() = 0;
+public:
 
-    ZHGameObject Object() { return object_; }
+	virtual ~ZComponentManager() = default;
 
-    static std::shared_ptr<ZComponent> CreateGraphicsComponent(const ZHGameObject& gameObject, const std::shared_ptr<ZOFObjectNode>& data = nullptr);
-    static std::shared_ptr<ZComponent> CreatePhysicsComponent(const ZHGameObject& gameObject, const std::shared_ptr<ZOFObjectNode>& data = nullptr);
-    static std::shared_ptr<ZComponent> CreateAnimatorComponent(const ZHGameObject& gameObject, const std::shared_ptr<ZOFObjectNode>& data = nullptr);
-    static std::shared_ptr<ZComponent> CreateColliderComponent(const ZHGameObject& gameObject, const std::shared_ptr<ZOFObjectNode>& data = nullptr);
+public:
 
-    static void CreateIn(const ZHGameObject& gameObject, const std::shared_ptr<ZOFObjectNode>& data = nullptr);
+	virtual void Initialize() override { }
+	virtual void CleanUp() override { }
 
-protected:
+public:
 
-    ZHGameObject object_;
+    ZHComponent CreateIn(ZComponentType type, const ZHGameObject& gameObject, const std::shared_ptr<struct ZOFObjectNode>& data = nullptr);
+    ZHComponent Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<struct ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene = nullptr);
 
-    static ZIDSequence idGenerator_;
-    static std::map<ZOFObjectType, Creator> componentCreators_;
+	ZHGameObject Object(const ZHComponent& handle);
+    std::string Name(const ZHComponent& handle);
+
+	void Update(const ZHComponent& handle, float deltaTime);
+	void CleanUp(const ZHComponent& handle);
+    ZHComponent Clone(const ZHComponent& handle);
 
 };

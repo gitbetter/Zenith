@@ -44,7 +44,7 @@ struct ZRenderPipelineState
 
 struct ZRenderResourceState
 {
-    ZTextureList textures;
+    ZTextureSlotList textures;
     ZUBOList uniformBuffers;
     std::shared_ptr<ZVertexBuffer> vertexBuffer = nullptr;
     ZHShader shader;

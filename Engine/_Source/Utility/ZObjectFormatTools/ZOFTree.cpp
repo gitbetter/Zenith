@@ -31,6 +31,14 @@
 
 ZOFObjectType ZOFObjectNode::StringToType(const std::string& type)
 {
+	if (type == "Config")
+	{
+		return ZOFObjectType::Config;
+	}
+	if (type == "Theme")
+	{
+		return ZOFObjectType::Theme;
+	}
 	if (type == "GameObject")
 	{
 		return ZOFObjectType::GameObject;

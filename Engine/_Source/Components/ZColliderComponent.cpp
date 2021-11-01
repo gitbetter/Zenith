@@ -35,26 +35,27 @@
 
 #include <rttr/registration>
 
+ZIDSequence ZColliderComponent::idGenerator_;
+
 ZColliderComponent::ZColliderComponent()
 {
-    id_ = "ZCOMP_COLLIDER_" + std::to_string(idGenerator_.Next());
+    name = "ZCOMP_COLLIDER_" + std::to_string(idGenerator_.Next());
 }
 
 void ZColliderComponent::Initialize(ZColliderType type, const glm::vec3& extents, const glm::vec3& offset)
 {
-    collider_ = ZCollider::Create(type, extents, offset);
+    collider = ZCollider::Create(type, extents, offset);
 }
 
-void ZColliderComponent::Initialize(std::shared_ptr<ZOFNode> root)
+void ZColliderComponent::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 {
-    std::shared_ptr<ZOFObjectNode> node = std::dynamic_pointer_cast<ZOFObjectNode>(root);
-    if (!node)
+    if (!dataNode)
     {
         LOG("Could not initalize ZColliderComponent", ZSeverity::Error);
         return;
     }
 
-    ZOFPropertyMap props = node->properties;
+    ZOFPropertyMap props = dataNode->properties;
 
     std::string shape;
     if (props.find("shape") != props.end() && props["shape"]->HasValues())
@@ -93,31 +94,27 @@ void ZColliderComponent::Initialize(std::shared_ptr<ZOFNode> root)
     else if (shape == "Cone") {
         type = ZColliderType::Cone;
     }
+
     Initialize(type, extents, offset);
 }
 
-void ZColliderComponent::Update(double deltaTime)
+void ZColliderComponent::OnUpdate(double deltaTime)
 {
     AddColliderIfNecessary();
 }
 
-std::shared_ptr<ZComponent> ZColliderComponent::Clone()
-{
-    auto comp = std::make_shared<ZColliderComponent>();
-    return comp;
-}
-
 void ZColliderComponent::AddColliderIfNecessary()
 {
-    if (!added_) {
-        if (auto physicsComp = object_->FindComponent<ZPhysicsComponent>()) {
-            physicsComp->AddCollider(collider_);
+    if (!added_)
+    {
+        if (const ZHComponent& physicsComp = ZServices::GameObjectManager()->FindComponent<ZPhysicsComponent>(rootObject))
+        {
+            ZPhysicsComponent* physicsCompObj = ZServices::ComponentManager()->Dereference<ZPhysicsComponent>(physicsComp);
+            physicsCompObj->AddCollider(collider);
             added_ = true;
         }
     }
 }
-
-DEFINE_COMPONENT_CREATORS(ZColliderComponent)
 
 RTTR_REGISTRATION
 {

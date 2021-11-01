@@ -35,17 +35,12 @@
 #include "ZRenderPass.hpp"
 #include "ZCamera.hpp"
 
-ZSceneRoot::ZSceneRoot(const std::string& name) : ZGameObject(name)
-{ }
-
-void ZSceneRoot::Initialize()
+void ZSceneRoot::OnCreate()
 {
     ZRenderStateGroupWriter writer;
     writer.Begin();
     writer.SetRenderLayer(ZRenderLayer::UI);
-    renderState_ = writer.End();
-
-    ZGameObject::Initialize();
+    renderState = writer.End();
 }
 
 std::shared_ptr<ZMesh2D> ZSceneRoot::ScreenTri()
@@ -54,41 +49,46 @@ std::shared_ptr<ZMesh2D> ZSceneRoot::ScreenTri()
     return screenTri;
 }
 
-void ZSceneRoot::Prepare(double deltaTime)
+void ZSceneRoot::OnUpdate(double deltaTime)
 {
-    auto scene = Scene();
-    if (!scene) return;
+    auto sceneSP = scene.lock();
+    if (sceneSP == nullptr)
+    {
+        return;
+    }
 
-    auto cam = scene->ActiveCamera();
-    if (!cam) return;
+    auto cam = sceneSP->ActiveCamera();
+    if (cam.IsNull())
+    {
+        return;
+    }
 
-    auto mesh = ScreenTri();
-
-    auto meshState = mesh->renderState;
-    auto cameraState = cam->RenderState();
+    auto meshState = ScreenTri()->renderState;
+    auto cameraState = ZServices::GameObjectManager()->RenderState(cam);
 
     ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
     auto renderTask = ZRenderTask::Compile(drawCall,
-        { cameraState, meshState, renderState_ },
+        { cameraState, meshState, renderState },
         ZRenderPass::Post()
     );
     renderTask->Submit({ ZRenderPass::Post() });
 
-    PrepareChildren(deltaTime);
+	if (sceneSP->GameConfig().graphics.drawGrid)
+	{
+		ZServices::Graphics()->DebugDrawGrid(sceneSP, glm::vec4(0.75f, 0.75f, 0.75f, 1.f));
+	}
 }
 
-void ZSceneRoot::PrepareChildren(double deltaTime)
+void ZSceneRoot::OnUpdateChildren(double deltaTime)
 {
-    auto scene = Scene();
-    if (!scene) return;
+	auto sceneSP = scene.lock();
+	if (sceneSP == nullptr)
+	{
+		return;
+	}
 
-    if (scene->GameConfig().graphics.drawGrid)
-        ZServices::Graphics()->DebugDrawGrid(scene, glm::vec4(0.75f, 0.75f, 0.75f, 1.f));
-
-    ZGameObject::PrepareChildren(deltaTime);
-
-    if (scene->GameConfig().graphics.drawPhysicsDebug)
-        scene->PhysicsUniverse()->DebugDraw(scene);
+    if (sceneSP->GameConfig().graphics.drawPhysicsDebug)
+    {
+        sceneSP->PhysicsUniverse()->DebugDraw(sceneSP);
+    }
 }
-
-DEFINE_OBJECT_CREATORS(ZSceneRoot)
