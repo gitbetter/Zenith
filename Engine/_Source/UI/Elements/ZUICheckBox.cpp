@@ -27,8 +27,9 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZServices.hpp"
 #include "ZUICheckBox.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUIImage.hpp"
 #include "ZUIClicker.hpp"
 #include "ZInputButtonEvent.hpp"
@@ -46,10 +47,10 @@ void ZUICheckBox::OnInitialize() {
     options.color = glm::vec4(1.f);
     options.flipped = true;
     options.hidden = !checked_;
-    checkImage_ = ZServices::UIElementManager()->Create(ZUIElementType::Image, options, ZHUIElement(), ZServices::UIElementManager()->Scene(handle));
-    ZUIImage* image = ZServices::UIElementManager()->Dereference<ZUIImage>(checkImage_);
+    checkImage_ = ZAssets::UIElementManager()->Create(ZUIElementType::Image, options, ZHUIElement(), ZAssets::UIElementManager()->Scene(handle));
+    ZUIImage* image = ZAssets::UIElementManager()->Dereference<ZUIImage>(checkImage_);
     image->SetImage("/Textures/UI/checkmark.png");
-    ZServices::UIElementManager()->AddChild(handle, checkImage_);
+    ZAssets::UIElementManager()->AddChild(handle, checkImage_);
 }
 
 void ZUICheckBox::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
@@ -59,7 +60,7 @@ void ZUICheckBox::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
     if (props.find("checkColor") != props.end() && props["checkColor"]->HasValues())
     {
         std::shared_ptr<ZOFNumberList> chkColorProp = props["checkColor"]->Value<ZOFNumberList>(0);
-        ZServices::UIElementManager()->SetColor(checkImage_, glm::vec4(chkColorProp->value[0], chkColorProp->value[1], chkColorProp->value[2], chkColorProp->value[3]));
+        ZAssets::UIElementManager()->SetColor(checkImage_, glm::vec4(chkColorProp->value[0], chkColorProp->value[1], chkColorProp->value[2], chkColorProp->value[3]));
     }
 }
 
@@ -68,11 +69,11 @@ void ZUICheckBox::SetChecked(bool checked)
     checked_ = checked;
     if (checked_)
     {
-        ZServices::UIElementManager()->Show(handle);
+        ZAssets::UIElementManager()->Show(handle);
     }
     else
     {
-        ZServices::UIElementManager()->Hide(handle);
+        ZAssets::UIElementManager()->Hide(handle);
     }
 }
 

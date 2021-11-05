@@ -40,7 +40,7 @@ struct ZLight : public ZGameObject
 
 public:
 
-    ZLight(ZLightType lightType);
+    ZLight(ZLightType lightType = ZLightType::Directional);
     ~ZLight() = default;
 
     virtual void OnCreate() override;

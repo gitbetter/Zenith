@@ -29,6 +29,7 @@
 
 #include "ZUIListPanel.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 
 ZUIListPanel::ZUIListPanel()
 {
@@ -48,11 +49,11 @@ void ZUIListPanel::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 
 void ZUIListPanel::OnChildAdded(const ZHUIElement& element)
 {
-    const glm::vec2 thisSize = ZServices::UIElementManager()->Size(handle);
-    const size_t thisNumChildren = ZServices::UIElementManager()->Children(handle).size();
+    const glm::vec2 thisSize = ZAssets::UIElementManager()->Size(handle);
+    const size_t thisNumChildren = ZAssets::UIElementManager()->Children(handle).size();
 
-    ZServices::UIElementManager()->SetPosition(element, glm::vec2(thisSize.x, 2.f * itemHeight_ * thisNumChildren + itemHeight_));
-    ZServices::UIElementManager()->SetSize(element, glm::vec2(thisSize.x, itemHeight_));
+    ZAssets::UIElementManager()->SetPosition(element, glm::vec2(thisSize.x, 2.f * itemHeight_ * thisNumChildren + itemHeight_));
+    ZAssets::UIElementManager()->SetSize(element, glm::vec2(thisSize.x, itemHeight_));
 
-    ZServices::UIElementManager()->SetSize(handle, glm::vec2(thisSize.x, glm::max(thisSize.y, itemHeight_ * thisNumChildren)));
+    ZAssets::UIElementManager()->SetSize(handle, glm::vec2(thisSize.x, glm::max(thisSize.y, itemHeight_ * thisNumChildren)));
 }

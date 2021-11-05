@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZParticle.cpp
+	ZFontResourceLoader.cpp
 
-    Created by Adrian Sanchez on 13/02/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 11/05/2021.
+	Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,28 +27,4 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZParticle.hpp"
-#include "ZAssets.hpp"
-#include "ZGraphicsComponent.hpp"
-#include "ZPhysicsComponent.hpp"
-
-void ZParticle::OnCreate()
-{
-// TODO: Uncomment once approriate model and shader is chosen for
-// displaying a particle
-// if (FindComponent<ZGraphicsComponent>() == nullptr)
-// {
-//   AddComponent(new ZGraphicsComponent(the-model, the-shader));
-// }
-
-    if (ZAssets::GameObjectManager()->FindComponent<ZPhysicsComponent>(handle).IsNull())
-    {
-        ZAssets::ComponentManager()->CreateIn(ZComponentType::Physics, handle);
-    }
-}
-
-void ZParticle::OnUpdate(double deltaTime)
-{
-    age -= deltaTime;
-    // TODO: Render a particle as a quad that rotates with the camera
-}
+#include "ZFontResourceLoader.hpp"

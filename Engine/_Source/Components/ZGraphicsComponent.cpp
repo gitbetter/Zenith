@@ -29,6 +29,7 @@
 
 #include "ZGraphicsComponent.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZModel.hpp"
 #include "ZShader.hpp"
 #include "ZMaterial.hpp"
@@ -62,7 +63,7 @@ void ZGraphicsComponent::Initialize(const ZHModel& model)
 
     ZRenderStateGroupWriter writer;
     writer.Begin();
-    writer.SetRenderLayer(ZServices::GameObjectManager()->RenderLayer(rootObject));
+    writer.SetRenderLayer(ZAssets::GameObjectManager()->RenderLayer(rootObject));
     overrideState = writer.End();
 }
 
@@ -129,7 +130,7 @@ void ZGraphicsComponent::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dat
 
 void ZGraphicsComponent::OnCloned(const ZHComponent& original)
 {
-    ZGraphicsComponent* originalObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(original);
+    ZGraphicsComponent* originalObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(original);
     models = originalObj->models;
     materials = originalObj->materials;
     outlineMaterial = originalObj->outlineMaterial;
@@ -146,7 +147,7 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
             return;
         }
 
-        auto scene = ZServices::GameObjectManager()->Scene(rootObject);
+        auto scene = ZAssets::GameObjectManager()->Scene(rootObject);
         if (!scene || !gameCamera)
         {
             return;
@@ -157,9 +158,9 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
             scene->AddBVHPrimitive(ZBVHPrimitive(rootObject, bounds));
         }
 
-        glm::mat4 modelMatrix = ZServices::GameObjectManager()->ModelMatrix(rootObject);
+        glm::mat4 modelMatrix = ZAssets::GameObjectManager()->ModelMatrix(rootObject);
 
-        auto viewPos = ZServices::GameObjectManager()->Position(rootObject) - ZServices::GameObjectManager()->Position(gameCamera);
+        auto viewPos = ZAssets::GameObjectManager()->Position(rootObject) - ZAssets::GameObjectManager()->Position(gameCamera);
 
         ZRenderStateGroupWriter writer(overrideState);
         writer.Begin();
@@ -167,7 +168,7 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
         {
             writer.SetRenderDepth(viewPos.z * 100.f);
         }
-        if (ZServices::GameObjectManager()->RenderLayer(rootObject) == ZRenderLayer::UI)
+        if (ZAssets::GameObjectManager()->RenderLayer(rootObject) == ZRenderLayer::UI)
         {
             writer.SetRenderDepth(0.f);
             writer.SetDepthStencilState({ ZDepthStencilState::None });
@@ -178,23 +179,23 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
         }
         overrideState = writer.End();
 
-        std::shared_ptr<ZRenderStateGroup> cameraState = ZServices::GameObjectManager()->RenderState(gameCamera);
-        std::shared_ptr<ZRenderStateGroup> objectState = ZServices::GameObjectManager()->RenderState(rootObject);
-        std::shared_ptr<ZRenderStateGroup> modelState = ZServices::ModelManager()->RenderState(model);
+        std::shared_ptr<ZRenderStateGroup> cameraState = ZAssets::GameObjectManager()->RenderState(gameCamera);
+        std::shared_ptr<ZRenderStateGroup> objectState = ZAssets::GameObjectManager()->RenderState(rootObject);
+        std::shared_ptr<ZRenderStateGroup> modelState = ZAssets::ModelManager()->RenderState(model);
         std::shared_ptr<ZRenderStateGroup> skyboxState = nullptr;
 
         if (scene->Skybox())
         {
-            skyboxState = ZServices::GameObjectManager()->RenderState(scene->Skybox());
+            skyboxState = ZAssets::GameObjectManager()->RenderState(scene->Skybox());
         }
 
         if (materials.empty())
         {
-		    materials.push_back(ZServices::MaterialManager()->Default());
+            materials.push_back(ZAssets::MaterialManager()->Default());
         }
 
         // This setup assumes a forward rendering pipeline
-        for (const auto& mesh : ZServices::ModelManager()->Meshes(model))
+        for (const auto& mesh : ZAssets::ModelManager()->Meshes(model))
         {
             ZPR_SESSION_COLLECT_VERTICES(mesh.Vertices().size());
 
@@ -224,10 +225,10 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
             {
                 for (const auto& light : gameLights)
                 {
-                    auto lightState = ZServices::GameObjectManager()->RenderState(light);
+                    auto lightState = ZAssets::GameObjectManager()->RenderState(light);
                     for (auto material : materials)
                     {
-                        auto materialState = ZServices::MaterialManager()->RenderState(material);
+                        auto materialState = ZAssets::MaterialManager()->RenderState(material);
 
                         auto colorRenderTask = ZRenderTask::Compile(drawCall,
                             { cameraState, objectState, modelState, meshState, materialState, lightState, skyboxState, overrideState },
@@ -241,7 +242,7 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
             {
                 for (auto material : materials)
                 {
-                    auto materialState = ZServices::MaterialManager()->RenderState(material);
+                    auto materialState = ZAssets::MaterialManager()->RenderState(material);
 
                     auto colorRenderTask = ZRenderTask::Compile(drawCall,
                         { cameraState, objectState, modelState, meshState, materialState, skyboxState, overrideState },
@@ -251,7 +252,7 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
                 }
             }
         }
-    
+
         if (outlineMaterial)
         {
             UpdateOutlineDisplay(modelMatrix, model, cameraState);
@@ -267,7 +268,7 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
 void ZGraphicsComponent::UpdateOutlineDisplay(glm::mat4& modelMatrix, const ZHModel& model, const std::shared_ptr<ZRenderStateGroup>& cameraState)
 {
     glm::mat4 highlightModelMatrix = glm::scale(modelMatrix, glm::vec3(1.03f, 1.03f, 1.03f));
-    ZServices::GameObjectManager()->SetModelMatrix(rootObject, highlightModelMatrix);
+    ZAssets::GameObjectManager()->SetModelMatrix(rootObject, highlightModelMatrix);
 
     ZRenderStateGroupWriter writer(overrideState);
     writer.Begin();
@@ -275,12 +276,12 @@ void ZGraphicsComponent::UpdateOutlineDisplay(glm::mat4& modelMatrix, const ZHMo
     writer.SetDepthStencilState({ ZDepthStencilState::Depth });
     overrideState = writer.End();
 
-    auto objectState = ZServices::GameObjectManager()->RenderState(rootObject);
-    auto modelState = ZServices::ModelManager()->RenderState(model);
+    auto objectState = ZAssets::GameObjectManager()->RenderState(rootObject);
+    auto modelState = ZAssets::ModelManager()->RenderState(model);
 
-    for (const auto& mesh : ZServices::ModelManager()->Meshes(model)) {
+    for (const auto& mesh : ZAssets::ModelManager()->Meshes(model)) {
         auto meshState = mesh.renderState;
-		auto materialState = ZServices::MaterialManager()->RenderState(outlineMaterial);
+        auto materialState = ZAssets::MaterialManager()->RenderState(outlineMaterial);
 
         ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
         auto highlightRenderTask = ZRenderTask::Compile(drawCall,
@@ -290,7 +291,7 @@ void ZGraphicsComponent::UpdateOutlineDisplay(glm::mat4& modelMatrix, const ZHMo
         highlightRenderTask->Submit({ ZRenderPass::Color() });
     }
 
-    ZServices::GameObjectManager()->SetModelMatrix(rootObject, modelMatrix);
+    ZAssets::GameObjectManager()->SetModelMatrix(rootObject, modelMatrix);
 }
 
 void ZGraphicsComponent::AddMaterial(const ZHMaterial& material)
@@ -304,31 +305,31 @@ void ZGraphicsComponent::AddMaterial(const ZHMaterial& material)
 
 void ZGraphicsComponent::SetOutline(const glm::vec4& color)
 {
-    auto scene = ZServices::GameObjectManager()->Scene(rootObject);
+    auto scene = ZAssets::GameObjectManager()->Scene(rootObject);
     if (!scene) return;
 
-	if (!outlineMaterial.IsNull() && color == glm::vec4(0.f))
+    if (!outlineMaterial.IsNull() && color == glm::vec4(0.f))
     {
-        ZServices::MaterialManager()->SetProperty(outlineMaterial, "albedo", color);
+        ZAssets::MaterialManager()->SetProperty(outlineMaterial, "albedo", color);
     }
     else if (outlineMaterial.IsNull())
     {
         ZMaterialProperties materialProperties;
         materialProperties.albedo = color;
-        outlineMaterial = ZServices::MaterialManager()->Create(materialProperties, ZServices::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/outline.frag"));
+        outlineMaterial = ZAssets::MaterialManager()->Create(materialProperties, ZAssets::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/outline.frag"));
     }
 }
 
 void ZGraphicsComponent::AddModel(const ZHModel& model)
 {
     models.push_back(model);
-    ZServices::ModelManager()->SetInstanceData(model, instanceData);
+    ZAssets::ModelManager()->SetInstanceData(model, instanceData);
     SetupAABB();
 }
 
 void ZGraphicsComponent::SetupAABB()
 {
-    auto mat = !rootObject.IsNull() ? ZServices::GameObjectManager()->ModelMatrix(rootObject) : glm::mat4(1.f);
+    auto mat = !rootObject.IsNull() ? ZAssets::GameObjectManager()->ModelMatrix(rootObject) : glm::mat4(1.f);
     Transform(mat);
 }
 
@@ -339,11 +340,11 @@ bool ZGraphicsComponent::IsVisible(ZFrustum frustrum)
 
 void ZGraphicsComponent::Transform(const glm::mat4& mat)
 {
-	if (!hasAABB || models.empty()) return;
+    if (!hasAABB || models.empty()) return;
     bounds = ZAABBox();
     for (ZHModel& model : models)
     {
-        bounds = ZAABBox::Union(bounds, ZServices::ModelManager()->Bounds(model));
+        bounds = ZAABBox::Union(bounds, ZAssets::ModelManager()->Bounds(model));
     }
     bounds = mat * bounds;
 }

@@ -28,6 +28,7 @@
  */
 
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZEditor.hpp"
 #include "ZEditorScene.hpp"
 #include "ZDevResourceFile.hpp"
@@ -39,7 +40,7 @@ void ZEditor::Setup() {
 
 	ZServices::ResourceImporter()->RegisterResourceFile(std::shared_ptr<ZDevResourceFile>(new ZDevResourceFile(std::string(EDITOR_ROOT) + "/_Assets")));
 
-    ZServices::FontManager()->CreateAsync("/Fonts/earth_orbiter/earthorbiter.ttf", 64);
+    ZAssets::FontManager()->CreateAsync("/Fonts/earth_orbiter/earthorbiter.ttf", 64);
 
     ZServices::EventAgent()->Subscribe(this, &ZEditor::HandleSceneLoaded);
 
@@ -61,7 +62,7 @@ void ZEditor::CreateDefaultProject()
     project_->Initialize(options);
     project_->SetTopLevel(false);
 
-    ZScene::LoadIn<ZScene>(project_, std::initializer_list<std::string>({ "/demo_scene.zof" }));
+    ZScene::LoadIn<ZScene>(project_);
 
     OnUpdateTick([this]() {
         if (project_->ActiveScene() != editorScene_->ActiveProjectScene())

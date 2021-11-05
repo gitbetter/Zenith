@@ -28,6 +28,7 @@
 */
 
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUIImage.hpp"
 #include "ZTextureReadyEvent.hpp"
 
@@ -54,7 +55,7 @@ void ZUIImage::SetImage(const std::string& path)
     {
         path_ = path;
         ZServices::EventAgent()->Subscribe(this, &ZUIImage::HandleTextureReady);
-        ZServices::TextureManager()->CreateAsync(path, "");
+        ZAssets::TextureManager()->CreateAsync(path, "");
     }
 }
 
@@ -62,8 +63,8 @@ void ZUIImage::SetImage(const ZHTexture& texture)
 {
     if (texture)
     {
-        ZServices::TextureManager()->SetType(texture, "color");
-        ZServices::UIElementManager()->SetTexture(handle, texture);
+        ZAssets::TextureManager()->SetType(texture, "color");
+        ZAssets::UIElementManager()->SetTexture(handle, texture);
     }
 }
 

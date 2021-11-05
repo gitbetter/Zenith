@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "ZProcess.hpp"
+#include "ZCommon.hpp"
 #include "ZVertexBuffer.hpp"
 
 class ZMaterial;
@@ -66,9 +66,6 @@ struct ZMesh2D : public ZMesh
     ZVertex2DList Vertices() const { return vertexData_.vertices; }
     bool Instanced() const { return vertexData_.instanced.count > 1; }
 
-    static std::shared_ptr<ZMesh2D> NewQuad();
-    static std::shared_ptr<ZMesh2D> NewScreenTriangle();
-
 protected:
 
     ZVertex2DDataOptions vertexData_;
@@ -99,3 +96,5 @@ private:
     ZVertex3DDataOptions vertexData_;
 
 };
+
+using ZMesh3DList = std::vector<ZMesh3D>;

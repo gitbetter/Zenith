@@ -29,6 +29,7 @@
 
 #include "ZSkybox.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZCube.hpp"
 #include "ZShader.hpp"
 #include "ZMaterial.hpp"
@@ -48,7 +49,7 @@ void ZSkybox::OnCreate()
     ZHTexture cubeMap;
     if (!hdrPath_.empty())
     {
-        cubeMap = ZServices::TextureManager()->CreateHDRI(hdrPath_, cubemapBuffer);
+        cubeMap = ZAssets::TextureManager()->CreateHDRI(hdrPath_, cubemapBuffer);
     }
     LoadCubemap(cubeMap, cubemapBuffer);
 }
@@ -76,9 +77,9 @@ void ZSkybox::OnCloned(ZGameObject* original)
     {
         hdrPath_ = originalSkybox->hdrPath_;
         iblTexture = originalSkybox->iblTexture;
-        if (const ZHComponent& graphicsComp = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(original->handle))
+        if (const ZHComponent& graphicsComp = ZAssets::GameObjectManager()->FindComponent<ZGraphicsComponent>(original->handle))
         {
-            ZServices::GameObjectManager()->AddComponent(handle, ZServices::ComponentManager()->Clone(graphicsComp));
+            ZAssets::GameObjectManager()->AddComponent(handle, ZAssets::ComponentManager()->Clone(graphicsComp));
         }
     }
 }
@@ -87,7 +88,7 @@ void ZSkybox::LoadCubemap(const std::string& hdr)
 {
     hdrPath_ = hdr;
     ZServices::EventAgent()->Subscribe(this, &ZSkybox::HandleCubemapReady);
-    ZServices::TextureManager()->CreateHDRIAsync(hdrPath_);
+    ZAssets::TextureManager()->CreateHDRIAsync(hdrPath_);
 }
 
 void ZSkybox::LoadCubemap(const ZHTexture& cubeMap, const ZFramebuffer::ptr& bufferData)
@@ -100,39 +101,39 @@ void ZSkybox::LoadCubemap(const ZHTexture& cubeMap, const ZFramebuffer::ptr& buf
         writer.ClearTextures();
     }
 
-    iblTexture = ZServices::TextureManager()->CreateIBL(bufferData, cubeMap);
+    iblTexture = ZAssets::TextureManager()->CreateIBL(bufferData, cubeMap);
 
     writer.BindTexture(iblTexture.irradiance);
     writer.BindTexture(iblTexture.prefiltered);
     writer.BindTexture(iblTexture.brdfLUT);
     renderState = writer.End();
 
-    ZHComponent skyboxGraphicsComponent = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(handle);
+    ZHComponent skyboxGraphicsComponent = ZAssets::GameObjectManager()->FindComponent<ZGraphicsComponent>(handle);
     if (skyboxGraphicsComponent.IsNull())
     {
-        skyboxGraphicsComponent = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, handle);
-        ZGraphicsComponent* skyboxGraphicsCompObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent);
+        skyboxGraphicsComponent = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, handle);
+        ZGraphicsComponent* skyboxGraphicsCompObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent);
         skyboxGraphicsCompObj->hasAABB = false;
         skyboxGraphicsCompObj->isShadowCaster = false;
         skyboxGraphicsCompObj->hasDepthInfo = false;
-        skyboxGraphicsCompObj->Initialize(ZServices::ModelManager()->Create(ZModelType::Cube));
+        skyboxGraphicsCompObj->Initialize(ZAssets::ModelManager()->Create(ZModelType::Cube));
     }
     else
     {
-        ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent)->materials = {};
+        ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent)->materials = {};
     }
 
-    ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent)->AddMaterial(
-        ZServices::MaterialManager()->Create(
+    ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(skyboxGraphicsComponent)->AddMaterial(
+        ZAssets::MaterialManager()->Create(
             { iblTexture.cubeMap },
-            ZServices::ShaderManager()->Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")
+            ZAssets::ShaderManager()->Create("/Shaders/Vertex/skybox.vert", "/Shaders/Pixel/skybox.frag")
         )
     );
 }
 
 void ZSkybox::HandleCubemapReady(const std::shared_ptr<ZTextureReadyEvent>& event)
 {
-    std::string texturePath = ZServices::TextureManager()->Path(event->Texture());
+    std::string texturePath = ZAssets::TextureManager()->Path(event->Texture());
     if (texturePath == hdrPath_)
     {
         ZServices::EventAgent()->Unsubscribe(this, &ZSkybox::HandleCubemapReady);

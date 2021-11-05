@@ -34,16 +34,8 @@
 #include "ZInput.hpp"
 #include "ZEventAgent.hpp"
 #include "ZResourceImporter.hpp"
-#include "ZScriptManager.hpp"
 #include "ZProcessRunner.hpp"
 #include "ZLogger.hpp"
-#include "ZTexture.hpp"
-#include "ZShader.hpp"
-#include "ZFont.hpp"
-#include "ZMaterial.hpp"
-#include "ZModel.hpp"
-#include "ZUIElement.hpp"
-#include "ZComponent.hpp"
 
 class ZServices
 {
@@ -56,33 +48,13 @@ public:
     static std::shared_ptr<ZInput> Input() { return input_; }
     static std::shared_ptr<ZEventAgent> EventAgent() { return eventAgent_; }
     static std::shared_ptr<ZResourceImporter> ResourceImporter() { return resourceImporter_; }
-    static std::shared_ptr<ZScriptManager> ScriptManager() { return scriptManager_; }
     static std::shared_ptr<ZProcessRunner> ProcessRunner(const std::string& runner = "Default");
     static std::shared_ptr<ZLogger> Logger(const std::string& logger = "Default");
-
-    static std::shared_ptr<ZTextureManager> TextureManager() { return textureManager_; }
-    static std::shared_ptr<ZShaderManager> ShaderManager() { return shaderManager_; }
-    static std::shared_ptr<ZFontManager> FontManager() { return fontManager_; }
-    static std::shared_ptr<ZMaterialManager> MaterialManager() { return materialManager_; }
-    static std::shared_ptr<ZModelManager> ModelManager() { return modelManager_; }
-    static std::shared_ptr<ZUIElementManager> UIElementManager() { return uiElementManager_; }
-    static std::shared_ptr<ZGameObjectManager> GameObjectManager() { return gameObjectManager_; }
-    static std::shared_ptr<ZComponentManager> ComponentManager() { return componentManager_; }
 
     static void Provide(const std::shared_ptr<ZGraphics>& graphics);
     static void Provide(const std::shared_ptr<ZInput>& input);
     static void Provide(const std::shared_ptr<ZResourceImporter>& resourceCache);
     static void Provide(const std::shared_ptr<ZEventAgent>& eventAgent);
-    static void Provide(const std::shared_ptr<ZScriptManager>& scriptManager);
-
-    static void Provide(const std::shared_ptr<ZTextureManager>& textureManager);
-    static void Provide(const std::shared_ptr<ZShaderManager>& shaderManager);
-    static void Provide(const std::shared_ptr<ZFontManager>& fontManager);
-    static void Provide(const std::shared_ptr<ZMaterialManager>& materialManager);
-    static void Provide(const std::shared_ptr<ZModelManager>& modelManager);
-    static void Provide(const std::shared_ptr<ZUIElementManager>& uiElementManager);
-    static void Provide(const std::shared_ptr<ZGameObjectManager>& gameObjectManager);
-    static void Provide(const std::shared_ptr<ZComponentManager>& componentManager);
 
     static void LoadZOF(const std::string& zofPath);
 
@@ -92,19 +64,10 @@ private:
     static std::shared_ptr<ZInput> input_;
     static std::shared_ptr<ZEventAgent> eventAgent_;
     static std::shared_ptr<ZResourceImporter> resourceImporter_;
-    static std::shared_ptr<ZScriptManager> scriptManager_;
-
-    static std::shared_ptr<ZTextureManager> textureManager_;
-    static std::shared_ptr<ZShaderManager> shaderManager_;
-    static std::shared_ptr<ZFontManager> fontManager_;
-    static std::shared_ptr<ZMaterialManager> materialManager_;
-    static std::shared_ptr<ZModelManager> modelManager_;
-    static std::shared_ptr<ZUIElementManager> uiElementManager_;
-    static std::shared_ptr<ZGameObjectManager> gameObjectManager_;
-    static std::shared_ptr<ZComponentManager> componentManager_;
 
     static std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> processRunners_;
     static std::unordered_map<std::string, std::shared_ptr<ZLogger>> loggers_;
+
     static bool initialized_;
 
 };

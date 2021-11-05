@@ -28,13 +28,13 @@
  */
 
 #include "ZCompositeModel.hpp"
-#include "ZServices.hpp"
+#include "ZAssets.hpp"
 
 void ZCompositeModel::OnCreate()
 {
     for (const ZHModel& model : models_)
     {
-        for (auto const& mesh : ZServices::ModelManager()->Meshes(model))
+        for (auto const& mesh : ZAssets::ModelManager()->Meshes(model))
         {
             meshes.emplace_back(mesh);
         }

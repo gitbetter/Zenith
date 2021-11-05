@@ -29,14 +29,10 @@
 
 #include "ZServices.hpp"
 #include "ZOFParser.hpp"
-#include "ZScriptResourceLoader.hpp"
 #include "ZWavResourceLoader.hpp"
 #include "ZOggResourceLoader.hpp"
-#include "ZLuaScriptManager.hpp"
 #include "ZGLGraphics.hpp"
 #include "ZGLInput.hpp"
-#include "ZGLTexture.hpp"
-#include "ZGLFont.hpp"
 
 #ifdef DEV_BUILD
 #include "ZDevResourceFile.hpp"
@@ -48,19 +44,10 @@ std::shared_ptr<ZGraphics> ZServices::graphics_ = nullptr;
 std::shared_ptr<ZInput> ZServices::input_ = nullptr;
 std::shared_ptr<ZEventAgent> ZServices::eventAgent_ = nullptr;
 std::shared_ptr<ZResourceImporter> ZServices::resourceImporter_ = nullptr;
-std::shared_ptr<ZScriptManager> ZServices::scriptManager_ = nullptr;
-
-std::shared_ptr<ZTextureManager> ZServices::textureManager_ = nullptr;
-std::shared_ptr<ZShaderManager> ZServices::shaderManager_ = nullptr;
-std::shared_ptr<ZFontManager> ZServices::fontManager_ = nullptr;
-std::shared_ptr<ZMaterialManager> ZServices::materialManager_ = nullptr;
-std::shared_ptr<ZModelManager> ZServices::modelManager_ = nullptr;
-std::shared_ptr<ZUIElementManager> ZServices::uiElementManager_ = nullptr;
-std::shared_ptr<ZGameObjectManager> ZServices::gameObjectManager_ = nullptr;
-std::shared_ptr<ZComponentManager> ZServices::componentManager_ = nullptr;
 
 std::unordered_map<std::string, std::shared_ptr<ZProcessRunner>> ZServices::processRunners_;
 std::unordered_map<std::string, std::shared_ptr<ZLogger>> ZServices::loggers_;
+
 bool ZServices::initialized_ = false;
 
 void ZServices::Initialize()
@@ -74,10 +61,6 @@ void ZServices::Initialize()
         Provide(std::make_shared<ZEventAgent>());
         /* =================================== */
 
-        /* ========= Scripting System ============ */
-        Provide(std::make_shared<ZLuaScriptManager>());
-        /* ======================================= */
-
         /* ========= Graphics System ============ */
         Provide(std::make_shared<ZGLGraphics>());
         /* ====================================== */
@@ -85,38 +68,6 @@ void ZServices::Initialize()
         /* ========= Input System ============ */
         Provide(std::make_shared<ZGLInput>());
         /* =================================== */
-
-		/* ========= Texture Manager ============ */
-		Provide(std::make_shared<ZGLTextureManager>());
-		/* =================================== */
-
-		/* ========= Shader Manager ============ */
-		Provide(std::make_shared<ZShaderManager>());
-		/* =================================== */
-
-		/* ========= Font Manager ============ */
-		Provide(std::make_shared<ZGLFontManager>());
-		/* =================================== */
-
-		/* ========= Material Manager ============ */
-		Provide(std::make_shared<ZMaterialManager>());
-		/* =================================== */
-
-		/* ========= Model Manager ============ */
-		Provide(std::make_shared<ZModelManager>());
-		/* =================================== */
-
-        /* ========= UI Element Manager ============ */
-        Provide(std::make_shared<ZUIElementManager>());
-        /* =================================== */
-
-		/* ========= Game Object Manager ============ */
-		Provide(std::make_shared<ZGameObjectManager>());
-		/* =================================== */
-
-		/* ========= Component Manager ============ */
-		Provide(std::make_shared<ZComponentManager>());
-		/* =================================== */
     }
     initialized_ = true;
 }
@@ -158,7 +109,9 @@ void ZServices::Provide(const std::shared_ptr<ZInput>& input)
 void ZServices::Provide(const std::shared_ptr<ZResourceImporter>& resourceCache)
 {
     if (resourceImporter_)
+    {
         resourceImporter_->CleanUp();
+    }
 
     resourceImporter_ = resourceCache;
     resourceImporter_->Initialize();
@@ -179,106 +132,6 @@ void ZServices::Provide(const std::shared_ptr<ZEventAgent>& eventAgent)
     eventAgent_ = eventAgent;
     eventAgent_->Initialize();
     ZServices::ProcessRunner()->AttachProcess(eventAgent_, ZPriority::High);
-}
-
-void ZServices::Provide(const std::shared_ptr<ZScriptManager>& scriptManager)
-{
-    scriptManager_ = scriptManager;
-    scriptManager_->Initialize();
-    // We don't need to do anything with this resource. The resource loader
-    // will load and execute the script for us.
-    if (resourceImporter_) {
-        ZScriptResourceData::ptr luaSetupScriptResource = std::make_shared<ZScriptResourceData>("/Scripts/init.lua", ZResourceType::Script);
-        resourceImporter_->GetData(luaSetupScriptResource.get());
-    }
-}
-
-void ZServices::Provide(const std::shared_ptr<ZTextureManager>& textureManager)
-{
-	if (textureManager_)
-	{
-        textureManager_->CleanUp();
-	}
-
-    textureManager_ = textureManager;
-    textureManager_->Initialize();
-}
-
-void ZServices::Provide(const std::shared_ptr<ZShaderManager>& shaderManager)
-{
-	if (shaderManager_)
-	{
-		shaderManager_->CleanUp();
-	}
-
-    shaderManager_ = shaderManager;
-    shaderManager_->Initialize();
-}
-
-void ZServices::Provide(const std::shared_ptr<ZFontManager>& fontManager)
-{
-	if (fontManager_)
-	{
-		fontManager_->CleanUp();
-	}
-
-	fontManager_ = fontManager;
-	fontManager_->Initialize();
-}
-
-void ZServices::Provide(const std::shared_ptr<ZMaterialManager>& materialManager)
-{
-	if (materialManager_)
-	{
-        materialManager_->CleanUp();
-    }
-
-    materialManager_ = materialManager;
-    materialManager_->Initialize();
-}
-
-void ZServices::Provide(const std::shared_ptr<ZModelManager>& modelManager)
-{
-	if (modelManager_)
-	{
-        modelManager_->CleanUp();
-	}
-
-    modelManager_ = modelManager;
-    modelManager_->Initialize();
-}
-
-void ZServices::Provide(const std::shared_ptr<ZUIElementManager>& uiElementManager)
-{
-    if (uiElementManager_)
-    {
-        uiElementManager_->CleanUp();
-    }
-
-    uiElementManager_ = uiElementManager;
-    uiElementManager_->Initialize();
-}
-
-void ZServices::Provide(const std::shared_ptr<ZGameObjectManager>& gameObjectManager)
-{
-	if (gameObjectManager_)
-	{
-        gameObjectManager_->CleanUp();
-    }
-
-    gameObjectManager_ = gameObjectManager;
-    gameObjectManager_->Initialize();
-}
-
-void ZServices::Provide(const std::shared_ptr<ZComponentManager>& componentManager)
-{
-	if (componentManager_)
-	{
-        componentManager_->CleanUp();
-	}
-
-    componentManager_ = componentManager;
-    componentManager_->Initialize();
 }
 
 void ZServices::LoadZOF(const std::string& zofPath)

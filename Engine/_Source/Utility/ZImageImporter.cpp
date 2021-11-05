@@ -35,7 +35,7 @@ std::mutex ZImageImporter::importerMutex_;
 
 ZTextureResourceData::ptr ZImageImporter::LoadImage(const std::string& path, bool hdr, bool flipped, ZTextureWrapping wrapping, const std::string& type)
 {
-    ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, wrapping, type, hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
+    ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, wrapping, type, ZHTexture(), hdr ? ZResourceType::HDRTexture : ZResourceType::Texture);
     ZServices::ResourceImporter()->GetData(resource.get());
     LoadImage(resource.get());
     return resource;

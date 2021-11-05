@@ -28,6 +28,7 @@
 
 #include "ZCamera.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZScene.hpp"
 #include "ZMoveEvent.hpp"
 #include "ZLookEvent.hpp"
@@ -35,6 +36,8 @@
 #include "ZDomain.hpp"
 #include "ZUniformBuffer.hpp"
 #include "ZRenderStateGroup.hpp"
+
+ZIDSequence ZCamera::idGenerator_;
 
 ZCamera::ZCamera(ZCameraType type)
     : ZGameObject(), cameraType(type)
@@ -154,7 +157,7 @@ void ZCamera::OnUpdate(double deltaTime)
     projection = GenerateProjectionMatrix();
     viewProjection = projection * view;
     inverseViewProjection = glm::inverse(viewProjection);
-    auto viewPosition = ZServices::GameObjectManager()->Position(handle);
+    auto viewPosition = ZAssets::GameObjectManager()->Position(handle);
 
     uniformBuffer->Update(offsetof(ZCameraUniforms, V), sizeof(view), glm::value_ptr(view));
     uniformBuffer->Update(offsetof(ZCameraUniforms, P), sizeof(projection), glm::value_ptr(projection));
@@ -219,26 +222,26 @@ void ZCamera::UpdateCameraFrustum()
         else {
             pitch = glm::quat(pitchVelocity * (float)currentDeltaTime_);
             yaw = glm::quat(yawVelocity * (float)currentDeltaTime_);
-            ZServices::GameObjectManager()->SetOrientation(handle, glm::normalize(pitch * ZServices::GameObjectManager()->Orientation(handle) * yaw));
+            ZAssets::GameObjectManager()->SetOrientation(handle, glm::normalize(pitch * ZAssets::GameObjectManager()->Orientation(handle) * yaw));
         }
     }
 
-    const glm::vec3 position = ZServices::GameObjectManager()->Position(handle);
-    const glm::vec3 front = ZServices::GameObjectManager()->Front(handle);
-    const glm::vec3 up = ZServices::GameObjectManager()->Up(handle);
+    const glm::vec3 position = ZAssets::GameObjectManager()->Position(handle);
+    const glm::vec3 front = ZAssets::GameObjectManager()->Front(handle);
+    const glm::vec3 up = ZAssets::GameObjectManager()->Up(handle);
     frustum.SetBasis(position, position + front, up);
 }
 
 void ZCamera::Move(float z, float x, bool useWorldFront)
 {
-    const glm::vec3 position = ZServices::GameObjectManager()->Position(handle);
-    const glm::vec3 front = ZServices::GameObjectManager()->Front(handle);
-    const glm::vec3 right = ZServices::GameObjectManager()->Right(handle);
+    const glm::vec3 position = ZAssets::GameObjectManager()->Position(handle);
+    const glm::vec3 front = ZAssets::GameObjectManager()->Front(handle);
+    const glm::vec3 right = ZAssets::GameObjectManager()->Right(handle);
 
-    float velocity = movementSpeed * (float) currentDeltaTime_;
+    float velocity = movementSpeed * (float)currentDeltaTime_;
     glm::vec3 newPos = position + ((useWorldFront ? WORLD_FRONT : front) * z * velocity) + (right * x * -velocity);
 
-    ZServices::GameObjectManager()->SetPosition(handle, newPos);
+    ZAssets::GameObjectManager()->SetPosition(handle, newPos);
 
     if (cameraType == ZCameraType::Orthographic)
     {
@@ -309,8 +312,8 @@ glm::mat4 ZCamera::GenerateProjectionMatrix()
 
 glm::mat4 ZCamera::GenerateViewMatrix()
 {
-    const glm::vec3 position = ZServices::GameObjectManager()->Position(handle);
-    const glm::vec3 front = ZServices::GameObjectManager()->Front(handle);
-    const glm::vec3 up = ZServices::GameObjectManager()->Up(handle);
+    const glm::vec3 position = ZAssets::GameObjectManager()->Position(handle);
+    const glm::vec3 front = ZAssets::GameObjectManager()->Front(handle);
+    const glm::vec3 up = ZAssets::GameObjectManager()->Up(handle);
     return glm::lookAt(position, position + front, up);
 }

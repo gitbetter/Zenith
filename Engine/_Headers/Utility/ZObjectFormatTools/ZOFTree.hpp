@@ -74,7 +74,10 @@ struct ZOFNode
     std::shared_ptr<ZOFNode> root;
     ZOFChildList children;
 
-    virtual ~ZOFNode() {}
+    ZOFNode()
+        : id(0), root(nullptr)
+    { }
+    virtual ~ZOFNode() = default;
 
     void Clear()
     {

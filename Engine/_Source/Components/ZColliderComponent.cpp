@@ -29,6 +29,7 @@
 
 #include "ZColliderComponent.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"  
 #include "ZCollider.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsComponent.hpp"
@@ -107,9 +108,9 @@ void ZColliderComponent::AddColliderIfNecessary()
 {
     if (!added_)
     {
-        if (const ZHComponent& physicsComp = ZServices::GameObjectManager()->FindComponent<ZPhysicsComponent>(rootObject))
+        if (const ZHComponent& physicsComp = ZAssets::GameObjectManager()->FindComponent<ZPhysicsComponent>(rootObject))
         {
-            ZPhysicsComponent* physicsCompObj = ZServices::ComponentManager()->Dereference<ZPhysicsComponent>(physicsComp);
+            ZPhysicsComponent* physicsCompObj = ZAssets::ComponentManager()->Dereference<ZPhysicsComponent>(physicsComp);
             physicsCompObj->AddCollider(collider);
             added_ = true;
         }

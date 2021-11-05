@@ -41,4 +41,6 @@ public:
     static glm::vec2 AbsoluteToRelativeCoords(const glm::vec2& coords, const glm::vec2& parentCoords = glm::vec2(0.f));
     static ZRect AbsoluteToRelativeRect(const ZRect& rect, const ZRect& parentRect = ZRect());
 
+	static struct ZMesh2D NewQuad();
+	static struct ZMesh2D NewScreenTriangle();
 };

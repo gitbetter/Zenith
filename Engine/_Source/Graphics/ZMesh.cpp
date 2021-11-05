@@ -46,33 +46,6 @@ void ZMesh2D::Initialize()
     renderState = writer.End();
 }
 
-std::shared_ptr<ZMesh2D> ZMesh2D::NewQuad()
-{
-    ZVertex2DDataOptions options;
-    options.vertices = ZVertex2DList{
-        ZVertex2D(-1.f, 1.f, 0.f, 1.f),
-        ZVertex2D(-1.f, -1.f, 0.f, 0.f),
-        ZVertex2D(1.f, -1.f, 1.f, 0.f),
-        ZVertex2D(1.f, 1.f, 1.f, 1.f)
-    };
-    std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(options);
-    mesh->Initialize();
-    return mesh;
-}
-
-std::shared_ptr<ZMesh2D> ZMesh2D::NewScreenTriangle()
-{
-    ZVertex2DDataOptions options;
-    options.vertices = ZVertex2DList{
-        ZVertex2D(-1.f, -1.f, 0.f, 0.f),
-        ZVertex2D(3.f, -1.f, 2.f, 0.f),
-        ZVertex2D(-1.f, 3.f, 0.f, 2.f)
-    };
-    std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(options);
-    mesh->Initialize();
-    return mesh;
-}
-
 /****************** ZMesh3D ******************/
 
 ZMesh3D::ZMesh3D(const ZVertex3DDataOptions& vertexData)

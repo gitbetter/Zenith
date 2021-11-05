@@ -29,6 +29,7 @@
 
 #include "ZEditorScene.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZGame.hpp"
 #include "ZPhysicsUniverse.hpp"
@@ -90,10 +91,10 @@ void ZEditorScene::CleanUp()
 
 ZHGameObject ZEditorScene::CreateCamera()
 {
-    ZHGameObject camera = ZServices::GameObjectManager()->Create(ZGameObjectType::Camera);
-    ZServices::GameObjectManager()->SetScene(camera, shared_from_this());
-    ZServices::GameObjectManager()->SetPosition(camera, glm::vec3(0.f, 15.f, 50.f));
-    ZServices::GameObjectManager()->Dereference<ZCamera>(camera)->cameraType = ZCameraType::Perspective;
+    ZHGameObject camera = ZAssets::GameObjectManager()->Create(ZGameObjectType::Camera);
+    ZAssets::GameObjectManager()->SetScene(camera, shared_from_this());
+    ZAssets::GameObjectManager()->SetPosition(camera, glm::vec3(0.f, 15.f, 50.f));
+    ZAssets::GameObjectManager()->Dereference<ZCamera>(camera)->cameraType = ZCameraType::Perspective;
     AddGameObject(camera);
     return camera;
 }
@@ -105,11 +106,11 @@ ZHUIElement ZEditorScene::CreateVerticalRegion(const ZRect& rect, const ZHUIElem
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = rect;
     elementOptions.layout = std::make_shared<ZUIVerticalLayout>();
-    ZHUIElement panel = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
+    ZHUIElement panel = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
 
     if (!parent.IsNull())
     {
-        ZServices::UIElementManager()->AddChild(parent, panel);
+        ZAssets::UIElementManager()->AddChild(parent, panel);
     }
 
     return panel;
@@ -122,14 +123,14 @@ ZHUIElement ZEditorScene::CreateHorizontalRegion(const ZRect& rect, const ZHUIEl
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = rect;
     elementOptions.layout = std::make_shared<ZUIHorizontalLayout>();
-    ZHUIElement panel = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
+    ZHUIElement panel = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
 
-	if (!parent.IsNull())
-	{
-		ZServices::UIElementManager()->AddChild(parent, panel);
-	}
+    if (!parent.IsNull())
+    {
+        ZAssets::UIElementManager()->AddChild(parent, panel);
+    }
 
-	return panel;
+    return panel;
 }
 
 void ZEditorScene::SetActiveProjectScene(const std::shared_ptr<ZScene>& activeScene)
@@ -146,7 +147,7 @@ void ZEditorScene::AddTool(const std::shared_ptr<ZEditorTool>& tool, const ZHUIE
     entities_.push_back(tool);
     tool->Initialize(shared_from_this());
     tool->SetActiveProjectScene(activeProjectScene_);
-    ZServices::UIElementManager()->AddChild(layoutRegion, tool->Container());
+    ZAssets::UIElementManager()->AddChild(layoutRegion, tool->Container());
 }
 
 void ZEditorScene::SetupLayoutPanels()
@@ -163,9 +164,9 @@ void ZEditorScene::SetupLayoutPanels()
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.0f, 0.07f);
-    topPanel_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
+    topPanel_ = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
 
-    ZServices::UIElementManager()->AddChild(windowPanel, topPanel_);
+    ZAssets::UIElementManager()->AddChild(windowPanel, topPanel_);
 
     /*****************************/
 
@@ -179,9 +180,9 @@ void ZEditorScene::SetupLayoutPanels()
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.2f, 1.f);
     elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 2.5f, 0.f);
-    leftPanel_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
+    leftPanel_ = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
 
-    ZServices::UIElementManager()->AddChild(contentPanel, leftPanel_);
+    ZAssets::UIElementManager()->AddChild(contentPanel, leftPanel_);
 
     /*****************************/
 
@@ -199,9 +200,9 @@ void ZEditorScene::SetupLayoutPanels()
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.7f, 1.0f);
     elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 5.f, 0.f);
-    centerPanel_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
+    centerPanel_ = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
 
-    ZServices::UIElementManager()->AddChild(sceneContentPanel, centerPanel_);
+    ZAssets::UIElementManager()->AddChild(sceneContentPanel, centerPanel_);
 
     /************(4)**************/
 
@@ -211,9 +212,9 @@ void ZEditorScene::SetupLayoutPanels()
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 0.3f, 1.0f);
     elementOptions.minSize = glm::vec2(config_.sizeLimits.x / 2.5f, 0.f);
-    rightPanel_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
+    rightPanel_ = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
 
-    ZServices::UIElementManager()->AddChild(sceneContentPanel, rightPanel_);
+    ZAssets::UIElementManager()->AddChild(sceneContentPanel, rightPanel_);
 
     /************(5)**************/
 
@@ -222,9 +223,9 @@ void ZEditorScene::SetupLayoutPanels()
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.0f, .25f);
-    bottomPanel_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
+    bottomPanel_ = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, elementOptions, ZHUIElement(), shared_from_this());
 
-    ZServices::UIElementManager()->AddChild(innerContentPanel, bottomPanel_);
+    ZAssets::UIElementManager()->AddChild(innerContentPanel, bottomPanel_);
 
     /***************************/
 
@@ -336,58 +337,59 @@ void ZEditorScene::Configure(const ZEditorConfig& config)
 void ZEditorScene::LoadObjectTemplates()
 {
     /******* Empty Object *******/
-    ZHGameObject empty = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
-    ZServices::GameObjectManager()->SetName(empty, "Empty");
+    ZHGameObject empty = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZAssets::GameObjectManager()->SetName(empty, "Empty");
     gameObjectTemplates_["Empty"] = empty;
     /****************************/
 
     /******* Cube Object *******/
-	ZHGameObject cube = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
-	ZServices::GameObjectManager()->SetName(cube, "Cube");
-    ZServices::GameObjectManager()->SetPosition(cube, glm::vec3(0.0f, 1.0f, 0.0f));
-    ZHComponent cubeGraphicsComp = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, cube);
-    ZHModel cubeModel = ZServices::ModelManager()->Create(ZModelType::Cube);
-    ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(cubeGraphicsComp)->AddModel(cubeModel);
-	gameObjectTemplates_["Cube"] = cube;
+    ZHGameObject cube = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZAssets::GameObjectManager()->SetName(cube, "Cube");
+    ZAssets::GameObjectManager()->SetPosition(cube, glm::vec3(0.0f, 1.0f, 0.0f));
+    ZHComponent cubeGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, cube);
+    ZHModel cubeModel = ZAssets::ModelManager()->Create(ZModelType::Cube);
+    ZGraphicsComponent* compObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(cubeGraphicsComp);
+    compObj->Initialize(cubeModel);
+    gameObjectTemplates_["Cube"] = cube;
     /****************************/
 
     /******* Sphere Object *******/
-	ZHGameObject sphere = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
-	ZServices::GameObjectManager()->SetName(sphere, "Sphere");
-	ZServices::GameObjectManager()->SetPosition(sphere, glm::vec3(0.0f, 1.0f, 0.0f));
-	ZHComponent sphereGraphicsComp = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, sphere);
-	ZHModel sphereModel = ZServices::ModelManager()->Create(ZModelType::Sphere);
-	ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(sphereGraphicsComp)->AddModel(sphereModel);
-	gameObjectTemplates_["Sphere"] = sphere;
-	/****************************/
+    ZHGameObject sphere = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZAssets::GameObjectManager()->SetName(sphere, "Sphere");
+    ZAssets::GameObjectManager()->SetPosition(sphere, glm::vec3(0.0f, 1.0f, 0.0f));
+    ZHComponent sphereGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, sphere);
+    ZHModel sphereModel = ZAssets::ModelManager()->Create(ZModelType::Sphere);
+    ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(sphereGraphicsComp)->Initialize(sphereModel);
+    gameObjectTemplates_["Sphere"] = sphere;
+    /****************************/
 
-	/******* Plane Object *******/
-	ZHGameObject plane = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
-	ZServices::GameObjectManager()->SetName(plane, "Plane");
-	ZServices::GameObjectManager()->SetPosition(plane, glm::vec3(0.0f, 0.0f, 0.0f));
-    ZServices::GameObjectManager()->SetScale(plane, glm::vec3(50.0f, 0.1f, 50.0f));
-	ZHComponent planeGraphicsComp = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, plane);
-	ZHModel planeModel = ZServices::ModelManager()->Create(ZModelType::Plane);
-	ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(planeGraphicsComp)->AddModel(planeModel);
+    /******* Plane Object *******/
+    ZHGameObject plane = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZAssets::GameObjectManager()->SetName(plane, "Plane");
+    ZAssets::GameObjectManager()->SetPosition(plane, glm::vec3(0.0f, 0.0f, 0.0f));
+    ZAssets::GameObjectManager()->SetScale(plane, glm::vec3(50.0f, 0.1f, 50.0f));
+    ZHComponent planeGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, plane);
+    ZHModel planeModel = ZAssets::ModelManager()->Create(ZModelType::Plane);
+    ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(planeGraphicsComp)->Initialize(planeModel);
 	gameObjectTemplates_["Plane"] = plane;
 	/****************************/
 
 	/******* Camera Object *******/
-	ZHGameObject camera = ZServices::GameObjectManager()->Create(ZGameObjectType::Camera);
-	ZServices::GameObjectManager()->SetName(camera, "Camera");
-	ZServices::GameObjectManager()->SetPosition(camera, glm::vec3(-5.0f, 15.0f, 50.0f));
-    ZServices::GameObjectManager()->Dereference<ZCamera>(camera)->movementSpeed = 20.0f;
-    ZServices::GameObjectManager()->Dereference<ZCamera>(camera)->cameraType = ZCameraType::Perspective;
-    ZServices::GameObjectManager()->Dereference<ZCamera>(camera)->movementStyle = ZCameraMovementStyle::Follow;
-	gameObjectTemplates_["Camera"] = camera;
-	/****************************/
+	ZHGameObject camera = ZAssets::GameObjectManager()->Create(ZGameObjectType::Camera);
+    ZAssets::GameObjectManager()->SetName(camera, "Camera");
+    ZAssets::GameObjectManager()->SetPosition(camera, glm::vec3(-5.0f, 15.0f, 50.0f));
+    ZAssets::GameObjectManager()->Dereference<ZCamera>(camera)->movementSpeed = 20.0f;
+    ZAssets::GameObjectManager()->Dereference<ZCamera>(camera)->cameraType = ZCameraType::Perspective;
+    ZAssets::GameObjectManager()->Dereference<ZCamera>(camera)->movementStyle = ZCameraMovementStyle::Follow;
+    gameObjectTemplates_["Camera"] = camera;
+    /****************************/
 
-	/******* Light Object *******/
-	ZHGameObject light = ZServices::GameObjectManager()->Create(ZGameObjectType::Light);
-	ZServices::GameObjectManager()->SetName(light, "Light");
-	ZServices::GameObjectManager()->Dereference<ZLight>(camera)->lightProperties.ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-	ZServices::GameObjectManager()->Dereference<ZLight>(camera)->lightProperties.color = glm::vec4(0.95f, 0.95f, 0.95f, 1.0f);
-	ZServices::GameObjectManager()->Dereference<ZLight>(camera)->lightType = ZLightType::Directional;
+    /******* Light Object *******/
+    ZHGameObject light = ZAssets::GameObjectManager()->Create(ZGameObjectType::Light);
+    ZAssets::GameObjectManager()->SetName(light, "Light");
+    ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+    ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.color = glm::vec4(0.95f, 0.95f, 0.95f, 1.0f);
+    ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightType = ZLightType::Directional;
 	gameObjectTemplates_["Light"] = light;
 	/****************************/
 }

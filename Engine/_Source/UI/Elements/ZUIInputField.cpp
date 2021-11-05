@@ -28,12 +28,13 @@
 */
 
 #include "ZUIInputField.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZInputKeyEvent.hpp"
 #include "ZInputButtonEvent.hpp"
 #include "ZUIHorizontalLayout.hpp"
 #include "ZUIText.hpp"
 #include "ZUIPanel.hpp"
-#include "ZServices.hpp"
 
 ZUIInputField::ZUIInputField() : ZUIElement()
 {
@@ -62,7 +63,7 @@ void ZUIInputField::SetText(const std::string& text)
 {
     text_ = text;
     if (!fieldText_.IsNull()) {
-        ZUIText* textElement = ZServices::UIElementManager()->Dereference<ZUIText>(fieldText_);
+        ZUIText* textElement = ZAssets::UIElementManager()->Dereference<ZUIText>(fieldText_);
         textElement->SetText(text_);
     }
     if (onInputChangedCallback_) {
@@ -74,7 +75,7 @@ void ZUIInputField::SetTextColor(const glm::vec4& color)
 {
     textColor_ = color;
     if (!fieldText_.IsNull()) {
-        ZServices::UIElementManager()->SetColor(fieldText_, textColor_);
+        ZAssets::UIElementManager()->SetColor(fieldText_, textColor_);
     }
 }
 
@@ -82,7 +83,7 @@ void ZUIInputField::SetHighlightBorder(const ZUIBorder& border)
 {
     highlightBorder_ = border;
     if (focused_) {
-        ZServices::UIElementManager()->SetBorder(handle, highlightBorder_);
+        ZAssets::UIElementManager()->SetBorder(handle, highlightBorder_);
     }
 }
 
@@ -90,30 +91,30 @@ void ZUIInputField::SetFocused(bool focused)
 {
     focused_ = focused;
     if (focused_) {
-        ZServices::UIElementManager()->SetBorder(handle, highlightBorder_);
+        ZAssets::UIElementManager()->SetBorder(handle, highlightBorder_);
     }
     else {
         ZUIBorder border = highlightBorder_;
         border.width = 0.f;
-        ZServices::UIElementManager()->SetBorder(handle, border);
+        ZAssets::UIElementManager()->SetBorder(handle, border);
     }
 }
 
 void ZUIInputField::SetBackground(const ZHTexture& texture)
 {
-    ZServices::UIElementManager()->SetTexture(handle, texture);
+    ZAssets::UIElementManager()->SetTexture(handle, texture);
 }
 
 void ZUIInputField::SetBackground(const glm::vec4& color)
 {
-    ZServices::UIElementManager()->SetColor(handle, color);
+    ZAssets::UIElementManager()->SetColor(handle, color);
 }
 
 void ZUIInputField::SetFontSize(float size)
 {
     fontSize_ = size;
     if (!fieldText_.IsNull()) {
-        ZUIText* textElement = ZServices::UIElementManager()->Dereference<ZUIText>(fieldText_);
+        ZUIText* textElement = ZAssets::UIElementManager()->Dereference<ZUIText>(fieldText_);
         textElement->SetFontScale(fontSize_);
     }
 }
@@ -122,13 +123,13 @@ void ZUIInputField::SetFieldPadding(const glm::vec2& padding)
 {
     fieldPadding_ = padding;
     if (!fieldText_.IsNull()) {
-        ZServices::UIElementManager()->SetRect(fieldText_, ZRect(fieldPadding_.x * 2.f, fieldPadding_.y * 2.f, 1.f - fieldPadding_.x, 1.f - fieldPadding_.y));
+        ZAssets::UIElementManager()->SetRect(fieldText_, ZRect(fieldPadding_.x * 2.f, fieldPadding_.y * 2.f, 1.f - fieldPadding_.x, 1.f - fieldPadding_.y));
     }
 }
 
 void ZUIInputField::CreateTextArea()
 {
-    auto scene = ZServices::UIElementManager()->Scene(handle);
+    auto scene = ZAssets::UIElementManager()->Scene(handle);
     if (!scene) return;
 
     ZUIElementOptions fieldTextOptions;
@@ -136,11 +137,11 @@ void ZUIInputField::CreateTextArea()
     fieldTextOptions.scaling = ZPositioning::Relative;
     fieldTextOptions.rect = ZRect(fieldPadding_.x * 2.f, fieldPadding_.y * 2.f, 1.f - fieldPadding_.x, 1.f - fieldPadding_.y);
     fieldTextOptions.color = textColor_;
-    fieldText_ = ZServices::UIElementManager()->Create(ZUIElementType::Text, fieldTextOptions, ZHUIElement(), scene);
-    ZUIText* textElement = ZServices::UIElementManager()->Dereference<ZUIText>(fieldText_);
+    fieldText_ = ZAssets::UIElementManager()->Create(ZUIElementType::Text, fieldTextOptions, ZHUIElement(), scene);
+    ZUIText* textElement = ZAssets::UIElementManager()->Dereference<ZUIText>(fieldText_);
     textElement->SetFontScale(fontSize_);
 
-    ZServices::UIElementManager()->AddChild(handle, fieldText_);
+    ZAssets::UIElementManager()->AddChild(handle, fieldText_);
 }
 
 void ZUIInputField::ProcessKey(const ZKey& key)
@@ -170,6 +171,6 @@ void ZUIInputField::HandleKeyPressed(const std::shared_ptr<ZInputKeyEvent>& even
 void ZUIInputField::HandleButtonPressed(const std::shared_ptr<ZInputButtonEvent>& event)
 {
     if (event->Pressed() && event->Button() == ZMouse::LEFT_MB) {
-        SetFocused(ZServices::UIElementManager()->Contains(handle, ZServices::Input()->GetCursorPosition()));
+        SetFocused(ZAssets::UIElementManager()->Contains(handle, ZServices::Input()->GetCursorPosition()));
     }
 }

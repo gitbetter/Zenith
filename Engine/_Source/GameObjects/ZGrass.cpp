@@ -27,8 +27,10 @@
  */
 
 #include "ZGrass.hpp"
-#include "ZMaterial.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
+#include "ZMesh.hpp"
+#include "ZMaterial.hpp"
 #include "ZScene.hpp"
 #include "ZPlane.hpp"
 #include "ZShader.hpp"
@@ -45,8 +47,8 @@ ZGrass::ZGrass(unsigned int instances) :
 
 void ZGrass::OnCreate()
 {
-    graphicsComp_ = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, handle);
-    auto graphicsCompObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp_);
+    graphicsComp_ = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, handle);
+    auto graphicsCompObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp_);
     graphicsCompObj->Initialize(ZHModel());
     graphicsCompObj->isShadowCaster = false;
     graphicsCompObj->hasLightingInfo = false;
@@ -59,7 +61,7 @@ void ZGrass::OnCreate()
     std::vector<ZInstancedDataOptions> instanceDatas;
     for (unsigned int i = 0; i < cPolygonCount; i++)
     {
-        ZHModel model = ZServices::ModelManager()->Create(ZModelType::Plane);
+        ZHModel model = ZAssets::ModelManager()->Create(ZModelType::Plane);
         UpdateVertexNormals(model);
         polygons_.push_back(model);
 
@@ -75,10 +77,10 @@ void ZGrass::OnCreate()
     {
         for (unsigned int j = 0; j < length; j++)
         {
-            auto scale = ZServices::GameObjectManager()->Scale(handle);
+            auto scale = ZAssets::GameObjectManager()->Scale(handle);
             auto x = -(length * 0.5f) + i + (-2 + std::rand() % 4);
             auto z = -(length * 0.5f) + j + (-2 + std::rand() % 4);
-            auto translation = ZServices::GameObjectManager()->Position(handle) + glm::vec3(scale.x * 2.f * x, scale.y * 2.f, scale.z * 2.f * z);
+            auto translation = ZAssets::GameObjectManager()->Position(handle) + glm::vec3(scale.x * 2.f * x, scale.y * 2.f, scale.z * 2.f * z);
             for (unsigned int k = 0; k < cPolygonCount; k++)
             {
                 auto rotation = glm::quat(glm::vec3(glm::radians(-90.f), glm::radians(k == 2 ? 135.f : k * 45.f), glm::radians(0.f)));
@@ -102,7 +104,7 @@ void ZGrass::OnCreate()
 
     for (unsigned int k = 0; k < cPolygonCount; k++)
     {
-        ZServices::ModelManager()->SetInstanceData(polygons_[k], instanceDatas[k]);
+        ZAssets::ModelManager()->SetInstanceData(polygons_[k], instanceDatas[k]);
     }
 }
 
@@ -171,19 +173,19 @@ void ZGrass::TrimPatch(const glm::vec3& position, const glm::vec3& size)
     for (unsigned int i = 0; i < cPolygonCount; i++)
     {
         auto polygon = polygons_[i];
-        auto instanceData = ZServices::ModelManager()->InstanceData(polygon);
-        instanceData.translations.erase(std::remove_if(instanceData.translations.begin(), instanceData.translations.end(), [position, size] (const glm::mat4& translation) {
+        auto instanceData = ZAssets::ModelManager()->InstanceData(polygon);
+        instanceData.translations.erase(std::remove_if(instanceData.translations.begin(), instanceData.translations.end(), [position, size](const glm::mat4& translation) {
             return translation[3][0] >= position.x && translation[3][0] <= position.x + size.x &&
                 translation[3][2] >= position.z && translation[3][2] <= position.z + size.z;
-        }), instanceData.translations.end());
+            }), instanceData.translations.end());
         instanceData.count = instanceData.translations.size();
-        ZServices::ModelManager()->SetInstanceData(polygon, instanceData);
+        ZAssets::ModelManager()->SetInstanceData(polygon, instanceData);
     }
 }
 
 void ZGrass::UpdateVertexNormals(const ZHModel& model)
 {
-    ZMesh3DList meshes = ZServices::ModelManager()->Meshes(model);
+    ZMesh3DList meshes = ZAssets::ModelManager()->Meshes(model);
     for (auto meshIt = meshes.begin(); meshIt != meshes.end(); meshIt++)
     {
         auto vertices = (*meshIt).Vertices();
@@ -199,8 +201,8 @@ void ZGrass::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& event
 {
     if (event->Texture() == texture)
     {
-        auto grassMaterial = ZServices::MaterialManager()->Create({ event->Texture() }, ZServices::ShaderManager()->Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
-        ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp_)->AddMaterial(grassMaterial);
+        auto grassMaterial = ZAssets::MaterialManager()->Create({ event->Texture() }, ZAssets::ShaderManager()->Create("/Shaders/Vertex/grass.vert", "/Shaders/Pixel/blinnphong.frag"));
+        ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp_)->AddMaterial(grassMaterial);
         ZServices::EventAgent()->Unsubscribe(this, &ZGrass::HandleTextureReady);
     }
 }

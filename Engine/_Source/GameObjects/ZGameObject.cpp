@@ -26,7 +26,9 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZGameObject.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZLight.hpp"
 #include "ZSkybox.hpp"
 #include "ZGrass.hpp"
@@ -86,6 +88,31 @@ ZGameObject::ZGameObject()
     name = "GameObject" + std::to_string(idGenerator_.Next());
 }
 
+ZGameObject::ZGameObject(const ZGameObject& other)
+{
+	handle = other.handle;
+	name = other.name;
+    parent = other.parent;
+    components = other.components;
+    children = other.children;
+    properties = other.properties;
+    renderState = other.renderState;
+    uniformBuffer = other.uniformBuffer;
+}
+
+ZGameObject& ZGameObject::operator=(const ZGameObject& other)
+{
+	handle = other.handle;
+	name = other.name;
+	parent = other.parent;
+	components = other.components;
+	children = other.children;
+	properties = other.properties;
+	renderState = other.renderState;
+	uniformBuffer = other.uniformBuffer;
+    return *this;
+}
+
 ZHGameObject ZGameObjectManager::Create(const ZGameObjectType& type, const ZHGameObject& restoreHandle)
 {
     ZHGameObject handle(restoreHandle);
@@ -94,7 +121,7 @@ ZHGameObject ZGameObjectManager::Create(const ZGameObjectType& type, const ZHGam
     switch (type)
     {
     case ZGameObjectType::Custom:
-        object = resourcePool_.New(handle);
+        object = resourcePool_.New<ZGameObject>(handle);
         break;
     case ZGameObjectType::Camera:
         object = resourcePool_.New<ZCamera>(handle);
@@ -225,17 +252,17 @@ void ZGameObjectManager::Update(const ZHGameObject& handle, double deltaTime)
         return;
     }
 
-    ZGameObject* object = Dereference(handle);
+    ZGameObject* object = Dereference<ZGameObject>(handle);
 
     // TODO: Separate into tick buckets for different stages of ticking
     for (auto comp : object->components)
     {
-        if (ZGraphicsComponent* graphicsComp = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(comp))
+        if (ZGraphicsComponent* graphicsComp = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(comp))
         {
             graphicsComp->gameLights = scene->GameLights();
             graphicsComp->gameCamera = scene->ActiveCamera();
         }
-        ZServices::ComponentManager()->Update(comp, deltaTime);
+        ZAssets::ComponentManager()->Update(comp, deltaTime);
     }
 
     object->OnUpdate(deltaTime);
@@ -296,9 +323,9 @@ ZHGameObject ZGameObjectManager::Clone(const ZHGameObject& handle)
 
     for (const ZHComponent& comp : gameObject->components)
     {
-        ZHComponent compClone = ZServices::ComponentManager()->Clone(comp);
+        ZHComponent compClone = ZAssets::ComponentManager()->Clone(comp);
         AddComponent(clone, compClone);
-        if (ZPhysicsComponent* physicsComp = ZServices::ComponentManager()->Dereference<ZPhysicsComponent>(compClone))
+        if (ZPhysicsComponent* physicsComp = ZAssets::ComponentManager()->Dereference<ZPhysicsComponent>(compClone))
         {
             physicsComp->body->SetGameObject(clone);
         }
@@ -389,7 +416,7 @@ bool ZGameObjectManager::IsVisible(const ZHGameObject& handle)
     ZCamera* activeCameraObject = Dereference<ZCamera>(scene->ActiveCamera());
     if (const ZHComponent& graphicsComp = FindComponent<ZGraphicsComponent>(handle))
     {
-        ZGraphicsComponent* graphicsCompObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp);
+        ZGraphicsComponent* graphicsCompObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp);
         bool isInCameraFrustum = activeCameraObject != nullptr && graphicsCompObj->IsVisible(activeCameraObject->frustum);
         return isInCameraFrustum && isObjectVisible;
     }
@@ -399,8 +426,8 @@ bool ZGameObjectManager::IsVisible(const ZHGameObject& handle)
 
 void ZGameObjectManager::Destroy(const ZHGameObject& handle)
 {
-	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
-	ZGameObject* gameObject = resourcePool_.Get(handle);
+    assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+    ZGameObject* gameObject = resourcePool_.Get(handle);
 
     for (const ZHGameObject& child : gameObject->children)
     {
@@ -408,7 +435,7 @@ void ZGameObjectManager::Destroy(const ZHGameObject& handle)
     }
     for (const ZHComponent& comp : gameObject->components)
     {
-        ZServices::ComponentManager()->CleanUp(comp);
+        ZAssets::ComponentManager()->CleanUp(comp);
     }
 
     std::shared_ptr<ZObjectDestroyedEvent> destroyEvent(new ZObjectDestroyedEvent(handle));
@@ -732,12 +759,12 @@ void ZGameObjectManager::SetModelMatrix(const ZHGameObject& handle, const glm::m
 
     if (const ZHComponent& graphicsComp = FindComponent<ZGraphicsComponent>(handle))
     {
-        ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp)->Transform(gameObject->properties.modelMatrix);
+        ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp)->Transform(gameObject->properties.modelMatrix);
     }
 
     if (const ZHComponent& physicsComp = FindComponent<ZPhysicsComponent>(handle))
     {
-        ZServices::ComponentManager()->Dereference<ZPhysicsComponent>(physicsComp)->SetTransform(gameObject->properties.modelMatrix);
+        ZAssets::ComponentManager()->Dereference<ZPhysicsComponent>(physicsComp)->SetTransform(gameObject->properties.modelMatrix);
     }
 
     for (const ZHGameObject& child : gameObject->children)
@@ -802,12 +829,12 @@ void ZGameObjectManager::AddComponent(const ZHGameObject& handle, const ZHCompon
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
 	ZGameObject* gameObject = resourcePool_.Get(handle);
-	ZComponent* compObjectToAdd = ZServices::ComponentManager()->Dereference(component);
+	ZComponent* compObjectToAdd = ZAssets::ComponentManager()->Dereference<ZComponent>(component);
 
-	bool componentTypeExists = false;
-	for (const ZHComponent& comp : gameObject->components)
-	{
-		ZComponent* compObjectToCheck = ZServices::ComponentManager()->Dereference(component);
+    bool componentTypeExists = false;
+    for (const ZHComponent& comp : gameObject->components)
+    {
+        ZComponent* compObjectToCheck = ZAssets::ComponentManager()->Dereference<ZComponent>(component);
 		if (typeid(*compObjectToCheck) == typeid(*compObjectToAdd))
 		{
 			componentTypeExists = true;
@@ -830,7 +857,7 @@ ZHComponent ZGameObjectManager::RemoveComponent(const ZHGameObject& handle, cons
 	if (!name.empty())
 	{
 		ZComponentList::iterator found = std::find_if(gameObject->components.begin(), gameObject->components.end(), [&name](const auto& comp) {
-			ZComponent* compObj = ZServices::ComponentManager()->Dereference(comp);
+			ZComponent* compObj = ZAssets::ComponentManager()->Dereference<ZComponent>(comp);
 			return compObj != nullptr && name == compObj->name;
 			});
 
@@ -866,4 +893,21 @@ ZHComponent ZGameObjectManager::RemoveComponent(const ZHGameObject& handle, cons
 	}
 
 	return ZHComponent();
+}
+
+ZHGameObject ZGameObjectManager::FindChildByName(const ZHGameObject& handle, const std::string& name)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
+	ZGameObject* gameObject = resourcePool_.Get(handle);
+
+	for (auto it = gameObject->children.begin(); it != gameObject->children.end(); it++)
+	{
+		ZGameObject* childGameObject = resourcePool_.Get(*it);
+		if (zenith::strings::HasSuffix(childGameObject->name, name))
+		{
+			return *it;
+		}
+	}
+
+	return ZHGameObject();
 }

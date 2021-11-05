@@ -42,10 +42,10 @@ public:
         : ZEditorTool("Scene", theme) { }
 
     void Initialize(const std::shared_ptr<ZScene>& scene) override;
+	void Update() override;
+    void CleanUp() override { }
 
     void SetSelectedObject(const ZHGameObject& object);
-    
-	void Update() override;
 
 private:
 

@@ -30,6 +30,7 @@
 #pragma once
 
 #include "ZCommon.hpp"
+#include "ZMesh.hpp"
 
 /**
 	ZResourceData is a lifetime load object that is only meant to exist
@@ -179,6 +180,21 @@ public:
 	std::string code;
 
 	ZScriptResourceData(const std::string& path, ZResourceType type = ZResourceType::Script, void* buffer = nullptr, unsigned int size = 0)
+		: ZResourceData(path, type, buffer, size)
+	{ }
+
+};
+
+class ZFontResourceData : public ZResourceData
+{
+
+public:
+
+	using ptr = std::shared_ptr<ZFontResourceData>;
+
+	ZHFont restoreHandle;
+
+	ZFontResourceData(const std::string& path, ZResourceType type = ZResourceType::Font, void* buffer = nullptr, unsigned int size = 0)
 		: ZResourceData(path, type, buffer, size)
 	{ }
 

@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZParticle.cpp
+    ZFontResourceLoader.hpp
 
-    Created by Adrian Sanchez on 13/02/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 11/05/2021.
+    Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,28 +27,23 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZParticle.hpp"
-#include "ZAssets.hpp"
-#include "ZGraphicsComponent.hpp"
-#include "ZPhysicsComponent.hpp"
+#pragma once
 
-void ZParticle::OnCreate()
+#include "ZResourceLoader.hpp"
+#include "ZResourceData.hpp"
+
+class ZFontResourceLoader : public ZResourceLoaderBase<ZFontResourceData>
 {
-// TODO: Uncomment once approriate model and shader is chosen for
-// displaying a particle
-// if (FindComponent<ZGraphicsComponent>() == nullptr)
-// {
-//   AddComponent(new ZGraphicsComponent(the-model, the-shader));
-// }
 
-    if (ZAssets::GameObjectManager()->FindComponent<ZPhysicsComponent>(handle).IsNull())
-    {
-        ZAssets::ComponentManager()->CreateIn(ZComponentType::Physics, handle);
-    }
-}
+public:
 
-void ZParticle::OnUpdate(double deltaTime)
-{
-    age -= deltaTime;
-    // TODO: Render a particle as a quad that rotates with the camera
-}
+    ~ZFontResourceLoader() {}
+    std::string Pattern() override { return ".*\\.ttf|.*\\.otf|.*\\.eot|.*\\.woff|.*\\.woff2|.*\\.svg"; }
+    bool UseRawFile() override { return true; };
+    unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
+
+protected:
+
+    bool Load(char* rawBuffer, unsigned int rawSize, ZFontResourceData* resource) override { return true; }
+
+};

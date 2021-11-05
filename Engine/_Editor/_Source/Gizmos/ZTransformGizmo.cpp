@@ -29,6 +29,7 @@
 
 #include "ZTransformGizmo.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsUniverse.hpp"
 #include "ZGraphicsComponent.hpp"
@@ -44,7 +45,7 @@ void ZTransformGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     ZEditorGizmo::Initialize(scene);
 
-    ZServices::GameObjectManager()->SetName(gizmo_, "TransformGizmo");
+    ZAssets::GameObjectManager()->SetName(gizmo_, "TransformGizmo");
 
     axisArrows_[0] = CreateAxisArrow(glm::vec3(1.f, 0.f, 0.f));
     axisArrows_[1] = CreateAxisArrow(glm::vec3(0.f, 1.f, 0.f));
@@ -52,10 +53,10 @@ void ZTransformGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
 
     for (auto arrow : axisArrows_)
     {
-        ZServices::GameObjectManager()->AddChild(gizmo_, arrow);
+        ZAssets::GameObjectManager()->AddChild(gizmo_, arrow);
     }
-    
-    ZServices::GameObjectManager()->SetOrientation(gizmo_, glm::vec3(0.f, 0.f, glm::radians(90.f)));
+
+    ZAssets::GameObjectManager()->SetOrientation(gizmo_, glm::vec3(0.f, 0.f, glm::radians(90.f)));
 }
 
 void ZTransformGizmo::Update()
@@ -64,10 +65,10 @@ void ZTransformGizmo::Update()
 
     if (const ZHGameObject cam = activeProjectScene_->ActiveCamera())
     {
-        ZCamera* camObj = ZServices::GameObjectManager()->Dereference<ZCamera>(cam);
-        auto cameraDist = (glm::length(ZServices::GameObjectManager()->Position(gizmo_) - ZServices::GameObjectManager()->Position(activeProjectScene_->ActiveCamera())));
+        ZCamera* camObj = ZAssets::GameObjectManager()->Dereference<ZCamera>(cam);
+        auto cameraDist = (glm::length(ZAssets::GameObjectManager()->Position(gizmo_) - ZAssets::GameObjectManager()->Position(activeProjectScene_->ActiveCamera())));
         auto worldSize = (2.f * glm::tan(camObj->frustum.fov * 0.5f)) * cameraDist;
-        ZServices::GameObjectManager()->SetScale(gizmo_, glm::vec3(worldSize * 0.05f));
+        ZAssets::GameObjectManager()->SetScale(gizmo_, glm::vec3(worldSize * 0.05f));
     }
 }
 
@@ -79,8 +80,8 @@ void ZTransformGizmo::CleanUp()
     }
     for (auto arrow : axisArrows_)
     {
-        ZServices::GameObjectManager()->RemoveChild(gizmo_, arrow);
-        ZServices::GameObjectManager()->Destroy(arrow);
+        ZAssets::GameObjectManager()->RemoveChild(gizmo_, arrow);
+        ZAssets::GameObjectManager()->Destroy(arrow);
     }
     axisArrows_.fill(ZHGameObject());
 }
@@ -92,14 +93,14 @@ bool ZTransformGizmo::TryActivate(const ZRect& viewportRect)
 
     for (int i = 0; i < 3; i++)
     {
-        for (auto child : ZServices::GameObjectManager()->Children(axisArrows_[i]))
+        for (auto child : ZAssets::GameObjectManager()->Children(axisArrows_[i]))
         {
-            const ZHComponent graphics = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(child);
-            ZGraphicsComponent* graphicsObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphics);
+            const ZHComponent graphics = ZAssets::GameObjectManager()->FindComponent<ZGraphicsComponent>(child);
+            ZGraphicsComponent* graphicsObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(graphics);
             auto aabb = graphicsObj->bounds;
             if (aabb.Intersects(ray))
             {
-                auto axisRay = ZRay(ZServices::GameObjectManager()->Position(gizmo_), glm::eulerAngles(ZServices::GameObjectManager()->Orientation(axisArrows_[i])));
+                auto axisRay = ZRay(ZAssets::GameObjectManager()->Position(gizmo_), glm::eulerAngles(ZAssets::GameObjectManager()->Orientation(axisArrows_[i])));
                 previousAxisPoint_ = axisRay.ClosestPointTo(ray);
                 previousCursorPos_ = cursorPos;
                 active_ = true;
@@ -134,7 +135,7 @@ void ZTransformGizmo::Manipulate(const ZRect& viewportRect, glm::mat4& transform
         previousCursorPos_ = cursorPos;
 
         auto axisArrow = axisArrows_[selectedAxis_];
-        auto axisRay = ZRay(ZServices::GameObjectManager()->Position(gizmo_), glm::eulerAngles(ZServices::GameObjectManager()->Orientation(axisArrow)));
+        auto axisRay = ZRay(ZAssets::GameObjectManager()->Position(gizmo_), glm::eulerAngles(ZAssets::GameObjectManager()->Orientation(axisArrow)));
 
         glm::vec3 currentAxisPoint = axisRay.ClosestPointTo(ray);
         glm::vec3 delta = (currentAxisPoint - previousAxisPoint_) * sensitivity_;
@@ -142,10 +143,10 @@ void ZTransformGizmo::Manipulate(const ZRect& viewportRect, glm::mat4& transform
 
         if (!cursorWrapped)
         {
-            ZServices::GameObjectManager()->Translate(gizmo_, -delta, true);
+            ZAssets::GameObjectManager()->Translate(gizmo_, -delta, true);
         }
 
-        transform[3] = ZServices::GameObjectManager()->ModelMatrix(gizmo_)[3];
+        transform[3] = ZAssets::GameObjectManager()->ModelMatrix(gizmo_)[3];
     }
 }
 
@@ -159,47 +160,47 @@ void ZTransformGizmo::Deactivate()
 ZHGameObject ZTransformGizmo::CreateAxisArrow(const glm::vec3& axis)
 {
     // TODO: Calling Rebuild on this model means it is getting build twice! Try passing data via create calls directly, maybe by template forwarding arguments.
-    static ZHModel cylinder = ZServices::ModelManager()->Create(ZModelType::Cylinder);
-    ZServices::ModelManager()->Dereference<ZCylinder>(cylinder)->Rebuild(1.0f, 1.0f, 1.0f, glm::vec2(8.f));
+    static ZHModel cylinder = ZAssets::ModelManager()->Create(ZModelType::Cylinder);
+    ZAssets::ModelManager()->Dereference<ZCylinder>(cylinder)->Rebuild(1.0f, 1.0f, 1.0f, glm::vec2(8.f));
 
     // TODO: Calling Rebuild on this model means it is getting build twice! Try passing data via create calls directly, maybe by template forwarding arguments.
-    static ZHModel cone = ZServices::ModelManager()->Create(ZModelType::Cylinder);
-    ZServices::ModelManager()->Dereference<ZCylinder>(cone)->Rebuild(0.0f, 0.5f, 1.0f, glm::vec2(8.f));
+    static ZHModel cone = ZAssets::ModelManager()->Create(ZModelType::Cylinder);
+    ZAssets::ModelManager()->Dereference<ZCylinder>(cone)->Rebuild(0.0f, 0.5f, 1.0f, glm::vec2(8.f));
 
     ZMaterialProperties materialProps;
     materialProps.albedo = glm::vec4(glm::abs(axis), 1.f);
-    auto arrowMaterial = ZServices::MaterialManager()->Create(materialProps, ZServices::ShaderManager()->Create("/Shaders/Vertex/gizmo.vert", "/Shaders/Pixel/gizmo.frag"));
+    auto arrowMaterial = ZAssets::MaterialManager()->Create(materialProps, ZAssets::ShaderManager()->Create("/Shaders/Vertex/gizmo.vert", "/Shaders/Pixel/gizmo.frag"));
 
-    auto axisArrow = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
+    auto axisArrow = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
 
-    auto arrowBase = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
-    ZServices::GameObjectManager()->SetPosition(arrowBase, glm::vec3(0.f, 0.f, 2.5f));
-    ZServices::GameObjectManager()->SetScale(arrowBase, glm::vec3(0.03f, 0.03f, 5.f));
-    ZServices::GameObjectManager()->SetRenderOrder(arrowBase, ZRenderLayer::UI);
+    auto arrowBase = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZAssets::GameObjectManager()->SetPosition(arrowBase, glm::vec3(0.f, 0.f, 2.5f));
+    ZAssets::GameObjectManager()->SetScale(arrowBase, glm::vec3(0.03f, 0.03f, 5.f));
+    ZAssets::GameObjectManager()->SetRenderOrder(arrowBase, ZRenderLayer::UI);
 
-    auto graphicsComp = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, arrowBase);
-    auto graphicsCompObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp);
+    auto graphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, arrowBase);
+    auto graphicsCompObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp);
     graphicsCompObj->Initialize(cylinder);
     graphicsCompObj->isShadowCaster = false;
     graphicsCompObj->hasDepthInfo = false;
     graphicsCompObj->AddMaterial(arrowMaterial);
 
-    auto arrowTop = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
-    ZServices::GameObjectManager()->SetPosition(arrowTop, glm::vec3(0.f, 0.f, 5.f));
-    ZServices::GameObjectManager()->SetScale(arrowTop, glm::vec3(0.5f, 0.5f, 0.5f));
-    ZServices::GameObjectManager()->SetRenderOrder(arrowTop, ZRenderLayer::UI);
+    auto arrowTop = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZAssets::GameObjectManager()->SetPosition(arrowTop, glm::vec3(0.f, 0.f, 5.f));
+    ZAssets::GameObjectManager()->SetScale(arrowTop, glm::vec3(0.5f, 0.5f, 0.5f));
+    ZAssets::GameObjectManager()->SetRenderOrder(arrowTop, ZRenderLayer::UI);
 
-    graphicsComp = ZServices::ComponentManager()->CreateIn(ZComponentType::Graphics, arrowTop);
-    graphicsCompObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp);
+    graphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, arrowTop);
+    graphicsCompObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(graphicsComp);
     graphicsCompObj->Initialize(cone);
     graphicsCompObj->isShadowCaster = false;
     graphicsCompObj->hasDepthInfo = false;
     graphicsCompObj->AddMaterial(arrowMaterial);
 
-    ZServices::GameObjectManager()->AddChild(axisArrow, arrowBase);
-    ZServices::GameObjectManager()->AddChild(axisArrow, arrowTop);
+    ZAssets::GameObjectManager()->AddChild(axisArrow, arrowBase);
+    ZAssets::GameObjectManager()->AddChild(axisArrow, arrowTop);
 
-    ZServices::GameObjectManager()->SetOrientation(axisArrow, axis * PI * 0.5f);
+    ZAssets::GameObjectManager()->SetOrientation(axisArrow, axis * PI * 0.5f);
 
     return axisArrow;
 }

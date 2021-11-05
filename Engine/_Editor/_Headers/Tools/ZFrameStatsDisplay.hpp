@@ -39,8 +39,8 @@ public:
       : ZEditorTool("FrameStats", theme) { }
 
     void Initialize(const std::shared_ptr<ZScene>& scene) override;
-
     void Update() override;
+    void CleanUp() override { }
 
 protected:
 

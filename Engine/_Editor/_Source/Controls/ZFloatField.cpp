@@ -28,9 +28,10 @@
  */
 
 #include "ZFloatField.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUIInputField.hpp"
 #include "ZUIText.hpp"
-#include "ZServices.hpp"
 #include "ZScene.hpp"
 #include "ZDomain.hpp"
 #include "ZWindowResizeEvent.hpp"
@@ -39,45 +40,45 @@ void ZFloatField::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     scrubber_.SetSensitivity(0.001f);
 
-    ZServices::UIElementManager()->Dereference<ZUIInputField>(inputField_)->OnInputChanged([this](const std::string& newVal)
-    {
-        try
+    ZAssets::UIElementManager()->Dereference<ZUIInputField>(inputField_)->OnInputChanged([this](const std::string& newVal)
         {
-            value_ = std::stof(newVal);
-        }
-        catch (const std::exception& e)
-        {
-            value_ = -std::numeric_limits<float>::infinity();
-        }
-    });
+            try
+            {
+                value_ = std::stof(newVal);
+            }
+            catch (const std::exception& e)
+            {
+                value_ = -std::numeric_limits<float>::infinity();
+            }
+        });
 }
 
 void ZFloatField::Update()
 {
-    auto labelRect = ZServices::UIElementManager()->CalculatedRect(ZServices::UIElementManager()->Dereference<ZUILabeledElement>(control_)->LabelField());
-    auto elementRect = ZServices::UIElementManager()->CalculatedRect(inputField_);
+    auto labelRect = ZAssets::UIElementManager()->CalculatedRect(ZAssets::UIElementManager()->Dereference<ZUILabeledElement>(control_)->LabelField());
+    auto elementRect = ZAssets::UIElementManager()->CalculatedRect(inputField_);
 
-	float scrubbedVal = scrubber_.Scrub<float>(labelRect);
-	if (scrubbedVal != 0)
-	{
-		SetValue(lastScrubbedValue_ + scrubbedVal);
-	}
-	else
-	{
-		lastScrubbedValue_ = value_;
-	}
-    
+    float scrubbedVal = scrubber_.Scrub<float>(labelRect);
+    if (scrubbedVal != 0)
+    {
+        SetValue(lastScrubbedValue_ + scrubbedVal);
+    }
+    else
+    {
+        lastScrubbedValue_ = value_;
+    }
+
     if (hoverer_.Entered(labelRect))
     {
-        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::HorizontalResize));
+        ZAssets::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::HorizontalResize));
     }
     else if (hoverer_.Entered(elementRect))
     {
-        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
+        ZAssets::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
     }
     else if (hoverer_.Exited(labelRect) || hoverer_.Exited(elementRect))
     {
-        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
+        ZAssets::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
     }
 }
 
@@ -94,15 +95,15 @@ void ZFloatField::SetValue(const float& val)
     std::stringstream stream;
     stream << std::fixed << std::setprecision(4) << value_;
 
-    ZServices::UIElementManager()->Dereference<ZUIInputField>(inputField_)->SetText(stream.str());
+    ZAssets::UIElementManager()->Dereference<ZUIInputField>(inputField_)->SetText(stream.str());
 }
 
 std::shared_ptr<ZFloatField> ZFloatField::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
 {
     auto floatField = std::make_shared<ZFloatField>(theme);
 
-    floatField->inputField_ = ZServices::UIElementManager()->Create(ZUIElementType::InputField, options, ZHUIElement(), scene);
-    auto inputFieldObj = ZServices::UIElementManager()->Dereference<ZUIInputField>(floatField->inputField_);
+    floatField->inputField_ = ZAssets::UIElementManager()->Create(ZUIElementType::InputField, options, ZHUIElement(), scene);
+    auto inputFieldObj = ZAssets::UIElementManager()->Dereference<ZUIInputField>(floatField->inputField_);
     inputFieldObj->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '.' || c == '-'; });
     inputFieldObj->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
 

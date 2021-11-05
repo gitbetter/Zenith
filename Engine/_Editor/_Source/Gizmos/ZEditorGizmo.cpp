@@ -29,31 +29,32 @@
 
 #include "ZEditorGizmo.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZGameObject.hpp"
 
 void ZEditorGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
 {
-    gizmo_ = ZServices::GameObjectManager()->Create(ZGameObjectType::Custom);
-    ZServices::GameObjectManager()->SetRenderOrder(gizmo_, ZRenderLayer::UI);
-    ZServices::GameObjectManager()->SetActive(gizmo_, false);
+    gizmo_ = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZAssets::GameObjectManager()->SetRenderOrder(gizmo_, ZRenderLayer::UI);
+    ZAssets::GameObjectManager()->SetActive(gizmo_, false);
 }
 
 bool ZEditorGizmo::Showing()
 {
-    return ZServices::GameObjectManager()->Active(gizmo_);
+    return ZAssets::GameObjectManager()->Active(gizmo_);
 }
 
 void ZEditorGizmo::SetPosition(const glm::vec3& position)
 {
-    ZServices::GameObjectManager()->SetPosition(gizmo_, position);
+    ZAssets::GameObjectManager()->SetPosition(gizmo_, position);
 }
 
 void ZEditorGizmo::Hide()
 {
-    ZServices::GameObjectManager()->SetActive(gizmo_, false);
+    ZAssets::GameObjectManager()->SetActive(gizmo_, false);
 }
 
 void ZEditorGizmo::Show()
 {
-    ZServices::GameObjectManager()->SetActive(gizmo_, true);
+    ZAssets::GameObjectManager()->SetActive(gizmo_, true);
 }

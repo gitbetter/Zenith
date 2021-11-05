@@ -27,7 +27,9 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ZUIElement.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZScene.hpp"
 #include "ZMesh.hpp"
 #include "ZDomain.hpp"
@@ -50,6 +52,7 @@
 #include "ZUIListPanel.hpp"
 #include "ZUIPanel.hpp"
 #include "ZUIText.hpp"
+#include "ZUIHelpers.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_interpolation.hpp>
@@ -355,7 +358,7 @@ void ZUIElementManager::Initialize(const ZHUIElement& handle)
 
 	if (uiElement->options.texture.IsNull())
 	{
-		SetTexture(handle, ZServices::TextureManager()->Default());
+		SetTexture(handle, ZAssets::TextureManager()->Default());
 	}
 
 	SetRect(handle, uiElement->options.rect);
@@ -1025,7 +1028,7 @@ void ZUIElementManager::RemoveParent(const ZHUIElement& handle)
 
 std::shared_ptr<ZMesh2D> ZUIElementManager::ElementShape(const ZHUIElement& handle)
 {
-	static std::shared_ptr<ZMesh2D> mesh = ZMesh2D::NewQuad();
+	static std::shared_ptr<ZMesh2D> mesh = std::make_shared<ZMesh2D>(ZUIHelpers::NewQuad());
 	return mesh;
 };
 

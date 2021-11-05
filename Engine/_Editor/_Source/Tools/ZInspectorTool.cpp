@@ -29,6 +29,7 @@
 
 #include "ZInspectorTool.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZScene.hpp"
 #include "ZUIPanel.hpp"
 #include "ZUIVerticalLayout.hpp"
@@ -43,12 +44,12 @@ void ZInspectorTool::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     ZEditorTool::Initialize(scene);
 
-    ZServices::UIElementManager()->SetColor(container_, theme_.secondaryColor);
-    ZServices::UIElementManager()->SetPadding(container_, glm::vec2(10.f, 10.f));
+    ZAssets::UIElementManager()->SetColor(container_, theme_.secondaryColor);
+    ZAssets::UIElementManager()->SetPadding(container_, glm::vec2(10.f, 10.f));
 
     ZUILayoutOptions layoutOptions;
     layoutOptions.itemSpacing = 10.f;
-    ZServices::UIElementManager()->SetLayout(container_, std::make_shared<ZUIVerticalLayout>(layoutOptions));
+    ZAssets::UIElementManager()->SetLayout(container_, std::make_shared<ZUIVerticalLayout>(layoutOptions));
 
     gameObjectControls_ = ZGameObjectControls::Create(ZHGameObject(), scene, theme_);
 
@@ -77,19 +78,19 @@ void ZInspectorTool::HandleEditorObjectSelected(const std::shared_ptr<ZEditorObj
     {
         selectedObject_ = ZHGameObject();
         gameObjectControls_->SetGameObject(selectedObject_);
-        ZServices::UIElementManager()->RemoveChild(container_, gameObjectControls_->Header());
-        ZServices::UIElementManager()->RemoveChild(container_, gameObjectControls_->TransformFields()->Container());
+        ZAssets::UIElementManager()->RemoveChild(container_, gameObjectControls_->Header());
+        ZAssets::UIElementManager()->RemoveChild(container_, gameObjectControls_->TransformFields()->Container());
     }
     else if (auto obj = activeProjectScene_->FindGameObjectByName(event->ObjectID()))
     {
         selectedObject_ = obj;
         gameObjectControls_->SetGameObject(selectedObject_);
-        ZServices::UIElementManager()->AddChild(container_, gameObjectControls_->Header());
-        ZServices::UIElementManager()->AddChild(container_, gameObjectControls_->TransformFields()->Container());
+        ZAssets::UIElementManager()->AddChild(container_, gameObjectControls_->Header());
+        ZAssets::UIElementManager()->AddChild(container_, gameObjectControls_->TransformFields()->Container());
 
-        for (const auto& comp : ZServices::GameObjectManager()->Components(selectedObject_))
+        for (const auto& comp : ZAssets::GameObjectManager()->Components(selectedObject_))
         {
-            auto type = rttr::type::get(*ZServices::ComponentManager()->Dereference(comp));
+            auto type = rttr::type::get(*ZAssets::ComponentManager()->Dereference<ZComponent>(comp));
             for (auto prop : type.get_properties())
             {
                 ILOG(prop.get_name().to_string());

@@ -31,9 +31,6 @@
 
 #include "ZGameObject.hpp"
 
-class ZMesh2D;
-class ZRenderStateGroup;
-
 class ZSceneRoot : public ZGameObject
 {
 
@@ -47,7 +44,7 @@ public:
     void OnUpdate(double deltaTime) override;
     void OnUpdateChildren(double deltaTime) override;
 
-    std::shared_ptr<ZMesh2D> ScreenTri();
+    std::shared_ptr<class ZMesh2D> ScreenTri();
 
 private:
 

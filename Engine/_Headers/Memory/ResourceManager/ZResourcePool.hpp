@@ -31,6 +31,9 @@
     Adapted from "A Generic Handle-Based Resource Manager" by Scott Bilas, Game Programming Gems
 */
 
+// TODO: Look into extending this to use a more cache friendly object pool as opposed to the unique_ptr paradigm, which will allocate
+// from the heap arbitrarily and possibly cause a bunch of cache misses
+
 #pragma once
 
 #include "ZCommon.hpp"
@@ -48,7 +51,7 @@ public:
     }
     ~ZResourcePool() { }
 
-    template <typename Type = Data, typename ...Args>
+    template <typename Type, typename ...Args>
     Type* New(Handle& handle, Args && ...args)
 	{
         static_assert(std::is_base_of<Data, Type>::value, "Type is not derived from Data");
@@ -64,7 +67,7 @@ public:
 			{
 				index = magicNumbers_.size();
 				handle.Initialize(index);
-				userData_.push_back(Type(std::forward<Args>(args)...));
+				userData_.push_back(std::make_unique<Type>(std::forward<Args>(args)...));
 				magicNumbers_.push_back(handle.Magic());
 			}
 			else
@@ -74,7 +77,7 @@ public:
 				handle.Initialize(index);
 				magicNumbers_[index] = handle.Magic();
 			}
-			return static_cast<Type*>(&(*(userData_.begin() + index)));
+			return dynamic_cast<Type*>((*(userData_.begin() + index)).get());
         }
 	}
 
@@ -103,7 +106,7 @@ public:
             return nullptr;
         }
 
-        return &(*(userData_.begin() + index));
+        return (*(userData_.begin() + index)).get();
     }
 
     const Data* Get(const Handle& handle) const
@@ -124,21 +127,21 @@ public:
 
 protected:
 
-	template <typename Type = Data, typename ...Args>
+	template <typename Type, typename ...Args>
 	Type* Restore(Handle& handle, Args && ...args)
 	{
 		static_assert(std::is_base_of<Data, Type>::value, "Type is not derived from Data");
 
 		handle.Restore();
-		userData_[handle.Index()] = Type(std::forward<Args>(args)...);
+		userData_[handle.Index()] = std::make_unique<Type>(std::forward<Args>(args)...);
 		magicNumbers_[handle.Index()] = handle.Magic();
 
-		return static_cast<Type*>(&(*(userData_.begin() + handle.Index())));
+		return dynamic_cast<Type*>((*(userData_.begin() + handle.Index())).get());
 	}
 
 private:
 
-    using DataVector = std::vector<Data>;
+    using DataVector = std::vector<std::unique_ptr<Data>>;
     using MagicVector = std::vector<unsigned int>;
     using FreeVector = std::vector<unsigned int>;
 

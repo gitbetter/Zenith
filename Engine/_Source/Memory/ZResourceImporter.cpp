@@ -34,15 +34,10 @@
 #include "ZModelResourceLoader.hpp"
 #include "ZTextureResourceLoader.hpp"
 #include "ZZofResourceLoader.hpp"
+#include "ZShaderResourceLoader.hpp"
+#include "ZFontResourceLoader.hpp"
 #include "ZResourceLoadTask.hpp"
 #include "ZServices.hpp"
-
-// TODO: Huge overhaul impending. Plan is to use this implementation as just a resource loader interface, which will populate the corresponding
-// resource manager pool with the loaded data based on the resource type (if needed, such as with textures and models) and make the handle a lightweight integer based
-// handle that gets used to index into the corresponding resource pools when needed. This will make resource handling more efficient and easier to serialize in the future.
-// STEPS:
-// 1. Create Resource Managers for textures, shaders, models, and maybe even ZOF trees
-// 2. Using the ZResourceLoaderTask as a base, populate the corresponding Resource Managers and create the handles based on the new RM index + magic number
 
 ZResourceImporter::~ZResourceImporter()
 {
@@ -61,6 +56,8 @@ void ZResourceImporter::Initialize()
     RegisterLoader(std::shared_ptr<ZModelResourceLoader>(new ZModelResourceLoader));
     RegisterLoader(std::shared_ptr<ZTextureResourceLoader>(new ZTextureResourceLoader));
     RegisterLoader(std::shared_ptr<ZZofResourceLoader>(new ZZofResourceLoader));
+	RegisterLoader(std::shared_ptr<ZShaderResourceLoader>(new ZShaderResourceLoader));
+	RegisterLoader(std::shared_ptr<ZFontResourceLoader>(new ZFontResourceLoader));
 }
 
 void ZResourceImporter::RegisterResourceFile(std::shared_ptr<ZResourceFile> file)
@@ -119,7 +116,7 @@ void ZResourceImporter::Load(ZResourceData* resource)
 
 	if (!loader)
 	{
-		LOG("Default resource loader not found!", ZSeverity::Error);
+		LOG("Default resource loader not found for resource " + resource->path + "!", ZSeverity::Error);
 		return;
 	}
 

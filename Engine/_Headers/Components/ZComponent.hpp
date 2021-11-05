@@ -29,26 +29,6 @@
 
 #pragma once
 
-#define DECLARE_COMPONENT_CREATORS(Type)\
-static std::shared_ptr<Type> Create();\
-static std::shared_ptr<Type> CreateIn(const ZHGameObject& gameObject, const std::shared_ptr<ZOFNode>& data = nullptr);
-
-#define DEFINE_COMPONENT_CREATORS(Type)\
-std::shared_ptr<Type> Type::Create()\
-{\
-    std::shared_ptr<Type> comp = std::make_shared<Type>();\
-    return comp;\
-}\
-std::shared_ptr<Type> Type::CreateIn(const ZHGameObject& gameObject, const std::shared_ptr<ZOFNode>& data)\
-{\
-    std::shared_ptr<Type> comp = std::make_shared<Type>();\
-    ZServices::GameObjectManager()->AddComponent(gameObject, comp);\
-    if (data) {\
-        comp->Initialize(data);\
-    }\
-    return comp;\
-}
-
 #include "ZResourceManager.hpp"
 #include "ZIDSequence.hpp"
 #include "ZOFTree.hpp"
@@ -98,7 +78,8 @@ public:
 
 public:
 
-    ZHComponent CreateIn(ZComponentType type, const ZHGameObject& gameObject, const std::shared_ptr<struct ZOFObjectNode>& data = nullptr);
+    ZHComponent Create(ZComponentType type, const ZHComponent& restoreHandle = ZHComponent());
+    ZHComponent CreateIn(ZComponentType type, const ZHGameObject& gameObject, const std::shared_ptr<struct ZOFObjectNode>& data = nullptr, const ZHComponent& restoreHandle = ZHComponent());
     ZHComponent Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<struct ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene = nullptr);
 
 	ZHGameObject Object(const ZHComponent& handle);

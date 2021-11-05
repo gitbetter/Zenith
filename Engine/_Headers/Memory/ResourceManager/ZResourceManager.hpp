@@ -64,16 +64,16 @@ public:
 		return Handle();
 	}
 
-	template <typename Type = Data>
+	template <typename Type>
 	inline Type* Dereference(const Handle& handle)
 	{
-		return static_cast<Type*>(resourcePool_.Get(handle));
+		return dynamic_cast<Type*>(resourcePool_.Get(handle));
 	}
 
-	template <typename Type = Data>
+	template <typename Type>
 	inline const Type* Dereference(const Handle& handle) const
 	{
-		return static_cast<Type*>(resourcePool_.Get(handle));
+		return dynamic_cast<Type*>(resourcePool_.Get(handle));
 	}
 
 protected:

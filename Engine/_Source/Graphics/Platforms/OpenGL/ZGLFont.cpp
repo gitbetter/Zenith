@@ -29,6 +29,7 @@
 
 #include "ZGLFont.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -36,7 +37,7 @@
 ZHFont ZGLFontManager::Create(ZResourceData* resource, unsigned int fontSize)
 {
 	ZHFont handle;
-	ZFont* font = resourcePool_.New(handle);
+	ZFont* font = resourcePool_.New<ZFont>(handle);
 
 	if (resource == nullptr)
 	{
@@ -69,11 +70,11 @@ ZHFont ZGLFontManager::Create(ZResourceData* resource, unsigned int fontSize)
 		font->atlas.height = std::max(font->atlas.height, face->glyph->bitmap.rows);
 	}
 
-	font->atlas.texture = ZServices::TextureManager()->Create();
-	ZServices::TextureManager()->SetType(font->atlas.texture, "atlas");
-	ZServices::TextureManager()->SetPath(font->atlas.texture, fileName);
+	font->atlas.texture = ZAssets::TextureManager()->Create();
+	ZAssets::TextureManager()->SetType(font->atlas.texture, "atlas");
+	ZAssets::TextureManager()->SetPath(font->atlas.texture, fileName);
 
-	ZServices::TextureManager()->Bind(font->atlas.texture, 0);
+	ZAssets::TextureManager()->Bind(font->atlas.texture, 0);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, font->atlas.width, font->atlas.height, 0, GL_RED, GL_UNSIGNED_BYTE, 0);

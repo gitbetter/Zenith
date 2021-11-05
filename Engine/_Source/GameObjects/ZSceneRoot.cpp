@@ -28,9 +28,11 @@
 
 #include "ZSceneRoot.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZPhysicsUniverse.hpp"
 #include "ZScene.hpp"
 #include "ZMesh.hpp"
+#include "ZUIHelpers.hpp"
 #include "ZRenderTask.hpp"
 #include "ZRenderPass.hpp"
 #include "ZCamera.hpp"
@@ -45,7 +47,7 @@ void ZSceneRoot::OnCreate()
 
 std::shared_ptr<ZMesh2D> ZSceneRoot::ScreenTri()
 {
-    static std::shared_ptr<ZMesh2D> screenTri = ZMesh2D::NewScreenTriangle();
+    static std::shared_ptr<ZMesh2D> screenTri = std::make_shared<ZMesh2D>(ZUIHelpers::NewScreenTriangle());
     return screenTri;
 }
 
@@ -64,7 +66,7 @@ void ZSceneRoot::OnUpdate(double deltaTime)
     }
 
     auto meshState = ScreenTri()->renderState;
-    auto cameraState = ZServices::GameObjectManager()->RenderState(cam);
+    auto cameraState = ZAssets::GameObjectManager()->RenderState(cam);
 
     ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Triangle);
     auto renderTask = ZRenderTask::Compile(drawCall,

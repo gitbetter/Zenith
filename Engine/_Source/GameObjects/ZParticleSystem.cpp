@@ -28,13 +28,13 @@
 */
 
 #include "ZParticleSystem.hpp"
-#include "ZServices.hpp"
+#include "ZAssets.hpp"
 
 ZParticleSystem::ZParticleSystem(std::initializer_list<ZParticleRule> rules)
 {
 	for (const ZParticleRule& rule : rules)
 	{
-		particles.push_back(ZServices::GameObjectManager()->CreateReady(ZGameObjectType::Particle));
+		particles.push_back(ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Particle));
 	}
 }
 

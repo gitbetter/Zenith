@@ -27,8 +27,9 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ZServices.hpp"
 #include "ZMaterial.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZTexture.hpp"
 #include "ZShader.hpp"
 #include "ZTextureReadyEvent.hpp"
@@ -238,7 +239,7 @@ ZHMaterial ZMaterialManager::CreateDefault()
 	materialProperties.metallic = 0.1f;
 	materialProperties.roughness = 0.75f;
 	materialProperties.ao = 0.3f;
-	return Create(materialProperties, ZServices::ShaderManager()->BlinnPhongShader());
+	return Create(materialProperties, ZAssets::ShaderManager()->BlinnPhongShader());
 }
 
 ZHMaterial ZMaterialManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZOFObjectNode> dataNode)
@@ -250,7 +251,7 @@ ZHMaterial ZMaterialManager::Deserialize(const ZOFHandle& dataHandle, std::share
 
 	ZHMaterial handle(dataHandle.value);
 
-	ZMaterialBase* material = resourcePool_.New(handle);
+	ZMaterialBase* material = resourcePool_.New<ZMaterialBase>(handle);
 
 	if (dataNode->properties.find("albedo") != dataNode->properties.end())
 	{
@@ -349,7 +350,7 @@ void ZMaterialManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared
 
 	ZHMaterial handle(dataHandle.value);
 
-	ZMaterialBase* material = resourcePool_.New(handle);
+	ZMaterialBase* material = resourcePool_.New<ZMaterialBase>(handle);
 
 	if (dataNode->properties.find("albedo") != dataNode->properties.end())
 	{
@@ -440,7 +441,7 @@ void ZMaterialManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared
 ZHMaterial ZMaterialManager::Create(const ZMaterialProperties& materialProperties, const ZHShader& shader)
 {
 	ZHMaterial handle;
-	ZMaterialBase* material = resourcePool_.New(handle);
+	ZMaterialBase* material = resourcePool_.New<ZMaterialBase>(handle);
 
     material->properties = materialProperties;
 
@@ -464,7 +465,7 @@ ZHMaterial ZMaterialManager::Create(const ZMaterialProperties& materialPropertie
 ZHMaterial ZMaterialManager::Create(const ZTextureList& textures, const ZHShader& shader)
 {
 	ZHMaterial handle;
-	ZMaterialBase* material = resourcePool_.New(handle);
+	ZMaterialBase* material = resourcePool_.New<ZMaterialBase>(handle);
 
 	UpdateUniformMaterial(handle);
 

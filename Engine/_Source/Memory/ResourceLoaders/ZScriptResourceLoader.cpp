@@ -27,12 +27,12 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZScriptResourceLoader.hpp"
 
 bool ZScriptResourceLoader::Load(char* rawBuffer, unsigned int rawSize, ZScriptResourceData* resource)
 {
     if (rawSize <= 0) return false;
-    ZServices::ScriptManager()->ExecuteString(rawBuffer);
+    ZAssets::ScriptManager()->ExecuteString(rawBuffer);
     return true;
 }

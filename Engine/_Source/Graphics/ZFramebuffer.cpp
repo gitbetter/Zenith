@@ -29,12 +29,13 @@
 
 #include "ZGLFramebuffer.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 
 ZFramebuffer::ptr ZFramebuffer::CreateColor(const glm::vec2& size, bool multisample)
 {
     // TODO: Switch on constant, variable or define to choose implementation
     auto framebuffer = std::make_shared<ZGLFramebuffer>();
-    auto attachment = ZServices::TextureManager()->CreateColor(size, multisample);
+    auto attachment = ZAssets::TextureManager()->CreateColor(size, multisample);
     framebuffer->LoadColor(size, attachment, multisample);
     return framebuffer;
 }
@@ -43,7 +44,7 @@ ZFramebuffer::ptr ZFramebuffer::CreateDepth(const glm::vec2& size)
 {
     // TODO: Switch on constant, variable or define to choose implementation
     auto framebuffer = std::make_shared<ZGLFramebuffer>();
-    auto attachment = ZServices::TextureManager()->CreateDepth(size);
+    auto attachment = ZAssets::TextureManager()->CreateDepth(size);
     framebuffer->LoadDepth(size, attachment);
     return framebuffer;
 }
@@ -53,8 +54,8 @@ ZFramebuffer::ptr ZFramebuffer::CreateShadow(const glm::vec2& size, unsigned int
     // TODO: Switch on constant, variable or define to choose implementation
     auto framebuffer = std::make_shared<ZGLFramebuffer>();
     framebuffer->LoadDepth(size);
-    ZHTexture attachment = ZServices::TextureManager()->CreateDepthArray(size, cascades);
-    ZServices::TextureManager()->SetType(attachment, "shadowArray");
+    ZHTexture attachment = ZAssets::TextureManager()->CreateDepthArray(size, cascades);
+    ZAssets::TextureManager()->SetType(attachment, "shadowArray");
     framebuffer->AddAttachment(attachment);
     return framebuffer;
 }

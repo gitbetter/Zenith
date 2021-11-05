@@ -57,6 +57,8 @@ struct ZGameObject
 {
     
     ZGameObject();
+    ZGameObject(const ZGameObject& other);
+    ZGameObject& operator=(const ZGameObject& other);
 
     ZHGameObject handle;
     ZGameObjectType type;
@@ -169,14 +171,14 @@ public:
         if (!name.empty())
         {
             found = std::find_if(gameObject->components.begin(), gameObject->components.end(), [&name](const auto& comp) {
-                ZComponent* compObj = ZServices::ComponentManager()->Dereference(comp);    
+                ZComponent* compObj = ZAssets::ComponentManager()->Dereference<ZComponent>(comp);
                 return compObj != nullptr && name == compObj->name;
             });
         }
         else
         {
             found = std::find_if(gameObject->components.begin(), gameObject->components.end(), [&name](const auto& comp) {
-                return ZServices::ComponentManager()->Dereference<T>(comp) != nullptr;
+                return ZAssets::ComponentManager()->Dereference<T>(comp) != nullptr;
             });
         }
 
@@ -188,26 +190,23 @@ public:
         return ZHComponent();
     }
 
-    template<class T = ZGameObject>
-    ZHGameObject Child(const ZHGameObject& handle, const std::string& name)
-    {
-        if (!std::is_base_of<ZGameObject, T>::value)
-        {
-            return ZHGameObject();
-        }
+    ZHGameObject FindChildByName(const ZHGameObject& handle, const std::string& name);
 
+    template<class T = ZGameObject>
+    std::vector<ZHGameObject> FindChildrenOfType(const ZHGameObject& handle)
+    {
 		assert(!handle.IsNull() && "Cannot fetch property with a null game object handle!");
 		ZGameObject* gameObject = resourcePool_.Get(handle);
 
-        for (auto it = gameObject->children.begin(); it != gameObject->children.end(); it++)
-        {
-            T* childGameObject = resourcePool_.Get<T>(*it);
-            if (childGameObject != nullptr && zenith::strings::HasSuffix(childGameObject->name, name))
+        std::vector<ZHGameObject> foundChildren;
+		for (auto it = gameObject->children.begin(); it != gameObject->children.end(); it++)
+		{
+            if (T* childObject = Dereference<T>(*it))
             {
-                return *it;
+                foundChildren.push_back(*it);
             }
-        }
+		}
 
-        return ZHGameObject();
+		return foundChildren;
     }
 };

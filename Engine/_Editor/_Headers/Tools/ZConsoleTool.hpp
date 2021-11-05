@@ -44,5 +44,6 @@ public:
         : ZEditorTool("Console", theme) {}
 
 	void Update() override;
+    void CleanUp() override { }
 
 };

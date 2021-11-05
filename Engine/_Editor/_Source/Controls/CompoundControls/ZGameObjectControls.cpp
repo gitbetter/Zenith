@@ -29,6 +29,7 @@
 
 #include "ZGameObjectControls.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUIPanel.hpp"
 #include "ZUIImage.hpp"
 #include "ZUIHorizontalLayout.hpp"
@@ -52,10 +53,10 @@ void ZGameObjectControls::Update()
         return;
     }
 
-    auto name = ZServices::GameObjectManager()->Name(gameObject_);
-    auto active = ZServices::GameObjectManager()->Active(gameObject_);
+    auto name = ZAssets::GameObjectManager()->Name(gameObject_);
+    auto active = ZAssets::GameObjectManager()->Active(gameObject_);
 
-    auto m = ZServices::GameObjectManager()->ModelMatrix(gameObject_);
+    auto m = ZAssets::GameObjectManager()->ModelMatrix(gameObject_);
     glm::vec3 pos, scale, orn;
     glm::quat rot;
     glm::decompose(m, scale, rot, pos, glm::vec3(0.f), glm::vec4(0.f));
@@ -68,27 +69,27 @@ void ZGameObjectControls::Update()
     rotationField_->SetValue(orn);
 
     nameField_->Update();
-	activeField_->Update();
-	transformFields_->Update();
+    activeField_->Update();
+    transformFields_->Update();
     positionField_->Update();
     scaleField_->Update();
     rotationField_->Update();
 
     if (activeField_->Value(active))
     {
-        ZServices::GameObjectManager()->SetActive(gameObject_, active);
+        ZAssets::GameObjectManager()->SetActive(gameObject_, active);
     }
     if (positionField_->Value(pos))
     {
-        ZServices::GameObjectManager()->SetPosition(gameObject_, pos);
+        ZAssets::GameObjectManager()->SetPosition(gameObject_, pos);
     }
     if (scaleField_->Value(scale))
     {
-        ZServices::GameObjectManager()->SetScale(gameObject_, scale);
+        ZAssets::GameObjectManager()->SetScale(gameObject_, scale);
     }
     if (rotationField_->Value(orn))
     {
-        ZServices::GameObjectManager()->SetOrientation(gameObject_, orn);
+        ZAssets::GameObjectManager()->SetOrientation(gameObject_, orn);
     }
 }
 
@@ -102,17 +103,17 @@ void ZGameObjectControls::SetupObjectHeader(const std::shared_ptr<ZScene>& scene
     ZUILayoutOptions layoutOptions;
     layoutOptions.itemSpacing = 5.f;
     fieldOptions.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
-    objectHeader_ = ZServices::UIElementManager()->Create(ZUIElementType::Panel, fieldOptions, ZHUIElement(), scene);
+    objectHeader_ = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, fieldOptions, ZHUIElement(), scene);
 
     fieldOptions = ZUIElementOptions();
     fieldOptions.positioning = ZPositioning::Relative;
     fieldOptions.rect.size = glm::vec2(50.f, 50.f);
     fieldOptions.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
     fieldOptions.flipped = true;
-    auto objectIcon = ZServices::UIElementManager()->Create(ZUIElementType::Image, fieldOptions, ZHUIElement(), scene);
-    ZServices::UIElementManager()->Dereference<ZUIImage>(objectIcon)->SetImage("/Images/object_cube.png");
+    auto objectIcon = ZAssets::UIElementManager()->Create(ZUIElementType::Image, fieldOptions, ZHUIElement(), scene);
+    ZAssets::UIElementManager()->Dereference<ZUIImage>(objectIcon)->SetImage("/Images/object_cube.png");
 
-    ZServices::UIElementManager()->AddChild(objectHeader_, objectIcon);
+    ZAssets::UIElementManager()->AddChild(objectHeader_, objectIcon);
 
     SetupObjectHeaderFields(scene);
 }
@@ -127,9 +128,9 @@ void ZGameObjectControls::SetupObjectHeaderFields(const std::shared_ptr<ZScene>&
     ZUILayoutOptions layoutOptions;
     layoutOptions.itemSpacing = 5.f;
     fieldOptions.layout = std::make_shared<ZUIVerticalLayout>(layoutOptions);
-    auto headerFieldsContainer = ZServices::UIElementManager()->Create(ZUIElementType::Panel, fieldOptions, ZHUIElement(), scene);
+    auto headerFieldsContainer = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, fieldOptions, ZHUIElement(), scene);
 
-    ZServices::UIElementManager()->AddChild(objectHeader_, headerFieldsContainer);
+    ZAssets::UIElementManager()->AddChild(objectHeader_, headerFieldsContainer);
 
     fieldOptions = ZUIElementOptions();
     fieldOptions.positioning = ZPositioning::Relative;
@@ -139,9 +140,9 @@ void ZGameObjectControls::SetupObjectHeaderFields(const std::shared_ptr<ZScene>&
     layoutOptions = ZUILayoutOptions();
     layoutOptions.itemSpacing = 10.f;
     fieldOptions.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
-    auto nameFieldContainer = ZServices::UIElementManager()->Create(ZUIElementType::Panel, fieldOptions, ZHUIElement(), scene);
+    auto nameFieldContainer = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, fieldOptions, ZHUIElement(), scene);
 
-    ZServices::UIElementManager()->AddChild(headerFieldsContainer, nameFieldContainer);
+    ZAssets::UIElementManager()->AddChild(headerFieldsContainer, nameFieldContainer);
 
     fieldOptions = ZUIElementOptions();
     fieldOptions.positioning = ZPositioning::Relative;
@@ -149,14 +150,14 @@ void ZGameObjectControls::SetupObjectHeaderFields(const std::shared_ptr<ZScene>&
     fieldOptions.rect = ZRect(0.0f, 0.0f, 0.90f, 1.f);
     fieldOptions.color = theme_.primaryColor;
     nameField_ = ZTextField::Create("", fieldOptions, scene, theme_);
-    ZServices::UIElementManager()->AddChild(nameFieldContainer, nameField_->Control());
+    ZAssets::UIElementManager()->AddChild(nameFieldContainer, nameField_->Control());
 
     fieldOptions = ZUIElementOptions();
     fieldOptions.positioning = ZPositioning::Relative;
     fieldOptions.rect = ZRect(0.0f, 0.0f, 20.f, 20.f);
     fieldOptions.color = theme_.primaryColor;
     activeField_ = ZBoolField::Create("", fieldOptions, scene, theme_);
-    ZServices::UIElementManager()->AddChild(nameFieldContainer, activeField_->Control());
+    ZAssets::UIElementManager()->AddChild(nameFieldContainer, activeField_->Control());
 }
 
 void ZGameObjectControls::SetupTransformFields(const std::shared_ptr<ZScene>& scene)

@@ -28,6 +28,8 @@
 */
 
 #include "ZRenderPass.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZFramebuffer.hpp"
 #include "ZMesh.hpp"
 #include "ZScene.hpp"
@@ -36,7 +38,6 @@
 #include "ZRenderQueue.hpp"
 #include "ZRenderStateGroup.hpp"
 #include "ZUniformBuffer.hpp"
-#include "ZServices.hpp"
 
 // TODO: Figure out how to move engine passes outside of static scope so the
 // we can use ZServices::AssetStore shaders and other renderpasses without issue, otherwise, we face
@@ -45,24 +46,24 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Depth()
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> depth = std::make_shared<ZDepthPass>(
-        ZServices::ShaderManager()->Create("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/null.frag"),
+        ZAssets::ShaderManager()->Create("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/null.frag"),
         ZFramebuffer::CreateDepth(glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE))
-    );
+        );
     if (!initialized) {
         depth->Initialize();
         initialized = true;
     }
     return depth;
-} 
+}
 
 
 std::shared_ptr<ZRenderPass> ZRenderPass::Shadow()
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> shadow = std::make_shared<ZShadowPass>(
-        ZServices::ShaderManager()->Create("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/null.frag"),
+        ZAssets::ShaderManager()->Create("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/null.frag"),
         ZFramebuffer::CreateShadow(glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE), NUM_SHADOW_CASCADES)
-    );
+        );
     if (!initialized) {
         shadow->Initialize();
         initialized = true;
@@ -74,10 +75,10 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Color(const glm::vec2& size)
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> color = std::make_shared<ZColorPass>(
-        ZServices::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"),
+        ZAssets::ShaderManager()->Create("/Shaders/Vertex/blinnphong.vert", "/Shaders/Pixel/blinnphong.frag"),
         ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f)), true,
         ZRenderPass::Depth(), ZRenderPass::Shadow()
-    );
+        );
     if (!initialized) {
         color->Initialize();
         initialized = true;
@@ -92,10 +93,10 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Post(const glm::vec2& size)
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> post = std::make_shared<ZPostPass>(
-        ZServices::ShaderManager()->Create("/Shaders/Vertex/postprocess.vert", "/Shaders/Pixel/postprocess.frag"),
+        ZAssets::ShaderManager()->Create("/Shaders/Vertex/postprocess.vert", "/Shaders/Pixel/postprocess.frag"),
         ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f)),
         ZRenderPass::Color(), ZRenderPass::Depth(), ZRenderPass::Shadow()
-    );
+        );
     if (!initialized) {
         post->Initialize();
         initialized = true;
@@ -110,9 +111,9 @@ std::shared_ptr<ZRenderPass> ZRenderPass::UI(const glm::vec2& size)
 {
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> ui = std::make_shared<ZUIPass>(
-        ZServices::ShaderManager()->Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"),
+        ZAssets::ShaderManager()->Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"),
         ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f))
-    );
+        );
     if (!initialized) {
         ui->Initialize();
         initialized = true;
@@ -221,7 +222,7 @@ void ZShadowPass::Perform(double deltaTime, const std::shared_ptr<ZScene>& scene
     {
         if (!lights.empty())
         {
-            auto lightspaceMatrix = ZServices::GameObjectManager()->Dereference<ZLight>(*lights.begin())->lightspaceMatrices[j];
+            auto lightspaceMatrix = ZAssets::GameObjectManager()->Dereference<ZLight>(*lights.begin())->lightspaceMatrices[j];
             uniformBuffer_->Update(offsetof(ZLightUniforms, ViewProjectionLightSpace), sizeof(lightspaceMatrix), glm::value_ptr(lightspaceMatrix));
         }
         framebuffer_->BindAttachmentLayer(j);

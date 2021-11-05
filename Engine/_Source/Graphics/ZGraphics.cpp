@@ -28,6 +28,7 @@
 */
 
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZVertexBuffer.hpp"
 #include "ZScene.hpp"
 #include "ZFrustum.hpp"
@@ -141,13 +142,13 @@ void ZGraphics::DebugDrawLine(const std::shared_ptr<ZScene>& scene, const glm::v
     ZRenderStateGroupWriter writer;
     writer.Begin();
     writer.BindVertexBuffer(bufferData);
-    writer.SetShader(ZServices::ShaderManager()->DebugShader());
+    writer.SetShader(ZAssets::ShaderManager()->DebugShader());
     writer.BindUniformBuffer(colorUniforms);
     auto lineState = writer.End();
 
     ZDrawCall drawCall = ZDrawCall::Create(ZMeshDrawStyle::Line);
     auto renderTask = ZRenderTask::Compile(drawCall,
-        { ZServices::GameObjectManager()->RenderState(cam), lineState },
+        { ZAssets::GameObjectManager()->RenderState(cam), lineState },
         ZRenderPass::Color()
     );
     renderTask->Submit({ ZRenderPass::Color() });

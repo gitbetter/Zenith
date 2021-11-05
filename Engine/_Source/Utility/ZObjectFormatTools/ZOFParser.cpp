@@ -200,7 +200,7 @@ void ZOFParser::Value(std::shared_ptr<ZOFPropertyNode> prop)
     else if (std::regex_match(currentToken_, name_))
     {
         // Push a new string onto the prop
-        std::shared_ptr<ZOFString> terminal = std::make_shared<ZOFString>();
+        std::shared_ptr<ZOFString> terminal = std::make_shared<ZOFString>("");
         std::string s(currentToken_);
         s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
         s = zenith::strings::FormatStringGlobals(s);
@@ -213,7 +213,7 @@ void ZOFParser::Value(std::shared_ptr<ZOFPropertyNode> prop)
     else if (std::regex_match(currentToken_, number_))
     {
         // Push a new float onto the prop
-        std::shared_ptr<ZOFNumber> terminal = std::make_shared<ZOFNumber>();
+        std::shared_ptr<ZOFNumber> terminal = std::make_shared<ZOFNumber>(0.0f);
         terminal->value = std::stof(currentToken_);
         terminal->root = prop->root;
         prop->values.push_back(terminal);
@@ -233,7 +233,7 @@ void ZOFParser::List(std::shared_ptr<ZOFPropertyNode> prop)
         if (std::regex_match(currentToken_, name_))
         {
             // Push a new list of strings onto the list
-            std::shared_ptr<ZOFStringList> terminal = std::make_shared<ZOFStringList>();
+            std::shared_ptr<ZOFStringList> terminal = std::make_shared<ZOFStringList>(std::vector<std::string>());
             std::string s = currentToken_;
             s.erase(std::remove(s.begin(), s.end(), '\"'), s.end());
             terminal->value.push_back(s);
@@ -245,7 +245,7 @@ void ZOFParser::List(std::shared_ptr<ZOFPropertyNode> prop)
         else if (std::regex_match(currentToken_, number_))
         {
             // Push a new list of floats onto the list
-            std::shared_ptr<ZOFNumberList> terminal = std::make_shared<ZOFNumberList>();
+            std::shared_ptr<ZOFNumberList> terminal = std::make_shared<ZOFNumberList>(std::vector<float>());
             terminal->value.push_back(std::stof(currentToken_));
             terminal->root = prop->root;
             prop->values.push_back(terminal);

@@ -28,15 +28,15 @@
  */
 
 #include "ZMenuBar.hpp"
-#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUIPanel.hpp"
 
 void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     ZEditorTool::Initialize(scene);
 
-    ZServices::UIElementManager()->SetColor(container_, theme_.secondaryColor);
-    ZServices::UIElementManager()->SetRect(container_, ZRect(0.f, 0.f, 1.f, 0.35f));
+    ZAssets::UIElementManager()->SetColor(container_, theme_.secondaryColor);
+    ZAssets::UIElementManager()->SetRect(container_, ZRect(0.f, 0.f, 1.f, 0.35f));
 }
 
 void ZMenuBar::Update()

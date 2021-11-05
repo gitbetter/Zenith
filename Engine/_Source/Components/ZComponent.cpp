@@ -27,13 +27,14 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "ZGraphicsComponent.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZPhysicsComponent.hpp"
 #include "ZAnimatorComponent.hpp"
 #include "ZColliderComponent.hpp"
 #include "ZScriptComponent.hpp"
 #include "ZGameObject.hpp"
 #include "ZOFTree.hpp"
-#include "ZServices.hpp"
 
 #include <rttr/registration>
 
@@ -88,37 +89,45 @@ ZComponentType ZComponent::StringToComponentType(const std::string& type)
 	return ZComponentType::Other;
 }
 
-ZHComponent ZComponentManager::CreateIn(ZComponentType type, const ZHGameObject& gameObject, const std::shared_ptr<ZOFObjectNode>& data /*= nullptr*/)
+ZHComponent ZComponentManager::Create(ZComponentType type, const ZHComponent& restoreHandle /*= ZHComponent()*/)
 {
-    ZHComponent handle;
-    ZComponent* comp = nullptr;
+	ZHComponent handle(restoreHandle);
+	ZComponent* comp = nullptr;
 
-    switch (type)
-    {
-    case ZComponentType::Graphics:
-        comp = resourcePool_.New<ZGraphicsComponent>(handle);
-        break;
-    case ZComponentType::Physics:
-        comp = resourcePool_.New<ZPhysicsComponent>(handle);
-        break;
-    case ZComponentType::Animator:
-        comp = resourcePool_.New<ZAnimatorComponent>(handle);
-        break;
-    case ZComponentType::Collider:
-        comp = resourcePool_.New<ZColliderComponent>(handle);
-        break;
-    case ZComponentType::Script:
-        comp = resourcePool_.New<ZScriptComponent>(handle);
-        break;
-    case ZComponentType::Other:
-        break;
-    default:
-        break;
-    }
+	switch (type)
+	{
+	case ZComponentType::Graphics:
+		comp = resourcePool_.New<ZGraphicsComponent>(handle);
+		break;
+	case ZComponentType::Physics:
+		comp = resourcePool_.New<ZPhysicsComponent>(handle);
+		break;
+	case ZComponentType::Animator:
+		comp = resourcePool_.New<ZAnimatorComponent>(handle);
+		break;
+	case ZComponentType::Collider:
+		comp = resourcePool_.New<ZColliderComponent>(handle);
+		break;
+	case ZComponentType::Script:
+		comp = resourcePool_.New<ZScriptComponent>(handle);
+		break;
+	case ZComponentType::Other:
+		break;
+	default:
+		break;
+	}
+
+	return handle;
+}
+
+ZHComponent ZComponentManager::CreateIn(ZComponentType type, const ZHGameObject& gameObject, const std::shared_ptr<ZOFObjectNode>& data /*= nullptr*/, const ZHComponent& restoreHandle /*= ZHComponent()*/)
+{
+    ZHComponent handle = Create(type, restoreHandle);
 
     if (!handle.IsNull())
     {
-	    ZServices::GameObjectManager()->AddComponent(gameObject, handle);
+		ZComponent* comp = Dereference<ZComponent>(handle);
+		ZAssets::GameObjectManager()->AddComponent(gameObject, handle);
         comp->OnCreate();
 	    if (data)
 	    {
@@ -126,4 +135,72 @@ ZHComponent ZComponentManager::CreateIn(ZComponentType type, const ZHGameObject&
 	    }
     }
 	return handle;
+}
+
+ZHComponent ZComponentManager::Deserialize(const ZOFHandle& dataHandle, const std::shared_ptr<struct ZOFObjectNode>& dataNode, const std::shared_ptr<ZScene>& scene /*= nullptr*/)
+{
+	if (dataNode == nullptr)
+	{
+		LOG("Could not initalize ZComponent", ZSeverity::Error);
+		return ZHComponent();
+	}
+
+	ZHComponent handle(dataHandle.value);
+
+	ZOFPropertyMap props = dataNode->properties;
+
+	if (props.find("type") != props.end() && props["type"]->HasValues())
+	{
+		std::shared_ptr<ZOFString> typeProp = props["type"]->Value<ZOFString>(0);
+		handle = Create(ZComponent::StringToComponentType(typeProp->value), handle);
+	}
+
+	if (handle.IsNull())
+	{
+		ZComponent* comp = Dereference<ZComponent>(handle);
+		comp->OnCreate();
+		comp->OnDeserialize(dataNode);
+	}
+
+	return handle;
+}
+
+ZHGameObject ZComponentManager::Object(const ZHComponent& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null component handle!");
+	ZComponent* component = resourcePool_.Get(handle);
+	return component->rootObject;
+}
+
+std::string ZComponentManager::Name(const ZHComponent& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null component handle!");
+	ZComponent* component = resourcePool_.Get(handle);
+	return component->name;
+}
+
+void ZComponentManager::Update(const ZHComponent& handle, float deltaTime)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null component handle!");
+	ZComponent* component = resourcePool_.Get(handle);
+	component->OnUpdate(deltaTime);
+}
+
+void ZComponentManager::CleanUp(const ZHComponent& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null component handle!");
+	ZComponent* component = resourcePool_.Get(handle);
+	component->OnCleanUp();
+}
+
+ZHComponent ZComponentManager::Clone(const ZHComponent& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null component handle!");
+	ZComponent* component = resourcePool_.Get(handle);
+	
+	ZHComponent clone = CreateIn(component->type, component->rootObject);
+	ZComponent* clonedComponent = resourcePool_.Get(clone);
+	clonedComponent->OnCloned(handle);
+	
+	return clone;
 }

@@ -27,8 +27,9 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "ZServices.hpp"
 #include "ZShader.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZMaterial.hpp"
 #include "ZResourceData.hpp"
 #include "ZTexture.hpp"
@@ -388,25 +389,25 @@ void ZShaderManager::Use(const ZHShader& handle, const ZHMaterial& material)
 {
     Activate(handle);
 
-    SetBool(handle, "isTextured", ZServices::MaterialManager()->IsTextured(material));
-    SetBool(handle, "hasDisplacement", ZServices::MaterialManager()->HasDisplacement(material));
+    SetBool(handle, "isTextured", ZAssets::MaterialManager()->IsTextured(material));
+    SetBool(handle, "hasDisplacement", ZAssets::MaterialManager()->HasDisplacement(material));
     // TODO: Move this elsewhere for reconfigurability
     SetFloat(handle, "heightScale", 0.01f);
 
     std::string shaderMaterial = "material";
-    SetVec4(handle, shaderMaterial + ".albedo", ZServices::MaterialManager()->Properties(material).albedo);
-	SetFloat(handle, shaderMaterial + ".metallic", ZServices::MaterialManager()->Properties(material).metallic);
-	SetFloat(handle, shaderMaterial + ".roughness", ZServices::MaterialManager()->Properties(material).roughness);
-	SetFloat(handle, shaderMaterial + ".ao", ZServices::MaterialManager()->Properties(material).ao);
-	SetFloat(handle, shaderMaterial + ".emission", ZServices::MaterialManager()->Properties(material).emission);
-	SetFloat(handle, shaderMaterial + ".diffuse", ZServices::MaterialManager()->Properties(material).diffuse);
-	SetFloat(handle, shaderMaterial + ".ambient", ZServices::MaterialManager()->Properties(material).ambient);
-	SetFloat(handle, shaderMaterial + ".specular", ZServices::MaterialManager()->Properties(material).specular);
-	SetFloat(handle, shaderMaterial + ".shininess", ZServices::MaterialManager()->Properties(material).shininess);
+    SetVec4(handle, shaderMaterial + ".albedo", ZAssets::MaterialManager()->Properties(material).albedo);
+    SetFloat(handle, shaderMaterial + ".metallic", ZAssets::MaterialManager()->Properties(material).metallic);
+    SetFloat(handle, shaderMaterial + ".roughness", ZAssets::MaterialManager()->Properties(material).roughness);
+    SetFloat(handle, shaderMaterial + ".ao", ZAssets::MaterialManager()->Properties(material).ao);
+    SetFloat(handle, shaderMaterial + ".emission", ZAssets::MaterialManager()->Properties(material).emission);
+    SetFloat(handle, shaderMaterial + ".diffuse", ZAssets::MaterialManager()->Properties(material).diffuse);
+    SetFloat(handle, shaderMaterial + ".ambient", ZAssets::MaterialManager()->Properties(material).ambient);
+    SetFloat(handle, shaderMaterial + ".specular", ZAssets::MaterialManager()->Properties(material).specular);
+    SetFloat(handle, shaderMaterial + ".shininess", ZAssets::MaterialManager()->Properties(material).shininess);
 
-    for (auto const& texture : ZServices::MaterialManager()->Textures(material))
+    for (auto const& texture : ZAssets::MaterialManager()->Textures(material))
     {
-        BindAttachment(handle, ZServices::TextureManager()->Name(texture), texture);
+        BindAttachment(handle, ZAssets::TextureManager()->Name(texture), texture);
     }
 }
 
@@ -418,18 +419,18 @@ void ZShaderManager::Use(const ZHShader& handle, const ZLightMap& lights)
     for (auto it = lights.begin(); it != lights.end(); it++)
     {
         ZHGameObject light = it->second;
-        ZLight* lightObj = ZServices::GameObjectManager()->Dereference<ZLight>(light);
+        ZLight* lightObj = ZAssets::GameObjectManager()->Dereference<ZLight>(light);
         std::string shaderLight = "light";
         SetInt(handle, shaderLight + ".lightType", static_cast<unsigned int>(lightObj->lightType));
         SetBool(handle, shaderLight + ".isEnabled", lightObj->lightProperties.isEnabled);
         SetVec3(handle, shaderLight + ".ambient", lightObj->lightProperties.ambient);
         SetVec3(handle, shaderLight + ".color", lightObj->lightProperties.color);
-        SetVec3(handle, shaderLight + ".position", ZServices::GameObjectManager()->Position(light));
+        SetVec3(handle, shaderLight + ".position", ZAssets::GameObjectManager()->Position(light));
 
         switch (lightObj->lightType)
         {
         case ZLightType::Directional:
-            SetVec3(handle, shaderLight + ".direction", glm::eulerAngles(ZServices::GameObjectManager()->Orientation(light)));
+            SetVec3(handle, shaderLight + ".direction", glm::eulerAngles(ZAssets::GameObjectManager()->Orientation(light)));
             break;
         case ZLightType::Point:
             SetFloat(handle, shaderLight + ".constantAttenuation", lightObj->lightProperties.constantAttenuation);
@@ -465,7 +466,8 @@ void ZShaderManager::BindAttachments(const ZHShader& handle)
 {
 	assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
 	ZShader* shader = resourcePool_.Get(handle);
-    for (const auto& [key, val] : shader->attachments) {
+    for (const auto& [key, val] : shader->attachments)
+    {
         BindAttachment(handle, key, val);
     }
 }
@@ -475,7 +477,7 @@ void ZShaderManager::BindAttachment(const ZHShader& handle, const std::string& u
     assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
     ZShader* shader = resourcePool_.Get(handle);
     shader->attachments[uniformName] = attachment;
-    ZServices::TextureManager()->Bind(attachment, shader->attachmentIndex);
+    ZAssets::TextureManager()->Bind(attachment, shader->attachmentIndex);
     SetInt(handle, uniformName, shader->attachmentIndex);
     ++shader->attachmentIndex;
 }
@@ -521,8 +523,9 @@ void ZShaderManager::ClearAttachments(const ZHShader& handle)
 {
     assert(!handle.IsNull() && "Cannot use shader with a null shader handle!");
     ZShader* shader = resourcePool_.Get(handle);
-    for (const auto& [key, val] : shader->attachments) {
-        ZServices::TextureManager()->Unbind(val);
+    for (const auto& [key, val] : shader->attachments)
+    {
+        ZAssets::TextureManager()->Unbind(val);
     }
     shader->attachments.clear();
     shader->attachmentIndex = 0;
@@ -609,7 +612,7 @@ ZHShader ZShaderManager::Create(const std::string& vertexShaderPath, const std::
     ZHShader handle(restoreHandle);
     ZShader* shader = nullptr;
 
-    shader = resourcePool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+    shader = resourcePool_.New<ZShader>(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
 
     shader->name = !name.empty() ? name : shader->name;
 
@@ -627,7 +630,7 @@ void ZShaderManager::CreateAsync(const std::string& vertexShaderPath, const std:
 	ZHShader handle(restoreHandle);
 	ZShader* shader = nullptr;
 
-    shader = resourcePool_.New(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
+    shader = resourcePool_.New<ZShader>(handle, vertexShaderPath, pixelShaderPath, geomShaderPath);
 
     shader->name = !name.empty() ? name : shader->name;
 

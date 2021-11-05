@@ -213,7 +213,7 @@ ZHTexture ZTextureManager::Create()
 {
     // TODO: Switch on constant, variable or define to choose implementation
     ZHTexture handle;
-    ZTexture* texture = resourcePool_.New(handle);
+    ZTexture* texture = resourcePool_.New<ZTexture>(handle);
     return handle;
 }
 
@@ -232,7 +232,7 @@ void ZTextureManager::CreateAsync(const std::string& path, const std::string& ty
 	else if (hdr) resourceType = ZResourceType::HDRTexture;
 	else resourceType = ZResourceType::Texture;
 
-	ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, wrapping, type, resourceType, restoreHandle);
+	ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(path, wrapping, type, restoreHandle, resourceType);
 	resource->flipped = flip;
 	resource->hdr = hdr;
 	ZServices::ResourceImporter()->GetDataAsync(resource);

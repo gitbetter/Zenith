@@ -28,14 +28,14 @@
  */
 
 #include "ZHierarchyTool.hpp"
-#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUIPanel.hpp"
 
 void ZHierarchyTool::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     ZEditorTool::Initialize(scene);
 
-    ZServices::UIElementManager()->SetColor(container_, theme_.secondaryColor);
+    ZAssets::UIElementManager()->SetColor(container_, theme_.secondaryColor);
 }
 
 void ZHierarchyTool::Update()

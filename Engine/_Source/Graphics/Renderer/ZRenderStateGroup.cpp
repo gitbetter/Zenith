@@ -27,8 +27,9 @@
  along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- #include "ZServices.hpp"
 #include "ZRenderStateGroup.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUniformBuffer.hpp"
 #include "ZTexture.hpp"
 
@@ -70,7 +71,7 @@ void ZRenderStateGroupWriter::BindVertexBuffer(const std::shared_ptr<ZVertexBuff
 
 void ZRenderStateGroupWriter::BindTexture(const ZHTexture& texture)
 {
-    std::string type = ZServices::TextureManager()->Type(texture);
+    std::string type = ZAssets::TextureManager()->Type(texture);
     if (type == "depth")
         currentStateGroup_->resourceState_.textures[static_cast<uint8_t>(ZTextureBindPoint::Depth)] = texture;
     else if (type == "shadow" || type == "shadowArray")

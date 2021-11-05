@@ -29,6 +29,7 @@
 
 #include "ZSceneTool.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUIPanel.hpp"
 #include "ZUIImage.hpp"
 #include "ZDomain.hpp"
@@ -42,7 +43,7 @@ void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     ZEditorTool::Initialize(scene);
 
-    ZServices::UIElementManager()->SetColor(container_, glm::vec4(1.f));
+    ZAssets::UIElementManager()->SetColor(container_, glm::vec4(1.f));
 
     selectClicker_.WrapToBounds();
     travelClicker_ = ZUIClicker(ZMouse::RIGHT_MB);
@@ -56,10 +57,10 @@ void ZSceneTool::SetSelectedObject(const ZHGameObject& object)
 
     if (currentGizmo_->Showing())
     {
-        currentGizmo_->SetPosition(ZServices::GameObjectManager()->ModelMatrix(selectedObject_)[3]);
+        currentGizmo_->SetPosition(ZAssets::GameObjectManager()->ModelMatrix(selectedObject_)[3]);
     }
 
-    auto selectedEvent = std::make_shared<ZEditorObjectSelectedEvent>(!selectedObject_.IsNull() ? ZServices::GameObjectManager()->Name(selectedObject_) : "");
+    auto selectedEvent = std::make_shared<ZEditorObjectSelectedEvent>(!selectedObject_.IsNull() ? ZAssets::GameObjectManager()->Name(selectedObject_) : "");
 
     ZServices::EventAgent()->Trigger(selectedEvent);
 }
@@ -68,7 +69,7 @@ void ZSceneTool::OnProjectSceneChanged()
 {
     if (activeProjectScene_)
     {
-        ZServices::UIElementManager()->SetTexture(container_, activeProjectScene_->TargetTexture());
+        ZAssets::UIElementManager()->SetTexture(container_, activeProjectScene_->TargetTexture());
 
         if (currentGizmo_)
         {
@@ -79,12 +80,12 @@ void ZSceneTool::OnProjectSceneChanged()
 
 void ZSceneTool::Update()
 {
-    auto rect = ZServices::UIElementManager()->CalculatedRect(container_);
+    auto rect = ZAssets::UIElementManager()->CalculatedRect(container_);
 
     if (currentGizmo_->Showing())
     {
         currentGizmo_->Update();
-        currentGizmo_->SetPosition(ZServices::GameObjectManager()->ModelMatrix(selectedObject_)[3]);
+        currentGizmo_->SetPosition(ZAssets::GameObjectManager()->ModelMatrix(selectedObject_)[3]);
     }
 
     if (selectClicker_.Release(rect))
@@ -98,9 +99,9 @@ void ZSceneTool::Update()
     {
         if (currentGizmo_->Showing())
         {
-            auto transform = ZServices::GameObjectManager()->ModelMatrix(selectedObject_);
+            auto transform = ZAssets::GameObjectManager()->ModelMatrix(selectedObject_);
             currentGizmo_->Manipulate(rect, transform);
-            ZServices::GameObjectManager()->SetModelMatrix(selectedObject_, transform);
+            ZAssets::GameObjectManager()->SetModelMatrix(selectedObject_, transform);
         }
     }
     else if (selectClicker_.Click(rect))
@@ -129,14 +130,14 @@ void ZSceneTool::Update()
 
     if (travelClicker_.Release(rect))
     {
-        auto sceneCamera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeProjectScene_->ActiveCamera());
+        auto sceneCamera = ZAssets::GameObjectManager()->Dereference<ZCamera>(activeProjectScene_->ActiveCamera());
         sceneCamera->DisableLook();
         sceneCamera->DisableMovement();
         ZServices::Input()->ReleaseCursor();
     }
     else if (travelClicker_.Click(rect))
     {
-        auto sceneCamera = ZServices::GameObjectManager()->Dereference<ZCamera>(activeProjectScene_->ActiveCamera());
+        auto sceneCamera = ZAssets::GameObjectManager()->Dereference<ZCamera>(activeProjectScene_->ActiveCamera());
         sceneCamera->EnableLook();
         sceneCamera->EnableMovement();
         ZServices::Input()->CaptureCursor();

@@ -37,6 +37,7 @@ ${ENGINE_SOURCE_DIR}/Core/ZGame.cpp
 ${ENGINE_SOURCE_DIR}/Core/ZBase.cpp
 ${ENGINE_SOURCE_DIR}/Core/ZServices.cpp
 ${ENGINE_SOURCE_DIR}/Core/ZScene.cpp
+${ENGINE_SOURCE_DIR}/Core/ZAssets.cpp
 ${ENGINE_SOURCE_DIR}/Input/ZGLInput.cpp
 ${ENGINE_SOURCE_DIR}/Input/ZInput.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceManager/ZHandle.cpp
@@ -49,6 +50,7 @@ ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZModelResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZTextureResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZZofResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZShaderResourceLoader.cpp
+${ENGINE_SOURCE_DIR}/Memory/ResourceLoaders/ZFontResourceLoader.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ZResourceImporter.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceFiles/ZZipFile.cpp
 ${ENGINE_SOURCE_DIR}/Memory/ResourceFiles/ZDevResourceFile.cpp
@@ -165,6 +167,7 @@ ${ENGINE_HEADERS_DIR}/Core/ZBase.hpp
 ${ENGINE_HEADERS_DIR}/Core/ZServices.hpp
 ${ENGINE_HEADERS_DIR}/Core/ZGame.hpp
 ${ENGINE_HEADERS_DIR}/Core/ZScene.hpp
+${ENGINE_HEADERS_DIR}/Core/ZAssets.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/ZEvent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/ZEventAgent.hpp
 ${ENGINE_HEADERS_DIR}/EventAgent/Events/ZCollisionEvent.hpp
@@ -262,6 +265,7 @@ ${ENGINE_HEADERS_DIR}/Memory/ResourceLoaders/ZShaderResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceLoaders/ZScriptResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceLoaders/ZWavResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceLoaders/ZOggResourceLoader.hpp
+${ENGINE_HEADERS_DIR}/Memory/ResourceLoaders/ZFontResourceLoader.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceManager/ZHandle.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceManager/ZResourcePool.hpp
 ${ENGINE_HEADERS_DIR}/Memory/ResourceManager/ZResourceManager.hpp

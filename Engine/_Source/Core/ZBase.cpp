@@ -29,6 +29,7 @@
 
 #include "ZBase.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZGLDomain.hpp"
 #include "ZGLInput.hpp"
 #include "ZBulletPhysicsUniverse.hpp"
@@ -70,6 +71,8 @@ void ZBase::Initialize(const ZGameOptions& options)
     /* ========= Audio System ============ */
     Provide(std::make_shared<ZALAudio>());
     /* ===================================== */
+
+    ZAssets::Initialize();
 
     Setup();
 }

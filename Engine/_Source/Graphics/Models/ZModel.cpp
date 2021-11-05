@@ -98,13 +98,13 @@ ZHModel ZModelManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<
     {
         std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
         ZHModel handle = Create(ModelTypeFromString(typeProp->value), restoreHandle);
-        Dereference(handle)->OnDeserialize(dataNode);
+        Dereference<ZModel>(handle)->OnDeserialize(dataNode);
         return handle;
     }
     else if (dataNode->properties.find("path") != dataNode->properties.end()) {
         std::shared_ptr<ZOFString> pathProp = dataNode->properties["path"]->Value<ZOFString>(0);
         ZHModel handle = Create(pathProp->value, restoreHandle);
-        Dereference(handle)->OnDeserialize(dataNode);
+        Dereference<ZModel>(handle)->OnDeserialize(dataNode);
         return handle;
 	}
 
@@ -124,7 +124,7 @@ void ZModelManager::DeserializeAsync(const ZOFHandle& dataHandle, std::shared_pt
 	{
 		std::shared_ptr<ZOFString> typeProp = dataNode->properties["type"]->Value<ZOFString>(0);
         ZHModel handle = Create(ModelTypeFromString(typeProp->value), restoreHandle);
-        Dereference(handle)->OnDeserialize(dataNode);
+        Dereference<ZModel>(handle)->OnDeserialize(dataNode);
     }
     if (dataNode->properties.find("path") != dataNode->properties.end())
     {
@@ -158,7 +158,7 @@ ZHModel ZModelManager::Create(const ZModelType& type, const ZHModel& restoreHand
             model = resourcePool_.New<ZCompositeModel>(handle);
             break;
         case ZModelType::Custom:
-            model = resourcePool_.New(handle);
+            model = resourcePool_.New<ZModel>(handle);
         case ZModelType::Cone:
         default: break;
     }
@@ -207,7 +207,7 @@ ZHModel ZModelManager::Create(const std::string& path, const ZHModel& restoreHan
 
     bool isDeserialized = !handle.IsNull();
 
-	ZModel* model = resourcePool_.New(handle);
+	ZModel* model = resourcePool_.New<ZModel>(handle);
 
 	ZModelImporter importer;
     model->meshes = importer.LoadModel(path, model->bonesMap, model->bones, model->animations, model->skeleton);
@@ -262,7 +262,7 @@ void ZModelManager::CreateAsync(const std::string& path, const ZHModel& restoreH
 
 	ZHModel handle(restoreHandle);
 
-	ZModel* model = resourcePool_.New(handle);
+	ZModel* model = resourcePool_.New<ZModel>(handle);
 
 	ZModelImporter importer;
 	model->meshes = importer.LoadModel(path, model->bonesMap, model->bones, model->animations, model->skeleton);
@@ -524,7 +524,7 @@ glm::vec3 ZModelManager::CalculateInterpolatedPosition(double animationTime, con
 
 void ZModelManager::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent>& event)
 {
-    if (event->Resource() == nullptr)
+    if (event->Resource() == nullptr || event->Resource()->type != ZResourceType::Model)
     {
         return;
     }
@@ -533,7 +533,7 @@ void ZModelManager::HandleModelLoaded(const std::shared_ptr<ZResourceLoadedEvent
 
 	ZHModel handle(modelResource->restoreHandle);
 
-	ZModel* model = resourcePool_.New(handle);
+	ZModel* model = resourcePool_.New<ZModel>(handle);
 
     if (model)
     {

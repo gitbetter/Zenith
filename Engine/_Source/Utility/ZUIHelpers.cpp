@@ -28,6 +28,7 @@
 */
 
 #include "ZUIHelpers.hpp"
+#include "ZMesh.hpp"
 
 glm::vec2 ZUIHelpers::RelativeToAbsoluteCoords(const glm::vec2& coords, const glm::vec2& parentCoords)
 {
@@ -59,4 +60,31 @@ ZRect ZUIHelpers::AbsoluteToRelativeRect(const ZRect& rect, const ZRect& parentR
         AbsoluteToRelativeCoords(rect.position, parentRect.size),
         AbsoluteToRelativeCoords(rect.size, parentRect.size)
     );
+}
+
+ZMesh2D ZUIHelpers::NewQuad()
+{
+	ZVertex2DDataOptions options;
+	options.vertices = ZVertex2DList{
+		ZVertex2D(-1.f, 1.f, 0.f, 1.f),
+		ZVertex2D(-1.f, -1.f, 0.f, 0.f),
+		ZVertex2D(1.f, -1.f, 1.f, 0.f),
+		ZVertex2D(1.f, 1.f, 1.f, 1.f)
+	};
+    ZMesh2D mesh(options);
+	mesh.Initialize();
+	return mesh;
+}
+
+ZMesh2D ZUIHelpers::NewScreenTriangle()
+{
+	ZVertex2DDataOptions options;
+	options.vertices = ZVertex2DList{
+		ZVertex2D(-1.f, -1.f, 0.f, 0.f),
+		ZVertex2D(3.f, -1.f, 2.f, 0.f),
+		ZVertex2D(-1.f, 3.f, 0.f, 2.f)
+	};
+	ZMesh2D mesh(options);
+	mesh.Initialize();
+	return mesh;
 }

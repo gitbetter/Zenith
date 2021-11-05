@@ -28,9 +28,10 @@
  */
 
 #include "ZRenderStateExecutor.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZTexture.hpp"
 #include "ZUniformBuffer.hpp"
-#include "ZServices.hpp"
 
 void ZRenderStateExecutor::operator()(const ZRenderPipelineState& pipelineState)
 {
@@ -56,8 +57,8 @@ void ZRenderStateExecutor::operator()(const ZRenderResourceState& resourceState)
 {
     if (resourceState.shader && cachedState_->resourceState_.shader != resourceState.shader) {
         cachedState_->resourceState_.shader = resourceState.shader;
-        ZServices::ShaderManager()->Activate(resourceState.shader);
-        ZServices::ShaderManager()->ClearAttachments(resourceState.shader);
+        ZAssets::ShaderManager()->Activate(resourceState.shader);
+        ZAssets::ShaderManager()->ClearAttachments(resourceState.shader);
         // Reset cached list of textures and ubos once the shader changes, to make
         // sure textures/ubos are updated between shader state changes
         cachedState_->resourceState_.textures.fill(ZHTexture());
@@ -67,9 +68,9 @@ void ZRenderStateExecutor::operator()(const ZRenderResourceState& resourceState)
     std::unordered_map<std::string, unsigned int> attachmentCount;
     for (auto i = 0; i < MAX_TEXTURE_SLOTS; i++) {
         if (resourceState.textures[i] && resourceState.textures[i] != cachedState_->resourceState_.textures[i]) {
-            std::string textureType = ZServices::TextureManager()->Type(resourceState.textures[i]);
+            std::string textureType = ZAssets::TextureManager()->Type(resourceState.textures[i]);
             std::string uniformName = textureType + "Sampler" + std::to_string(attachmentCount[textureType]++);
-            ZServices::ShaderManager()->BindAttachment(cachedState_->resourceState_.shader, uniformName, resourceState.textures[i]);
+            ZAssets::ShaderManager()->BindAttachment(cachedState_->resourceState_.shader, uniformName, resourceState.textures[i]);
             cachedState_->resourceState_.textures[i] = resourceState.textures[i];
         }
     }

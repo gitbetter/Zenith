@@ -12,7 +12,7 @@
 
 class ZRenderStateGroup;
 
-class ZGraphicsComponent : public ZComponent
+struct ZGraphicsComponent : public ZComponent
 {
 
     RTTR_ENABLE(ZComponent)

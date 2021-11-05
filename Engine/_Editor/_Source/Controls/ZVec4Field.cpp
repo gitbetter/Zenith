@@ -29,6 +29,7 @@
 
 #include "ZVec4Field.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZFloatField.hpp"
 #include "ZUIScrubber.hpp"
 #include "ZUIText.hpp"
@@ -70,7 +71,7 @@ std::shared_ptr<ZVec4Field> ZVec4Field::Create(const std::string& label, const Z
     layoutOptions.verticalAlign = ZAlignment::Middle;
     fieldOptions.layout = std::make_shared<ZUIHorizontalLayout>(layoutOptions);
 
-    auto container = ZServices::UIElementManager()->Create(ZUIElementType::Panel, fieldOptions, ZHUIElement(), scene);
+    auto container = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, fieldOptions, ZHUIElement(), scene);
 
     fieldOptions = ZUIElementOptions();
     fieldOptions.positioning = ZPositioning::Relative;
@@ -79,32 +80,32 @@ std::shared_ptr<ZVec4Field> ZVec4Field::Create(const std::string& label, const Z
     fieldOptions.color = options.color;
 
     vec4Field->xInputField_ = ZFloatField::Create("X", fieldOptions, scene, theme);
-    auto labeledElementObj = ZServices::UIElementManager()->Dereference<ZUILabeledElement>(vec4Field->xInputField_->Control());
+    auto labeledElementObj = ZAssets::UIElementManager()->Dereference<ZUILabeledElement>(vec4Field->xInputField_->Control());
     labeledElementObj->SetLabelTextAlignment(ZAlignment::Middle);
     labeledElementObj->SetLabelFontSize(13.f);
     labeledElementObj->SetLabelBackgroundColor(glm::vec4(1.f, 0.f, 0.f, 1.f));
-    ZServices::UIElementManager()->AddChild(container, vec4Field->xInputField_->Control());
+    ZAssets::UIElementManager()->AddChild(container, vec4Field->xInputField_->Control());
 
     vec4Field->yInputField_ = ZFloatField::Create("Y", fieldOptions, scene, theme);
-    labeledElementObj = ZServices::UIElementManager()->Dereference<ZUILabeledElement>(vec4Field->yInputField_->Control());
+    labeledElementObj = ZAssets::UIElementManager()->Dereference<ZUILabeledElement>(vec4Field->yInputField_->Control());
     labeledElementObj->SetLabelTextAlignment(ZAlignment::Middle);
     labeledElementObj->SetLabelFontSize(13.f);
     labeledElementObj->SetLabelBackgroundColor(glm::vec4(0.f, 1.f, 0.f, 1.f));
-    ZServices::UIElementManager()->AddChild(container, vec4Field->yInputField_->Control());
+    ZAssets::UIElementManager()->AddChild(container, vec4Field->yInputField_->Control());
 
     vec4Field->zInputField_ = ZFloatField::Create("Z", fieldOptions, scene, theme);
-    labeledElementObj = ZServices::UIElementManager()->Dereference<ZUILabeledElement>(vec4Field->zInputField_->Control());
+    labeledElementObj = ZAssets::UIElementManager()->Dereference<ZUILabeledElement>(vec4Field->zInputField_->Control());
     labeledElementObj->SetLabelTextAlignment(ZAlignment::Middle);
     labeledElementObj->SetLabelFontSize(13.f);
     labeledElementObj->SetLabelBackgroundColor(glm::vec4(0.f, 0.f, 1.f, 1.f));
-    ZServices::UIElementManager()->AddChild(container, vec4Field->zInputField_->Control());
+    ZAssets::UIElementManager()->AddChild(container, vec4Field->zInputField_->Control());
 
     vec4Field->wInputField_ = ZFloatField::Create("W", fieldOptions, scene, theme);
-    labeledElementObj = ZServices::UIElementManager()->Dereference<ZUILabeledElement>(vec4Field->wInputField_->Control());
+    labeledElementObj = ZAssets::UIElementManager()->Dereference<ZUILabeledElement>(vec4Field->wInputField_->Control());
     labeledElementObj->SetLabelTextAlignment(ZAlignment::Middle);
     labeledElementObj->SetLabelFontSize(13.f);
     labeledElementObj->SetLabelBackgroundColor(glm::vec4(0.f, 0.f, 0.f, 1.f));
-    ZServices::UIElementManager()->AddChild(container, vec4Field->wInputField_->Control());
+    ZAssets::UIElementManager()->AddChild(container, vec4Field->wInputField_->Control());
 
     vec4Field->control_ = ZUILabeledElement::Create(label, container);
 

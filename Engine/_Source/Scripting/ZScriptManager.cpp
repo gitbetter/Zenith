@@ -32,6 +32,8 @@
 #include "ZResourceData.hpp"
 #include "ZResourceLoadedEvent.hpp"
 
+ZIDSequence ZScript::idGenerator_;
+
 ZScript::ZScript()
 {
 	name = "Script_" + idGenerator_.Next();
@@ -60,7 +62,7 @@ void ZScriptManager::Deserialize(const ZOFHandle& dataHandle, std::shared_ptr<ZO
 
 	ZHScript restoreHandle(dataHandle.value);
 
-	ZScript* script = resourcePool_.New(restoreHandle);
+	ZScript* script = resourcePool_.New<ZScript>(restoreHandle);
 
 	if (dataNode->properties.find("path") != dataNode->properties.end() && dataNode->properties["path"]->HasValues())
 	{
@@ -108,7 +110,7 @@ void ZScriptManager::HandleScriptLoaded(const std::shared_ptr<class ZResourceLoa
 
 	ZScriptResourceData::ptr scriptData = std::static_pointer_cast<ZScriptResourceData>(event->Resource());
 
-	ZScript* script = resourcePool_.New(scriptData->restoreHandle);
+	ZScript* script = resourcePool_.New<ZScript>(scriptData->restoreHandle);
 
 	script->code = scriptData->code;
 	script->path = scriptData->path;

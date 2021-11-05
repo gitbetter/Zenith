@@ -29,6 +29,7 @@
 
 #include "ZUIText.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZScene.hpp"
 #include "ZFont.hpp"
 #include "ZVertexBuffer.hpp"
@@ -43,14 +44,14 @@ ZUIText::ZUIText() : ZUIElement()
 }
 
 void ZUIText::OnInitialize() {
-    ZServices::UIElementManager()->Disable(handle);
+    ZAssets::UIElementManager()->Disable(handle);
 
     ZVertex2DDataOptions vertexOptions;
     vertexOptions.numVertices = 4;
     bufferData_ = ZVertexBuffer::Create(vertexOptions);
 
-    if (auto scene = ZServices::UIElementManager()->Scene(handle)) {
-        options.shader = ZServices::ShaderManager()->TextShader();
+    if (auto scene = ZAssets::UIElementManager()->Scene(handle)) {
+        options.shader = ZAssets::ShaderManager()->TextShader();
         if (fontName_.empty()) fontName_ = "arial";
     }
 
@@ -101,16 +102,16 @@ ZHFont ZUIText::Font()
 
     if (!scene.lock()) return ZHFont();
 
-    if (!ZServices::FontManager()->IsLoaded(fontName_)) {
+    if (!ZAssets::FontManager()->IsLoaded(fontName_)) {
         LOG("The font " + fontName_ + " has not been loaded.", ZSeverity::Warning);
         return ZHFont();
     }
-    font_ = ZServices::FontManager()->GetFromName(fontName_);
+    font_ = ZAssets::FontManager()->GetFromName(fontName_);
     RecalculateBufferData();
 
     ZRenderStateGroupWriter writer(renderState);
     writer.Begin();
-    writer.BindTexture(ZServices::FontManager()->Atlas(font_).texture);
+    writer.BindTexture(ZAssets::FontManager()->Atlas(font_).texture);
     renderState = writer.End();
 
     return font_;
@@ -133,10 +134,10 @@ void ZUIText::RecalculateBufferData()
     auto pos = options.calculatedRect.position;
     float x = pos.x, y = pos.y;
 
-    float oneOverFontScale = 1.f / ZServices::FontManager()->Size(font_);
+    float oneOverFontScale = 1.f / ZAssets::FontManager()->Size(font_);
     float fontSize = oneOverFontScale * fontScale_;
     float maxWrap = wrapToBounds_ ? MaxWrapBounds() : 0.f;
-    float atlasH = ZServices::FontManager()->Atlas(font_).height * fontSize;
+    float atlasH = ZAssets::FontManager()->Atlas(font_).height * fontSize;
     std::string text = text_;
     // If no wrapping is enabled we simulate banner scrolling by removing
     // characters from the beginning of the original string if the total width
@@ -145,7 +146,7 @@ void ZUIText::RecalculateBufferData()
     auto it = text.rbegin();
     while (it != text.rend())
     {
-        ZCharacter character = ZServices::FontManager()->Atlas(font_).characterInfo[*it];
+        ZCharacter character = ZAssets::FontManager()->Atlas(font_).characterInfo[*it];
         width += character.advance.x * fontSize;
         if (width >= options.calculatedRect.size.x)
             break;
@@ -183,7 +184,7 @@ void ZUIText::RecalculateBufferData()
     textVertexData_.vertices.reserve(text.size() * 6);
     for (auto c = text.begin(); c != text.end(); c++)
     {
-        ZCharacter character = ZServices::FontManager()->Atlas(font_).characterInfo[*c];
+        ZCharacter character = ZAssets::FontManager()->Atlas(font_).characterInfo[*c];
 
         float w = character.bitmapSize.x * fontSize;
         float h = character.bitmapSize.y * fontSize;
@@ -206,11 +207,11 @@ void ZUIText::RecalculateBufferData()
         if (w == 0 || h == 0) continue;
 
         textVertexData_.vertices.push_back(ZVertex2D(xpos, ypos, character.xOffset, 0));
-        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / ZServices::FontManager()->Atlas(font_).width, 0));
-        textVertexData_.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / ZServices::FontManager()->Atlas(font_).height));
-        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / ZServices::FontManager()->Atlas(font_).width, 0));
-        textVertexData_.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / ZServices::FontManager()->Atlas(font_).height));
-        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos + h, character.xOffset + character.bitmapSize.x / ZServices::FontManager()->Atlas(font_).width, character.bitmapSize.y / ZServices::FontManager()->Atlas(font_).height));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / ZAssets::FontManager()->Atlas(font_).width, 0));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / ZAssets::FontManager()->Atlas(font_).height));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos, character.xOffset + character.bitmapSize.x / ZAssets::FontManager()->Atlas(font_).width, 0));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos, ypos + h, character.xOffset, character.bitmapSize.y / ZAssets::FontManager()->Atlas(font_).height));
+        textVertexData_.vertices.push_back(ZVertex2D(xpos + w, ypos + h, character.xOffset + character.bitmapSize.x / ZAssets::FontManager()->Atlas(font_).width, character.bitmapSize.y / ZAssets::FontManager()->Atlas(font_).height));
     }
 
     bufferData_->Update(textVertexData_);
@@ -218,7 +219,7 @@ void ZUIText::RecalculateBufferData()
 
 float ZUIText::MaxWrapBounds() const
 {
-    return !parent.IsNull() ? options.rect.position.x + ZServices::UIElementManager()->Size(parent).x * 2.f : options.rect.position.x + options.rect.size.x;
+    return !parent.IsNull() ? options.rect.position.x + ZAssets::UIElementManager()->Size(parent).x * 2.f : options.rect.position.x + options.rect.size.x;
 }
 
 void ZUIText::SetText(const std::string& text)

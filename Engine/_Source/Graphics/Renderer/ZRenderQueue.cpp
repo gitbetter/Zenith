@@ -28,10 +28,11 @@
  */
 
 #include "ZRenderQueue.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZRenderTask.hpp"
 #include "ZRenderStateExecutor.hpp"
 #include "ZVertexBuffer.hpp"
-#include "ZServices.hpp"
 
 void ZRenderQueue::Initialize()
 {
@@ -71,9 +72,10 @@ uint64_t ZRenderQueue::GenerateKey(const std::shared_ptr<ZRenderTask>& task)
     key |= static_cast<uint64_t>(task->renderLayer_ & 0x0f) << 43;
     key |= static_cast<uint64_t>((static_cast<uint8_t>(task->pipelineState_.blendState) & 0x07)) << 40;
     if (task->pipelineState_.blendState == ZBlendMode::Opaque) {
-        key |= static_cast<uint64_t>(static_cast<uint16_t>(ZServices::ShaderManager()->ID(task->resourceState_.shader))) << 24;
+        key |= static_cast<uint64_t>(static_cast<uint16_t>(ZAssets::ShaderManager()->ID(task->resourceState_.shader))) << 24;
         key |= static_cast<uint64_t>((task->renderDepth_ & 0xffffff));
-    } else {
+    }
+    else {
 
         if (task->fullscreenLayer_ & static_cast<uint8_t>(ZFullScreenLayer::UI)) {
             // HUD-style UI elements use a zOrder in place of the renderDepth, where higher zOrdere (renderDepth) elements
@@ -85,7 +87,7 @@ uint64_t ZRenderQueue::GenerateKey(const std::shared_ptr<ZRenderTask>& task)
             // in order to render translucency back to front.
             key |= static_cast<uint64_t>((static_cast<uint32_t>(1.f / static_cast<float>(task->renderDepth_ + 1) * 100000.f) & 0xffffff)) << 16;
         }
-        key |= static_cast<uint64_t>(static_cast<uint16_t>(ZServices::ShaderManager()->ID(task->resourceState_.shader)));
+        key |= static_cast<uint64_t>(static_cast<uint16_t>(ZAssets::ShaderManager()->ID(task->resourceState_.shader)));
     }
     return key;
 }

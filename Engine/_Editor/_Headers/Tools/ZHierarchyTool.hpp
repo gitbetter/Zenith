@@ -39,7 +39,7 @@ public:
         : ZEditorTool("Hierarchy", theme) { }
 
     void Initialize(const std::shared_ptr<class ZScene>& scene) override;
-
     void Update() override;
+    void CleanUp() override { }
 
 };

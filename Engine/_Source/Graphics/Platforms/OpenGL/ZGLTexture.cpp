@@ -28,8 +28,9 @@
 */
 
 #include "ZGLTexture.hpp"
-#include "ZFramebuffer.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
+#include "ZFramebuffer.hpp"
 #include "ZCube.hpp"
 #include "ZShader.hpp"
 #include "ZVertexBuffer.hpp"
@@ -124,7 +125,7 @@ ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::s
 {
 	ZHTexture handle(restoreHandle);
 
-	ZTexture* texture = resourcePool_.New(handle);
+	ZTexture* texture = resourcePool_.New<ZTexture>(handle);
 
 	if (handle.IsNull())
 	{
@@ -186,7 +187,7 @@ ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::s
 ZHTexture ZGLTextureManager::CreateDefault()
 {
 	ZHTexture handle;
-	ZTexture* texture = resourcePool_.New(handle);
+	ZTexture* texture = resourcePool_.New<ZTexture>(handle);
 
     texture->type = "color";
 	GLubyte textureData[] = { 255, 255, 255, 255 };
@@ -205,7 +206,7 @@ ZHTexture ZGLTextureManager::CreateDefault()
 ZHTexture ZGLTextureManager::CreateEmptyLUT()
 {
 	ZHTexture handle;
-	ZTexture* texture = resourcePool_.New(handle);
+	ZTexture* texture = resourcePool_.New<ZTexture>(handle);
 
     texture->type = "lut";
 	glGenTextures(1, &texture->id);
@@ -223,7 +224,7 @@ ZHTexture ZGLTextureManager::CreateEmptyLUT()
 ZHTexture ZGLTextureManager::CreateColor(const glm::vec2& size, bool multisample /*= false*/)
 {
 	ZHTexture handle;
-	ZTexture* texture = resourcePool_.New(handle);
+	ZTexture* texture = resourcePool_.New<ZTexture>(handle);
 
     texture->type = "color";
     texture->multisampled = multisample;
@@ -253,7 +254,7 @@ ZHTexture ZGLTextureManager::CreateColor(const glm::vec2& size, bool multisample
 ZHTexture ZGLTextureManager::CreateDepth(const glm::vec2& size)
 {
 	ZHTexture handle;
-	ZTexture* texture = resourcePool_.New(handle);
+	ZTexture* texture = resourcePool_.New<ZTexture>(handle);
 
     texture->type = "depth";
 	glGenTextures(1, &texture->id);
@@ -274,7 +275,7 @@ ZHTexture ZGLTextureManager::CreateDepth(const glm::vec2& size)
 ZHTexture ZGLTextureManager::CreateDepthArray(const glm::vec2& size, int layers)
 {
 	ZHTexture handle;
-	ZTexture* texture = resourcePool_.New(handle);
+	ZTexture* texture = resourcePool_.New<ZTexture>(handle);
 
     texture->type = "depthArray";
 	glGenTextures(1, &texture->id);
@@ -296,7 +297,7 @@ ZHTexture ZGLTextureManager::CreateDepthArray(const glm::vec2& size, int layers)
 ZHTexture ZGLTextureManager::CreateCubeMap(const std::vector<std::string>& faces)
 {
 	ZHTexture handle;
-	ZTexture* texture = resourcePool_.New(handle);
+	ZTexture* texture = resourcePool_.New<ZTexture>(handle);
 
     texture->type = "cubemap";
 	glGenTextures(1, &texture->id);
@@ -305,7 +306,7 @@ ZHTexture ZGLTextureManager::CreateCubeMap(const std::vector<std::string>& faces
 	int width, height, nrChannels;
 	for (unsigned int i = 0; i < faces.size(); i++)
 	{
-		ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(faces[i], ZResourceType::Texture);
+		ZTextureResourceData::ptr resource = std::make_shared<ZTextureResourceData>(faces[i], ZTextureWrapping::EdgeClamp, "");
 		ZServices::ResourceImporter()->GetData(resource.get());
 
 		if (!handle)
@@ -352,23 +353,23 @@ ZHTexture ZGLTextureManager::CreateCubeMap(const ZHTexture& hdrTexture, std::sha
 		glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
 	};
 
-	ZHModel cube = ZServices::ModelManager()->Create(ZModelType::Cube);
-	ZHShader equirectToCubemapShader = ZServices::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/equirect_to_cube.frag");
-	ZServices::ShaderManager()->Activate(equirectToCubemapShader);
-	ZServices::ShaderManager()->SetMat4(equirectToCubemapShader, "P", captureProjection);
+	ZHModel cube = ZAssets::ModelManager()->Create(ZModelType::Cube);
+	ZHShader equirectToCubemapShader = ZAssets::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/equirect_to_cube.frag");
+	ZAssets::ShaderManager()->Activate(equirectToCubemapShader);
+	ZAssets::ShaderManager()->SetMat4(equirectToCubemapShader, "P", captureProjection);
 
-	ZServices::ShaderManager()->BindAttachment(equirectToCubemapShader, "equirectangularMapSampler0", hdrTexture);
+	ZAssets::ShaderManager()->BindAttachment(equirectToCubemapShader, "equirectangularMapSampler0", hdrTexture);
 
-	ZServices::ShaderManager()->Use(equirectToCubemapShader, ZServices::MaterialManager()->Default());
+	ZAssets::ShaderManager()->Use(equirectToCubemapShader, ZAssets::MaterialManager()->Default());
 
 	bufferData->Bind();
 	ZServices::Graphics()->UpdateViewport(glm::vec2(CUBE_MAP_SIZE, CUBE_MAP_SIZE));
 	for (unsigned int i = 0; i < 6; i++)
 	{
-		ZServices::ShaderManager()->SetMat4(equirectToCubemapShader, "V", captureViews[i]);
+		ZAssets::ShaderManager()->SetMat4(equirectToCubemapShader, "V", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture->id, 0);
 		ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
-		for (const auto& mesh : ZServices::ModelManager()->Meshes(cube))
+		for (const auto& mesh : ZAssets::ModelManager()->Meshes(cube))
 		{
 			ZServices::Graphics()->Draw(mesh.bufferData);
 		}
@@ -385,7 +386,7 @@ ZHTexture ZGLTextureManager::CreateCubeMap(const ZHTexture& hdrTexture, std::sha
 ZHTexture ZGLTextureManager::CreateEmptyCubeMap(ZCubemapTextureType type /*= ZCubemapTextureType::Normal*/)
 {
 	ZHTexture handle;
-	ZTexture* texture = resourcePool_.New(handle);
+	ZTexture* texture = resourcePool_.New<ZTexture>(handle);
 
 	texture->type = "cubemap";
 	glGenTextures(1, &texture->id);
@@ -455,14 +456,14 @@ ZHTexture ZGLTextureManager::CreateIrradianceMap(const std::shared_ptr<ZFramebuf
 		glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
 	};
 
-	ZHModel cube = ZServices::ModelManager()->Create(ZModelType::Cube);
-	ZHShader irradianceShader = ZServices::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/irradiance.frag");
-	ZServices::ShaderManager()->Activate(irradianceShader);
-	ZServices::ShaderManager()->SetMat4(irradianceShader, "P", captureProjection);
+	ZHModel cube = ZAssets::ModelManager()->Create(ZModelType::Cube);
+	ZHShader irradianceShader = ZAssets::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/irradiance.frag");
+	ZAssets::ShaderManager()->Activate(irradianceShader);
+	ZAssets::ShaderManager()->SetMat4(irradianceShader, "P", captureProjection);
 
-	ZServices::ShaderManager()->BindAttachment(irradianceShader, "environmentMapSampler0", cubemapTexture);
+	ZAssets::ShaderManager()->BindAttachment(irradianceShader, "environmentMapSampler0", cubemapTexture);
 
-	ZServices::ShaderManager()->Use(irradianceShader, ZServices::MaterialManager()->Default());
+	ZAssets::ShaderManager()->Use(irradianceShader, ZAssets::MaterialManager()->Default());
 
 	cubemapBufferData->Bind();
 	cubemapBufferData->BindRenderbuffer();
@@ -470,10 +471,10 @@ ZHTexture ZGLTextureManager::CreateIrradianceMap(const std::shared_ptr<ZFramebuf
 	ZServices::Graphics()->UpdateViewport(glm::vec2(IRRADIANCE_MAP_SIZE, IRRADIANCE_MAP_SIZE));
 	for (unsigned int i = 0; i < 6; i++)
 	{
-		ZServices::ShaderManager()->SetMat4(irradianceShader, "V", captureViews[i]);
+		ZAssets::ShaderManager()->SetMat4(irradianceShader, "V", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture->id, 0);
 		ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
-		for (const auto& mesh : ZServices::ModelManager()->Meshes(cube))
+		for (const auto& mesh : ZAssets::ModelManager()->Meshes(cube))
 		{
 			ZServices::Graphics()->Draw(mesh.bufferData);
 		}
@@ -501,15 +502,15 @@ ZHTexture ZGLTextureManager::CreatePrefilterMap(const std::shared_ptr<ZFramebuff
 		glm::lookAt(glm::vec3(0.0f), glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, -1.f, 0.f)),
 	};
 
-	ZHModel cube = ZServices::ModelManager()->Create(ZModelType::Cube);
-	ZHShader prefilterShader = ZServices::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/prefilter_convolution.frag");
-	ZServices::ShaderManager()->Activate(prefilterShader);
-	ZServices::ShaderManager()->SetMat4(prefilterShader, "P", captureProjection);
-	ZServices::ShaderManager()->SetFloat(prefilterShader, "resolution", PREFILTER_MAP_SIZE);
+	ZHModel cube = ZAssets::ModelManager()->Create(ZModelType::Cube);
+	ZHShader prefilterShader = ZAssets::ShaderManager()->Create("/Shaders/Vertex/basic.vert", "/Shaders/Pixel/prefilter_convolution.frag");
+	ZAssets::ShaderManager()->Activate(prefilterShader);
+	ZAssets::ShaderManager()->SetMat4(prefilterShader, "P", captureProjection);
+	ZAssets::ShaderManager()->SetFloat(prefilterShader, "resolution", PREFILTER_MAP_SIZE);
 
-	ZServices::ShaderManager()->BindAttachment(prefilterShader, "environmentMapSampler0", cubemapTexture);
+	ZAssets::ShaderManager()->BindAttachment(prefilterShader, "environmentMapSampler0", cubemapTexture);
 
-	ZServices::ShaderManager()->Use(prefilterShader, ZServices::MaterialManager()->Default());
+	ZAssets::ShaderManager()->Use(prefilterShader, ZAssets::MaterialManager()->Default());
 
 	cubemapBufferData->Bind();
 
@@ -523,13 +524,13 @@ ZHTexture ZGLTextureManager::CreatePrefilterMap(const std::shared_ptr<ZFramebuff
 		ZServices::Graphics()->UpdateViewport(glm::vec2(mipSize, mipSize));
 
 		float roughness = (float)mip / (float)(maxMipLevels - 1);
-		ZServices::ShaderManager()->SetFloat(prefilterShader, "roughness", roughness);
+		ZAssets::ShaderManager()->SetFloat(prefilterShader, "roughness", roughness);
 		for (unsigned int i = 0; i < 6; ++i)
 		{
-			ZServices::ShaderManager()->SetMat4(prefilterShader, "V", captureViews[i]);
+			ZAssets::ShaderManager()->SetMat4(prefilterShader, "V", captureViews[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, texture->id, mip);
 			ZServices::Graphics()->ClearViewport(glm::vec4(0.f), 0);
-			for (const auto& mesh : ZServices::ModelManager()->Meshes(cube))
+			for (const auto& mesh : ZAssets::ModelManager()->Meshes(cube))
 			{
 				ZServices::Graphics()->Draw(mesh.bufferData);
 			}
@@ -554,7 +555,7 @@ ZHTexture ZGLTextureManager::CreateBRDFLUT(const std::shared_ptr<ZFramebuffer>& 
 		ZVertex2D(1.f, -1.f, 1.f, 0.f),
 	};
 	ZVertexBuffer::ptr quadBufferData = ZVertexBuffer::Create(options);
-	ZHShader brdfLUTShader = ZServices::ShaderManager()->Create("/Shaders/Vertex/brdf_lut.vert", "/Shaders/Pixel/brdf_lut.frag");
+	ZHShader brdfLUTShader = ZAssets::ShaderManager()->Create("/Shaders/Vertex/brdf_lut.vert", "/Shaders/Pixel/brdf_lut.frag");
 
 	cubemapBufferData->Bind();
 	cubemapBufferData->BindRenderbuffer();

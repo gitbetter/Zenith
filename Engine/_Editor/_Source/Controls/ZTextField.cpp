@@ -29,6 +29,7 @@
 
 #include "ZTextField.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZUIInputField.hpp"
 #include "ZUILabeledElement.hpp"
 #include "ZUIHoverer.hpp"
@@ -41,15 +42,15 @@ void ZTextField::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZTextField::Update()
 {
-    auto elementRect = ZServices::UIElementManager()->CalculatedRect(inputField_);
+    auto elementRect = ZAssets::UIElementManager()->CalculatedRect(inputField_);
 
     if (hoverer_.Entered(elementRect))
     {
-        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
+        ZAssets::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Caret));
     }
     else if (hoverer_.Exited(elementRect))
     {
-        ZServices::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
+        ZAssets::UIElementManager()->Scene(control_)->Domain()->SetCursor(ZCursor(ZSystemCursorType::Arrow));
     }
 }
 
@@ -61,15 +62,15 @@ void ZTextField::SetValue(const std::string& val)
     }
     lastValue_ = value_;
     value_ = val;
-    ZServices::UIElementManager()->Dereference<ZUIInputField>(inputField_)->SetText(val);
+    ZAssets::UIElementManager()->Dereference<ZUIInputField>(inputField_)->SetText(val);
 }
 
 std::shared_ptr<ZTextField> ZTextField::Create(const std::string& label, const ZUIElementOptions& options, const std::shared_ptr<ZScene>& scene, ZUITheme theme)
 {
     auto textField = std::make_shared<ZTextField>(theme);
 
-    textField->inputField_ = ZServices::UIElementManager()->Create(ZUIElementType::InputField, options, ZHUIElement(), scene);
-    auto inputFieldObj = ZServices::UIElementManager()->Dereference<ZUIInputField>(textField->inputField_);
+    textField->inputField_ = ZAssets::UIElementManager()->Create(ZUIElementType::InputField, options, ZHUIElement(), scene);
+    auto inputFieldObj = ZAssets::UIElementManager()->Dereference<ZUIInputField>(textField->inputField_);
     inputFieldObj->SetCharacterFilter([](char c) { return true; });
     inputFieldObj->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
     textField->control_ = ZUILabeledElement::Create(label, textField->inputField_);

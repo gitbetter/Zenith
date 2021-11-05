@@ -29,6 +29,7 @@
 
 #include "ZLight.hpp"
 #include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZScene.hpp"
 #include "ZFrustum.hpp"
 #include "ZCamera.hpp"
@@ -52,8 +53,8 @@ ZLight::ZLight(ZLightType lightType) : ZGameObject(), lightType(lightType)
 void ZLight::OnCreate()
 {
     lightProperties.lightType = static_cast<unsigned int>(lightType);
-    lightProperties.direction = glm::vec4(glm::eulerAngles(ZServices::GameObjectManager()->Orientation(handle)), 0.f);
-    lightProperties.position = glm::vec4(ZServices::GameObjectManager()->Position(handle), 1.f);
+    lightProperties.direction = glm::vec4(glm::eulerAngles(ZAssets::GameObjectManager()->Orientation(handle)), 0.f);
+    lightProperties.position = glm::vec4(ZAssets::GameObjectManager()->Position(handle), 1.f);
 
     lightspaceMatrices = std::vector<glm::mat4>(NUM_SHADOW_CASCADES, glm::mat4(1.f));
 
@@ -140,7 +141,7 @@ void ZLight::OnUpdate(double deltaTime)
         return;
     }
 
-    ZCamera* camObject = ZServices::GameObjectManager()->Dereference<ZCamera>(sceneSP->ActiveCamera());
+    ZCamera* camObject = ZAssets::GameObjectManager()->Dereference<ZCamera>(sceneSP->ActiveCamera());
     if (camObject != nullptr && camObject->isMoving)
     {
         UpdateLightspaceMatrices(camObject->frustum);
@@ -159,9 +160,9 @@ void ZLight::OnCloned(ZGameObject* original)
         lightType = originalLight->lightType;
         lightProperties = originalLight->lightProperties;
 
-        ZServices::GameObjectManager()->SetPosition(handle, ZServices::GameObjectManager()->Position(originalLight->handle));
-        ZServices::GameObjectManager()->SetOrientation(handle, ZServices::GameObjectManager()->Orientation(originalLight->handle));
-        ZServices::GameObjectManager()->SetScale(handle, ZServices::GameObjectManager()->Scale(originalLight->handle));
+        ZAssets::GameObjectManager()->SetPosition(handle, ZAssets::GameObjectManager()->Position(originalLight->handle));
+        ZAssets::GameObjectManager()->SetOrientation(handle, ZAssets::GameObjectManager()->Orientation(originalLight->handle));
+        ZAssets::GameObjectManager()->SetScale(handle, ZAssets::GameObjectManager()->Scale(originalLight->handle));
     }
 }
 
@@ -176,7 +177,7 @@ void ZLight::UpdateLightspaceMatrices(const ZFrustum& frustum)
             splitFrustum.far = shadowFarPlaneSplits[i];
             splitFrustum.Recalculate();
 
-            const glm::quat orientation = ZServices::GameObjectManager()->Orientation(handle);
+            const glm::quat orientation = ZAssets::GameObjectManager()->Orientation(handle);
             glm::mat4 lightV = glm::lookAt(splitFrustum.center + glm::eulerAngles(glm::normalize(orientation)), splitFrustum.center, WORLD_UP);
 
             lightspaceRegion = ZAABBox();

@@ -28,12 +28,13 @@
  */
 
 #include "ZPhysicsComponent.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZScene.hpp"
 #include "ZGameObject.hpp"
 #include "ZPhysicsUniverse.hpp"
 #include "ZOFTree.hpp"
 #include "ZBulletRigidBody.hpp"
-#include "ZServices.hpp"
 #include "btBulletDynamicsCommon.h"
 
 #include <rttr/registration>
@@ -79,7 +80,7 @@ void ZPhysicsComponent::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& data
         }
         else
         {
-            ZServices::GameObjectManager()->SetRenderOrder(rootObject, ZRenderLayer::Dynamic);
+            ZAssets::GameObjectManager()->SetRenderOrder(rootObject, ZRenderLayer::Dynamic);
         }
 
         if (typeProp->value == "Dynamic") type = ZPhysicsBodyType::Dynamic;
@@ -121,9 +122,9 @@ void ZPhysicsComponent::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& data
 
 void ZPhysicsComponent::Initialize(ZPhysicsBodyType bodyType, float mass, bool hasGravityInfluence)
 {
-    body = std::make_shared<ZBulletRigidBody>(bodyType, mass, ZServices::GameObjectManager()->Position(rootObject), ZServices::GameObjectManager()->Scale(rootObject), ZServices::GameObjectManager()->Orientation(rootObject));
+    body = std::make_shared<ZBulletRigidBody>(bodyType, mass, ZAssets::GameObjectManager()->Position(rootObject), ZAssets::GameObjectManager()->Scale(rootObject), ZAssets::GameObjectManager()->Orientation(rootObject));
     body->Initialize();
-	body->SetGameObject(rootObject);
+    body->SetGameObject(rootObject);
     if (hasGravityInfluence)
     {
         body->SetGravity(glm::vec3(0.f, -9.8f, 0.f));
@@ -134,29 +135,29 @@ void ZPhysicsComponent::OnUpdate(double deltaTime)
 {
     assert(!rootObject.IsNull() && body != nullptr);
 
-    if (!inUniverse_ && ZServices::GameObjectManager()->Scene(rootObject)) {
-        ZServices::GameObjectManager()->Scene(rootObject)->PhysicsUniverse()->AddRigidBody(body);
+    if (!inUniverse_ && ZAssets::GameObjectManager()->Scene(rootObject)) {
+        ZAssets::GameObjectManager()->Scene(rootObject)->PhysicsUniverse()->AddRigidBody(body);
         inUniverse_ = true;
     }
 
     if (body->Type() == ZPhysicsBodyType::Trigger)
-        body->SetTransformMatrix(ZServices::GameObjectManager()->ModelMatrix(rootObject));
+        body->SetTransformMatrix(ZAssets::GameObjectManager()->ModelMatrix(rootObject));
 
-    if (ZServices::GameObjectManager()->Scene(rootObject)->PlayState() != ZPlayState::Playing)
+    if (ZAssets::GameObjectManager()->Scene(rootObject)->PlayState() != ZPlayState::Playing)
         return;
 
     // Don't update static rigid bodies with the physic engine, since the physics engine cannot affect them
     if (body->InverseMass() == 0.0) return;
 
     glm::mat4 M = body->TransformMatrix();
-    M = glm::scale(M, ZServices::GameObjectManager()->Scale(rootObject));
-    ZServices::GameObjectManager()->SetModelMatrix(rootObject, M);
+    M = glm::scale(M, ZAssets::GameObjectManager()->Scale(rootObject));
+    ZAssets::GameObjectManager()->SetModelMatrix(rootObject, M);
 }
 
 void ZPhysicsComponent::OnCloned(const ZHComponent& original)
 {
     assert(body != nullptr);
-    ZPhysicsComponent* originalComp = ZServices::ComponentManager()->Dereference<ZPhysicsComponent>(original);
+    ZPhysicsComponent* originalComp = ZAssets::ComponentManager()->Dereference<ZPhysicsComponent>(original);
     body = originalComp->body->Clone();
 }
 
@@ -164,7 +165,7 @@ void ZPhysicsComponent::OnCleanUp()
 {
     if (!rootObject.IsNull() && body != nullptr)
     {
-        ZServices::GameObjectManager()->Scene(rootObject)->PhysicsUniverse()->RemoveRigidBody(body);
+        ZAssets::GameObjectManager()->Scene(rootObject)->PhysicsUniverse()->RemoveRigidBody(body);
     }
 }
 

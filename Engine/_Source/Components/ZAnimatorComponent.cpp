@@ -28,11 +28,12 @@
 */
 
 #include "ZAnimatorComponent.hpp"
+#include "ZServices.hpp"
+#include "ZAssets.hpp"
 #include "ZGraphicsComponent.hpp"
 #include "ZGameObject.hpp"
 #include "ZModel.hpp"
 #include "ZMesh.hpp"
-#include "ZServices.hpp"
 #include "ZScene.hpp"
 
 #include <rttr/registration>
@@ -47,7 +48,7 @@ ZAnimatorComponent::ZAnimatorComponent()
 
 void ZAnimatorComponent::OnUpdate(double deltaTime)
 {
-    if (ZServices::GameObjectManager()->Scene(rootObject)->PlayState() != ZPlayState::Playing)
+    if (ZAssets::GameObjectManager()->Scene(rootObject)->PlayState() != ZPlayState::Playing)
         return;
 
     if (currentClip.state == ZAnimationState::Playing || currentClip.state == ZAnimationState::Looping)
@@ -55,7 +56,7 @@ void ZAnimatorComponent::OnUpdate(double deltaTime)
         currentClip.currentTime += deltaTime;
         if (currentClip.startTime + currentClip.currentTime <= currentClip.endTime)
         {
-            ZServices::ModelManager()->BoneTransform(currentClip.model, currentClip.name, currentClip.currentTime);
+            ZAssets::ModelManager()->BoneTransform(currentClip.model, currentClip.name, currentClip.currentTime);
         }
         else if (currentClip.state == ZAnimationState::Looping)
         {
@@ -73,20 +74,20 @@ void ZAnimatorComponent::OnUpdate(double deltaTime)
 
 void ZAnimatorComponent::OnCloned(const ZHComponent& original)
 {
-    ZAnimatorComponent* originalObj = ZServices::ComponentManager()->Dereference<ZAnimatorComponent>(original);
+    ZAnimatorComponent* originalObj = ZAssets::ComponentManager()->Dereference<ZAnimatorComponent>(original);
     currentClip = originalObj->currentClip;
 }
 
 void ZAnimatorComponent::Play(const std::string& animationName, bool looping)
 {
-    ZHComponent graphics = ZServices::GameObjectManager()->FindComponent<ZGraphicsComponent>(rootObject);
+    ZHComponent graphics = ZAssets::GameObjectManager()->FindComponent<ZGraphicsComponent>(rootObject);
     if (graphics.IsNull())
     {
         LOG("Could not play animator animation. No graphics component exists for this game object.", ZSeverity::Error);
         return;
     }
 
-    ZGraphicsComponent* graphicsObj = ZServices::ComponentManager()->Dereference<ZGraphicsComponent>(graphics);
+    ZGraphicsComponent* graphicsObj = ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(graphics);
 
     if (currentClip.state == ZAnimationState::Paused && !currentClip.model.IsNull())
     {
@@ -101,7 +102,7 @@ void ZAnimatorComponent::Play(const std::string& animationName, bool looping)
             if (!model.IsNull())
             {
                 currentClip.model = model;
-                auto animations = ZServices::ModelManager()->Animations(currentClip.model);
+                auto animations = ZAssets::ModelManager()->Animations(currentClip.model);
                 const ZAnimation& animation = animations[animationName];
                 currentClip.name = animationName;
                 currentClip.currentTime = 0.0;
