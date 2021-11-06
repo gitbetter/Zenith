@@ -105,7 +105,7 @@ std::shared_ptr<ZRectField> ZRectField::Create(const std::string& label, const Z
     labeledElementObj->SetLabelBackgroundColor(glm::vec4(0.f, 1.f, 0.f, 1.f));
     ZAssets::UIElementManager()->AddChild(container, rectField->hInputField_->Control());
 
-    rectField->control_ = ZUILabeledElement::Create(label, container);
+    rectField->control_ = ZUILabeledElement::Create(label, container, scene);
 
     rectField->Initialize(scene);
 

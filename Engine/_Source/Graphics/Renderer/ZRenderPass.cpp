@@ -97,11 +97,13 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Post(const glm::vec2& size)
         ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f)),
         ZRenderPass::Color(), ZRenderPass::Depth(), ZRenderPass::Shadow()
         );
-    if (!initialized) {
+    if (!initialized)
+    {
         post->Initialize();
         initialized = true;
     }
-    if (size != glm::vec2(0.f) && size != post->size_) {
+    if (size != glm::vec2(0.f) && size != post->size_)
+    {
         post->SetSize(size);
     }
     return post;
@@ -114,11 +116,13 @@ std::shared_ptr<ZRenderPass> ZRenderPass::UI(const glm::vec2& size)
         ZAssets::ShaderManager()->Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"),
         ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f))
         );
-    if (!initialized) {
+    if (!initialized)
+    {
         ui->Initialize();
         initialized = true;
     }
-    if (size != glm::vec2(0.f) && size != ui->size_) {
+    if (size != glm::vec2(0.f) && size != ui->size_)
+    {
         ui->SetSize(size);
     }
     return ui;

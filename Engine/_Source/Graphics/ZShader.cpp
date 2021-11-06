@@ -78,6 +78,11 @@ void ZShaderManager::Compile(const ZHShader& handle)
 
     ZShader* shader = resourcePool_.Get(handle);
 
+    if (loadedResources_.find(shader->name) != loadedResources_.end())
+    {
+        return;
+    }
+
     int vShader = CompileShader(shader->vertexShaderCode, ZShaderType::Vertex);
     int pShader = CompileShader(shader->pixelShaderCode, ZShaderType::Pixel);
     int gShader = CompileShader(shader->geometryShaderCode, ZShaderType::Geometry);

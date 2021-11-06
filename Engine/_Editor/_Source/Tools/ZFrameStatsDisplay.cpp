@@ -93,23 +93,23 @@ void ZFrameStatsDisplay::SetupStatFields(const std::shared_ptr<ZScene>& scene)
 
     drawCallsText_ = ZAssets::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
     ZAssets::UIElementManager()->Dereference<ZUIText>(drawCallsText_)->SetFontScale(14.f);
-    auto drawCallsField = ZUILabeledElement::Create("Draw Calls: ", drawCallsText_);
+    auto drawCallsField = ZUILabeledElement::Create("Draw Calls: ", drawCallsText_, scene);
 
     verticesText_ = ZAssets::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
     ZAssets::UIElementManager()->Dereference<ZUIText>(verticesText_)->SetFontScale(14.f);
-    auto verticesField = ZUILabeledElement::Create("Vertices: ", verticesText_);
+    auto verticesField = ZUILabeledElement::Create("Vertices: ", verticesText_, scene);
 
     renderPassesText_ = ZAssets::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
     ZAssets::UIElementManager()->Dereference<ZUIText>(renderPassesText_)->SetFontScale(14.f);
-    auto renderPassesField = ZUILabeledElement::Create("Render Passes: ", renderPassesText_);
+    auto renderPassesField = ZUILabeledElement::Create("Render Passes: ", renderPassesText_, scene);
 
     frameTimeText_ = ZAssets::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
     ZAssets::UIElementManager()->Dereference<ZUIText>(frameTimeText_)->SetFontScale(14.f);
-    auto frameTimeField = ZUILabeledElement::Create("Frame Time: ", frameTimeText_);
+    auto frameTimeField = ZUILabeledElement::Create("Frame Time: ", frameTimeText_, scene);
 
     fpsText_ = ZAssets::UIElementManager()->Create(ZUIElementType::Text, textOptions, ZHUIElement(), scene);
     ZAssets::UIElementManager()->Dereference<ZUIText>(fpsText_)->SetFontScale(14.f);
-    auto fpsField = ZUILabeledElement::Create("FPS: ", fpsText_);
+    auto fpsField = ZUILabeledElement::Create("FPS: ", fpsText_, scene);
 
     ZAssets::UIElementManager()->AddChild(container_, drawCallsField);
     ZAssets::UIElementManager()->AddChild(container_, verticesField);

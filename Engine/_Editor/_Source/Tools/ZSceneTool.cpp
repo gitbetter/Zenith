@@ -43,7 +43,7 @@ void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     ZEditorTool::Initialize(scene);
 
-    ZAssets::UIElementManager()->SetColor(container_, glm::vec4(1.f));
+    ZAssets::UIElementManager()->SetColor(container_, glm::vec4(0.0f, 0.0f, 0.0f, 1.f));
 
     selectClicker_.WrapToBounds();
     travelClicker_ = ZUIClicker(ZMouse::RIGHT_MB);

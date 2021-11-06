@@ -80,7 +80,7 @@ std::shared_ptr<ZBoolField> ZBoolField::Create(const std::string& label, const Z
     ZUIElementOptions checkboxOptions = options;
     checkboxOptions.maxSize = glm::vec2(100.f, 0.f);
     boolField->checkbox_ = ZAssets::UIElementManager()->Create(ZUIElementType::CheckBox, checkboxOptions, ZHUIElement(), scene);
-    boolField->control_ = ZAssets::UIElementManager()->Create(ZUIElementType::LabeledElement);
+    boolField->control_ = ZUILabeledElement::Create(label, boolField->checkbox_, scene);
 
     boolField->Initialize(scene);
 

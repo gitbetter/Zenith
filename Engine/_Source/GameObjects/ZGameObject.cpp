@@ -147,6 +147,7 @@ ZHGameObject ZGameObjectManager::Create(const ZGameObjectType& type, const ZHGam
     if (object != nullptr)
     {
         object->type = type;
+        object->handle = handle;
     }
 
     return handle;

@@ -33,7 +33,8 @@ void ZRenderer::Render(double deltaTime)
 {
     ZPR_SESSION_COLLECT_RENDER_PASSES(passes_.size());
 
-    for (auto pass : passes_) {
+    for (auto pass : passes_)
+    {
         pass->Render(deltaTime, scene_, target_);
     }
 }

@@ -64,9 +64,12 @@ void ZEditor::CreateDefaultProject()
 
     ZScene::LoadIn<ZScene>(project_);
 
-    OnUpdateTick([this]() {
-        if (project_->ActiveScene() != editorScene_->ActiveProjectScene())
+    OnUpdateTick([this]()
+    {
+		if (project_->ActiveScene() != editorScene_->ActiveProjectScene())
+		{
             editorScene_->SetActiveProjectScene(project_->ActiveScene());
+        }
         project_->Tick();
     });
 }

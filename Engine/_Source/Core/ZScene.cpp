@@ -97,7 +97,8 @@ void ZScene::Initialize()
 void ZScene::SetupRenderers()
 {
     renderer_ = std::make_shared<ZRenderer>(shared_from_this());
-    if (gameConfig_.domain.offline) {
+    if (gameConfig_.domain.offline)
+    {
         SetupTargetDrawBuffer();
     }
 }

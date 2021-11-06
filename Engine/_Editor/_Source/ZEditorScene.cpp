@@ -91,7 +91,7 @@ void ZEditorScene::CleanUp()
 
 ZHGameObject ZEditorScene::CreateCamera()
 {
-    ZHGameObject camera = ZAssets::GameObjectManager()->Create(ZGameObjectType::Camera);
+    ZHGameObject camera = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Camera);
     ZAssets::GameObjectManager()->SetScene(camera, shared_from_this());
     ZAssets::GameObjectManager()->SetPosition(camera, glm::vec3(0.f, 15.f, 50.f));
     ZAssets::GameObjectManager()->Dereference<ZCamera>(camera)->cameraType = ZCameraType::Perspective;
@@ -337,13 +337,13 @@ void ZEditorScene::Configure(const ZEditorConfig& config)
 void ZEditorScene::LoadObjectTemplates()
 {
     /******* Empty Object *******/
-    ZHGameObject empty = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZHGameObject empty = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom);
     ZAssets::GameObjectManager()->SetName(empty, "Empty");
     gameObjectTemplates_["Empty"] = empty;
     /****************************/
 
     /******* Cube Object *******/
-    ZHGameObject cube = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZHGameObject cube = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom);
     ZAssets::GameObjectManager()->SetName(cube, "Cube");
     ZAssets::GameObjectManager()->SetPosition(cube, glm::vec3(0.0f, 1.0f, 0.0f));
     ZHComponent cubeGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, cube);
@@ -354,7 +354,7 @@ void ZEditorScene::LoadObjectTemplates()
     /****************************/
 
     /******* Sphere Object *******/
-    ZHGameObject sphere = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZHGameObject sphere = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom);
     ZAssets::GameObjectManager()->SetName(sphere, "Sphere");
     ZAssets::GameObjectManager()->SetPosition(sphere, glm::vec3(0.0f, 1.0f, 0.0f));
     ZHComponent sphereGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, sphere);
@@ -364,7 +364,7 @@ void ZEditorScene::LoadObjectTemplates()
     /****************************/
 
     /******* Plane Object *******/
-    ZHGameObject plane = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    ZHGameObject plane = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom);
     ZAssets::GameObjectManager()->SetName(plane, "Plane");
     ZAssets::GameObjectManager()->SetPosition(plane, glm::vec3(0.0f, 0.0f, 0.0f));
     ZAssets::GameObjectManager()->SetScale(plane, glm::vec3(50.0f, 0.1f, 50.0f));
@@ -375,7 +375,7 @@ void ZEditorScene::LoadObjectTemplates()
 	/****************************/
 
 	/******* Camera Object *******/
-	ZHGameObject camera = ZAssets::GameObjectManager()->Create(ZGameObjectType::Camera);
+	ZHGameObject camera = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Camera);
     ZAssets::GameObjectManager()->SetName(camera, "Camera");
     ZAssets::GameObjectManager()->SetPosition(camera, glm::vec3(-5.0f, 15.0f, 50.0f));
     ZAssets::GameObjectManager()->Dereference<ZCamera>(camera)->movementSpeed = 20.0f;
@@ -385,7 +385,7 @@ void ZEditorScene::LoadObjectTemplates()
     /****************************/
 
     /******* Light Object *******/
-    ZHGameObject light = ZAssets::GameObjectManager()->Create(ZGameObjectType::Light);
+    ZHGameObject light = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Light);
     ZAssets::GameObjectManager()->SetName(light, "Light");
     ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
     ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.color = glm::vec4(0.95f, 0.95f, 0.95f, 1.0f);

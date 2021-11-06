@@ -237,55 +237,61 @@ ZHUIElement ZUIElementManager::Deserialize(const ZOFHandle& dataHandle, const st
 ZHUIElement ZUIElementManager::Create(const ZUIElementType& type, const ZHUIElement& restoreHandle)
 {
 	ZHUIElement handle(restoreHandle);
+	ZUIElement* element = nullptr;
 
 	switch (type)
 	{
 		case ZUIElementType::Button:
 		{
-			ZUIButton* element = resourcePool_.New<ZUIButton>(handle);
+			element = resourcePool_.New<ZUIButton>(handle);
 			break;
 		}
 		case ZUIElementType::Canvas:
 		{
-			ZUICanvas* element = resourcePool_.New<ZUICanvas>(handle);
+			element = resourcePool_.New<ZUICanvas>(handle);
 			break;
 		}
 		case ZUIElementType::CheckBox:
 		{
-			ZUICheckBox* element = resourcePool_.New<ZUICheckBox>(handle);
+			element = resourcePool_.New<ZUICheckBox>(handle);
 			break;
 		}
 		case ZUIElementType::Image:
 		{
-			ZUIImage* element = resourcePool_.New<ZUIImage>(handle);
+			element = resourcePool_.New<ZUIImage>(handle);
 			break;
 		}
 		case ZUIElementType::InputField:
 		{
-			ZUIInputField* element = resourcePool_.New<ZUIInputField>(handle);
+			element = resourcePool_.New<ZUIInputField>(handle);
 			break;
 		}
 		case ZUIElementType::LabeledElement:
 		{
-			ZUILabeledElement* element = resourcePool_.New<ZUILabeledElement>(handle);
+			element = resourcePool_.New<ZUILabeledElement>(handle);
 			break;
 		}
 		case ZUIElementType::ListPanel:
 		{
-			ZUIListPanel* element = resourcePool_.New<ZUIListPanel>(handle);
+			element = resourcePool_.New<ZUIListPanel>(handle);
 			break;
 		}
 		case ZUIElementType::Panel:
 		{
-			ZUIPanel* element = resourcePool_.New<ZUIPanel>(handle);
+			element = resourcePool_.New<ZUIPanel>(handle);
 			break;
 		}
 		case ZUIElementType::Text:
 		{
-			ZUIText* element = resourcePool_.New<ZUIText>(handle);
+			element = resourcePool_.New<ZUIText>(handle);
 			break;
 		}
 		default: break;
+	}
+
+	if (element != nullptr)
+	{
+		element->handle = handle;
 	}
 
     return handle;
@@ -329,6 +335,7 @@ ZHUIElement ZUIElementManager::Create(const ZUIElementType& type, const ZUIEleme
 	}
 
 	if (scene != nullptr && element != nullptr) {
+		element->handle = handle;
 		element->options = options;
 		SetScene(handle, scene);
 		Initialize(handle);

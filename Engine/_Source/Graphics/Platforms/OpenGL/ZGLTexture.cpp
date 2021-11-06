@@ -142,7 +142,7 @@ ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::s
 	{
 		if (resource->buffer != nullptr)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, resource->width, resource->height, 0, GL_RGB, GL_FLOAT, resource->buffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, resource->width, resource->height, 0, GL_RGB, GL_FLOAT, resource->data);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrap);
@@ -158,9 +158,9 @@ ZHTexture ZGLTextureManager::Create(ZTextureResourceData* resource, const std::s
 	}
 	else
 	{
-		if (resource->buffer)
+		if (resource->buffer != nullptr)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, resource->width, resource->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, resource->buffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, resource->width, resource->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, resource->data);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrap);

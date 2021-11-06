@@ -98,7 +98,7 @@ void ZCylinder::Rebuild(float topRadius /*= 1.f*/, float baseRadius /*= 1.f*/, f
     topRadius_ = topRadius;
     baseRadius_ = baseRadius;
     height_ = height;
-    segments_ = segments_;
+    segments_ = segments;
     smooth_ = smooth;
 
 	if (smooth_)

@@ -107,7 +107,7 @@ std::shared_ptr<ZFloatField> ZFloatField::Create(const std::string& label, const
     inputFieldObj->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '.' || c == '-'; });
     inputFieldObj->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
 
-    floatField->control_ = ZUILabeledElement::Create(label, floatField->inputField_);
+    floatField->control_ = ZUILabeledElement::Create(label, floatField->inputField_, scene);
 
     floatField->Initialize(scene);
 

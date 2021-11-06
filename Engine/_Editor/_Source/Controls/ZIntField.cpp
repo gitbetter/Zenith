@@ -101,7 +101,7 @@ std::shared_ptr<ZIntField> ZIntField::Create(const std::string& label, const ZUI
     inputFieldObj->SetCharacterFilter([](char c) { return std::isdigit(c) || c == '-'; });
     inputFieldObj->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
 
-    intField->control_ = ZUILabeledElement::Create(label, intField->inputField_);
+    intField->control_ = ZUILabeledElement::Create(label, intField->inputField_, scene);
 
     intField->Initialize(scene);
 

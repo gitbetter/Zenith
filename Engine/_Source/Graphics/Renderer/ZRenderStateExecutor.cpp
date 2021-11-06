@@ -35,19 +35,23 @@
 
 void ZRenderStateExecutor::operator()(const ZRenderPipelineState& pipelineState)
 {
-    if (pipelineState.clearState != cachedState_->pipelineState_.clearState) {
+    if (pipelineState.clearState != cachedState_->pipelineState_.clearState)
+    {
         ZServices::Graphics()->ClearViewport(glm::vec4(0.f), pipelineState.clearState);
         cachedState_->pipelineState_.clearState = pipelineState.clearState;
     }
-    if (pipelineState.blendState != cachedState_->pipelineState_.blendState) {
+    if (pipelineState.blendState != cachedState_->pipelineState_.blendState)
+    {
         ZServices::Graphics()->SetBlending(pipelineState.blendState);
         cachedState_->pipelineState_.blendState = pipelineState.blendState;
     }
-    if (pipelineState.depthStencilState != cachedState_->pipelineState_.depthStencilState) {
+    if (pipelineState.depthStencilState != cachedState_->pipelineState_.depthStencilState)
+    {
         ZServices::Graphics()->SetDepthStencilState(pipelineState.depthStencilState);
         cachedState_->pipelineState_.depthStencilState = pipelineState.depthStencilState;
     }
-    if (pipelineState.faceCullState != cachedState_->pipelineState_.faceCullState) {
+    if (pipelineState.faceCullState != cachedState_->pipelineState_.faceCullState)
+    {
         ZServices::Graphics()->CullFaces(pipelineState.faceCullState);
         cachedState_->pipelineState_.faceCullState = pipelineState.faceCullState;
     }
@@ -66,8 +70,10 @@ void ZRenderStateExecutor::operator()(const ZRenderResourceState& resourceState)
     }
 
     std::unordered_map<std::string, unsigned int> attachmentCount;
-    for (auto i = 0; i < MAX_TEXTURE_SLOTS; i++) {
-        if (resourceState.textures[i] && resourceState.textures[i] != cachedState_->resourceState_.textures[i]) {
+    for (auto i = 0; i < MAX_TEXTURE_SLOTS; i++)
+    {
+        if (resourceState.textures[i] && resourceState.textures[i] != cachedState_->resourceState_.textures[i])
+        {
             std::string textureType = ZAssets::TextureManager()->Type(resourceState.textures[i]);
             std::string uniformName = textureType + "Sampler" + std::to_string(attachmentCount[textureType]++);
             ZAssets::ShaderManager()->BindAttachment(cachedState_->resourceState_.shader, uniformName, resourceState.textures[i]);
@@ -75,8 +81,10 @@ void ZRenderStateExecutor::operator()(const ZRenderResourceState& resourceState)
         }
     }
 
-    for (auto i = 0; i < MAX_UBO_SLOTS; i++) {
-        if (resourceState.uniformBuffers[i] && resourceState.uniformBuffers[i] != cachedState_->resourceState_.uniformBuffers[i]) {
+    for (auto i = 0; i < MAX_UBO_SLOTS; i++)
+    {
+        if (resourceState.uniformBuffers[i] && resourceState.uniformBuffers[i] != cachedState_->resourceState_.uniformBuffers[i])
+        {
             resourceState.uniformBuffers[i]->Bind();
             cachedState_->resourceState_.uniformBuffers[i] = resourceState.uniformBuffers[i];
         }

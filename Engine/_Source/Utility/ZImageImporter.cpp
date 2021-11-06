@@ -50,11 +50,11 @@ void ZImageImporter::LoadImage(ZTextureResourceData* resource)
 
     if (resource->hdr)
     {
-        resource->data = stbi_loadf_from_memory((const stbi_uc*) resource->buffer, resource->size, &resource->width, &resource->height, &resource->channels, 0);
+        resource->data = (void*)stbi_loadf_from_memory((const stbi_uc*) resource->buffer, resource->size, &resource->width, &resource->height, &resource->channels, 0);
     }
     else
     {
-        resource->data = stbi_load_from_memory((const stbi_uc*) resource->buffer, resource->size, &resource->width, &resource->height, &resource->channels, 4);
+        resource->data = (void*)stbi_load_from_memory((const stbi_uc*) resource->buffer, resource->size, &resource->width, &resource->height, &resource->channels, 4);
     }
     importerMutex_.unlock();
 }

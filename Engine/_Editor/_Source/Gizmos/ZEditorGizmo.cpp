@@ -34,7 +34,7 @@
 
 void ZEditorGizmo::Initialize(const std::shared_ptr<ZScene>& scene)
 {
-    gizmo_ = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    gizmo_ = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom);
     ZAssets::GameObjectManager()->SetRenderOrder(gizmo_, ZRenderLayer::UI);
     ZAssets::GameObjectManager()->SetActive(gizmo_, false);
 }

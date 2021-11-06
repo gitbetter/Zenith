@@ -61,7 +61,7 @@ public:
     void                                        SetElement(const ZHUIElement& element);
     void                                        SetLabelPosition(Position labelPosition);
 
-    static ZHUIElement                          Create(const std::string& label, const ZHUIElement& element, Position labelPosition = Position::Left);
+    static ZHUIElement                          Create(const std::string& label, const ZHUIElement& element, const std::shared_ptr<ZScene>& scene, Position labelPosition = Position::Left);
 
 protected:
 

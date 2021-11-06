@@ -93,7 +93,7 @@ std::shared_ptr<ZVec3Field> ZVec3Field::Create(const std::string& label, const Z
     labeledElementObj->SetLabelBackgroundColor(glm::vec4(0.f, 0.f, 1.f, 1.f));
     ZAssets::UIElementManager()->AddChild(container, vec3Field->zInputField_->Control());
 
-    vec3Field->control_ = ZUILabeledElement::Create(label, container);
+    vec3Field->control_ = ZUILabeledElement::Create(label, container, scene);
 
     vec3Field->Initialize(scene);
 

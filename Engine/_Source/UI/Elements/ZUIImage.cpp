@@ -72,7 +72,12 @@ void ZUIImage::HandleTextureReady(const std::shared_ptr<ZTextureReadyEvent>& eve
 {
     if (!event->Texture().IsNull())
     {
-        SetImage(event->Texture());
-        ZServices::EventAgent()->Unsubscribe(this, &ZUIImage::HandleTextureReady);
+        const ZHTexture texture = event->Texture();
+        const std::string texturePath = ZAssets::TextureManager()->Path(texture);
+        if (texturePath == path_)
+        {
+            SetImage(event->Texture());
+            ZServices::EventAgent()->Unsubscribe(this, &ZUIImage::HandleTextureReady);
+        }
     }
 }

@@ -51,11 +51,13 @@ void ZUILabeledElement::OnInitialize()
     // A horizontal layout will layout elements based on sequential calls to
     // AddChild on the layout container. If we want to change the label position
     // we just change the order of the AddChild calls.
-    if (labelPosition_ == Position::Left) {
+    if (labelPosition_ == Position::Left)
+    {
         CreateLabelField();
         SetupElement();
     }
-    else {
+    else
+    {
         SetupElement();
         CreateLabelField();
     }
@@ -161,12 +163,14 @@ void ZUILabeledElement::SetupElement()
     ZAssets::UIElementManager()->AddChild(handle, element_);
 }
 
-ZHUIElement ZUILabeledElement::Create(const std::string& label, const ZHUIElement& element, Position labelPosition)
+ZHUIElement ZUILabeledElement::Create(const std::string& label, const ZHUIElement& element, const std::shared_ptr<ZScene>& scene, Position labelPosition)
 {
     ZHUIElement handle = ZAssets::UIElementManager()->Create(ZUIElementType::LabeledElement);
     ZUILabeledElement* labeledElement = ZAssets::UIElementManager()->Dereference<ZUILabeledElement>(handle);
-    labeledElement->SetLabel(label);
     labeledElement->SetElement(element);
+    ZAssets::UIElementManager()->Initialize(handle);
+
+    labeledElement->SetLabel(label);
     labeledElement->SetLabelPosition(labelPosition);
     ZAssets::UIElementManager()->Initialize(handle);
     return handle;

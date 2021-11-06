@@ -73,7 +73,7 @@ std::shared_ptr<ZTextField> ZTextField::Create(const std::string& label, const Z
     auto inputFieldObj = ZAssets::UIElementManager()->Dereference<ZUIInputField>(textField->inputField_);
     inputFieldObj->SetCharacterFilter([](char c) { return true; });
     inputFieldObj->SetHighlightBorder(ZUIBorder(theme.highlightColor, 1.f, 0.f));
-    textField->control_ = ZUILabeledElement::Create(label, textField->inputField_);
+    textField->control_ = ZUILabeledElement::Create(label, textField->inputField_, scene);
     textField->Initialize(scene);
 
     return textField;

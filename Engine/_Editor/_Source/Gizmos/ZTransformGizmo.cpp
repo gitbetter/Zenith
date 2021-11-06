@@ -171,9 +171,9 @@ ZHGameObject ZTransformGizmo::CreateAxisArrow(const glm::vec3& axis)
     materialProps.albedo = glm::vec4(glm::abs(axis), 1.f);
     auto arrowMaterial = ZAssets::MaterialManager()->Create(materialProps, ZAssets::ShaderManager()->Create("/Shaders/Vertex/gizmo.vert", "/Shaders/Pixel/gizmo.frag"));
 
-    auto axisArrow = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    auto axisArrow = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom);
 
-    auto arrowBase = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    auto arrowBase = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom);
     ZAssets::GameObjectManager()->SetPosition(arrowBase, glm::vec3(0.f, 0.f, 2.5f));
     ZAssets::GameObjectManager()->SetScale(arrowBase, glm::vec3(0.03f, 0.03f, 5.f));
     ZAssets::GameObjectManager()->SetRenderOrder(arrowBase, ZRenderLayer::UI);
@@ -185,7 +185,7 @@ ZHGameObject ZTransformGizmo::CreateAxisArrow(const glm::vec3& axis)
     graphicsCompObj->hasDepthInfo = false;
     graphicsCompObj->AddMaterial(arrowMaterial);
 
-    auto arrowTop = ZAssets::GameObjectManager()->Create(ZGameObjectType::Custom);
+    auto arrowTop = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom);
     ZAssets::GameObjectManager()->SetPosition(arrowTop, glm::vec3(0.f, 0.f, 5.f));
     ZAssets::GameObjectManager()->SetScale(arrowTop, glm::vec3(0.5f, 0.5f, 0.5f));
     ZAssets::GameObjectManager()->SetRenderOrder(arrowTop, ZRenderLayer::UI);
