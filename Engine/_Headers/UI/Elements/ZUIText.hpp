@@ -65,13 +65,13 @@ protected:
 
     std::string                              text_;
     std::string                              fontName_;
-    float                                    fontScale_;
-    float                                    lineSpacing_;
-    bool                                     wrapToBounds_;
+    float                                    fontScale_ = 12.0f;
+    float                                    lineSpacing_ = 0.0f;
+    bool                                     wrapToBounds_ = false;
     ZAlignment                               hAlignment_;
     ZAlignment                               vAlignment_;
     ZHFont                                   font_;
-    std::shared_ptr<class ZVertexBuffer>     bufferData_;
+    std::shared_ptr<class ZVertexBuffer>     bufferData_ = nullptr;
     ZVertex2DDataOptions                     textVertexData_;
 
     void OnRectChanged() override;

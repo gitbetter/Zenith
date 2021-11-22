@@ -36,6 +36,7 @@ void ZProjectTool::Initialize(const std::shared_ptr<ZScene>& scene)
     ZEditorTool::Initialize(scene);
 
     ZAssets::UIElementManager()->SetColor(container_, theme_.primaryColor);
+    ZAssets::UIElementManager()->SetBorder(container_, ZUIBorder(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f), 2.0f, 0.0f));
 }
 
 void ZProjectTool::Update()

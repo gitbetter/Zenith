@@ -59,6 +59,7 @@ struct ZUIElementOptions
     bool                                     enabled{ true };
     bool                                     selected{ false };
     bool                                     flipped{ false };
+	bool									 useQuad{ true };
     ZPositioning                             positioning{ ZPositioning::Absolute };
     ZPositioning                             scaling{ ZPositioning::Absolute };
     ZRect                                    calculatedRect{ 0.f, 0.f, 1.f, 1.f };
@@ -138,6 +139,7 @@ public:
 	bool                                Hidden(const ZHUIElement& handle);
 	bool                                Selected(const ZHUIElement& handle);
 	bool                                Flipped(const ZHUIElement& handle);
+	bool								ShouldUseQuad(const ZHUIElement& handle);
 	ZPositioning                        Positioning(const ZHUIElement& handle);
 	ZPositioning                        Scaling(const ZHUIElement& handle);
 	glm::vec2                           Position(const ZHUIElement& handle);

@@ -6,10 +6,10 @@
    /\_____\  \ \_____\  \ \_\\"\_\  \ \_\    \ \_\  \ \_\ \_\
    \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
  
-    ZMenuBar.hpp
- 
-    Created by Adrian Sanchez on 23/05/19.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	ZDropMenu.hpp
+
+	Created by Adrian Sanchez on 11/07/21.
+	Copyright © 2021 Pervasive Sense. All rights reserved.
  
  This file is part of Zenith.
  
@@ -29,25 +29,37 @@
 
 #pragma once
 
-#include "ZEditorTool.hpp"
+#include "ZEditorControl.hpp"
+#include "ZUIElement.hpp"
+#include "ZUIClicker.hpp"
 
-class ZMenuBar : public ZEditorTool
-{
+class ZScene;
+class ZFloatField;
+
+class ZDropMenu : public ZEditorControl {
 
 public:
 
-    ZMenuBar(const ZUITheme& theme = ZUITheme())
-        : ZEditorTool("MenuBar", theme) { }
+    ZDropMenu(const ZUITheme& theme = ZUITheme())
+        : ZEditorControl(theme)
+    { }
+    ~ZDropMenu() {}
 
-    void Initialize(const std::shared_ptr<class ZScene>& scene) override;
-	void Update() override;
+    void Initialize(const std::shared_ptr<ZScene>& scene) override;
+
+    void Update() override;
+
     void CleanUp() override { }
 
-    void AddMenuOption(const std::string& label);
+    void AddMenuItem(const std::string& label);
+
+    static std::shared_ptr<ZDropMenu> Create(const ZHUIElement& activationElement, const ZUIElementOptions& elementOptions, const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
 
 protected:
-    ZHUIElement menuLayoutPanel_;
 
-    void SetupMenuLayout(const std::shared_ptr<ZScene>& scene);
+    ZHUIElement menu_;
+    ZHUIElement activationElement_;
+    ZUIClicker clicker_;
+    std::shared_ptr<class ZScene> scene_;
 
 };

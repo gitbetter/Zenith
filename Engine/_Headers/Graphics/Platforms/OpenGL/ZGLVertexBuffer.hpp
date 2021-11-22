@@ -29,12 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZVertexBuffer.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZGLVertexBuffer : public ZVertexBuffer
 {
 

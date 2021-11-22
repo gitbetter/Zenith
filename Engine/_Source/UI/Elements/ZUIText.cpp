@@ -39,20 +39,27 @@
 
 ZUIText::ZUIText() : ZUIElement()
 {
-    options.drawStyle = ZMeshDrawStyle::Triangle;
     type = ZUIElementType::Text;
 }
 
-void ZUIText::OnInitialize() {
+void ZUIText::OnInitialize()
+{
     ZAssets::UIElementManager()->Disable(handle);
+
+	options.drawStyle = ZMeshDrawStyle::Triangle;
+	options.useQuad = false;
 
     ZVertex2DDataOptions vertexOptions;
     vertexOptions.numVertices = 4;
     bufferData_ = ZVertexBuffer::Create(vertexOptions);
 
-    if (auto scene = ZAssets::UIElementManager()->Scene(handle)) {
+    if (auto scene = ZAssets::UIElementManager()->Scene(handle))
+    {
         options.shader = ZAssets::ShaderManager()->TextShader();
-        if (fontName_.empty()) fontName_ = "arial";
+        if (fontName_.empty())
+        {
+            fontName_ = "arial";
+        }
     }
 
     ZRenderStateGroupWriter writer(renderState);
@@ -98,14 +105,19 @@ void ZUIText::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 
 ZHFont ZUIText::Font()
 {
-    if (font_) return font_;
+    if (!font_.IsNull())
+    {
+        return font_;
+    }
 
     if (!scene.lock()) return ZHFont();
 
-    if (!ZAssets::FontManager()->IsLoaded(fontName_)) {
+    if (!ZAssets::FontManager()->IsLoaded(fontName_))
+    {
         LOG("The font " + fontName_ + " has not been loaded.", ZSeverity::Warning);
         return ZHFont();
     }
+
     font_ = ZAssets::FontManager()->GetFromName(fontName_);
     RecalculateBufferData();
 
@@ -119,6 +131,11 @@ ZHFont ZUIText::Font()
 
 void ZUIText::OnUpdate(double deltaTime, unsigned int zOrder)
 {
+    auto font = Font();
+    if (font.IsNull())
+    {
+        return;
+    }
     ZPR_SESSION_COLLECT_VERTICES(textVertexData_.vertices.size());
 }
 
@@ -129,7 +146,8 @@ void ZUIText::OnRectChanged()
 
 void ZUIText::RecalculateBufferData()
 {
-    if (text_.empty() || !font_) return;
+    ZHFont font = Font();
+    if (text_.empty() || font.IsNull()) return;
 
     auto pos = options.calculatedRect.position;
     float x = pos.x, y = pos.y;

@@ -30,6 +30,8 @@
 #include "ZMenuBar.hpp"
 #include "ZAssets.hpp"
 #include "ZUIPanel.hpp"
+#include "ZUIHorizontalLayout.hpp"
+#include "ZUIText.hpp"
 
 void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene)
 {
@@ -37,8 +39,56 @@ void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene)
 
     ZAssets::UIElementManager()->SetColor(container_, theme_.secondaryColor);
     ZAssets::UIElementManager()->SetRect(container_, ZRect(0.f, 0.f, 1.f, 0.35f));
+
+	SetupMenuLayout(scene);
+
+	AddMenuOption("New");
+	AddMenuOption("Edit");
+	AddMenuOption("Help");
 }
 
 void ZMenuBar::Update()
 {
+}
+
+void ZMenuBar::AddMenuOption(const std::string& label)
+{
+	ZUIElementOptions panelElementOptions;
+	panelElementOptions.positioning = ZPositioning::Relative;
+	panelElementOptions.scaling = ZPositioning::Relative;
+	panelElementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+	panelElementOptions.maxSize = glm::vec2(35.0f, 0.0f);
+	ZHUIElement menuOptionPanel = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, panelElementOptions, ZHUIElement(), ZAssets::UIElementManager()->Scene(container_));
+
+	ZUIElementOptions textElementOptions;
+	textElementOptions.positioning = ZPositioning::Relative;
+	textElementOptions.scaling = ZPositioning::Relative;
+	textElementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+	textElementOptions.color = glm::vec4(1.f);
+	ZHUIElement menuOption = ZAssets::UIElementManager()->Create(ZUIElementType::Text, textElementOptions, ZHUIElement(), ZAssets::UIElementManager()->Scene(container_));
+
+	ZUIText* textElement = ZAssets::UIElementManager()->Dereference<ZUIText>(menuOption);
+	textElement->SetText(label);
+	textElement->SetFontScale(14.0f);
+	textElement->SetVerticalAlignment(ZAlignment::Middle);
+	textElement->SetHorizontalAlignment(ZAlignment::Middle);
+
+    ZAssets::UIElementManager()->AddChild(menuOptionPanel, menuOption);
+	ZAssets::UIElementManager()->AddChild(menuLayoutPanel_, menuOptionPanel);
+}
+
+void ZMenuBar::SetupMenuLayout(const std::shared_ptr<ZScene>& scene)
+{
+	ZUIElementOptions horizontalPanelOptions;
+	horizontalPanelOptions.positioning = ZPositioning::Relative;
+	horizontalPanelOptions.scaling = ZPositioning::Relative;
+	horizontalPanelOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+	horizontalPanelOptions.padding = glm::vec2(10.0f, 0.0f);
+	ZUILayoutOptions horizontalLayoutOptions;
+	horizontalLayoutOptions.verticalAlign = ZAlignment::Middle;
+	horizontalLayoutOptions.itemSpacing = 10.0f;
+	horizontalPanelOptions.layout = std::make_shared<ZUIHorizontalLayout>(horizontalLayoutOptions);
+	menuLayoutPanel_ = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, horizontalPanelOptions, ZHUIElement(), scene);
+
+	ZAssets::UIElementManager()->AddChild(container_, menuLayoutPanel_);
 }

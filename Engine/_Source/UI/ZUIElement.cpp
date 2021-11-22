@@ -417,10 +417,23 @@ void ZUIElementManager::Update(const ZHUIElement& handle, double deltaTime, unsi
 	auto meshState = mesh->renderState;
 
 	ZDrawCall drawCall = ZDrawCall::Create(uiElement->options.drawStyle);
-	auto uiTask = ZRenderTask::Compile(drawCall,
-		{ meshState, uiElement->renderState },
-		ZRenderPass::UI()
-	);
+
+	std::shared_ptr<ZRenderTask> uiTask = nullptr;
+	if (uiElement->options.useQuad)
+	{
+		uiTask = ZRenderTask::Compile(drawCall,
+			{ meshState, uiElement->renderState },
+			ZRenderPass::UI()
+		);
+	}
+	else
+	{
+		uiTask = ZRenderTask::Compile(drawCall,
+			{ uiElement->renderState },
+			ZRenderPass::UI()
+		);
+	}
+
 	uiTask->Submit({ ZRenderPass::UI() });
 
 	UpdateChildren(handle, deltaTime, zOrder);
@@ -484,6 +497,13 @@ bool ZUIElementManager::Flipped(const ZHUIElement& handle)
 	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
 	ZUIElement* uiElement = resourcePool_.Get(handle);
 	return uiElement->options.flipped;
+}
+
+bool ZUIElementManager::ShouldUseQuad(const ZHUIElement& handle)
+{
+	assert(!handle.IsNull() && "Cannot fetch property with a null texture handle!");
+	ZUIElement* uiElement = resourcePool_.Get(handle);
+	return uiElement->options.useQuad;
 }
 
 ZPositioning ZUIElementManager::Positioning(const ZHUIElement& handle)
@@ -702,13 +722,15 @@ void ZUIElementManager::SetSize(const ZHUIElement& handle, const glm::vec2& size
 	if (!scene) return;
 
     uiElement->options.rect.size = size;
-	if (uiElement->options.scaling == ZPositioning::Relative) {
+	if (uiElement->options.scaling == ZPositioning::Relative)
+	{
         uiElement->options.calculatedRect.size = ZUIHelpers::RelativeToAbsoluteCoords(
 			size,
 			relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
 		);
 	}
-	else {
+	else
+	{
         uiElement->options.calculatedRect.size = uiElement->options.rect.size;
 	}
 
@@ -737,7 +759,8 @@ void ZUIElementManager::SetPosition(const ZHUIElement& handle, const glm::vec2& 
 	if (!scene) return;
 
     uiElement->options.rect.position = position;
-	if (uiElement->options.positioning == ZPositioning::Relative) {
+	if (uiElement->options.positioning == ZPositioning::Relative)
+	{
 		ZHUIElement parentHandle = Parent(handle);
         ZUIElement* parentElement = resourcePool_.Get(parentHandle);
 		glm::vec2 offset = parentElement && !parentElement->options.layout ? parentElement->options.calculatedRect.position : glm::vec2(0.f);
@@ -746,7 +769,8 @@ void ZUIElementManager::SetPosition(const ZHUIElement& handle, const glm::vec2& 
 			relativeTo.size == glm::vec2(0.f) ? scene->Domain()->Resolution() : relativeTo.size
 		);
 	}
-	else {
+	else
+	{
         uiElement->options.calculatedRect.position = uiElement->options.rect.position;
 	}
 	ClampToBounds(handle);

@@ -75,7 +75,8 @@ void ZUILabeledElement::SetLabel(const std::string& label)
 void ZUILabeledElement::SetLabelWidth(float width)
 {
     labelWidth_ = width;
-    if (!labelText_.IsNull()) {
+    if (!labelText_.IsNull())
+    {
         ZAssets::UIElementManager()->SetRect(labelText_, ZRect(0.f, 0.f, labelWidth_, 1.f), options.calculatedRect);
         ZAssets::UIElementManager()->SetRect(element_, ZRect(0.f, 0.f, 1.f - labelWidth_, 1.f), options.calculatedRect);
     }
@@ -84,7 +85,8 @@ void ZUILabeledElement::SetLabelWidth(float width)
 void ZUILabeledElement::SetLabelFontSize(float size)
 {
     labelFontSize_ = size;
-    if (!labelText_.IsNull()) {
+    if (!labelText_.IsNull())
+    {
         ZUIText* textLabel = ZAssets::UIElementManager()->Dereference<ZUIText>(labelText_);
         textLabel->SetFontScale(labelFontSize_);
     }
@@ -92,7 +94,8 @@ void ZUILabeledElement::SetLabelFontSize(float size)
 
 void ZUILabeledElement::SetLabelTextAlignment(ZAlignment alignment)
 {
-    if (!labelText_.IsNull()) {
+    if (!labelText_.IsNull())
+    {
         ZUIText* textLabel = ZAssets::UIElementManager()->Dereference<ZUIText>(labelText_);
         textLabel->SetHorizontalAlignment(alignment);
     }

@@ -37,7 +37,7 @@ public:
 
     ZEditorControl(const ZUITheme& theme = ZUITheme())
         : theme_(theme) { }
-    virtual ~ZEditorControl() { }
+    virtual ~ZEditorControl() = default;
 
     virtual void Initialize(const std::shared_ptr<ZScene>& scene) = 0;
 
@@ -58,7 +58,7 @@ public:
 
     ZTypedEditorControl(const ZUITheme& theme = ZUITheme())
         : ZEditorControl(theme) { }
-    virtual ~ZTypedEditorControl() { }
+    virtual ~ZTypedEditorControl() = default;
 
     virtual void Initialize(const std::shared_ptr<ZScene>& scene) override = 0;
 

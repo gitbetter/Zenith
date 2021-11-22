@@ -446,42 +446,6 @@ class ZColliderComponent;
 class ZScriptComponent;
 class ZUniformBuffer;
 
-struct TextureTag { };
-using ZHTexture = ZHandle<TextureTag>;
-
-struct ModelTag { };
-using ZHModel = ZHandle<ModelTag>;
-
-struct FontTag { };
-using ZHFont = ZHandle<FontTag>;
-
-struct ZofTag { };
-using ZHZof = ZHandle<ZofTag>;
-
-struct ShaderTag { };
-using ZHShader = ZHandle<ShaderTag>;
-
-struct MaterialTag { };
-using ZHMaterial = ZHandle<MaterialTag>;
-
-struct AudioTag { };
-using ZHAudio = ZHandle<AudioTag>;
-
-struct ScriptTag { };
-using ZHScript = ZHandle<ScriptTag>;
-
-struct UIElementTag { };
-using ZHUIElement = ZHandle<UIElementTag>;
-
-struct GameObjectTag { };
-using ZHGameObject = ZHandle<GameObjectTag>;
-
-struct ComponentTag { };
-using ZHComponent = ZHandle<ComponentTag>;
-
-struct ProcessTag { };
-using ZHProcess = ZHandle<ProcessTag>;
-
 enum ZPriority
 {
     FirstPriority, Critical = FirstPriority, High, Medium, Normal, Low, LastPriority

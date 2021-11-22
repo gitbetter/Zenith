@@ -9,7 +9,8 @@ out VertexOutput vout;
 void main()
 {
     mat4 m = M_UI;
-    if (instanced_UI) {
+    if (instanced_UI)
+    {
         m = instanceM;
     }
     vout.FragLocalPos = vec4(vertex.xy, 0.0, 1.0);

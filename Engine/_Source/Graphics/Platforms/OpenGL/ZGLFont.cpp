@@ -45,7 +45,8 @@ ZHFont ZGLFontManager::Create(ZResourceData* resource, unsigned int fontSize)
 	}
 
 	FT_Face face;
-	if (FT_New_Memory_Face(ft_, (const FT_Byte*)resource->buffer, (FT_Long)resource->size, 0, &face)) {
+	if (FT_New_Memory_Face(ft_, (const FT_Byte*)resource->buffer, (FT_Long)resource->size, 0, &face))
+	{
 		LOG("Could not load font at " + resource->path, ZSeverity::Error);
 		return ZHFont();
 	}
@@ -73,6 +74,11 @@ ZHFont ZGLFontManager::Create(ZResourceData* resource, unsigned int fontSize)
 	font->atlas.texture = ZAssets::TextureManager()->Create();
 	ZAssets::TextureManager()->SetType(font->atlas.texture, "atlas");
 	ZAssets::TextureManager()->SetPath(font->atlas.texture, fileName);
+
+	unsigned int id = ZAssets::TextureManager()->PlatformHandle(font->atlas.texture);
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, &id);
+	ZAssets::TextureManager()->SetPlatformHandle(font->atlas.texture, id);
 
 	ZAssets::TextureManager()->Bind(font->atlas.texture, 0);
 

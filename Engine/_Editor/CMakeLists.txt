@@ -33,6 +33,7 @@ ${EDITOR_HEADERS_DIR}/Controls/ZVec4Field.hpp
 ${EDITOR_HEADERS_DIR}/Controls/ZRectField.hpp
 ${EDITOR_HEADERS_DIR}/Controls/ZBoolField.hpp
 ${EDITOR_HEADERS_DIR}/Controls/ZFoldoutRegion.hpp
+${EDITOR_HEADERS_DIR}/Controls/ZDropMenu.hpp
 ${EDITOR_HEADERS_DIR}/Controls/CompoundControls/ZGameObjectControls.hpp
 ${EDITOR_HEADERS_DIR}/Gizmos/ZTransformGizmo.hpp
 ${EDITOR_HEADERS_DIR}/Gizmos/ZEditorGizmo.hpp
@@ -58,6 +59,7 @@ ${EDITOR_SOURCES_DIR}/Controls/ZVec4Field.cpp
 ${EDITOR_SOURCES_DIR}/Controls/ZRectField.cpp
 ${EDITOR_SOURCES_DIR}/Controls/ZBoolField.cpp
 ${EDITOR_SOURCES_DIR}/Controls/ZFoldoutRegion.cpp
+${EDITOR_SOURCES_DIR}/Controls/ZDropMenu.cpp
 ${EDITOR_SOURCES_DIR}/Controls/CompoundControls/ZGameObjectControls.cpp
 ${EDITOR_SOURCES_DIR}/Gizmos/ZTransformGizmo.cpp
 ${EDITOR_SOURCES_DIR}/Gizmos/ZEditorGizmo.cpp

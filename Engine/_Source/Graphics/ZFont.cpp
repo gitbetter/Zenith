@@ -103,8 +103,10 @@ void ZFontManager::CreateAsync(const std::string& fontPath, unsigned int fontSiz
 
 void ZFontManager::InitializeFreeTypeIfNecessary()
 {
-    if (!initialized_) {
-        if (FT_Init_FreeType(&ft_)) {
+    if (!initialized_)
+	{
+        if (FT_Init_FreeType(&ft_))
+		{
             LOG("Could not Initialize the FreeType library", ZSeverity::Error);
             return;
         }
