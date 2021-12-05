@@ -32,6 +32,7 @@
 #include "ZUIPanel.hpp"
 #include "ZUIHorizontalLayout.hpp"
 #include "ZUIText.hpp"
+#include "ZServices.hpp"
 
 void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene)
 {
@@ -49,6 +50,23 @@ void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZMenuBar::Update()
 {
+	for (const ZHUIElement& handle : menuItems_)
+	{
+		ZRect handleRect = ZAssets::UIElementManager()->CalculatedRect(handle);
+		if (clicker_.Click(handleRect))
+		{
+			ILOG("Yo!");
+		}
+
+		if (hoverer_.Hover(handleRect))
+		{
+			ZAssets::UIElementManager()->SetColor(handle, glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
+		}
+		else
+		{
+			ZAssets::UIElementManager()->SetColor(handle, glm::vec4(0.0f));
+		}
+	}
 }
 
 void ZMenuBar::AddMenuOption(const std::string& label)
@@ -75,6 +93,8 @@ void ZMenuBar::AddMenuOption(const std::string& label)
 
     ZAssets::UIElementManager()->AddChild(menuOptionPanel, menuOption);
 	ZAssets::UIElementManager()->AddChild(menuLayoutPanel_, menuOptionPanel);
+
+	menuItems_.push_back(menuOptionPanel);
 }
 
 void ZMenuBar::SetupMenuLayout(const std::shared_ptr<ZScene>& scene)

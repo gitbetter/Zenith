@@ -83,7 +83,7 @@ uint64_t ZRenderQueue::GenerateKey(const std::shared_ptr<ZRenderTask>& task)
 
         if (task->fullscreenLayer_ & static_cast<uint8_t>(ZFullScreenLayer::UI))
         {
-            // HUD-style UI elements use a zOrder in place of the renderDepth, where higher zOrdere (renderDepth) elements
+            // HUD-style UI elements use a zOrder in place of the renderDepth, where higher zOrdered (renderDepth) elements
             // should be rendered in front as opposed to in back, so we order like opaque objects
             key |= static_cast<uint64_t>((task->renderDepth_ & 0xffffff)) << 16;
         }

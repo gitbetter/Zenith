@@ -30,6 +30,8 @@
 #pragma once
 
 #include "ZEditorTool.hpp"
+#include "ZUIHoverer.hpp"
+#include "ZUIClicker.hpp"
 
 class ZMenuBar : public ZEditorTool
 {
@@ -46,7 +48,10 @@ public:
     void AddMenuOption(const std::string& label);
 
 protected:
+    std::vector<ZHUIElement> menuItems_;
     ZHUIElement menuLayoutPanel_;
+    ZUIHoverer hoverer_;
+    ZUIClicker clicker_;
 
     void SetupMenuLayout(const std::shared_ptr<ZScene>& scene);
 

@@ -32,12 +32,15 @@
 
 bool ZUIClicker::Click(const ZRect& rect)
 {
-    if (Clicked(rect)) {
+    if (Clicked(rect))
+    {
         return true;
     }
-    else if (Released(rect)) {
+    else if (Released(rect))
+    {
         return false;
     }
+
     return false;
 }
 
@@ -69,7 +72,8 @@ bool ZUIClicker::Clicked(const ZRect& rect)
 bool ZUIClicker::Pressed(const ZRect& rect, bool inRect)
 {
     auto cursorPos = ZServices::Input()->GetCursorPosition();
-    if (activated_ && wrapToBounds_) {
+    if (activated_ && wrapToBounds_)
+    {
         if (cursorPos.x < rect.position.x)
             cursorPos.x = rect.position.x + rect.size.x;
         if (cursorPos.x > rect.position.x + rect.size.x)
