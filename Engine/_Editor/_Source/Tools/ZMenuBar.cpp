@@ -50,10 +50,11 @@ void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZMenuBar::Update()
 {
-	for (const ZHUIElement& handle : menuItems_)
+	for (int i = 0; i < menuItems_.size(); i++)
 	{
+		const ZHUIElement& handle = menuItems_[i];
 		ZRect handleRect = ZAssets::UIElementManager()->CalculatedRect(handle);
-		if (clicker_.Click(handleRect))
+		if (menuItemClickers_[i].Click(handleRect))
 		{
 			ILOG("Yo!");
 		}
@@ -95,6 +96,7 @@ void ZMenuBar::AddMenuOption(const std::string& label)
 	ZAssets::UIElementManager()->AddChild(menuLayoutPanel_, menuOptionPanel);
 
 	menuItems_.push_back(menuOptionPanel);
+	menuItemClickers_.push_back(ZUIClicker());
 }
 
 void ZMenuBar::SetupMenuLayout(const std::shared_ptr<ZScene>& scene)

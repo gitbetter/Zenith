@@ -49,9 +49,9 @@ public:
 
 protected:
     std::vector<ZHUIElement> menuItems_;
+    std::vector<ZUIClicker> menuItemClickers_;
     ZHUIElement menuLayoutPanel_;
     ZUIHoverer hoverer_;
-    ZUIClicker clicker_;
 
     void SetupMenuLayout(const std::shared_ptr<ZScene>& scene);
 
