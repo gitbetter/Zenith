@@ -46,8 +46,6 @@ void ZRenderQueue::Add(const std::shared_ptr<ZRenderTask>& task)
 
 void ZRenderQueue::Submit(bool flush)
 {
-    ZPR_SESSION_COLLECT_DRAWS(queue_.size());
-
     std::sort(queue_.begin(), queue_.end());
     for (const auto& [key, task] : queue_)
     {

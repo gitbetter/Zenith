@@ -31,7 +31,8 @@
 
 #include "ZEditorTool.hpp"
 
-class ZFrameStatsDisplay : public ZEditorTool {
+class ZFrameStatsDisplay : public ZEditorTool
+{
 
 public:
 

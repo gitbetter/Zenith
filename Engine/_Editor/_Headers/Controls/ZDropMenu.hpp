@@ -32,11 +32,13 @@
 #include "ZEditorControl.hpp"
 #include "ZUIElement.hpp"
 #include "ZUIClicker.hpp"
+#include "ZUIHoverer.hpp"
 
 class ZScene;
 class ZFloatField;
 
-class ZDropMenu : public ZEditorControl {
+class ZDropMenu : public ZEditorControl
+{
 
 public:
 
@@ -51,7 +53,7 @@ public:
 
     void CleanUp() override { }
 
-    void AddMenuItem(const std::string& label);
+    void AddMenuItem(const std::string& label, const std::function<void()>& callback);
 
     static std::shared_ptr<ZDropMenu> Create(const ZHUIElement& activationElement, const ZUIElementOptions& elementOptions, const std::shared_ptr<ZScene>& scene = nullptr, ZUITheme theme = ZUITheme());
 
@@ -60,6 +62,13 @@ protected:
     ZHUIElement menu_;
     ZHUIElement activationElement_;
     ZUIClicker clicker_;
+    ZUIHoverer hoverer_;;
+    std::unordered_map<unsigned int, std::function<void()>> menuItemCallbacks_;
+    std::unordered_map<unsigned int, ZUIClicker> menuItemClickers_;
     std::shared_ptr<class ZScene> scene_;
+
+protected:
+
+    void HandleDropMenuShownEvent(const std::shared_ptr<class ZDropMenuShowEvent>& event);
 
 };

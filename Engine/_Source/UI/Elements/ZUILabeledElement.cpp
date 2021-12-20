@@ -36,9 +36,6 @@
 
 ZUILabeledElement::ZUILabeledElement() : ZUIElement()
 {
-    // A labeled element is just a wrapper/decorator object, so it should inherit most of the
-    // properties of the wrapped element
-    options.color = glm::vec4(0.f);
 }
 
 void ZUILabeledElement::OnInitialize()
@@ -65,10 +62,11 @@ void ZUILabeledElement::OnInitialize()
 
 void ZUILabeledElement::SetLabel(const std::string& label)
 {
+    label_ = label;
     ZUIText* textLabel = ZAssets::UIElementManager()->Dereference<ZUIText>(labelText_);
-    textLabel->SetText(label);
-    float labelWidth = label.empty() ? 0.f : labelWidth_;
-    ZAssets::UIElementManager()->SetRect(labelText_, ZRect(0.f, 0.f, labelWidth, 1.f), options.calculatedRect);
+    textLabel->SetText(label_);
+    float labelWidth = label_.empty() ? 0.f : labelWidth_;
+    ZAssets::UIElementManager()->SetRect(background_, ZRect(0.f, 0.f, labelWidth, 1.f), options.calculatedRect);
     ZAssets::UIElementManager()->SetRect(element_, ZRect(0.f, 0.f, 1.f - labelWidth, 1.f), options.calculatedRect);
 }
 
@@ -103,10 +101,13 @@ void ZUILabeledElement::SetLabelTextAlignment(ZAlignment alignment)
 
 void ZUILabeledElement::SetElement(const ZHUIElement& element)
 {
+	// A labeled element is just a wrapper/decorator object, so it should inherit most of the
+    // properties of the wrapped element
     element_ = element;
     options = ZAssets::UIElementManager()->Options(element);
     type = ZAssets::UIElementManager()->Type(element);
     scene = ZAssets::UIElementManager()->Scene(element);
+	options.color = glm::vec4(0.f);
 }
 
 void ZUILabeledElement::SetLabelPosition(Position labelPosition)
@@ -132,7 +133,10 @@ void ZUILabeledElement::SetLabelBackgroundColor(const glm::vec4& color)
 void ZUILabeledElement::CreateLabelField()
 {
     auto sceneSP = scene.lock();
-    if (!sceneSP) return;
+    if (sceneSP == nullptr)
+    {
+        return;
+    }
 
     float labelWidth = label_.empty() ? 0.f : labelWidth_;
 
@@ -171,10 +175,10 @@ ZHUIElement ZUILabeledElement::Create(const std::string& label, const ZHUIElemen
     ZHUIElement handle = ZAssets::UIElementManager()->Create(ZUIElementType::LabeledElement);
     ZUILabeledElement* labeledElement = ZAssets::UIElementManager()->Dereference<ZUILabeledElement>(handle);
     labeledElement->SetElement(element);
+    labeledElement->SetLabelPosition(labelPosition);
+    labeledElement->label_ = label;
+
     ZAssets::UIElementManager()->Initialize(handle);
 
-    labeledElement->SetLabel(label);
-    labeledElement->SetLabelPosition(labelPosition);
-    ZAssets::UIElementManager()->Initialize(handle);
     return handle;
 }

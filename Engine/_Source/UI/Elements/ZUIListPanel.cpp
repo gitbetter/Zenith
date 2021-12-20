@@ -30,10 +30,19 @@
 #include "ZUIListPanel.hpp"
 #include "ZServices.hpp"
 #include "ZAssets.hpp"
+#include "ZUIVerticalLayout.hpp"
 
 ZUIListPanel::ZUIListPanel()
 {
     type = ZUIElementType::ListPanel;
+}
+
+void ZUIListPanel::OnInitialize()
+{
+	ZUILayoutOptions verticalLayoutOptions;
+    verticalLayoutOptions.horizontalAlign = ZAlignment::Left;
+    verticalLayoutOptions.itemSpacing = 5.0f;
+    options.layout = std::make_shared<ZUIVerticalLayout>(verticalLayoutOptions);
 }
 
 void ZUIListPanel::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
@@ -49,11 +58,16 @@ void ZUIListPanel::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)
 
 void ZUIListPanel::OnChildAdded(const ZHUIElement& element)
 {
-    const glm::vec2 thisSize = ZAssets::UIElementManager()->Size(handle);
-    const size_t thisNumChildren = ZAssets::UIElementManager()->Children(handle).size();
+    ZAssets::UIElementManager()->SetMaxSize(element, glm::vec2(0.0f, itemHeight_));
 
-    ZAssets::UIElementManager()->SetPosition(element, glm::vec2(thisSize.x, 2.f * itemHeight_ * thisNumChildren + itemHeight_));
-    ZAssets::UIElementManager()->SetSize(element, glm::vec2(thisSize.x, itemHeight_));
+    const glm::vec2& size = ZAssets::UIElementManager()->Size(handle);
 
-    ZAssets::UIElementManager()->SetSize(handle, glm::vec2(thisSize.x, glm::max(thisSize.y, itemHeight_ * thisNumChildren)));
+    const ZUIElementMap& children = ZAssets::UIElementManager()->Children(handle);
+    float totalHeight = 0.0f;
+    for (auto const& [key, val] : children)
+    {
+        const ZRect& childRect = ZAssets::UIElementManager()->CalculatedRect(val);
+        totalHeight += childRect.size.y + 5.0f;
+    }
+    ZAssets::UIElementManager()->SetSize(handle, glm::vec2(size.x, totalHeight));
 }

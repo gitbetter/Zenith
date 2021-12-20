@@ -33,11 +33,16 @@
 #include "ZUIText.hpp"
 #include "ZUIPanel.hpp"
 #include "ZUIHorizontalLayout.hpp"
+#include "ZDropMenuShowEvent.hpp"
 #include "ZScene.hpp"
 
 void ZDropMenu::Initialize(const std::shared_ptr<ZScene>& scene)
 {
     scene_ = scene;
+
+    ZAssets::UIElementManager()->Hide(menu_);
+
+    ZServices::EventAgent()->Subscribe(this, &ZDropMenu::HandleDropMenuShownEvent);
 }
 
 void ZDropMenu::Update()
@@ -45,35 +50,61 @@ void ZDropMenu::Update()
     auto clickBounds = ZAssets::UIElementManager()->CalculatedRect(activationElement_);
     if (clicker_.Click(clickBounds))
     {
-        if (ZAssets::UIElementManager()->Enabled(menu_))
+        if (ZAssets::UIElementManager()->Hidden(menu_))
         {
-            ZAssets::UIElementManager()->Disable(menu_);
+            ZAssets::UIElementManager()->Show(menu_);
+            ZServices::EventAgent()->Trigger(std::make_shared<ZDropMenuShowEvent>(menu_));
         }
         else
         {
-            ZAssets::UIElementManager()->Enable(menu_);
+            ZAssets::UIElementManager()->Hide(menu_);
+        }
+    }
+
+    for (auto const& [key, val] : menuItemCallbacks_)
+    {
+        const ZHUIElement& itemHandle = ZHUIElement(key);
+        auto itemBounds = ZAssets::UIElementManager()->CalculatedRect(itemHandle);
+	    if (hoverer_.Hover(itemBounds))
+	    {
+		    ZAssets::UIElementManager()->SetColor(itemHandle, glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
+	    }
+	    else
+	    {
+		    ZAssets::UIElementManager()->SetColor(itemHandle, glm::vec4(0.0f));
+	    }
+
+        if (menuItemClickers_[key].Click(itemBounds))
+        {
+            val();
         }
     }
 }
 
-void ZDropMenu::AddMenuItem(const std::string& label)
+void ZDropMenu::AddMenuItem(const std::string& label, const std::function<void()>& callback)
 {
     ZUIElementOptions options;
     options.positioning = ZPositioning::Relative;
+    options.scaling = ZPositioning::Relative;
     options.rect = ZRect(0.0f, 0.0f, 1.0f, 1.0f);
-    options.padding = glm::vec2(5.0f);
-    ZHUIElement menuItem = ZAssets::UIElementManager()->Create(ZUIElementType::Button, options, ZHUIElement(), scene_);
+    ZHUIElement menuItem = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, options, ZHUIElement(), scene_);
 
     options = ZUIElementOptions();
     options.positioning = ZPositioning::Relative;
-    options.rect = ZRect(0.0f, 0.0f, 1.0f, 1.0f);
+    options.scaling = ZPositioning::Relative;
+    options.rect = ZRect(0.025f, 0.0f, 0.95f, 1.0f);
+    options.color = glm::vec4(1.0f);
     ZHUIElement menuItemText = ZAssets::UIElementManager()->Create(ZUIElementType::Text, options, ZHUIElement(), scene_);
+
     ZAssets::UIElementManager()->Dereference<ZUIText>(menuItemText)->SetText(label);
     ZAssets::UIElementManager()->Dereference<ZUIText>(menuItemText)->SetHorizontalAlignment(ZAlignment::Left);
+    ZAssets::UIElementManager()->Dereference<ZUIText>(menuItemText)->SetVerticalAlignment(ZAlignment::Middle);
 
     ZAssets::UIElementManager()->AddChild(menuItem, menuItemText);
-
     ZAssets::UIElementManager()->AddChild(menu_, menuItem);
+
+    menuItemCallbacks_[menuItem.Handle()] = callback;
+    menuItemClickers_[menuItem.Handle()] = ZUIClicker();
 }
 
 std::shared_ptr<ZDropMenu> ZDropMenu::Create(const ZHUIElement& activationElement, const ZUIElementOptions& elementOptions, const std::shared_ptr<ZScene>& scene /*= nullptr*/, ZUITheme theme /*= ZUITheme()*/)
@@ -84,5 +115,15 @@ std::shared_ptr<ZDropMenu> ZDropMenu::Create(const ZHUIElement& activationElemen
 
     dropMenu->Initialize(scene);
 
+    ZAssets::UIElementManager()->AddChild(activationElement, dropMenu->menu_);
+
     return dropMenu;
+}
+
+void ZDropMenu::HandleDropMenuShownEvent(const std::shared_ptr<class ZDropMenuShowEvent>& event)
+{
+    if (menu_ != event->DropMenu())
+    {
+        ZAssets::UIElementManager()->Hide(menu_);
+    }
 }

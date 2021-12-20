@@ -239,14 +239,14 @@ void ZEditorScene::SetupInitialTools()
         editorCamera_ = CreateCamera();
     }
 
-    AddTool(std::make_shared<ZActionBar>(config_.theme), topPanel_);
-    AddTool(std::make_shared<ZMenuBar>(config_.theme), topPanel_);
     AddTool(std::make_shared<ZSceneTool>(config_.theme), centerPanel_);
     AddTool(std::make_shared<ZFrameStatsDisplay>(config_.theme), centerPanel_);
     AddTool(std::make_shared<ZProjectTool>(config_.theme), bottomPanel_);
     AddTool(std::make_shared<ZConsoleTool>(config_.theme), bottomPanel_);
     AddTool(std::make_shared<ZInspectorTool>(config_.theme), leftPanel_);
     AddTool(std::make_shared<ZHierarchyTool>(config_.theme), rightPanel_);
+	AddTool(std::make_shared<ZActionBar>(config_.theme), topPanel_);
+	AddTool(std::make_shared<ZMenuBar>(config_.theme), topPanel_);
 }
 
 void ZEditorScene::Configure(const std::shared_ptr<ZOFNode>& objectTree)

@@ -32,6 +32,7 @@
 #include "ZUIPanel.hpp"
 #include "ZUIHorizontalLayout.hpp"
 #include "ZUIText.hpp"
+#include "ZDropMenu.hpp"
 #include "ZServices.hpp"
 
 void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene)
@@ -43,9 +44,12 @@ void ZMenuBar::Initialize(const std::shared_ptr<ZScene>& scene)
 
 	SetupMenuLayout(scene);
 
-	AddMenuOption("New");
-	AddMenuOption("Edit");
-	AddMenuOption("Help");
+	AddMenuOption("New", {
+		{"Project", []() { ILOG("New Project!"); }},
+		{"Scene", []() { ILOG("New Scene!"); }}
+	});
+	AddMenuOption("Edit", {});
+	AddMenuOption("Help", {});
 }
 
 void ZMenuBar::Update()
@@ -54,10 +58,6 @@ void ZMenuBar::Update()
 	{
 		const ZHUIElement& handle = menuItems_[i];
 		ZRect handleRect = ZAssets::UIElementManager()->CalculatedRect(handle);
-		if (menuItemClickers_[i].Click(handleRect))
-		{
-			ILOG("Yo!");
-		}
 
 		if (hoverer_.Hover(handleRect))
 		{
@@ -67,36 +67,58 @@ void ZMenuBar::Update()
 		{
 			ZAssets::UIElementManager()->SetColor(handle, glm::vec4(0.0f));
 		}
+
+		if (itemDropMenus_.find(handle.Handle()) != itemDropMenus_.end())
+		{
+			itemDropMenus_[handle.Handle()]->Update();
+		}
 	}
 }
 
-void ZMenuBar::AddMenuOption(const std::string& label)
+void ZMenuBar::AddMenuOption(const std::string& label, const std::initializer_list<std::pair<std::string, std::function<void()>>>& suboptions)
 {
-	ZUIElementOptions panelElementOptions;
-	panelElementOptions.positioning = ZPositioning::Relative;
-	panelElementOptions.scaling = ZPositioning::Relative;
-	panelElementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
-	panelElementOptions.maxSize = glm::vec2(35.0f, 0.0f);
-	ZHUIElement menuOptionPanel = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, panelElementOptions, ZHUIElement(), ZAssets::UIElementManager()->Scene(container_));
+	if (std::find(menuItemLabels_.begin(), menuItemLabels_.end(), label) == menuItemLabels_.end())
+	{
+		auto containerScene = ZAssets::UIElementManager()->Scene(container_);
 
-	ZUIElementOptions textElementOptions;
-	textElementOptions.positioning = ZPositioning::Relative;
-	textElementOptions.scaling = ZPositioning::Relative;
-	textElementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
-	textElementOptions.color = glm::vec4(1.f);
-	ZHUIElement menuOption = ZAssets::UIElementManager()->Create(ZUIElementType::Text, textElementOptions, ZHUIElement(), ZAssets::UIElementManager()->Scene(container_));
+		ZUIElementOptions options;
+		options.positioning = ZPositioning::Relative;
+		options.scaling = ZPositioning::Relative;
+		options.rect = ZRect(0.f, 0.f, 1.f, 1.f);
+		options.maxSize = glm::vec2(35.0f, 0.0f);
+		ZHUIElement menuItemPanel = ZAssets::UIElementManager()->Create(ZUIElementType::Panel, options, ZHUIElement(), containerScene);
 
-	ZUIText* textElement = ZAssets::UIElementManager()->Dereference<ZUIText>(menuOption);
-	textElement->SetText(label);
-	textElement->SetFontScale(14.0f);
-	textElement->SetVerticalAlignment(ZAlignment::Middle);
-	textElement->SetHorizontalAlignment(ZAlignment::Middle);
+		options.maxSize = glm::vec2(0.0f);
+		options.color = glm::vec4(1.0f);
+		ZHUIElement menuItemText = ZAssets::UIElementManager()->Create(ZUIElementType::Text, options, ZHUIElement(), containerScene);
 
-    ZAssets::UIElementManager()->AddChild(menuOptionPanel, menuOption);
-	ZAssets::UIElementManager()->AddChild(menuLayoutPanel_, menuOptionPanel);
+		ZUIText* textElement = ZAssets::UIElementManager()->Dereference<ZUIText>(menuItemText);
+		textElement->SetText(label);
+		textElement->SetVerticalAlignment(ZAlignment::Middle);
+		textElement->SetHorizontalAlignment(ZAlignment::Middle);
 
-	menuItems_.push_back(menuOptionPanel);
-	menuItemClickers_.push_back(ZUIClicker());
+		ZAssets::UIElementManager()->AddChild(menuItemPanel, menuItemText);
+		ZAssets::UIElementManager()->AddChild(menuLayoutPanel_, menuItemPanel);
+
+		ZUIElementOptions dropdownOptions;
+		dropdownOptions.positioning = ZPositioning::Relative;
+		dropdownOptions.scaling = ZPositioning::Absolute;
+		dropdownOptions.rect = ZRect(1.0f, 1.0f, 200.0f, 400.0f);
+		dropdownOptions.color = theme_.primaryColor;
+		dropdownOptions.border = ZUIBorder(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 1.0f, 0.0f);
+		dropdownOptions.zOrderOverride = 1000;
+		std::shared_ptr<ZDropMenu> dropMenu = ZDropMenu::Create(menuItemPanel, dropdownOptions, containerScene, theme_);
+
+		itemDropMenus_[menuItemPanel.Handle()] = dropMenu;
+
+		for (const auto& option : suboptions)
+		{
+			dropMenu->AddMenuItem(option.first, option.second);
+		}
+
+		menuItems_.push_back(menuItemPanel);
+		menuItemLabels_.push_back(label);
+	}
 }
 
 void ZMenuBar::SetupMenuLayout(const std::shared_ptr<ZScene>& scene)

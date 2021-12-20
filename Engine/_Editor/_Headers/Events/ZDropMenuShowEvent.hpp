@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIListPanel.hpp
+    ZDropMenuShowEvent.hpp
 
-    Created by Adrian Sanchez on 17/03/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+    Created by Adrian Sanchez on 12/20/2021.
+    Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -29,26 +29,26 @@
 
 #pragma once
 
-#include "ZUIElement.hpp"
+#include "ZEvent.hpp"
 
-class ZUIListPanel : public ZUIElement
+class ZDropMenuShowEvent : public ZEvent
 {
 
 private:
 
-    float itemHeight_ = 25.f;
+    ZHUIElement dropMenu_;
 
 public:
 
-    ZUIListPanel();
-    ~ZUIListPanel() = default;
+    static const ZTypeIdentifier Type;
 
-    void OnInitialize() override;
-    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
+    explicit ZDropMenuShowEvent(const ZHUIElement& dropMenu) : dropMenu_(dropMenu) { }
 
-    float ItemHeight() const { return itemHeight_; }
-    void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
+    const ZTypeIdentifier& EventType() const override { return Type; };
+    std::shared_ptr<ZEvent> Copy() const override { return std::shared_ptr<ZDropMenuShowEvent>(new ZDropMenuShowEvent(dropMenu_)); }
+    void Serialize(std::ostringstream& out) const override { out << dropMenu_.Handle(); }
+    std::string Name() const override { return "ZDropMenuShowEvent"; }
 
-    void OnChildAdded(const ZHUIElement& element) override;
+    const ZHUIElement& DropMenu() const { return dropMenu_; }
 
 };

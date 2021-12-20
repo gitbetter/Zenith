@@ -6,10 +6,10 @@
     /\_____\  \ \_____\  \ \_\" \_\  \ \_\    \ \_\  \ \_\ \_\
     \/_____/   \/_____/   \/_/ \/_/   \/_/     \/_/   \/_/\/_/
 
-    ZUIListPanel.hpp
+	ZDropMenuShowEvent.cpp
 
-    Created by Adrian Sanchez on 17/03/2019.
-    Copyright © 2019 Pervasive Sense. All rights reserved.
+	Created by Adrian Sanchez on 12/20/2021.
+	Copyright © 2021 Pervasive Sense. All rights reserved.
 
   This file is part of Zenith.
 
@@ -27,28 +27,6 @@
   along with Zenith.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "ZDropMenuShowEvent.hpp"
 
-#include "ZUIElement.hpp"
-
-class ZUIListPanel : public ZUIElement
-{
-
-private:
-
-    float itemHeight_ = 25.f;
-
-public:
-
-    ZUIListPanel();
-    ~ZUIListPanel() = default;
-
-    void OnInitialize() override;
-    void OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode) override;
-
-    float ItemHeight() const { return itemHeight_; }
-    void SetItemHeight(float itemHeight) { itemHeight_ = itemHeight; }
-
-    void OnChildAdded(const ZHUIElement& element) override;
-
-};
+const ZTypeIdentifier ZDropMenuShowEvent::Type(TYPE_ID(ZDropMenuShowEvent));

@@ -34,7 +34,8 @@
 class ZEditorScene;
 class ZUIScene;
 
-class ZEditorTool : public ZEditorEntity {
+class ZEditorTool : public ZEditorEntity
+{
 
 public:
 

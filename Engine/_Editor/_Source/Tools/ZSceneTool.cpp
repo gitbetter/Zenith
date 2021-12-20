@@ -36,7 +36,6 @@
 #include "ZScene.hpp"
 #include "ZTransformGizmo.hpp"
 #include "ZCamera.hpp"
-#include "ZFrameStatsDisplay.hpp"
 #include "ZEditorObjectSelectedEvent.hpp"
 
 void ZSceneTool::Initialize(const std::shared_ptr<ZScene>& scene)

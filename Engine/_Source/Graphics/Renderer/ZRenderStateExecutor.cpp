@@ -28,6 +28,7 @@
  */
 
 #include "ZRenderStateExecutor.hpp"
+#include "ZCommon.hpp"
 #include "ZServices.hpp"
 #include "ZAssets.hpp"
 #include "ZTexture.hpp"
@@ -93,7 +94,11 @@ void ZRenderStateExecutor::operator()(const ZRenderResourceState& resourceState)
 
 void ZRenderStateExecutor::operator()(ZDrawCall drawCall, const std::shared_ptr<ZVertexBuffer>& vertexBuffer)
 {
-    ZServices::Graphics()->Draw(vertexBuffer, drawCall.drawStyle_);
+    if (vertexBuffer)
+    {
+		ZPR_SESSION_COLLECT_DRAWS(1);
+        ZServices::Graphics()->Draw(vertexBuffer, drawCall.drawStyle_);
+    }
 }
 
 std::shared_ptr<ZRenderStateExecutor> ZRenderStateExecutor::Create()

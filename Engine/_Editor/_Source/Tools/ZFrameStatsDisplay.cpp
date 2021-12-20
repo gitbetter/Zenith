@@ -56,6 +56,11 @@ void ZFrameStatsDisplay::Initialize(const std::shared_ptr<ZScene>& scene)
 
 void ZFrameStatsDisplay::Update()
 {
+    if (activeProjectScene_ == nullptr)
+    {
+        return;
+    }
+
     if (ZServices::Input()->Key(ZKey::Q))
     {
         if (ZAssets::UIElementManager()->Hidden(container_))

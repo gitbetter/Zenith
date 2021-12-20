@@ -408,7 +408,14 @@ void ZUIElementManager::Update(const ZHUIElement& handle, double deltaTime, unsi
 	// be rendered within the respective parent elements.
 	if (uiElement->options.hidden) return;
 
-	SetZOrder(handle, zOrder);
+	if (uiElement->options.zOrderOverride > 0)
+	{
+		SetZOrder(handle, uiElement->options.zOrderOverride);
+	}
+	else if (zOrder > 0)
+	{
+		SetZOrder(handle, zOrder);
+	}
 
 	std::shared_ptr<ZMesh2D> mesh = ElementShape(handle);
 
@@ -436,7 +443,7 @@ void ZUIElementManager::Update(const ZHUIElement& handle, double deltaTime, unsi
 
 	uiTask->Submit({ ZRenderPass::UI() });
 
-	UpdateChildren(handle, deltaTime, zOrder);
+	zOrder = UpdateChildren(handle, deltaTime, zOrder);
 
 	uiElement->OnUpdate(deltaTime, zOrder);
 }
@@ -448,13 +455,14 @@ unsigned int ZUIElementManager::UpdateChildren(const ZHUIElement& handle, double
 
 	if (uiElement->options.hidden) return zOrder;
 
-	unsigned int lastZOrder = zOrder;
+	const bool hasZOrderOverride = uiElement->options.zOrderOverride > 0;
+	unsigned int lastZOrder = hasZOrderOverride ? uiElement->options.zOrderOverride : zOrder;
 	for (auto it = uiElement->children.begin(); it != uiElement->children.end(); it++)
 	{
 		Update(it->second, deltaTime, ++lastZOrder);
 		lastZOrder = UpdateChildren(it->second, deltaTime, lastZOrder);
 	}
-	return lastZOrder;
+	return hasZOrderOverride ? zOrder + uiElement->children.size() : lastZOrder;
 }
 
 std::string ZUIElementManager::Name(const ZHUIElement& handle)
@@ -1010,6 +1018,8 @@ void ZUIElementManager::AddChild(const ZHUIElement& handle, const ZHUIElement& e
 	SetScene(element, Scene(handle));
 
 	LayoutChild(handle, element);
+
+	uiElement->OnChildAdded(element);
 }
 
 void ZUIElementManager::RemoveChild(const ZHUIElement& handle, const ZHUIElement& element, bool recurse)

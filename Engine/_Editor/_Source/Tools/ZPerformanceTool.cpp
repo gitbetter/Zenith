@@ -29,6 +29,7 @@
 
 #include "ZPerformanceTool.hpp"
 
-void ZPerformanceTool::Update() {
+void ZPerformanceTool::Update()
+{
 
 }

@@ -45,11 +45,12 @@ public:
 	void Update() override;
     void CleanUp() override { }
 
-    void AddMenuOption(const std::string& label);
+    void AddMenuOption(const std::string& label, const std::initializer_list<std::pair<std::string, std::function<void()>>>& suboptions);
 
 protected:
+    std::vector<std::string> menuItemLabels_;
     std::vector<ZHUIElement> menuItems_;
-    std::vector<ZUIClicker> menuItemClickers_;
+    std::unordered_map<unsigned int, std::shared_ptr<class ZDropMenu>> itemDropMenus_;
     ZHUIElement menuLayoutPanel_;
     ZUIHoverer hoverer_;
 

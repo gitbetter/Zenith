@@ -76,6 +76,7 @@ struct ZUIElementOptions
     ZUIBorder                                border;
     std::shared_ptr<ZUILayout>               layout;
 	ZMeshDrawStyle							 drawStyle{ ZMeshDrawStyle::TriangleFan };
+	unsigned int							 zOrderOverride{ 0 };
 };
 
 struct ZUIElement

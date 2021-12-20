@@ -29,13 +29,10 @@
 
 #pragma once
 
-// Includes
 #include "ZEditorTool.hpp"
 
-// Forward Declarations
-
-// Definitions
-class ZPerformanceTool : public ZEditorTool {
+class ZPerformanceTool : public ZEditorTool
+{
 
 public:
 
