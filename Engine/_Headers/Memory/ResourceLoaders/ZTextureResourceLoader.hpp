@@ -38,7 +38,7 @@ class ZTextureResourceLoader : public ZResourceLoaderBase<ZTextureResourceData>
 public:
 
     ~ZTextureResourceLoader() {}
-    std::string Pattern() override { return ".*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.tiff|.*\\.bmp"; }
+    std::string Pattern() override { return ".*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.tiff|.*\\.bmp|.*\\.hdr"; }
     bool UseRawFile() override { return true; };
     unsigned int LoadedResourceSize(char* rawBuffer, unsigned int rawSize) override { return rawSize; }
 

@@ -153,7 +153,7 @@ void ZGraphicsComponent::OnUpdate(double deltaTime)
             return;
         }
 
-        if (hasAABB)
+        if (hasAABB && bounds.IsValid())
         {
             scene->AddBVHPrimitive(ZBVHPrimitive(rootObject, bounds));
         }

@@ -51,7 +51,10 @@ void ZSkybox::OnCreate()
     {
         cubeMap = ZAssets::TextureManager()->CreateHDRI(hdrPath_, cubemapBuffer);
     }
-    LoadCubemap(cubeMap, cubemapBuffer);
+    if (!cubeMap.IsNull())
+    {
+        LoadCubemap(cubeMap, cubemapBuffer);
+    }
 }
 
 void ZSkybox::OnDeserialize(const std::shared_ptr<ZOFObjectNode>& dataNode)

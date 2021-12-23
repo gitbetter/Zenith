@@ -48,6 +48,14 @@ public:
 
     glm::vec3 Diagonal() const { return maximum - minimum; }
 
+	const bool inline IsValid() const
+    {
+		static const float max = std::numeric_limits<float>::max();
+        static const float min = std::numeric_limits<float>::min();
+		return minimum.x < max&& minimum.y < max&& minimum.z < max
+			&& maximum.x > min&& maximum.y > min&& maximum.z > min;
+	}
+
     static const ZAABBox Union(const ZAABBox& b, const glm::vec3& p) noexcept
     {
         return ZAABBox(glm::vec3(std::min(b.minimum.x, p.x),

@@ -3,7 +3,7 @@
 #include "ZScene.hpp"
 #include "ZEventAgent.hpp"
 #include "ZSceneReadyEvent.hpp"
-#include "ZAssetStore.hpp"
+#include "ZAssets.hpp"
 #include "ZCamera.hpp"
 
 void onSceneLoad(const std::shared_ptr<ZSceneReadyEvent>& event);
@@ -21,7 +21,7 @@ int main(int argc, const char* argv[]) {
     game->Initialize(options);
 
     // Ater initializing the engine, we can access the underlying UI subsystem to register fonts
-    ZServices::AssetStore()->RegisterFont("/Fonts/earth_orbiter/earthorbiter.ttf");
+    ZAssets::FontManager()->CreateAsync("/Fonts/earth_orbiter/earthorbiter.ttf", 64);
 
     // Register delegate methods for specific builtin events
     ZServices::EventAgent()->Subscribe(&onSceneLoad);
@@ -47,10 +47,10 @@ void onSceneLoad(const std::shared_ptr<ZSceneReadyEvent>& event)
     if (scene)
     {
         auto camera = scene->ActiveCamera();
-        if (camera)
+        if (!camera.IsNull())
         {
-            camera->EnableMovement();
-            camera->EnableLook();
+            //camera->EnableMovement();
+            //camera->EnableLook();
         }
         scene->Play();
     }

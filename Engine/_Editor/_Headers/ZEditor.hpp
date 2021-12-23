@@ -45,12 +45,16 @@ public:
 
 protected:
 
-    std::shared_ptr<ZGame> project_ = nullptr;
-    std::shared_ptr<ZEditorScene> editorScene_ = nullptr;
+    std::shared_ptr<ZGame>                      project_ = nullptr;
+    std::shared_ptr<ZEditorScene>               editorScene_ = nullptr;
+	ZGameObjectMap                              gameObjectTemplates_;
+	ZUIElementMap                               uiElementTemplates_;
 
     void Setup() override;
 
     void CreateDefaultProject();
+    void CreateDefaultScene();
+    void LoadObjectTemplates();
 
     void HandleSceneLoaded(const std::shared_ptr<ZSceneReadyEvent>& event);
     

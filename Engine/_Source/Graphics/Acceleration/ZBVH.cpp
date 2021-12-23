@@ -59,7 +59,10 @@ void ZBVH::AddPrimitive(const ZBVHPrimitive& primitive)
 
 bool ZBVH::Intersect(ZRay& ray, ZIntersectHitResult& hitResult)
 {
-    if (primitives_.empty()) return false;
+    if (primitives_.empty())
+    {
+        return false;
+    }
 
     bool hit = false;
     glm::vec3 invDir = 1.f / ray.Direction();
@@ -68,34 +71,49 @@ bool ZBVH::Intersect(ZRay& ray, ZIntersectHitResult& hitResult)
     int toVisitOffset = 0, currentNodeIndex = 0;
     int nodesToVisit[64];
     std::map<int, ZHGameObject> hits;
-    while (true) {
+    while (true)
+    {
         ZLinearBVHNode& node = nodes_[currentNodeIndex];
-        if (node.bounds.Intersects(ray)) {
-            if (node.primitiveCount > 0) {
-                for (auto i = 0; i < node.primitiveCount; ++i) {
+        if (node.bounds.Intersects(ray))
+        {
+            if (node.primitiveCount > 0)
+            {
+                for (auto i = 0; i < node.primitiveCount; ++i)
+                {
                     auto& prim = primitives_[static_cast<size_t>(node.primitiveOffset) + i];
-                    if (prim.bounds.Intersects(ray) && ray.tMax > 0) {
+                    if (prim.bounds.Intersects(ray) && ray.tMax > 0)
+                    {
                         hits[ray.tMax] = prim.objectHandle;
                         hitResult.objectHandle = prim.objectHandle;
                         hit = true;
                     }
                 }
-                if (toVisitOffset == 0) break;
+                if (toVisitOffset == 0)
+                {
+                    break;
+                }
                 currentNodeIndex = nodesToVisit[--toVisitOffset];
             }
-            else {
-                if (dirIsNegative[node.axis]) {
+            else
+            {
+                if (dirIsNegative[node.axis])
+                {
                     nodesToVisit[toVisitOffset++] = currentNodeIndex + 1;
                     currentNodeIndex = node.secondChildOffset;
                 }
-                else {
+                else
+                {
                     nodesToVisit[toVisitOffset++] = node.secondChildOffset;
                     currentNodeIndex += 1;
                 }
             }
         }
-        else {
-            if (toVisitOffset == 0) break;
+        else
+        {
+            if (toVisitOffset == 0)
+            {
+                break;
+            }
             currentNodeIndex = nodesToVisit[--toVisitOffset];
         }
     }
@@ -113,52 +131,69 @@ std::shared_ptr<ZBVHBuildNode> ZBVH::RecursiveBuild(std::vector<ZBVHPrimitiveInf
     assert(start != end);
     (*totalNodes)++;
     ZAABBox bounds;
-    for (auto i = start; i < end; ++i) {
+    for (auto i = start; i < end; ++i)
+    {
         bounds = ZAABBox::Union(bounds, primitiveInfo[i].bounds);
     }
     int primitiveCount = end - start;
-    if (primitiveCount == 1) {
+    if (primitiveCount == 1)
+    {
         return CreateLeafNode(orderedPrimitives, start, end, primitiveInfo, primitiveCount, bounds);
     }
-    else {
+    else
+    {
         ZAABBox centroidBounds;
-        for (auto i = start; i < end; ++i) {
+        for (auto i = start; i < end; ++i)
+        {
             centroidBounds = ZAABBox::Union(centroidBounds, primitiveInfo[i].centroid);
         }
         int axis = centroidBounds.MaxExtent();
         int mid = (start + end) / 2;
-        if (centroidBounds.maximum[axis] == centroidBounds.minimum[axis]) {
+        if (centroidBounds.maximum[axis] == centroidBounds.minimum[axis])
+        {
             return CreateLeafNode(orderedPrimitives, start, end, primitiveInfo, primitiveCount, bounds);
         }
-        else {
-            switch (splitMethod_) {
-            case ZBVHSplitMethod::Middle: {
+        else
+        {
+            switch (splitMethod_)
+            {
+            case ZBVHSplitMethod::Middle:
+            {
                 float midPartition = (centroidBounds.minimum[axis] + centroidBounds.maximum[axis]) / 2.f;
                 ZBVHPrimitiveInfo* midPtr = std::partition(&primitiveInfo[start], &primitiveInfo[end - 1] + 1,
-                    [axis, midPartition](const ZBVHPrimitiveInfo& pi) {
+                    [axis, midPartition](const ZBVHPrimitiveInfo& pi)
+                    {
                         return pi.centroid[axis] < midPartition;
                     });
                 mid = midPtr - &primitiveInfo[0];
                 if (mid != start && mid != end)
+                {
                     break;
+                }
             }
-            case ZBVHSplitMethod::EqualCounts: {
+            case ZBVHSplitMethod::EqualCounts:
+            {
                 mid = (start + end) / 2;
                 std::nth_element(&primitiveInfo[start], &primitiveInfo[mid], &primitiveInfo[end - 1] + 1,
-                    [axis](const ZBVHPrimitiveInfo& a, const ZBVHPrimitiveInfo& b) {
+                    [axis](const ZBVHPrimitiveInfo& a, const ZBVHPrimitiveInfo& b)
+                    {
                         return a.centroid[axis] < b.centroid[axis];
                     });
                 break;
             }
-            case ZBVHSplitMethod::SAH: {
-                if (primitiveCount <= 2) {
+            case ZBVHSplitMethod::SAH:
+            {
+                if (primitiveCount <= 2)
+                {
                     mid = (start + end) / 2;
                     std::nth_element(&primitiveInfo[start], &primitiveInfo[mid], &primitiveInfo[end - 1] + 1,
-                        [axis](const ZBVHPrimitiveInfo& a, const ZBVHPrimitiveInfo& b) {
+                        [axis](const ZBVHPrimitiveInfo& a, const ZBVHPrimitiveInfo& b)
+                        {
                             return a.centroid[axis] < b.centroid[axis];
                         });
                 }
-                else {
+                else
+                {
                     constexpr int numBuckets = 12;
                     struct BucketInfo {
                         int count = 0;
@@ -166,22 +201,29 @@ std::shared_ptr<ZBVHBuildNode> ZBVH::RecursiveBuild(std::vector<ZBVHPrimitiveInf
                     };
                     BucketInfo buckets[numBuckets];
 
-                    for (auto i = start; i < end; ++i) {
+                    for (auto i = start; i < end; ++i)
+                    {
                         int b = numBuckets * centroidBounds.Offset(primitiveInfo[i].centroid)[axis];
-                        if (b == numBuckets) b = numBuckets - 1;
+                        if (b >= numBuckets)
+                        {
+                            b = numBuckets - 1;
+                        }
                         buckets[b].count++;
                         buckets[b].bounds = ZAABBox::Union(buckets[b].bounds, primitiveInfo[i].bounds);
                     }
 
                     float cost[numBuckets - 1];
-                    for (auto i = 0; i < numBuckets - 1; ++i) {
+                    for (auto i = 0; i < numBuckets - 1; ++i)
+                    {
                         ZAABBox b0, b1;
                         int count0 = 0, count1 = 0;
-                        for (auto j = 0; j <= i; ++j) {
+                        for (auto j = 0; j <= i; ++j)
+                        {
                             b0 = ZAABBox::Union(b0, buckets[j].bounds);
                             count0 += buckets[j].count;
                         }
-                        for (auto j = i + 1; j < numBuckets; ++j) {
+                        for (auto j = i + 1; j < numBuckets; ++j)
+                        {
                             b1 = ZAABBox::Union(b1, buckets[j].bounds);
                             count1 += buckets[j].count;
                         }
@@ -190,8 +232,10 @@ std::shared_ptr<ZBVHBuildNode> ZBVH::RecursiveBuild(std::vector<ZBVHPrimitiveInf
 
                     float minCost = cost[0];
                     int minCostBucket = 0;
-                    for (auto i = 1; i < numBuckets - 1; ++i) {
-                        if (cost[i] < minCost) {
+                    for (auto i = 1; i < numBuckets - 1; ++i)
+                    {
+                        if (cost[i] < minCost)
+                        {
                             minCost = cost[i];
                             minCostBucket = i;
                         }
@@ -200,22 +244,26 @@ std::shared_ptr<ZBVHBuildNode> ZBVH::RecursiveBuild(std::vector<ZBVHPrimitiveInf
                     float leafCost = primitiveCount;
                     if (primitiveCount > maxNodePrimitives_ || minCost < leafCost) {
                         ZBVHPrimitiveInfo* midInfo = std::partition(&primitiveInfo[start], &primitiveInfo[end - 1] + 1,
-                            [=](const ZBVHPrimitiveInfo& pi) {
+                            [=](const ZBVHPrimitiveInfo& pi)
+                            {
                                 int b = numBuckets * centroidBounds.Offset(pi.centroid)[axis];
                                 if (b == numBuckets) b = numBuckets - 1;
                                 return b <= minCostBucket;
                             });
                         mid = midInfo - &primitiveInfo[0];
                     }
-                    else {
+                    else
+                    {
                         return CreateLeafNode(orderedPrimitives, start, end, primitiveInfo, primitiveCount, bounds);
                     }
 
                     // Default to middle split if partition is still not generous enough
-                    if (mid == start || mid == end) {
+                    if (mid == start || mid == end)
+                    {
                         mid = (start + end) / 2;
                         std::nth_element(&primitiveInfo[start], &primitiveInfo[mid], &primitiveInfo[end - 1] + 1,
-                            [axis](const ZBVHPrimitiveInfo& a, const ZBVHPrimitiveInfo& b) {
+                            [axis](const ZBVHPrimitiveInfo& a, const ZBVHPrimitiveInfo& b)
+                            {
                                 return a.centroid[axis] < b.centroid[axis];
                             });
                     }
@@ -236,7 +284,8 @@ std::shared_ptr<ZBVHBuildNode> ZBVH::RecursiveBuild(std::vector<ZBVHPrimitiveInf
 std::shared_ptr<ZBVHBuildNode> ZBVH::CreateLeafNode(std::vector<ZBVHPrimitive>& orderedPrimitives, int start, int end, std::vector<ZBVHPrimitiveInfo>& primitiveInfo, int primitiveCount, ZAABBox bounds)
 {
     int firstPrimitiveOffset = orderedPrimitives.size();
-    for (auto i = start; i < end; ++i) {
+    for (auto i = start; i < end; ++i)
+    {
         int primitiveIndex = primitiveInfo[i].index;
         orderedPrimitives.push_back(primitives_[primitiveIndex]);
     }
@@ -248,11 +297,13 @@ int ZBVH::FlattenBVHTree(const std::shared_ptr<ZBVHBuildNode>& node, int* offset
     ZLinearBVHNode& linearNode = nodes_[*offset];
     linearNode.bounds = node->bounds;
     int thisOffset = (*offset)++;
-    if (node->primitivesCount > 0) {
+    if (node->primitivesCount > 0)
+    {
         linearNode.primitiveOffset = node->firstPrimitiveOffset;
         linearNode.primitiveCount = node->primitivesCount;
     }
-    else {
+    else
+    {
         linearNode.axis = node->splitAxis;
         linearNode.primitiveCount = 0;
         FlattenBVHTree(node->children[0], offset);
