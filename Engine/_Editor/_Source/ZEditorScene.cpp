@@ -51,9 +51,12 @@
 #include "ZInspectorTool.hpp"
 #include "ZHierarchyTool.hpp"
 #include "ZFrameStatsDisplay.hpp"
+#include "ZRenderer.hpp"
 
 void ZEditorScene::Initialize()
 {
+    ZScene::Initialize();
+
     ZServices::EventAgent()->Subscribe(this, &ZEditorScene::HandleResourceLoaded);
 
     ZServices::LoadZOF(EDITOR_CONFIG_PATH);
@@ -62,7 +65,7 @@ void ZEditorScene::Initialize()
 
     PhysicsUniverse()->Pause();
 
-    ZScene::Initialize();
+    renderer_->AddPass(ZRenderPass::UI(gameSystems_.domain->Resolution()));
 
     Play();
 }

@@ -204,7 +204,8 @@ std::shared_ptr<ZBVHBuildNode> ZBVH::RecursiveBuild(std::vector<ZBVHPrimitiveInf
                     for (auto i = start; i < end; ++i)
                     {
                         int b = numBuckets * centroidBounds.Offset(primitiveInfo[i].centroid)[axis];
-                        if (b >= numBuckets)
+                        assert(b >= 0);
+                        if (b == numBuckets)
                         {
                             b = numBuckets - 1;
                         }

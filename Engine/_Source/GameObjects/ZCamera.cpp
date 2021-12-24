@@ -216,10 +216,12 @@ void ZCamera::UpdateCameraFrustum()
 
         float epsilonSquared = EPSILON * EPSILON;
         if (glm::length2(pitchVelocity) <= epsilonSquared &&
-            glm::length2(yawVelocity) <= epsilonSquared) {
+            glm::length2(yawVelocity) <= epsilonSquared)
+        {
             isMoving = false;
         }
-        else {
+        else
+        {
             pitch = glm::quat(pitchVelocity * (float)currentDeltaTime_);
             yaw = glm::quat(yawVelocity * (float)currentDeltaTime_);
             ZAssets::GameObjectManager()->SetOrientation(handle, glm::normalize(pitch * ZAssets::GameObjectManager()->Orientation(handle) * yaw));

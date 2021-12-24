@@ -34,7 +34,7 @@
 struct ZCube : public ZModel
 {
 
-    ZCube(const glm::vec3& size = glm::vec3(0.f))
+    ZCube(const glm::vec3& size = glm::vec3(1.f))
         : ZModel(), size_(size)
     { };
     virtual ~ZCube() = default;

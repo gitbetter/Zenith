@@ -53,8 +53,6 @@ protected:
     void Setup() override;
 
     void CreateDefaultProject();
-    void CreateDefaultScene();
-    void LoadObjectTemplates();
 
     void HandleSceneLoaded(const std::shared_ptr<ZSceneReadyEvent>& event);
     

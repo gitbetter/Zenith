@@ -55,6 +55,7 @@
 #include "ZWindowResizeEvent.hpp"
 #include "ZStringHelpers.hpp"
 #include "ZAssetLoadProgressTracker.hpp"
+#include "ZGraphicsComponent.hpp"
 
 ZScene::ZScene(const std::string& name) : name_(name), playState_(ZPlayState::Loading)
 { }
@@ -89,7 +90,6 @@ void ZScene::Initialize()
     }
 
     SetupRenderers();
-    SetupRenderPasses();
 
     ZProcess::Initialize();
 }
@@ -109,7 +109,7 @@ void ZScene::SetupTargetDrawBuffer()
     renderer_->SetTarget(targetBuffer_);
 }
 
-void ZScene::SetupRenderPasses()
+void ZScene::SetDefaultRenderPasses()
 {
     // TODO: Possible performance penalty here. Color and depth information might be better computed in 
     // a single render pass using multiple render targets (i.e. G-Buffer pass)
@@ -120,8 +120,6 @@ void ZScene::SetupRenderPasses()
     renderer_->AddPass(ZRenderPass::Color(gameSystems_.domain->Resolution()));
 
     renderer_->AddPass(ZRenderPass::Post(gameSystems_.domain->Resolution()));
-
-    renderer_->AddPass(ZRenderPass::UI(gameSystems_.domain->Resolution()));
 }
 
 void ZScene::Update(double deltaTime)
@@ -267,7 +265,6 @@ void ZScene::CreateUICanvas()
     elementOptions.positioning = ZPositioning::Relative;
     elementOptions.scaling = ZPositioning::Relative;
     elementOptions.rect = ZRect(0.f, 0.f, 1.f, 1.f);
-    elementOptions.color = glm::vec4(1.f);
     canvas_ = ZAssets::UIElementManager()->Create(ZUIElementType::Canvas, elementOptions, ZHUIElement(), shared_from_this());
 }
 
@@ -693,4 +690,50 @@ void ZScene::Finish()
     Stop();
     CleanUp();
     ZProcess::Finish();
+}
+
+std::shared_ptr<ZScene> ZScene::CreateDefaultScene(const std::shared_ptr<ZGame>& game)
+{
+	std::shared_ptr<ZScene> scene = ZScene::LoadIn<ZScene>(game, "Default");
+	scene->Initialize();
+	scene->SetDefaultRenderPasses();
+
+	ZHGameObject camera = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Camera, scene);
+	ZAssets::GameObjectManager()->SetName(camera, "Camera");
+	ZAssets::GameObjectManager()->SetPosition(camera, glm::vec3(0.0f, 15.0f, 50.0f));
+	ZAssets::GameObjectManager()->Dereference<ZCamera>(camera)->movementStyle = ZCameraMovementStyle::Follow;
+
+	ZHGameObject light = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Light, scene);
+	ZAssets::GameObjectManager()->SetName(light, "Light");
+	ZAssets::GameObjectManager()->SetPosition(light, glm::vec3(0.0f, 10.0f, 50.0f));
+	ZAssets::GameObjectManager()->SetOrientation(light, glm::vec3(-45.0f, 45.0f, 0.0f));
+	ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightType = ZLightType::Directional;
+	ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.ambient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+	ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	ZHGameObject plane = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom, scene);
+	ZAssets::GameObjectManager()->SetName(plane, "Plane");
+	ZAssets::GameObjectManager()->SetPosition(plane, glm::vec3(0.0f, 0.0f, 0.0f));
+	ZAssets::GameObjectManager()->SetScale(plane, glm::vec3(50.0f, 0.1f, 50.0f));
+
+	ZHComponent planeGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, plane);
+	ZHModel planeModel = ZAssets::ModelManager()->Create(ZModelType::Plane);
+	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(planeGraphicsComp)->Initialize(planeModel);
+	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(planeGraphicsComp)->AddMaterial(ZAssets::MaterialManager()->Default());
+
+	ZHGameObject cube = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom, scene);
+	ZAssets::GameObjectManager()->SetName(cube, "Cube");
+	ZAssets::GameObjectManager()->SetPosition(cube, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	ZHComponent cubeGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, cube);
+	ZHModel cubeModel = ZAssets::ModelManager()->Create(ZModelType::Cube);
+	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(cubeGraphicsComp)->Initialize(cubeModel);
+	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(cubeGraphicsComp)->AddMaterial(ZAssets::MaterialManager()->Default());
+
+	scene->AddGameObject(camera);
+	scene->AddGameObject(light);
+	scene->AddGameObject(plane);
+	scene->AddGameObject(cube);
+
+	return scene;
 }

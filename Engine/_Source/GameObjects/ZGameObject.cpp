@@ -83,6 +83,9 @@ ZIDSequence ZGameObject::idGenerator_;
 
 ZGameObject::ZGameObject()
 {
+    properties.position = properties.previousPosition = glm::vec3(0.0f);
+    properties.orientation = properties.previousOrientation = glm::quat(glm::vec3(0.0f));
+    properties.scale = properties.previousScale = glm::vec3(1.0f);
     properties.modelMatrix = properties.localModelMatrix = glm::mat4(1.f);
     properties.renderOrder = ZRenderLayer::Static;
     name = "GameObject" + std::to_string(idGenerator_.Next());
@@ -255,6 +258,8 @@ void ZGameObjectManager::Update(const ZHGameObject& handle, double deltaTime)
 
     ZGameObject* object = Dereference<ZGameObject>(handle);
 
+    object->OnUpdate(deltaTime);
+
     // TODO: Separate into tick buckets for different stages of ticking
     for (auto comp : object->components)
     {
@@ -265,8 +270,6 @@ void ZGameObjectManager::Update(const ZHGameObject& handle, double deltaTime)
         }
         ZAssets::ComponentManager()->Update(comp, deltaTime);
     }
-
-    object->OnUpdate(deltaTime);
 
     UpdateChildren(handle, deltaTime);
 }
@@ -719,7 +722,7 @@ void ZGameObjectManager::SetOrientation(const ZHGameObject& handle, const glm::v
 
     gameObject->objectMutexes.orientation.lock();
     gameObject->properties.previousOrientation = gameObject->properties.orientation;
-    gameObject->properties.orientation = glm::quat(euler);
+    gameObject->properties.orientation = glm::quat(glm::radians(euler));
     gameObject->objectMutexes.orientation.unlock();
 
     CalculateDerivedData(handle);

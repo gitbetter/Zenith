@@ -52,7 +52,9 @@ void ZRenderQueue::Submit(bool flush)
         Execute(task);
     }
     if (flush)
+    {
         queue_.clear();
+    }
 }
 
 void ZRenderQueue::Execute(const std::shared_ptr<ZRenderTask>& task)

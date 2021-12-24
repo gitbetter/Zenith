@@ -27,6 +27,7 @@ void main() {
     vec4 albedoTexData = texture(albedoSampler0, vout.FragUV);
     albd = vec4(pow(albedoTexData.rgb, vec3(2.2)), albedoTexData.a);
   }
+
   if (albd.a < 0.1)
   {
     discard;
@@ -35,12 +36,14 @@ void main() {
   int cascadeIndex = GetCascadeIndex(vout.FragViewPos.xyz, shadowFarPlanes);
   float shadow = 0.0;
 
-  if (light.isEnabled) {
+  if (light.isEnabled)
+  {
       vec3 lightDir = light.lightType == LIGHT_TYPE_DIRECTIONAL ? normalize(light.direction.xyz) : normalize(light.position.xyz - vout.FragWorldPos.xyz);
       vec3 halfVector = normalize(lightDir + viewDir);
       float attenunation = 1.0;
 
-      if (light.lightType != LIGHT_TYPE_DIRECTIONAL) {
+      if (light.lightType != LIGHT_TYPE_DIRECTIONAL)
+      {
           float lightDistance = length(lightDir);
           lightDir = lightDir / lightDistance;
 
@@ -48,10 +51,17 @@ void main() {
                               + light.linearAttenuation * lightDistance
                               + light.quadraticAttenuation * lightDistance * lightDistance);
 
-          if (light.lightType == LIGHT_TYPE_SPOT) {
+          if (light.lightType == LIGHT_TYPE_SPOT)
+          {
             float spotCos = dot(lightDir, -light.coneDirection.xyz);
-            if (spotCos < light.spotCutoff) attenunation = 0.0;
-            else attenunation *= pow(spotCos, light.spotExponent);
+            if (spotCos < light.spotCutoff)
+            {
+                attenunation = 0.0;
+            }
+            else
+            {
+                attenunation *= pow(spotCos, light.spotExponent);
+            }
           }
       }
 

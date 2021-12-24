@@ -145,6 +145,9 @@ void ZLight::OnUpdate(double deltaTime)
     if (camObject != nullptr && camObject->isMoving)
     {
         UpdateLightspaceMatrices(camObject->frustum);
+        lightProperties.position = glm::vec4(ZAssets::GameObjectManager()->Position(handle), 1.0f);
+        lightProperties.direction = glm::vec4(ZAssets::GameObjectManager()->Front(handle), 0.0f);
+        uniformBuffer->Update(offsetof(ZLightUniforms, light), sizeof(lightProperties), &lightProperties);
     }
 
     if (sceneSP->GameConfig().graphics.drawAABBDebug)

@@ -49,7 +49,8 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Depth()
         ZAssets::ShaderManager()->Create("/Shaders/Vertex/depth.vert", "/Shaders/Pixel/null.frag"),
         ZFramebuffer::CreateDepth(glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE))
         );
-    if (!initialized) {
+    if (!initialized)
+    {
         depth->Initialize();
         initialized = true;
     }
@@ -114,7 +115,8 @@ std::shared_ptr<ZRenderPass> ZRenderPass::UI(const glm::vec2& size)
     static bool initialized = false;
     static std::shared_ptr<ZRenderPass> ui = std::make_shared<ZUIPass>(
         ZAssets::ShaderManager()->Create("/Shaders/Vertex/ui.vert", "/Shaders/Pixel/ui.frag"),
-        ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f))
+        ZFramebuffer::CreateColor(glm::vec2(1920.f, 1080.f)),
+        ZRenderPass::Post()
         );
     if (!initialized)
     {
@@ -143,8 +145,10 @@ void ZRenderPass::Initialize()
     writer.Begin();
     writer.SetShader(shader_);
     std::unordered_map<std::string, unsigned int> attachmentCount;
-    for (const auto& dep : dependencies_) {
-        for (const auto& attachment : dep->framebuffer_->Attachments()) {
+    for (const auto& dep : dependencies_)
+    {
+        for (const auto& attachment : dep->framebuffer_->Attachments())
+        {
             writer.BindTexture(attachment);
         }
     }

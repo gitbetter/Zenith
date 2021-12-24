@@ -32,6 +32,7 @@
 #include "ZProcess.hpp"
 #include "ZOFTree.hpp"
 #include "ZBVH.hpp"
+#include "ZServices.hpp"
 
 class ZGame;
 class ZLight;
@@ -85,6 +86,7 @@ public:
     std::string GameName() const { return gameName_; }
     ZFrameStats& FrameStats() { return frameStats_; }
 
+    void SetDefaultRenderPasses();
     void SetGameSystems(const ZGameSystems& systems) { gameSystems_ = systems; }
     void SetGameConfig(const ZGameOptions& options) { gameConfig_ = options; }
     void SetGameName(const std::string& name) { gameName_ = name; }
@@ -138,6 +140,8 @@ public:
         return scene;
     }
 
+    static std::shared_ptr<ZScene> CreateDefaultScene(const std::shared_ptr<ZGame>& game);
+
 protected:
 
     struct
@@ -179,7 +183,6 @@ protected:
 
     void SetupRenderers();
     void SetupTargetDrawBuffer();
-    void SetupRenderPasses();
     void LoadSceneData(const std::shared_ptr<ZOFNode>& objectTree);
     void ParseSceneMetadata(const std::shared_ptr<ZOFNode>& objectTree);
     void CreateSceneRoot(const std::string& name);

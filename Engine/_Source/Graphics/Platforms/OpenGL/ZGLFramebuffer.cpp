@@ -80,7 +80,8 @@ void ZGLFramebuffer::LoadColor(const glm::vec2& size, const ZHTexture& colorText
 void ZGLFramebuffer::LoadDepth(const glm::vec2& size, const ZHTexture& depthTexture)
 {
     // This frame buffer has already been created, but we can still use this Load method to add texture attachments
-    if (id_ > 0) {
+    if (id_ > 0)
+    {
         Delete();
     }
 
@@ -90,7 +91,8 @@ void ZGLFramebuffer::LoadDepth(const glm::vec2& size, const ZHTexture& depthText
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
-    if (!depthTexture.IsNull()) {
+    if (!depthTexture.IsNull())
+    {
         attachments_.push_back(depthTexture);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ZAssets::TextureManager()->PlatformHandle(depthTexture), 0);
     }

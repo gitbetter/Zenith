@@ -29,12 +29,8 @@
 
 #pragma once
 
-// Includes
 #include "ZUniformBuffer.hpp"
 
-// Forward Declarations
-
-// Class and Data Structure Definitions
 class ZGLUniformBuffer : public ZUniformBuffer
 {
 

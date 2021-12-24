@@ -66,13 +66,6 @@ const ZHShader& ZMaterialManager::Shader(const ZHMaterial& handle) const
 	return material->shader;
 }
 
-float ZMaterialManager::Alpha(const ZHMaterial& handle) const
-{
-	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
-	const ZMaterialBase* material = resourcePool_.Get(handle);
-	return material->properties.alpha;
-}
-
 bool ZMaterialManager::IsTextured(const ZHMaterial& handle) const
 {
 	assert(!handle.IsNull() && "Cannot fetch property with a null material handle!");
@@ -111,13 +104,6 @@ void ZMaterialManager::SetShader(const ZHMaterial& handle, const ZHShader& shade
     writer.Begin();
     writer.SetShader(shader);
     material->renderState = writer.End();
-}
-
-void ZMaterialManager::SetAlpha(const ZHMaterial& handle, float alpha)
-{
-	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
-	ZMaterialBase* material = resourcePool_.Get(handle);
-	material->properties.alpha = alpha;
 }
 
 void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& property, float value)
@@ -163,16 +149,6 @@ void ZMaterialManager::SetProperty(const ZHMaterial& handle, const std::string& 
     else if (property == "ao")
     {
         material->properties.ao = value;
-        UpdateUniformMaterial(handle);
-    }
-    else if (property == "alpha")
-    {
-        material->properties.alpha = value;
-        UpdateUniformMaterial(handle);
-    }
-    else if (property == "tiling")
-    {
-        material->properties.tiling = value;
         UpdateUniformMaterial(handle);
     }
 }
@@ -230,8 +206,8 @@ ZHMaterial ZMaterialManager::Default()
 ZHMaterial ZMaterialManager::CreateDefault()
 {
 	ZMaterialProperties materialProperties;
-	materialProperties.albedo = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-	materialProperties.emission = 0.f;
+	materialProperties.albedo = glm::vec4(0.9f, 0.9f, 0.9f, 1.f);
+	materialProperties.emission = 0.0f;
 	materialProperties.diffuse = 0.5f;
 	materialProperties.ambient = 0.3f;
 	materialProperties.specular = 0.2f;
@@ -494,8 +470,10 @@ void ZMaterialManager::UpdateUniformMaterial(const ZHMaterial& handle)
 	assert(!handle.IsNull() && "Cannot set property with a null material handle!");
 	ZMaterialBase* material = resourcePool_.Get(handle);
 
-    if (!material->uniformBuffer)
+	if (!material->uniformBuffer)
+	{
         material->uniformBuffer = ZUniformBuffer::Create(ZUniformBufferType::Material, sizeof(ZMaterialUniforms));
+	}
 
     bool textured = !material->textures.empty();
     material->uniformBuffer->Update(offsetof(ZMaterialUniforms, material), sizeof(material->properties), &material->properties);

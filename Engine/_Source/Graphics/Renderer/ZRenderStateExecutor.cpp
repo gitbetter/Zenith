@@ -60,7 +60,8 @@ void ZRenderStateExecutor::operator()(const ZRenderPipelineState& pipelineState)
 
 void ZRenderStateExecutor::operator()(const ZRenderResourceState& resourceState)
 {
-    if (resourceState.shader && cachedState_->resourceState_.shader != resourceState.shader) {
+    if (resourceState.shader && cachedState_->resourceState_.shader != resourceState.shader)
+    {
         cachedState_->resourceState_.shader = resourceState.shader;
         ZAssets::ShaderManager()->Activate(resourceState.shader);
         ZAssets::ShaderManager()->ClearAttachments(resourceState.shader);

@@ -614,8 +614,6 @@ struct Light {
 struct ZMaterialProperties
 {
 	glm::vec4 albedo;
-	float alpha{ 1.f };
-	float tiling{ 1.f };
 	float emission;
 	float ambient;
 	float diffuse;
@@ -624,7 +622,6 @@ struct ZMaterialProperties
 	float metallic;
 	float roughness;
 	float ao;
-	float padding[2];
 };
 
 using ZVertex3DList = std::vector<ZVertex3D>;
@@ -948,6 +945,7 @@ struct ZUIUniforms
     float borderWidth;
     float borderRadius;
     alignas(sizeof(float)) bool instanced;
+    float padding[3];
 };
 
 struct ZCameraUniforms
@@ -978,11 +976,13 @@ struct ZModelUniforms
     glm::mat4 bones[BONES_PER_MODEL];
     alignas(sizeof(float)) bool rigged;
     alignas(sizeof(float)) bool instanced;
+    float padding[2];
 };
 
 struct ZPostUniforms
 {
     alignas(sizeof(float)) bool useMotionBlur;
+    float padding[3];
 };
 
 struct ZMaterialUniforms
@@ -990,6 +990,7 @@ struct ZMaterialUniforms
     ZMaterialProperties material;
     alignas(sizeof(float)) bool isTextured;
     alignas(sizeof(float)) bool hasDisplacement;
+    float padding[2];
 };
 
 using ZGameObjectMap = std::unordered_map<std::string, ZHGameObject>;

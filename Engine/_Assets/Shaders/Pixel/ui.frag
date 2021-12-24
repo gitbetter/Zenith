@@ -7,7 +7,8 @@ in VertexOutput vout;
 
 uniform sampler2D colorSampler0;
 
-void main() {
+void main()
+{
     vec2 fragPos = (abs(vout.FragUV - 0.5) + 0.5) * pixelSize;
     vec2 bottomLeft = step(vec2(borderWidth), fragPos);
     vec2 topRight = step(vec2(borderWidth), pixelSize - fragPos);
@@ -17,7 +18,9 @@ void main() {
     vec4 outColor = vec4(vec3(1.0 - pct), 1.0) * borderColor + vec4(vec3(pct), 1.0) * color * texColor;
 
     if (outColor.a < 0.1)
+    {
         discard;
+    }
 
     FragColor = outColor;
 }

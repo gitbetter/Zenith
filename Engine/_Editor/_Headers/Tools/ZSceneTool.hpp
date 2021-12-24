@@ -34,7 +34,8 @@
 
 class ZEditorGizmo;
 
-class ZSceneTool : public ZEditorTool {
+class ZSceneTool : public ZEditorTool
+{
     
 public:
 

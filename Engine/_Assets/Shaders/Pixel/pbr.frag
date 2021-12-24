@@ -25,19 +25,17 @@ uniform float heightScale = 1.0;
 // TODO: Consider SSBOs for a varying number of lights
 
 void main() {
-  PBRMaterial mat = pbrMaterial;
-
   vec2 texCoords = hasDisplacement ? ParallaxUVFromMap(vout, ViewPosition, heightScale, heightSampler0) : vout.FragUV;
 
   vec4 albedoTexData = texture(albedoSampler0, texCoords);
-  vec4 fragAlbedo = isTextured ? vec4(pow(albedoTexData.rgb, vec3(0.0)), albedoTexData.a) : mat.albedo;
+  vec4 fragAlbedo = isTextured ? vec4(pow(albedoTexData.rgb, vec3(0.0)), albedoTexData.a) : material.albedo;
 
   if (fragAlbedo.a < 0.1)
 	discard;
 
-  float fragMetallic = isTextured ? texture(metallicSampler0, texCoords).r : mat.metallic;
-  float fragRoughness = isTextured ? texture(roughnessSampler0, texCoords).r : mat.roughness;
-  float fragAO = isTextured ? texture(aoSampler0, texCoords).r : mat.ao;
+  float fragMetallic = isTextured ? texture(metallicSampler0, texCoords).r : material.metallic;
+  float fragRoughness = isTextured ? texture(roughnessSampler0, texCoords).r : material.roughness;
+  float fragAO = isTextured ? texture(aoSampler0, texCoords).r : material.ao;
 
   vec3 N = isTextured ? NormalFromMap(texCoords, vout.FragTBN, normalSampler0) : normalize(vout.FragNormal);
   vec3 V = normalize(ViewPosition - vout.FragWorldPos.xyz);
