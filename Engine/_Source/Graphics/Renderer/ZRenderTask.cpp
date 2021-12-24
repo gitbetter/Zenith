@@ -44,7 +44,8 @@ ZRenderTask::~ZRenderTask()
 
 void ZRenderTask::Submit(const std::initializer_list<std::shared_ptr<ZRenderPass>>& passes)
 {
-    for (auto pass : passes) {
+    for (auto pass : passes)
+    {
         pass->Submit(shared_from_this());
     }
 }
@@ -55,9 +56,13 @@ std::shared_ptr<ZRenderTask> ZRenderTask::Compile(ZDrawCall drawCall, const std:
 
     renderTask->ApplyState(ZRenderStateGroup::Default());
 
-    if (pass) renderTask->ApplyState(pass->RenderState());
+    if (pass)
+    {
+        renderTask->ApplyState(pass->RenderState());
+    }
 
-    for (auto it = std::rbegin(stateStack); it != std::rend(stateStack); it++) {
+    for (auto it = std::rbegin(stateStack); it != std::rend(stateStack); it++)
+    {
         if (!(*it)) continue;
         renderTask->ApplyState(*it);
     }

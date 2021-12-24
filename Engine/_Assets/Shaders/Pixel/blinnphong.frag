@@ -69,7 +69,6 @@ void main() {
       float spec = pow(max(0.0, dot(norm, halfVector)), material.shininess);
 
       shadow += PCFShadow(vout, cascadeIndex, lightDir, shadowArraySampler0);
-
       ambient += material.ambient * albd.rgb;
       diffuse += light.color.rgb * material.diffuse * albd.rgb * diff * attenunation;
       specular += light.color.rgb * material.specular * spec * attenunation;

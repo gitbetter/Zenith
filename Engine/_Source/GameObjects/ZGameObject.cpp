@@ -550,8 +550,8 @@ glm::vec3 ZGameObjectManager::Front(const ZHGameObject& handle)
     gameObject->objectMutexes.orientation.lock();
     front = glm::conjugate(gameObject->properties.orientation) * glm::vec3(0.f, 0.f, -1.f);
     gameObject->objectMutexes.orientation.unlock();
-    return front;
 
+    return glm::normalize(front);
 }
 
 glm::vec3 ZGameObjectManager::Up(const ZHGameObject& handle)
@@ -563,7 +563,8 @@ glm::vec3 ZGameObjectManager::Up(const ZHGameObject& handle)
     gameObject->objectMutexes.orientation.lock();
     up = glm::conjugate(gameObject->properties.orientation) * glm::vec3(0.f, 1.f, 0.f);
     gameObject->objectMutexes.orientation.unlock();
-    return up;
+
+    return glm::normalize(up);
 }
 
 glm::vec3 ZGameObjectManager::Right(const ZHGameObject& handle)
@@ -575,8 +576,8 @@ glm::vec3 ZGameObjectManager::Right(const ZHGameObject& handle)
     gameObject->objectMutexes.orientation.lock();
     right = glm::conjugate(gameObject->properties.orientation) * glm::vec3(-1.f, 0.f, 0.f);
     gameObject->objectMutexes.orientation.unlock();
-    return right;
 
+    return glm::normalize(right);
 }
 
 glm::mat4 ZGameObjectManager::ModelMatrix(const ZHGameObject& handle)

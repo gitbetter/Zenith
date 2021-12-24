@@ -119,13 +119,18 @@ float PCFShadow(VertexOutput vout, int cascade, vec3 lightDir, sampler2DArray sh
 	vec3 projCoords = vout.FragPosLightSpace[cascade].xyz / vout.FragPosLightSpace[cascade].w;
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if(projCoords.z > 1.0)
+    {
+        return 0.0;
+    }
     // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
     float closestDepth = texture(shadowMap, vec3(projCoords.xy, cascade)).r;
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // calculate bias (based on depth map resolution and slope)
     vec3 normal = normalize(vout.FragNormal);
-    float bias = max(0.002 * (1.0 - dot(normal, lightDir)), 0.0002);
+    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
 
     // PCF
     float shadow = 0.0;
@@ -138,29 +143,32 @@ float PCFShadow(VertexOutput vout, int cascade, vec3 lightDir, sampler2DArray sh
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
         }    
     }
-    shadow /= 9.0;
-    
-    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
-    if(projCoords.z > 1.0)
-        shadow = 0.0;
-        
-    return shadow;
+
+    return shadow / 9.0;
 }
 
 float GetBlockerDistance(vec3 shadowCoords, int cascade, vec3 viewPosition, float lightSize, sampler2DArray shadowMap) {
     int blockers = 0;
     float averageBlockerDistance = 0.0;
     float searchWidth = lightSize * (shadowCoords.z - 0.1) / viewPosition.z;
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++)
+    {
       float z = texture(shadowMap, vec3(shadowCoords.xy + poissonDisk[i] * searchWidth, cascade)).r;
-      if (z < (shadowCoords.z - 0.002)) {
+      if (z < (shadowCoords.z - 0.05))
+      {
         ++blockers;
         averageBlockerDistance += z;
       }
     }
 
-    if (blockers > 0) return averageBlockerDistance / blockers;
-    else return -1;
+    if (blockers > 0)
+    {
+        return averageBlockerDistance / blockers;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 float PCSSShadow(VertexOutput vout, int cascade, vec3 viewPosition, float lightSize, sampler2DArray shadowMap) {
@@ -170,7 +178,9 @@ float PCSSShadow(VertexOutput vout, int cascade, vec3 viewPosition, float lightS
 
     float blockerDistance = GetBlockerDistance(projCoords, cascade, viewPosition, lightSize, shadowMap);
     if (blockerDistance == -1)
+    {
       return 0.0;
+    }
 
     float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance;
 
@@ -180,17 +190,22 @@ float PCSSShadow(VertexOutput vout, int cascade, vec3 viewPosition, float lightS
 	float shadow = 0.0;
 	float theta = Random(vec4(projCoords.xy, vout.FragWorldPos.xy));
 	mat2 rotation = mat2(vec2(cos(theta), sin(theta)), vec2(-sin(theta), cos(theta)));
-	float bias = max(0.002 * (1.0 - dot(vout.FragNormal, viewPosition)), 0.0002);  
-    for (int i = 0; i < 16; i++) {
+    vec3 normal = normalize(vout.FragNormal);
+	float bias = max(0.05 * (1.0 - dot(normal, viewPosition)), 0.005);
+
+    for (int i = 0; i < 8; i++)
+    {
 	  vec2 offset = (rotation * poissonDisk[i]) * radius;
       float pcssDepth = texture(shadowMap, vec3(projCoords.xy + offset, cascade)).r;
       shadow += projCoords.z - bias > pcssDepth ? 1.0 : 0.0;
     }
 
 	if (projCoords.z > 1.0)
+    {
       return 0.0;
+    }
 
-    return shadow / 16 * 0.85;
+    return shadow / 8;
 }
 
 /************* Normal Mapping Helper Functions ***************/

@@ -180,8 +180,8 @@ void ZLight::UpdateLightspaceMatrices(const ZFrustum& frustum)
             splitFrustum.far = shadowFarPlaneSplits[i];
             splitFrustum.Recalculate();
 
-            const glm::quat orientation = ZAssets::GameObjectManager()->Orientation(handle);
-            glm::mat4 lightV = glm::lookAt(splitFrustum.center + glm::eulerAngles(glm::normalize(orientation)), splitFrustum.center, WORLD_UP);
+            const glm::vec3 direction = ZAssets::GameObjectManager()->Front(handle);
+            glm::mat4 lightV = glm::lookAt(splitFrustum.center + direction, splitFrustum.center, WORLD_UP);
 
             lightspaceRegion = ZAABBox();
             for (const auto& corner : splitFrustum.corners) {

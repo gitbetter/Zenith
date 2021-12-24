@@ -11,9 +11,11 @@ layout (location = 7) in mat4 instanceM;
 void main()
 {
 	vec4 pos = vec4(position, 1.0);
-    if (rigged) {
+    if (rigged)
+    {
         mat4 boneTransform = mat4(0.0);
-        for (int i = 0; i < MAX_BONES_PER_VERTEX; i++) {
+        for (int i = 0; i < MAX_BONES_PER_VERTEX; i++)
+        {
             if (boneIDs[i] == -1) continue;
             boneTransform += Bones[boneIDs[i]] * boneWeights[i];
         }

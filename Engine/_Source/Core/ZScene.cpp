@@ -711,16 +711,6 @@ std::shared_ptr<ZScene> ZScene::CreateDefaultScene(const std::shared_ptr<ZGame>&
 	ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.ambient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	ZHGameObject plane = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom, scene);
-	ZAssets::GameObjectManager()->SetName(plane, "Plane");
-	ZAssets::GameObjectManager()->SetPosition(plane, glm::vec3(0.0f, 0.0f, 0.0f));
-	ZAssets::GameObjectManager()->SetScale(plane, glm::vec3(50.0f, 0.1f, 50.0f));
-
-	ZHComponent planeGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, plane);
-	ZHModel planeModel = ZAssets::ModelManager()->Create(ZModelType::Plane);
-	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(planeGraphicsComp)->Initialize(planeModel);
-	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(planeGraphicsComp)->AddMaterial(ZAssets::MaterialManager()->Default());
-
 	ZHGameObject cube = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom, scene);
 	ZAssets::GameObjectManager()->SetName(cube, "Cube");
 	ZAssets::GameObjectManager()->SetPosition(cube, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -729,6 +719,27 @@ std::shared_ptr<ZScene> ZScene::CreateDefaultScene(const std::shared_ptr<ZGame>&
 	ZHModel cubeModel = ZAssets::ModelManager()->Create(ZModelType::Cube);
 	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(cubeGraphicsComp)->Initialize(cubeModel);
 	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(cubeGraphicsComp)->AddMaterial(ZAssets::MaterialManager()->Default());
+
+	ZHGameObject plane = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom, scene);
+	ZAssets::GameObjectManager()->SetName(plane, "Plane");
+	ZAssets::GameObjectManager()->SetPosition(plane, glm::vec3(0.0f, 0.0f, 0.0f));
+	ZAssets::GameObjectManager()->SetScale(plane, glm::vec3(50.0f, 0.1f, 50.0f));
+
+	ZHComponent planeGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, plane);
+	ZHModel planeModel = ZAssets::ModelManager()->Create(ZModelType::Cube);
+	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(planeGraphicsComp)->Initialize(planeModel);
+    ZMaterialProperties materialProps;
+    materialProps.albedo = glm::vec4(0.615f, 0.807f, 0.823f, 1.0f);
+    materialProps.emission = 0.0f;
+    materialProps.diffuse = 0.5f;
+    materialProps.ambient = 0.3f;
+    materialProps.specular = 0.2f;
+    materialProps.shininess = 0.2f;
+    materialProps.metallic = 0.0f;
+    materialProps.roughness = 0.0f;
+    materialProps.ao = 0.0f;
+    ZHMaterial planeMaterial = ZAssets::MaterialManager()->Create(materialProps, ZAssets::ShaderManager()->BlinnPhongShader());
+	ZAssets::ComponentManager()->Dereference<ZGraphicsComponent>(planeGraphicsComp)->AddMaterial(planeMaterial);
 
 	scene->AddGameObject(camera);
 	scene->AddGameObject(light);

@@ -34,10 +34,14 @@ void ZBVH::Build()
     primitives_.swap(userPrimitives_);
     userPrimitives_.clear();
 
-    if (primitives_.empty()) return;
+    if (primitives_.empty())
+    {
+        return;
+    }
 
     std::vector<ZBVHPrimitiveInfo> primitiveInfo(primitives_.size());
-    for (auto i = 0; i < primitives_.size(); ++i) {
+    for (auto i = 0; i < primitives_.size(); ++i)
+    {
         primitiveInfo[i] = { i, primitives_[i].bounds };
     }
 

@@ -65,7 +65,8 @@ std::shared_ptr<ZRenderPass> ZRenderPass::Shadow()
         ZAssets::ShaderManager()->Create("/Shaders/Vertex/shadow.vert", "/Shaders/Pixel/null.frag"),
         ZFramebuffer::CreateShadow(glm::vec2(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE), NUM_SHADOW_CASCADES)
         );
-    if (!initialized) {
+    if (!initialized)
+    {
         shadow->Initialize();
         initialized = true;
     }

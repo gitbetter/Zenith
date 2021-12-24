@@ -109,7 +109,8 @@ void ZRenderStateGroupWriter::SetFullScreenLayer(ZFullScreenLayer layer)
 void ZRenderStateGroupWriter::SetClearFlags(const std::initializer_list<ZClearFlags>& clearFlags)
 {
     currentStateGroup_->pipelineState_.clearState = static_cast<uint8_t>(ZClearFlags::Null);
-    for (auto flag : clearFlags) {
+    for (auto flag : clearFlags)
+    {
         currentStateGroup_->pipelineState_.clearState |= static_cast<uint8_t>(flag);
     }
 }
@@ -117,7 +118,8 @@ void ZRenderStateGroupWriter::SetClearFlags(const std::initializer_list<ZClearFl
 void ZRenderStateGroupWriter::SetDepthStencilState(const std::initializer_list<ZDepthStencilState>& depthStencilState)
 {
     currentStateGroup_->pipelineState_.depthStencilState = static_cast<uint8_t>(ZDepthStencilState::Null);
-    for (auto state : depthStencilState) {
+    for (auto state : depthStencilState)
+    {
         currentStateGroup_->pipelineState_.depthStencilState |= static_cast<uint8_t>(state);
     }
 }
@@ -125,7 +127,8 @@ void ZRenderStateGroupWriter::SetDepthStencilState(const std::initializer_list<Z
 void ZRenderStateGroupWriter::SetFaceCullState(const std::initializer_list<ZFaceCullState>& faceCullStates)
 {
     currentStateGroup_->pipelineState_.faceCullState = static_cast<uint8_t>(ZFaceCullState::Null);
-    for (auto state : faceCullStates) {
+    for (auto state : faceCullStates)
+    {
         currentStateGroup_->pipelineState_.faceCullState |= static_cast<uint8_t>(state);
     }
 }

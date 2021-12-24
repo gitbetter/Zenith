@@ -24,9 +24,11 @@ void main()
     vec3 N = normalize(mat3(m) * normal);
     vout.FragNormal = N;
     vout.FragTBN = mat3(T, B, N);
-    if (rigged) {
+    if (rigged)
+    {
         mat4 boneTransform = mat4(0.0);
-        for (int i = 0; i < MAX_BONES_PER_VERTEX; i++) {
+        for (int i = 0; i < MAX_BONES_PER_VERTEX; i++)
+        {
             if (boneIDs[i] == -1) continue;
             boneTransform += Bones[boneIDs[i]] * boneWeights[i];
         }
@@ -36,7 +38,8 @@ void main()
     vout.FragWorldPos = m * pos;
     vout.FragViewPos = V * vout.FragWorldPos;
     vout.FragUV = texCoords;
-    for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
+    for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+    {
         vout.FragPosLightSpace[i] = ViewProjectionsLightSpace[i] * vout.FragWorldPos;
     }
     gl_Position = ViewProjection * vout.FragWorldPos;
