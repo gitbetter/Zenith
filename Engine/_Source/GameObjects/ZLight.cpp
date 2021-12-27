@@ -175,7 +175,8 @@ void ZLight::UpdateLightspaceMatrices(const ZFrustum& frustum)
     {
         shadowFarPlaneSplits = glm::vec4(frustum.far * 0.2f, frustum.far * 0.35f, frustum.far * 0.75f, frustum.far);
         lightspaceMatrices.clear();
-        for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
+        for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+        {
             ZFrustum splitFrustum = frustum;
             splitFrustum.far = shadowFarPlaneSplits[i];
             splitFrustum.Recalculate();
@@ -184,14 +185,17 @@ void ZLight::UpdateLightspaceMatrices(const ZFrustum& frustum)
             glm::mat4 lightV = glm::lookAt(splitFrustum.center + direction, splitFrustum.center, WORLD_UP);
 
             lightspaceRegion = ZAABBox();
-            for (const auto& corner : splitFrustum.corners) {
+            lightspaceRegion.maximum = glm::vec3(0.f);
+            lightspaceRegion.minimum = glm::vec3(0.f);
+            for (const auto& corner : splitFrustum.corners)
+            {
                 auto transformedCorner = glm::vec4(corner, 1.0) * lightV;
                 lightspaceRegion = ZAABBox::Union(lightspaceRegion, transformedCorner);
             }
 
 			glm::vec3 extents = glm::vec3(glm::abs(lightspaceRegion.maximum.x - lightspaceRegion.minimum.x),
                                           glm::abs(lightspaceRegion.maximum.y - lightspaceRegion.minimum.y),
-                                          glm::abs(lightspaceRegion.maximum.z - lightspaceRegion.minimum.z)) * 0.5f;
+                                          glm::abs(lightspaceRegion.maximum.z - lightspaceRegion.minimum.z));
 
             lightspaceMatrices.push_back(glm::ortho(-extents.x, extents.x, -extents.y, extents.y, -extents.z, extents.z) * lightV);
         }

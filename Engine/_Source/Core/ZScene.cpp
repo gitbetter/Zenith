@@ -705,8 +705,7 @@ std::shared_ptr<ZScene> ZScene::CreateDefaultScene(const std::shared_ptr<ZGame>&
 
 	ZHGameObject light = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Light, scene);
 	ZAssets::GameObjectManager()->SetName(light, "Light");
-	ZAssets::GameObjectManager()->SetPosition(light, glm::vec3(0.0f, 10.0f, 50.0f));
-	ZAssets::GameObjectManager()->SetOrientation(light, glm::vec3(-45.0f, 45.0f, 0.0f));
+	ZAssets::GameObjectManager()->SetOrientation(light, glm::vec3(-45.0f, 50.0f, 33.0f));
 	ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightType = ZLightType::Directional;
 	ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.ambient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	ZAssets::GameObjectManager()->Dereference<ZLight>(light)->lightProperties.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -731,10 +730,10 @@ std::shared_ptr<ZScene> ZScene::CreateDefaultScene(const std::shared_ptr<ZGame>&
     ZMaterialProperties materialProps;
     materialProps.albedo = glm::vec4(0.615f, 0.807f, 0.823f, 1.0f);
     materialProps.emission = 0.0f;
-    materialProps.diffuse = 0.5f;
+    materialProps.diffuse = 0.7f;
     materialProps.ambient = 0.3f;
-    materialProps.specular = 0.2f;
-    materialProps.shininess = 0.2f;
+    materialProps.specular = 0.5f;
+    materialProps.shininess = 64.0f;
     materialProps.metallic = 0.0f;
     materialProps.roughness = 0.0f;
     materialProps.ao = 0.0f;

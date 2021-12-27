@@ -38,7 +38,7 @@ void main() {
 
   if (light.isEnabled)
   {
-      vec3 lightDir = light.lightType == LIGHT_TYPE_DIRECTIONAL ? normalize(light.direction.xyz) : normalize(light.position.xyz - vout.FragWorldPos.xyz);
+      vec3 lightDir = light.lightType == LIGHT_TYPE_DIRECTIONAL ? normalize(light.direction.xyz) : normalize(vout.FragWorldPos.xyz - light.position.xyz);
       vec3 halfVector = normalize(lightDir + viewDir);
       float attenunation = 1.0;
 

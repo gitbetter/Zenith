@@ -104,10 +104,13 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness) {
 
 /************* Shadow Mapping Helper Functions ***************/
 
-int GetCascadeIndex(vec3 position, vec4 farPlanes) {
+int GetCascadeIndex(vec3 position, vec4 farPlanes)
+{
     int index = 0;
-    for (int i = 0; i < NUM_SHADOW_CASCADES; i++) {
-        if (abs(position.z) < farPlanes[i]) {
+    for (int i = 0; i < NUM_SHADOW_CASCADES; i++)
+    {
+        if (abs(position.z) < farPlanes[i])
+        {
             index = i; break;
         }
     }
@@ -165,15 +168,13 @@ float GetBlockerDistance(vec3 shadowCoords, int cascade, vec3 viewPosition, floa
     {
         return averageBlockerDistance / blockers;
     }
-    else
-    {
-        return -1;
-    }
+    return -1.0;
 }
 
 float PCSSShadow(VertexOutput vout, int cascade, vec3 viewPosition, float lightSize, sampler2DArray shadowMap) {
-    vec3 projCoords = vout.FragPosLightSpace[cascade].xyz / vout.FragPosLightSpace[cascade].w;
-
+    // perform perspective divide
+	vec3 projCoords = vout.FragPosLightSpace[cascade].xyz / vout.FragPosLightSpace[cascade].w;
+    // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
 
     float blockerDistance = GetBlockerDistance(projCoords, cascade, viewPosition, lightSize, shadowMap);

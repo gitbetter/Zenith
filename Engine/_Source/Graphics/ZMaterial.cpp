@@ -208,13 +208,13 @@ ZHMaterial ZMaterialManager::CreateDefault()
 	ZMaterialProperties materialProperties;
 	materialProperties.albedo = glm::vec4(0.9f, 0.9f, 0.9f, 1.f);
 	materialProperties.emission = 0.0f;
-	materialProperties.diffuse = 0.5f;
-	materialProperties.ambient = 0.3f;
-	materialProperties.specular = 0.2f;
-	materialProperties.shininess = 0.2f;
-	materialProperties.metallic = 0.1f;
-	materialProperties.roughness = 0.75f;
-	materialProperties.ao = 0.3f;
+	materialProperties.diffuse = 0.7f;
+	materialProperties.ambient = 0.2f;
+	materialProperties.specular = 0.3f;
+	materialProperties.shininess = 32.0f;
+	materialProperties.metallic = 0.0f;
+	materialProperties.roughness = 0.0f;
+	materialProperties.ao = 0.0f;
 	return Create(materialProperties, ZAssets::ShaderManager()->BlinnPhongShader());
 }
 
