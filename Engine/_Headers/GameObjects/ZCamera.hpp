@@ -68,7 +68,7 @@ public:
     float zoom = 45.0f;
     float zoomSpeed = 5.0f;
     float nearClippingPlane = 0.01f;
-    float farClippingPlane = 500.0f;
+    float farClippingPlane = 1000.0f;
     float cameraDamping = 0.02f;
     ZCameraType cameraType;
     ZCameraMovementStyle movementStyle;

@@ -356,7 +356,7 @@ void ZModelManager::SetInstanceData(const ZHModel& handle, const ZInstancedDataO
 	ZModel* model = resourcePool_.Get(handle);
 
     model->instanceData = instanceData;
-    bool isInstanced = model->instanceData.count > 1;
+    const bool isInstanced = model->instanceData.count > 1;
     model->uniformBuffer->Update(offsetof(ZModelUniforms, instanced), sizeof(isInstanced), &isInstanced);
     for (auto it = model->meshes.begin(); it != model->meshes.end(); it++)
     {

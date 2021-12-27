@@ -722,7 +722,7 @@ std::shared_ptr<ZScene> ZScene::CreateDefaultScene(const std::shared_ptr<ZGame>&
 	ZHGameObject plane = ZAssets::GameObjectManager()->CreateReady(ZGameObjectType::Custom, scene);
 	ZAssets::GameObjectManager()->SetName(plane, "Plane");
 	ZAssets::GameObjectManager()->SetPosition(plane, glm::vec3(0.0f, 0.0f, 0.0f));
-	ZAssets::GameObjectManager()->SetScale(plane, glm::vec3(50.0f, 0.1f, 50.0f));
+	ZAssets::GameObjectManager()->SetScale(plane, glm::vec3(500.0f, 0.1f, 500.0f));
 
 	ZHComponent planeGraphicsComp = ZAssets::ComponentManager()->CreateIn(ZComponentType::Graphics, plane);
 	ZHModel planeModel = ZAssets::ModelManager()->Create(ZModelType::Cube);
