@@ -37,4 +37,4 @@ Take a look at the **[Zenith Wiki](https://github.com/gitbetter/Zenith/wiki)** f
 Zenith is available under the MIT License, and therefore anyone is free to fork the project and modify it to their hearts content as long as they maintain attributions to the original author of the project.
 
 ## Contributing
-If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master, as it is easier for me to integrate changes selectively if need be. If you have any inquiries or particularly nice ideas, feel free to contact me via [my Twitter](https://twitter.com/AdrianS43153229)
+If you wish to contribute to this project (at which you have my many thanks), please submit any pull requests you may have to the Gold branch and not master, as it is easier for me to integrate changes selectively if need be.
